@@ -66,6 +66,7 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/reports',      roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },
   { prefix: '/report-hub',   roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager', 'Supervisor'] },
   { prefix: '/case-manager', roles: CASE_MANAGER_ROLES },
+  { prefix: '/hierarchy',    roles: [...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'CaseManager', 'Viewer'] },
   { prefix: '/responder',    roles: [...RESPONDER_ROLES, ...ADMIN_ROLES] },
   { prefix: '/shift',        roles: [...RESPONDER_ROLES, ...ADMIN_ROLES, 'Supervisor'] },
   { prefix: '/police',       roles: [...POLICE_ROLES, ...ADMIN_ROLES, 'Responder'], silo: 'MetroPolice' },

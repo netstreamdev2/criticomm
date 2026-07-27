@@ -7,7 +7,7 @@ import {
   LayoutDashboard, PhoneCall, Radio, MapPinned, ShieldAlert, FlameKindling, Stethoscope,
   Mountain, FileText, Camera, Users, ClipboardCheck, BarChart3, Settings, ListChecks,
   CalendarClock, Bell, Briefcase, GraduationCap, Gauge, FolderClosed, Map, Bot, Menu, X,
-  RadioTower, Filter, SlidersHorizontal, IdCard, Target,
+  RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network,
 } from 'lucide-react';
 import { canAccess, type Silo, type UserRole } from '@criticom/db';
 import { cn } from '@/lib/utils';
@@ -26,6 +26,7 @@ const ITEMS: Array<Item | Divider> = [
   { href: '/reports',               label: 'Reports Archive',     icon: FileText },
   { href: '/report-hub',            label: 'Report Hub',          icon: Filter },
   { href: '/case-manager',          label: 'Case Manager',        icon: FolderClosed },
+  { href: '/hierarchy',             label: 'Dept Hierarchy',      icon: Network },
   { href: '/dispatch/ptt',          label: 'PTT Radio',           icon: RadioTower },
   { href: '/notifications',         label: 'Notifications',       icon: Bell },
   { divider: 'Responder' },

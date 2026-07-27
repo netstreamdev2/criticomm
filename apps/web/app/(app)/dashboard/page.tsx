@@ -1,176 +1,365 @@
 import Link from 'next/link';
-import { getDispatcherKpis, listActiveIncidents, getMyPerformance } from '@criticom/api';
-import { DISPATCH_ROLES, RESPONDER_ROLES, ADMIN_ROLES } from '@criticom/db';
+import {
+  getDispatcherKpis, listActiveIncidents, listPendingIncidents, listClosedIncidents,
+  getMyPersonnel, listMyAssignedIncidents, hasCompletedShiftStartToday, getMyPerformance,
+  listPersonnel, getUnitCompliance, listAllProfiles, listApparatus, listDevices,
+} from '@criticom/api';
+import {
+  ADMIN_ROLES, DISPATCH_ROLES, RESPONDER_ROLES, type Silo, type UserRole,
+} from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { HourlyAreaChart, SeverityDonut } from '@/components/charts';
+import { QuickLinks } from '@/components/quick-links';
 import { getSession, siloFilter } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Dashboard · Criticom' };
 
+type Persona = 'admin' | 'command' | 'supervisor' | 'responder' | 'casemanager' | 'viewer';
+const SUPERVISOR_ROLES: UserRole[] = ['Supervisor', 'Captain', 'FireChief', 'Chief'];
+
+function resolvePersona(role: UserRole): Persona {
+  if (ADMIN_ROLES.includes(role)) return 'admin';
+  if (SUPERVISOR_ROLES.includes(role)) return 'supervisor';
+  if (role === 'CaseManager') return 'casemanager';
+  if (RESPONDER_ROLES.includes(role)) return 'responder';
+  if (DISPATCH_ROLES.includes(role) || role === 'System') return 'command';
+  return 'viewer';
+}
+
+const SILO_OPS: Record<Exclude<Silo, 'Ethekwini'>, { href: string; label: string; icon: string }> = {
+  MetroPolice: { href: '/police', label: 'Police Operations', icon: 'ShieldAlert' },
+  MetroFire: { href: '/fire', label: 'Fire & Rescue', icon: 'FlameKindling' },
+  Medical: { href: '/medical', label: 'EMS / Medical', icon: 'Stethoscope' },
+  EthekwiniDisaster: { href: '/disaster', label: 'Disaster Mgmt', icon: 'Mountain' },
+};
+
+type Link = { href: string; label: string; desc: string; icon: string; tone?: string };
+
+const LINKS: Record<Persona, Link[]> = {
+  command: [
+    { href: '/dispatch/log-call', label: 'Log Incoming Call', desc: 'Capture a new 911 call', icon: 'PhoneCall', tone: 'bg-severity-critical/15 text-severity-critical' },
+    { href: '/dispatch/pending', label: 'Pending Queue', desc: 'Calls awaiting dispatch', icon: 'ListChecks' },
+    { href: '/incidents/map', label: 'Live Map', desc: 'Incidents + units in realtime', icon: 'Map' },
+    { href: '/dispatch/kpi', label: 'KPI Dashboard', desc: 'Operational metrics', icon: 'BarChart3' },
+    { href: '/incidents', label: 'All Incidents', desc: 'Search the full log', icon: 'MapPinned' },
+    { href: '/report-hub', label: 'Report Hub', desc: 'Filtered reporting + export', icon: 'Filter' },
+    { href: '/dispatch/ptt', label: 'PTT Radio', desc: 'Text-to-radio + audio log', icon: 'RadioTower' },
+    { href: '/case-manager', label: 'Case Manager', desc: 'Review & close cases', icon: 'FolderClosed' },
+  ],
+  responder: [
+    { href: '/responder', label: 'My Incidents', desc: 'Jobs assigned to my unit', icon: 'Radio', tone: 'bg-accent/15 text-accent' },
+    { href: '/shift/mental-check', label: 'Start of Shift', desc: 'Readiness + vehicle check', icon: 'ClipboardCheck' },
+    { href: '/shift/unit-compliance', label: 'Unit Compliance', desc: 'Today’s checks', icon: 'Gauge' },
+    { href: '/performance/mine', label: 'My Performance', desc: 'My throughput + appraisal', icon: 'Target' },
+    { href: '/roster', label: 'Roster', desc: 'My duty allocation', icon: 'CalendarClock' },
+    { href: '/leave', label: 'Leave', desc: 'Apply / view requests', icon: 'Briefcase' },
+    { href: '/profile/my-hr', label: 'My HR', desc: 'Personal HR portal', icon: 'IdCard' },
+  ],
+  supervisor: [
+    { href: '/roster', label: 'Roster', desc: 'Allocate duty + endorsements', icon: 'CalendarClock', tone: 'bg-severity-medium/15 text-severity-medium' },
+    { href: '/roster/duty-sheet', label: 'Duty Sheet', desc: 'Printable parade sheet', icon: 'IdCard' },
+    { href: '/shift/unit-compliance', label: 'Unit Compliance', desc: 'Team readiness today', icon: 'Gauge' },
+    { href: '/performance/operational', label: 'Operational KPIs', desc: 'Team throughput', icon: 'BarChart3' },
+    { href: '/performance/plans', label: 'Appraisals', desc: 'Mid-year & final scoring', icon: 'Target' },
+    { href: '/leave', label: 'Leave Approvals', desc: 'Approve / reject requests', icon: 'Briefcase' },
+    { href: '/hierarchy', label: 'Dept Hierarchy', desc: 'Chain of command', icon: 'Network' },
+    { href: '/training', label: 'Training', desc: 'Records & certifications', icon: 'GraduationCap' },
+  ],
+  casemanager: [
+    { href: '/case-manager', label: 'Case Manager', desc: 'Open cases to close', icon: 'FolderClosed', tone: 'bg-accent/15 text-accent' },
+    { href: '/incidents', label: 'All Incidents', desc: 'Search the full log', icon: 'MapPinned' },
+    { href: '/reports', label: 'Reports Archive', desc: 'Closed & resolved', icon: 'FileText' },
+    { href: '/report-hub', label: 'Report Hub', desc: 'Filtered reporting + export', icon: 'Filter' },
+    { href: '/hierarchy', label: 'Dept Hierarchy', desc: 'Chain of command', icon: 'Network' },
+    { href: '/case-manager/audit', label: 'Audit Trail', desc: 'Every state change', icon: 'Activity' },
+  ],
+  admin: [
+    { href: '/admin', label: 'Administration', desc: 'Users & roles', icon: 'Users', tone: 'bg-primary/15 text-primary' },
+    { href: '/admin/config', label: 'Configuration', desc: 'Categories, leave & shift types', icon: 'SlidersHorizontal' },
+    { href: '/admin/personnel', label: 'Personnel', desc: 'Operational staff register', icon: 'IdCard' },
+    { href: '/admin/vehicles', label: 'Fleet', desc: 'Apparatus register', icon: 'RadioTower' },
+    { href: '/admin/devices', label: 'Devices', desc: 'MDTs, radios, tablets', icon: 'Radio' },
+    { href: '/analytics', label: 'Analytics', desc: 'System-wide trends', icon: 'BarChart3' },
+    { href: '/dispatch/kpi', label: 'KPI Dashboard', desc: 'Live operational metrics', icon: 'BarChart3' },
+    { href: '/case-manager/audit', label: 'Audit Log', desc: 'System audit trail', icon: 'Activity' },
+  ],
+  viewer: [
+    { href: '/incidents', label: 'All Incidents', desc: 'Read-only incident log', icon: 'MapPinned' },
+    { href: '/incidents/map', label: 'Live Map', desc: 'Incidents + units', icon: 'Map' },
+    { href: '/reports', label: 'Reports Archive', desc: 'Closed & resolved', icon: 'FileText' },
+    { href: '/analytics', label: 'Analytics', desc: 'Trends & statistics', icon: 'BarChart3' },
+  ],
+};
+
+const PERSONA_TITLE: Record<Persona, string> = {
+  admin: 'System Administration', command: 'Command Centre', supervisor: 'Supervisor Console',
+  responder: 'Responder Portal', casemanager: 'Case Management', viewer: 'Operations Overview',
+};
+
+function Tile({ label, value, accent = 'text-white' }: { label: string; value: React.ReactNode; accent?: string }) {
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+        <p className={`mt-2 text-3xl font-bold ${accent}`}>{value}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ActiveIncidentsPanel({ rows }: { rows: Awaited<ReturnType<typeof listActiveIncidents>> }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Active incidents ({rows.length})</CardTitle>
+        <CardDescription>Dispatched, en route, on scene or transporting — updates in realtime.</CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <SimpleTable headers={['Incident', 'Type', 'Severity', 'Status', 'Location', 'Logged', '']} empty="No active incidents.">
+          {rows.slice(0, 10).map((i) => (
+            <Tr key={i.id}>
+              <Td className="font-mono">{i.incident_number}</Td>
+              <Td>{i.incident_type}</Td>
+              <Td><span className="severity-pill" data-sev={i.incident_severity}>{i.incident_severity}</span></Td>
+              <Td><span className="status-badge" data-status={i.status}>{i.status}</span></Td>
+              <Td className="max-w-[240px] truncate">{i.location_address}</Td>
+              <Td className="text-muted-foreground">{timeAgo(i.incident_created_at)}</Td>
+              <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">Open</Link></Td>
+            </Tr>
+          ))}
+        </SimpleTable>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default async function DashboardPage() {
   const { supabase, silo, role, fullName, userId } = await getSession();
-
-  const isFieldRole = RESPONDER_ROLES.includes(role);
-  const now = new Date();
-  const cycleStart = now.getMonth() >= 6
-    ? new Date(now.getFullYear(), 6, 1)
-    : new Date(now.getFullYear() - 1, 6, 1);
-
-  const [kpi, active, myPerf] = await Promise.all([
-    getDispatcherKpis(supabase, siloFilter(silo)),
-    listActiveIncidents(supabase, siloFilter(silo)),
-    isFieldRole
-      ? getMyPerformance(supabase, {
-          from: cycleStart.toISOString().slice(0, 10),
-          to: new Date(now.getTime() + 86400000).toISOString().slice(0, 10),
-          displayName: fullName, userId, silo,
-        }).catch(() => null)
-      : Promise.resolve(null),
-  ]);
-
-  const tiles = [
-    { label: 'Active deployments', value: kpi.activeDeployments, accent: 'text-accent' },
-    { label: 'Critical alerts today', value: kpi.criticalAlertsToday, accent: 'text-severity-critical' },
-    { label: 'Total calls today', value: kpi.totalIncidentsToday, accent: 'text-white' },
-    { label: 'Personnel on duty', value: kpi.personnelOnDuty, accent: 'text-severity-low' },
-    { label: 'Avg response (min)', value: kpi.avgResponseTime, accent: 'text-severity-medium' },
-  ];
-
-  const hourlyData = Array.from({ length: 24 }, (_, h) => ({
-    hour: `${String(h).padStart(2, '0')}:00`,
-    calls: kpi.hourlyDistribution?.[h] ?? 0,
-  }));
-  const severityData = (['Low', 'Medium', 'High', 'Critical'] as const).map((name, i) => ({
-    name, value: kpi.priorityData?.[i] ?? 0,
-  }));
-
-  // Role-aware quick actions (mirrors each V4 role's landing workflow)
-  const actions: Array<{ href: string; label: string }> = [];
-  if (DISPATCH_ROLES.includes(role)) {
-    actions.push(
-      { href: '/dispatch/log-call', label: '📞 Log incoming call' },
-      { href: '/dispatch/pending', label: '🗂 Pending queue' },
-      { href: '/incidents/map', label: '🗺 Live map' },
-    );
-  }
-  if (RESPONDER_ROLES.includes(role)) {
-    actions.push(
-      { href: '/responder', label: '🚨 My incidents' },
-      { href: '/shift/mental-check', label: '✅ Start of shift' },
-    );
-  }
-  if (ADMIN_ROLES.includes(role)) {
-    actions.push({ href: '/admin', label: '⚙️ Administration' });
-  }
-  if (actions.length === 0) {
-    actions.push({ href: '/incidents', label: '📋 Browse incidents' });
-  }
+  const persona = resolvePersona(role);
+  const sf = siloFilter(silo);
+  const first = fullName.split(' ')[0];
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Command Centre</h1>
-          <p className="text-muted-foreground">Welcome back, {fullName.split(' ')[0]}. Live operations overview.</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {actions.map((a) => (
-            <Link
-              key={a.href}
-              href={a.href}
-              className="rounded-md border border-border bg-bg-soft px-3 py-2 text-sm font-semibold hover:bg-muted"
-            >
-              {a.label}
-            </Link>
-          ))}
-        </div>
-      </header>
-
-      {myPerf && (
-        <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-transparent">
-          <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Officer portal · {myPerf.cycleLabel}</p>
-              <p className="mt-1 text-lg font-bold">{fullName}</p>
-              <p className="text-sm text-muted-foreground">
-                Volume rank #{myPerf.rankByVolume} of {myPerf.teamSize} ·{' '}
-                appraisal {myPerf.hasPlan ? myPerf.planStatus : 'not started'}
-              </p>
-            </div>
-            <div className="flex gap-6 text-center">
-              <div><p className="text-2xl font-bold text-accent">{myPerf.asResponder.total}</p><p className="text-xs text-muted-foreground">Attended</p></div>
-              <div><p className="text-2xl font-bold">{myPerf.asResponder.closed}</p><p className="text-xs text-muted-foreground">Closed</p></div>
-              <div><p className="text-2xl font-bold text-severity-medium">{myPerf.finalAverage ?? myPerf.midYearAverage ?? '—'}</p><p className="text-xs text-muted-foreground">Appraisal /5</p></div>
-            </div>
-            <Link href="/performance/mine" className="rounded-md border border-border bg-bg-soft px-4 py-2 text-sm font-semibold hover:bg-muted">
-              My performance →
-            </Link>
-          </CardContent>
-        </Card>
-      )}
-
-      <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        {tiles.map((t) => (
-          <Card key={t.label}>
-            <CardContent className="p-4">
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">{t.label}</p>
-              <p className={`mt-2 text-3xl font-bold ${t.accent}`}>{t.value}</p>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Hero */}
+      <section className="overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-primary/15 via-bg-card to-bg-soft p-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">{PERSONA_TITLE[persona]}</p>
+        <h1 className="mt-1 text-2xl font-bold">Welcome back, {first}</h1>
+        <p className="text-sm text-muted-foreground">
+          {role} · {silo} · live operations for your role.
+        </p>
       </section>
+
+      {/* Quick links — "all those links and so forth", tailored per role */}
+      <section className="space-y-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
+        <QuickLinks links={LINKS[persona]} role={role} silo={silo} />
+      </section>
+
+      {/* Persona-specific body */}
+      {(persona === 'command' || persona === 'admin' || persona === 'viewer') && (
+        <CommandBody supabase={supabase} sf={sf} persona={persona} />
+      )}
+      {persona === 'supervisor' && <SupervisorBody supabase={supabase} sf={sf} />}
+      {persona === 'responder' && (
+        <ResponderBody supabase={supabase} userId={userId} silo={silo} fullName={fullName} />
+      )}
+      {persona === 'casemanager' && <CaseManagerBody supabase={supabase} sf={sf} />}
+    </div>
+  );
+}
+
+// ── Command / Admin / Viewer body ────────────────────────────────────
+async function CommandBody({
+  supabase, sf, persona,
+}: {
+  supabase: Awaited<ReturnType<typeof getSession>>['supabase']; sf: Silo | undefined; persona: Persona;
+}) {
+  const [kpi, active, pending, adminCounts] = await Promise.all([
+    getDispatcherKpis(supabase, sf),
+    listActiveIncidents(supabase, sf),
+    listPendingIncidents(supabase, sf),
+    persona === 'admin'
+      ? Promise.all([
+          listAllProfiles(supabase, sf).then((r) => r.length),
+          listApparatus(supabase, sf).then((r) => r.length),
+          listDevices(supabase, sf).then((r) => r.length),
+        ])
+      : Promise.resolve(null),
+  ]);
+
+  const hourly = Array.from({ length: 24 }, (_, h) => ({ hour: `${String(h).padStart(2, '0')}:00`, calls: kpi.hourlyDistribution?.[h] ?? 0 }));
+  const severity = (['Low', 'Medium', 'High', 'Critical'] as const).map((name, i) => ({ name, value: kpi.priorityData?.[i] ?? 0 }));
+
+  return (
+    <>
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+        <Tile label="Active deployments" value={kpi.activeDeployments} accent="text-accent" />
+        <Tile label="Pending dispatch" value={pending.length} accent="text-severity-medium" />
+        <Tile label="Critical today" value={kpi.criticalAlertsToday} accent="text-severity-critical" />
+        <Tile label="Total calls today" value={kpi.totalIncidentsToday} />
+        <Tile label="Personnel on duty" value={kpi.personnelOnDuty} accent="text-severity-low" />
+      </section>
+
+      {adminCounts && (
+        <section className="grid grid-cols-3 gap-3">
+          <Tile label="Users" value={adminCounts[0]} />
+          <Tile label="Fleet vehicles" value={adminCounts[1]} />
+          <Tile label="Devices" value={adminCounts[2]} />
+        </section>
+      )}
 
       <section className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Call volume — today</CardTitle>
-            <CardDescription>Hourly distribution across visible silos.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <HourlyAreaChart data={hourlyData} />
-          </CardContent>
+          <CardHeader><CardTitle>Call volume — today</CardTitle><CardDescription>Hourly distribution.</CardDescription></CardHeader>
+          <CardContent><HourlyAreaChart data={hourly} /></CardContent>
         </Card>
-
         <Card>
-          <CardHeader>
-            <CardTitle>Severity mix</CardTitle>
-            <CardDescription>All calls by priority.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SeverityDonut data={severityData} />
-          </CardContent>
+          <CardHeader><CardTitle>Severity mix</CardTitle><CardDescription>All calls by priority.</CardDescription></CardHeader>
+          <CardContent><SeverityDonut data={severity} /></CardContent>
         </Card>
       </section>
 
+      <ActiveIncidentsPanel rows={active} />
+    </>
+  );
+}
+
+// ── Supervisor body ──────────────────────────────────────────────────
+async function SupervisorBody({
+  supabase, sf,
+}: {
+  supabase: Awaited<ReturnType<typeof getSession>>['supabase']; sf: Silo | undefined;
+}) {
+  const [kpi, active, personnel, compliance] = await Promise.all([
+    getDispatcherKpis(supabase, sf),
+    listActiveIncidents(supabase, sf),
+    listPersonnel(supabase, sf),
+    getUnitCompliance(supabase, sf).catch(() => ({ mentalChecks: [], vehicleChecklists: [] })),
+  ]);
+  const onDuty = personnel.filter((p) => p.is_on_duty).length;
+
+  return (
+    <>
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Tile label="Team members" value={personnel.length} />
+        <Tile label="On duty now" value={onDuty} accent="text-severity-low" />
+        <Tile label="Readiness checks today" value={compliance.mentalChecks.length} accent="text-accent" />
+        <Tile label="Active incidents" value={active.length} accent="text-severity-medium" />
+      </section>
+      <ActiveIncidentsPanel rows={active} />
+    </>
+  );
+}
+
+// ── Responder body ───────────────────────────────────────────────────
+async function ResponderBody({
+  supabase, userId, silo, fullName,
+}: {
+  supabase: Awaited<ReturnType<typeof getSession>>['supabase']; userId: string; silo: Silo; fullName: string;
+}) {
+  const now = new Date();
+  const cycleStart = now.getMonth() >= 6 ? new Date(now.getFullYear(), 6, 1) : new Date(now.getFullYear() - 1, 6, 1);
+
+  const me = await getMyPersonnel(supabase, userId).catch(() => null);
+  const [mine, shiftDone, perf] = await Promise.all([
+    listMyAssignedIncidents(supabase, me?.assigned_apparatus_id ?? null),
+    hasCompletedShiftStartToday(supabase).catch(() => false),
+    getMyPerformance(supabase, {
+      from: cycleStart.toISOString().slice(0, 10),
+      to: new Date(now.getTime() + 86400000).toISOString().slice(0, 10),
+      displayName: fullName, userId, silo,
+    }).catch(() => null),
+  ]);
+
+  return (
+    <>
+      {!shiftDone && (
+        <Link href="/shift/mental-check" className="block rounded-xl border border-severity-medium/40 bg-severity-medium/10 p-4 text-sm font-semibold text-severity-medium hover:bg-severity-medium/20">
+          ⚠ Start-of-shift checks pending — complete your readiness & vehicle inspection to go on duty →
+        </Link>
+      )}
+
+      {perf && (
+        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <Tile label="Assigned to me" value={mine.length} accent="text-accent" />
+          <Tile label="Attended (cycle)" value={perf.asResponder.total} />
+          <Tile label="Closed" value={perf.asResponder.closed} accent="text-severity-low" />
+          <Tile label="Appraisal /5" value={perf.finalAverage ?? perf.midYearAverage ?? '—'} accent="text-severity-medium" />
+        </section>
+      )}
+
       <Card>
         <CardHeader>
-          <CardTitle>Active incidents ({active.length})</CardTitle>
+          <CardTitle>My incidents ({mine.length})</CardTitle>
           <CardDescription>
-            Everything currently dispatched, en route, on scene, or transporting. Updates in realtime.
+            {me ? `Unit ${me.apparatus?.unit_number ?? '—'} · ${me.is_on_duty ? 'On duty' : 'Off duty'}` : 'No personnel record linked to your account.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable
-            headers={['Incident', 'Type', 'Severity', 'Status', 'Location', 'Logged', '']}
-            empty="No active incidents."
-          >
-            {active.slice(0, 12).map((i) => (
+          <SimpleTable headers={['Incident', 'Type', 'Severity', 'Status', 'Location', '']} empty="No incidents assigned to your unit.">
+            {mine.map((i) => (
               <Tr key={i.id}>
                 <Td className="font-mono">{i.incident_number}</Td>
                 <Td>{i.incident_type}</Td>
                 <Td><span className="severity-pill" data-sev={i.incident_severity}>{i.incident_severity}</span></Td>
                 <Td><span className="status-badge" data-status={i.status}>{i.status}</span></Td>
-                <Td className="max-w-[260px] truncate">{i.location_address}</Td>
-                <Td className="text-muted-foreground">{timeAgo(i.incident_created_at)}</Td>
+                <Td className="max-w-[240px] truncate">{i.location_address}</Td>
                 <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">Open</Link></Td>
               </Tr>
             ))}
           </SimpleTable>
         </CardContent>
       </Card>
-    </div>
+    </>
+  );
+}
+
+// ── Case manager body ────────────────────────────────────────────────
+async function CaseManagerBody({
+  supabase, sf,
+}: {
+  supabase: Awaited<ReturnType<typeof getSession>>['supabase']; sf: Silo | undefined;
+}) {
+  const [active, closed] = await Promise.all([
+    listActiveIncidents(supabase, sf),
+    listClosedIncidents(supabase, sf),
+  ]);
+  const today = new Date().toISOString().slice(0, 10);
+  const closedToday = closed.filter((i) => i.closed_at?.startsWith(today)).length;
+
+  return (
+    <>
+      <section className="grid grid-cols-3 gap-3">
+        <Tile label="Open cases" value={active.length} accent="text-severity-medium" />
+        <Tile label="Closed today" value={closedToday} accent="text-severity-low" />
+        <Tile label="Closed total" value={closed.length} />
+      </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Open cases ({active.length})</CardTitle>
+          <CardDescription>Review and close — click through for the full lifecycle.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <SimpleTable headers={['Incident', 'Silo', 'Type', 'Severity', 'Status', 'Age', '']} empty="No open cases.">
+            {active.slice(0, 12).map((i) => (
+              <Tr key={i.id}>
+                <Td className="font-mono">{i.incident_number}</Td>
+                <Td>{i.silo}</Td>
+                <Td>{i.incident_type}</Td>
+                <Td><span className="severity-pill" data-sev={i.incident_severity}>{i.incident_severity}</span></Td>
+                <Td>{i.status}</Td>
+                <Td className="text-muted-foreground">{timeAgo(i.incident_created_at)}</Td>
+                <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">Review</Link></Td>
+              </Tr>
+            ))}
+          </SimpleTable>
+        </CardContent>
+      </Card>
+    </>
   );
 }
