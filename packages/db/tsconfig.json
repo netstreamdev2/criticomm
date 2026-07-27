@@ -1,0 +1,4 @@
+{
+  "extends": "@criticom/config/tsconfig.base.json",
+  "include": ["src/**/*"]
+}

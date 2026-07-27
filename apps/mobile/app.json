@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "Criticom Responder",
+    "slug": "criticom-responder",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "criticom",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "backgroundColor": "#0b1220",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "za.co.ethekwini.criticom",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Criticom shares your live position with dispatch while you are on duty.",
+        "NSCameraUsageDescription": "Capture incident-scene evidence photos.",
+        "NSMicrophoneUsageDescription": "Record voice notes as incident evidence."
+      }
+    },
+    "android": {
+      "package": "za.co.ethekwini.criticom",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "RECORD_AUDIO"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        { "locationWhenInUsePermission": "Criticom shares your live position with dispatch while you are on duty." }
+      ],
+      [
+        "expo-image-picker",
+        { "photosPermission": "Attach photos from your library as incident evidence." }
+      ]
+    ],
+    "experiments": { "typedRoutes": false }
+  }
+}

@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+
+body {
+  background-color: theme('colors.bg.DEFAULT');
+  color: white;
+  font-family: theme('fontFamily.sans');
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbars ─────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.border.DEFAULT') transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: theme('colors.border.DEFAULT'); border-radius: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* ── Focus rings (keyboard a11y) ────────────────────────────── */
+:focus-visible {
+  outline: 2px solid theme('colors.accent.DEFAULT');
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Severity pills ─────────────────────────────────────────── */
+.severity-pill {
+  @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide;
+}
+.severity-pill[data-sev='Critical'] { @apply bg-severity-critical text-white; }
+.severity-pill[data-sev='High']     { @apply bg-severity-high text-white; }
+.severity-pill[data-sev='Medium']   { @apply bg-severity-medium text-black; }
+.severity-pill[data-sev='Low']      { @apply bg-severity-low text-white; }
+
+/* ── Status badges ──────────────────────────────────────────── */
+.status-badge {
+  @apply inline-flex items-center gap-1.5 rounded-md border border-border bg-bg-soft px-2.5 py-1 text-xs font-semibold;
+}
+.status-badge::before {
+  content: '';
+  @apply h-1.5 w-1.5 rounded-full bg-muted-foreground;
+}
+.status-badge[data-status='Dispatched']::before,
+.status-badge[data-status='En Route']::before   { @apply bg-accent; }
+.status-badge[data-status='Arrived']::before,
+.status-badge[data-status='On Scene']::before,
+.status-badge[data-status='Active']::before      { @apply bg-severity-medium; }
+.status-badge[data-status='Transporting']::before { @apply bg-severity-high; }
+.status-badge[data-status='Closed']::before,
+.status-badge[data-status='Resolved']::before    { @apply bg-severity-low; }
+
+/* ── Toast animations ───────────────────────────────────────── */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.toast-enter { animation: toast-in 180ms ease-out; }
+
+/* ── Leaflet dark-theme fit ─────────────────────────────────── */
+.leaflet-container {
+  @apply rounded-lg border border-border;
+  background: theme('colors.bg.soft');
+}
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: theme('colors.bg.card');
+  color: white;
+}
+
+/* ── Print (case reports) ───────────────────────────────────── */
+@media print {
+  aside, header, form, button, .no-print { display: none !important; }
+  body { background: white; color: black; }
+  main { padding: 0 !important; }
+}

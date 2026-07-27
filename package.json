@@ -1,0 +1,42 @@
+{
+  "name": "criticom-v5",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "clean": "turbo clean && rm -rf node_modules",
+    "format": "biome format --write .",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:push": "supabase db push",
+    "db:gen-types": "supabase gen types typescript --local > packages/db/src/types.generated.ts",
+    "db:seed-dev": "psql \"$SUPABASE_DB_URL\" -f supabase/seed/dev.sql",
+    "db:load-crime": "node scripts/load-crime-stats.mjs",
+    "db:create-admin": "node scripts/create-admin.mjs",
+    "db:seed": "node scripts/seed-all.mjs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.7.4",
+    "supabase": "^1.200.3",
+    "turbo": "^2.1.3",
+    "typescript": "^5.6.3",
+    "@supabase/supabase-js": "^2.110.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0"
+    }
+  }
+}
