@@ -70,9 +70,47 @@ body {
   color: white;
 }
 
+/* ── Org-chart tree (department hierarchy) ──────────────────── */
+.org-tree { overflow-x: auto; }
+.org-tree ul { display: flex; justify-content: center; padding-top: 24px; position: relative; }
+.org-tree li {
+  list-style: none; position: relative; padding: 24px 12px 0; text-align: center;
+}
+/* down + horizontal connectors */
+.org-tree li::before, .org-tree li::after {
+  content: ''; position: absolute; top: 0; right: 50%;
+  border-top: 2px solid theme('colors.border.DEFAULT'); width: 50%; height: 24px;
+}
+.org-tree li::after {
+  right: auto; left: 50%;
+  border-left: 2px solid theme('colors.border.DEFAULT');
+}
+.org-tree li:only-child::before, .org-tree li:only-child::after { display: none; }
+.org-tree li:only-child { padding-top: 24px; }
+.org-tree li:first-child::before, .org-tree li:last-child::after { border: 0 none; }
+.org-tree li:last-child::before {
+  border-right: 2px solid theme('colors.border.DEFAULT');
+  border-radius: 0 6px 0 0;
+}
+.org-tree li:first-child::after { border-radius: 6px 0 0 0; }
+.org-tree ul ul::before {
+  content: ''; position: absolute; top: 0; left: 50%;
+  border-left: 2px solid theme('colors.border.DEFAULT'); width: 0; height: 24px;
+}
+.org-tree > ul { padding-top: 0; }
+.org-tree > ul > li:only-child { padding-top: 0; }
+.org-tree > ul > li::before, .org-tree > ul > li::after { display: none; }
+
 /* ── Print (case reports) ───────────────────────────────────── */
 @media print {
   aside, header, form, button, .no-print { display: none !important; }
   body { background: white; color: black; }
   main { padding: 0 !important; }
+
+  /* Org chart prints legibly on white paper */
+  .org-tree { overflow: visible !important; }
+  .org-tree a { background: #fff !important; border-color: #333 !important; }
+  .org-tree a, .org-tree a * { color: #000 !important; }
+  .org-tree a span.rounded-full { background: #e5e7eb !important; color: #000 !important; }
+  .org-tree li::before, .org-tree li::after, .org-tree ul ul::before { border-color: #333 !important; }
 }

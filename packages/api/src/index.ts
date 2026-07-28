@@ -12,3 +12,4 @@ export * from './notifications/index';
 export * from './config/index';
 export * from './endorsements/index';
 export * from './performance/index';
+export * from './hierarchy/index';

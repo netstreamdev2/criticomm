@@ -1160,6 +1160,21 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['performance_plans']['Row']>;
         Relationships: [];
       };
+      reporting_lines: {
+        Row: {
+          id: string;
+          silo: Silo;
+          member_kind: string;
+          member_id: string;
+          manager_kind: string | null;
+          manager_id: string | null;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['reporting_lines']['Row']> & { silo: Silo; member_kind: string; member_id: string };
+        Update: Partial<Database['public']['Tables']['reporting_lines']['Row']>;
+        Relationships: [];
+      };
       performance_scores: {
         Row: {
           id: string;
