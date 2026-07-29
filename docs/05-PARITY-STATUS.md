@@ -99,6 +99,18 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 - `/api/push/notify` — Expo push fanout to the departments a call was routed to (service-role read of `push_tokens`)
 - `/api/integrations/test/[key]` — per-integration connection probe, admin-only
 
+## Operational tuning (V5 addition)
+
+Admin → **Operations Settings** exposes the service's knobs without a deploy: intake-clock
+warn/critical thresholds, dashboard SLA gauge targets, which severity interrupts with a blocking
+pop-up, alert sound on/off, toast duration, the ETA model (speed + road factor), default basemap,
+and ops-board feed/volume windows. The catalogue lives in `packages/api/src/settings` — each knob
+declares its type, bounds, default and description, and the admin page renders from the catalogue,
+so adding a future knob is one entry there. Values are stored as overrides in `app_settings`
+(admin-write, everyone-read RLS), validated and clamped on read and write, and every change or
+reset is audit-logged. If the table is unreachable the code defaults apply — a tuning problem can
+never take a screen down.
+
 ## Alerting (V5 addition — V4 had SignalR toasts only)
 
 `alerts` rows are the "tell a human now" channel. `route_incident(incident, silos[])` writes one

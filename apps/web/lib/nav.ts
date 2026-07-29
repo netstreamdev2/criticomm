@@ -95,6 +95,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/vehicles', label: 'Fleet', icon: RadioTower, keywords: 'apparatus vehicles' },
       { href: '/admin/devices', label: 'Devices', icon: Radio, keywords: 'mdt radios tablets' },
       { href: '/admin/integrations', label: 'Integrations', icon: PlugZap, keywords: 'api keys gemini bulksms realptt tomtom feeds connections' },
+      { href: '/admin/operations', label: 'Operations Settings', icon: Gauge, keywords: 'sla clocks eta alert sound thresholds tuning knobs' },
       { href: '/profile', label: 'Settings', icon: Settings, keywords: 'profile account my hr' },
     ],
   },
@@ -120,6 +121,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   analytics: 'Analytics', cameras: 'Cameras', assistant: 'Assistant',
   admin: 'Administration', config: 'Configuration', personnel: 'Personnel',
   operators: 'Operators', vehicles: 'Fleet', devices: 'Devices', integrations: 'Integrations',
+  operations: 'Operations Settings',
   profile: 'Profile', 'my-hr': 'My HR', notifications: 'Notifications', dashboard: 'Dashboard',
   new: 'New',
 };

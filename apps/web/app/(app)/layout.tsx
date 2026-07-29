@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { getOperationalSettings } from '@criticom/api';
 import { getServerSupabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Sidebar } from '@/components/sidebar';
 import { Topbar } from '@/components/topbar';
@@ -46,6 +47,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const role = (user.app_metadata?.role as string | undefined) ?? 'Viewer';
   const fullName = (user.user_metadata?.full_name as string | undefined) ?? user.email ?? 'User';
 
+  // Admin-tuned alert behaviour; falls back to code defaults if unreachable.
+  const settings = await getOperationalSettings(supabase);
+
   return (
     <ToastProvider>
       <div className="min-h-screen lg:grid lg:grid-cols-[264px_1fr]">
@@ -55,7 +59,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <main className="flex-1 bg-bg p-4 sm:p-6">{children}</main>
         </div>
         <CommandPalette silo={silo} role={role} />
-        <AlertCenter silo={silo} role={role} userId={user.id} />
+        <AlertCenter
+          silo={silo}
+          role={role}
+          userId={user.id}
+          tuning={{
+            modalMinSeverity: settings['alerts.modal_min_severity'],
+            soundEnabled: settings['alerts.sound_enabled'],
+            toastSeconds: settings['alerts.toast_seconds'],
+          }}
+        />
         <AssistantDock fullName={fullName} role={role} silo={silo} />
       </div>
     </ToastProvider>

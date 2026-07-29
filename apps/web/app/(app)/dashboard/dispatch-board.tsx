@@ -3,7 +3,9 @@ import {
   AlertCircle, AlertTriangle, Ambulance, CheckCircle2, MapPin, Navigation,
   Radio, Satellite, Smartphone, Timer, Truck, Zap,
 } from 'lucide-react';
-import { getDispatcherKpis, listActiveIncidents, listPendingIncidents } from '@criticom/api';
+import {
+  getDispatcherKpis, getOperationalSettings, listActiveIncidents, listPendingIncidents,
+} from '@criticom/api';
 import type { Database, Silo } from '@criticom/db';
 import { Card, CardContent } from '@/components/ui/card';
 import { LeafletMap, type MapMarker } from '@/components/leaflet-map';
@@ -76,15 +78,19 @@ function MiniBars({ counts }: { counts: number[] }) {
 /* ── The board ──────────────────────────────────────────────────────── */
 
 export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: Silo | undefined }) {
+  // Admin-tuned knobs (Admin → Operations Settings) shape the whole board.
+  const settings = await getOperationalSettings(supabase);
+  const volumeDays = settings['board.volume_days'];
+
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
-  const tenDaysAgo = new Date(todayStart.getTime() - 9 * 86_400_000);
+  const tenDaysAgo = new Date(todayStart.getTime() - (volumeDays - 1) * 86_400_000);
 
   const feedQ = supabase
     .from('incidents')
     .select('id, incident_number, incident_type, incident_severity, status, location_address, updated_at')
     .order('updated_at', { ascending: false })
-    .limit(6);
+    .limit(settings['board.feed_items']);
   const totalQ = supabase.from('incidents').select('id', { count: 'exact', head: true });
   const recentQ = supabase
     .from('incidents')
@@ -123,9 +129,10 @@ export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: 
   const critical = waiting[0];
   const wait = critical ? elapsedParts(critical.incident_created_at) : null;
 
-  // Ten-day sparkline, zero-filled so quiet days still occupy a bar.
+  // Volume sparkline over the configured window, zero-filled so quiet days
+  // still occupy a bar.
   const perDay = new Map<string, number>();
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < volumeDays; i++) {
     perDay.set(new Date(tenDaysAgo.getTime() + i * 86_400_000).toISOString().slice(0, 10), 0);
   }
   for (const row of recentRes.data ?? []) {
@@ -315,7 +322,12 @@ export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: 
             </div>
           </div>
           <div className="overflow-hidden rounded-lg border border-border">
-            <LeafletMap markers={markers} height={640} satellite pin />
+            <LeafletMap
+              markers={markers}
+              height={640}
+              satellite={settings['map.default_basemap'] === 'satellite'}
+              pin
+            />
           </div>
         </CardContent>
       </Card>
@@ -334,7 +346,7 @@ export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: 
           <CardContent className="p-6 text-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Avg response time</p>
             <p className="mt-1 text-4xl font-bold">{avgResponse}</p>
-            <Ring value={avgResponse} max={30} />
+            <Ring value={avgResponse} max={settings['sla.response_target_minutes']} />
           </CardContent>
         </Card>
 
@@ -342,7 +354,7 @@ export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: 
           <CardContent className="p-6 text-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Avg call duration</p>
             <p className="mt-1 text-4xl font-bold">{avgDuration}</p>
-            <Ring value={avgDuration} max={120} />
+            <Ring value={avgDuration} max={settings['sla.call_duration_target_minutes']} />
           </CardContent>
         </Card>
 

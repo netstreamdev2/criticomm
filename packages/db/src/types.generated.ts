@@ -309,6 +309,17 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['push_tokens']['Row']>;
         Relationships: [];
       };
+      app_settings: {
+        Row: {
+          key: string;
+          value: unknown;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['app_settings']['Row']>;
+        Update: Partial<Database['public']['Tables']['app_settings']['Row']>;
+        Relationships: [];
+      };
       integration_settings: {
         Row: {
           key: string;

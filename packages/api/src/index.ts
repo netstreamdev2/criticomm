@@ -11,6 +11,7 @@ export * from './admin/index';
 export * from './notifications/index';
 export * from './alerts/index';
 export * from './integrations/index';
+export * from './settings/index';
 export * from './config/index';
 export * from './endorsements/index';
 export * from './performance/index';

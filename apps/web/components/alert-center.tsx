@@ -23,6 +23,19 @@ const SILO_LABELS: Record<string, string> = {
 const toneFor = (severity: string): ToastTone =>
   severity === 'Critical' ? 'critical' : severity === 'High' ? 'warning' : 'info';
 
+const SEVERITY_RANK: Record<string, number> = { Low: 0, Medium: 1, High: 2, Critical: 3 };
+
+/** Admin-tuned behaviour (Admin → Operations Settings), with safe defaults. */
+export type AlertTuning = {
+  /** Lowest severity that interrupts with a blocking pop-up. */
+  modalMinSeverity: 'Critical' | 'High' | 'Medium' | 'Low';
+  soundEnabled: boolean;
+  toastSeconds: number;
+};
+const DEFAULT_TUNING: AlertTuning = {
+  modalMinSeverity: 'High', soundEnabled: true, toastSeconds: 8,
+};
+
 /**
  * The single place realtime turns into something a human notices.
  *
@@ -36,14 +49,19 @@ const toneFor = (severity: string): ToastTone =>
  * blocks the screen until acknowledged; everything else is a corner toast.
  */
 export function AlertCenter({
-  silo, role, userId,
+  silo, role, userId, tuning = DEFAULT_TUNING,
 }: {
-  silo: string; role: string; userId: string;
+  silo: string; role: string; userId: string; tuning?: AlertTuning;
 }) {
   const router = useRouter();
-  const { push, chime } = useToast();
+  const { push, chime: rawChime } = useToast();
   const [queue, setQueue] = useState<Alert[]>([]);
   const [acking, setAcking] = useState(false);
+
+  // Sound is an admin knob — a silent control room stays silent.
+  const chime: typeof rawChime = tuning.soundEnabled ? rawChime : () => {};
+  const toastMs = tuning.toastSeconds * 1000;
+  const interruptsAt = SEVERITY_RANK[tuning.modalMinSeverity] ?? 2;
 
   // Global roles hear everything; department staff only their own channel.
   const isGlobal = GLOBAL_ROLES.includes(role as UserRole) || silo === 'Ethekwini';
@@ -54,7 +72,15 @@ export function AlertCenter({
   const lastStatus = useRef(new Map<string, string>());
 
   const showAlert = useCallback((alert: Alert) => {
-    if (alert.presentation === 'modal') {
+    // The admin threshold decides what interrupts: an alert blocks the screen
+    // when its severity clears the configured bar, or when the sender demanded
+    // acknowledgement outright. Everything else is a corner toast.
+    const rank = SEVERITY_RANK[alert.severity] ?? 0;
+    const blocking = alert.requires_ack
+      || (alert.kind === 'assignment' && rank >= interruptsAt)
+      || (alert.presentation === 'modal' && rank >= interruptsAt);
+
+    if (blocking) {
       setQueue((cur) => (cur.some((a) => a.id === alert.id) ? cur : [...cur, alert]));
       chime('critical');
       return;
@@ -66,10 +92,11 @@ export function AlertCenter({
       badge: alert.severity,
       tone: alert.kind === 'assignment' ? 'dispatch' : toneFor(alert.severity),
       href: alert.link ?? undefined,
+      duration: toastMs,
     });
     chime(alert.severity === 'Critical' ? 'critical' : 'dispatch');
     void markAlertRead(getBrowserSupabase(), alert.id).catch(() => {});
-  }, [push, chime]);
+  }, [push, chime, interruptsAt, toastMs]);
 
   useEffect(() => {
     let sb;
@@ -95,6 +122,7 @@ export function AlertCenter({
         badge: incident.incident_severity,
         tone: toneFor(incident.incident_severity),
         href: `/incidents/${incident.id}`,
+        duration: toastMs,
       });
       if (incident.incident_severity === 'Critical') chime('critical');
     });

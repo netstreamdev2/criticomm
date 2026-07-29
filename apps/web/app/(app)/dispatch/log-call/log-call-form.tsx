@@ -47,8 +47,17 @@ const MED_PRIORITIES = [
   'P1 — Red (Immediate)', 'P2 — Yellow (Urgent)', 'P3 — Green (Delayed)', 'P4 — Blue (Expectant)',
 ] as const;
 
-/** Average urban response speed used for the straight-line ETA estimate. */
-const AVG_SPEED_KMH = 42;
+/** Tunables from Admin → Operations Settings, with the code defaults. */
+export type IntakeTuning = {
+  clockWarnSeconds: number;
+  clockCriticalSeconds: number;
+  etaSpeedKmh: number;
+  etaRoadFactor: number;
+};
+const DEFAULT_TUNING: IntakeTuning = {
+  clockWarnSeconds: 90, clockCriticalSeconds: 180, etaSpeedKmh: 42, etaRoadFactor: 1.35,
+};
+
 const DEPOT: Record<Department, [number, number]> = {
   // Approximate departmental control points around the metro.
   MetroPolice: [-29.8579, 31.0292],
@@ -75,9 +84,9 @@ function haversineKm(a: [number, number], b: [number, number]) {
 }
 
 export function LogCallForm({
-  defaultSilo, callTaker, categoryTree = [],
+  defaultSilo, callTaker, categoryTree = [], tuning = DEFAULT_TUNING,
 }: {
-  defaultSilo: Silo; callTaker?: string; categoryTree?: CategoryTree;
+  defaultSilo: Silo; callTaker?: string; categoryTree?: CategoryTree; tuning?: IntakeTuning;
 }) {
   const router = useRouter();
   const toast = useToast();
@@ -108,7 +117,9 @@ export function LogCallForm({
   }, []);
 
   const timerLabel = `${pad(Math.floor(elapsed / 60))}:${pad(elapsed % 60)}`;
-  const timerTone = elapsed >= 180 ? 'critical' : elapsed >= 90 ? 'warn' : 'ok';
+  const timerTone = elapsed >= tuning.clockCriticalSeconds
+    ? 'critical'
+    : elapsed >= tuning.clockWarnSeconds ? 'warn' : 'ok';
 
   /* ── Form state ─────────────────────────────────────────────────── */
   const lockedSilo = defaultSilo !== 'Ethekwini';
@@ -259,8 +270,8 @@ export function LogCallForm({
     setError(null);
     const legs = targets.map((t) => {
       const km = haversineKm(DEPOT[t], [lat, lng]);
-      // Straight-line understates road distance; 1.35 is the usual urban factor.
-      const minutes = Math.max(2, Math.round(((km * 1.35) / AVG_SPEED_KMH) * 60));
+      // Straight-line understates road distance; the road factor corrects it.
+      const minutes = Math.max(2, Math.round(((km * tuning.etaRoadFactor) / tuning.etaSpeedKmh) * 60));
       return `${SILO_LABELS[t]} ≈ ${minutes} min (${km.toFixed(1)} km)`;
     });
     setEta(legs.join('  ·  '));
@@ -727,7 +738,7 @@ export function LogCallForm({
                 <span>
                   <span className="font-semibold">Estimated response:</span> {eta}
                   <span className="mt-0.5 block text-muted-foreground">
-                    Straight-line estimate from departmental control points at {AVG_SPEED_KMH} km/h — not a routed ETA.
+                    Straight-line estimate from departmental control points at {tuning.etaSpeedKmh} km/h — not a routed ETA.
                   </span>
                 </span>
               </p>
