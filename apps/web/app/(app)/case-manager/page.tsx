@@ -89,7 +89,7 @@ export default async function CaseManagerPage({ searchParams }: { searchParams: 
       <div className="flex flex-wrap gap-2">
         {(['open', 'closed', 'all'] as const).map((v) => (
           <Link key={v} href={`/case-manager?${qs({ view: v })}`}
-            className={`rounded-md px-3 py-1.5 text-sm font-semibold ${view === v ? 'bg-primary/15 text-white' : 'text-white/60 hover:bg-muted'}`}>
+            className={`rounded-md px-3 py-1.5 text-sm font-semibold ${view === v ? 'bg-primary/15 text-fg' : 'text-fg/60 hover:bg-muted'}`}>
             {v === 'open' ? 'Open cases' : v === 'closed' ? 'Closed cases' : 'All'}
           </Link>
         ))}

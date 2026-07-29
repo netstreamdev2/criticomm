@@ -1,36 +1,37 @@
+@import './themes.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: dark; }
-
 body {
-  background-color: theme('colors.bg.DEFAULT');
-  color: white;
-  font-family: theme('fontFamily.sans');
+  background-color: rgb(var(--c-bg));
+  color: rgb(var(--c-fg));
+  font-family: var(--c-font), 'Inter', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 /* ── Scrollbars ─────────────────────────────────────────────── */
 * {
   scrollbar-width: thin;
-  scrollbar-color: theme('colors.border.DEFAULT') transparent;
+  scrollbar-color: rgb(var(--c-border)) transparent;
 }
 *::-webkit-scrollbar { width: 8px; height: 8px; }
-*::-webkit-scrollbar-thumb { background: theme('colors.border.DEFAULT'); border-radius: 4px; }
+*::-webkit-scrollbar-thumb { background: rgb(var(--c-border)); border-radius: 4px; }
 *::-webkit-scrollbar-track { background: transparent; }
 
 /* ── Focus rings (keyboard a11y) ────────────────────────────── */
 :focus-visible {
-  outline: 2px solid theme('colors.accent.DEFAULT');
+  outline: 2px solid rgb(var(--c-accent));
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 /* ── Text selection ─────────────────────────────────────────── */
 ::selection {
-  background: theme('colors.primary.DEFAULT');
-  color: #fff;
+  background: rgb(var(--c-primary));
+  color: rgb(var(--c-primary-fg));
 }
 
 /* ── Form controls: consistent focus treatment app-wide ─────── */
@@ -39,16 +40,34 @@ input, select, textarea {
 }
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: theme('colors.accent.DEFAULT');
-  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.15);
+  border-color: rgb(var(--c-accent));
+  box-shadow: 0 0 0 3px rgb(var(--c-accent) / 0.18);
 }
 
-/* Date/time pickers are unreadable with the default light icon on dark */
+/* Native picker indicators need inverting on dark themes only */
 input[type='date']::-webkit-calendar-picker-indicator,
 input[type='time']::-webkit-calendar-picker-indicator,
 input[type='datetime-local']::-webkit-calendar-picker-indicator {
-  filter: invert(0.7);
   cursor: pointer;
+}
+:root[style*='dark'] input::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+[data-theme='criticom-dark'] input::-webkit-calendar-picker-indicator,
+[data-theme='midnight'] input::-webkit-calendar-picker-indicator,
+[data-theme='nord'] input::-webkit-calendar-picker-indicator,
+[data-theme='ubuntu'] input::-webkit-calendar-picker-indicator,
+[data-theme='high-contrast'] input::-webkit-calendar-picker-indicator {
+  filter: invert(0.75);
+}
+
+/* Solid brand surfaces get a readable foreground automatically, so buttons
+   written as `bg-primary` (no text colour) stay legible on light themes.
+   Lives in `components` so an explicit text-* utility still wins.
+   Tinted classes like `bg-primary/15` are a different selector and unaffected. */
+@layer components {
+  .bg-primary { color: rgb(var(--c-primary-fg)); }
+  .bg-accent { color: rgb(var(--c-accent-fg)); }
+  .bg-severity-critical, .bg-severity-high, .bg-severity-low { color: #fff; }
+  .bg-severity-medium { color: #111827; }
 }
 
 /* ── Severity pills ─────────────────────────────────────────── */
@@ -84,14 +103,14 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
 }
 .toast-enter { animation: toast-in 180ms ease-out; }
 
-/* ── Leaflet dark-theme fit ─────────────────────────────────── */
+/* ── Leaflet fits the active theme ──────────────────────────── */
 .leaflet-container {
   @apply rounded-lg border border-border;
-  background: theme('colors.bg.soft');
+  background: rgb(var(--c-bg-soft));
 }
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-  background: theme('colors.bg.card');
-  color: white;
+  background: rgb(var(--c-bg-card));
+  color: rgb(var(--c-fg));
 }
 
 /* ── Org-chart tree (department hierarchy) ──────────────────── */
@@ -103,29 +122,29 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
 /* down + horizontal connectors */
 .org-tree li::before, .org-tree li::after {
   content: ''; position: absolute; top: 0; right: 50%;
-  border-top: 2px solid theme('colors.border.DEFAULT'); width: 50%; height: 24px;
+  border-top: 2px solid rgb(var(--c-border)); width: 50%; height: 24px;
 }
 .org-tree li::after {
   right: auto; left: 50%;
-  border-left: 2px solid theme('colors.border.DEFAULT');
+  border-left: 2px solid rgb(var(--c-border));
 }
 .org-tree li:only-child::before, .org-tree li:only-child::after { display: none; }
 .org-tree li:only-child { padding-top: 24px; }
 .org-tree li:first-child::before, .org-tree li:last-child::after { border: 0 none; }
 .org-tree li:last-child::before {
-  border-right: 2px solid theme('colors.border.DEFAULT');
+  border-right: 2px solid rgb(var(--c-border));
   border-radius: 0 6px 0 0;
 }
 .org-tree li:first-child::after { border-radius: 6px 0 0 0; }
 .org-tree ul ul::before {
   content: ''; position: absolute; top: 0; left: 50%;
-  border-left: 2px solid theme('colors.border.DEFAULT'); width: 0; height: 24px;
+  border-left: 2px solid rgb(var(--c-border)); width: 0; height: 24px;
 }
 .org-tree > ul { padding-top: 0; }
 .org-tree > ul > li:only-child { padding-top: 0; }
 .org-tree > ul > li::before, .org-tree > ul > li::after { display: none; }
 
-/* ── Auth (login) animated hero ─────────────────────────────── */
+/* ── Auth (login) animated hero — always dark for brand impact ─ */
 @keyframes auth-aurora-drift {
   0%   { transform: translate(0, 0) scale(1); }
   33%  { transform: translate(8%, -6%) scale(1.2); }
@@ -178,6 +197,7 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
 @media (prefers-reduced-motion: reduce) {
   .auth-aurora, .auth-grid, .auth-ping-dot::before, .auth-ping-dot::after,
   .auth-reveal, .auth-sheen::after { animation: none; }
+  * { transition-duration: 0.01ms !important; }
 }
 
 /* ── Print (case reports) ───────────────────────────────────── */

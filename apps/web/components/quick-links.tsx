@@ -40,7 +40,7 @@ export function QuickLinks({
               <Icon className="h-5 w-5" />
             </span>
             <span className="min-w-0">
-              <span className="block text-sm font-semibold text-white group-hover:text-white">{l.label}</span>
+              <span className="block text-sm font-semibold text-fg group-hover:text-fg">{l.label}</span>
               <span className="block truncate text-xs text-muted-foreground">{l.desc}</span>
             </span>
           </Link>

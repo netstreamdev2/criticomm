@@ -99,7 +99,7 @@ export function CommandPalette({ silo, role }: { silo: string; role: string }) {
               if (e.key === 'Enter' && results[active]) { e.preventDefault(); go(results[active]!.href); }
             }}
             placeholder="Jump to a page…"
-            className="h-14 w-full bg-transparent text-sm text-white outline-none placeholder:text-muted-foreground"
+            className="h-14 w-full bg-transparent text-sm text-fg outline-none placeholder:text-muted-foreground"
           />
           <kbd className="hidden shrink-0 rounded border border-border bg-bg-soft px-1.5 py-0.5 text-[10px] text-muted-foreground sm:block">ESC</kbd>
         </div>
@@ -120,7 +120,7 @@ export function CommandPalette({ silo, role }: { silo: string; role: string }) {
                 onClick={() => go(c.href)}
                 className={cn(
                   'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors',
-                  i === active ? 'bg-primary/15 text-white' : 'text-white/80 hover:bg-muted',
+                  i === active ? 'bg-primary/15 text-fg' : 'text-fg/80 hover:bg-muted',
                 )}
               >
                 <Icon className={cn('h-4 w-4 shrink-0', i === active ? 'text-primary' : 'text-muted-foreground')} />

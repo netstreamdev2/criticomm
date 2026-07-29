@@ -99,7 +99,7 @@ const PERSONA_TITLE: Record<Persona, string> = {
   responder: 'Responder Portal', casemanager: 'Case Management', viewer: 'Operations Overview',
 };
 
-function Tile({ label, value, accent = 'text-white' }: { label: string; value: React.ReactNode; accent?: string }) {
+function Tile({ label, value, accent = 'text-fg' }: { label: string; value: React.ReactNode; accent?: string }) {
   return (
     <Card>
       <CardContent className="p-4">

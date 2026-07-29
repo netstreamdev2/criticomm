@@ -4,19 +4,20 @@ import { LoginForm } from './login-form';
 
 export const metadata: Metadata = { title: 'Sign in · Criticom' };
 
-// Literal bg-* classes so Tailwind's content scanner generates each one.
+// Fixed hex — the hero keeps its brand palette regardless of the active theme.
 const DEPARTMENTS = [
-  { label: 'Metro Police', dot: 'bg-severity-high' },
-  { label: 'Fire & Rescue', dot: 'bg-severity-critical' },
-  { label: 'EMS', dot: 'bg-severity-low' },
-  { label: 'Disaster Mgmt', dot: 'bg-accent' },
+  { label: 'Metro Police', dot: '#f59e0b' },
+  { label: 'Fire & Rescue', dot: '#dc3545' },
+  { label: 'EMS', dot: '#22c55e' },
+  { label: 'Disaster Mgmt', dot: '#3b82f6' },
 ];
 
 export default function LoginPage() {
   return (
     <main className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
-      {/* ── Animated hero ── */}
-      <section className="relative hidden overflow-hidden p-14 lg:flex lg:flex-col lg:justify-between">
+      {/* ── Animated hero ── (permanently dark — it owns its own palette so it
+           looks identical under every theme) */}
+      <section className="relative hidden overflow-hidden p-14 text-white lg:flex lg:flex-col lg:justify-between">
         {/* background layers */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#0a0f1e] via-[#0b1222] to-[#08080f]" />
         <div className="auth-aurora" style={{ width: 560, height: 560, top: -150, left: -120, background: 'radial-gradient(circle, rgba(220,53,69,0.55), transparent 65%)' }} />
@@ -37,23 +38,23 @@ export default function LoginPage() {
             <img src="/criticomm-logo.png" alt="CRITICOMM — All in One EMS Dispatch Software" className="h-16 w-auto" />
           </div>
           <h1 className="mt-12 max-w-2xl text-4xl font-bold leading-tight xl:text-5xl">
-            eThekwini Emergency Services <span className="text-primary">Command Centre</span>
+            eThekwini Emergency Services <span className="text-[#ff5a68]">Command Centre</span>
           </h1>
-          <p className="mt-5 max-w-md text-base text-muted-foreground">
+          <p className="mt-5 max-w-md text-base text-white/70">
             Unified dispatch, responder operations, and incident reporting across every department — in real time.
           </p>
           <div className="mt-8 flex flex-wrap gap-2">
             {DEPARTMENTS.map((d) => (
-              <span key={d.label} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm backdrop-blur">
-                <span className={`h-1.5 w-1.5 rounded-full ${d.dot}`} />
+              <span key={d.label} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-white/85 backdrop-blur">
+                <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.dot }} />
                 {d.label}
               </span>
             ))}
           </div>
         </div>
 
-        <p className="relative z-10 flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-severity-low" />
+        <p className="relative z-10 flex items-center gap-2 text-xs text-white/60">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-[#22c55e]" />
           Authorised personnel only. All access is audited.
         </p>
       </section>

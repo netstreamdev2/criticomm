@@ -111,7 +111,7 @@ export default async function PersonPage({
 
   return (
     <div className="space-y-6">
-      <Link href="/hierarchy" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white">
+      <Link href="/hierarchy" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-fg">
         <ArrowLeft className="h-4 w-4" /> Back to hierarchy
       </Link>
 

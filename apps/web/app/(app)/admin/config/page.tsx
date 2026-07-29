@@ -49,8 +49,8 @@ export default async function AdminConfigPage({
             href={`/admin/config?module=${m.key}`}
             className={`rounded-md border px-4 py-2 text-sm font-semibold ${
               m.key === module
-                ? 'border-primary bg-primary/15 text-white'
-                : 'border-border bg-bg-soft text-white/70 hover:bg-muted'
+                ? 'border-primary bg-primary/15 text-fg'
+                : 'border-border bg-bg-soft text-fg/70 hover:bg-muted'
             }`}
           >
             {m.label}

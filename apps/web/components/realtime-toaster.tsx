@@ -74,7 +74,7 @@ export function RealtimeToaster({ silo, role }: { silo: string; role: string }) 
               type="button"
               aria-label="Dismiss"
               onClick={() => setToasts((cur) => cur.filter((x) => x.id !== t.id))}
-              className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-white"
+              className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-fg"
             >
               <X className="h-4 w-4" />
             </button>

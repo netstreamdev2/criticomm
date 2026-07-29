@@ -61,7 +61,7 @@ function NavList({
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filter menu…"
             aria-label="Filter navigation"
-            className="h-8 w-full rounded-md border border-border bg-bg/60 pl-8 pr-2 text-xs text-white placeholder:text-muted-foreground focus:border-accent focus:outline-none"
+            className="h-8 w-full rounded-md border border-border bg-bg/60 pl-8 pr-2 text-xs text-fg placeholder:text-muted-foreground focus:border-accent focus:outline-none"
           />
         </div>
       </div>
@@ -79,7 +79,7 @@ function NavList({
                 type="button"
                 onClick={() => toggle(g.id)}
                 aria-expanded={!isCollapsed}
-                className="flex w-full items-center justify-between rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-white"
+                className="flex w-full items-center justify-between rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-fg"
               >
                 {g.label}
                 <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', isCollapsed && '-rotate-90')} />
@@ -99,14 +99,14 @@ function NavList({
                           className={cn(
                             'group relative flex items-center gap-3 rounded-md py-2 pl-3 pr-2 text-sm transition-all',
                             active
-                              ? 'bg-primary/15 font-semibold text-white'
-                              : 'text-white/70 hover:bg-muted hover:text-white',
+                              ? 'bg-primary/15 font-semibold text-fg'
+                              : 'text-fg/70 hover:bg-muted hover:text-fg',
                           )}
                         >
                           {active && (
                             <span aria-hidden className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary" />
                           )}
-                          <Icon className={cn('h-4 w-4 shrink-0 transition-colors', active ? 'text-primary' : 'text-muted-foreground group-hover:text-white')} />
+                          <Icon className={cn('h-4 w-4 shrink-0 transition-colors', active ? 'text-primary' : 'text-muted-foreground group-hover:text-fg')} />
                           <span className="truncate">{item.label}</span>
                         </Link>
                       </li>

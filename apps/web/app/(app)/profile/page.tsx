@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { FormSection, TextField, TextAreaField } from '@/components/fields';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
+import { ThemeGrid } from '@/components/theme-picker';
 import { updateProfileAction, generateCallSignAction } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -62,10 +63,21 @@ export default async function ProfilePage() {
 
       <Card>
         <CardHeader>
+          <CardTitle>Appearance</CardTitle>
+          <CardDescription>
+            Pick the look that suits your control room. Saved to this browser and applied instantly.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ThemeGrid />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Account</CardTitle>
           <CardDescription>
-            Password resets go through Supabase Auth — use "Forgot password" on the login page.
-            Theme & language preferences arrive with the polish phase.
+            Password resets go through Supabase Auth — use &ldquo;Forgot password&rdquo; on the login page.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 text-sm sm:grid-cols-2">

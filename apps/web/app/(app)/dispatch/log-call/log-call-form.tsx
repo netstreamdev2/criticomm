@@ -161,7 +161,7 @@ export function LogCallForm({
   };
 
   const label = 'mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground';
-  const field = 'h-11 w-full rounded-lg border border-border bg-bg-soft px-3 text-sm text-white placeholder:text-muted-foreground/60 focus:border-accent focus:outline-none';
+  const field = 'h-11 w-full rounded-lg border border-border bg-bg-soft px-3 text-sm text-fg placeholder:text-muted-foreground/60 focus:border-accent focus:outline-none';
 
   return (
     <form onSubmit={onSubmit} className="w-full space-y-6 pb-24">
@@ -169,7 +169,7 @@ export function LogCallForm({
       <div className="flex justify-end">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-soft px-4 py-2 text-sm font-semibold text-white/80 hover:bg-muted"
+          className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-soft px-4 py-2 text-sm font-semibold text-fg/80 hover:bg-muted"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Dashboard
         </Link>
@@ -209,7 +209,7 @@ export function LogCallForm({
                   <button
                     key={txt} type="button" onClick={() => setIsPatient(val)}
                     className={`inline-flex items-center gap-2 rounded-md px-2 py-1 ${
-                      isPatient === val ? 'text-white' : 'text-muted-foreground'
+                      isPatient === val ? 'text-fg' : 'text-muted-foreground'
                     }`}
                   >
                     <span className={`h-3.5 w-3.5 rounded-full border ${isPatient === val ? 'border-accent bg-accent' : 'border-muted-foreground'}`} />

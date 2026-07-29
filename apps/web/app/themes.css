@@ -1,0 +1,207 @@
+/* =====================================================================
+   CRITICOMM THEMES
+   Each theme is a set of CSS custom properties consumed by tailwind.config
+   via rgb(var(--c-x) / <alpha-value>). Applied by setting data-theme on
+   <html>; see components/theme-provider.tsx.
+   Colour channels are space-separated RGB so Tailwind can add alpha.
+   ===================================================================== */
+
+:root,
+[data-theme='criticom-dark'] {
+  color-scheme: dark;
+  --c-bg: 5 5 16;
+  --c-bg-soft: 11 11 26;
+  --c-bg-card: 17 17 42;
+  --c-border: 31 31 58;
+  --c-primary: 220 53 69;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 59 130 246;
+  --c-accent-fg: 255 255 255;
+  --c-muted: 26 26 46;
+  --c-muted-fg: 156 163 175;
+  --c-fg: 255 255 255;
+  --c-low: 16 185 129;
+  --c-medium: 245 158 11;
+  --c-high: 249 115 22;
+  --c-critical: 239 68 68;
+  --c-radius-lg: 0.75rem;
+  --c-radius-md: 0.5rem;
+  --c-radius-sm: 0.375rem;
+  --c-font: 'Inter';
+}
+
+/* ── Criticom Light ─────────────────────────────────────────── */
+[data-theme='criticom-light'] {
+  color-scheme: light;
+  --c-bg: 244 246 251;
+  --c-bg-soft: 255 255 255;
+  --c-bg-card: 255 255 255;
+  --c-border: 214 219 230;
+  --c-primary: 205 40 55;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 37 99 235;
+  --c-accent-fg: 255 255 255;
+  --c-muted: 233 237 245;
+  --c-muted-fg: 90 100 120;
+  --c-fg: 15 20 32;
+  --c-low: 5 150 105;
+  --c-medium: 217 119 6;
+  --c-high: 234 88 12;
+  --c-critical: 220 38 38;
+  --c-radius-lg: 0.75rem;
+  --c-radius-md: 0.5rem;
+  --c-radius-sm: 0.375rem;
+  --c-font: 'Inter';
+}
+
+/* ── Midnight — true-black OLED ─────────────────────────────── */
+[data-theme='midnight'] {
+  color-scheme: dark;
+  --c-bg: 0 0 0;
+  --c-bg-soft: 9 9 12;
+  --c-bg-card: 15 15 20;
+  --c-border: 38 38 46;
+  --c-primary: 255 59 78;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 77 163 255;
+  --c-accent-fg: 0 0 0;
+  --c-muted: 22 22 28;
+  --c-muted-fg: 138 138 153;
+  --c-fg: 250 250 252;
+  --c-low: 34 197 94;
+  --c-medium: 250 204 21;
+  --c-high: 251 146 60;
+  --c-critical: 248 113 113;
+  --c-radius-lg: 0.625rem;
+  --c-radius-md: 0.4375rem;
+  --c-radius-sm: 0.3125rem;
+  --c-font: 'Inter';
+}
+
+/* ── Nord — arctic, low-contrast dark ───────────────────────── */
+[data-theme='nord'] {
+  color-scheme: dark;
+  --c-bg: 46 52 64;
+  --c-bg-soft: 59 66 82;
+  --c-bg-card: 59 66 82;
+  --c-border: 76 86 106;
+  --c-primary: 191 97 106;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 136 192 208;
+  --c-accent-fg: 46 52 64;
+  --c-muted: 67 76 94;
+  --c-muted-fg: 175 185 201;
+  --c-fg: 236 239 244;
+  --c-low: 163 190 140;
+  --c-medium: 235 203 139;
+  --c-high: 208 135 112;
+  --c-critical: 191 97 106;
+  --c-radius-lg: 0.5rem;
+  --c-radius-md: 0.375rem;
+  --c-radius-sm: 0.25rem;
+  --c-font: 'Inter';
+}
+
+/* ── macOS — light, soft greys, generous radii ──────────────── */
+[data-theme='macos'] {
+  color-scheme: light;
+  --c-bg: 242 242 247;
+  --c-bg-soft: 255 255 255;
+  --c-bg-card: 255 255 255;
+  --c-border: 209 209 214;
+  --c-primary: 255 59 48;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 0 122 255;
+  --c-accent-fg: 255 255 255;
+  --c-muted: 229 229 234;
+  --c-muted-fg: 110 110 115;
+  --c-fg: 29 29 31;
+  --c-low: 52 199 89;
+  --c-medium: 255 149 0;
+  --c-high: 255 105 30;
+  --c-critical: 255 59 48;
+  --c-radius-lg: 1rem;
+  --c-radius-md: 0.625rem;
+  --c-radius-sm: 0.5rem;
+  --c-font: -apple-system, 'SF Pro Text', 'Helvetica Neue';
+}
+
+/* ── Windows 11 Fluent — tighter radii, Segoe ───────────────── */
+[data-theme='windows'] {
+  color-scheme: light;
+  --c-bg: 243 243 243;
+  --c-bg-soft: 250 250 250;
+  --c-bg-card: 255 255 255;
+  --c-border: 225 223 221;
+  --c-primary: 196 43 28;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 0 103 192;
+  --c-accent-fg: 255 255 255;
+  --c-muted: 237 237 237;
+  --c-muted-fg: 96 94 92;
+  --c-fg: 32 31 30;
+  --c-low: 16 124 16;
+  --c-medium: 202 128 0;
+  --c-high: 216 89 22;
+  --c-critical: 196 43 28;
+  --c-radius-lg: 0.5rem;
+  --c-radius-md: 0.25rem;
+  --c-radius-sm: 0.125rem;
+  --c-font: 'Segoe UI Variable', 'Segoe UI';
+}
+
+/* ── Ubuntu — aubergine + orange ────────────────────────────── */
+[data-theme='ubuntu'] {
+  color-scheme: dark;
+  --c-bg: 30 20 26;
+  --c-bg-soft: 44 0 30;
+  --c-bg-card: 56 21 44;
+  --c-border: 87 42 74;
+  --c-primary: 233 84 32;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 190 122 182;
+  --c-accent-fg: 30 20 26;
+  --c-muted: 66 28 55;
+  --c-muted-fg: 197 178 190;
+  --c-fg: 255 255 255;
+  --c-low: 46 194 126;
+  --c-medium: 245 179 66;
+  --c-high: 233 132 32;
+  --c-critical: 224 71 71;
+  --c-radius-lg: 0.75rem;
+  --c-radius-md: 0.5rem;
+  --c-radius-sm: 0.375rem;
+  --c-font: 'Ubuntu', 'Inter';
+}
+
+/* ── High contrast — accessibility ──────────────────────────── */
+[data-theme='high-contrast'] {
+  color-scheme: dark;
+  --c-bg: 0 0 0;
+  --c-bg-soft: 0 0 0;
+  --c-bg-card: 0 0 0;
+  --c-border: 255 255 255;
+  --c-primary: 255 255 0;
+  --c-primary-fg: 0 0 0;
+  --c-accent: 0 255 255;
+  --c-accent-fg: 0 0 0;
+  --c-muted: 26 26 26;
+  --c-muted-fg: 255 255 255;
+  --c-fg: 255 255 255;
+  --c-low: 0 255 0;
+  --c-medium: 255 255 0;
+  --c-high: 255 165 0;
+  --c-critical: 255 80 80;
+  --c-radius-lg: 0;
+  --c-radius-md: 0;
+  --c-radius-sm: 0;
+  --c-font: 'Inter';
+}
+
+/* High contrast needs visible outlines on every surface */
+[data-theme='high-contrast'] .rounded-lg,
+[data-theme='high-contrast'] .rounded-xl,
+[data-theme='high-contrast'] .rounded-md {
+  border-width: 1px;
+  border-color: rgb(var(--c-border));
+}

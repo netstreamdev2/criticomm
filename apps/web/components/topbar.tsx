@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { ChevronRight, Search, Bell, LogOut, User } from 'lucide-react';
 import { breadcrumbsFor } from '@/lib/nav';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
+import { ThemePicker } from '@/components/theme-picker';
 import { cn } from '@/lib/utils';
 
 function openPalette() {
@@ -38,11 +39,11 @@ export function Topbar({
               <li key={c.href} className="flex min-w-0 items-center gap-1">
                 {i > 0 && <ChevronRight aria-hidden className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />}
                 {last ? (
-                  <span className="truncate font-semibold text-white" aria-current="page">{c.label}</span>
+                  <span className="truncate font-semibold text-fg" aria-current="page">{c.label}</span>
                 ) : (
                   <Link
                     href={c.href}
-                    className="hidden truncate text-muted-foreground transition-colors hover:text-white sm:block"
+                    className="hidden truncate text-muted-foreground transition-colors hover:text-fg sm:block"
                   >
                     {c.label}
                   </Link>
@@ -57,7 +58,7 @@ export function Topbar({
       <button
         type="button"
         onClick={openPalette}
-        className="hidden items-center gap-2 rounded-md border border-border bg-bg/60 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-accent/50 hover:text-white md:flex"
+        className="hidden items-center gap-2 rounded-md border border-border bg-bg/60 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-accent/50 hover:text-fg md:flex"
         aria-label="Search pages"
       >
         <Search className="h-3.5 w-3.5" />
@@ -68,17 +69,19 @@ export function Topbar({
         type="button"
         onClick={openPalette}
         aria-label="Search pages"
-        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-white md:hidden"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-fg md:hidden"
       >
         <Search className="h-4 w-4" />
       </button>
+
+      <ThemePicker />
 
       <Link
         href="/notifications"
         aria-label="Notifications"
         className={cn(
-          'inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-white',
-          pathname.startsWith('/notifications') ? 'text-white' : 'text-muted-foreground',
+          'inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-fg',
+          pathname.startsWith('/notifications') ? 'text-fg' : 'text-muted-foreground',
         )}
       >
         <Bell className="h-4 w-4" />
@@ -87,11 +90,12 @@ export function Topbar({
       {/* User */}
       <div className="flex items-center gap-2 border-l border-border pl-3">
         <Link href="/profile" className="group flex items-center gap-2" aria-label="Profile">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">
+          {/* Solid fill rather than a tint — guarantees legible initials in every theme */}
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold">
             {initials || <User className="h-4 w-4" />}
           </span>
           <span className="hidden min-w-0 leading-tight sm:block">
-            <span className="block truncate text-sm font-semibold text-white group-hover:text-white">{fullName}</span>
+            <span className="block truncate text-sm font-semibold text-fg group-hover:text-fg">{fullName}</span>
             <span className="block truncate text-[11px] text-muted-foreground">{role} · {silo}</span>
           </span>
         </Link>

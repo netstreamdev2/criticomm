@@ -18,8 +18,8 @@ export function PerfNav({ active }: { active: string }) {
           href={t.href}
           className={`rounded-md px-3 py-1.5 text-sm font-semibold ${
             t.href === active
-              ? 'bg-primary/15 text-white'
-              : 'text-white/60 hover:bg-muted hover:text-white'
+              ? 'bg-primary/15 text-fg'
+              : 'text-fg/60 hover:bg-muted hover:text-fg'
           }`}
         >
           {t.label}

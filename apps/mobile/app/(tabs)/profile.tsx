@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import * as Location from 'expo-location';
+import { Ionicons } from '@expo/vector-icons';
 import { cleanupOnLogout, getMyPersonnel, toggleDuty } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
-import { colors } from '@/lib/theme';
-import { Button, Card, Muted, Title } from '@/components/ui';
+import { colors, radius, space, type } from '@/lib/theme';
+import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/components/ui';
 
 const HEARTBEAT_MS = 60_000;
 
@@ -16,6 +17,8 @@ export default function ProfileScreen() {
   const [lastPing, setLastPing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const initials = fullName.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
 
   const load = useCallback(async () => {
     if (!session) return;
@@ -80,18 +83,46 @@ export default function ProfileScreen() {
     await sb.auth.signOut();
   };
 
+  const confirmSignOut = () => {
+    Alert.alert(
+      'Sign out?',
+      'Your vehicle will be released and your duty status cleared.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign out', style: 'destructive', onPress: () => void signOut() },
+      ],
+    );
+  };
+
   return (
     <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={styles.container}>
+      {/* Identity */}
       <Card>
-        <Title>{fullName}</Title>
-        <Muted>{role} · {silo}</Muted>
-        {unit && <Muted>Assigned unit: {unit}</Muted>}
+        <View style={styles.identity}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initials || '—'}</Text>
+            <View style={[styles.avatarStatus, { backgroundColor: onDuty ? colors.low : colors.muted }]} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Title>{fullName}</Title>
+            <Muted>{role} · {silo}</Muted>
+          </View>
+        </View>
+        <View style={{ marginTop: space.md }}>
+          <KeyValue label="Assigned unit" value={unit ?? 'None'} />
+          <KeyValue label="Account" value={session?.user.email ?? '—'} />
+        </View>
       </Card>
 
-      <Card>
+      {/* Duty */}
+      <SectionLabel>Duty status</SectionLabel>
+      <Card accent={onDuty ? colors.low : colors.border}>
         <View style={styles.rowBetween}>
-          <View style={{ flex: 1, paddingRight: 12 }}>
-            <Title>{onDuty ? 'On duty' : 'Off duty'}</Title>
+          <View style={{ flex: 1, paddingRight: space.md }}>
+            <View style={styles.dutyHeading}>
+              <View style={[styles.dutyDot, { backgroundColor: onDuty ? colors.low : colors.muted }]} />
+              <Title>{onDuty ? 'On duty' : 'Off duty'}</Title>
+            </View>
             <Muted>
               {onDuty
                 ? `GPS heartbeat every ${HEARTBEAT_MS / 1000}s${lastPing ? ` · last ping ${lastPing}` : ''}`
@@ -101,29 +132,63 @@ export default function ProfileScreen() {
           <Switch
             value={onDuty}
             onValueChange={(v) => void flipDuty(v)}
-            trackColor={{ true: colors.low, false: colors.border }}
+            trackColor={{ true: colors.low, false: colors.borderStrong }}
             thumbColor="#fff"
+            accessibilityLabel="Toggle duty status"
           />
         </View>
-        {error && <Text style={styles.error}>{error}</Text>}
+        {onDuty ? (
+          <View style={styles.gpsNote}>
+            <Ionicons name="navigate" size={13} color={colors.low} />
+            <Text style={styles.gpsText}>Dispatch can see your live position</Text>
+          </View>
+        ) : null}
+        {error ? <View style={{ marginTop: space.md }}><Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner></View> : null}
       </Card>
 
+      {/* Account */}
+      <SectionLabel>Account</SectionLabel>
       <Card>
-        <Title>Account</Title>
         <Muted>Signing out frees your vehicle and clears duty status (V4 logout parity).</Muted>
-        <View style={{ marginTop: 12 }}>
-          <Button label="Sign out" variant="danger" onPress={() => void signOut()} />
+        <View style={{ marginTop: space.md }}>
+          <Button label="Sign out" icon="log-out-outline" variant="danger" onPress={confirmSignOut} />
         </View>
       </Card>
+
+      <Text style={styles.version}>CRITICOMM Responder · eThekwini Emergency Services</Text>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingBottom: 32 },
+  container: { padding: space.lg, paddingBottom: space['3xl'] },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  error: {
-    color: colors.critical, backgroundColor: `${colors.critical}22`,
-    borderRadius: 8, padding: 10, marginTop: 12, fontSize: 13,
+
+  identity: { flexDirection: 'row', alignItems: 'center', gap: space.md },
+  avatar: {
+    width: 52, height: 52, borderRadius: radius.pill,
+    backgroundColor: colors.accentSoft,
+    borderWidth: 1, borderColor: colors.borderStrong,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  avatarText: { color: colors.accent, fontSize: 18, fontWeight: '800' },
+  avatarStatus: {
+    position: 'absolute', right: -1, bottom: -1,
+    width: 14, height: 14, borderRadius: 7,
+    borderWidth: 2, borderColor: colors.bgCard,
+  },
+
+  dutyHeading: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  dutyDot: { width: 8, height: 8, borderRadius: 4 },
+  gpsNote: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    marginTop: space.md, paddingTop: space.md,
+    borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border,
+  },
+  gpsText: { ...type.small, color: colors.low, fontWeight: '600' },
+
+  version: {
+    ...type.small, fontSize: 11, color: colors.muted,
+    textAlign: 'center', marginTop: space.lg,
   },
 });

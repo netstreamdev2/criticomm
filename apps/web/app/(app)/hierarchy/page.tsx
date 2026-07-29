@@ -28,7 +28,7 @@ function PersonNode({ node }: { node: OrgNode }) {
             title={m.onDuty ? 'On duty' : 'Off duty'}
           />
         </span>
-        <span className="mt-1 line-clamp-1 text-sm font-semibold text-white">{m.name}</span>
+        <span className="mt-1 line-clamp-1 text-sm font-semibold text-fg">{m.name}</span>
         <span className="line-clamp-1 text-xs text-muted-foreground">{m.rank}</span>
         <span className="text-[11px] uppercase tracking-wide text-muted-foreground/70">
           {TIER_LABEL[m.tier]}{m.pinned && <span title="Reporting line pinned"> · 📌</span>}
@@ -89,7 +89,7 @@ export default async function HierarchyPage({
             key={d.silo}
             href={`/hierarchy?dept=${d.silo}`}
             className={`rounded-lg border px-4 py-2 text-sm font-semibold ${
-              d.silo === dept ? 'border-primary bg-primary/15 text-white' : 'border-border bg-bg-soft text-white/70 hover:bg-muted'
+              d.silo === dept ? 'border-primary bg-primary/15 text-fg' : 'border-border bg-bg-soft text-fg/70 hover:bg-muted'
             }`}
           >
             {d.label}
