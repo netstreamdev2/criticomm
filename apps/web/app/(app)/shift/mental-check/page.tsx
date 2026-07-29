@@ -15,7 +15,7 @@ const CHECKS = [
 
 export default function MentalCheckPage() {
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">Start of shift — mental readiness</h1>
         <p className="text-muted-foreground">

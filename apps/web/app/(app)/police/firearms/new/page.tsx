@@ -11,7 +11,7 @@ export default async function NewFirearmPage() {
   const end = new Date(now.getTime() + 12 * 3600 * 1000);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
+    <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">Firearm authorization</h1>
         <p className="text-muted-foreground">Issue register entry — V4 FirearmChecklist parity.</p>

@@ -14,7 +14,7 @@ export default async function NewFireReportPage() {
   const { fullName } = await getSession();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
+    <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">Fire incident report</h1>
         <p className="text-muted-foreground">

@@ -10,7 +10,7 @@ export default async function PttPage() {
   const personnel = await listPersonnel(supabase, siloFilter(silo));
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
+    <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">PTT radio console</h1>
         <p className="text-muted-foreground">

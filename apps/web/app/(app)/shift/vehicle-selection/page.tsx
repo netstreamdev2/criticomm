@@ -11,7 +11,7 @@ export default async function VehicleSelectionPage() {
   const vehicles = await listAvailableVehicles(supabase, silo === 'Ethekwini' ? 'MetroPolice' : silo);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">Start of shift — vehicle selection</h1>
         <p className="text-muted-foreground">Step 2 of 3. Pick your unit for this shift.</p>

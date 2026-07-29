@@ -14,7 +14,7 @@ export default async function EditPcrPage({ params }: { params: Promise<{ id: st
   if (!pcr) notFound();
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
+    <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">Edit PCR — {pcr.patient_name ?? 'Unknown patient'}</h1>
         <p className="text-muted-foreground">PCRs are editable until the linked incident closes.</p>

@@ -16,7 +16,7 @@ export default async function ProfilePage() {
   const [first = '', last = ''] = (profile?.full_name ?? fullName).split(' ');
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Profile & settings</h1>

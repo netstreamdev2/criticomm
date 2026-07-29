@@ -22,7 +22,7 @@ export default async function VehicleChecklistPage({
   if (!apparatus) redirect('/shift/vehicle-selection');
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4">
+    <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">Start of shift — vehicle inspection</h1>
         <p className="text-muted-foreground">Step 3 of 3. Completing this places you on duty.</p>

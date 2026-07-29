@@ -110,7 +110,7 @@ export default async function PersonPage({
   const initials = name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="space-y-6">
       <Link href="/hierarchy" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-white">
         <ArrowLeft className="h-4 w-4" /> Back to hierarchy
       </Link>

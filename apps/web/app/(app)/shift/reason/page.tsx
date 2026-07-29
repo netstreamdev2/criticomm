@@ -5,7 +5,7 @@ export const metadata = { title: 'Check Failed · Criticom' };
 
 export default function ReasonPage() {
   return (
-    <div className="mx-auto max-w-xl space-y-4">
+    <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle className="text-severity-critical">Readiness check not passed</CardTitle>

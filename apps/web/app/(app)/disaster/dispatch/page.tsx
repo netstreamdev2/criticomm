@@ -21,7 +21,7 @@ export default async function DispatchResourcesPage() {
   const partners = await listMutualAidPartners(supabase);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4">
+    <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">Dispatch disaster resources</h1>
         <p className="text-muted-foreground">Creates a deployment log you can update from the monitor.</p>

@@ -81,7 +81,7 @@ export default async function FireReportDetailPage({
   ];
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4">
+    <div className="space-y-4">
       <header className="flex items-start justify-between">
         <div>
           <h1 className="font-mono text-2xl font-bold">{r.report_number}</h1>

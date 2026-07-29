@@ -44,7 +44,7 @@ export default async function PcrDetailPage({ params }: { params: Promise<{ id: 
   ].filter(Boolean).join(', ');
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4">
+    <div className="space-y-4">
       <header className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold">{p.patient_name ?? 'Unknown patient'}</h1>
