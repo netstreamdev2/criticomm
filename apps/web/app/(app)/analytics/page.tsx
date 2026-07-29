@@ -62,11 +62,11 @@ export default async function AnalyticsPage() {
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Closure rate</p>
-          <p className="mt-2 text-3xl font-bold text-severity-low">{closureRate}%</p>
+          <p className="mt-2 text-3xl font-bold text-severity-low-ink">{closureRate}%</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Avg response (min)</p>
-          <p className="mt-2 text-3xl font-bold text-severity-medium">{kpi.avgResponseTime}</p>
+          <p className="mt-2 text-3xl font-bold text-severity-medium-ink">{kpi.avgResponseTime}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">On duty now</p>

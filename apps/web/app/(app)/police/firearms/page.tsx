@@ -45,7 +45,7 @@ export default async function FirearmsPage() {
                 <Td className="text-muted-foreground">{formatSaTime(f.to_date)}</Td>
                 <Td>
                   {f.date_received ? (
-                    <span className="text-severity-low">
+                    <span className="text-severity-low-ink">
                       Returned {formatSaTime(f.date_received)} ({f.rounds_returned} rounds)
                     </span>
                   ) : (

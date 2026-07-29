@@ -39,7 +39,7 @@ export default async function ResponderPage() {
         {!shiftDone && (
           <Link
             href="/shift/mental-check"
-            className="inline-flex h-10 items-center rounded-md bg-severity-medium px-4 text-sm font-semibold text-black"
+            className="inline-flex h-10 items-center rounded-md bg-severity-medium px-4 text-sm font-semibold"
           >
             Start-of-shift checks pending →
           </Link>

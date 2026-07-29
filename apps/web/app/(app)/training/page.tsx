@@ -93,7 +93,7 @@ export default async function TrainingPage() {
                   <Td className="font-semibold">{c.name}</Td>
                   <Td>{c.issued_by ?? '—'}</Td>
                   <Td className="font-mono">{c.date_achieved ?? '—'}</Td>
-                  <Td className={`font-mono ${isExpiring ? 'font-semibold text-severity-critical' : ''}`}>
+                  <Td className={`font-mono ${isExpiring ? 'font-semibold text-severity-critical-ink' : ''}`}>
                     {c.expiry_date}
                   </Td>
                 </Tr>

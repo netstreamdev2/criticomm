@@ -100,7 +100,7 @@ export default async function HierarchyPage({
       <div className="flex flex-wrap gap-6 text-sm">
         <span className="hidden text-lg font-bold print:inline">{current.label} — </span>
         <span><span className={`text-lg font-bold ${current.accent}`}>{members.length}</span> <span className="text-muted-foreground">members</span></span>
-        <span><span className="text-lg font-bold text-severity-low">{onDuty}</span> <span className="text-muted-foreground">on duty</span></span>
+        <span><span className="text-lg font-bold text-severity-low-ink">{onDuty}</span> <span className="text-muted-foreground">on duty</span></span>
       </div>
 
       <Card>

@@ -50,7 +50,7 @@ export default async function DisasterPage() {
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Low stock items</p>
-          <p className="mt-2 text-3xl font-bold text-severity-medium">{lowStock.length}</p>
+          <p className="mt-2 text-3xl font-bold text-severity-medium-ink">{lowStock.length}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Post-mortems filed</p>

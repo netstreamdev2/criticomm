@@ -64,7 +64,7 @@ export default async function AdminPersonnelPage({
                 <Td>{p.silo}</Td>
                 <Td>{p.station ?? '—'}</Td>
                 <Td>{p.platoon ?? '—'}</Td>
-                <Td>{p.is_on_duty ? <span className="text-severity-low">Yes</span> : 'No'}</Td>
+                <Td>{p.is_on_duty ? <span className="text-severity-low-ink">Yes</span> : 'No'}</Td>
                 <Td className="text-muted-foreground">{formatSaTime(p.last_login)}</Td>
               </Tr>
             ))}

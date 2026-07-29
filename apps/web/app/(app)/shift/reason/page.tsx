@@ -8,7 +8,7 @@ export default function ReasonPage() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-severity-critical">Readiness check not passed</CardTitle>
+          <CardTitle className="text-severity-critical-ink">Readiness check not passed</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
           <p>

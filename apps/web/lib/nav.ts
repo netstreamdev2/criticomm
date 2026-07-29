@@ -2,7 +2,7 @@ import {
   LayoutDashboard, PhoneCall, Radio, MapPinned, ShieldAlert, FlameKindling, Stethoscope,
   Mountain, FileText, Camera, Users, ClipboardCheck, BarChart3, Settings, ListChecks,
   CalendarClock, Bell, Briefcase, GraduationCap, Gauge, FolderClosed, Map, Bot,
-  RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network, type LucideIcon,
+  RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network, PlugZap, type LucideIcon,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -94,6 +94,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/operators', label: 'Operators', icon: Users, keywords: 'control room call signs' },
       { href: '/admin/vehicles', label: 'Fleet', icon: RadioTower, keywords: 'apparatus vehicles' },
       { href: '/admin/devices', label: 'Devices', icon: Radio, keywords: 'mdt radios tablets' },
+      { href: '/admin/integrations', label: 'Integrations', icon: PlugZap, keywords: 'api keys gemini bulksms realptt tomtom feeds connections' },
       { href: '/profile', label: 'Settings', icon: Settings, keywords: 'profile account my hr' },
     ],
   },
@@ -118,7 +119,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   'role-kpis': 'Role KPIs', plans: 'Appraisal Plans', kpis: 'KPI Config',
   analytics: 'Analytics', cameras: 'Cameras', assistant: 'Assistant',
   admin: 'Administration', config: 'Configuration', personnel: 'Personnel',
-  operators: 'Operators', vehicles: 'Fleet', devices: 'Devices',
+  operators: 'Operators', vehicles: 'Fleet', devices: 'Devices', integrations: 'Integrations',
   profile: 'Profile', 'my-hr': 'My HR', notifications: 'Notifications', dashboard: 'Dashboard',
   new: 'New',
 };

@@ -101,7 +101,7 @@ export default async function MyPerformancePage({
                 <Td className="font-semibold">{a.kpiTitle}</Td>
                 <Td className="font-mono">{a.midYearScore ?? '—'}</Td>
                 <Td className="font-mono">{a.finalScore ?? '—'}</Td>
-                <Td>{a.approved ? <span className="text-severity-low">Yes</span> : 'Pending'}</Td>
+                <Td>{a.approved ? <span className="text-severity-low-ink">Yes</span> : 'Pending'}</Td>
               </Tr>
             ))}
           </SimpleTable>

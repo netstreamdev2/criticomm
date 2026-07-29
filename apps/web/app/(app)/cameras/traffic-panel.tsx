@@ -52,11 +52,11 @@ export function TrafficPanel() {
           <p className="text-muted-foreground">{state.message}</p>
         )}
         {state && 'error' in state && (
-          <p className="text-severity-medium">Traffic feed unavailable ({state.error}).</p>
+          <p className="text-severity-medium-ink">Traffic feed unavailable ({state.error}).</p>
         )}
         {state && 'incidents' in state && (
           incidents.length === 0 ? (
-            <p className="text-severity-low">No active traffic incidents in the metro area.</p>
+            <p className="text-severity-low-ink">No active traffic incidents in the metro area.</p>
           ) : (
             <ul className="grid gap-2 sm:grid-cols-2">
               {incidents.slice(0, 12).map((i, idx) => (

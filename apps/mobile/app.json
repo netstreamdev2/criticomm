@@ -7,14 +7,15 @@
     "scheme": "criticom",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
-    "backgroundColor": "#0b1220",
+    "backgroundColor": "#050510",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "za.co.ethekwini.criticom",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Criticom shares your live position with dispatch while you are on duty.",
         "NSCameraUsageDescription": "Capture incident-scene evidence photos.",
-        "NSMicrophoneUsageDescription": "Record voice notes as incident evidence."
+        "NSMicrophoneUsageDescription": "Record voice notes as incident evidence.",
+        "UIBackgroundModes": ["remote-notification"]
       }
     },
     "android": {
@@ -23,7 +24,10 @@
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "CAMERA",
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "POST_NOTIFICATIONS",
+        "VIBRATE",
+        "WAKE_LOCK"
       ]
     },
     "plugins": [
@@ -35,6 +39,13 @@
       [
         "expo-image-picker",
         { "photosPermission": "Attach photos from your library as incident evidence." }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#dc3545",
+          "defaultChannel": "dispatch"
+        }
       ]
     ],
     "experiments": { "typedRoutes": false }

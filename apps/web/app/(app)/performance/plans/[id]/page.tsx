@@ -77,7 +77,7 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ id:
                   >
                     {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
                   </select>
-                  {existing?.approved && <span className="text-xs text-severity-low">✓ approved</span>}
+                  {existing?.approved && <span className="text-xs text-severity-low-ink">✓ approved</span>}
                 </div>
               </div>
               {canManage && (

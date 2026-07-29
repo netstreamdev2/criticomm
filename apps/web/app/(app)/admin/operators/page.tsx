@@ -61,7 +61,7 @@ export default async function AdminOperatorsPage() {
                 <Td>{o.role ?? '—'}</Td>
                 <Td>{o.station ?? '—'}</Td>
                 <Td className="font-mono">{o.total_incidents_handled}</Td>
-                <Td>{o.is_on_duty ? <span className="text-severity-low">Yes</span> : 'No'}</Td>
+                <Td>{o.is_on_duty ? <span className="text-severity-low-ink">Yes</span> : 'No'}</Td>
                 <Td className="text-muted-foreground">{formatSaTime(o.last_login)}</Td>
               </Tr>
             ))}

@@ -25,10 +25,10 @@ export default async function KpiPage() {
 
   const tiles = [
     { label: 'Active deployments', value: kpi.activeDeployments, accent: 'text-accent' },
-    { label: 'Critical alerts today', value: kpi.criticalAlertsToday, accent: 'text-severity-critical' },
+    { label: 'Critical alerts today', value: kpi.criticalAlertsToday, accent: 'text-severity-critical-ink' },
     { label: 'Total calls today', value: kpi.totalIncidentsToday, accent: 'text-fg' },
-    { label: 'Personnel on duty', value: kpi.personnelOnDuty, accent: 'text-severity-low' },
-    { label: 'Avg response (min)', value: kpi.avgResponseTime, accent: 'text-severity-medium' },
+    { label: 'Personnel on duty', value: kpi.personnelOnDuty, accent: 'text-severity-low-ink' },
+    { label: 'Avg response (min)', value: kpi.avgResponseTime, accent: 'text-severity-medium-ink' },
   ];
 
   const hourly = kpi.hourlyDistribution ?? [];

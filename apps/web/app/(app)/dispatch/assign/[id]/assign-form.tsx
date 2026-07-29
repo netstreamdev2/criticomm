@@ -99,7 +99,7 @@ export function AssignForm({
       </div>
 
       {error && (
-        <p className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical">
+        <p className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical-ink">
           {error}
         </p>
       )}

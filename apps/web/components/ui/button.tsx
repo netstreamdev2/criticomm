@@ -12,7 +12,7 @@ const buttonVariants = cva(
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
         outline: 'border border-border bg-transparent hover:bg-muted text-fg',
         ghost: 'hover:bg-muted',
-        destructive: 'bg-severity-critical text-white hover:bg-severity-critical/90',
+        destructive: 'bg-severity-critical hover:bg-severity-critical/90',
         secondary: 'bg-bg-card text-fg hover:bg-muted',
       },
       size: {

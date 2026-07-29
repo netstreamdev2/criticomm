@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, Platform, StyleSheet, Text } from 'react-native';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { NotificationsProvider, useNotificationRouting } from '@/lib/notifications';
+import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { colors, space, type } from '@/lib/theme';
 
 function AuthGate({ children }: { children: React.ReactNode }) {
@@ -29,30 +31,48 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/** Tapping an OS notification jumps straight to the incident it refers to. */
+function NotificationRouter() {
+  const router = useRouter();
+  const open = useCallback(
+    (incidentId: string) => router.push(`/incident/${incidentId}`),
+    [router],
+  );
+  useNotificationRouting(open);
+  return null;
+}
+
 export default function RootLayout() {
   return (
     <AuthProvider>
       <StatusBar style="light" />
       <AuthGate>
-        <Stack
-          screenOptions={{
-            headerStyle: {
-              backgroundColor: colors.bgSoft,
-              ...(Platform.OS === 'ios' ? { shadowOpacity: 0 } : { elevation: 0 }),
-            },
-            headerTintColor: colors.text,
-            headerTitleStyle: { fontWeight: '800', fontSize: 17 },
-            headerShadowVisible: false,
-            contentStyle: { backgroundColor: colors.bg },
-          }}
-        >
-          <Stack.Screen name="login" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="incident/[id]"
-            options={{ title: 'Incident', headerBackTitle: 'Back' }}
-          />
-        </Stack>
+        <NotificationsProvider>
+          <NotificationRouter />
+          <Stack
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: colors.bgSoft,
+                ...(Platform.OS === 'ios' ? { shadowOpacity: 0 } : { elevation: 0 }),
+              },
+              headerTintColor: colors.text,
+              headerTitleStyle: { fontWeight: '800', fontSize: 17 },
+              headerShadowVisible: false,
+              contentStyle: { backgroundColor: colors.bg },
+            }}
+          >
+            <Stack.Screen name="login" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="incident/[id]"
+              options={{ title: 'Incident', headerBackTitle: 'Back' }}
+            />
+          </Stack>
+
+          {/* Overlays sit above every screen in the stack. */}
+          <AlertBanners />
+          <AssignmentAlert />
+        </NotificationsProvider>
       </AuthGate>
     </AuthProvider>
   );

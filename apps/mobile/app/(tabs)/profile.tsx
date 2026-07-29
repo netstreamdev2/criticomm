@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { cleanupOnLogout, getMyPersonnel, toggleDuty } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { useNotifications } from '@/lib/notifications';
 import { colors, radius, space, type } from '@/lib/theme';
 import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/components/ui';
 
@@ -12,6 +13,7 @@ const HEARTBEAT_MS = 60_000;
 
 export default function ProfileScreen() {
   const { session, fullName, role, silo } = useAuth();
+  const { pushEnabled } = useNotifications();
   const [onDuty, setOnDuty] = useState(false);
   const [unit, setUnit] = useState<string | null>(null);
   const [lastPing, setLastPing] = useState<string | null>(null);
@@ -144,6 +146,28 @@ export default function ProfileScreen() {
           </View>
         ) : null}
         {error ? <View style={{ marginTop: space.md }}><Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner></View> : null}
+      </Card>
+
+      {/* Alerts */}
+      <SectionLabel>Dispatch alerts</SectionLabel>
+      <Card accent={pushEnabled ? colors.accent : colors.medium}>
+        <View style={styles.rowBetween}>
+          <View style={{ flex: 1, paddingRight: space.md }}>
+            <View style={styles.dutyHeading}>
+              <Ionicons
+                name={pushEnabled ? 'notifications' : 'notifications-off-outline'}
+                size={17}
+                color={pushEnabled ? colors.accent : colors.medium}
+              />
+              <Title>{pushEnabled ? 'Push enabled' : 'Push unavailable'}</Title>
+            </View>
+            <Muted>
+              {pushEnabled
+                ? 'Calls routed to your department reach this phone even when the screen is locked. High and Critical calls open a full-screen alert you must acknowledge.'
+                : 'Notification permission was declined, or this build has no push project configured. Alerts still arrive instantly while the app is open.'}
+            </Muted>
+          </View>
+        </View>
       </Card>
 
       {/* Account */}

@@ -43,7 +43,7 @@ export default async function AdminDevicesPage() {
                 <Td>{d.device_type ?? '—'}</Td>
                 <Td>{d.model ?? '—'}</Td>
                 <Td>{d.assigned_station ?? '—'}</Td>
-                <Td>{d.is_active ? <span className="text-severity-low">Yes</span> : <span className="text-severity-critical">No</span>}</Td>
+                <Td>{d.is_active ? <span className="text-severity-low-ink">Yes</span> : <span className="text-severity-critical-ink">No</span>}</Td>
                 <Td className="text-muted-foreground">{formatSaTime(d.enrolled_date)}</Td>
               </Tr>
             ))}

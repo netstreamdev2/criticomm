@@ -39,7 +39,7 @@ export default async function PerformancePage() {
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">On duty now</p>
-          <p className="mt-2 text-3xl font-bold text-severity-low">{onDuty.length}</p>
+          <p className="mt-2 text-3xl font-bold text-severity-low-ink">{onDuty.length}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Calls today</p>
@@ -47,7 +47,7 @@ export default async function PerformancePage() {
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Avg response (min)</p>
-          <p className="mt-2 text-3xl font-bold text-severity-medium">{kpi.avgResponseTime}</p>
+          <p className="mt-2 text-3xl font-bold text-severity-medium-ink">{kpi.avgResponseTime}</p>
         </CardContent></Card>
       </section>
 

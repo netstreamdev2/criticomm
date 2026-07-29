@@ -32,7 +32,7 @@ export default async function PolicePage() {
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Firearms out</p>
-          <p className="mt-2 text-3xl font-bold text-severity-medium">{outstanding.length}</p>
+          <p className="mt-2 text-3xl font-bold text-severity-medium-ink">{outstanding.length}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Quick links</p>

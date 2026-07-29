@@ -41,7 +41,7 @@ export default async function SecurityReportsPage() {
             {reports.map((r) => (
               <Tr key={r.id}>
                 <Td>
-                  <span className={r.is_emergency ? 'font-semibold text-severity-critical' : ''}>
+                  <span className={r.is_emergency ? 'font-semibold text-severity-critical-ink' : ''}>
                     {r.guard_name}
                   </span>
                   <div className="text-xs text-muted-foreground">
@@ -54,7 +54,7 @@ export default async function SecurityReportsPage() {
                 <Td>{r.severity_level ?? '—'}</Td>
                 <Td>
                   {r.is_incident_resolved ? (
-                    <span className="text-severity-low">Resolved {formatSaTime(r.resolution_time)}</span>
+                    <span className="text-severity-low-ink">Resolved {formatSaTime(r.resolution_time)}</span>
                   ) : (
                     <form action={resolveSecurityReportAction} className="flex items-center gap-2">
                       <input type="hidden" name="id" value={r.id} />

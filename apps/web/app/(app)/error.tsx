@@ -9,7 +9,7 @@ export default function AppError({
 }) {
   return (
     <div className="mx-auto max-w-lg py-16 text-center">
-      <p className="text-sm font-semibold uppercase tracking-widest text-severity-critical">
+      <p className="text-sm font-semibold uppercase tracking-widest text-severity-critical-ink">
         Something went wrong
       </p>
       <h1 className="mt-3 text-2xl font-bold">This page hit an error</h1>

@@ -37,7 +37,7 @@ export default async function MedicalPage() {
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Units flagged for cleaning</p>
-          <p className="mt-2 text-3xl font-bold text-severity-medium">
+          <p className="mt-2 text-3xl font-bold text-severity-medium-ink">
             {pcrs.filter((p) => p.requires_cleaning).length}
           </p>
         </CardContent></Card>

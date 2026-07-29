@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronRight, Search, Bell, LogOut, User } from 'lucide-react';
+import { ChevronRight, Search, LogOut, User } from 'lucide-react';
 import { breadcrumbsFor } from '@/lib/nav';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { ThemePicker } from '@/components/theme-picker';
+import { AlertBell } from '@/components/alert-bell';
 import { cn } from '@/lib/utils';
 
 function openPalette() {
@@ -76,16 +77,7 @@ export function Topbar({
 
       <ThemePicker />
 
-      <Link
-        href="/notifications"
-        aria-label="Notifications"
-        className={cn(
-          'inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-fg',
-          pathname.startsWith('/notifications') ? 'text-fg' : 'text-muted-foreground',
-        )}
-      >
-        <Bell className="h-4 w-4" />
-      </Link>
+      <AlertBell silo={silo} role={role} />
 
       {/* User */}
       <div className="flex items-center gap-2 border-l border-border pl-3">
@@ -104,7 +96,7 @@ export function Topbar({
           onClick={signOut}
           aria-label="Sign out"
           title="Sign out"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-severity-critical/15 hover:text-severity-critical"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-severity-critical/15 hover:text-severity-critical-ink"
         >
           <LogOut className="h-4 w-4" />
         </button>

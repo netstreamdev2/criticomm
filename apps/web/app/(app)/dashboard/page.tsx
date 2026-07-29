@@ -40,7 +40,7 @@ type Link = { href: string; label: string; desc: string; icon: string; tone?: st
 
 const LINKS: Record<Persona, Link[]> = {
   command: [
-    { href: '/dispatch/log-call', label: 'Log Incoming Call', desc: 'Capture a new 911 call', icon: 'PhoneCall', tone: 'bg-severity-critical/15 text-severity-critical' },
+    { href: '/dispatch/log-call', label: 'Log Incoming Call', desc: 'Capture a new 911 call', icon: 'PhoneCall', tone: 'bg-severity-critical/15 text-severity-critical-ink' },
     { href: '/dispatch/pending', label: 'Pending Queue', desc: 'Calls awaiting dispatch', icon: 'ListChecks' },
     { href: '/incidents/map', label: 'Live Map', desc: 'Incidents + units in realtime', icon: 'Map' },
     { href: '/dispatch/kpi', label: 'KPI Dashboard', desc: 'Operational metrics', icon: 'BarChart3' },
@@ -59,7 +59,7 @@ const LINKS: Record<Persona, Link[]> = {
     { href: '/profile/my-hr', label: 'My HR', desc: 'Personal HR portal', icon: 'IdCard' },
   ],
   supervisor: [
-    { href: '/roster', label: 'Roster', desc: 'Allocate duty + endorsements', icon: 'CalendarClock', tone: 'bg-severity-medium/15 text-severity-medium' },
+    { href: '/roster', label: 'Roster', desc: 'Allocate duty + endorsements', icon: 'CalendarClock', tone: 'bg-severity-medium/15 text-severity-medium-ink' },
     { href: '/roster/duty-sheet', label: 'Duty Sheet', desc: 'Printable parade sheet', icon: 'IdCard' },
     { href: '/shift/unit-compliance', label: 'Unit Compliance', desc: 'Team readiness today', icon: 'Gauge' },
     { href: '/performance/operational', label: 'Operational KPIs', desc: 'Team throughput', icon: 'BarChart3' },
@@ -198,10 +198,10 @@ async function CommandBody({
     <>
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Tile label="Active deployments" value={kpi.activeDeployments} accent="text-accent" />
-        <Tile label="Pending dispatch" value={pending.length} accent="text-severity-medium" />
-        <Tile label="Critical today" value={kpi.criticalAlertsToday} accent="text-severity-critical" />
+        <Tile label="Pending dispatch" value={pending.length} accent="text-severity-medium-ink" />
+        <Tile label="Critical today" value={kpi.criticalAlertsToday} accent="text-severity-critical-ink" />
         <Tile label="Total calls today" value={kpi.totalIncidentsToday} />
-        <Tile label="Personnel on duty" value={kpi.personnelOnDuty} accent="text-severity-low" />
+        <Tile label="Personnel on duty" value={kpi.personnelOnDuty} accent="text-severity-low-ink" />
       </section>
 
       {adminCounts && (
@@ -246,9 +246,9 @@ async function SupervisorBody({
     <>
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Tile label="Team members" value={personnel.length} />
-        <Tile label="On duty now" value={onDuty} accent="text-severity-low" />
+        <Tile label="On duty now" value={onDuty} accent="text-severity-low-ink" />
         <Tile label="Readiness checks today" value={compliance.mentalChecks.length} accent="text-accent" />
-        <Tile label="Active incidents" value={active.length} accent="text-severity-medium" />
+        <Tile label="Active incidents" value={active.length} accent="text-severity-medium-ink" />
       </section>
       <ActiveIncidentsPanel rows={active} />
     </>
@@ -278,7 +278,7 @@ async function ResponderBody({
   return (
     <>
       {!shiftDone && (
-        <Link href="/shift/mental-check" className="block rounded-xl border border-severity-medium/40 bg-severity-medium/10 p-4 text-sm font-semibold text-severity-medium hover:bg-severity-medium/20">
+        <Link href="/shift/mental-check" className="block rounded-xl border border-severity-medium/40 bg-severity-medium/10 p-4 text-sm font-semibold text-severity-medium-ink hover:bg-severity-medium/20">
           ⚠ Start-of-shift checks pending — complete your readiness & vehicle inspection to go on duty →
         </Link>
       )}
@@ -287,8 +287,8 @@ async function ResponderBody({
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Tile label="Assigned to me" value={mine.length} accent="text-accent" />
           <Tile label="Attended (cycle)" value={perf.asResponder.total} />
-          <Tile label="Closed" value={perf.asResponder.closed} accent="text-severity-low" />
-          <Tile label="Appraisal /5" value={perf.finalAverage ?? perf.midYearAverage ?? '—'} accent="text-severity-medium" />
+          <Tile label="Closed" value={perf.asResponder.closed} accent="text-severity-low-ink" />
+          <Tile label="Appraisal /5" value={perf.finalAverage ?? perf.midYearAverage ?? '—'} accent="text-severity-medium-ink" />
         </section>
       )}
 
@@ -334,8 +334,8 @@ async function CaseManagerBody({
   return (
     <>
       <section className="grid grid-cols-3 gap-3">
-        <Tile label="Open cases" value={active.length} accent="text-severity-medium" />
-        <Tile label="Closed today" value={closedToday} accent="text-severity-low" />
+        <Tile label="Open cases" value={active.length} accent="text-severity-medium-ink" />
+        <Tile label="Closed today" value={closedToday} accent="text-severity-low-ink" />
         <Tile label="Closed total" value={closed.length} />
       </section>
 

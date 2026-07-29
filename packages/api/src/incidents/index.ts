@@ -63,6 +63,25 @@ export async function dispatchUnit(client: CriticomClient, input: DispatchUnitIn
   return data as Incident;
 }
 
+/**
+ * Route an incident to one or more departments straight from the dispatch
+ * console, before any specific appliance is committed. Marks the incident
+ * Dispatched, logs the routing, and pops an alert on every screen in each
+ * receiving department. Use `dispatchUnit` once an actual unit is assigned.
+ */
+export async function routeIncident(
+  client: CriticomClient,
+  args: { incident_id: string; silos: Silo[]; notes?: string | null },
+) {
+  const { data, error } = await client.rpc('route_incident', {
+    p_incident_id: args.incident_id,
+    p_silos: args.silos,
+    p_notes: args.notes ?? null,
+  });
+  if (error) throw error;
+  return data as Incident;
+}
+
 /** ResponderController.UpdateStatus / IncidentWorkflowService.UpdateResponderStatusAsync */
 export async function updateResponderStatus(
   client: CriticomClient,

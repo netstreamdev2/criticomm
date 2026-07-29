@@ -9,9 +9,9 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Hydrants · Criticom' };
 
 const STATUS_COLOR: Record<string, string> = {
-  Operational: 'text-severity-low',
-  'Out of Service': 'text-severity-critical',
-  'Maintenance Required': 'text-severity-medium',
+  Operational: 'text-severity-low-ink',
+  'Out of Service': 'text-severity-critical-ink',
+  'Maintenance Required': 'text-severity-medium-ink',
 };
 
 export default async function HydrantsPage() {

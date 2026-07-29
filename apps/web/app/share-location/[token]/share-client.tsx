@@ -55,7 +55,7 @@ export function ShareLocationClient({ token }: { token: string }) {
     <div className="space-y-4">
       {status === 'sharing' && coords && (
         <div className="rounded-lg border border-severity-low/40 bg-severity-low/10 p-4 text-sm">
-          <p className="font-semibold text-severity-low">✓ Sharing your location</p>
+          <p className="font-semibold text-severity-low-ink">✓ Sharing your location</p>
           <p className="mt-1 font-mono text-xs text-muted-foreground">
             {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)} · {updates} update{updates === 1 ? '' : 's'} sent
           </p>

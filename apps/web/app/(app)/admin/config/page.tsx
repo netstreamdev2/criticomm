@@ -110,7 +110,7 @@ export default async function AdminConfigPage({
                   </Td>
                 )}
                 <Td>
-                  <span className={r.status === 'Active' ? 'text-severity-low' : 'text-muted-foreground'}>
+                  <span className={r.status === 'Active' ? 'text-severity-low-ink' : 'text-muted-foreground'}>
                     {r.status}
                   </span>
                 </Td>

@@ -59,9 +59,9 @@ export default async function LeavePage() {
                 <Td className="font-mono">{l.service_no ?? '—'}</Td>
                 <Td>
                   <span className={
-                    l.status === 'Approved' ? 'text-severity-low'
-                    : l.status === 'Rejected' ? 'text-severity-critical'
-                    : 'text-severity-medium'
+                    l.status === 'Approved' ? 'text-severity-low-ink'
+                    : l.status === 'Rejected' ? 'text-severity-critical-ink'
+                    : 'text-severity-medium-ink'
                   }>
                     {l.status}
                   </span>
@@ -72,12 +72,12 @@ export default async function LeavePage() {
                       <form action={setLeaveStatusAction}>
                         <input type="hidden" name="id" value={l.id} />
                         <input type="hidden" name="status" value="Approved" />
-                        <button type="submit" className="rounded bg-severity-low/20 px-2 py-1 text-xs text-severity-low hover:bg-severity-low/30">Approve</button>
+                        <button type="submit" className="rounded bg-severity-low/20 px-2 py-1 text-xs text-severity-low-ink hover:bg-severity-low/30">Approve</button>
                       </form>
                       <form action={setLeaveStatusAction}>
                         <input type="hidden" name="id" value={l.id} />
                         <input type="hidden" name="status" value="Rejected" />
-                        <button type="submit" className="rounded bg-severity-critical/20 px-2 py-1 text-xs text-severity-critical hover:bg-severity-critical/30">Reject</button>
+                        <button type="submit" className="rounded bg-severity-critical/20 px-2 py-1 text-xs text-severity-critical-ink hover:bg-severity-critical/30">Reject</button>
                       </form>
                     </div>
                   )}

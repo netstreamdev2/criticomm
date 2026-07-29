@@ -12,10 +12,10 @@ export const metadata = { title: 'Appraisal Plans · Criticom' };
 
 const STATUS_COLOR: Record<string, string> = {
   Active: 'text-muted-foreground',
-  MidYearSubmitted: 'text-severity-medium',
+  MidYearSubmitted: 'text-severity-medium-ink',
   MidYearApproved: 'text-accent',
-  FinalSubmitted: 'text-severity-medium',
-  Completed: 'text-severity-low',
+  FinalSubmitted: 'text-severity-medium-ink',
+  Completed: 'text-severity-low-ink',
 };
 
 export default async function PlansPage({

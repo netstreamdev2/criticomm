@@ -75,15 +75,15 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 | ParamedicsController | `/medical/pcr(/new,/[id],/[id]/edit)` — full PCR | ✅ (signature canvas → mobile phase) |
 | DisasterController | `/disaster` (monitor, map, **wind widget**), `/disaster/dispatch`, `/disaster/post-mortem`, `/disaster/partners` | ✅ |
 | WindController | `/api/wind` (OpenWeatherMap proxy, key server-side) | ✅ |
-| ChatbotController | `/assistant` + `/api/chat` (Gemini proxy, graceful fallback) | ✅ |
+| ChatbotController | `/assistant` full page + right-hand **assistant dock** on every route + `/api/chat` (live board context, four action codes) | ✅ |
 | CaseManagerController | `/case-manager`, audit views, close-case, **case PDF** (`/api/pdf/incident/[id]`) | ✅ |
 | CitizenController | public `/share-location/[token]` — live geolocation → `citizen_update_location` RPC | ✅ |
-| NotificationsController | `/notifications` + duty RPCs + global realtime toaster | ✅ |
+| NotificationsController | `/notifications` alert feed + duty RPCs + global toast system, blocking dispatch pop-ups, live unread bell, Expo push to the responder app | ✅ (beyond V4) |
 | RosterViewController | `/roster` — 224 & 24-48 generators, shifts, assignments | ✅ |
 | LeaveController | `/leave` — real table, approve/reject | ✅ |
 | Training/PoliceTrainingController | `/training` | ✅ |
 | Performance/SystemAnalyticsController | `/performance` + `/analytics` (trends, closure rate, charts) | ✅ |
-| DevAdmin/SuperController | `/admin` + `/admin/{personnel,operators,vehicles,devices}` + audit | ✅ |
+| DevAdmin/SuperController | `/admin` + `/admin/{personnel,operators,vehicles,devices,integrations}` + audit | ✅ (integrations panel is new) |
 | HRController / StaffController | `/admin/personnel` register | ✅ |
 | Profile/SystemProfileController | `/profile` (call-sign generator) + `/admin/operators` | ✅ |
 | CamerasController | `/cameras` registry | ✅ registry (live feed import = ops task) |
@@ -95,6 +95,18 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 - `/api/pdf/fire-report/[id]` — fire report PDF
 - `/api/wind` — OpenWeatherMap (needs `OPENWEATHER_API_KEY`)
 - `/api/chat` — Gemini "Criti" assistant (needs `GEMINI_API_KEY`, optional `GEMINI_MODEL`)
+- `/api/geocode` — Nominatim proxy for the dispatch console's address ⇄ coordinate lookup (no key)
+- `/api/push/notify` — Expo push fanout to the departments a call was routed to (service-role read of `push_tokens`)
+- `/api/integrations/test/[key]` — per-integration connection probe, admin-only
+
+## Alerting (V5 addition — V4 had SignalR toasts only)
+
+`alerts` rows are the "tell a human now" channel. `route_incident(incident, silos[])` writes one
+silo-wide alert per receiving department and returns in a single round trip; RLS scopes delivery so a
+crew only ever sees its own department's copy. High and Critical calls are raised with
+`presentation: 'modal'` and `requires_ack: true`, which renders as a blocking pop-up on web and a
+full-screen interrupt on mobile; acknowledgement is recorded in `alert_reads`. Everything else is a
+corner toast. Realtime covers open screens; Expo push covers locked phones.
 
 ## Still outstanding (operational, not code)
 

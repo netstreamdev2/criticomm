@@ -36,7 +36,7 @@ export default async function FirePage() {
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Hydrants operational</p>
-          <p className="mt-2 text-3xl font-bold text-severity-low">{operationalHydrants}/{hydrants.length}</p>
+          <p className="mt-2 text-3xl font-bold text-severity-low-ink">{operationalHydrants}/{hydrants.length}</p>
           <Link href="/fire/hydrants" className="text-sm text-accent hover:underline">Hydrant register →</Link>
         </CardContent></Card>
         <Card><CardContent className="p-4">

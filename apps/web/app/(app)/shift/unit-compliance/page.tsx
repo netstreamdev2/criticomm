@@ -34,7 +34,7 @@ export default async function UnitCompliancePage() {
                 <Tr key={c.id}>
                   <Td className="text-muted-foreground">{formatSaTime(c.timestamp)}</Td>
                   <Td>
-                    <span className={pass(c) ? 'text-severity-low' : 'font-semibold text-severity-critical'}>
+                    <span className={pass(c) ? 'text-severity-low-ink' : 'font-semibold text-severity-critical-ink'}>
                       {pass(c) ? 'PASS' : 'FAIL'}
                     </span>
                   </Td>
@@ -65,7 +65,7 @@ export default async function UnitCompliancePage() {
                     <Td className="text-muted-foreground">{formatSaTime(c.checked_at)}</Td>
                     <Td>{(c as { apparatus?: { unit_number?: string } }).apparatus?.unit_number ?? '—'}</Td>
                     <Td>{c.fuel_level}</Td>
-                    <Td className={defects ? 'text-severity-critical' : 'text-severity-low'}>
+                    <Td className={defects ? 'text-severity-critical-ink' : 'text-severity-low-ink'}>
                       {defects || 'None'}
                     </Td>
                   </Tr>

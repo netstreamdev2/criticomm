@@ -70,7 +70,7 @@ export default async function AdminPage({
                 <Td>{p.silo}</Td>
                 <Td className="font-mono">{p.badge_number ?? '—'}</Td>
                 <Td className="font-mono">{p.call_sign ?? '—'}</Td>
-                <Td>{p.is_on_duty ? <span className="text-severity-low">Yes</span> : 'No'}</Td>
+                <Td>{p.is_on_duty ? <span className="text-severity-low-ink">Yes</span> : 'No'}</Td>
                 <Td>
                   <form action={setRoleAction} className="flex items-center gap-2">
                     <input type="hidden" name="id" value={p.id} />

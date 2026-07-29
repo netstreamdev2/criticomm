@@ -136,8 +136,8 @@ export default async function MyHrPage() {
                 <Td className="font-mono">{l.eff_to}</Td>
                 <Td>
                   <span className={
-                    l.status === 'Approved' ? 'text-severity-low'
-                    : l.status === 'Rejected' ? 'text-severity-critical' : 'text-severity-medium'
+                    l.status === 'Approved' ? 'text-severity-low-ink'
+                    : l.status === 'Rejected' ? 'text-severity-critical-ink' : 'text-severity-medium-ink'
                   }>{l.status}</span>
                 </Td>
                 <Td className="text-muted-foreground">{formatSaTime(l.created_at)}</Td>

@@ -68,8 +68,8 @@ export default async function CaseManagerPage({ searchParams }: { searchParams: 
       </header>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Card><CardContent className="p-4"><p className="text-xs uppercase text-muted-foreground">Open cases</p><p className="mt-2 text-3xl font-bold text-severity-medium">{openCount}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs uppercase text-muted-foreground">Closed today</p><p className="mt-2 text-3xl font-bold text-severity-low">{closedToday}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs uppercase text-muted-foreground">Open cases</p><p className="mt-2 text-3xl font-bold text-severity-medium-ink">{openCount}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs uppercase text-muted-foreground">Closed today</p><p className="mt-2 text-3xl font-bold text-severity-low-ink">{closedToday}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs uppercase text-muted-foreground">Closed total</p><p className="mt-2 text-3xl font-bold">{closed.length}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs uppercase text-muted-foreground">Avg resolution (min)</p><p className="mt-2 text-3xl font-bold text-accent">{avgRes}</p></CardContent></Card>
       </section>

@@ -50,7 +50,7 @@ export function WindWidget() {
           <p className="text-muted-foreground">{data.message}</p>
         )}
         {data?.configured && data.error && (
-          <p className="text-severity-medium">Weather service unavailable ({data.error}).</p>
+          <p className="text-severity-medium-ink">Weather service unavailable ({data.error}).</p>
         )}
         {data?.configured && !data.error && data.windSpeedMs != null && (
           <div className="space-y-3">

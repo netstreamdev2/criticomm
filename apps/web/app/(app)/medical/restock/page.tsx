@@ -61,7 +61,7 @@ export default async function RestockPage() {
                 <Td>{(r as { unit?: { unit_number?: string } }).unit?.unit_number ?? '—'}</Td>
                 <Td>{r.drug_name}</Td>
                 <Td className="font-mono">{r.qty_used}</Td>
-                <Td className={`font-mono ${r.qty_remaining <= 2 ? 'text-severity-critical' : ''}`}>{r.qty_remaining}</Td>
+                <Td className={`font-mono ${r.qty_remaining <= 2 ? 'text-severity-critical-ink' : ''}`}>{r.qty_remaining}</Td>
                 <Td>{r.last_checked_by}</Td>
                 <Td className="text-muted-foreground">{formatSaTime(r.restock_date)}</Td>
               </Tr>

@@ -15,7 +15,7 @@ export function TextField({
 }) {
   return (
     <div className={className}>
-      <Label htmlFor={name}>{label}{required && <span className="text-severity-critical"> *</span>}</Label>
+      <Label htmlFor={name}>{label}{required && <span className="text-severity-critical-ink"> *</span>}</Label>
       <Input
         id={name} name={name} type={type} required={required} step={step}
         defaultValue={defaultValue ?? undefined} placeholder={placeholder} className="mt-1"
@@ -32,7 +32,7 @@ export function TextAreaField({
 }) {
   return (
     <div className={className}>
-      <Label htmlFor={name}>{label}{required && <span className="text-severity-critical"> *</span>}</Label>
+      <Label htmlFor={name}>{label}{required && <span className="text-severity-critical-ink"> *</span>}</Label>
       <Textarea
         id={name} name={name} required={required} rows={rows}
         defaultValue={defaultValue ?? undefined} placeholder={placeholder} className="mt-1"
@@ -49,7 +49,7 @@ export function SelectField({
 }) {
   return (
     <div className={className}>
-      <Label htmlFor={name}>{label}{required && <span className="text-severity-critical"> *</span>}</Label>
+      <Label htmlFor={name}>{label}{required && <span className="text-severity-critical-ink"> *</span>}</Label>
       <select
         id={name} name={name} required={required} defaultValue={defaultValue ?? undefined}
         className="mt-1 h-10 w-full rounded-md border border-border bg-bg-soft px-3 text-sm"

@@ -181,7 +181,7 @@ export default async function PersonPage({
                   <Td className="font-semibold">{s.kpi_title}</Td>
                   <Td>{s.stage}</Td>
                   <Td className="font-mono">{s.score}/5</Td>
-                  <Td>{s.approved ? <span className="text-severity-low">Yes</span> : 'Pending'}</Td>
+                  <Td>{s.approved ? <span className="text-severity-low-ink">Yes</span> : 'Pending'}</Td>
                 </Tr>
               ))}
             </SimpleTable>
@@ -199,7 +199,7 @@ export default async function PersonPage({
                   <Td className="font-semibold">{e.type}</Td>
                   <Td className="max-w-[180px] truncate">{e.details ?? '—'}</Td>
                   <Td className="font-mono text-xs">{e.start_date}{e.end_date ? ` → ${e.end_date}` : ' →'}</Td>
-                  <Td>{e.is_active ? <span className="text-severity-low">Yes</span> : 'No'}</Td>
+                  <Td>{e.is_active ? <span className="text-severity-low-ink">Yes</span> : 'No'}</Td>
                 </Tr>
               ))}
             </SimpleTable>
@@ -216,7 +216,7 @@ export default async function PersonPage({
                   <Td className="font-mono">{l.eff_from}</Td>
                   <Td className="font-mono">{l.eff_to}</Td>
                   <Td>
-                    <span className={l.status === 'Approved' ? 'text-severity-low' : l.status === 'Rejected' ? 'text-severity-critical' : 'text-severity-medium'}>{l.status}</span>
+                    <span className={l.status === 'Approved' ? 'text-severity-low-ink' : l.status === 'Rejected' ? 'text-severity-critical-ink' : 'text-severity-medium-ink'}>{l.status}</span>
                   </Td>
                 </Tr>
               ))}

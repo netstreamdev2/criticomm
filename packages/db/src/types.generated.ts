@@ -23,6 +23,13 @@ export type IncidentStatus =
 
 export type IncidentSeverity = 'Low' | 'Medium' | 'High' | 'Critical';
 
+/** Why an alert was raised — drives its icon and grouping. */
+export type AlertKind =
+  | 'assignment' | 'incident_new' | 'incident_update' | 'broadcast' | 'system' | 'info';
+
+/** How forcefully an alert interrupts: a corner toast or a modal that blocks. */
+export type AlertPresentation = 'toast' | 'modal';
+
 export type ApparatusStatus =
   | 'Available' | 'In Use' | 'En Route' | 'On Scene'
   | 'Out of Service' | 'Maintenance' | 'Decommissioned';
@@ -243,6 +250,80 @@ export type Database = {
         };
         Insert: Partial<Database['public']['Tables']['notifications']['Row']>;
         Update: Partial<Database['public']['Tables']['notifications']['Row']>;
+        Relationships: [];
+      };
+      alerts: {
+        Row: {
+          id: string;
+          silo: Silo;
+          /** null ⇒ broadcast to everyone in `silo`. */
+          target_user_id: string | null;
+          kind: AlertKind;
+          severity: IncidentSeverity;
+          title: string;
+          body: string | null;
+          incident_id: string | null;
+          link: string | null;
+          presentation: AlertPresentation;
+          requires_ack: boolean;
+          created_by: string | null;
+          created_by_name: string | null;
+          created_at: string;
+          expires_at: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['alerts']['Row']>;
+        Update: Partial<Database['public']['Tables']['alerts']['Row']>;
+        Relationships: [
+          {
+            foreignKeyName: 'alerts_incident_id_fkey';
+            columns: ['incident_id'];
+            isOneToOne: false;
+            referencedRelation: 'incidents';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      alert_reads: {
+        Row: {
+          alert_id: string;
+          user_id: string;
+          read_at: string;
+          acknowledged: boolean;
+        };
+        Insert: Partial<Database['public']['Tables']['alert_reads']['Row']>;
+        Update: Partial<Database['public']['Tables']['alert_reads']['Row']>;
+        Relationships: [];
+      };
+      push_tokens: {
+        Row: {
+          id: string;
+          user_id: string;
+          token: string;
+          platform: string | null;
+          device_name: string | null;
+          silo: Silo | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['push_tokens']['Row']>;
+        Update: Partial<Database['public']['Tables']['push_tokens']['Row']>;
+        Relationships: [];
+      };
+      integration_settings: {
+        Row: {
+          key: string;
+          label: string;
+          category: string;
+          enabled: boolean;
+          config: Record<string, unknown>;
+          last_tested_at: string | null;
+          last_test_ok: boolean | null;
+          last_test_message: string | null;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['integration_settings']['Row']>;
+        Update: Partial<Database['public']['Tables']['integration_settings']['Row']>;
         Relationships: [];
       };
       audit_logs: {
@@ -1283,6 +1364,14 @@ export type Database = {
       has_completed_shift_start_today: { Args: Record<string, never>; Returns: boolean };
       assign_vehicle: { Args: { p_apparatus_id: string }; Returns: Database['public']['Tables']['apparatus']['Row'] };
       citizen_update_location: { Args: { p_token: string; p_latitude: number; p_longitude: number }; Returns: void };
+      raise_dispatch_alerts: {
+        Args: { p_incident_id: string; p_silos: Silo[]; p_by_name?: string | null };
+        Returns: number;
+      };
+      route_incident: {
+        Args: { p_incident_id: string; p_silos: Silo[]; p_notes?: string | null };
+        Returns: Database['public']['Tables']['incidents']['Row'];
+      };
     };
   };
 };

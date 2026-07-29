@@ -1,5 +1,6 @@
 export type {
   Database, Silo, UserRole, IncidentStatus, IncidentSeverity, ApparatusStatus,
+  AlertKind, AlertPresentation,
 } from './types.generated';
 export * from './client';
 export * from './server';

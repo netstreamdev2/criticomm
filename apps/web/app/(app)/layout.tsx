@@ -3,7 +3,9 @@ import { getServerSupabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Sidebar } from '@/components/sidebar';
 import { Topbar } from '@/components/topbar';
 import { CommandPalette } from '@/components/command-palette';
-import { RealtimeToaster } from '@/components/realtime-toaster';
+import { ToastProvider } from '@/components/toast';
+import { AlertCenter } from '@/components/alert-center';
+import { AssistantDock } from '@/components/assistant-dock';
 
 // Every page in this group is per-user (cookies + RLS), so none of them should
 // ever be statically prerendered at build time.
@@ -14,7 +16,7 @@ function NotConfigured() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-bg p-6">
       <div className="max-w-lg rounded-xl border border-severity-medium/40 bg-severity-medium/10 p-6">
-        <h1 className="text-xl font-bold text-severity-medium">Deployment not configured</h1>
+        <h1 className="text-xl font-bold text-severity-medium-ink">Deployment not configured</h1>
         <p className="mt-3 text-sm">
           This deployment is missing its Supabase environment variables, so it can&apos;t reach the database.
         </p>
@@ -45,14 +47,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const fullName = (user.user_metadata?.full_name as string | undefined) ?? user.email ?? 'User';
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[264px_1fr]">
-      <Sidebar silo={silo} role={role} />
-      <div className="flex min-h-screen min-w-0 flex-col">
-        <Topbar fullName={fullName} role={role} silo={silo} />
-        <main className="flex-1 bg-bg p-4 sm:p-6">{children}</main>
+    <ToastProvider>
+      <div className="min-h-screen lg:grid lg:grid-cols-[264px_1fr]">
+        <Sidebar silo={silo} role={role} />
+        <div className="flex min-h-screen min-w-0 flex-col">
+          <Topbar fullName={fullName} role={role} silo={silo} />
+          <main className="flex-1 bg-bg p-4 sm:p-6">{children}</main>
+        </div>
+        <CommandPalette silo={silo} role={role} />
+        <AlertCenter silo={silo} role={role} userId={user.id} />
+        <AssistantDock fullName={fullName} role={role} silo={silo} />
       </div>
-      <CommandPalette silo={silo} role={role} />
-      <RealtimeToaster silo={silo} role={role} />
-    </div>
+    </ToastProvider>
   );
 }

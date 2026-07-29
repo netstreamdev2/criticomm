@@ -24,6 +24,18 @@ const config: Config = {
         // Foreground / body text — themeable so light themes are readable.
         fg: { DEFAULT: v('--c-fg') },
         severity: {
+          // `-ink` variants are the same hue tuned to stay legible as *text*
+          // on a tinted wash of themselves. Identical to the base colour in
+          // dark themes; darkened in light ones.
+          'low-ink': v('--c-low-ink'),
+          'medium-ink': v('--c-medium-ink'),
+          'high-ink': v('--c-high-ink'),
+          'critical-ink': v('--c-critical-ink'),
+          // `-fg` variants are the text colour that sits ON the solid fill.
+          'low-fg': v('--c-low-fg'),
+          'medium-fg': v('--c-medium-fg'),
+          'high-fg': v('--c-high-fg'),
+          'critical-fg': v('--c-critical-fg'),
           low: v('--c-low'),
           medium: v('--c-medium'),
           high: v('--c-high'),
