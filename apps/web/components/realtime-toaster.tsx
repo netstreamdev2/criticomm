@@ -20,7 +20,13 @@ export function RealtimeToaster({ silo, role }: { silo: string; role: string }) 
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
-    const sb = getBrowserSupabase();
+    // Never let a realtime setup failure (e.g. missing config) crash the app shell.
+    let sb;
+    try {
+      sb = getBrowserSupabase();
+    } catch {
+      return;
+    }
     // Global roles hear everything; silo staff only their own channel.
     const scope = GLOBAL_ROLES.includes(role as UserRole) || silo === 'Ethekwini'
       ? ('all' as const)

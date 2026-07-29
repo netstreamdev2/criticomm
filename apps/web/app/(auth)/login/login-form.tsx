@@ -19,14 +19,20 @@ export function LoginForm() {
     e.preventDefault();
     setError(null);
     startTransition(async () => {
-      const supabase = getBrowserSupabase();
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setError(error.message);
-        return;
+      try {
+        const supabase = getBrowserSupabase();
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          setError(error.message);
+          return;
+        }
+        router.push(next);
+        router.refresh();
+      } catch (e) {
+        // e.g. Supabase not configured on the deployment — show the message
+        // instead of white-screening with a client-side exception.
+        setError((e as Error).message);
       }
-      router.push(next);
-      router.refresh();
     });
   };
 
