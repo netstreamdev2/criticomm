@@ -17,6 +17,10 @@ export function isSupabaseConfigured(): boolean {
 
 /** Server component / server action client — honours user session via cookies. */
 export async function getServerSupabase() {
+  // Read cookies FIRST: this opts the route into dynamic rendering. Throwing
+  // before this would run during static prerendering and fail the build on a
+  // deployment that has no env, instead of surfacing at request time.
+  const cookieStore = await cookies();
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     throw new Error(
       'Supabase is not configured: NEXT_PUBLIC_SUPABASE_URL and/or ' +
@@ -24,7 +28,6 @@ export async function getServerSupabase() {
       'Set them in your hosting environment and redeploy.',
     );
   }
-  const cookieStore = await cookies();
   return createWebServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     getAll: () => cookieStore.getAll(),
     setAll: (toSet) => {

@@ -5,6 +5,10 @@ import { LogoutButton } from '@/components/logout-button';
 import { Sidebar } from '@/components/sidebar';
 import { RealtimeToaster } from '@/components/realtime-toaster';
 
+// Every page in this group is per-user (cookies + RLS), so none of them should
+// ever be statically prerendered at build time.
+export const dynamic = 'force-dynamic';
+
 /** Shown instead of a cryptic 500 when the deployment has no Supabase env. */
 function NotConfigured() {
   return (
