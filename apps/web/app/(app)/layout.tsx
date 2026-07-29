@@ -1,11 +1,37 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { getServerSupabase } from '@/lib/supabase';
+import { getServerSupabase, isSupabaseConfigured } from '@/lib/supabase';
 import { LogoutButton } from '@/components/logout-button';
 import { Sidebar } from '@/components/sidebar';
 import { RealtimeToaster } from '@/components/realtime-toaster';
 
+/** Shown instead of a cryptic 500 when the deployment has no Supabase env. */
+function NotConfigured() {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-bg p-6">
+      <div className="max-w-lg rounded-xl border border-severity-medium/40 bg-severity-medium/10 p-6">
+        <h1 className="text-xl font-bold text-severity-medium">Deployment not configured</h1>
+        <p className="mt-3 text-sm">
+          This deployment is missing its Supabase environment variables, so it can&apos;t reach the database.
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground">Set these in your hosting provider, then <strong>redeploy</strong>:</p>
+        <ul className="mt-2 list-inside list-disc font-mono text-xs text-muted-foreground">
+          <li>NEXT_PUBLIC_SUPABASE_URL</li>
+          <li>NEXT_PUBLIC_SUPABASE_ANON_KEY</li>
+          <li>SUPABASE_SERVICE_ROLE_KEY</li>
+        </ul>
+        <p className="mt-3 text-xs text-muted-foreground">
+          The <span className="font-mono">NEXT_PUBLIC_</span> prefix is required — without it the value never
+          reaches the app. Values are baked in at build time, so a redeploy is needed after adding them.
+          Visit <span className="font-mono">/api/health/config</span> to check what this deployment can see.
+        </p>
+      </div>
+    </main>
+  );
+}
+
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  if (!isSupabaseConfigured()) return <NotConfigured />;
   const supabase = await getServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
