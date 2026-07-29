@@ -142,6 +142,59 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
   color: rgb(var(--c-fg));
 }
 
+/* Teardrop pins for the dispatch-board incident map. Colour arrives via the
+   --pin custom property so one class serves every severity. */
+.map-teardrop-wrap { background: transparent; border: none; }
+.map-teardrop {
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--pin, #ef4444);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+.map-teardrop::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+/* ── Dispatch ops board (dispatcher dashboard) ──────────────── */
+/* The shadow colour is omitted on purpose: text-shadow falls back to
+   currentColor, so the glow always matches the number it sits under. */
+.stat-glow { text-shadow: 0 0 22px; }
+
+.ops-chip {
+  @apply mx-auto flex h-12 w-12 items-center justify-center rounded-xl;
+}
+.ops-chip[data-tone='critical'] {
+  background: rgb(var(--c-critical) / 0.15);
+  color: rgb(var(--c-critical-ink));
+  box-shadow: 0 0 26px rgb(var(--c-critical) / 0.4);
+}
+.ops-chip[data-tone='low'] {
+  background: rgb(var(--c-low) / 0.15);
+  color: rgb(var(--c-low-ink));
+  box-shadow: 0 0 26px rgb(var(--c-low) / 0.4);
+}
+
+/* Live pulse dot used on the map header's LIVE badge. */
+.live-dot {
+  @apply inline-block h-1.5 w-1.5 rounded-full;
+  background: rgb(var(--c-low));
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgb(var(--c-low) / 0.5); }
+  50%      { opacity: 0.6; box-shadow: 0 0 0 5px rgb(var(--c-low) / 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+}
+
 /* Scene pin on the dispatch console — a hard dot with a slow radar pulse so
    it stays findable against busy satellite imagery. */
 .criticom-pin { position: relative; }

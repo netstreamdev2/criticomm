@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { HourlyAreaChart, SeverityDonut } from '@/components/charts';
 import { QuickLinks } from '@/components/quick-links';
+import { DispatchBoard } from './dispatch-board';
 import { getSession, siloFilter } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 
@@ -142,6 +143,20 @@ export default async function DashboardPage() {
   const sf = siloFilter(silo);
   const first = fullName.split(' ')[0];
 
+  // Dispatchers get the V4-style ops board: stats above the fold, feed +
+  // critical wait, the live map, throughput. Quick actions follow below.
+  if (persona === 'command') {
+    return (
+      <div className="space-y-4">
+        <DispatchBoard supabase={supabase} sf={sf} />
+        <section className="space-y-3 pt-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
+          <QuickLinks links={LINKS.command} role={role} silo={silo} />
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Hero */}
@@ -160,7 +175,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* Persona-specific body */}
-      {(persona === 'command' || persona === 'admin' || persona === 'viewer') && (
+      {(persona === 'admin' || persona === 'viewer') && (
         <CommandBody supabase={supabase} sf={sf} persona={persona} />
       )}
       {persona === 'supervisor' && <SupervisorBody supabase={supabase} sf={sf} />}

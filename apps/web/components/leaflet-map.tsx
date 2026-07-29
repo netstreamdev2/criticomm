@@ -3,7 +3,8 @@
 /**
  * Shared Leaflet map (client-only). Replaces V4's GIS views
  * (FireChief hydrant map, Disaster map, dispatcher live map).
- * Tiles: OpenStreetMap. Durban default centre.
+ * Durban default centre. Street (OSM) or satellite (Esri) tiles;
+ * circle markers by default, teardrop pins when `pin` is set.
  */
 import { useEffect, useRef } from 'react';
 import 'leaflet/dist/leaflet.css';
@@ -27,6 +28,17 @@ const COLORS: Record<string, string> = {
   default: '#38bdf8',
 };
 
+const TILES = {
+  street: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; OpenStreetMap contributors',
+  },
+  satellite: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri',
+  },
+} as const;
+
 const DURBAN: [number, number] = [-29.8587, 31.0218];
 
 export function LeafletMap({
@@ -34,11 +46,17 @@ export function LeafletMap({
   height = 480,
   center,
   zoom = 11,
+  satellite = false,
+  pin = false,
 }: {
   markers: MapMarker[];
   height?: number;
   center?: [number, number];
   zoom?: number;
+  /** Esri World Imagery instead of OSM streets. */
+  satellite?: boolean;
+  /** Teardrop pins (dispatch-board style) instead of circle markers. */
+  pin?: boolean;
 }) {
   const el = useRef<HTMLDivElement>(null);
 
@@ -50,20 +68,29 @@ export function LeafletMap({
       if (disposed || !el.current) return;
 
       const map = L.map(el.current, { zoomControl: true }).setView(center ?? DURBAN, zoom);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors',
-      }).addTo(map);
+      const tiles = satellite ? TILES.satellite : TILES.street;
+      L.tileLayer(tiles.url, { maxZoom: 19, attribution: tiles.attribution }).addTo(map);
 
       const group = L.featureGroup();
       for (const m of markers) {
-        const marker = L.circleMarker([m.lat, m.lng], {
-          radius: 8,
-          weight: 2,
-          color: COLORS[m.kind ?? 'default'] ?? COLORS.default!,
-          fillColor: COLORS[m.kind ?? 'default'] ?? COLORS.default!,
-          fillOpacity: 0.55,
-        });
+        const colour = COLORS[m.kind ?? 'default'] ?? COLORS.default!;
+        const marker = pin
+          ? L.marker([m.lat, m.lng], {
+              icon: L.divIcon({
+                className: 'map-teardrop-wrap',
+                html: `<span class="map-teardrop" style="--pin:${colour}"></span>`,
+                iconSize: [26, 26],
+                iconAnchor: [13, 24],
+                popupAnchor: [0, -22],
+              }),
+            })
+          : L.circleMarker([m.lat, m.lng], {
+              radius: 8,
+              weight: 2,
+              color: colour,
+              fillColor: colour,
+              fillOpacity: 0.55,
+            });
         if (m.popupHtml) marker.bindPopup(m.popupHtml);
         group.addLayer(marker);
       }
@@ -71,6 +98,9 @@ export function LeafletMap({
       if (markers.length > 0 && !center) {
         map.fitBounds(group.getBounds().pad(0.2), { maxZoom: 14 });
       }
+
+      // Guard against a container that was sized after init (grid settling).
+      setTimeout(() => map.invalidateSize(), 60);
 
       cleanup = () => map.remove();
     });
@@ -81,7 +111,7 @@ export function LeafletMap({
     };
     // Markers are computed server-side per render; identity via JSON is fine here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(markers), center?.[0], center?.[1], zoom]);
+  }, [JSON.stringify(markers), center?.[0], center?.[1], zoom, satellite, pin]);
 
   return <div ref={el} style={{ height }} className="w-full" />;
 }
