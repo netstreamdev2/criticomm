@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getIncident, getIncidentUpdates, listIncidentAttachments } from '@criticom/api';
+import { getIncident, getIncidentUpdates, listIncidentAttachments, listAuditLogs } from '@criticom/api';
 import { CASE_MANAGER_ROLES } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -24,9 +24,10 @@ export default async function IncidentDetailPage({
 
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) notFound();
-  const [updates, attachments] = await Promise.all([
+  const [updates, attachments, audit] = await Promise.all([
     getIncidentUpdates(supabase, id),
     listIncidentAttachments(supabase, id),
+    listAuditLogs(supabase, { entityType: 'incident', entityId: id, limit: 200 }).catch(() => []),
   ]);
 
   const isClosed = incident.status === 'Closed' || incident.status === 'Resolved';
@@ -40,6 +41,30 @@ export default async function IncidentDetailPage({
     { label: 'Arrived on scene', at: incident.arrived_timestamp },
     { label: 'Closed', at: incident.closed_at },
   ];
+
+  // Unified chronological history — milestones + operator notes + evidence +
+  // audit trail, so the whole life of the incident reads in one place.
+  type Ev = { at: string; kind: string; title: string; detail?: string | null; who?: string | null };
+  const events: Ev[] = [
+    ...lifecycle
+      .filter((m): m is { label: string; at: string } => Boolean(m.at))
+      .map((m) => ({ at: m.at, kind: 'milestone', title: m.label })),
+    ...updates.map((u) => ({
+      at: u.timestamp, kind: 'update', title: 'Update logged', detail: u.message, who: u.created_by_name,
+    })),
+    ...attachments.map((a) => ({
+      at: a.created_at, kind: 'evidence',
+      title: `Evidence uploaded (${a.kind})`,
+      detail: a.caption ?? a.storage_path.split('/').pop(), who: a.uploaded_by_name,
+    })),
+    ...audit.map((l) => ({
+      at: l.timestamp, kind: 'audit', title: l.action_type, detail: l.details, who: l.user_name,
+    })),
+  ].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+
+  const EVENT_TONE: Record<string, string> = {
+    milestone: 'bg-primary', update: 'bg-accent', evidence: 'bg-severity-medium', audit: 'bg-muted-foreground',
+  };
 
   return (
     <div className="space-y-4">
@@ -107,13 +132,34 @@ export default async function IncidentDetailPage({
             <CardDescription>Milestones from call to close.</CardDescription>
           </CardHeader>
           <CardContent>
-            <ol className="space-y-3 text-sm">
-              {lifecycle.map((m) => (
-                <li key={m.label} className="flex items-center justify-between gap-3">
-                  <span className={m.at ? '' : 'text-muted-foreground'}>{m.label}</span>
-                  <span className="font-mono text-xs text-muted-foreground">{m.at ? formatSaTime(m.at) : 'pending'}</span>
-                </li>
-              ))}
+            <ol className="relative space-y-0 text-sm">
+              {lifecycle.map((m, idx) => {
+                const done = Boolean(m.at);
+                const last = idx === lifecycle.length - 1;
+                return (
+                  <li key={m.label} className="relative flex gap-3 pb-4 last:pb-0">
+                    {/* connector */}
+                    {!last && (
+                      <span
+                        aria-hidden
+                        className={`absolute left-[5px] top-4 h-full w-px ${done ? 'bg-primary/50' : 'bg-border'}`}
+                      />
+                    )}
+                    <span
+                      aria-hidden
+                      className={`relative z-10 mt-1 h-[11px] w-[11px] shrink-0 rounded-full border-2 ${
+                        done ? 'border-primary bg-primary' : 'border-border bg-bg-card'
+                      }`}
+                    />
+                    <span className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                      <span className={done ? 'font-medium' : 'text-muted-foreground'}>{m.label}</span>
+                      <span className="shrink-0 font-mono text-xs text-muted-foreground">
+                        {m.at ? formatSaTime(m.at) : 'pending'}
+                      </span>
+                    </span>
+                  </li>
+                );
+              })}
             </ol>
 
             {!isClosed && (
@@ -204,6 +250,44 @@ export default async function IncidentDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      {/* Complete life of the incident, newest first */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Complete history ({events.length})</CardTitle>
+          <CardDescription>
+            Every milestone, update, evidence upload and audited action — from the first call
+            {isClosed ? ' through to closure.' : ' up to now.'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {events.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
+          ) : (
+            <ol className="relative text-sm">
+              {events.map((ev, idx) => (
+                <li key={`${ev.at}-${idx}`} className="relative flex gap-3 pb-4 last:pb-0">
+                  {idx !== events.length - 1 && (
+                    <span aria-hidden className="absolute left-[5px] top-4 h-full w-px bg-border" />
+                  )}
+                  <span
+                    aria-hidden
+                    className={`relative z-10 mt-1 h-[11px] w-[11px] shrink-0 rounded-full ${EVENT_TONE[ev.kind] ?? 'bg-muted-foreground'}`}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                      <span className="font-medium">{ev.title}</span>
+                      <span className="font-mono text-xs text-muted-foreground">{formatSaTime(ev.at)}</span>
+                    </div>
+                    {ev.detail && <p className="mt-0.5 break-words text-muted-foreground">{ev.detail}</p>}
+                    {ev.who && <p className="mt-0.5 text-xs text-muted-foreground/80">{ev.who}</p>}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

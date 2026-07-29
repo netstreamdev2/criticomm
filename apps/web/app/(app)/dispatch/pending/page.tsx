@@ -4,6 +4,7 @@ import { listPendingIncidents } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { timeAgo } from '@/lib/utils';
 import { PendingRealtimeBridge } from './realtime-bridge';
+import { IncidentRow, StopClick } from './incident-row';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Pending queue · Criticom' };
@@ -32,7 +33,9 @@ export default async function PendingPage() {
       <Card>
         <CardHeader>
           <CardTitle>{pending.length} pending</CardTitle>
-          <CardDescription>Click an incident to assign units.</CardDescription>
+          <CardDescription>
+            Click any row to open the incident&apos;s full lifecycle, or use Assign to dispatch units.
+          </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <table className="w-full text-sm">
@@ -56,8 +59,8 @@ export default async function PendingPage() {
                 </tr>
               )}
               {pending.map((i) => (
-                <tr key={i.id} className="border-b border-border/50 hover:bg-muted/40">
-                  <td className="px-4 py-3 font-mono">{i.incident_number}</td>
+                <IncidentRow key={i.id} incidentId={i.id}>
+                  <td className="px-4 py-3 font-mono text-accent">{i.incident_number}</td>
                   <td className="px-4 py-3">
                     <span className="severity-pill" data-sev={i.incident_severity}>{i.incident_severity}</span>
                   </td>
@@ -69,14 +72,16 @@ export default async function PendingPage() {
                   <td className="px-4 py-3 max-w-[280px] truncate">{i.location_address}</td>
                   <td className="px-4 py-3 text-muted-foreground">{timeAgo(i.call_timestamp)}</td>
                   <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/dispatch/assign/${i.id}`}
-                      className="inline-flex h-8 items-center rounded-md bg-accent px-3 text-xs font-semibold"
-                    >
-                      Assign
-                    </Link>
+                    <StopClick>
+                      <Link
+                        href={`/dispatch/assign/${i.id}`}
+                        className="inline-flex h-8 items-center rounded-md bg-accent px-3 text-xs font-semibold"
+                      >
+                        Assign
+                      </Link>
+                    </StopClick>
                   </td>
-                </tr>
+                </IncidentRow>
               ))}
             </tbody>
           </table>
