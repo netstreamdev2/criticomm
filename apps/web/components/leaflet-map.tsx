@@ -7,6 +7,7 @@
  * circle markers by default, teardrop pins when `pin` is set.
  */
 import { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import 'leaflet/dist/leaflet.css';
 
 export type MapMarker = {
@@ -16,6 +17,11 @@ export type MapMarker = {
   /** 'critical' | 'high' | 'medium' | 'low' | 'hydrant' | 'unit' | 'default' */
   kind?: string;
   popupHtml?: string;
+  /**
+   * In-app destination. When set, clicking the marker navigates there and
+   * `popupHtml` becomes a hover tooltip instead of a click popup.
+   */
+  href?: string;
 };
 
 const COLORS: Record<string, string> = {
@@ -59,6 +65,9 @@ export function LeafletMap({
   pin?: boolean;
 }) {
   const el = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const routerRef = useRef(router);
+  routerRef.current = router;
 
   useEffect(() => {
     let disposed = false;
@@ -91,7 +100,15 @@ export function LeafletMap({
               fillColor: colour,
               fillOpacity: 0.55,
             });
-        if (m.popupHtml) marker.bindPopup(m.popupHtml);
+        if (m.href) {
+          // Click goes straight to the incident; hover still previews it.
+          if (m.popupHtml) {
+            marker.bindTooltip(m.popupHtml, { direction: 'top', offset: [0, -20], opacity: 0.95 });
+          }
+          marker.on('click', () => routerRef.current.push(m.href!));
+        } else if (m.popupHtml) {
+          marker.bindPopup(m.popupHtml);
+        }
         group.addLayer(marker);
       }
       group.addTo(map);

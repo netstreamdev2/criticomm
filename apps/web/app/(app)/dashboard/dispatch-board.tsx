@@ -150,6 +150,8 @@ export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: 
       lng: i.location_lng,
       kind: PIN_KIND[i.incident_severity] ?? 'medium',
       popupHtml: `<strong>${i.incident_number}</strong><br/>${i.incident_type}<br/>${i.location_address}`,
+      // Hover previews; click opens the incident.
+      href: `/incidents/${i.id}`,
     }));
 
   const avgResponse = Math.round(Number(kpi.avgResponseTime ?? 0));

@@ -27,6 +27,15 @@ export const DISPATCH_ROLES: UserRole[] = [
   ...ADMIN_ROLES, 'Dispatcher', 'Operator', 'ControlRoom', 'IncidentLogger', 'Supervisor', 'System',
 ];
 
+/**
+ * Who may CAPTURE a new call. Deliberately excludes Dispatcher: call-takers
+ * log, dispatchers assign — mirroring the V4 control-room split where the
+ * intake desk and the dispatch desk are different chairs.
+ */
+export const CALL_TAKER_ROLES: UserRole[] = [
+  ...ADMIN_ROLES, 'Operator', 'ControlRoom', 'IncidentLogger', 'System',
+];
+
 /** Field roles that respond to incidents and run the start-of-shift workflow. */
 export const RESPONDER_ROLES: UserRole[] = [
   'Responder', 'Police', 'Officer', 'Metro', 'Security', 'Captain',
@@ -61,6 +70,9 @@ type RouteRule = {
 
 /** Ordered longest-prefix-first at lookup time; keep entries readable here. */
 export const ROUTE_RULES: RouteRule[] = [
+  // Longest-prefix wins: intake is call-taker-only, the rest of /dispatch
+  // (pending queue, assign, KPI, PTT) stays open to dispatchers.
+  { prefix: '/dispatch/log-call', roles: CALL_TAKER_ROLES },
   { prefix: '/dispatch',     roles: DISPATCH_ROLES },
   { prefix: '/incidents',    roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },
   { prefix: '/reports',      roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },

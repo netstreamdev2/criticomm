@@ -22,9 +22,10 @@ export default async function LiveMapPage() {
       popupHtml: `
         <strong>${i.incident_number}</strong><br/>
         ${i.incident_type} · ${i.incident_severity}<br/>
-        ${i.status}<br/>
-        <a href="/incidents/${i.id}">Open incident →</a>
+        ${i.status}
       `,
+      // Hover previews; click opens the incident.
+      href: `/incidents/${i.id}`,
     })),
     ...responders
       .filter((r) => r.latitude != null && r.longitude != null)
