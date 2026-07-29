@@ -1,153 +1,169 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  LayoutDashboard, PhoneCall, Radio, MapPinned, ShieldAlert, FlameKindling, Stethoscope,
-  Mountain, FileText, Camera, Users, ClipboardCheck, BarChart3, Settings, ListChecks,
-  CalendarClock, Bell, Briefcase, GraduationCap, Gauge, FolderClosed, Map, Bot, Menu, X,
-  RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network,
-} from 'lucide-react';
+import { ChevronDown, Menu, X, Search } from 'lucide-react';
 import { canAccess, type Silo, type UserRole } from '@criticom/db';
+import { NAV_GROUPS } from '@/lib/nav';
 import { cn } from '@/lib/utils';
 
-type Item = { href: string; label: string; icon: React.ComponentType<{ className?: string }> };
-type Divider = { divider: string };
+const STORAGE_KEY = 'criticom:collapsed-nav-groups';
 
-const ITEMS: Array<Item | Divider> = [
-  { href: '/dashboard',             label: 'Dashboard',           icon: LayoutDashboard },
-  { divider: 'Dispatch' },
-  { href: '/dispatch/log-call',     label: 'Log Incoming Call',   icon: PhoneCall },
-  { href: '/dispatch/pending',      label: 'Pending Queue',       icon: ListChecks },
-  { href: '/dispatch/kpi',          label: 'KPI Dashboard',       icon: BarChart3 },
-  { href: '/incidents',             label: 'All Incidents',       icon: MapPinned },
-  { href: '/incidents/map',         label: 'Live Map',            icon: Map },
-  { href: '/reports',               label: 'Reports Archive',     icon: FileText },
-  { href: '/report-hub',            label: 'Report Hub',          icon: Filter },
-  { href: '/case-manager',          label: 'Case Manager',        icon: FolderClosed },
-  { href: '/hierarchy',             label: 'Dept Hierarchy',      icon: Network },
-  { href: '/dispatch/ptt',          label: 'PTT Radio',           icon: RadioTower },
-  { href: '/notifications',         label: 'Notifications',       icon: Bell },
-  { divider: 'Responder' },
-  { href: '/responder',             label: 'My Incidents',        icon: Radio },
-  { href: '/shift/mental-check',    label: 'Start of Shift',      icon: ClipboardCheck },
-  { href: '/shift/unit-compliance', label: 'Unit Compliance',     icon: Gauge },
-  { href: '/performance/mine',      label: 'My Performance',      icon: Target },
-  { divider: 'Police' },
-  { href: '/police',                label: 'Police Operations',   icon: ShieldAlert },
-  { divider: 'Fire' },
-  { href: '/fire',                  label: 'Fire & Rescue',       icon: FlameKindling },
-  { divider: 'Medical' },
-  { href: '/medical',               label: 'EMS',                 icon: Stethoscope },
-  { divider: 'Disaster' },
-  { href: '/disaster',              label: 'Disaster Mgmt',       icon: Mountain },
-  { divider: 'Resources' },
-  { href: '/roster',                label: 'Roster',              icon: CalendarClock },
-  { href: '/roster/duty-sheet',     label: 'Duty Sheet',          icon: IdCard },
-  { href: '/leave',                 label: 'Leave',               icon: Briefcase },
-  { href: '/training',              label: 'Training',            icon: GraduationCap },
-  { href: '/performance',           label: 'Performance',         icon: BarChart3 },
-  { href: '/analytics',             label: 'Analytics',           icon: BarChart3 },
-  { href: '/cameras',               label: 'Cameras & Feeds',     icon: Camera },
-  { href: '/assistant',             label: 'Criti Assistant',     icon: Bot },
-  { divider: 'Admin' },
-  { href: '/admin',                 label: 'Admin',               icon: Users },
-  { href: '/admin/config',          label: 'Configuration',       icon: SlidersHorizontal },
-  { href: '/admin/personnel',       label: 'Personnel',           icon: IdCard },
-  { href: '/profile',               label: 'Settings',            icon: Settings },
-];
-
-function NavList({ silo, role, onNavigate }: { silo: string; role: string; onNavigate?: () => void }) {
+function NavList({
+  silo, role, onNavigate,
+}: {
+  silo: string; role: string; onNavigate?: () => void;
+}) {
   const pathname = usePathname();
+  const [filter, setFilter] = useState('');
+  const [collapsed, setCollapsed] = useState<string[]>([]);
 
-  // Same matrix the middleware enforces.
-  const visible: Array<Item | Divider> = [];
-  for (const item of ITEMS) {
-    if ('divider' in item) { visible.push(item); continue; }
-    if (canAccess(item.href, role as UserRole, silo as Silo)) visible.push(item);
-  }
-  const pruned = visible.filter((item, i) => {
-    if (!('divider' in item)) return true;
-    const next = visible[i + 1];
-    return next !== undefined && !('divider' in next);
-  });
+  // Restore collapsed groups
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) setCollapsed(JSON.parse(raw));
+    } catch { /* ignore */ }
+  }, []);
+
+  const toggle = (id: string) => {
+    setCollapsed((cur) => {
+      const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id];
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  };
+
+  // Filter to what this role may access, then apply the search box.
+  const groups = useMemo(() => {
+    const q = filter.trim().toLowerCase();
+    return NAV_GROUPS.map((g) => ({
+      ...g,
+      items: g.items.filter(
+        (i) =>
+          canAccess(i.href, role as UserRole, silo as Silo) &&
+          (!q || i.label.toLowerCase().includes(q) || (i.keywords ?? '').includes(q)),
+      ),
+    })).filter((g) => g.items.length > 0);
+  }, [role, silo, filter]);
+
+  const isActive = (href: string) =>
+    pathname === href || (href !== '/dashboard' && pathname.startsWith(`${href}/`));
 
   return (
-    <nav className="flex-1 overflow-y-auto px-3 py-4">
-      {pruned.map((item, i) => {
-        if ('divider' in item) {
+    <>
+      <div className="px-3 pb-2 pt-3">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter menu…"
+            aria-label="Filter navigation"
+            className="h-8 w-full rounded-md border border-border bg-bg/60 pl-8 pr-2 text-xs text-white placeholder:text-muted-foreground focus:border-accent focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto px-2 pb-4">
+        {groups.length === 0 && (
+          <p className="px-3 py-6 text-center text-xs text-muted-foreground">No matching pages.</p>
+        )}
+        {groups.map((g) => {
+          // While filtering, always show results expanded.
+          const isCollapsed = !filter && collapsed.includes(g.id);
           return (
-            <p key={`d-${i}`} className="mt-4 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {item.divider}
-            </p>
+            <div key={g.id} className="mb-1">
+              <button
+                type="button"
+                onClick={() => toggle(g.id)}
+                aria-expanded={!isCollapsed}
+                className="flex w-full items-center justify-between rounded-md px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-white"
+              >
+                {g.label}
+                <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', isCollapsed && '-rotate-90')} />
+              </button>
+
+              {!isCollapsed && (
+                <ul className="mt-0.5 space-y-0.5">
+                  {g.items.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.href);
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          onClick={onNavigate}
+                          aria-current={active ? 'page' : undefined}
+                          className={cn(
+                            'group relative flex items-center gap-3 rounded-md py-2 pl-3 pr-2 text-sm transition-all',
+                            active
+                              ? 'bg-primary/15 font-semibold text-white'
+                              : 'text-white/70 hover:bg-muted hover:text-white',
+                          )}
+                        >
+                          {active && (
+                            <span aria-hidden className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary" />
+                          )}
+                          <Icon className={cn('h-4 w-4 shrink-0 transition-colors', active ? 'text-primary' : 'text-muted-foreground group-hover:text-white')} />
+                          <span className="truncate">{item.label}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
           );
-        }
-        const Icon = item.icon;
-        const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(`${item.href}/`));
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className={cn(
-              'mt-1 flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
-              active
-                ? 'bg-primary/15 font-semibold text-white'
-                : 'text-white/70 hover:bg-muted hover:text-white',
-            )}
-          >
-            <Icon className={cn('h-4 w-4 shrink-0', active && 'text-primary')} />
-            {item.label}
-          </Link>
-        );
-      })}
-    </nav>
+        })}
+      </nav>
+    </>
   );
 }
 
-function Brand() {
+function Brand({ compact }: { compact?: boolean }) {
   return (
-    <div className="flex h-16 shrink-0 items-center border-b border-border px-5">
+    <div className={cn('flex shrink-0 items-center border-b border-border px-5', compact ? 'h-16' : 'h-16')}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/criticomm-logo.png" alt="CRITICOMM — All in One EMS Dispatch Software" className="max-h-9 w-auto" />
+      <img
+        src="/criticomm-logo.png"
+        alt="CRITICOMM — All in One EMS Dispatch Software"
+        className="max-h-9 w-auto"
+      />
     </div>
   );
 }
 
-/** Desktop rail (lg+) + mobile drawer with hamburger trigger. */
+/** Desktop rail (lg+) + mobile drawer. */
 export function Sidebar({ silo, role }: { silo: string; role: string }) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  // Close the drawer whenever the route changes
+  useEffect(() => setOpen(false), [pathname]);
 
   return (
     <>
-      {/* Desktop rail */}
-      <aside className="hidden h-screen flex-col border-r border-border bg-bg-soft lg:flex">
+      <aside className="hidden h-screen flex-col border-r border-border bg-bg-soft lg:sticky lg:top-0 lg:flex">
         <Brand />
         <NavList silo={silo} role={role} />
       </aside>
 
-      {/* Mobile trigger — rendered into the top bar via fixed positioning */}
       <button
         type="button"
         aria-label="Open navigation"
         onClick={() => setOpen(true)}
-        className="fixed left-3 top-3 z-40 inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-bg-soft lg:hidden"
+        className="fixed left-3 top-3 z-40 inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-bg-soft transition-colors hover:bg-muted lg:hidden"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Mobile drawer */}
       {open && (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
-          <button
-            type="button"
-            aria-label="Close navigation"
-            className="absolute inset-0 bg-black/60"
-            onClick={() => setOpen(false)}
-          />
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
+          <button type="button" aria-label="Close navigation" className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-border bg-bg-soft shadow-2xl">
-            <div className="flex h-16 items-center justify-between border-b border-border pl-5 pr-3">
+            <div className="flex h-16 shrink-0 items-center justify-between border-b border-border pl-5 pr-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/criticomm-logo.png" alt="CRITICOMM" className="max-h-8 w-auto" />
               <button

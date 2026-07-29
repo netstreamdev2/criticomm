@@ -27,6 +27,30 @@ body {
   border-radius: 4px;
 }
 
+/* ── Text selection ─────────────────────────────────────────── */
+::selection {
+  background: theme('colors.primary.DEFAULT');
+  color: #fff;
+}
+
+/* ── Form controls: consistent focus treatment app-wide ─────── */
+input, select, textarea {
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: theme('colors.accent.DEFAULT');
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.15);
+}
+
+/* Date/time pickers are unreadable with the default light icon on dark */
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='time']::-webkit-calendar-picker-indicator,
+input[type='datetime-local']::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+
 /* ── Severity pills ─────────────────────────────────────────── */
 .severity-pill {
   @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide;

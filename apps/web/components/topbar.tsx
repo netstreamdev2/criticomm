@@ -1,0 +1,110 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { ChevronRight, Search, Bell, LogOut, User } from 'lucide-react';
+import { breadcrumbsFor } from '@/lib/nav';
+import { getBrowserSupabase } from '@/lib/supabase-browser';
+import { cn } from '@/lib/utils';
+
+function openPalette() {
+  window.dispatchEvent(new Event('criticom:open-palette'));
+}
+
+export function Topbar({
+  fullName, role, silo,
+}: {
+  fullName: string; role: string; silo: string;
+}) {
+  const pathname = usePathname();
+  const crumbs = breadcrumbsFor(pathname);
+  const initials = fullName.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+
+  const signOut = async () => {
+    try {
+      await getBrowserSupabase().auth.signOut();
+    } catch { /* fall through to redirect */ }
+    window.location.href = '/login';
+  };
+
+  return (
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-bg-soft/95 pl-14 pr-3 backdrop-blur supports-[backdrop-filter]:bg-bg-soft/80 sm:pr-4 lg:pl-6">
+      {/* Breadcrumbs */}
+      <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
+        <ol className="flex items-center gap-1 text-sm">
+          {crumbs.map((c, i) => {
+            const last = i === crumbs.length - 1;
+            return (
+              <li key={c.href} className="flex min-w-0 items-center gap-1">
+                {i > 0 && <ChevronRight aria-hidden className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />}
+                {last ? (
+                  <span className="truncate font-semibold text-white" aria-current="page">{c.label}</span>
+                ) : (
+                  <Link
+                    href={c.href}
+                    className="hidden truncate text-muted-foreground transition-colors hover:text-white sm:block"
+                  >
+                    {c.label}
+                  </Link>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
+
+      {/* Global search trigger */}
+      <button
+        type="button"
+        onClick={openPalette}
+        className="hidden items-center gap-2 rounded-md border border-border bg-bg/60 px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-accent/50 hover:text-white md:flex"
+        aria-label="Search pages"
+      >
+        <Search className="h-3.5 w-3.5" />
+        <span>Jump to…</span>
+        <kbd className="ml-2 rounded border border-border bg-bg-soft px-1.5 py-0.5 text-[10px]">⌘K</kbd>
+      </button>
+      <button
+        type="button"
+        onClick={openPalette}
+        aria-label="Search pages"
+        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-white md:hidden"
+      >
+        <Search className="h-4 w-4" />
+      </button>
+
+      <Link
+        href="/notifications"
+        aria-label="Notifications"
+        className={cn(
+          'inline-flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-muted hover:text-white',
+          pathname.startsWith('/notifications') ? 'text-white' : 'text-muted-foreground',
+        )}
+      >
+        <Bell className="h-4 w-4" />
+      </Link>
+
+      {/* User */}
+      <div className="flex items-center gap-2 border-l border-border pl-3">
+        <Link href="/profile" className="group flex items-center gap-2" aria-label="Profile">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">
+            {initials || <User className="h-4 w-4" />}
+          </span>
+          <span className="hidden min-w-0 leading-tight sm:block">
+            <span className="block truncate text-sm font-semibold text-white group-hover:text-white">{fullName}</span>
+            <span className="block truncate text-[11px] text-muted-foreground">{role} · {silo}</span>
+          </span>
+        </Link>
+        <button
+          type="button"
+          onClick={signOut}
+          aria-label="Sign out"
+          title="Sign out"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-severity-critical/15 hover:text-severity-critical"
+        >
+          <LogOut className="h-4 w-4" />
+        </button>
+      </div>
+    </header>
+  );
+}
