@@ -158,16 +158,22 @@ export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: 
     <>
       {/* ── Row 1: headline stats ── */}
       <section className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center gap-2 p-6 text-center">
+        <Card className="relative h-full overflow-hidden">
+          {/* Faint red wash behind the counter, like a warning lamp bleeding into the card. */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{ background: 'radial-gradient(ellipse at 50% 30%, rgb(var(--c-critical) / 0.14), transparent 65%)' }}
+          />
+          <CardContent className="relative flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
             <span className="ops-chip" data-tone="critical"><AlertTriangle className="h-5 w-5" /></span>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Live incidents</p>
             <p className="stat-glow text-6xl font-bold text-severity-critical-ink">{live.length}</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
+        <Card className="h-full">
+          <CardContent className="flex h-full flex-col justify-center p-6">
             <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Severity analysis
             </p>
@@ -188,8 +194,13 @@ export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: 
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center gap-2 p-6 text-center">
+        <Card className="relative h-full overflow-hidden">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{ background: 'radial-gradient(ellipse at 50% 30%, rgb(var(--c-low) / 0.12), transparent 65%)' }}
+          />
+          <CardContent className="relative flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
             <span className="ops-chip" data-tone="low"><CheckCircle2 className="h-5 w-5" /></span>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Closed today</p>
             <p className="stat-glow text-6xl font-bold text-severity-low-ink">{closedToday}</p>
@@ -220,7 +231,7 @@ export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: 
                       href={`/incidents/${i.id}`}
                       className="flex items-start gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted/50"
                     >
-                      <span className={cn('mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full', meta.chip, meta.tone)}>
+                      <span className={cn('mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg', meta.chip, meta.tone)}>
                         <Icon className="h-4 w-4" />
                       </span>
                       <span className="min-w-0 flex-1">
@@ -302,7 +313,7 @@ export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: 
             </div>
           </div>
           <div className="overflow-hidden rounded-lg border border-border">
-            <LeafletMap markers={markers} height={560} satellite pin />
+            <LeafletMap markers={markers} height={640} satellite pin />
           </div>
         </CardContent>
       </Card>
