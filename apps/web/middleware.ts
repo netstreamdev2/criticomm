@@ -75,9 +75,12 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for:
-     *   _next/static, _next/image, favicon.ico, api/health
+     * Match all request paths except:
+     *   - _next/static, _next/image, api/health
+     *   - any static asset by extension (public/ files like the logo — without
+     *     this, the login page's own <img> gets redirected to /login and the
+     *     browser renders a broken image instead of the brand)
      */
-    '/((?!_next/static|_next/image|favicon.ico|api/health).*)',
+    '/((?!_next/static|_next/image|api/health|.*\\.(?:png|jpg|jpeg|gif|svg|webp|avif|ico|css|js|map|txt|xml|woff2?)$).*)',
   ],
 };
