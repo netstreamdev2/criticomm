@@ -139,10 +139,17 @@ const PROBES: Record<string, Probe> = {
   },
 
   async itraffic() {
-    return {
-      ok: true,
-      message: 'i-Traffic is a manual CSV import — no live endpoint. Upload files under Admin → Configuration.',
-    };
+    // The exact V4 FetchExternalCamerasAsync call. V4 shipped a literal
+    // YOUR_KEY placeholder, so the real key must be issued by i-traffic/SANRAL.
+    const key = process.env.ITRAFFIC_API_KEY;
+    if (!key) return missing('ITRAFFIC_API_KEY');
+    const res = await ping(`https://www.i-traffic.co.za/api/GetCameras?key=${key}&format=xml`);
+    if (!res.ok) return { ok: false, message: `i-traffic responded ${res.status} — check the key.` };
+    const xml = await res.text();
+    const count = (xml.match(/<Camera>/g) ?? []).length;
+    return count > 0
+      ? { ok: true, message: `Feed authenticated — ${count} cameras available. Import them from Surveillance.` }
+      : { ok: false, message: 'Feed answered but returned no cameras — the key may be invalid.' };
   },
 
   async openweather() {

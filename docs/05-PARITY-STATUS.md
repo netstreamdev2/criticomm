@@ -99,6 +99,23 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 - `/api/push/notify` — Expo push fanout to the departments a call was routed to (service-role read of `push_tokens`)
 - `/api/integrations/test/[key]` — per-integration connection probe, admin-only
 
+## HR system (V5 addition — far beyond V4's leave table)
+
+- **HR Command Centre** (`/hr`, supervisory tier): headcount, on-duty, on-leave-today,
+  approvals waiting with inline decide, and certifications expiring within 30 days.
+- **Leave**: per-member balances (entitlements live on LeaveType config rows — `detail3` days,
+  tunable from Admin → Configuration), a month calendar of who's away, a reason field, and an
+  approval trail (`approved_by`/`approved_at`). Every pending request shows its **coverage
+  impact** — the percentage of the department away if granted. Decisions raise a targeted alert
+  to the member. RLS: members insert their own requests Pending-only (0015); decisions stay with
+  the supervisory tier.
+- **Roster**: a week schedule board — seven days of shifts with the members rostered onto each,
+  coloured by activity type — alongside the existing generators, endorsements and duty sheet.
+- **Performance reports** (`/performance/reports`): one date window cut three ways — by member
+  (calls taken / dispatches / responses / closures / avg close / leave days), by department
+  (volume, closure rate, staffing, leave burden), by incident type (severity mix + resolution) —
+  each with CSV export via `/api/hr/report.csv`.
+
 ## Ops command bar + CCTV platform (V5 addition)
 
 Every page carries the V4-style command bar under the topbar: an external-resources tier

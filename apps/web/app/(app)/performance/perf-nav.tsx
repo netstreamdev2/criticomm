@@ -3,6 +3,7 @@ import Link from 'next/link';
 const TABS = [
   { href: '/performance', label: 'Overview' },
   { href: '/performance/mine', label: 'My Performance' },
+  { href: '/performance/reports', label: 'Reports' },
   { href: '/performance/operational', label: 'Operational KPIs' },
   { href: '/performance/role-kpis', label: 'Role KPIs' },
   { href: '/performance/plans', label: 'Appraisal Plans' },

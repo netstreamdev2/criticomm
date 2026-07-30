@@ -86,10 +86,14 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/medical',      roles: [...MEDICAL_ROLES, ...ADMIN_ROLES, 'Responder'], silo: 'Medical' },
   { prefix: '/disaster',     roles: [...DISASTER_ROLES, ...DISPATCH_ROLES, 'Viewer'], silo: 'EthekwiniDisaster' },
   { prefix: '/roster',       roles: SUPERVISORY_ROLES },
+  // HR command centre: supervisors and the admin tier run people-readiness.
+  { prefix: '/hr',           roles: SUPERVISORY_ROLES },
   { prefix: '/leave',        roles: [...ADMIN_ROLES, 'Staff', 'Supervisor', ...RESPONDER_ROLES] },
   { prefix: '/training',     roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES] },
   // Self-service performance views are open to field members; management views stay restricted.
   { prefix: '/performance/mine', roles: [...RESPONDER_ROLES, ...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'Viewer'] },
+  // The three-axis reports centre: command staff, dispatch leadership and viewers.
+  { prefix: '/performance/reports', roles: [...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },
   { prefix: '/performance',  roles: ['Supervisor', 'SystemAdmin', 'SuperAdmin', 'System', 'Admin'] },
   { prefix: '/analytics',    roles: ['System', 'SystemAdmin', 'SuperAdmin', 'Admin', 'Viewer', 'Supervisor'] },
   { prefix: '/admin',        roles: ADMIN_ROLES },

@@ -1143,6 +1143,9 @@ export type Database = {
           eff_to: string;
           absence: string | null;
           status: string;
+          reason: string | null;
+          approved_by: string | null;
+          approved_at: string | null;
           created_at: string;
         };
         Insert: Partial<Database['public']['Tables']['leave_entries']['Row']>;

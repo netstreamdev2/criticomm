@@ -68,11 +68,13 @@ export const NAV_GROUPS: NavGroup[] = [
     id: 'workforce',
     label: 'Workforce',
     items: [
-      { href: '/roster', label: 'Roster', icon: CalendarClock, keywords: 'duty shifts allocation endorsements' },
+      { href: '/hr', label: 'HR Command Centre', icon: Users, keywords: 'hr hub people approvals coverage certifications expiring' },
+      { href: '/roster', label: 'Roster', icon: CalendarClock, keywords: 'duty shifts allocation endorsements schedule board' },
       { href: '/roster/duty-sheet', label: 'Duty Sheet', icon: IdCard, keywords: 'parade print dcp' },
-      { href: '/leave', label: 'Leave', icon: Briefcase, keywords: 'time off absence' },
+      { href: '/leave', label: 'Leave', icon: Briefcase, keywords: 'time off absence balances calendar approvals' },
       { href: '/training', label: 'Training', icon: GraduationCap, keywords: 'certifications courses' },
       { href: '/performance', label: 'Performance', icon: BarChart3, keywords: 'appraisals kpis operational' },
+      { href: '/performance/reports', label: 'Performance Reports', icon: Target, keywords: 'reports member department incident csv export' },
     ],
   },
   {
@@ -117,6 +119,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   hydrants: 'Hydrants', pir: 'Public Reports', publish: 'Publish', pcr: 'Patient Care Reports',
   restock: 'Restock', 'post-mortem': 'Post-Mortem', partners: 'Mutual Aid',
   roster: 'Roster', 'duty-sheet': 'Duty Sheet', leave: 'Leave', training: 'Training',
+  hr: 'HR Command Centre',
   performance: 'Performance', mine: 'My Performance', operational: 'Operational KPIs',
   'role-kpis': 'Role KPIs', plans: 'Appraisal Plans', kpis: 'KPI Config',
   analytics: 'Analytics', cameras: 'Surveillance', assistant: 'Assistant',

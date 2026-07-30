@@ -22,7 +22,7 @@ const REQUIRED_ENV: Record<string, string[]> = {
   tomtom: ['TOMTOM_API_KEY'],
   flightradar24: ['FR24_API_KEY'],
   ais: ['AISSTREAM_API_KEY'],
-  itraffic: [],
+  itraffic: ['ITRAFFIC_API_KEY'],
   openweather: ['OPENWEATHER_API_KEY'],
   leaflet_esri: [],
   sanral: [],

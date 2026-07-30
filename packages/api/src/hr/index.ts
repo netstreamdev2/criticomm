@@ -1,5 +1,7 @@
 import type { CriticomClient, Database, Silo } from '@criticom/db';
 
+export * from './analytics';
+
 type Tables = Database['public']['Tables'];
 
 // ── Roster (RosterViewController) ────────────────────────────────────

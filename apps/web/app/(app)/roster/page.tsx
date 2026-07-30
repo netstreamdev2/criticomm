@@ -10,6 +10,7 @@ import { formatSaTime } from '@/lib/utils';
 import {
   createShiftAction, createRosterEntryAction, addEndorsementAction, deactivateEndorsementAction,
 } from './actions';
+import { WeekBoard } from './week-board';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Roster · Criticom' };
@@ -53,6 +54,8 @@ export default async function RosterPage({
           🖨 Duty sheet
         </Link>
       </header>
+
+      <WeekBoard shifts={shifts} roster={roster} />
 
       <Card>
         <CardHeader>
