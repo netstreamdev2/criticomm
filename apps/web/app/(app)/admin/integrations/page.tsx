@@ -14,6 +14,7 @@ export const metadata = { title: 'Integrations · Criticom' };
  */
 const REQUIRED_ENV: Record<string, string[]> = {
   supabase: ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'],
+  groq: ['GROQ_API_KEY'],
   gemini: ['GEMINI_API_KEY'],
   expo_push: [],
   bulksms: ['BULKSMS_USERNAME', 'BULKSMS_PASSWORD'],
@@ -32,7 +33,8 @@ const REQUIRED_ENV: Record<string, string[]> = {
 /** What each integration actually powers, in the operator's terms. */
 const PURPOSE: Record<string, string> = {
   supabase: 'Database, authentication, file storage and the realtime channel every live screen listens on.',
-  gemini: 'Powers Criti — the assistant dock, its live board context and the actions it carries out.',
+  groq: 'Powers Criti — the assistant dock, its live board context and the actions it carries out. Fast Llama inference, first in the provider chain.',
+  gemini: 'Fallback AI provider for Criti — takes over automatically if Groq is down or rate-limited.',
   expo_push: 'Delivers dispatch alerts to the responder app when it is closed or in the background.',
   bulksms: 'Outbound SMS to citizens, including the GPS location-request link.',
   realptt: 'Push-to-talk bridge for the dispatch radio console.',

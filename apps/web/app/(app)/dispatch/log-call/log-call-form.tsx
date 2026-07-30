@@ -148,6 +148,8 @@ export function LogCallForm({
   /* ── Routing ────────────────────────────────────────────────────── */
   const [targets, setTargets] = useState<Department[]>(lockedSilo ? [initialDept] : []);
   const [eta, setEta] = useState<string | null>(null);
+  const [etaRouted, setEtaRouted] = useState(true);
+  const [etaBusy, setEtaBusy] = useState(false);
 
   const toggleTarget = (id: Department) => {
     setTargets((cur) => (cur.includes(id) ? cur.filter((s) => s !== id) : [...cur, id]));
@@ -176,7 +178,7 @@ export function LogCallForm({
   // Debounced forward geocode as the call-taker types the address.
   useEffect(() => {
     if (suppressLookup.current) { suppressLookup.current = false; return; }
-    if (address.trim().length < 4) { setSuggestions([]); return; }
+    if (address.trim().length < 3) { setSuggestions([]); return; }
     const t = setTimeout(async () => {
       setGeocoding(true);
       try {
@@ -258,7 +260,7 @@ export function LogCallForm({
     window.location.href = `tel:${phone.replace(/\s+/g, '')}`;
   };
 
-  const calculateEta = () => {
+  const calculateEta = async () => {
     if (lat === null || lng === null) {
       setError('Place the scene on the map before calculating an ETA.');
       return;
@@ -268,13 +270,32 @@ export function LogCallForm({
       return;
     }
     setError(null);
-    const legs = targets.map((t) => {
-      const km = haversineKm(DEPOT[t], [lat, lng]);
-      // Straight-line understates road distance; the road factor corrects it.
-      const minutes = Math.max(2, Math.round(((km * tuning.etaRoadFactor) / tuning.etaSpeedKmh) * 60));
-      return `${SILO_LABELS[t]} ≈ ${minutes} min (${km.toFixed(1)} km)`;
-    });
-    setEta(legs.join('  ·  '));
+    setEtaBusy(true);
+    try {
+      // Road-routed via OSRM per department; a routing outage degrades to the
+      // tunable straight-line model rather than failing.
+      let anyFallback = false;
+      const legs = await Promise.all(targets.map(async (t) => {
+        const [depotLat, depotLng] = DEPOT[t];
+        try {
+          const res = await fetch(
+            `/api/route?fromLat=${depotLat}&fromLng=${depotLng}&toLat=${lat}&toLng=${lng}`,
+          );
+          const data = (await res.json()) as { routed?: boolean; minutes?: number; km?: number };
+          if (data.routed && data.minutes) {
+            return `${SILO_LABELS[t]} ≈ ${data.minutes} min (${data.km} km)`;
+          }
+        } catch { /* fall through to the straight-line model */ }
+        anyFallback = true;
+        const km = haversineKm(DEPOT[t], [lat, lng]);
+        const minutes = Math.max(2, Math.round(((km * tuning.etaRoadFactor) / tuning.etaSpeedKmh) * 60));
+        return `${SILO_LABELS[t]} ≈ ${minutes} min (${km.toFixed(1)} km)*`;
+      }));
+      setEtaRouted(!anyFallback);
+      setEta(legs.join('  ·  '));
+    } finally {
+      setEtaBusy(false);
+    }
   };
 
   /* ── Submit ─────────────────────────────────────────────────────── */
@@ -738,7 +759,9 @@ export function LogCallForm({
                 <span>
                   <span className="font-semibold">Estimated response:</span> {eta}
                   <span className="mt-0.5 block text-muted-foreground">
-                    Straight-line estimate from departmental control points at {tuning.etaSpeedKmh} km/h — not a routed ETA.
+                    {etaRouted
+                      ? 'Road-routed drive time from departmental control points (OSRM).'
+                      : `* Routing unavailable — straight-line estimate at ${tuning.etaSpeedKmh} km/h with a ${tuning.etaRoadFactor}× road factor.`}
                   </span>
                 </span>
               </p>
@@ -747,10 +770,12 @@ export function LogCallForm({
             <div className="grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
-                onClick={calculateEta}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-severity-low text-sm font-bold uppercase tracking-wider transition-opacity hover:opacity-90"
+                onClick={() => void calculateEta()}
+                disabled={etaBusy}
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-severity-low text-sm font-bold uppercase tracking-wider transition-opacity hover:opacity-90 disabled:opacity-60"
               >
-                <Zap className="h-4 w-4" /> Calculate ETA
+                {etaBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+                {etaBusy ? 'Routing…' : 'Calculate ETA'}
               </button>
               <button
                 type="submit"

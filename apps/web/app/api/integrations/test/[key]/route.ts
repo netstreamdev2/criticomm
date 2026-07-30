@@ -42,6 +42,25 @@ const PROBES: Record<string, Probe> = {
       : { ok: true, message: 'Database reachable and RLS accepted the session.' };
   },
 
+  async groq() {
+    const key = process.env.GROQ_API_KEY;
+    if (!key) return missing('GROQ_API_KEY');
+    const model = process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile';
+    const res = await ping('https://api.groq.com/openai/v1/models', {
+      headers: { Authorization: `Bearer ${key}` },
+    });
+    if (res.status === 401) return { ok: false, message: 'Key rejected by Groq (401) — rotate it and update the env.' };
+    if (!res.ok) return { ok: false, message: `Groq responded ${res.status}.` };
+    const data = (await res.json()) as { data?: Array<{ id: string }> };
+    const hasModel = data.data?.some((m) => m.id === model);
+    return {
+      ok: true,
+      message: hasModel
+        ? `Authenticated — model ${model} available.`
+        : `Authenticated, but model "${model}" was not in the list; check GROQ_MODEL.`,
+    };
+  },
+
   async gemini() {
     const key = process.env.GEMINI_API_KEY;
     if (!key) return missing('GEMINI_API_KEY');

@@ -239,12 +239,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'messages required' }, { status: 400 });
   }
 
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) {
+  if (!process.env.GROQ_API_KEY && !process.env.GEMINI_API_KEY) {
     return NextResponse.json({
       reply:
         'The AI assistant is not configured on this deployment yet — an administrator needs to set ' +
-        '`GEMINI_API_KEY` (Admin → Integrations shows the status).\n\n' +
+        '`GROQ_API_KEY` (or `GEMINI_API_KEY` as a fallback; Admin → Integrations shows the status).\n\n' +
         'In the meantime: log calls under **Dispatch → Log Incoming Call**, assign units from the ' +
         '**Pending Queue**, responders update status under **My Incidents**, and reports live under ' +
         'each department section.',
@@ -270,25 +269,8 @@ export async function POST(req: Request) {
     `Previous chat history:\n${history || '(none)'}\n\n` +
     `CURRENT USER MESSAGE: ${current}`;
 
-  const model = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash-lite';
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-          contents: [{ role: 'user', parts: [{ text: finalPrompt }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 1000 },
-        }),
-      },
-    );
-    if (!res.ok) throw new Error(`Gemini ${res.status}`);
-    const data = (await res.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-    };
-    const raw = data.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') ?? 'No response.';
+    const raw = await completeWithProviders(finalPrompt);
 
     const { cleaned, outcomes } = await executeActions(
       supabase, board.incidents, raw, userName, silo,
@@ -302,4 +284,73 @@ export async function POST(req: Request) {
       { status: 200 },
     );
   }
+}
+
+/* ── Model providers ────────────────────────────────────────────────── */
+
+/**
+ * Groq first (fast Llama inference — an assistant a dispatcher waits on has
+ * to answer in a beat), Gemini as the fallback so an outage or rate limit on
+ * one provider never silences Criti. Both receive the identical system
+ * instruction and prompt, so the action codes behave the same either way.
+ */
+async function completeWithProviders(finalPrompt: string): Promise<string> {
+  const errors: string[] = [];
+
+  const groqKey = process.env.GROQ_API_KEY;
+  if (groqKey) {
+    try {
+      const model = process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile';
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${groqKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: SYSTEM_INSTRUCTION },
+            { role: 'user', content: finalPrompt },
+          ],
+          temperature: 0.3,
+          max_tokens: 1000,
+        }),
+      });
+      if (!res.ok) throw new Error(`Groq ${res.status}`);
+      const data = (await res.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+      };
+      const text = data.choices?.[0]?.message?.content?.trim();
+      if (text) return text;
+      throw new Error('Groq returned an empty completion');
+    } catch (e) {
+      errors.push((e as Error).message);
+    }
+  }
+
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (geminiKey) {
+    const model = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash-lite';
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+          contents: [{ role: 'user', parts: [{ text: finalPrompt }] }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 1000 },
+        }),
+      },
+    );
+    if (!res.ok) throw new Error(errors.length ? `${errors[0]}; Gemini ${res.status}` : `Gemini ${res.status}`);
+    const data = (await res.json()) as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    };
+    const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text).join('').trim();
+    if (text) return text;
+  }
+
+  throw new Error(errors[0] ?? 'No AI provider configured');
 }
