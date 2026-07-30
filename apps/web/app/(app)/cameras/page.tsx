@@ -1,12 +1,15 @@
+import Link from 'next/link';
+import { Film } from 'lucide-react';
 import { listCameras } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { ImportCamerasButton } from './import-button';
+import { LiveWall } from './live-wall';
 import { TrafficPanel } from './traffic-panel';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Cameras & Feeds · Criticom' };
+export const metadata = { title: 'Surveillance · Criticom' };
 
 export default async function CamerasPage() {
   const { supabase } = await getSession();
@@ -16,13 +19,24 @@ export default async function CamerasPage() {
     <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Cameras & feeds</h1>
+          <h1 className="text-2xl font-bold">Surveillance</h1>
           <p className="text-muted-foreground">
-            i-traffic CCTV registry with live TomTom traffic incidents.
+            SANRAL matrix today, Hikvision next — the wall switches over the moment the
+            integration is enabled, no redeploy.
           </p>
         </div>
-        <ImportCamerasButton />
+        <div className="flex items-center gap-2">
+          <Link
+            href="/cameras/footage"
+            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
+          >
+            <Film className="h-4 w-4" /> CCTV footage
+          </Link>
+          <ImportCamerasButton />
+        </div>
       </header>
+
+      <LiveWall />
 
       <TrafficPanel />
 

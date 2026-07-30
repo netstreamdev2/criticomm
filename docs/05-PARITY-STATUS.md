@@ -99,6 +99,23 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 - `/api/push/notify` — Expo push fanout to the departments a call was routed to (service-role read of `push_tokens`)
 - `/api/integrations/test/[key]` — per-integration connection probe, admin-only
 
+## Ops command bar + CCTV platform (V5 addition)
+
+Every page carries the V4-style command bar under the topbar: an external-resources tier
+(E-NATIS, CAS, PERSAL, FIREARM, FINES, TRACE, FORENSICS, CONSTELLATIONS, REAL PTT, FLIGHTRADAR,
+MARINETRAFFIC, REPORTS) driven by `OpsLink` config records — admins repoint or add systems from
+Admin → Configuration, placeholders render dimmed until their endpoint is issued — plus an internal
+module tier (Dispatch, Incoming, Surveillance, CCTV Footage, Responder, KPI, Operations dropdown)
+filtered per role by the shared route matrix. Collapsible per user.
+
+CCTV: the room runs on the SANRAL matrix today and moves to Hikvision next. Both live in the
+integration catalogue; `/api/cctv/cameras` serves the SANRAL registry until the Hikvision
+integration is enabled with `HIKVISION_APP_KEY`/`HIKVISION_APP_SECRET` and a `base_url`, at which
+point the same endpoint serves the live HikCentral estate — the cut-over is a toggle, not a deploy.
+`/api/cctv/stream` brokers AK/SK-signed live-preview and recorded-playback URLs (server-side
+signing only; every grant audit-logged for chain of custody); `/cameras/footage` is the retrieval
+console with a 24-hour window cap.
+
 ## Operational tuning (V5 addition)
 
 Admin → **Operations Settings** exposes the service's knobs without a deploy: intake-clock

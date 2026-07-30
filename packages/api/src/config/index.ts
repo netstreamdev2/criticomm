@@ -2,8 +2,44 @@ import type { CriticomClient, Database } from '@criticom/db';
 
 type CommandRecord = Database['public']['Tables']['command_records']['Row'];
 
-export const CONFIG_MODULES = ['IncidentCategory', 'LeaveType', 'ShiftType', 'ReportTemplate'] as const;
+export const CONFIG_MODULES = [
+  'IncidentCategory', 'LeaveType', 'ShiftType', 'ReportTemplate', 'OpsLink',
+] as const;
 export type ConfigModule = (typeof CONFIG_MODULES)[number];
+
+/**
+ * One button on the ops command bar. Stored as OpsLink command_records so the
+ * control room can add, retire or repoint external systems from Admin →
+ * Configuration without a deploy:
+ *   name    = label on the button
+ *   code    = sort key
+ *   detail1 = URL (https://… opens a new tab; /path routes in-app; empty =
+ *             placeholder awaiting its endpoint, rendered dimmed)
+ *   detail2 = optional emoji/glyph shown before the label
+ */
+export type OpsLink = {
+  id: string;
+  label: string;
+  href: string | null;
+  external: boolean;
+  glyph: string | null;
+};
+
+export async function listOpsLinks(client: CriticomClient): Promise<OpsLink[]> {
+  const rows = await listActiveConfig(client, 'OpsLink').catch(() => [] as CommandRecord[]);
+  return rows
+    .sort((a, b) => (a.code ?? '99').localeCompare(b.code ?? '99'))
+    .map((r) => {
+      const href = r.detail1?.trim() || null;
+      return {
+        id: r.id,
+        label: r.name ?? '',
+        href,
+        external: Boolean(href && /^https?:\/\//i.test(href)),
+        glyph: r.detail2?.trim() || null,
+      };
+    });
+}
 
 /** AdminConfigController.Index — all records for a module (incl. inactive). */
 export async function listConfigRecords(

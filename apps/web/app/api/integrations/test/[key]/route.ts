@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { recordIntegrationTest } from '@criticom/api';
+import { getIntegration, recordIntegrationTest } from '@criticom/api';
 import { ADMIN_ROLES } from '@criticom/db/roles';
 import type { UserRole } from '@criticom/db/types';
+import { hikConfig, hikCredentials, hikListCameras } from '@/lib/hikvision';
 import { getServerSupabase } from '@/lib/supabase';
 
 /**
@@ -153,6 +154,35 @@ const PROBES: Record<string, Probe> = {
     return res.ok
       ? { ok: true, message: 'Weather feed authenticated for Durban.' }
       : { ok: false, message: `OpenWeather responded ${res.status}.` };
+  },
+
+  async sanral() {
+    const supabase = await getServerSupabase();
+    const row = await getIntegration(supabase, 'sanral').catch(() => null);
+    const url = String((row?.config as Record<string, unknown> | null)?.matrix_url ?? 'https://www.i-traffic.co.za/map');
+    const res = await ping(url).catch(() => null);
+    return res?.ok
+      ? { ok: true, message: `Matrix at ${url} reachable. Camera registry imports via /api/cameras/import.` }
+      : { ok: false, message: `${url} did not respond — check the matrix_url parameter.` };
+  },
+
+  async hikvision() {
+    const creds = hikCredentials();
+    if (!creds) return missing('HIKVISION_APP_KEY / HIKVISION_APP_SECRET');
+    const supabase = await getServerSupabase();
+    const cfg = await hikConfig(supabase);
+    if (!cfg.baseUrl) {
+      return { ok: false, message: 'base_url is empty — set it in this integration\'s parameters (e.g. https://hikcentral.durban.gov.za).' };
+    }
+    try {
+      const page = await hikListCameras({ ...cfg, pageSize: 10 }, 1);
+      return {
+        ok: true,
+        message: `Authenticated with HikCentral — ${page.total} camera${page.total === 1 ? '' : 's'} in the estate.`,
+      };
+    } catch (e) {
+      return { ok: false, message: (e as Error).message };
+    }
   },
 
   async leaflet_esri() {

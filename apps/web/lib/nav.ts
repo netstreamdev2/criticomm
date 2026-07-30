@@ -80,7 +80,8 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Insights & Tools',
     items: [
       { href: '/analytics', label: 'Analytics', icon: BarChart3, keywords: 'trends statistics charts' },
-      { href: '/cameras', label: 'Cameras & Feeds', icon: Camera, keywords: 'cctv traffic' },
+      { href: '/cameras', label: 'Surveillance', icon: Camera, keywords: 'cctv cameras matrix sanral hikvision wall traffic' },
+      { href: '/cameras/footage', label: 'CCTV Footage', icon: Camera, keywords: 'playback recorded video evidence hikvision' },
       { href: '/assistant', label: 'Criti Assistant', icon: Bot, keywords: 'ai chat help' },
     ],
   },
@@ -118,10 +119,10 @@ const SEGMENT_LABELS: Record<string, string> = {
   roster: 'Roster', 'duty-sheet': 'Duty Sheet', leave: 'Leave', training: 'Training',
   performance: 'Performance', mine: 'My Performance', operational: 'Operational KPIs',
   'role-kpis': 'Role KPIs', plans: 'Appraisal Plans', kpis: 'KPI Config',
-  analytics: 'Analytics', cameras: 'Cameras', assistant: 'Assistant',
+  analytics: 'Analytics', cameras: 'Surveillance', assistant: 'Assistant',
   admin: 'Administration', config: 'Configuration', personnel: 'Personnel',
   operators: 'Operators', vehicles: 'Fleet', devices: 'Devices', integrations: 'Integrations',
-  operations: 'Operations Settings',
+  operations: 'Operations Settings', footage: 'CCTV Footage',
   profile: 'Profile', 'my-hr': 'My HR', notifications: 'Notifications', dashboard: 'Dashboard',
   new: 'New',
 };

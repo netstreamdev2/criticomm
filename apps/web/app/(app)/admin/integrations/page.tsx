@@ -25,6 +25,8 @@ const REQUIRED_ENV: Record<string, string[]> = {
   itraffic: [],
   openweather: ['OPENWEATHER_API_KEY'],
   leaflet_esri: [],
+  sanral: [],
+  hikvision: ['HIKVISION_APP_KEY', 'HIKVISION_APP_SECRET'],
 };
 
 /** What each integration actually powers, in the operator's terms. */
@@ -41,6 +43,8 @@ const PURPOSE: Record<string, string> = {
   itraffic: 'Bulk import of externally-reported road incidents from CSV.',
   openweather: 'Wind speed and direction feeding the fire spread model.',
   leaflet_esri: 'Satellite basemap used by the dispatch console and GIS views.',
+  sanral: 'The current freeway camera wall. The registry behind Surveillance until Hikvision goes live.',
+  hikvision: 'The incoming CCTV platform. Enabling it switches the camera wall to the live HikCentral estate and unlocks recorded-footage retrieval — no redeploy.',
 };
 
 export default async function IntegrationsPage() {
