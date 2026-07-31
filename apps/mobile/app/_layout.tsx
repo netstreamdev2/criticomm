@@ -3,6 +3,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, Platform, StyleSheet, Text } from 'react-native';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { BrandingProvider } from '@/lib/branding';
 import { NotificationsProvider, useNotificationRouting } from '@/lib/notifications';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { colors, space, type } from '@/lib/theme';
@@ -47,6 +48,7 @@ export default function RootLayout() {
     <AuthProvider>
       <StatusBar style="light" />
       <AuthGate>
+        <BrandingProvider>
         <NotificationsProvider>
           <NotificationRouter />
           <Stack
@@ -73,6 +75,7 @@ export default function RootLayout() {
           <AlertBanners />
           <AssignmentAlert />
         </NotificationsProvider>
+        </BrandingProvider>
       </AuthGate>
     </AuthProvider>
   );

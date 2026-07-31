@@ -84,8 +84,10 @@ export const ROUTE_RULES: RouteRule[] = [
   // IncidentLogger logs, a Dispatcher dispatches — never each other's job.
   { prefix: '/dispatch/log-call', roles: CALL_TAKER_ROLES },
   { prefix: '/dispatch',     roles: DISPATCH_DESK_ROLES },
-  { prefix: '/incidents',    roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },
-  { prefix: '/reports',      roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },
+  // Responders must be able to open the calls they are sent to: every dispatch
+  // alert links at /incidents/{id}. RLS still scopes the rows to their silo.
+  { prefix: '/incidents',    roles: [...DISPATCH_ROLES, ...RESPONDER_ROLES, 'Viewer', 'CaseManager'] },
+  { prefix: '/reports',      roles: [...DISPATCH_ROLES, ...RESPONDER_ROLES, 'Viewer', 'CaseManager'] },
   { prefix: '/report-hub',   roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager', 'Supervisor'] },
   { prefix: '/case-manager', roles: CASE_MANAGER_ROLES },
   { prefix: '/hierarchy',    roles: [...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'CaseManager', 'Viewer'] },
@@ -95,6 +97,8 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/fire',         roles: [...FIRE_ROLES, ...ADMIN_ROLES, 'Responder'], silo: 'MetroFire' },
   { prefix: '/medical',      roles: [...MEDICAL_ROLES, ...ADMIN_ROLES, 'Responder'], silo: 'Medical' },
   { prefix: '/disaster',     roles: [...DISASTER_ROLES, ...DISPATCH_ROLES, 'Viewer'], silo: 'EthekwiniDisaster' },
+  // Everyone sees their own schedule; only supervisors build the roster.
+  { prefix: '/roster/mine',  roles: undefined },
   { prefix: '/roster',       roles: SUPERVISORY_ROLES },
   // HR command centre: supervisors and the admin tier run people-readiness.
   { prefix: '/hr',           roles: SUPERVISORY_ROLES },

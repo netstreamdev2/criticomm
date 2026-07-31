@@ -6,6 +6,8 @@ import { cleanupOnLogout, getMyPersonnel, toggleDuty } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useNotifications } from '@/lib/notifications';
+import { useDept } from '@/lib/branding';
+import { DeptBadge } from '@/components/dept-badge';
 import { colors, radius, space, type } from '@/lib/theme';
 import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/components/ui';
 
@@ -14,6 +16,7 @@ const HEARTBEAT_MS = 60_000;
 export default function ProfileScreen() {
   const { session, fullName, role, silo } = useAuth();
   const { pushEnabled } = useNotifications();
+  const dept = useDept();
   const [onDuty, setOnDuty] = useState(false);
   const [unit, setUnit] = useState<string | null>(null);
   const [lastPing, setLastPing] = useState<string | null>(null);
@@ -98,8 +101,8 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={styles.container}>
-      {/* Identity */}
-      <Card>
+      {/* Identity — badged to the responder's own service */}
+      <Card accent={dept.primary_color}>
         <View style={styles.identity}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{initials || '—'}</Text>
@@ -107,9 +110,11 @@ export default function ProfileScreen() {
           </View>
           <View style={{ flex: 1 }}>
             <Title>{fullName}</Title>
-            <Muted>{role} · {silo}</Muted>
+            <Muted>{role} · {dept.short_name}</Muted>
           </View>
+          <DeptBadge dept={dept} size={40} />
         </View>
+        <Muted style={{ marginTop: space.sm }}>{dept.official_name}</Muted>
         <View style={{ marginTop: space.md }}>
           <KeyValue label="Assigned unit" value={unit ?? 'None'} />
           <KeyValue label="Account" value={session?.user.email ?? '—'} />

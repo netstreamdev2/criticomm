@@ -1,0 +1,48 @@
+import { redirect } from 'next/navigation';
+import { ALL_SILOS } from '@criticom/api';
+import { ADMIN_ROLES } from '@criticom/db';
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { getSession } from '@/lib/session';
+import { getBrandingMap } from '@/lib/branding';
+import { DepartmentCard } from './department-card';
+
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Departments · Criticom' };
+
+export default async function DepartmentsPage() {
+  const { role } = await getSession();
+  if (!ADMIN_ROLES.includes(role)) redirect('/dashboard');
+
+  const branding = await getBrandingMap();
+
+  return (
+    <div className="space-y-6">
+      <header>
+        <h1 className="text-2xl font-bold">Departments</h1>
+        <p className="text-muted-foreground">
+          Each service&apos;s identity — crest, colours and naming — as it appears across the
+          platform, the responder app and printed reports.
+        </p>
+      </header>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>About the crests</CardTitle>
+          <CardDescription>
+            Official insignia belong to the municipality and its services, so the platform ships
+            none — upload each department&apos;s real crest here and it appears everywhere
+            immediately. Until then a monogram badge renders in that department&apos;s colours, so
+            nothing ever looks unfinished. PNG or SVG with a transparent background works best;
+            square crops read cleanest at small sizes.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        {ALL_SILOS.map((silo) => (
+          <DepartmentCard key={silo} branding={branding[silo]} />
+        ))}
+      </div>
+    </div>
+  );
+}

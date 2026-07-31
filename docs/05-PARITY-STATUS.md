@@ -99,6 +99,22 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 - `/api/push/notify` — Expo push fanout to the departments a call was routed to (service-role read of `push_tokens`)
 - `/api/integrations/test/[key]` — per-integration connection probe, admin-only
 
+## Department branding (V5 addition)
+
+Each silo carries its own identity — official name, short name, monogram, colours and motto —
+stored in `department_branding` and editable at **Admin → Departments**. Crests are *uploaded*
+into the public `department-logos` bucket rather than shipped with the app: official municipal and
+service insignia belong to the municipality, so the platform never fabricates them. Until a crest
+is uploaded the UI renders a monogram badge in that department's colours, so nothing looks
+unfinished. The badge appears in the web sidebar, My Schedule and the mobile app shell and profile;
+`DeptBadge` / `DeptChip` (web) and `DeptBadge` / `DeptHeader` (mobile) are the shared components.
+
+## My Schedule (V5 addition)
+
+`getMySchedule` answers "when am I working?" in one call — current duty, next duty, upcoming roster
+allocations with call sign/vehicle/sector, leave balances, leave requests and active endorsements.
+Surfaced at `/roster/mine` (open to every role) and as the mobile **Schedule** tab.
+
 ## HR system (V5 addition — far beyond V4's leave table)
 
 - **HR Command Centre** (`/hr`, supervisory tier): headcount, on-duty, on-leave-today,

@@ -1,6 +1,7 @@
 import type { CriticomClient, Database, Silo } from '@criticom/db';
 
 export * from './analytics';
+export * from './schedule';
 
 type Tables = Database['public']['Tables'];
 

@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { getOperationalSettings, listOpsLinks } from '@criticom/api';
+import type { Silo } from '@criticom/db';
 import { OpsCommandBar } from '@/components/ops-command-bar';
+import { getBrandingMap } from '@/lib/branding';
 import { getServerSupabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Sidebar } from '@/components/sidebar';
 import { Topbar } from '@/components/topbar';
@@ -48,16 +50,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const role = (user.app_metadata?.role as string | undefined) ?? 'Viewer';
   const fullName = (user.user_metadata?.full_name as string | undefined) ?? user.email ?? 'User';
 
-  // Admin-tuned alert behaviour + command-bar links; both fail safe.
-  const [settings, opsLinks] = await Promise.all([
+  // Admin-tuned alert behaviour, command-bar links and department identity;
+  // all three fail safe.
+  const [settings, opsLinks, branding] = await Promise.all([
     getOperationalSettings(supabase),
     listOpsLinks(supabase),
+    getBrandingMap(),
   ]);
+  const dept = branding[silo as Silo];
 
   return (
     <ToastProvider>
       <div className="min-h-screen lg:grid lg:grid-cols-[264px_1fr]">
-        <Sidebar silo={silo} role={role} />
+        <Sidebar silo={silo} role={role} dept={dept} />
         <div className="flex min-h-screen min-w-0 flex-col">
           <Topbar fullName={fullName} role={role} silo={silo} />
           <OpsCommandBar role={role} silo={silo} links={opsLinks} />

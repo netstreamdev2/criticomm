@@ -5,8 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, Menu, X, Search } from 'lucide-react';
 import { canAccess, type Silo, type UserRole } from '@criticom/db';
+import type { DepartmentBranding } from '@criticom/api';
+import { DeptBadge } from '@/components/dept-badge';
 import { NAV_GROUPS } from '@/lib/nav';
 import { cn } from '@/lib/utils';
+
+/** Branding for the signed-in user's own department, resolved server-side. */
+export type DeptIdentity = DepartmentBranding & { logoUrl: string | null };
 
 const STORAGE_KEY = 'criticom:collapsed-nav-groups';
 
@@ -122,21 +127,40 @@ function NavList({
   );
 }
 
-function Brand({ compact }: { compact?: boolean }) {
+function Brand({ dept }: { dept?: DeptIdentity }) {
   return (
-    <div className={cn('flex shrink-0 items-center border-b border-border px-5', compact ? 'h-16' : 'h-16')}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/criticomm-logo.png"
-        alt="CRITICOMM — All in One EMS Dispatch Software"
-        className="max-h-9 w-auto"
-      />
+    <div className="shrink-0 border-b border-border">
+      <div className="flex h-16 items-center px-5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/criticomm-logo.png"
+          alt="CRITICOMM — All in One EMS Dispatch Software"
+          className="max-h-9 w-auto"
+        />
+      </div>
+      {/* Whose service this screen belongs to, in that service's own colour. */}
+      {dept ? (
+        <div
+          className="flex items-center gap-2.5 px-5 py-2.5"
+          style={{ background: `linear-gradient(90deg, ${dept.primary_color}1f, transparent 80%)` }}
+        >
+          <DeptBadge branding={dept} logoUrl={dept.logoUrl} size="xs" />
+          <span className="min-w-0 leading-tight">
+            <span className="block truncate text-xs font-bold">{dept.short_name}</span>
+            <span className="block truncate text-[10px] text-muted-foreground">{dept.official_name}</span>
+          </span>
+        </div>
+      ) : null}
     </div>
   );
 }
 
 /** Desktop rail (lg+) + mobile drawer. */
-export function Sidebar({ silo, role }: { silo: string; role: string }) {
+export function Sidebar({
+  silo, role, dept,
+}: {
+  silo: string; role: string; dept?: DeptIdentity;
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -146,7 +170,7 @@ export function Sidebar({ silo, role }: { silo: string; role: string }) {
   return (
     <>
       <aside className="hidden h-screen flex-col border-r border-border bg-bg-soft lg:sticky lg:top-0 lg:flex">
-        <Brand />
+        <Brand dept={dept} />
         <NavList silo={silo} role={role} />
       </aside>
 

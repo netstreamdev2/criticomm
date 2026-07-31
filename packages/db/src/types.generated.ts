@@ -309,6 +309,24 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['push_tokens']['Row']>;
         Relationships: [];
       };
+      department_branding: {
+        Row: {
+          silo: Silo;
+          official_name: string;
+          short_name: string;
+          monogram: string;
+          primary_color: string;
+          accent_color: string;
+          /** Path inside the `department-logos` bucket; null ⇒ monogram fallback. */
+          logo_path: string | null;
+          motto: string | null;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['department_branding']['Row']>;
+        Update: Partial<Database['public']['Tables']['department_branding']['Row']>;
+        Relationships: [];
+      };
       app_settings: {
         Row: {
           key: string;

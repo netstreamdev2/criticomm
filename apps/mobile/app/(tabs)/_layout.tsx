@@ -41,6 +41,16 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="schedule"
+        options={{
+          title: 'My Schedule',
+          tabBarLabel: 'Schedule',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="shift"
         options={{
           title: 'Shift',
