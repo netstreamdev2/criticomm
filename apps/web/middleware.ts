@@ -32,6 +32,10 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  // API callers need a status code they can branch on. Redirecting them to the
+  // HTML login page yields a 200 full of markup and the classic
+  // "Unexpected token '<'" JSON parse error at the call site.
+  const isApi = pathname.startsWith('/api/');
 
   // A failed auth lookup (network blip, bad token) must never 500 the edge —
   // treat it as "no user" and fall through to the redirect logic below.
@@ -42,8 +46,11 @@ export async function middleware(request: NextRequest) {
     user = null;
   }
 
-  // Unauthenticated → bounce to login (except public routes)
+  // Unauthenticated → 401 for APIs, bounce to login for pages.
   if (!user && !isPublic) {
+    if (isApi) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     url.searchParams.set('next', pathname);
@@ -63,6 +70,9 @@ export async function middleware(request: NextRequest) {
     const userRole = (user.app_metadata?.role ?? 'Viewer') as UserRole;
 
     if (!isPublic && !canAccess(pathname, userRole, userSilo)) {
+      if (isApi) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
       const url = request.nextUrl.clone();
       url.pathname = '/403';
       return NextResponse.redirect(url);

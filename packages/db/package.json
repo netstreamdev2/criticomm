@@ -15,7 +15,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "biome check src"
+    "lint": "biome check src",
+    "test": "node --experimental-strip-types --test src/**/*.test.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.3",

@@ -1,4 +1,12 @@
 {
   "extends": "@criticom/config/tsconfig.base.json",
+  "compilerOptions": {
+    // Tests run under `node --experimental-strip-types`, which resolves real
+    // file paths and therefore needs explicit .ts extensions on relative
+    // imports. Safe here: this package is only ever typechecked (--noEmit) and
+    // consumed through the bundler, never emitted by tsc.
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  },
   "include": ["src/**/*"]
 }
