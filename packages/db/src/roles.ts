@@ -88,7 +88,8 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/roster',       roles: SUPERVISORY_ROLES },
   // HR command centre: supervisors and the admin tier run people-readiness.
   { prefix: '/hr',           roles: SUPERVISORY_ROLES },
-  { prefix: '/leave',        roles: [...ADMIN_ROLES, 'Staff', 'Supervisor', ...RESPONDER_ROLES] },
+  // Everyone who works here files leave — the desk (dispatch tier) included.
+  { prefix: '/leave',        roles: [...ADMIN_ROLES, 'Staff', 'Supervisor', ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'CaseManager'] },
   { prefix: '/training',     roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES] },
   // Self-service performance views are open to field members; management views stay restricted.
   { prefix: '/performance/mine', roles: [...RESPONDER_ROLES, ...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'Viewer'] },

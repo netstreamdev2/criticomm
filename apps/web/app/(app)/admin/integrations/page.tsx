@@ -18,7 +18,7 @@ const REQUIRED_ENV: Record<string, string[]> = {
   gemini: ['GEMINI_API_KEY'],
   expo_push: [],
   bulksms: ['BULKSMS_USERNAME', 'BULKSMS_PASSWORD'],
-  realptt: ['REALPTT_USERNAME', 'REALPTT_PASSWORD'],
+  realptt: ['REALPTT_ACCOUNT', 'REALPTT_PASSWORD'],
   zoiper: [],
   tomtom: ['TOMTOM_API_KEY'],
   flightradar24: ['FR24_API_KEY'],

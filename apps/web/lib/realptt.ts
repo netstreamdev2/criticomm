@@ -58,6 +58,27 @@ async function login(): Promise<string> {
   return sid;
 }
 
+/**
+ * Connection test for the integrations panel: run the real auth dance and
+ * report how many radio accounts the credentials can see.
+ */
+export async function verifyPttLogin(): Promise<{ ok: boolean; message: string }> {
+  if (!isPttConfigured()) {
+    return { ok: false, message: 'REALPTT_ACCOUNT / REALPTT_PASSWORD are not set on this deployment.' };
+  }
+  try {
+    const sid = await login();
+    const users = await getJson(`${BASE}/user;jsessionid=${sid}?method=get&user_account=`);
+    const count = users.code === 0 ? users.data?.users?.length ?? 0 : 0;
+    return {
+      ok: true,
+      message: `Authenticated with RealPTT — ${count} radio account${count === 1 ? '' : 's'} visible.`,
+    };
+  } catch (e) {
+    return { ok: false, message: (e as Error).message };
+  }
+}
+
 /** Steps 4–5: resolve the numeric user id and deliver a text message to the radio. */
 export async function sendPttMessage(targetAccount: string, senderName: string, text: string) {
   const sid = await login();

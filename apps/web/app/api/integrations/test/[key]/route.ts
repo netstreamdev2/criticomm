@@ -3,6 +3,7 @@ import { getIntegration, recordIntegrationTest } from '@criticom/api';
 import { ADMIN_ROLES } from '@criticom/db/roles';
 import type { UserRole } from '@criticom/db/types';
 import { hikConfig, hikCredentials, hikListCameras } from '@/lib/hikvision';
+import { verifyPttLogin } from '@/lib/realptt';
 import { getServerSupabase } from '@/lib/supabase';
 
 /**
@@ -108,13 +109,8 @@ const PROBES: Record<string, Probe> = {
   },
 
   async realptt() {
-    const base = process.env.REALPTT_BASE_URL ?? 'https://api.realptt.com';
-    const user = process.env.REALPTT_USERNAME;
-    if (!user) return missing('REALPTT_USERNAME');
-    const res = await ping(base);
-    return res.ok || res.status === 401 || res.status === 404
-      ? { ok: true, message: `Endpoint ${base} reachable.` }
-      : { ok: false, message: `${base} responded ${res.status}.` };
+    // The real V4 auth dance (random → HMAC-SHA1 → login), not a mere ping.
+    return verifyPttLogin();
   },
 
   async zoiper() {
