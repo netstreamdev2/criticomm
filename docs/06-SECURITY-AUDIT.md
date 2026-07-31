@@ -16,7 +16,8 @@ how many of them it defeats:
 
 ## 1. Unauthenticated write access to live incidents — **CRITICAL**
 
-**Fixed in `0019_privileged_function_guards.sql` (not yet applied — see below).**
+**Fixed and verified — `0019_privileged_function_guards.sql` +
+`0020_revoke_public_execute.sql`, both applied.**
 
 Every mutating RPC (`route_incident`, `dispatch_unit`, `close_case`,
 `log_incoming_call`, `update_responder_status`, `assign_vehicle`) is
@@ -39,6 +40,39 @@ on every operational function. Role sets mirror `packages/db/src/roles.ts`.
 `citizen_update_location` deliberately remains `anon`-executable — the citizen
 has no account. It is authenticated by a single-use, expiring bearer token.
 
+**Correction applied in 0020.** 0019's `revoke execute … from anon` lines were
+no-ops. Postgres grants `EXECUTE` to `PUBLIC` on every function at creation and
+`anon` inherits it, so revoking the named role left the `PUBLIC` grant in place
+and `anon` kept access. It shows in the ACL as the entry with an empty grantee
+(`=X/postgres` is PUBLIC; `anon=X/postgres` is the named role). The correct form
+is to revoke from `PUBLIC` and grant back to `authenticated` and `service_role`
+explicitly — which 0020 does, extending it to the read-only `SECURITY DEFINER`
+functions too, since those also bypass RLS (`get_dispatcher_kpis` leaked
+operational KPIs anonymously, and `check_duplicate_incident` worked as a lookup
+oracle for whether a phone number appears in the system).
+
+**Verified — guard decisions, exercised per persona against the live database:**
+
+| role | log call | route | dispatch | close | field status |
+| --- | --- | --- | --- | --- | --- |
+| SystemAdmin | allow | allow | allow | allow | allow |
+| Supervisor | deny | allow | allow | allow | allow |
+| Dispatcher | deny | allow | allow | allow | allow |
+| IncidentLogger | **allow** | deny | deny | deny | deny |
+| Firefighter / Paramedic | deny | deny | deny | deny | allow |
+| Viewer | deny | deny | deny | deny | deny |
+| *no session* | deny | deny | deny | deny | deny |
+
+That is the two-desk split — loggers log, dispatchers dispatch — now enforced
+at the data layer rather than only in the route matrix.
+
+**Verified — `anon` EXECUTE:** revoked on all 11 operational functions;
+retained only on `citizen_update_location`. RLS helper predicates
+(`is_global`, `role_in`, `current_silo`, `can_write_global`, `require_role`,
+`app_role`) are intentionally left executable — they are evaluated during
+policy checks on behalf of whichever role is querying, including `anon` on the
+public share-location page, so restricting them would break RLS itself.
+
 ## 2. Anonymous enumeration of citizen GPS bearer tokens — **CRITICAL**
 
 **Fixed and verified — `0018_security_hardening.sql`, applied.**
@@ -59,7 +93,7 @@ the wrong address.
 
 ## 3. Read-only and intake roles could write operational data — **HIGH**
 
-**Fixed in `0019` (not yet applied).**
+**Fixed and verified — `0019`, applied.**
 
 `is_global()` conflates cross-silo *visibility* with authority to *write*. It
 returns true for `Viewer` (read-only) and `IncidentLogger`.
@@ -144,13 +178,21 @@ isolation, admin closure, self-service openness, and longest-prefix precedence.
 
 ## Still open — requires the operator
 
-1. **Apply migration 0019.** Findings 1 and 3 remain live until it runs:
-   ```bash
-   node scripts/apply-migration.mjs supabase/migrations/0019_privileged_function_guards.sql
-   ```
-2. **Rotate credentials.** The Groq key, the Supabase service-role key and DB
+All eight findings above are fixed, applied and verified. Remaining items are
+outside what a code change can close:
+
+1. **Rotate credentials.** The Groq key, the Supabase service-role key and DB
    password, and the RealPTT credentials were all exposed in plaintext (the
    last hardcoded in the V4 source). Rotation is the only fix for exposure.
-3. **Tighten CSP** with per-request nonces to drop `unsafe-inline`/`unsafe-eval`.
-4. **Rate limiting** — there is none on `/api/*` or the login form. Worth an
+2. **Tighten CSP** with per-request nonces to drop `unsafe-inline`/`unsafe-eval`.
+3. **Rate limiting** — there is none on `/api/*` or the login form. Worth an
    edge rule before public exposure.
+
+## Note for future migrations
+
+`revoke … from anon` on a function is almost always wrong on its own — the
+privilege usually comes from the default `PUBLIC` grant. Revoke from `PUBLIC`
+and grant back explicitly, then verify with
+`has_function_privilege('anon', oid, 'EXECUTE')` rather than reading the
+migration and assuming it took. Finding 1 was reported fixed once before it
+actually was, on exactly this mistake.
