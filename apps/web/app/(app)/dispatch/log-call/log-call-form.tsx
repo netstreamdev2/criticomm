@@ -84,9 +84,14 @@ function haversineKm(a: [number, number], b: [number, number]) {
 }
 
 export function LogCallForm({
-  defaultSilo, callTaker, categoryTree = [], tuning = DEFAULT_TUNING,
+  defaultSilo, callTaker, canRoute = true, categoryTree = [], tuning = DEFAULT_TUNING,
 }: {
-  defaultSilo: Silo; callTaker?: string; categoryTree?: CategoryTree; tuning?: IntakeTuning;
+  defaultSilo: Silo;
+  callTaker?: string;
+  /** False for pure call-takers: they queue for the dispatch desk, never route. */
+  canRoute?: boolean;
+  categoryTree?: CategoryTree;
+  tuning?: IntakeTuning;
 }) {
   const router = useRouter();
   const toast = useToast();
@@ -308,10 +313,15 @@ export function LogCallForm({
     if (!incidentType) return setError('Select an incident code.');
     if (!description.trim()) return setError('Call description is required.');
     if (!address.trim()) return setError('Location address is required.');
-    if (targets.length === 0) return setError('Select at least one department to dispatch to.');
 
-    // The owning silo is the first department selected — that team runs the call.
-    const owner = targets[0]!;
+    // With departments selected (dispatch-desk chairs), the call routes on
+    // submit. Without — a pure call-taker's flow — it lands in the pending
+    // queue for the dispatcher to route. The owning silo is the first
+    // department selected, falling back to the call-taker's own silo.
+    const routing = canRoute && targets.length > 0;
+    const owner = routing
+      ? targets[0]!
+      : (defaultSilo === 'Ethekwini' ? 'MetroPolice' : defaultSilo) as Department;
     const payload: LogIncomingCallInput = {
       silo: owner,
       caller_name: callerName.trim(),
@@ -364,28 +374,38 @@ export function LogCallForm({
           });
         }
 
-        // Fans out to every selected department and pops an alert on their screens.
-        await routeIncident(sb, {
-          incident_id: incident.id,
-          silos: targets,
-          notes: notes.trim() || null,
-        });
+        if (routing) {
+          // Fans out to every selected department and pops an alert on their screens.
+          await routeIncident(sb, {
+            incident_id: incident.id,
+            silos: targets,
+            notes: notes.trim() || null,
+          });
 
-        // Realtime already reached every open screen; this reaches the phones
-        // that are locked. Fire-and-forget — a push failure is not a dispatch
-        // failure.
-        void fetch('/api/push/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ incidentId: incident.id, silos: targets }),
-        }).catch(() => {});
+          // Realtime already reached every open screen; this reaches the
+          // phones that are locked. Fire-and-forget — a push failure is not
+          // a dispatch failure.
+          void fetch('/api/push/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ incidentId: incident.id, silos: targets }),
+          }).catch(() => {});
 
-        toast.push({
-          title: `${incident.incident_number} dispatched`,
-          body: `${targets.map((t) => SILO_LABELS[t]).join(', ')} alerted.`,
-          tone: 'success',
-          badge: severity,
-        });
+          toast.push({
+            title: `${incident.incident_number} dispatched`,
+            body: `${targets.map((t) => SILO_LABELS[t]).join(', ')} alerted.`,
+            tone: 'success',
+            badge: severity,
+          });
+        } else {
+          // The intake desk's flow: log it and hand it to the dispatcher.
+          toast.push({
+            title: `${incident.incident_number} logged`,
+            body: 'In the pending queue — the dispatch desk takes it from here.',
+            tone: 'success',
+            badge: severity,
+          });
+        }
         router.push(`/incidents/${incident.id}`);
       } catch (err) {
         setError((err as Error).message);
@@ -693,15 +713,26 @@ export function LogCallForm({
               />
             </div>
 
-            {/* ── Routing ── */}
+            {/* ── Routing — dispatch-desk chairs only; pure call-takers queue ── */}
+            {!canRoute ? (
+              <p className="flex items-start gap-2 rounded-xl border border-border bg-bg-soft/60 px-4 py-3 text-xs text-muted-foreground">
+                <Radio className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
+                <span>
+                  Routing is the dispatch desk&apos;s job. Submitting places this call in the
+                  <span className="font-semibold text-fg"> pending queue</span>, where the dispatcher
+                  assigns departments and units.
+                </span>
+              </p>
+            ) : null}
+            {canRoute ? (
             <div className="rounded-xl border border-border bg-bg-soft/60 p-4">
               <p className="mb-3 flex items-center gap-2 text-sm font-semibold">
                 <Radio className="h-4 w-4 text-accent" /> Unit dispatch &amp; routing
-                {targets.length > 0 ? (
-                  <span className="ml-auto text-xs font-normal text-muted-foreground">
-                    {targets.length} selected · lead is {SILO_LABELS[targets[0]!]}
-                  </span>
-                ) : null}
+                <span className="ml-auto text-xs font-normal text-muted-foreground">
+                  {targets.length > 0
+                    ? `${targets.length} selected · lead is ${SILO_LABELS[targets[0]!]}`
+                    : 'optional — none selected sends to the pending queue'}
+                </span>
               </p>
 
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -747,6 +778,7 @@ export function LogCallForm({
                 </p>
               ) : null}
             </div>
+            ) : null}
 
             <div>
               <label className={label}>Dispatch execution time</label>
@@ -767,24 +799,28 @@ export function LogCallForm({
               </p>
             ) : null}
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => void calculateEta()}
-                disabled={etaBusy}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-severity-low text-sm font-bold uppercase tracking-wider transition-opacity hover:opacity-90 disabled:opacity-60"
-              >
-                {etaBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
-                {etaBusy ? 'Routing…' : 'Calculate ETA'}
-              </button>
+            <div className={cn('grid gap-3', canRoute && 'sm:grid-cols-2')}>
+              {canRoute ? (
+                <button
+                  type="button"
+                  onClick={() => void calculateEta()}
+                  disabled={etaBusy}
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-severity-low text-sm font-bold uppercase tracking-wider transition-opacity hover:opacity-90 disabled:opacity-60"
+                >
+                  {etaBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+                  {etaBusy ? 'Routing…' : 'Calculate ETA'}
+                </button>
+              ) : null}
               <button
                 type="submit"
                 disabled={pending}
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-accent text-sm font-bold uppercase tracking-wider transition-transform hover:scale-[1.01] disabled:opacity-60"
               >
                 {pending
-                  ? <><Loader2 className="h-4 w-4 animate-spin" /> Dispatching…</>
-                  : <><Siren className="h-4 w-4" /> Dispatch incident</>}
+                  ? <><Loader2 className="h-4 w-4 animate-spin" /> {canRoute && targets.length > 0 ? 'Dispatching…' : 'Logging…'}</>
+                  : canRoute && targets.length > 0
+                    ? <><Siren className="h-4 w-4" /> Dispatch incident</>
+                    : <><Siren className="h-4 w-4" /> Send to dispatch queue</>}
               </button>
             </div>
           </div>

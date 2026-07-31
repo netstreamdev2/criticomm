@@ -148,7 +148,7 @@ export default async function DashboardPage() {
   if (persona === 'command') {
     return (
       <div className="space-y-4">
-        <DispatchBoard supabase={supabase} sf={sf} />
+        <DispatchBoard supabase={supabase} sf={sf} role={role} silo={silo} />
         <section className="space-y-3 pt-2">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
           <QuickLinks links={LINKS.command} role={role} silo={silo} />

@@ -6,7 +6,7 @@ import {
 import {
   getDispatcherKpis, getOperationalSettings, listActiveIncidents, listPendingIncidents,
 } from '@criticom/api';
-import type { Database, Silo } from '@criticom/db';
+import { canAccess, type Database, type Silo, type UserRole } from '@criticom/db';
 import { Card, CardContent } from '@/components/ui/card';
 import { LeafletMap, type MapMarker } from '@/components/leaflet-map';
 import type { getSession } from '@/lib/session';
@@ -77,7 +77,13 @@ function MiniBars({ counts }: { counts: number[] }) {
 
 /* ── The board ──────────────────────────────────────────────────────── */
 
-export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: Silo | undefined }) {
+export async function DispatchBoard({
+  supabase, sf, role, silo,
+}: {
+  supabase: Supabase; sf: Silo | undefined; role: string; silo: string;
+}) {
+  // Loggers see the board but cannot assign — their button opens the incident.
+  const canDispatch = canAccess('/dispatch/pending', role as UserRole, silo as Silo);
   // Admin-tuned knobs (Admin → Operations Settings) shape the whole board.
   const settings = await getOperationalSettings(supabase);
   const volumeDays = settings['board.volume_days'];
@@ -279,10 +285,10 @@ export async function DispatchBoard({ supabase, sf }: { supabase: Supabase; sf: 
               {wait.m}<span className="text-lg text-white/70">m</span>
             </p>
             <Link
-              href={`/dispatch/assign/${critical.id}`}
+              href={canDispatch ? `/dispatch/assign/${critical.id}` : `/incidents/${critical.id}`}
               className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-white px-8 text-sm font-bold text-[#5c4408] transition-transform hover:scale-[1.03]"
             >
-              <Zap className="h-4 w-4" /> Dispatch now
+              <Zap className="h-4 w-4" /> {canDispatch ? 'Dispatch now' : 'Open incident'}
             </Link>
             <Link
               href={`/incidents/${critical.id}`}

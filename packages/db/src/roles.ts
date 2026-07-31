@@ -36,6 +36,15 @@ export const CALL_TAKER_ROLES: UserRole[] = [
   ...ADMIN_ROLES, 'Operator', 'ControlRoom', 'IncidentLogger', 'System',
 ];
 
+/**
+ * Who works the DISPATCH desk (queue, assign, KPI, PTT). Deliberately
+ * excludes IncidentLogger — the intake desk only logs. Operator and
+ * ControlRoom are the flexible chairs that sit on both sides.
+ */
+export const DISPATCH_DESK_ROLES: UserRole[] = [
+  ...ADMIN_ROLES, 'Dispatcher', 'Operator', 'ControlRoom', 'Supervisor', 'System',
+];
+
 /** Field roles that respond to incidents and run the start-of-shift workflow. */
 export const RESPONDER_ROLES: UserRole[] = [
   'Responder', 'Police', 'Officer', 'Metro', 'Security', 'Captain',
@@ -70,10 +79,11 @@ type RouteRule = {
 
 /** Ordered longest-prefix-first at lookup time; keep entries readable here. */
 export const ROUTE_RULES: RouteRule[] = [
-  // Longest-prefix wins: intake is call-taker-only, the rest of /dispatch
-  // (pending queue, assign, KPI, PTT) stays open to dispatchers.
+  // Longest-prefix wins: intake is call-taker-only; the rest of /dispatch
+  // (pending queue, assign, KPI, PTT) belongs to the dispatch desk. An
+  // IncidentLogger logs, a Dispatcher dispatches — never each other's job.
   { prefix: '/dispatch/log-call', roles: CALL_TAKER_ROLES },
-  { prefix: '/dispatch',     roles: DISPATCH_ROLES },
+  { prefix: '/dispatch',     roles: DISPATCH_DESK_ROLES },
   { prefix: '/incidents',    roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },
   { prefix: '/reports',      roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },
   { prefix: '/report-hub',   roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager', 'Supervisor'] },
