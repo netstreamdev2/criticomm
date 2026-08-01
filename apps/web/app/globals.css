@@ -136,6 +136,19 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
 .leaflet-container {
   @apply rounded-lg border border-border;
   background: rgb(var(--c-bg-soft));
+
+  /* Leaflet hard-codes its own z-index scale — panes at 400, controls at
+     1000 — which sits far above this app's overlay scale (10–90). Because
+     .leaflet-container is position:relative with z-index:auto it creates no
+     stacking context, so those values leak out and compete with app chrome:
+     the address autocomplete on Log a Call rendered *behind* the map, and
+     any toast or dispatch alert over a map would have gone the same way.
+
+     `isolation: isolate` forces a stacking context here, so Leaflet's
+     internal ordering stays internal and the whole map participates in the
+     page as a single layer at z-index auto. Do not add a z-index to this
+     rule — that would re-enter the page's scale and undo the containment. */
+  isolation: isolate;
 }
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
   background: rgb(var(--c-bg-card));
