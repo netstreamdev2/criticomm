@@ -1360,6 +1360,11 @@ export type Database = {
       apparatus_status: ApparatusStatus;
     };
     Functions: {
+      /** Unread alerts for the signed-in user (migration 0022). */
+      count_unread_alerts: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
       log_incoming_call: {
         Args: {
           p_silo: Silo;

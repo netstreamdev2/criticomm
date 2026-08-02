@@ -102,9 +102,18 @@ export async function listMyAlerts(
   return opts.unreadOnly ? rows.filter((r) => !r.read) : rows;
 }
 
+/**
+ * Authoritative unread count.
+ *
+ * Uses the `count_unread_alerts()` function (migration 0022) rather than
+ * fetching rows and counting them client-side — the old approach capped at the
+ * fetch limit, so a busy shift would show "100" and stop, and it pulled every
+ * alert body over the wire just to discard them.
+ */
 export async function countUnreadAlerts(client: CriticomClient) {
-  const rows = await listMyAlerts(client, { limit: 100, unreadOnly: true });
-  return rows.length;
+  const { data, error } = await client.rpc('count_unread_alerts');
+  if (error) throw error;
+  return typeof data === 'number' ? data : 0;
 }
 
 /* ── Read receipts ──────────────────────────────────────────────────── */
@@ -171,6 +180,51 @@ export function subscribeAlerts(
       (payload: { new: Alert }) => onAlert(payload.new),
     )
     .subscribe();
+  return () => {
+    void client.removeChannel(channel);
+  };
+}
+
+export type AlertRead = Database['public']['Tables']['alert_reads']['Row'];
+
+/**
+ * Live stream of this user's own read receipts, so an unread badge can go
+ * *down* as well as up — including when the alert was read somewhere else
+ * (another tab, the phone, the wall display).
+ *
+ * `alert_reads` RLS is `user_id = auth.uid()`, so this delivers only the
+ * caller's receipts; the filter is belt-and-braces to cut traffic, not the
+ * security boundary.
+ *
+ * `onChange` fires for inserts (read) and deletes (marked unread again).
+ * `onStatus` reports socket state — callers use it to re-seed an authoritative
+ * count after a reconnect, so a dropped connection cannot leave the badge
+ * permanently drifted.
+ */
+export function subscribeMyAlertReads(
+  client: CriticomClient,
+  args: { userId: string },
+  handlers: {
+    onChange: (change: { type: 'read' | 'unread'; alertId: string }) => void;
+    onStatus?: (status: string) => void;
+  },
+) {
+  const filter = `user_id=eq.${args.userId}`;
+  const channel = client
+    .channel(uniqueTopic(`alert_reads:${args.userId}`))
+    .on(
+      'postgres_changes' as never,
+      { event: 'INSERT', schema: 'public', table: 'alert_reads', filter },
+      (payload: { new: AlertRead }) =>
+        handlers.onChange({ type: 'read', alertId: payload.new.alert_id }),
+    )
+    .on(
+      'postgres_changes' as never,
+      { event: 'DELETE', schema: 'public', table: 'alert_reads', filter },
+      (payload: { old: AlertRead }) =>
+        handlers.onChange({ type: 'unread', alertId: payload.old?.alert_id }),
+    )
+    .subscribe((status: string) => handlers.onStatus?.(status));
   return () => {
     void client.removeChannel(channel);
   };
