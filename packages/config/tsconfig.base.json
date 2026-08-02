@@ -13,6 +13,14 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
-    "incremental": true
+    "incremental": true,
+
+    // Test files run under `node --experimental-strip-types`, which resolves
+    // real paths and so needs explicit .ts extensions on relative imports.
+    // Because workspace packages are consumed as source through the bundler,
+    // nothing in this repo is emitted by tsc — every package typechecks with
+    // --noEmit — so allowing the extension costs nothing and keeps the
+    // setting in one place instead of drifting per package.
+    "allowImportingTsExtensions": true
   }
 }

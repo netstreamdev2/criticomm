@@ -87,6 +87,10 @@ export const ROUTE_RULES: RouteRule[] = [
   // Responders must be able to open the calls they are sent to: every dispatch
   // alert links at /incidents/{id}. RLS still scopes the rows to their silo.
   { prefix: '/incidents',    roles: [...DISPATCH_ROLES, ...RESPONDER_ROLES, 'Viewer', 'CaseManager'] },
+  // The builder is open to everyone who can read reports — running one is
+  // reading. Which datasets they may touch is decided by the reporting
+  // registry, and saving/exporting is gated in the actions themselves.
+  { prefix: '/reports/builder', roles: [...DISPATCH_ROLES, ...RESPONDER_ROLES, ...SUPERVISORY_ROLES, 'Viewer', 'CaseManager', 'Staff'] },
   { prefix: '/reports',      roles: [...DISPATCH_ROLES, ...RESPONDER_ROLES, 'Viewer', 'CaseManager'] },
   { prefix: '/report-hub',   roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager', 'Supervisor'] },
   { prefix: '/case-manager', roles: CASE_MANAGER_ROLES },

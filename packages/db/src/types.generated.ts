@@ -43,6 +43,26 @@ export type Database = {
   };
   public: {
     Tables: {
+      report_definitions: {
+        Row: {
+          id: string;
+          silo: Silo;
+          name: string;
+          description: string | null;
+          dataset: string;
+          /** Registry-validated report shape — see packages/api/src/reporting. */
+          definition: Record<string, unknown>;
+          chart: Record<string, unknown> | null;
+          visibility: 'private' | 'department' | 'global';
+          created_by: string | null;
+          created_by_name: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['report_definitions']['Row']>;
+        Update: Partial<Database['public']['Tables']['report_definitions']['Row']>;
+        Relationships: [];
+      };
       profiles: {
         Row: {
           id: string;
@@ -424,6 +444,14 @@ export type Database = {
           vehicle: string | null;
           sector: string | null;
           status: string;
+          // Duty allocation (0021)
+          duty_date: string | null;
+          start_at: string | null;
+          end_at: string | null;
+          post: string | null;
+          published: boolean;
+          published_at: string | null;
+          acknowledged_at: string | null;
         };
         Insert: Partial<Database['public']['Tables']['rosters']['Row']>;
         Update: Partial<Database['public']['Tables']['rosters']['Row']>;

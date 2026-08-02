@@ -37,6 +37,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/incidents', label: 'All Incidents', icon: MapPinned, keywords: 'search log history' },
       { href: '/incidents/map', label: 'Live Map', icon: Map, keywords: 'gis geography units' },
       { href: '/reports', label: 'Reports Archive', icon: FileText, keywords: 'closed resolved' },
+      { href: '/reports/builder', label: 'Report Builder', icon: BarChart3, keywords: 'custom report build query group chart export analytics pivot' },
       { href: '/report-hub', label: 'Report Hub', icon: Filter, keywords: 'export csv filters templates' },
       { href: '/case-manager', label: 'Case Manager', icon: FolderClosed, keywords: 'close cases review' },
       { href: '/hierarchy', label: 'Dept Hierarchy', icon: Network, keywords: 'org chart chain of command' },
@@ -112,7 +113,7 @@ export const ALL_NAV_ITEMS: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
 const SEGMENT_LABELS: Record<string, string> = {
   dispatch: 'Dispatch', incidents: 'Incidents', 'log-call': 'Log Call', pending: 'Pending Queue',
   kpi: 'KPI', map: 'Live Map', assign: 'Assign', ptt: 'PTT Radio',
-  reports: 'Reports', 'report-hub': 'Report Hub', 'case-manager': 'Case Manager', audit: 'Audit',
+  reports: 'Reports', builder: 'Report Builder', 'report-hub': 'Report Hub', 'case-manager': 'Case Manager', audit: 'Audit',
   hierarchy: 'Hierarchy', person: 'Personnel Record', responder: 'My Incidents',
   shift: 'Shift', 'mental-check': 'Readiness Check', 'vehicle-selection': 'Vehicle Selection',
   'vehicle-checklist': 'Vehicle Checklist', 'unit-compliance': 'Unit Compliance', reason: 'Not Passed',

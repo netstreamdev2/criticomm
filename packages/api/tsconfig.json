@@ -1,4 +1,10 @@
 {
   "extends": "@criticom/config/tsconfig.base.json",
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ],
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  }
 }

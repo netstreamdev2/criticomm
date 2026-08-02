@@ -11,11 +11,13 @@
     "./personnel": "./src/personnel/index.ts",
     "./shift": "./src/shift/index.ts",
     "./realtime": "./src/realtime/index.ts",
-    "./external/*": "./src/external/*.ts"
+    "./external/*": "./src/external/*.ts",
+    "./reporting": "./src/reporting/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "biome check src"
+    "lint": "biome check src",
+    "test": "node --experimental-strip-types --test src/**/*.test.ts"
   },
   "dependencies": {
     "@criticom/db": "workspace:*",

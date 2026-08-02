@@ -5,6 +5,12 @@
     "noUncheckedIndexedAccess": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    // This app extends expo/tsconfig.base rather than @criticom/config, so it
+    // needs its own copy of this: workspace packages it imports (@criticom/api)
+    // use explicit .ts extensions internally so their tests can run under
+    // node's type-stripping loader. Metro resolves them unchanged.
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "paths": {
       "@/*": ["./*"]
     }
