@@ -14,10 +14,7 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Criticom shares your live position with dispatch while you are on duty.",
         "NSCameraUsageDescription": "Capture incident-scene evidence photos.",
-        "NSMicrophoneUsageDescription": "Record voice notes as incident evidence.",
-        "UIBackgroundModes": [
-          "remote-notification"
-        ]
+        "NSMicrophoneUsageDescription": "Record voice notes as incident evidence."
       }
     },
     "android": {
@@ -47,13 +44,6 @@
         "expo-image-picker",
         {
           "photosPermission": "Attach photos from your library as incident evidence."
-        }
-      ],
-      [
-        "expo-notifications",
-        {
-          "color": "#dc3545",
-          "defaultChannel": "dispatch"
         }
       ],
       "expo-asset",

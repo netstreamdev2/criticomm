@@ -1,52 +1,32 @@
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
-import { Platform, Vibration } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import Constants from 'expo-constants';
-import { registerPushToken, subscribeAlerts, type Alert } from '@criticom/api';
-import type { Silo } from '@criticom/db/types';
+import { Vibration } from 'react-native';
+import { subscribeAlerts, type Alert } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 
 /**
- * Notifications on the responder app come in two flavours and this module owns
- * both:
+ * Alerts on the responder app.
  *
- *   • In app  — a Supabase realtime subscription on `alerts`. Instant, no
- *               round trip through a push service. Non-urgent alerts become an
- *               in-app banner; High/Critical dispatch assignments become a
- *               full-screen interrupt (rendered by <AssignmentAlert/>).
- *   • Backgrounded / closed — Expo push, addressed to the token this device
- *               registers on sign-in. The server fans these out when a call is
- *               routed to the crew's department.
+ * NOTE — OS push is deliberately not built into this app right now.
+ * expo-notifications registers Firebase messaging services in the Android
+ * manifest, and without google-services.json that initialises before any JS
+ * runs and takes the process down at launch. An app that will not start is a
+ * far worse failure for a responder than one without background push.
  *
- * Both paths carry the same payload shape so a crew sees the same thing either
- * way.
+ * The primary channel is unaffected: a Supabase realtime subscription on
+ * `alerts` delivers everything while the app is open, which is the state a
+ * crew on shift is actually in. Re-enable push by adding an FCM
+ * google-services.json and restoring expo-notifications.
+ *
+ * What remains here:
+ *
+ *   • A Supabase realtime subscription on `alerts`. Instant, no round trip
+ *     through a push service. Non-urgent alerts become an in-app banner;
+ *     High/Critical dispatch assignments become a full-screen interrupt
+ *     (rendered by <AssignmentAlert/>).
  */
-
-// Alerts must break through even when the phone is on silent-ish settings —
-// this is a dispatch app.
-//
-// Wrapped because this runs at module scope, before React mounts: if the
-// native notifications module is unavailable (no FCM credentials on Android,
-// a stripped build, an OS that refused the module) an unguarded throw here
-// takes the whole app down at launch with no error anyone can read. Push is
-// the secondary alert channel — the primary one is the Supabase realtime
-// subscription below, which needs none of this. Losing push must never cost
-// a responder the app.
-try {
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: true,
-    }),
-  });
-} catch (e) {
-  console.warn('[criticom] notification handler unavailable; push disabled', e);
-}
 
 export type Banner = {
   id: string;
@@ -76,58 +56,12 @@ export function useNotifications(): NotificationsApi {
   return ctx;
 }
 
-/** Ask for permission, then hand the Expo token to the backend. */
-async function registerForPush(silo: Silo): Promise<boolean> {
-  if (!Device.isDevice) return false;   // simulators cannot receive push
-
-  if (Platform.OS === 'android') {
-    // A dedicated max-importance channel so dispatch alerts bypass the
-    // default channel's quieter treatment.
-    await Notifications.setNotificationChannelAsync('dispatch', {
-      name: 'Dispatch alerts',
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 400, 200, 400],
-      lightColor: '#dc3545',
-      sound: 'default',
-      bypassDnd: true,
-    });
-  }
-
-  const existing = await Notifications.getPermissionsAsync();
-  let status = existing.status;
-  if (status !== 'granted') {
-    const asked = await Notifications.requestPermissionsAsync();
-    status = asked.status;
-  }
-  if (status !== 'granted') return false;
-
-  const projectId =
-    Constants.expoConfig?.extra?.eas?.projectId ??
-    (Constants as unknown as { easConfig?: { projectId?: string } }).easConfig?.projectId;
-
-  try {
-    const token = await Notifications.getExpoPushTokenAsync(
-      projectId ? { projectId } : undefined,
-    );
-    await registerPushToken(getSupabase(), {
-      token: token.data,
-      platform: Platform.OS,
-      deviceName: Device.deviceName ?? undefined,
-      silo,
-    });
-    return true;
-  } catch {
-    // No EAS project id yet (bare `expo start`), or the push service is
-    // unreachable. Realtime still delivers everything while the app is open.
-    return false;
-  }
-}
-
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {
   const { session, silo } = useAuth();
   const [banners, setBanners] = useState<Banner[]>([]);
   const [assignments, setAssignments] = useState<Alert[]>([]);
-  const [pushEnabled, setPushEnabled] = useState(false);
+  // Push is off on this build; realtime carries every alert while the app is open.
+  const pushEnabled = false;
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
   const dismissBanner = useCallback((id: string) => {
@@ -147,14 +81,6 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const clearAssignment = useCallback((id: string) => {
     setAssignments((cur) => cur.filter((a) => a.id !== id));
   }, []);
-
-  // Register for push once signed in.
-  useEffect(() => {
-    if (!session) return;
-    let live = true;
-    void registerForPush(silo).then((ok) => { if (live) setPushEnabled(ok); });
-    return () => { live = false; };
-  }, [session, silo]);
 
   // Live alert stream while the app is open.
   useEffect(() => {
@@ -183,18 +109,6 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
         Vibration.vibrate(120);
       }
 
-      // Also raise an OS notification so it lands in the shade — a crew member
-      // glancing away should still find it later.
-      void Notifications.scheduleNotificationAsync({
-        content: {
-          title: alert.title,
-          body: alert.body ?? '',
-          data: { incidentId: alert.incident_id, alertId: alert.id },
-          sound: 'default',
-          ...(Platform.OS === 'android' ? { channelId: 'dispatch' } : {}),
-        },
-        trigger: null,
-      }).catch(() => {});
     });
 
     return off;
@@ -218,22 +132,12 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
 }
 
 /**
- * Tap handling for OS notifications: opening one should land on the incident,
- * whether the app was backgrounded or cold-started.
+ * Deep-link entry point for an alert tap.
+ *
+ * Currently inert: OS push is not wired on this build (see the note at the top
+ * of this file). Kept as the single place routing will live once FCM exists,
+ * so callers do not change when it comes back.
  */
-export function useNotificationRouting(onOpenIncident: (incidentId: string) => void) {
-  useEffect(() => {
-    const sub = Notifications.addNotificationResponseReceivedListener((response) => {
-      const id = response.notification.request.content.data?.incidentId;
-      if (typeof id === 'string') onOpenIncident(id);
-    });
-
-    // Cold start: the notification that launched the app.
-    void Notifications.getLastNotificationResponseAsync().then((response) => {
-      const id = response?.notification.request.content.data?.incidentId;
-      if (typeof id === 'string') onOpenIncident(id);
-    });
-
-    return () => sub.remove();
-  }, [onOpenIncident]);
+export function useNotificationRouting(_onOpenIncident: (incidentId: string) => void) {
+  // no-op
 }
