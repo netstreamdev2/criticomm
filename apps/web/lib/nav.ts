@@ -125,7 +125,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   roster: 'Roster', allocation: 'Duty Allocation', 'duty-sheet': 'Duty Sheet', leave: 'Leave', training: 'Training',
   hr: 'HR Command Centre', departments: 'Departments',
   performance: 'Performance', mine: 'My Performance', operational: 'Operational KPIs',
-  'role-kpis': 'Role KPIs', plans: 'Appraisal Plans', kpis: 'KPI Config',
+  'role-kpis': 'Role KPIs', rollup: 'KPI Rollup', plans: 'Appraisal Plans', kpis: 'KPI Config',
   analytics: 'Analytics', cameras: 'Surveillance', assistant: 'Assistant',
   admin: 'Administration', config: 'Configuration', personnel: 'Personnel',
   operators: 'Operators', vehicles: 'Fleet', devices: 'Devices', integrations: 'Integrations',

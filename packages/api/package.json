@@ -12,7 +12,8 @@
     "./shift": "./src/shift/index.ts",
     "./realtime": "./src/realtime/index.ts",
     "./external/*": "./src/external/*.ts",
-    "./reporting": "./src/reporting/index.ts"
+    "./reporting": "./src/reporting/index.ts",
+    "./rollup": "./src/performance/rollup.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

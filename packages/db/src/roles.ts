@@ -113,6 +113,7 @@ export const ROUTE_RULES: RouteRule[] = [
   // Self-service performance views are open to field members; management views stay restricted.
   { prefix: '/performance/mine', roles: [...RESPONDER_ROLES, ...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'Viewer'] },
   // The three-axis reports centre: command staff, dispatch leadership and viewers.
+  { prefix: '/performance/rollup', roles: [...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },
   { prefix: '/performance/reports', roles: [...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },
   { prefix: '/performance',  roles: ['Supervisor', 'SystemAdmin', 'SuperAdmin', 'System', 'Admin'] },
   { prefix: '/analytics',    roles: ['System', 'SystemAdmin', 'SuperAdmin', 'Admin', 'Viewer', 'Supervisor'] },

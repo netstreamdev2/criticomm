@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getMySchedule, inclusiveDays, type MySchedule } from '@criticom/api';
+import {
+  acknowledgeAllocation, getMyAllocations, getMySchedule, inclusiveDays, type MySchedule,
+} from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useDept } from '@/lib/branding';
@@ -20,11 +22,27 @@ const STATUS_COLOUR: Record<string, string> = {
   Pending: colors.medium,
 };
 
+/** A published duty allocation, with the post it fills joined on. */
+type Allocated = {
+  id: string;
+  duty_date: string | null;
+  station: string | null;
+  activity_type: string | null;
+  vehicle: string | null;
+  sector: string | null;
+  call_sign: string | null;
+  special_instructions: string | null;
+  acknowledged_at: string | null;
+  duty_posts?: { name: string; station: string | null; sector: string | null; vehicle: string | null; call_sign: string | null } | null;
+};
+
 /** "When am I working?" — the crew's own roster, leave and endorsements. */
 export default function ScheduleScreen() {
   const { session, silo, fullName, role } = useAuth();
   const dept = useDept();
   const [schedule, setSchedule] = useState<MySchedule | null>(null);
+  const [allocations, setAllocations] = useState<Allocated[]>([]);
+  const [acking, setAcking] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,15 +50,45 @@ export default function ScheduleScreen() {
     if (!session) return;
     setError(null);
     try {
-      setSchedule(await getMySchedule(getSupabase(), { userId: session.user.id, silo }));
+      const today = new Date(Date.now() + 2 * 3600_000).toISOString().slice(0, 10);
+      const [sched, allocs] = await Promise.all([
+        getMySchedule(getSupabase(), { userId: session.user.id, silo }),
+        getMyAllocations(getSupabase(), { userId: session.user.id, fromDate: today, days: 14 })
+          .catch(() => [] as Allocated[]),
+      ]);
+      setSchedule(sched);
+      setAllocations(allocs as Allocated[]);
     } catch (e) {
       setError((e as Error).message);
     }
   }, [session, silo]);
 
+  /**
+   * Confirm an allocation. A published duty is an instruction, so the
+   * supervisor's board needs to show who has actually seen theirs — otherwise
+   * "it was on the roster" is the only answer available when someone doesn't
+   * turn up. Optimistic locally so the tap feels instant on a bad signal.
+   */
+  const acknowledge = useCallback(async (id: string) => {
+    setAcking(id);
+    const now = new Date().toISOString();
+    setAllocations((rows) => rows.map((r) => (r.id === id ? { ...r, acknowledged_at: now } : r)));
+    try {
+      await acknowledgeAllocation(getSupabase(), id);
+    } catch (e) {
+      // Put it back — a duty that looks acknowledged but isn't is worse than
+      // one that still needs a tap.
+      setAllocations((rows) => rows.map((r) => (r.id === id ? { ...r, acknowledged_at: null } : r)));
+      setError((e as Error).message);
+    } finally {
+      setAcking(null);
+    }
+  }, []);
+
   useEffect(() => { void load(); }, [load]);
 
   const upcoming = (schedule?.duties ?? []).filter((d) => d !== schedule?.onDutyNow);
+  const unacknowledged = allocations.filter((a) => !a.acknowledged_at);
   const balances = (schedule?.balances ?? []).filter((b) => b.entitlement > 0);
 
   return (
@@ -70,6 +118,48 @@ export default function ScheduleScreen() {
           <Muted>{role}</Muted>
         </View>
       </Card>
+
+      {/* Allocations still needing acknowledgement — surfaced above everything
+          else, because an unread duty is the one that gets missed. */}
+      {unacknowledged.length > 0 ? (
+        <>
+          <SectionLabel>Confirm your duty ({unacknowledged.length})</SectionLabel>
+          {unacknowledged.map((a) => (
+            <Card key={a.id} accent={colors.medium}>
+              <View style={styles.rowGap}>
+                <Ionicons name="alert-circle" size={18} color={colors.medium} />
+                <Title>{a.duty_posts?.name ?? a.activity_type ?? 'Duty'}</Title>
+              </View>
+              <Muted>
+                {a.duty_date ? dayLabel(a.duty_date) : 'Date not set'}
+                {a.duty_posts?.station ?? a.station ? ` · ${a.duty_posts?.station ?? a.station}` : ''}
+              </Muted>
+              <View style={styles.chips}>
+                {(a.duty_posts?.call_sign ?? a.call_sign) ? <Chip icon="id-card-outline" text={(a.duty_posts?.call_sign ?? a.call_sign)!} /> : null}
+                {(a.duty_posts?.vehicle ?? a.vehicle) ? <Chip icon="car-sport-outline" text={(a.duty_posts?.vehicle ?? a.vehicle)!} /> : null}
+                {(a.duty_posts?.sector ?? a.sector) ? <Chip icon="map-outline" text={(a.duty_posts?.sector ?? a.sector)!} /> : null}
+              </View>
+              {a.special_instructions ? (
+                <Text style={styles.instructions}>{a.special_instructions}</Text>
+              ) : null}
+              <Pressable
+                accessibilityRole="button"
+                disabled={acking === a.id}
+                onPress={() => { void acknowledge(a.id); }}
+                style={({ pressed }) => [
+                  styles.ackButton,
+                  { opacity: pressed || acking === a.id ? 0.6 : 1 },
+                ]}
+              >
+                <Ionicons name="checkmark-circle-outline" size={16} color="#fff" />
+                <Text style={styles.ackText}>
+                  {acking === a.id ? 'Confirming…' : 'I have read this duty'}
+                </Text>
+              </Pressable>
+            </Card>
+          ))}
+        </>
+      ) : null}
 
       {/* On duty now */}
       <SectionLabel>Right now</SectionLabel>
@@ -241,6 +331,15 @@ const styles = StyleSheet.create({
   instructions: {
     ...type.small, color: colors.medium, marginTop: space.sm, fontStyle: 'italic', lineHeight: 18,
   },
+
+  // Deliberately a full-width target: this gets tapped with gloves on, in a
+  // vehicle, in the dark.
+  ackButton: {
+    marginTop: space.md, minHeight: 44, borderRadius: radius.md,
+    backgroundColor: colors.accent, flexDirection: 'row',
+    alignItems: 'center', justifyContent: 'center', gap: space.sm,
+  },
+  ackText: { ...type.small, color: '#ffffff', fontWeight: '700' },
 
   dutyRow: { flexDirection: 'row', gap: space.md },
   dateBlock: {
