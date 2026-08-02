@@ -71,6 +71,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/roster/mine', label: 'My Schedule', icon: CalendarClock, keywords: 'my shifts roster duty leave balances endorsements when am i working' },
       { href: '/hr', label: 'HR Command Centre', icon: Users, keywords: 'hr hub people approvals coverage certifications expiring' },
+      { href: '/roster/allocation', label: 'Duty Allocation', icon: ClipboardCheck, keywords: 'post board coverage gaps unmanned assign crew sector vehicle establishment publish' },
       { href: '/roster', label: 'Roster', icon: CalendarClock, keywords: 'duty shifts allocation endorsements schedule board' },
       { href: '/roster/duty-sheet', label: 'Duty Sheet', icon: IdCard, keywords: 'parade print dcp' },
       { href: '/leave', label: 'Leave', icon: Briefcase, keywords: 'time off absence balances calendar approvals' },
@@ -121,7 +122,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   firearms: 'Armoury', security: 'Security Reports', 'crime-hotspots': 'Crime Hotspots',
   hydrants: 'Hydrants', pir: 'Public Reports', publish: 'Publish', pcr: 'Patient Care Reports',
   restock: 'Restock', 'post-mortem': 'Post-Mortem', partners: 'Mutual Aid',
-  roster: 'Roster', 'duty-sheet': 'Duty Sheet', leave: 'Leave', training: 'Training',
+  roster: 'Roster', allocation: 'Duty Allocation', 'duty-sheet': 'Duty Sheet', leave: 'Leave', training: 'Training',
   hr: 'HR Command Centre', departments: 'Departments',
   performance: 'Performance', mine: 'My Performance', operational: 'Operational KPIs',
   'role-kpis': 'Role KPIs', plans: 'Appraisal Plans', kpis: 'KPI Config',

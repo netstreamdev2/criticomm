@@ -43,6 +43,28 @@ export type Database = {
   };
   public: {
     Tables: {
+      duty_posts: {
+        Row: {
+          id: string;
+          silo: Silo;
+          name: string;
+          station: string | null;
+          sector: string | null;
+          vehicle: string | null;
+          call_sign: string | null;
+          activity_type: string | null;
+          /** Bodies required for the post to count as properly manned. */
+          min_staff: number;
+          active: boolean;
+          sort_order: number;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['duty_posts']['Row']>;
+        Update: Partial<Database['public']['Tables']['duty_posts']['Row']>;
+        Relationships: [];
+      };
       report_definitions: {
         Row: {
           id: string;
@@ -444,7 +466,9 @@ export type Database = {
           vehicle: string | null;
           sector: string | null;
           status: string;
-          // Duty allocation (0021)
+          // Duty allocation (0021, 0023)
+          /** The standing post this allocation fills; null for ad-hoc duties. */
+          post_id: string | null;
           duty_date: string | null;
           start_at: string | null;
           end_at: string | null;

@@ -102,6 +102,7 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/medical',      roles: [...MEDICAL_ROLES, ...ADMIN_ROLES, 'Responder'], silo: 'Medical' },
   { prefix: '/disaster',     roles: [...DISASTER_ROLES, ...DISPATCH_ROLES, 'Viewer'], silo: 'EthekwiniDisaster' },
   // Everyone sees their own schedule; only supervisors build the roster.
+  { prefix: '/roster/allocation', roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'Staff', 'CaseManager'] },
   { prefix: '/roster/mine',  roles: undefined },
   { prefix: '/roster',       roles: SUPERVISORY_ROLES },
   // HR command centre: supervisors and the admin tier run people-readiness.
