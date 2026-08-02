@@ -55,7 +55,9 @@
           "color": "#dc3545",
           "defaultChannel": "dispatch"
         }
-      ]
+      ],
+      "expo-asset",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": false
