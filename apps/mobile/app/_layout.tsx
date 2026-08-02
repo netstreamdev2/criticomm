@@ -1,12 +1,44 @@
 import { useCallback, useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View, ActivityIndicator, Platform, StyleSheet, Text } from 'react-native';
+import { View, ActivityIndicator, Platform, Pressable, StyleSheet, Text } from 'react-native';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { BrandingProvider } from '@/lib/branding';
 import { NotificationsProvider, useNotificationRouting } from '@/lib/notifications';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { colors, space, type } from '@/lib/theme';
+
+/**
+ * Root error boundary. expo-router renders this instead of unmounting when
+ * anything below it throws.
+ *
+ * Without it a JS failure anywhere in the tree closes the app with no message,
+ * which is indistinguishable from a native crash — and on a phone in a vehicle
+ * there is no console to check. Showing the error, and a way back, is the
+ * difference between "the app is broken" and a report someone can act on.
+ */
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Promise<void> }) {
+  return (
+    <View style={styles.splash}>
+      <Text style={styles.errBrand}>CRITICOMM</Text>
+      <Text style={styles.errTitle}>The app hit an unexpected error</Text>
+      <Text style={styles.errBody} numberOfLines={8}>
+        {error?.message ?? 'No detail available.'}
+      </Text>
+      <Text style={styles.errHint}>
+        Your session is safe. Tap below to retry — if it keeps happening, show this
+        screen to your system administrator and fall back to radio.
+      </Text>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => { void retry(); }}
+        style={({ pressed }) => [styles.errButton, { opacity: pressed ? 0.7 : 1 }]}
+      >
+        <Text style={styles.errButtonText}>Try again</Text>
+      </Pressable>
+    </View>
+  );
+}
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth();
@@ -91,4 +123,27 @@ const styles = StyleSheet.create({
     letterSpacing: 4, fontSize: 13, marginTop: space.sm,
   },
   splashSub: { ...type.small, color: colors.muted },
+
+  errBrand: {
+    color: colors.primary, fontWeight: '800',
+    letterSpacing: 4, fontSize: 13, marginBottom: space.md,
+  },
+  errTitle: {
+    color: colors.text, fontSize: 17, fontWeight: '700',
+    textAlign: 'center', paddingHorizontal: space.lg,
+  },
+  errBody: {
+    ...type.small, color: colors.critical, textAlign: 'center',
+    paddingHorizontal: space.lg, marginTop: space.sm,
+  },
+  errHint: {
+    ...type.small, color: colors.muted, textAlign: 'center',
+    paddingHorizontal: space.lg, marginTop: space.md, lineHeight: 18,
+  },
+  errButton: {
+    marginTop: space.lg, minHeight: 44, paddingHorizontal: space.lg,
+    borderRadius: 8, backgroundColor: colors.accent,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  errButtonText: { color: '#ffffff', fontWeight: '700', fontSize: 14 },
 });

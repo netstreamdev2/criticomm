@@ -28,13 +28,25 @@ import { useAuth } from '@/lib/auth';
 
 // Alerts must break through even when the phone is on silent-ish settings —
 // this is a dispatch app.
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+//
+// Wrapped because this runs at module scope, before React mounts: if the
+// native notifications module is unavailable (no FCM credentials on Android,
+// a stripped build, an OS that refused the module) an unguarded throw here
+// takes the whole app down at launch with no error anyone can read. Push is
+// the secondary alert channel — the primary one is the Supabase realtime
+// subscription below, which needs none of this. Losing push must never cost
+// a responder the app.
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    }),
+  });
+} catch (e) {
+  console.warn('[criticom] notification handler unavailable; push disabled', e);
+}
 
 export type Banner = {
   id: string;
