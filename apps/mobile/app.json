@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "scheme": "criticom",
     "userInterfaceStyle": "dark",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "backgroundColor": "#050510",
     "ios": {
       "supportsTablet": true,
@@ -71,12 +71,8 @@
         "projectId": "f0dde5d8-3714-4335-ab03-74e1c63d8337"
       }
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
     "updates": {
-      "url": "https://u.expo.dev/f0dde5d8-3714-4335-ab03-74e1c63d8337",
-      "fallbackToCacheTimeout": 0
+      "enabled": false
     }
   }
 }

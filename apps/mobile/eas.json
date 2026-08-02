@@ -8,7 +8,6 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development",
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://iujoptwerpvtveyneybl.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1am9wdHdlcnB2dHZleW5leWJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4NzkyODcsImV4cCI6MjEwMDQ1NTI4N30.2qYF7QZF2Rl7wJrUYPzX_bHvUabamF-6RolJ8qsAw1Y"
@@ -22,7 +21,6 @@
     },
     "preview": {
       "distribution": "internal",
-      "channel": "preview",
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://iujoptwerpvtveyneybl.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml1am9wdHdlcnB2dHZleW5leWJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4NzkyODcsImV4cCI6MjEwMDQ1NTI4N30.2qYF7QZF2Rl7wJrUYPzX_bHvUabamF-6RolJ8qsAw1Y"
@@ -33,7 +31,6 @@
     },
     "production": {
       "distribution": "store",
-      "channel": "production",
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://iujoptwerpvtveyneybl.supabase.co",
