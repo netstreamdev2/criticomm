@@ -5,6 +5,7 @@ import { View, ActivityIndicator, Platform, Pressable, StyleSheet, Text } from '
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { BrandingProvider } from '@/lib/branding';
 import { NotificationsProvider, useNotificationRouting } from '@/lib/notifications';
+import { DutyProvider, useDuty } from '@/lib/duty';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { colors, space, type } from '@/lib/theme';
 
@@ -42,15 +43,31 @@ export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Pro
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth();
+  const { shiftStarted, checking } = useDuty();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     if (loading) return;
     const inLogin = segments[0] === 'login';
-    if (!session && !inLogin) router.replace('/login');
-    if (session && inLogin) router.replace('/');
-  }, [session, loading, segments, router]);
+    if (!session && !inLogin) { router.replace('/login'); return; }
+    if (session && inLogin) { router.replace('/'); return; }
+
+    // Signed in but today's readiness flow is outstanding — send them there
+    // before anything else. A crew member should meet the mental check on
+    // opening the app, not have to find it.
+    if (session && !checking && shiftStarted === false) {
+      // segments is a narrow tuple type, so match on membership rather than
+      // indexing into it.
+      const seg = segments as readonly string[];
+      // Profile stays reachable. Someone who fails the readiness check can
+      // never satisfy the gate — correct, they are not fit to attend — but
+      // they must still be able to see who they are signed in as and sign
+      // out. A gate with no exit is a trap, not a control.
+      const allowed = seg.includes('shift') || seg.includes('profile');
+      if (!allowed) router.replace('/(tabs)/shift');
+    }
+  }, [session, loading, segments, router, shiftStarted, checking]);
 
   if (loading) {
     return (
@@ -79,6 +96,7 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <StatusBar style="light" />
+      <DutyProvider>
       <AuthGate>
         <BrandingProvider>
         <NotificationsProvider>
@@ -109,6 +127,7 @@ export default function RootLayout() {
         </NotificationsProvider>
         </BrandingProvider>
       </AuthGate>
+      </DutyProvider>
     </AuthProvider>
   );
 }

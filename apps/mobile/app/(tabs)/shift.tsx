@@ -9,6 +9,7 @@ import {
 import type { Database } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { useDuty } from '@/lib/duty';
 import { colors, radius, space, type } from '@/lib/theme';
 import {
   Banner, Button, Card, CheckRow, Input, Muted, Segmented, Stepper, Title,
@@ -43,6 +44,7 @@ const STEP_INDEX: Record<Step, number> = {
 
 export default function ShiftScreen() {
   const { silo } = useAuth();
+  const { refresh: refreshDuty } = useDuty();
   const router = useRouter();
   const [step, setStep] = useState<Step | null>(null);
   const [busy, setBusy] = useState(false);
@@ -129,6 +131,8 @@ export default function ShiftScreen() {
         brakes_responsive: Boolean(checks.brakes_responsive),
       });
       await toggleDuty(sb, { onDuty: true });
+      // Release the start-of-duty gate so the crew can reach incidents.
+      await refreshDuty();
       setStep('done');
     } catch (e) {
       setError((e as Error).message);

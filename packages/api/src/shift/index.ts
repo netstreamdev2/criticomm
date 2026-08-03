@@ -13,9 +13,17 @@ export async function submitMentalCheck(
   client: CriticomClient,
   args: MentalCheckInput & { silo: Silo },
 ) {
+  // user_id is NOT NULL and the RLS check is `user_id = auth.uid()`. Omitting
+  // it sent NULL, which failed the policy — the error surfaced as "new row
+  // violates row level security policy", which reads like a permissions
+  // problem but was a missing column all along.
+  const { data: { user } } = await client.auth.getUser();
+  if (!user) throw new Error('You must be signed in to submit a readiness check.');
+
   const { data, error } = await client
     .from('mental_checks')
     .insert({
+      user_id: user.id,
       silo: args.silo,
       memory_recall: args.memory_recall,
       judgment: args.judgment,
@@ -85,9 +93,15 @@ export async function submitVehicleChecklist(
   client: CriticomClient,
   args: VehicleChecklistInput & { silo: Silo },
 ) {
+  // Same omission as submitMentalCheck: user_id is NOT NULL and RLS checks it
+  // against auth.uid(), so leaving it out fails as an RLS violation.
+  const { data: { user } } = await client.auth.getUser();
+  if (!user) throw new Error('You must be signed in to submit a vehicle check.');
+
   const { data, error } = await client
     .from('vehicle_checklists')
     .insert({
+      user_id: user.id,
       silo: args.silo,
       apparatus_id: args.apparatus_id,
       fuel_level: args.fuel_level,
