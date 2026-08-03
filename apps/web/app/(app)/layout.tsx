@@ -76,9 +76,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           {/* Role navigation and the external ops links share one bar — two
               stacked bands cost a whole row of vertical space and read as two
               unrelated toolbars. */}
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-border bg-bg-soft/95 px-3 py-1.5 backdrop-blur sm:px-4">
-            {usesSidebar ? null : <TopNav role={role} silo={silo} />}
+          {/* External ops links sit above role navigation: the links are a
+              reference strip you dip into, the navigation is the thing you
+              come back to, so it reads better closest to the page it acts on. */}
+          <div className="flex flex-col gap-1 border-b border-border bg-bg-soft/95 px-3 py-1.5 backdrop-blur sm:px-4">
             <OpsCommandBar role={role} silo={silo} links={opsLinks} />
+            {usesSidebar ? null : (
+              <div className="flex flex-wrap items-center gap-1">
+                <TopNav role={role} silo={silo} />
+              </div>
+            )}
           </div>
           <main className="flex-1 bg-bg p-3 sm:p-4">{children}</main>
         </div>
