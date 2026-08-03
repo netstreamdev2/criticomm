@@ -82,7 +82,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="flex flex-col gap-1 border-b border-border bg-bg-soft/95 px-3 py-1.5 backdrop-blur sm:px-4">
             <OpsCommandBar role={role} silo={silo} links={opsLinks} />
             {usesSidebar ? null : (
-              <div className="flex flex-wrap items-center gap-1">
+              <div className="flex flex-wrap items-center justify-center gap-1">
                 <TopNav role={role} silo={silo} />
               </div>
             )}
