@@ -13,7 +13,7 @@ const TABS = [
 
 export function PerfNav({ active }: { active: string }) {
   return (
-    <nav className="flex flex-wrap gap-2 border-b border-border pb-3">
+    <nav className="flex flex-wrap justify-center gap-2 border-b border-border pb-3">
       {TABS.map((t) => (
         <Link
           key={t.href}
