@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getServerSupabase } from '@/lib/supabase';
 import { listPendingIncidents } from '@criticom/api';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { timeAgo } from '@/lib/utils';
 import { PendingRealtimeBridge } from './realtime-bridge';
 import { IncidentRow, StopClick } from './incident-row';
@@ -15,28 +15,33 @@ export default async function PendingPage() {
 
   return (
     <div className="space-y-4">
-      <header className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Pending dispatch queue</h1>
-          <p className="text-muted-foreground">
-            Sorted by severity then call time. Updates in real time.
-          </p>
+      {/* One bar instead of a page header plus a card header. A dispatcher
+          reads this screen continuously, so the queue depth belongs at the
+          top as a figure they can glance at — not buried under two lines of
+          text explaining what the screen is. */}
+      <header className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-bg-card px-4 py-2.5">
+        <div className="flex items-baseline gap-2.5">
+          <span
+            className={`text-2xl font-bold leading-none tabular-nums ${
+              pending.length === 0 ? 'text-success' : 'text-severity-critical stat-glow'
+            }`}
+          >
+            {pending.length}
+          </span>
+          <h1 className="font-semibold">awaiting dispatch</h1>
+          <span className="hidden text-xs text-muted-foreground sm:inline">
+            severity, then call time · live
+          </span>
         </div>
         <Link
           href="/dispatch/log-call"
-          className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold"
+          className="inline-flex h-9 items-center rounded-md bg-primary px-3.5 text-sm font-semibold"
         >
           + Log new call
         </Link>
       </header>
 
       <Card>
-        <CardHeader>
-          <CardTitle>{pending.length} pending</CardTitle>
-          <CardDescription>
-            Click any row to open the incident&apos;s full lifecycle, or use Assign to dispatch units.
-          </CardDescription>
-        </CardHeader>
         <CardContent className="p-0">
           <table className="w-full text-sm">
             <thead className="text-xs uppercase tracking-wide text-muted-foreground">
