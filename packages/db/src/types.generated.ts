@@ -371,6 +371,47 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['department_branding']['Row']>;
         Relationships: [];
       };
+      /** Background rules and their thresholds (migration 0025). */
+      automation_rules: {
+        Row: {
+          key: string;
+          name: string;
+          description: string;
+          enabled: boolean;
+          interval_minutes: number;
+          config: Record<string, unknown>;
+          last_run_at: string | null;
+          last_status: string | null;
+          last_detail: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['automation_rules']['Row']>;
+        Update: Partial<Database['public']['Tables']['automation_rules']['Row']>;
+        Relationships: [];
+      };
+      automation_runs: {
+        Row: {
+          id: number;
+          rule_key: string;
+          started_at: string;
+          finished_at: string | null;
+          status: string;
+          affected: number;
+          detail: string | null;
+          triggered_by: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['automation_runs']['Row']>;
+        Update: Partial<Database['public']['Tables']['automation_runs']['Row']>;
+        Relationships: [
+          {
+            foreignKeyName: 'automation_runs_rule_key_fkey';
+            columns: ['rule_key'];
+            isOneToOne: false;
+            referencedRelation: 'automation_rules';
+            referencedColumns: ['key'];
+          },
+        ];
+      };
       app_settings: {
         Row: {
           key: string;
@@ -1450,6 +1491,11 @@ export type Database = {
       next_incident_number: {
         Args: { p_silo: Silo };
         Returns: string;
+      };
+      /** Admin "Run now" for one automation rule (migration 0025). */
+      run_automation_now: {
+        Args: { p_key: string };
+        Returns: Array<{ rule_key: string; status: string; affected: number; detail: string }>;
       };
       close_case: {
         Args: { p_incident_id: string; p_reason?: string | null };

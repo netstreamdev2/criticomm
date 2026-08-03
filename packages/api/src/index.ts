@@ -19,3 +19,4 @@ export * from './performance/index';
 export * from './hierarchy/index';
 export * from './reporting/index';
 export * from './duty/index';
+export * from './automations/index';

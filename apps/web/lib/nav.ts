@@ -102,6 +102,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/devices', label: 'Devices', icon: Radio, keywords: 'mdt radios tablets' },
       { href: '/admin/integrations', label: 'Integrations', icon: PlugZap, keywords: 'api keys gemini bulksms realptt tomtom feeds connections' },
       { href: '/admin/operations', label: 'Operations Settings', icon: Gauge, keywords: 'sla clocks eta alert sound thresholds tuning knobs' },
+      { href: '/admin/automations', label: 'Automations', icon: Bot, keywords: 'rules escalation sla breach expiry reminders digest scheduler cron background' },
       { href: '/admin/departments', label: 'Departments', icon: ShieldAlert, keywords: 'branding logo crest colours identity metro police fire ems disaster' },
       { href: '/profile', label: 'Settings', icon: Settings, keywords: 'profile account my hr' },
     ],
