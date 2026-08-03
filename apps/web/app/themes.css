@@ -271,3 +271,215 @@
   border-width: 1px;
   border-color: rgb(var(--c-border));
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Additional palettes.
+
+   Every theme keeps the same severity mapping — low green, medium
+   amber, high orange, critical red. That is operational semantics,
+   not styling: an operator reads severity by colour before they read
+   the label, and a theme that recolours it changes what the screen
+   means. Only the hues shift to suit each palette.
+
+   `-fg` is text on a solid fill, `-ink` is text on a tint of that
+   colour over the card surface; the two differ because a fill and a
+   10% tint need very different text to stay legible.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Solarized Dark — low-glare, long night shifts ─────────────── */
+[data-theme='solarized-dark'] {
+  color-scheme: dark;
+  --c-bg: 0 43 54;
+  --c-bg-soft: 7 54 66;
+  --c-bg-card: 7 54 66;
+  --c-border: 51 84 96;
+  --c-primary: 220 50 47;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 42 161 152;
+  --c-accent-fg: 0 30 38;
+  --c-muted: 32 74 88;
+  --c-muted-fg: 147 161 161;
+  --c-fg: 238 232 213;
+  --c-low: 133 153 0;
+  --c-low-fg: 255 255 255;
+  --c-medium: 181 137 0;
+  --c-medium-fg: 0 30 38;
+  --c-high: 203 75 22;
+  --c-high-fg: 255 255 255;
+  --c-critical: 220 50 47;
+  --c-critical-fg: 255 255 255;
+  /* Solarized's accents sit mid-luminance; as text on the teal card they
+     need lifting to clear 4.5:1. */
+  --c-low-ink: 160 180 40;
+  --c-medium-ink: 208 165 40;
+  --c-high-ink: 226 118 74;
+  --c-critical-ink: 235 106 103;
+  --c-radius-lg: 0.5rem;
+  --c-radius-md: 0.375rem;
+  --c-radius-sm: 0.25rem;
+  --c-font: 'Inter';
+}
+
+/* ── Dracula — high-saturation dark, strong separation ─────────── */
+[data-theme='dracula'] {
+  color-scheme: dark;
+  --c-bg: 40 42 54;
+  --c-bg-soft: 52 55 70;
+  --c-bg-card: 52 55 70;
+  --c-border: 68 71 90;
+  --c-primary: 255 85 85;
+  --c-primary-fg: 40 42 54;
+  --c-accent: 189 147 249;
+  --c-accent-fg: 40 42 54;
+  --c-muted: 62 66 84;
+  --c-muted-fg: 189 195 213;
+  --c-fg: 248 248 242;
+  --c-low: 80 250 123;
+  --c-low-fg: 40 42 54;
+  --c-medium: 241 250 140;
+  --c-medium-fg: 40 42 54;
+  --c-high: 255 184 108;
+  --c-high-fg: 40 42 54;
+  --c-critical: 255 85 85;
+  --c-critical-fg: 40 42 54;
+  /* Already bright enough on this surface — used as-is. */
+  --c-low-ink: 80 250 123;
+  --c-medium-ink: 241 250 140;
+  --c-high-ink: 255 184 108;
+  --c-critical-ink: 255 121 121;
+  --c-radius-lg: 0.5rem;
+  --c-radius-md: 0.375rem;
+  --c-radius-sm: 0.25rem;
+  --c-font: 'Inter';
+}
+
+/* ── Gruvbox — warm retro dark, reduced blue light ─────────────── */
+[data-theme='gruvbox'] {
+  color-scheme: dark;
+  --c-bg: 40 40 40;
+  --c-bg-soft: 60 56 54;
+  --c-bg-card: 60 56 54;
+  --c-border: 80 73 69;
+  --c-primary: 251 73 52;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 131 165 152;
+  --c-accent-fg: 40 40 40;
+  --c-muted: 70 65 62;
+  --c-muted-fg: 189 174 147;
+  --c-fg: 235 219 178;
+  --c-low: 184 187 38;
+  --c-low-fg: 40 40 40;
+  --c-medium: 250 189 47;
+  --c-medium-fg: 40 40 40;
+  --c-high: 254 128 25;
+  --c-high-fg: 40 40 40;
+  --c-critical: 251 73 52;
+  --c-critical-fg: 255 255 255;
+  --c-low-ink: 184 187 38;
+  --c-medium-ink: 250 189 47;
+  --c-high-ink: 254 143 55;
+  --c-critical-ink: 251 110 95;
+  --c-radius-lg: 0.375rem;
+  --c-radius-md: 0.25rem;
+  --c-radius-sm: 0.125rem;
+  --c-font: 'Inter';
+}
+
+/* ── Slate Pro — neutral, high-legibility dark for wall displays ─ */
+[data-theme='slate-pro'] {
+  color-scheme: dark;
+  --c-bg: 15 23 42;
+  --c-bg-soft: 30 41 59;
+  --c-bg-card: 30 41 59;
+  --c-border: 51 65 85;
+  --c-primary: 225 29 72;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 56 189 248;
+  --c-accent-fg: 15 23 42;
+  --c-muted: 44 58 79;
+  --c-muted-fg: 148 163 184;
+  --c-fg: 241 245 249;
+  --c-low: 34 197 94;
+  --c-low-fg: 15 23 42;
+  --c-medium: 234 179 8;
+  --c-medium-fg: 15 23 42;
+  --c-high: 249 115 22;
+  --c-high-fg: 15 23 42;
+  --c-critical: 239 68 68;
+  --c-critical-fg: 255 255 255;
+  --c-low-ink: 74 222 128;
+  --c-medium-ink: 250 204 21;
+  --c-high-ink: 251 146 60;
+  --c-critical-ink: 248 113 113;
+  --c-radius-lg: 0.5rem;
+  --c-radius-md: 0.375rem;
+  --c-radius-sm: 0.25rem;
+  --c-font: 'Inter';
+}
+
+/* ── Daylight — warm paper, for control rooms with windows ─────── */
+[data-theme='daylight'] {
+  color-scheme: light;
+  --c-bg: 250 247 242;
+  --c-bg-soft: 244 240 232;
+  --c-bg-card: 255 255 255;
+  --c-border: 224 217 205;
+  --c-primary: 185 28 28;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 29 78 216;
+  --c-accent-fg: 255 255 255;
+  --c-muted: 238 232 222;
+  --c-muted-fg: 106 96 82;
+  --c-fg: 43 38 32;
+  --c-low: 21 128 61;
+  --c-low-fg: 255 255 255;
+  --c-medium: 161 98 7;
+  --c-medium-fg: 255 255 255;
+  --c-high: 194 65 12;
+  --c-high-fg: 255 255 255;
+  --c-critical: 185 28 28;
+  --c-critical-fg: 255 255 255;
+  /* On a near-white card the fills are already dark enough to read as text. */
+  --c-low-ink: 21 128 61;
+  --c-medium-ink: 146 88 6;
+  --c-high-ink: 194 65 12;
+  --c-critical-ink: 185 28 28;
+  --c-radius-lg: 0.625rem;
+  --c-radius-md: 0.5rem;
+  --c-radius-sm: 0.3125rem;
+  --c-font: 'Inter';
+}
+
+/* ── eThekwini — municipal green and gold, emergency red retained ─ */
+[data-theme='ethekwini'] {
+  color-scheme: dark;
+  --c-bg: 6 20 15;
+  --c-bg-soft: 13 36 25;
+  --c-bg-card: 13 36 25;
+  --c-border: 29 68 51;
+  /* Emergency red stays the primary regardless of municipal branding —
+     the button that dispatches a unit should not be green. */
+  --c-primary: 200 16 46;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 240 179 35;
+  --c-accent-fg: 6 20 15;
+  --c-muted: 22 52 38;
+  --c-muted-fg: 154 184 168;
+  --c-fg: 234 243 238;
+  --c-low: 46 158 91;
+  --c-low-fg: 255 255 255;
+  --c-medium: 240 179 35;
+  --c-medium-fg: 6 20 15;
+  --c-high: 226 113 29;
+  --c-high-fg: 255 255 255;
+  --c-critical: 200 16 46;
+  --c-critical-fg: 255 255 255;
+  --c-low-ink: 74 190 122;
+  --c-medium-ink: 244 196 84;
+  --c-high-ink: 238 145 78;
+  --c-critical-ink: 240 108 128;
+  --c-radius-lg: 0.5rem;
+  --c-radius-md: 0.375rem;
+  --c-radius-sm: 0.25rem;
+  --c-font: 'Inter';
+}

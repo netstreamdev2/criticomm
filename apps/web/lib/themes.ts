@@ -1,7 +1,9 @@
 /** Theme catalogue. `id` must match a [data-theme] block in app/themes.css. */
 export type ThemeId =
   | 'criticom-dark' | 'criticom-light' | 'midnight' | 'nord'
-  | 'macos' | 'windows' | 'ubuntu' | 'high-contrast';
+  | 'macos' | 'windows' | 'ubuntu' | 'high-contrast'
+  | 'solarized-dark' | 'dracula' | 'gruvbox' | 'slate-pro' | 'daylight'
+  | 'ethekwini';
 
 export type ThemeMeta = {
   id: ThemeId;
@@ -47,6 +49,36 @@ export const THEMES: ThemeMeta[] = [
     id: 'ubuntu', name: 'Ubuntu', mode: 'dark',
     description: 'Aubergine and orange, straight from the Linux desktop.',
     swatch: ['#1e141a', '#38152c', '#e95420', '#be7ab6'],
+  },
+  {
+    id: 'ethekwini', name: 'eThekwini Municipal', mode: 'dark',
+    description: 'Municipal green and gold — emergency red kept for dispatch actions.',
+    swatch: ['#06140f', '#0d2419', '#c8102e', '#f0b323'],
+  },
+  {
+    id: 'slate-pro', name: 'Slate Pro', mode: 'dark',
+    description: 'Neutral high-legibility dark, built for wall displays.',
+    swatch: ['#0f172a', '#1e293b', '#e11d48', '#38bdf8'],
+  },
+  {
+    id: 'solarized-dark', name: 'Solarized Dark', mode: 'dark',
+    description: 'Low-glare teal — the classic choice for long night shifts.',
+    swatch: ['#002b36', '#073642', '#dc322f', '#2aa198'],
+  },
+  {
+    id: 'dracula', name: 'Dracula', mode: 'dark',
+    description: 'High-saturation dark with strong panel separation.',
+    swatch: ['#282a36', '#343746', '#ff5555', '#bd93f9'],
+  },
+  {
+    id: 'gruvbox', name: 'Gruvbox', mode: 'dark',
+    description: 'Warm retro palette, reduced blue light for late hours.',
+    swatch: ['#282828', '#3c3836', '#fb4934', '#83a598'],
+  },
+  {
+    id: 'daylight', name: 'Daylight', mode: 'light',
+    description: 'Warm paper tones for control rooms with windows.',
+    swatch: ['#faf7f2', '#ffffff', '#b91c1c', '#1d4ed8'],
   },
   {
     id: 'high-contrast', name: 'High Contrast', mode: 'dark',
