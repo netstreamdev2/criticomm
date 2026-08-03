@@ -75,7 +75,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <Topbar fullName={fullName} role={role} silo={silo} hasSidebar={usesSidebar} />
           {usesSidebar ? null : <TopNav role={role} silo={silo} />}
           <OpsCommandBar role={role} silo={silo} links={opsLinks} />
-          <main className="flex-1 bg-bg p-4 sm:p-6">{children}</main>
+          <main className="flex-1 bg-bg p-3 sm:p-4">{children}</main>
         </div>
         <CommandPalette silo={silo} role={role} />
         <AlertCenter
