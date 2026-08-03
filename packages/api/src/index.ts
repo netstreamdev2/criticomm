@@ -20,3 +20,4 @@ export * from './hierarchy/index';
 export * from './reporting/index';
 export * from './duty/index';
 export * from './automations/index';
+export * from './search/index';

@@ -2,17 +2,47 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, CornerDownLeft } from 'lucide-react';
+import {
+  Search, CornerDownLeft, FileText, Radio, Users, Truck, ShieldAlert, FlameKindling,
+  Loader2, type LucideIcon,
+} from 'lucide-react';
+import {
+  groupSearchHits, searchEverything, MIN_SEARCH_LENGTH, SEARCH_KIND_LABELS,
+  type SearchHit, type SearchKind,
+} from '@criticom/api';
 import { canAccess, type Silo, type UserRole } from '@criticom/db';
+import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { NAV_GROUPS } from '@/lib/nav';
 import { cn } from '@/lib/utils';
 
-/** Global ⌘K / Ctrl+K navigator. Only surfaces routes the role may open. */
+const KIND_ICON: Record<SearchKind, LucideIcon> = {
+  incident: Radio,
+  person: Users,
+  vehicle: Truck,
+  'police-report': ShieldAlert,
+  'fire-report': FlameKindling,
+  'security-report': FileText,
+};
+
+/**
+ * Global ⌘K / Ctrl+K palette — pages *and* records.
+ *
+ * Pages are matched locally against the route matrix, so they appear on the
+ * first keystroke with no round trip. Records come from `search_everything`,
+ * which is RLS-scoped in the database: this component never filters results for
+ * security, it only renders what the caller was allowed to see.
+ *
+ * Pages are listed first regardless of how many records match. Someone typing
+ * "dispatch" almost always means the screen, and a navigator that buries the
+ * destination under twelve incidents stops being a navigator.
+ */
 export function CommandPalette({ silo, role }: { silo: string; role: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
+  const [hits, setHits] = useState<SearchHit[]>([]);
+  const [searching, setSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -44,6 +74,46 @@ export function CommandPalette({ silo, role }: { silo: string; role: string }) {
       .slice(0, 10)
       .map((x) => x.c);
   }, [query, commands]);
+
+  /**
+   * Record search, debounced.
+   *
+   * 220ms is long enough that typing an incident number does not fire six
+   * queries and short enough to feel immediate. The generation counter drops
+   * responses that arrive out of order — a slow query for "IN" must never
+   * overwrite the results for "INC-2026".
+   */
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (!open || trimmed.length < MIN_SEARCH_LENGTH) {
+      setHits([]);
+      setSearching(false);
+      return;
+    }
+
+    let cancelled = false;
+    setSearching(true);
+    const timer = setTimeout(() => {
+      searchEverything(getBrowserSupabase(), trimmed, 18)
+        .then((rows) => { if (!cancelled) setHits(rows); })
+        .catch(() => { if (!cancelled) setHits([]); })
+        .finally(() => { if (!cancelled) setSearching(false); });
+    }, 220);
+
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [query, open]);
+
+  // Keyboard navigation runs over one flat list, so pages and records are
+  // reachable with the same arrow keys.
+  const flat = useMemo(
+    () => [
+      ...results.map((r) => ({ href: r.href, key: `page:${r.href}` })),
+      ...hits.map((h) => ({ href: h.href, key: `hit:${h.kind}:${h.id}` })),
+    ],
+    [results, hits],
+  );
+
+  const grouped = useMemo(() => groupSearchHits(hits), [hits]);
 
   // Global hotkey
   useEffect(() => {
@@ -94,20 +164,28 @@ export function CommandPalette({ silo, role }: { silo: string; role: string }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'ArrowDown') { e.preventDefault(); setActive((a) => Math.min(a + 1, results.length - 1)); }
+              if (e.key === 'ArrowDown') { e.preventDefault(); setActive((a) => Math.min(a + 1, flat.length - 1)); }
               if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)); }
-              if (e.key === 'Enter' && results[active]) { e.preventDefault(); go(results[active]!.href); }
+              if (e.key === 'Enter' && flat[active]) { e.preventDefault(); go(flat[active]!.href); }
             }}
-            placeholder="Jump to a page…"
+            placeholder="Search pages, incidents, people, vehicles…"
             className="h-14 w-full bg-transparent text-sm text-fg outline-none placeholder:text-muted-foreground"
           />
           <kbd className="hidden shrink-0 rounded border border-border bg-bg-soft px-1.5 py-0.5 text-[10px] text-muted-foreground sm:block">ESC</kbd>
         </div>
 
         <div ref={listRef} className="max-h-[52vh] overflow-y-auto p-2">
-          {results.length === 0 && (
+          {flat.length === 0 && !searching && (
             <p className="px-3 py-8 text-center text-sm text-muted-foreground">
-              No pages match “{query}”.
+              {query.trim().length < MIN_SEARCH_LENGTH
+                ? 'Type to search pages, incidents, people and vehicles.'
+                : `Nothing matches “${query}”.`}
+            </p>
+          )}
+
+          {results.length > 0 && (
+            <p className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Pages
             </p>
           )}
           {results.map((c, i) => {
@@ -130,12 +208,69 @@ export function CommandPalette({ silo, role }: { silo: string; role: string }) {
               </button>
             );
           })}
+
+          {searching && hits.length === 0 && (
+            <p className="flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching records…
+            </p>
+          )}
+
+          {grouped.map(([kind, group]) => {
+            const Icon = KIND_ICON[kind];
+            return (
+              <div key={kind}>
+                <p className="px-3 pb-1 pt-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  {SEARCH_KIND_LABELS[kind]}
+                </p>
+                {group.map((hit) => {
+                  // Index within the flat list, so hover and arrow keys agree.
+                  const i = results.length + hits.indexOf(hit);
+                  return (
+                    <button
+                      key={`${hit.kind}:${hit.id}`}
+                      type="button"
+                      onMouseEnter={() => setActive(i)}
+                      onClick={() => go(hit.href)}
+                      className={cn(
+                        'flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors',
+                        i === active ? 'bg-primary/15 text-fg' : 'text-fg/80 hover:bg-muted',
+                      )}
+                    >
+                      <Icon
+                        className={cn(
+                          'mt-0.5 h-4 w-4 shrink-0',
+                          i === active ? 'text-primary' : 'text-muted-foreground',
+                        )}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate">{hit.title}</span>
+                        {hit.subtitle ? (
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {hit.subtitle}
+                          </span>
+                        ) : null}
+                      </span>
+                      {hit.meta ? (
+                        <span className="hidden shrink-0 text-xs text-muted-foreground sm:block">
+                          {hit.meta}
+                        </span>
+                      ) : null}
+                      {i === active && <CornerDownLeft className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex items-center gap-4 border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
           <span><kbd className="rounded border border-border px-1">↑</kbd> <kbd className="rounded border border-border px-1">↓</kbd> navigate</span>
           <span><kbd className="rounded border border-border px-1">↵</kbd> open</span>
-          <span className="ml-auto">{results.length} result{results.length === 1 ? '' : 's'}</span>
+          <span className="ml-auto">
+            {results.length} page{results.length === 1 ? '' : 's'}
+            {hits.length > 0 ? ` · ${hits.length} record${hits.length === 1 ? '' : 's'}` : ''}
+          </span>
         </div>
       </div>
     </div>

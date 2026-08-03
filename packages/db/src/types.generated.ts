@@ -1492,6 +1492,19 @@ export type Database = {
         Args: { p_silo: Silo };
         Returns: string;
       };
+      /** Cross-module search, RLS-scoped (migration 0027). */
+      search_everything: {
+        Args: { p_query: string; p_limit?: number };
+        Returns: Array<{
+          kind: string;
+          id: string;
+          title: string;
+          subtitle: string | null;
+          meta: string | null;
+          href: string;
+          rank: number;
+        }>;
+      };
       /** Admin "Run now" for one automation rule (migration 0025). */
       run_automation_now: {
         Args: { p_key: string };

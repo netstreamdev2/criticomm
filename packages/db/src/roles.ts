@@ -122,6 +122,10 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/notifications' },
   { prefix: '/profile' },
   { prefix: '/dashboard' },
+  // Open to every role: the search itself is SECURITY INVOKER, so RLS decides
+  // what each person's results contain. Gating the page by role would restrict
+  // who may look without changing what anyone can find.
+  { prefix: '/search' },
 ];
 
 /**
