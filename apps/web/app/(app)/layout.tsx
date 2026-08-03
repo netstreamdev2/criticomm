@@ -73,8 +73,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {usesSidebar ? <Sidebar silo={silo} role={role} dept={dept} /> : null}
         <div className="flex min-h-screen min-w-0 flex-col">
           <Topbar fullName={fullName} role={role} silo={silo} hasSidebar={usesSidebar} />
-          {usesSidebar ? null : <TopNav role={role} silo={silo} />}
-          <OpsCommandBar role={role} silo={silo} links={opsLinks} />
+          {/* Role navigation and the external ops links share one bar — two
+              stacked bands cost a whole row of vertical space and read as two
+              unrelated toolbars. */}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b border-border bg-bg-soft/95 px-3 py-1.5 backdrop-blur sm:px-4">
+            {usesSidebar ? null : <TopNav role={role} silo={silo} />}
+            <OpsCommandBar role={role} silo={silo} links={opsLinks} />
+          </div>
           <main className="flex-1 bg-bg p-3 sm:p-4">{children}</main>
         </div>
         <CommandPalette silo={silo} role={role} />

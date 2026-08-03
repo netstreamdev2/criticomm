@@ -57,7 +57,7 @@ export function TopNav({ role, silo }: { role: string; silo: string }) {
     <nav
       ref={navRef}
       aria-label="Main"
-      className="relative z-40 flex items-center gap-1 overflow-x-auto border-b border-border bg-bg-soft/95 px-3 py-1.5 backdrop-blur sm:px-4"
+      className="relative z-40 flex shrink-0 items-center gap-1"
     >
       {groups.map((g) => {
         // A group with one destination is a link, not a menu — an extra click
