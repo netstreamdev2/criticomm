@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { getOperationalSettings, listOpsLinks } from '@criticom/api';
 import type { Silo } from '@criticom/db';
@@ -11,6 +12,7 @@ import { CommandPalette } from '@/components/command-palette';
 import { ToastProvider } from '@/components/toast';
 import { AlertCenter } from '@/components/alert-center';
 import { AssistantDock } from '@/components/assistant-dock';
+import { PanicBanner } from '@/components/panic-banner';
 
 // Every page in this group is per-user (cookies + RLS), so none of them should
 // ever be statically prerendered at build time.
@@ -87,7 +89,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </div>
             )}
           </div>
-          <main className="flex-1 bg-bg p-3 sm:p-4">{children}</main>
+          <main className="flex-1 bg-bg p-3 sm:p-4">
+            {/* An officer calling for help outranks whatever screen you are
+                on, so this sits above the page rather than inside one. It
+                renders nothing when there is no live panic. Suspended so its
+                query never delays the page a dispatcher is actually waiting
+                for — the blocking pop-up already fired at the moment it
+                mattered; this is the standing reminder afterwards. */}
+            <Suspense fallback={null}>
+              <PanicBanner />
+            </Suspense>
+            {children}
+          </main>
         </div>
         <CommandPalette silo={silo} role={role} />
         <AlertCenter

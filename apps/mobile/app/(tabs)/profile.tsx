@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { cleanupOnLogout, getMyPersonnel, toggleDuty } from '@criticom/api';
@@ -48,6 +49,7 @@ const PUSH_COPY: Record<PushStatus, { heading: string; detail: string }> = {
 };
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const { session, fullName, role, silo } = useAuth();
   const { pushEnabled, pushStatus, releasePushToken } = useNotifications();
   const { enqueue, pending, failed, online } = useSync();
@@ -228,6 +230,53 @@ export default function ProfileScreen() {
             </View>
             <Muted>{PUSH_COPY[pushStatus].detail}</Muted>
           </View>
+        </View>
+      </Card>
+
+      {/* Sync */}
+      <SectionLabel>Delivery</SectionLabel>
+      <Card accent={failed.length > 0 ? colors.critical : online ? colors.low : colors.medium}>
+        <View style={styles.dutyHeading}>
+          <Ionicons
+            name={failed.length > 0 ? 'warning' : online ? 'cloud-done-outline' : 'cloud-offline-outline'}
+            size={17}
+            color={failed.length > 0 ? colors.critical : online ? colors.low : colors.medium}
+          />
+          <Title>
+            {failed.length > 0
+              ? `${failed.length} not sent`
+              : pending.length > 0
+                ? `${pending.length} waiting to send`
+                : online ? 'Everything delivered' : 'Offline'}
+          </Title>
+        </View>
+        <Muted>
+          {failed.length > 0
+            ? 'Some updates could not be delivered. Open the sync tray at the bottom of the screen to retry or review them.'
+            : pending.length > 0
+              ? 'Updates you captured are stored on this phone and send themselves as soon as there is signal.'
+              : online
+                ? 'Status changes, notes and evidence are reaching the server as you capture them.'
+                : 'Anything you capture is stored on this phone and sends itself when signal returns.'}
+        </Muted>
+      </Card>
+
+      {/* Self-service */}
+      <SectionLabel>Self-service</SectionLabel>
+      <Card>
+        <View style={{ gap: space.sm }}>
+          <Button
+            label="Apply for leave"
+            icon="calendar-outline"
+            variant="subtle"
+            onPress={() => router.push('/leave')}
+          />
+          <Button
+            label="Ask Criti"
+            icon="sparkles-outline"
+            variant="subtle"
+            onPress={() => router.push('/assistant')}
+          />
         </View>
       </Card>
 

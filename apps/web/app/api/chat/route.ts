@@ -4,7 +4,7 @@ import {
   listPendingIncidents, logAudit, raiseAlert, routeIncident, updateResponderStatus,
 } from '@criticom/api';
 import type { IncidentStatus, Silo } from '@criticom/db';
-import { getServerSupabase } from '@/lib/supabase';
+import { getRequestSupabase, getServerSupabase } from '@/lib/supabase';
 
 /**
  * Criti — the assistant behind the right-hand dock and /assistant.
@@ -230,7 +230,9 @@ async function executeActions(
 /* ── Handler ────────────────────────────────────────────────────────── */
 
 export async function POST(req: Request) {
-  const supabase = await getServerSupabase();
+  // Cookies from the console, bearer token from the responder app — same
+  // RLS-scoped client either way, so Criti sees exactly what the caller may.
+  const supabase = await getRequestSupabase(req);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

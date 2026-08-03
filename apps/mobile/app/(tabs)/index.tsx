@@ -2,8 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
 import {
-  getMyPersonnel, listMyAssignedIncidents, subscribeIncidentUpdates, subscribeNewIncidents,
+  getMyPersonnel, listActiveIncidents, listMyAssignedIncidents,
+  subscribeIncidentUpdates, subscribeNewIncidents,
 } from '@criticom/api';
 import type { Database, IncidentStatus } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
@@ -11,10 +13,36 @@ import { useAuth } from '@/lib/auth';
 import { useSync } from '@/lib/sync';
 import { colors, radius, severityColor, severityTint, space, timeAgo, type } from '@/lib/theme';
 import {
-  Banner, Button, Card, EmptyState, Muted, SeverityPill, StatusBadge, Title,
+  Banner, Button, Card, EmptyState, Muted, Segmented, SeverityPill, StatusBadge, Title,
 } from '@/components/ui';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
+
+const SCOPES = ['Mine', 'Nearby'] as const;
+type Scope = (typeof SCOPES)[number];
+
+/**
+ * Great-circle distance in kilometres.
+ *
+ * Straight-line, not road distance — that needs a routing call, and the point
+ * here is triage ("is this on top of me or across the city?"), not an ETA. The
+ * console does road-routed ETAs where they matter.
+ */
+function distanceKm(
+  from: { lat: number; lng: number },
+  to: { lat: number; lng: number },
+): number {
+  const R = 6371;
+  const dLat = ((to.lat - from.lat) * Math.PI) / 180;
+  const dLng = ((to.lng - from.lng) * Math.PI) / 180;
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos((from.lat * Math.PI) / 180) * Math.cos((to.lat * Math.PI) / 180)
+      * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+const formatDistance = (km: number) =>
+  km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(km < 10 ? 1 : 0)} km`;
 
 const NEXT: Partial<Record<IncidentStatus, IncidentStatus>> = {
   Dispatched: 'En Route',
@@ -29,28 +57,52 @@ const SEVERITY_RANK: Record<string, number> = { Critical: 0, High: 1, Medium: 2,
 
 export default function MyIncidentsScreen() {
   const router = useRouter();
-  const { session } = useAuth();
+  const { session, silo } = useAuth();
   const { enqueue, pending } = useSync();
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [scope, setScope] = useState<Scope>('Mine');
+  const [here, setHere] = useState<{ lat: number; lng: number } | null>(null);
 
   const load = useCallback(async () => {
     if (!session) return;
     setError(null);
     try {
       const sb = getSupabase();
-      const me = await getMyPersonnel(sb, session.user.id);
-      const rows = await listMyAssignedIncidents(sb, me?.assigned_apparatus_id ?? null);
-      setIncidents(rows);
+      if (scope === 'Mine') {
+        const me = await getMyPersonnel(sb, session.user.id);
+        setIncidents(await listMyAssignedIncidents(sb, me?.assigned_apparatus_id ?? null));
+      } else {
+        // Everything live in the department. RLS decides what that includes;
+        // there is no client-side filter doing security work here.
+        setIncidents(await listActiveIncidents(sb, silo));
+      }
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setLoading(false);
     }
-  }, [session]);
+  }, [session, scope, silo]);
+
+  // A position is only needed for the Nearby view, so it is only asked for
+  // there — a permission prompt on a screen that does not use it trains people
+  // to dismiss prompts.
+  useEffect(() => {
+    if (scope !== 'Nearby' || here) return;
+    void (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') return;
+        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        setHere({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      } catch {
+        // No fix: the list still renders, just without distances.
+      }
+    })();
+  }, [scope, here]);
 
   useEffect(() => {
     void load();
@@ -60,12 +112,18 @@ export default function MyIncidentsScreen() {
     return () => { offNew(); offUpd(); };
   }, [load]);
 
-  const sorted = useMemo(
-    () => [...incidents].sort((a, b) =>
+  const sorted = useMemo(() => {
+    // Nearby is sorted by distance when there is a fix — the whole point of the
+    // view is "what is closest to me". Mine keeps triage order: worst first.
+    if (scope === 'Nearby' && here) {
+      return [...incidents].sort((a, b) =>
+        distanceKm(here, { lat: a.location_lat, lng: a.location_lng })
+        - distanceKm(here, { lat: b.location_lat, lng: b.location_lng }));
+    }
+    return [...incidents].sort((a, b) =>
       (SEVERITY_RANK[a.incident_severity] ?? 9) - (SEVERITY_RANK[b.incident_severity] ?? 9)
-      || new Date(b.incident_created_at).getTime() - new Date(a.incident_created_at).getTime()),
-    [incidents],
-  );
+      || new Date(b.incident_created_at).getTime() - new Date(a.incident_created_at).getTime());
+  }, [incidents, scope, here]);
 
   const urgent = sorted.filter((i) => i.incident_severity === 'Critical' || i.incident_severity === 'High').length;
 
@@ -130,12 +188,21 @@ export default function MyIncidentsScreen() {
       }
       ListHeaderComponent={
         <View>
+          <View style={{ marginBottom: space.md }}>
+            <Segmented options={SCOPES} value={scope} onChange={setScope} />
+          </View>
           {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
+          {scope === 'Nearby' && !here ? (
+            <Muted style={{ marginBottom: space.md }}>
+              Showing every live call in your department. Allow location access to sort them by
+              how close they are to you.
+            </Muted>
+          ) : null}
           {sorted.length > 0 ? (
             <View style={styles.summary}>
               <View style={styles.summaryItem}>
                 <Text style={styles.summaryNum}>{sorted.length}</Text>
-                <Text style={styles.summaryLabel}>ASSIGNED</Text>
+                <Text style={styles.summaryLabel}>{scope === 'Mine' ? 'ASSIGNED' : 'LIVE'}</Text>
               </View>
               <View style={styles.summaryDivider} />
               <View style={styles.summaryItem}>
@@ -152,7 +219,13 @@ export default function MyIncidentsScreen() {
         </View>
       }
       ListEmptyComponent={
-        loading ? null : (
+        loading ? null : scope === 'Nearby' ? (
+          <EmptyState
+            icon="map-outline"
+            title="Nothing live nearby"
+            body="No active calls in your department right now."
+          />
+        ) : (
           <EmptyState
             icon="radio-outline"
             title="No incidents assigned"
@@ -184,6 +257,11 @@ export default function MyIncidentsScreen() {
               <View style={styles.metaRow}>
                 <Ionicons name="location-outline" size={13} color={colors.muted} />
                 <Text style={styles.metaText} numberOfLines={1}>{item.location_address}</Text>
+                {here ? (
+                  <Text style={styles.distance}>
+                    {formatDistance(distanceKm(here, { lat: item.location_lat, lng: item.location_lng }))}
+                  </Text>
+                ) : null}
               </View>
               <View style={styles.metaRow}>
                 <Ionicons name="time-outline" size={13} color={colors.muted} />
@@ -205,7 +283,9 @@ export default function MyIncidentsScreen() {
               </View>
 
               <View style={styles.actions}>
-                {next ? (
+                {/* Advancing status belongs to the crew the call is assigned
+                    to. In Nearby the list is everyone's, so it is read-only. */}
+                {next && scope === 'Mine' ? (
                   <View style={{ flex: 1 }}>
                     <Button
                       label={`Mark ${next}`}
@@ -245,6 +325,7 @@ const styles = StyleSheet.create({
   number: { ...type.mono, color: colors.accent, marginBottom: 6 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 5 },
   metaText: { ...type.small, color: colors.muted, flexShrink: 1 },
+  distance: { ...type.small, fontSize: 12, color: colors.accent, fontWeight: '700' },
   desc: { color: colors.textDim, marginTop: space.md, lineHeight: 20, fontSize: 14 },
   actions: { flexDirection: 'row', gap: space.sm, marginTop: space.md },
 

@@ -125,6 +125,14 @@ export default function RootLayout() {
               name="incident/[id]"
               options={{ title: 'Incident', headerBackTitle: 'Back' }}
             />
+            <Stack.Screen
+              name="assistant"
+              options={{ title: 'Criti', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="leave"
+              options={{ title: 'Leave', headerBackTitle: 'Back' }}
+            />
           </Stack>
 
           {/* Overlays sit above every screen in the stack. */}

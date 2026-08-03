@@ -1,6 +1,6 @@
 import 'server-only';
 import { cookies } from 'next/headers';
-import { createWebServerClient, createServiceRoleClient } from '@criticom/db/server';
+import { createWebServerClient, createServiceRoleClient, createBearerClient } from '@criticom/db/server';
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -40,6 +40,28 @@ export async function getServerSupabase() {
       }
     },
   });
+}
+
+/**
+ * Session client for an API route, accepting either authentication scheme.
+ *
+ * Browsers send the Supabase session in cookies. The responder app has no
+ * cookie jar, so it sends `Authorization: Bearer <access_token>` instead.
+ * Both end up as the same RLS-scoped client, so route handlers do not have to
+ * care which surface called them.
+ *
+ * The bearer path is checked first only because a request carrying one is
+ * unambiguously an API client. An invalid token simply produces a client whose
+ * `getUser()` returns null, which every caller already treats as unauthorised.
+ */
+export async function getRequestSupabase(req: Request) {
+  const header = req.headers.get('authorization') ?? req.headers.get('Authorization');
+  const token = header?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim();
+
+  if (token && SUPABASE_URL && SUPABASE_ANON_KEY) {
+    return createBearerClient(SUPABASE_URL, SUPABASE_ANON_KEY, token);
+  }
+  return getServerSupabase();
 }
 
 /** Service-role client. NEVER call from a client component / browser bundle. */
