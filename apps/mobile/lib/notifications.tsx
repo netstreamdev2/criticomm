@@ -1,31 +1,35 @@
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
-import { Vibration } from 'react-native';
-import { subscribeAlerts, type Alert } from '@criticom/api';
+import { AppState, Platform, Vibration } from 'react-native';
+import Constants from 'expo-constants';
+import { registerPushToken, subscribeAlerts, unregisterPushToken, type Alert } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import {
+  clearBadge, installForegroundHandler, isPushSupported, onNotificationTap,
+  presentLocal, registerForPush, type PushPayload,
+} from '@/lib/push';
 
 /**
- * Alerts on the responder app.
+ * Alerts on the responder app — two channels, deliberately overlapping.
  *
- * NOTE — OS push is deliberately not built into this app right now.
- * expo-notifications registers Firebase messaging services in the Android
- * manifest, and without google-services.json that initialises before any JS
- * runs and takes the process down at launch. An app that will not start is a
- * far worse failure for a responder than one without background push.
+ *   • **Supabase realtime** is the primary. It delivers every alert the moment
+ *     it is written, with no round trip through a push service, for as long as
+ *     the app is open. That is the state a crew on shift is normally in.
  *
- * The primary channel is unaffected: a Supabase realtime subscription on
- * `alerts` delivers everything while the app is open, which is the state a
- * crew on shift is actually in. Re-enable push by adding an FCM
- * google-services.json and restoring expo-notifications.
+ *   • **OS push** covers the phone whose screen is locked in a cab. It needs a
+ *     native module and, on Android, an FCM registration; where either is
+ *     missing this degrades to realtime-only rather than failing (see
+ *     `lib/push.ts` and `app.config.ts`).
  *
- * What remains here:
+ * The overlap is on purpose. Either channel alone has a blind spot, and a
+ * missed dispatch is not a recoverable error. Duplicates are cheap by
+ * comparison, and are deduped by alert id where they meet.
  *
- *   • A Supabase realtime subscription on `alerts`. Instant, no round trip
- *     through a push service. Non-urgent alerts become an in-app banner;
- *     High/Critical dispatch assignments become a full-screen interrupt
- *     (rendered by <AssignmentAlert/>).
+ * Presentation follows the alert, not the channel: `presentation: 'modal'`
+ * (High/Critical dispatch) becomes a full-screen interrupt that must be
+ * acknowledged; everything else is a corner banner.
  */
 
 export type Banner = {
@@ -36,6 +40,14 @@ export type Banner = {
   incidentId?: string | null;
 };
 
+export type PushStatus =
+  | 'checking'
+  | 'enabled'
+  | 'denied'
+  | 'unsupported'
+  | 'simulator'
+  | 'error';
+
 type NotificationsApi = {
   /** Non-blocking in-app banner. */
   banner: (b: Omit<Banner, 'id'> & { id?: string }) => void;
@@ -44,8 +56,16 @@ type NotificationsApi = {
   /** Blocking assignment alerts, oldest first. */
   assignments: Alert[];
   clearAssignment: (id: string) => void;
-  /** Whether OS notification permission was granted. */
+  /** Whether this device will ring when the app is closed. */
   pushEnabled: boolean;
+  /** Why not, when it will not — surfaced on the profile screen. */
+  pushStatus: PushStatus;
+  /**
+   * Drop this device's push registration. Call *before* signing out, while the
+   * session can still satisfy the RLS check on `push_tokens`; otherwise the row
+   * survives and the next person to carry the phone gets the last one's calls.
+   */
+  releasePushToken: () => Promise<void>;
 };
 
 const Ctx = createContext<NotificationsApi | null>(null);
@@ -56,12 +76,21 @@ export function useNotifications(): NotificationsApi {
   return ctx;
 }
 
+const PUSH_STATUS_FROM_REASON: Record<string, PushStatus> = {
+  denied: 'denied',
+  unsupported: 'unsupported',
+  simulator: 'simulator',
+  error: 'error',
+};
+
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {
   const { session, silo } = useAuth();
   const [banners, setBanners] = useState<Banner[]>([]);
   const [assignments, setAssignments] = useState<Alert[]>([]);
-  // Push is off on this build; realtime carries every alert while the app is open.
-  const pushEnabled = false;
+  const [pushStatus, setPushStatus] = useState<PushStatus>(
+    isPushSupported() ? 'checking' : 'unsupported',
+  );
+  const tokenRef = useRef<string | null>(null);
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
   const dismissBanner = useCallback((id: string) => {
@@ -82,7 +111,62 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
     setAssignments((cur) => cur.filter((a) => a.id !== id));
   }, []);
 
-  // Live alert stream while the app is open.
+  /* ── Push registration ────────────────────────────────────────────── */
+
+  useEffect(() => {
+    if (!session) {
+      setPushStatus(isPushSupported() ? 'checking' : 'unsupported');
+      return;
+    }
+    let cancelled = false;
+
+    installForegroundHandler();
+
+    void (async () => {
+      const { token, reason } = await registerForPush();
+      if (cancelled) return;
+
+      if (!token) {
+        setPushStatus(PUSH_STATUS_FROM_REASON[reason ?? 'error'] ?? 'error');
+        return;
+      }
+
+      tokenRef.current = token;
+      try {
+        await registerPushToken(getSupabase(), {
+          token,
+          platform: Platform.OS,
+          // Named so a supervisor can tell which handset stopped reporting.
+          deviceName: Constants.deviceName ?? undefined,
+          silo,
+        });
+        if (!cancelled) setPushStatus('enabled');
+      } catch (e) {
+        // The token exists but we could not store it: this phone will not be
+        // in the fanout. Realtime still works, so say so honestly rather than
+        // claiming push is on.
+        console.warn('[criticom] could not store push token', e);
+        if (!cancelled) setPushStatus('error');
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [session, silo]);
+
+  const releasePushToken = useCallback(async () => {
+    const token = tokenRef.current;
+    if (!token) return;
+    tokenRef.current = null;
+    try {
+      await unregisterPushToken(getSupabase(), token);
+    } catch {
+      // Best effort. A stale token fails to deliver and Expo prunes it; that is
+      // a far smaller problem than blocking a sign-out.
+    }
+  }, []);
+
+  /* ── Live alert stream ────────────────────────────────────────────── */
+
   useEffect(() => {
     if (!session) return;
     let sb;
@@ -94,6 +178,18 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
 
     const off = subscribeAlerts(sb, { silo }, (alert) => {
       if (alert.target_user_id && alert.target_user_id !== session.user.id) return;
+
+      // Backgrounded but still connected: the socket delivered the alert to a
+      // screen nobody is looking at. Raise it through the OS so it reaches the
+      // responder, and let push dedupe against it if it arrives too.
+      if (AppState.currentState !== 'active') {
+        void presentLocal({
+          title: alert.title,
+          body: alert.body ?? undefined,
+          channel: alert.presentation === 'modal' ? 'dispatch' : 'alerts',
+          data: { alertId: alert.id, incidentId: alert.incident_id ?? undefined, severity: alert.severity },
+        });
+      }
 
       if (alert.presentation === 'modal') {
         setAssignments((cur) => (cur.some((a) => a.id === alert.id) ? cur : [...cur, alert]));
@@ -108,7 +204,6 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
         });
         Vibration.vibrate(120);
       }
-
     });
 
     return off;
@@ -124,20 +219,34 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   }, []);
 
   const api = useMemo<NotificationsApi>(
-    () => ({ banner, dismissBanner, banners, assignments, clearAssignment, pushEnabled }),
-    [banner, dismissBanner, banners, assignments, clearAssignment, pushEnabled],
+    () => ({
+      banner,
+      dismissBanner,
+      banners,
+      assignments,
+      clearAssignment,
+      pushEnabled: pushStatus === 'enabled',
+      pushStatus,
+      releasePushToken,
+    }),
+    [banner, dismissBanner, banners, assignments, clearAssignment, pushStatus, releasePushToken],
   );
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
 }
 
 /**
- * Deep-link entry point for an alert tap.
+ * Deep-link entry point for a notification tap.
  *
- * Currently inert: OS push is not wired on this build (see the note at the top
- * of this file). Kept as the single place routing will live once FCM exists,
- * so callers do not change when it comes back.
+ * Covers the cold-start case too (see `onNotificationTap`): tapping a dispatch
+ * on a locked phone has to land on the call, not the incident list.
  */
-export function useNotificationRouting(_onOpenIncident: (incidentId: string) => void) {
-  // no-op
+export function useNotificationRouting(onOpenIncident: (incidentId: string) => void) {
+  useEffect(() => {
+    const off = onNotificationTap((payload: PushPayload) => {
+      void clearBadge();
+      if (payload.incidentId) onOpenIncident(payload.incidentId);
+    });
+    return off;
+  }, [onOpenIncident]);
 }

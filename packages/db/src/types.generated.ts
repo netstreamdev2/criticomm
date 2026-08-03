@@ -156,6 +156,8 @@ export type Database = {
           dispatched_by: string | null;
           incident_category: string | null;
           region: string | null;
+          /** Device-generated idempotency key for offline creation (0024). */
+          client_ref: string | null;
         };
         Insert: Partial<Database['public']['Tables']['incidents']['Row']>;
         Update: Partial<Database['public']['Tables']['incidents']['Row']>;
@@ -1411,6 +1413,8 @@ export type Database = {
           p_number_of_victims?: number | null;
           p_notes?: string | null;
           p_source?: string | null;
+          /** Device-generated idempotency key (migration 0024). */
+          p_client_ref?: string | null;
         };
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
@@ -1423,8 +1427,29 @@ export type Database = {
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
       update_responder_status: {
-        Args: { p_incident_id: string; p_status: IncidentStatus };
+        Args: {
+          p_incident_id: string;
+          p_status: IncidentStatus;
+          /** When the responder acted — set for updates queued offline (0024). */
+          p_occurred_at?: string | null;
+        };
         Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      /** Officer-down (migration 0024). No role gate — any account may call for help. */
+      raise_panic: {
+        Args: {
+          p_lat?: number | null;
+          p_lng?: number | null;
+          p_accuracy?: number | null;
+          p_note?: string | null;
+          p_client_ref?: string | null;
+          p_occurred_at?: string | null;
+        };
+        Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      next_incident_number: {
+        Args: { p_silo: Silo };
+        Returns: string;
       };
       close_case: {
         Args: { p_incident_id: string; p_reason?: string | null };

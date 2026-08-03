@@ -90,9 +90,60 @@ export async function updateResponderStatus(
   const { data, error } = await client.rpc('update_responder_status', {
     p_incident_id: input.incident_id,
     p_status: input.status,
+    p_occurred_at: input.occurred_at ?? null,
   });
   if (error) throw error;
   return data as Incident;
+}
+
+/**
+ * Officer-down. Creates a Critical incident at the caller's position and
+ * interrupts every screen in their department and the control room.
+ *
+ * `clientRef` is required in practice even though the signature allows it to be
+ * omitted: it is what stops a replayed panic — the outbox retrying after the
+ * network came back — from raising a second emergency for the same event. Pass
+ * a UUID generated once, at the moment the button was held, and reuse it for
+ * every retry.
+ *
+ * Any authenticated account may call this. That is deliberate; see the note on
+ * `raise_panic` in migration 0024.
+ */
+export async function raisePanic(
+  client: CriticomClient,
+  args: {
+    lat?: number | null;
+    lng?: number | null;
+    accuracy?: number | null;
+    note?: string | null;
+    clientRef?: string | null;
+    occurredAt?: string | null;
+  } = {},
+): Promise<Incident> {
+  const { data, error } = await client.rpc('raise_panic', {
+    p_lat: args.lat ?? null,
+    p_lng: args.lng ?? null,
+    p_accuracy: args.accuracy ?? null,
+    p_note: args.note ?? null,
+    p_client_ref: args.clientRef ?? null,
+    p_occurred_at: args.occurredAt ?? null,
+  });
+  if (error) throw error;
+  return data as Incident;
+}
+
+/** Live officer-emergency incidents — surfaced above everything on the board. */
+export async function listActivePanics(client: CriticomClient, silo?: Silo) {
+  let q = client
+    .from('incidents')
+    .select('*')
+    .eq('source', 'Responder-Panic')
+    .not('status', 'in', '("Closed","Resolved")')
+    .order('incident_created_at', { ascending: false });
+  if (silo) q = q.eq('silo', silo);
+  const { data, error } = await q.limit(20);
+  if (error) throw error;
+  return data ?? [];
 }
 
 /** CaseManagerController.CloseCase */
@@ -187,23 +238,60 @@ export async function addIncidentUpdate(
   return data;
 }
 
-/** ResponderController.UploadIncidentSite POST — uploads to Storage + writes incident_attachments */
+/**
+ * ResponderController.UploadIncidentSite POST — uploads to Storage + writes
+ * incident_attachments.
+ *
+ * Accepts an ArrayBuffer as well as a Blob/File because React Native has no
+ * usable `File`, and the responder app reads captured media off disk as bytes.
+ * When it does, it must also pass `contentType` — there is nothing to infer it
+ * from — and the caller-supplied `size` keeps the attachment row honest.
+ *
+ * `idempotencyKey` makes replay safe. The offline outbox can be interrupted
+ * after Storage accepted the file but before the row was written, and retrying
+ * then would either fail on a duplicate path or leave a second copy of the same
+ * photo in the case file. With a key, the path is derived from it rather than
+ * from the clock, the upload upserts, and an existing attachment row for that
+ * path is returned instead of inserting another. Without one, behaviour is
+ * unchanged: a fresh timestamped path every call.
+ */
 export async function uploadIncidentEvidence(
   client: CriticomClient,
   args: {
     incident_id: string;
     silo: Silo;
-    file: Blob | File;
+    file: Blob | File | ArrayBuffer;
     filename: string;
     kind: 'image' | 'audio' | 'video' | 'document';
     caption?: string;
+    /** Required when `file` is an ArrayBuffer. */
+    contentType?: string;
+    /** Byte length, when it cannot be read off the file object. */
+    size?: number;
+    /** Stable per logical upload — see above. */
+    idempotencyKey?: string;
   },
 ) {
-  const path = `${args.silo}/${args.incident_id}/${args.kind}/${Date.now()}-${args.filename}`;
+  const blobLike = args.file as Partial<File>;
+  const contentType = args.contentType ?? blobLike.type ?? undefined;
+  const size = args.size ?? blobLike.size ?? null;
+
+  const discriminator = args.idempotencyKey ?? String(Date.now());
+  const path = `${args.silo}/${args.incident_id}/${args.kind}/${discriminator}-${args.filename}`;
+
   const { error: upErr } = await client.storage
     .from('incident-media')
-    .upload(path, args.file, { contentType: (args.file as File).type, upsert: false });
+    .upload(path, args.file, { contentType, upsert: Boolean(args.idempotencyKey) });
   if (upErr) throw upErr;
+
+  if (args.idempotencyKey) {
+    const { data: existing } = await client
+      .from('incident_attachments')
+      .select('*')
+      .eq('storage_path', path)
+      .maybeSingle();
+    if (existing) return existing;
+  }
 
   const { data, error } = await client
     .from('incident_attachments')
@@ -212,8 +300,8 @@ export async function uploadIncidentEvidence(
       silo: args.silo,
       storage_path: path,
       kind: args.kind,
-      content_type: (args.file as File).type ?? null,
-      size_bytes: (args.file as File).size ?? null,
+      content_type: contentType ?? null,
+      size_bytes: size,
       caption: args.caption ?? null,
     })
     .select()

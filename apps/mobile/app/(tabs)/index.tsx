@@ -4,11 +4,11 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import {
   getMyPersonnel, listMyAssignedIncidents, subscribeIncidentUpdates, subscribeNewIncidents,
-  updateResponderStatus,
 } from '@criticom/api';
 import type { Database, IncidentStatus } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { useSync } from '@/lib/sync';
 import { colors, radius, severityColor, severityTint, space, timeAgo, type } from '@/lib/theme';
 import {
   Banner, Button, Card, EmptyState, Muted, SeverityPill, StatusBadge, Title,
@@ -30,6 +30,7 @@ const SEVERITY_RANK: Record<string, number> = { Critical: 0, High: 1, Medium: 2,
 export default function MyIncidentsScreen() {
   const router = useRouter();
   const { session } = useAuth();
+  const { enqueue, pending } = useSync();
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -68,13 +69,40 @@ export default function MyIncidentsScreen() {
 
   const urgent = sorted.filter((i) => i.incident_severity === 'Critical' || i.incident_severity === 'High').length;
 
+  /**
+   * Statuses the crew has set but that have not reached the server yet.
+   *
+   * The list is refetched whenever anything changes, so without this the card
+   * would snap back to the server's status a moment after the tap — telling a
+   * responder standing on scene that they are still En Route. Reading the
+   * pending queue instead means the screen shows what was asked for until the
+   * server confirms it, offline or not, with no separate optimistic state to
+   * get out of step.
+   */
+  const queuedStatus = useMemo(() => {
+    const map = new Map<string, IncidentStatus>();
+    for (const entry of pending) {
+      if (entry.op.kind === 'incident_status') {
+        map.set(entry.op.incidentId, entry.op.status as IncidentStatus);
+      }
+    }
+    return map;
+  }, [pending]);
+
   const advance = async (incident: Incident) => {
-    const next = NEXT[incident.status];
+    const current = queuedStatus.get(incident.id) ?? incident.status;
+    const next = NEXT[current];
     if (!next) return;
     setBusyId(incident.id);
     try {
-      await updateResponderStatus(getSupabase(), { incident_id: incident.id, status: next });
-      await load();
+      // Queued, not sent: this returns as soon as it is on disk, so the crew is
+      // never left holding a spinner in a dead zone.
+      await enqueue({
+        kind: 'incident_status',
+        incidentId: incident.id,
+        status: next,
+        incidentNumber: incident.incident_number,
+      });
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -134,7 +162,9 @@ export default function MyIncidentsScreen() {
         )
       }
       renderItem={({ item }) => {
-        const next = NEXT[item.status];
+        const queued = queuedStatus.get(item.id);
+        const status = queued ?? item.status;
+        const next = NEXT[status];
         const sev = severityColor(item.incident_severity);
         return (
           <Pressable
@@ -164,8 +194,14 @@ export default function MyIncidentsScreen() {
                 <Text style={styles.desc} numberOfLines={3}>{item.call_description}</Text>
               ) : null}
 
-              <View style={{ marginTop: space.md }}>
-                <StatusBadge status={item.status} />
+              <View style={styles.statusRow}>
+                <StatusBadge status={status} />
+                {queued ? (
+                  <View style={styles.queuedChip}>
+                    <Ionicons name="time-outline" size={11} color={colors.medium} />
+                    <Text style={styles.queuedText}>Waiting to send</Text>
+                  </View>
+                ) : null}
               </View>
 
               <View style={styles.actions}>
@@ -211,6 +247,10 @@ const styles = StyleSheet.create({
   metaText: { ...type.small, color: colors.muted, flexShrink: 1 },
   desc: { color: colors.textDim, marginTop: space.md, lineHeight: 20, fontSize: 14 },
   actions: { flexDirection: 'row', gap: space.sm, marginTop: space.md },
+
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.md },
+  queuedChip: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  queuedText: { ...type.small, fontSize: 11, color: colors.medium, fontWeight: '700' },
 
   summary: {
     flexDirection: 'row',

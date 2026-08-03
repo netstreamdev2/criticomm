@@ -5,7 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { cleanupOnLogout, getMyPersonnel, toggleDuty } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
-import { useNotifications } from '@/lib/notifications';
+import { useNotifications, type PushStatus } from '@/lib/notifications';
+import { useSync } from '@/lib/sync';
 import { useDept } from '@/lib/branding';
 import { DeptBadge } from '@/components/dept-badge';
 import { colors, radius, space, type } from '@/lib/theme';
@@ -13,9 +14,43 @@ import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/co
 
 const HEARTBEAT_MS = 60_000;
 
+/**
+ * Push status in plain words. A supervisor checking a handset before a shift
+ * needs to know whether it will ring, and if not, whether that is fixable here
+ * (permission) or a build/hardware fact (no FCM, emulator) — "push unavailable"
+ * on its own sends people to the wrong place.
+ */
+const PUSH_COPY: Record<PushStatus, { heading: string; detail: string }> = {
+  checking: {
+    heading: 'Checking push…',
+    detail: 'Registering this handset for dispatch notifications.',
+  },
+  enabled: {
+    heading: 'Push enabled',
+    detail: 'Calls routed to your department reach this phone even when the screen is locked. High and Critical calls open a full-screen alert you must acknowledge.',
+  },
+  denied: {
+    heading: 'Notifications blocked',
+    detail: 'This phone will not ring for a dispatch. Turn notifications on for Criticom in the device settings. Alerts still arrive instantly while the app is open.',
+  },
+  unsupported: {
+    heading: 'Push not in this build',
+    detail: 'This build has no push service configured, so alerts arrive only while the app is open. Report it to your system administrator before carrying this handset on shift.',
+  },
+  simulator: {
+    heading: 'Push unavailable on this device',
+    detail: 'Emulators and simulators cannot register for push. Alerts still arrive while the app is open.',
+  },
+  error: {
+    heading: 'Push registration failed',
+    detail: 'This phone could not be registered for dispatch notifications. Alerts still arrive while the app is open — report this so the handset can be checked.',
+  },
+};
+
 export default function ProfileScreen() {
   const { session, fullName, role, silo } = useAuth();
-  const { pushEnabled } = useNotifications();
+  const { pushEnabled, pushStatus, releasePushToken } = useNotifications();
+  const { enqueue, pending, failed, online } = useSync();
   const dept = useDept();
   const [onDuty, setOnDuty] = useState(false);
   const [unit, setUnit] = useState<string | null>(null);
@@ -37,7 +72,15 @@ export default function ProfileScreen() {
 
   useEffect(() => { void load(); }, [load]);
 
-  /** GPS heartbeat — posts position to personnel.lat/lng while on duty (V4 UpdateLiveLocation). */
+  /**
+   * GPS heartbeat — posts position to personnel.lat/lng while on duty
+   * (V4 UpdateLiveLocation).
+   *
+   * Goes through the outbox rather than straight to the server so that losing
+   * signal does not lose the position: the queue keeps only the newest fix
+   * (see `dedupeKeyOf`), and on reconnect dispatch gets where the crew is now
+   * rather than a rewind through where they were.
+   */
   const sendHeartbeat = useCallback(async () => {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -46,17 +89,17 @@ export default function ProfileScreen() {
         return;
       }
       const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      await toggleDuty(getSupabase(), {
-        onDuty: true,
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
+      await enqueue({
+        kind: 'duty_location',
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
       });
       setLastPing(new Date().toLocaleTimeString());
       setError(null);
     } catch (e) {
       setError((e as Error).message);
     }
-  }, []);
+  }, [enqueue]);
 
   useEffect(() => {
     if (onDuty) {
@@ -83,15 +126,32 @@ export default function ProfileScreen() {
 
   const signOut = async () => {
     const sb = getSupabase();
+    // Drop the push registration first: after signOut the session can no longer
+    // satisfy the RLS check on push_tokens, and a row left behind sends this
+    // person's calls to whoever carries the handset next.
+    await releasePushToken().catch(() => {});
     // V4 AuthController.Logout: free the vehicle + clear duty before ending the session.
     await cleanupOnLogout(sb).catch(() => {});
     await sb.auth.signOut();
   };
 
   const confirmSignOut = () => {
+    const undelivered = pending.length + failed.length;
+    // Undelivered work is held against the account that captured it, so it is
+    // not lost — but the next person to carry this handset cannot send it, and
+    // it will sit until this officer signs in again. Say so plainly rather than
+    // letting them find out at the inquiry.
+    const warning = undelivered > 0
+      ? `\n\n${undelivered} update${undelivered === 1 ? '' : 's'} ${undelivered === 1 ? 'has' : 'have'} not reached the server yet. ${
+          online
+            ? 'Give it a moment and check the sync tray before signing out.'
+            : 'It stays on this phone under your account and sends the next time you sign in with signal.'
+        }`
+      : '';
+
     Alert.alert(
       'Sign out?',
-      'Your vehicle will be released and your duty status cleared.',
+      `Your vehicle will be released and your duty status cleared.${warning}`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Sign out', style: 'destructive', onPress: () => void signOut() },
@@ -164,13 +224,9 @@ export default function ProfileScreen() {
                 size={17}
                 color={pushEnabled ? colors.accent : colors.medium}
               />
-              <Title>{pushEnabled ? 'Push enabled' : 'Push unavailable'}</Title>
+              <Title>{PUSH_COPY[pushStatus].heading}</Title>
             </View>
-            <Muted>
-              {pushEnabled
-                ? 'Calls routed to your department reach this phone even when the screen is locked. High and Critical calls open a full-screen alert you must acknowledge.'
-                : 'Notification permission was declined, or this build has no push project configured. Alerts still arrive instantly while the app is open.'}
-            </Muted>
+            <Muted>{PUSH_COPY[pushStatus].detail}</Muted>
           </View>
         </View>
       </Card>

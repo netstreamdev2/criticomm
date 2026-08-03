@@ -6,7 +6,10 @@ import { AuthProvider, useAuth } from '@/lib/auth';
 import { BrandingProvider } from '@/lib/branding';
 import { NotificationsProvider, useNotificationRouting } from '@/lib/notifications';
 import { DutyProvider, useDuty } from '@/lib/duty';
+import { SyncProvider } from '@/lib/sync';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
+import { PanicButton } from '@/components/panic-button';
+import { SyncTray } from '@/components/sync-tray';
 import { colors, space, type } from '@/lib/theme';
 
 /**
@@ -99,6 +102,9 @@ export default function RootLayout() {
       <DutyProvider>
       <AuthGate>
         <BrandingProvider>
+        {/* Sync wraps notifications: an alert handler may need to queue work,
+            and the panic path must never be blocked on the alert subsystem. */}
+        <SyncProvider>
         <NotificationsProvider>
           <NotificationRouter />
           <Stack
@@ -124,7 +130,10 @@ export default function RootLayout() {
           {/* Overlays sit above every screen in the stack. */}
           <AlertBanners />
           <AssignmentAlert />
+          <PanicButton />
+          <SyncTray />
         </NotificationsProvider>
+        </SyncProvider>
         </BrandingProvider>
       </AuthGate>
       </DutyProvider>

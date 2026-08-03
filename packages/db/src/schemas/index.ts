@@ -58,6 +58,13 @@ export type DispatchUnitInput = z.infer<typeof dispatchUnitSchema>;
 export const updateResponderStatusSchema = z.object({
   incident_id: z.string().uuid(),
   status: statusEnum,
+  /**
+   * When the responder actually pressed the button. Only sent by the mobile
+   * outbox, for updates that were queued without signal — the server bounds it
+   * to the last 12 hours and never accepts a future time (migration 0024).
+   * Omitted from the console, where the two are the same moment.
+   */
+  occurred_at: z.string().datetime().optional(),
 });
 export type UpdateResponderStatusInput = z.infer<typeof updateResponderStatusSchema>;
 
