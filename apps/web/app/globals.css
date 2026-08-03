@@ -332,3 +332,51 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
   .org-tree a span.rounded-full { background: #e5e7eb !important; color: #000 !important; }
   .org-tree li::before, .org-tree li::after, .org-tree ul ul::before { border-color: #333 !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Page density.
+
+   78 pages open with a text-2xl heading plus a description line, and
+   37 stack their sections on space-y-6. Together that is roughly
+   100px of vertical space spent before any operational content —
+   which is most of the difference between these screens and the
+   dispatch board they are meant to match.
+
+   Applied here rather than edited into 78 files: the rules are
+   scoped under `main` so they cannot touch the login page, and the
+   selectors mirror Tailwind's own shape with one extra element of
+   specificity so they win without !important.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Page titles: still clearly a heading, no longer a banner. */
+main h1 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  letter-spacing: -0.01em;
+}
+
+/* The description under a page title is orientation, not content —
+   it should not compete with the data below it. */
+main header > p,
+main h1 + p {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+/* Section rhythm. Tailwind emits
+   `.space-y-6 > :not([hidden]) ~ :not([hidden])`; prefixing with the
+   `main` element outranks it by one, so no !important is needed. */
+main .space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1rem;
+}
+main .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.75rem;
+}
+
+/* Tables carry most of the app's information. Row padding is where
+   a list of 30 incidents becomes a list of 12 that fits. */
+main table th,
+main table td {
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+}
