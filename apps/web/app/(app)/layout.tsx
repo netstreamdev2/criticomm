@@ -6,6 +6,7 @@ import { getBrandingMap } from '@/lib/branding';
 import { getServerSupabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Sidebar } from '@/components/sidebar';
 import { Topbar } from '@/components/topbar';
+import { TopNav } from '@/components/top-nav';
 import { CommandPalette } from '@/components/command-palette';
 import { ToastProvider } from '@/components/toast';
 import { AlertCenter } from '@/components/alert-center';
@@ -59,12 +60,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   ]);
   const dept = branding[silo as Silo];
 
+  // Only the admin tier keeps the sidebar. They genuinely work across every
+  // module at once; a dispatcher or a responder lives on two or three screens,
+  // and a permanent 264px column of links they cannot use costs them map and
+  // queue width on the view that actually matters. Everyone else gets the same
+  // destinations as a collapsed bar under the header.
+  const usesSidebar = role === 'SystemAdmin' || role === 'SuperAdmin';
+
   return (
     <ToastProvider>
-      <div className="min-h-screen lg:grid lg:grid-cols-[264px_1fr]">
-        <Sidebar silo={silo} role={role} dept={dept} />
+      <div className={usesSidebar ? 'min-h-screen lg:grid lg:grid-cols-[264px_1fr]' : 'min-h-screen'}>
+        {usesSidebar ? <Sidebar silo={silo} role={role} dept={dept} /> : null}
         <div className="flex min-h-screen min-w-0 flex-col">
-          <Topbar fullName={fullName} role={role} silo={silo} />
+          <Topbar fullName={fullName} role={role} silo={silo} hasSidebar={usesSidebar} />
+          {usesSidebar ? null : <TopNav role={role} silo={silo} />}
           <OpsCommandBar role={role} silo={silo} links={opsLinks} />
           <main className="flex-1 bg-bg p-4 sm:p-6">{children}</main>
         </div>

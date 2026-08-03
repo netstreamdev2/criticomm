@@ -14,9 +14,11 @@ function openPalette() {
 }
 
 export function Topbar({
-  fullName, role, silo,
+  fullName, role, silo, hasSidebar = true,
 }: {
   fullName: string; role: string; silo: string;
+  /** When false there is no sidebar trigger, so the left gutter is reclaimed. */
+  hasSidebar?: boolean;
 }) {
   const pathname = usePathname();
   const crumbs = breadcrumbsFor(pathname);
@@ -30,7 +32,11 @@ export function Topbar({
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-bg-soft/95 pl-14 pr-3 backdrop-blur supports-[backdrop-filter]:bg-bg-soft/80 sm:pr-4 lg:pl-6">
+    <header className={cn(
+        'sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-bg-soft/95 pr-3 backdrop-blur supports-[backdrop-filter]:bg-bg-soft/80 sm:pr-4',
+        // The gutter exists only to clear the sidebar's mobile hamburger.
+        hasSidebar ? 'pl-14 lg:pl-6' : 'pl-3 sm:pl-4',
+      )}>
       {/* Breadcrumbs */}
       <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
         <ol className="flex items-center gap-1 text-sm">
