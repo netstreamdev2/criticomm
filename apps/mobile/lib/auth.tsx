@@ -20,13 +20,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const sb = getSupabase();
-    void sb.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+    let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
+
+    try {
+      const sb = getSupabase();
+
+      // Restoring a session can reject — no signal on a cold start, a corrupt
+      // token in AsyncStorage, the auth host unreachable. Without a catch,
+      // setLoading(false) never runs and the crew sits on "Restoring your
+      // session…" forever, which is indistinguishable from a hang. Failing
+      // through to the login screen at least gives them somewhere to go.
+      sb.auth.getSession()
+        .then(({ data }) => {
+          if (cancelled) return;
+          setSession(data.session);
+        })
+        .catch(() => { /* treat as signed out */ })
+        .finally(() => { if (!cancelled) setLoading(false); });
+
+      const { data: sub } = sb.auth.onAuthStateChange((_event, s) => {
+        if (!cancelled) setSession(s);
+      });
+      unsubscribe = () => sub.subscription.unsubscribe();
+    } catch (e) {
+      // Supabase could not be constructed at all (missing or malformed
+      // config). Nothing will work, but the app must still render.
+      console.warn('[criticom] auth unavailable', e);
       setLoading(false);
-    });
-    const { data: sub } = sb.auth.onAuthStateChange((_event, s) => setSession(s));
-    return () => sub.subscription.unsubscribe();
+    }
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 
   const user = session?.user;
