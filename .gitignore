@@ -19,3 +19,9 @@ coverage
 !.vscode/extensions.json
 supabase/.branches
 supabase/.temp
+
+# TypeScript incremental build state — machine-local, and noisy in every diff.
+*.tsbuildinfo
+
+# Expo export output (apps/mobile/dist) is a build artefact, not source.
+apps/mobile/dist

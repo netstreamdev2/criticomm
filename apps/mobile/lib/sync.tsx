@@ -12,7 +12,7 @@ import type { CriticomClient, IncidentStatus } from '@criticom/db';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import {
-  backoffMs, comparePriority, dedupeKeyOf, describe, isPermanent, MAX_ATTEMPTS,
+  backoffMs, comparePriority, dedupeKeyOf, describe, isMine, isPermanent, MAX_ATTEMPTS,
   readOutbox, releaseAttachment, writeOutbox,
   type OutboxEntry, type OutboxOp,
 } from '@/lib/outbox';
@@ -208,14 +208,6 @@ export function useSync(): SyncApi {
 const newId = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
-/**
- * Entries from an older build carry no `userId`. Treating those as the current
- * user's preserves the behaviour they were written under; everything written
- * since is matched strictly.
- */
-const isMine = (entry: OutboxEntry, userId: string) =>
-  entry.userId === undefined || entry.userId === userId;
-
 export function SyncProvider({ children }: { children: React.ReactNode }) {
   const { session } = useAuth();
   const [entries, setEntries] = useState<OutboxEntry[]>([]);
@@ -227,6 +219,9 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   // the callback was created, which during a burst of retries is stale.
   const ref = useRef<OutboxEntry[]>([]);
   const flushing = useRef(false);
+  // Mirrored for the same reason as the queue: the flush loop runs outside
+  // React's render cycle and would otherwise read a stale value.
+  const onlineRef = useRef(true);
 
   const commit = useCallback(async (next: OutboxEntry[]) => {
     ref.current = next;
@@ -249,6 +244,14 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   const flush = useCallback(async () => {
     if (flushing.current || !session) return;
     if (ref.current.length === 0) return;
+
+    // Do not burn the retry budget on a known-dead connection. Every attempt
+    // here counts toward MAX_ATTEMPTS, after which the op is parked as failed
+    // and needs a human — and "the crew drove through a tunnel" must never be
+    // the reason a scene photo needs manual intervention. `online` starts true
+    // and is only set false by an explicit NetInfo verdict, so an unknown
+    // state still tries.
+    if (!onlineRef.current) return;
 
     flushing.current = true;
     setSyncing(true);
@@ -345,7 +348,11 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
   // and delivers nothing, which is exactly the case the outbox exists for.
   useEffect(() => {
     const off = NetInfo.addEventListener((state) => {
-      const reachable = state.isInternetReachable ?? state.isConnected ?? false;
+      // `isInternetReachable` is null until NetInfo has probed. Treating
+      // "unknown" as online means we try and let the request decide, rather
+      // than sitting on a queue because a probe has not finished.
+      const reachable = state.isInternetReachable ?? state.isConnected ?? true;
+      onlineRef.current = reachable;
       setOnline(reachable);
       if (reachable) void flush();
     });

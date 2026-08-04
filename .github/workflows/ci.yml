@@ -1,0 +1,141 @@
+name: CI
+
+# Emergency dispatch software: a regression here is not a bad user experience,
+# it is a call that does not reach a crew. Every push and every pull request
+# runs the full gate.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # So a broken dependency or a platform change surfaces on a weekday morning
+  # rather than during an incident.
+  schedule:
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Turbo caches per-task, so unchanged packages are skipped between runs.
+  TURBO_TELEMETRY_DISABLED: 1
+  # The build inlines NEXT_PUBLIC_* at compile time. These are placeholders: CI
+  # never talks to a real project, and a build that succeeds against them proves
+  # the code compiles without depending on any particular environment. The app
+  # itself degrades to its "not configured" screen when they are wrong, which is
+  # exactly the behaviour we want proven.
+  NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+
+jobs:
+  verify:
+    name: Lint · typecheck · test · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          # Matches the engines field. The test runner uses
+          # --experimental-strip-types, which needs 22+.
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        # Fail if the lockfile does not match package.json — a dependency that
+        # only resolves on someone's laptop is a deployment waiting to break.
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  migrations:
+    name: Migrations apply cleanly
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # A migration is the one artefact with no undo. Applying the whole set to a
+    # throwaway Postgres proves the sequence works from nothing — which is what
+    # a fresh environment does, and what a restore-from-backup does.
+    services:
+      postgres:
+        image: postgis/postgis:15-3.4
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: criticom_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Prepare the database
+        # The migrations assume a Supabase-shaped database: the auth schema and
+        # the roles RLS policies reference. Creating the minimum here keeps the
+        # check honest without pulling the whole Supabase stack into CI.
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d criticom_ci -v ON_ERROR_STOP=1 <<'SQL'
+          create extension if not exists "uuid-ossp";
+          create extension if not exists postgis;
+          create extension if not exists pgcrypto;
+
+          create schema if not exists auth;
+          create table if not exists auth.users (
+            id uuid primary key default uuid_generate_v4(),
+            email text
+          );
+          create or replace function auth.uid() returns uuid
+            language sql stable as $$ select null::uuid $$;
+          create or replace function auth.jwt() returns jsonb
+            language sql stable as $$ select '{}'::jsonb $$;
+
+          do $$ begin
+            create role anon;
+          exception when duplicate_object then null; end $$;
+          do $$ begin
+            create role authenticated;
+          exception when duplicate_object then null; end $$;
+          do $$ begin
+            create role service_role;
+          exception when duplicate_object then null; end $$;
+
+          create schema if not exists extensions;
+          SQL
+
+      - name: Apply every migration in order
+        env:
+          SUPABASE_DB_URL: postgres://postgres:postgres@localhost:5432/criticom_ci
+        run: node scripts/apply-migration.mjs $(ls supabase/migrations/*.sql | sort)

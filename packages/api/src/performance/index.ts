@@ -251,7 +251,7 @@ export async function getOperationalKpis(
     }));
 
   // Logons from the audit trail (User Logon Report-CCTV grain).
-  let logonQ = client
+  const logonQ = client
     .from('audit_logs')
     .select('timestamp, user_name, silo')
     .eq('action_type', 'Logon')

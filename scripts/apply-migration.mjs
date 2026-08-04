@@ -24,7 +24,16 @@ if (!url) {
   process.exit(1);
 }
 
-const client = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false } });
+/**
+ * A local Postgres (CI, `supabase start`) has no TLS listener, and asking for
+ * SSL there fails the connection outright. Hosted Supabase always needs it.
+ */
+const isLocal = /@(localhost|127\.0\.0\.1|::1|host\.docker\.internal)[:/]/.test(url);
+
+const client = new pg.Client({
+  connectionString: url,
+  ssl: isLocal ? false : { rejectUnauthorized: false },
+});
 await client.connect();
 
 let failed = false;

@@ -169,7 +169,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     if (!session) return;
-    let sb;
+    let sb: ReturnType<typeof getSupabase>;
     try {
       sb = getSupabase();
     } catch {

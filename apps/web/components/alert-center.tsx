@@ -99,7 +99,7 @@ export function AlertCenter({
   }, [push, chime, interruptsAt, toastMs]);
 
   useEffect(() => {
-    let sb;
+    let sb: ReturnType<typeof getBrowserSupabase>;
     try {
       sb = getBrowserSupabase();
     } catch {

@@ -49,7 +49,7 @@ function Ring({ value, max }: { value: number; max: number }) {
   const c = 2 * Math.PI * r;
   const frac = Math.min(1, Math.max(0.04, max > 0 ? value / max : 0));
   return (
-    <svg viewBox="0 0 64 64" className="mx-auto mt-2 h-16 w-16 -rotate-90" aria-hidden>
+    <svg viewBox="0 0 64 64" className="mx-auto mt-2 h-16 w-16 -rotate-90" aria-hidden="true">
       <circle cx="32" cy="32" r={r} fill="none" strokeWidth="6" className="stroke-muted" />
       <circle
         cx="32" cy="32" r={r} fill="none" strokeWidth="6" strokeLinecap="round"

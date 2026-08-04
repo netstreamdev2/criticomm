@@ -4,7 +4,7 @@ import {
   listPendingIncidents, logAudit, raiseAlert, routeIncident, updateResponderStatus,
 } from '@criticom/api';
 import type { IncidentStatus, Silo } from '@criticom/db';
-import { getRequestSupabase, getServerSupabase } from '@/lib/supabase';
+import { getRequestSupabase, type getServerSupabase } from '@/lib/supabase';
 
 /**
  * Criti — the assistant behind the right-hand dock and /assistant.

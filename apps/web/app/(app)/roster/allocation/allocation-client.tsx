@@ -349,6 +349,9 @@ function AssignDialog({
           </button>
         </div>
         <div className="p-3">
+          {/* biome-ignore lint/a11y/noAutofocus: this input only exists inside
+              the just-opened member picker, so focus is already the user's
+              intent — they opened it to type a name. */}
           <input autoFocus className={`${input} w-full`} placeholder="Search name, badge or rank…"
             value={q} onChange={(e) => setQ(e.target.value)} />
         </div>

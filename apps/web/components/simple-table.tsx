@@ -19,7 +19,6 @@ export function SimpleTable({
           <tr>
             {headers.map((h, i) => (
               <th
-                // biome-ignore lint/suspicious/noArrayIndexKey: headers may repeat blank labels
                 key={`${h}-${i}`}
                 scope="col"
                 className="whitespace-nowrap border-b border-border bg-bg-card/95 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground backdrop-blur"

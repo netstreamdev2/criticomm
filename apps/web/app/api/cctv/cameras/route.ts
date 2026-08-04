@@ -47,7 +47,7 @@ export async function GET() {
       // stall a dispatcher's screen.
       const cameras: CctvCamera[] = [];
       let pageNo = 1;
-      let total = Infinity;
+      let total = Number.POSITIVE_INFINITY;
       while (cameras.length < Math.min(total, 1000) && pageNo <= 10) {
         const page = await hikListCameras(cfg, pageNo);
         total = page.total;

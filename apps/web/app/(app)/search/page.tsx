@@ -45,7 +45,6 @@ export default async function SearchPage({
           <input
             name="q"
             defaultValue={query}
-            autoFocus
             placeholder="Incident number, plate, badge, surname, case number…"
             className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />

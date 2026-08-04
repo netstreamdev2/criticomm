@@ -189,23 +189,26 @@ export async function setAutomationEnabled(
 }
 
 /**
- * Save thresholds for one rule.
+ * Clamp and filter submitted thresholds into what actually gets stored.
  *
  * Values are clamped to the declared bounds rather than rejected: an operator
  * typing 900 into "warn after minutes" meant "a long time", and failing the
  * save loses the rest of their edits. Out-of-range input is a UI problem, not a
  * reason to leave the rule on a stale value. Unknown keys are dropped, so a
  * config cannot accumulate junk that no rule reads.
+ *
+ * Pure, and exported, because these rules decide when a service escalates a
+ * call — worth pinning in tests rather than trusting to a form.
  */
-export async function updateAutomationConfig(
-  client: CriticomClient,
-  args: { key: string; config: Record<string, string>; intervalMinutes?: number },
-) {
-  const fields = RULE_FIELDS[args.key] ?? [];
+export function sanitiseAutomationConfig(
+  key: string,
+  config: Record<string, string>,
+): Record<string, unknown> {
+  const fields = RULE_FIELDS[key] ?? [];
   const next: Record<string, unknown> = {};
 
   for (const field of fields) {
-    const raw = args.config[field.key];
+    const raw = config[field.key];
     if (raw === undefined || raw === '') continue;
 
     if (field.kind === 'csv-int') {
@@ -225,6 +228,16 @@ export async function updateAutomationConfig(
     if (!Number.isFinite(parsed)) continue;
     next[field.key] = Math.min(field.max ?? parsed, Math.max(field.min ?? parsed, parsed));
   }
+
+  return next;
+}
+
+/** Save thresholds for one rule. See `sanitiseAutomationConfig` for the rules. */
+export async function updateAutomationConfig(
+  client: CriticomClient,
+  args: { key: string; config: Record<string, string>; intervalMinutes?: number },
+) {
+  const next = sanitiseAutomationConfig(args.key, args.config);
 
   const patch: Database['public']['Tables']['automation_rules']['Update'] = {
     config: next,

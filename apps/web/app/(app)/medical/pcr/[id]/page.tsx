@@ -170,7 +170,6 @@ export default async function PcrDetailPage({ params }: { params: Promise<{ id: 
             ] as const).map(([label, sig]) => sig && (
               <div key={label}>
                 <p className="mb-1 text-xs uppercase text-muted-foreground">{label}</p>
-                {/* biome-ignore lint/performance/noImgElement: inline base64 signature */}
                 <img
                   src={`data:image/png;base64,${sig}`}
                   alt={`${label} signature`}

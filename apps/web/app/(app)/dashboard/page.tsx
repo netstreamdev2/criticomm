@@ -37,9 +37,9 @@ const SILO_OPS: Record<Exclude<Silo, 'Ethekwini'>, { href: string; label: string
   EthekwiniDisaster: { href: '/disaster', label: 'Disaster Mgmt', icon: 'Mountain' },
 };
 
-type Link = { href: string; label: string; desc: string; icon: string; tone?: string };
+type QuickLink = { href: string; label: string; desc: string; icon: string; tone?: string };
 
-const LINKS: Record<Persona, Link[]> = {
+const LINKS: Record<Persona, QuickLink[]> = {
   command: [
     { href: '/dispatch/log-call', label: 'Log Incoming Call', desc: 'Capture a new 911 call', icon: 'PhoneCall', tone: 'bg-severity-critical/15 text-severity-critical-ink' },
     { href: '/dispatch/pending', label: 'Pending Queue', desc: 'Calls awaiting dispatch', icon: 'ListChecks' },

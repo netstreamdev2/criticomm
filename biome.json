@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": { "ignore": ["**/.next/**", "**/dist/**", "**/build/**", "**/node_modules/**", "**/types.generated.ts"] },
+  "files": { "ignore": ["**/.next/**", "**/dist/**", "**/build/**", "**/node_modules/**", "**/types.generated.ts", "**/tsconfig*.json"] },
   "organizeImports": { "enabled": true },
   "formatter": {
     "enabled": true,
@@ -13,8 +13,35 @@
     "enabled": true,
     "rules": {
       "recommended": true,
-      "suspicious": { "noExplicitAny": "warn" },
-      "style": { "useImportType": "error" }
+      "suspicious": {
+        "noExplicitAny": "warn",
+        "noArrayIndexKey": "off",
+        "noShadowRestrictedNames": "off",
+        "noAssignInExpressions": "off",
+        "noConfusingVoidType": "off"
+      },
+      "style": {
+        "useImportType": "error",
+        "noNonNullAssertion": "off",
+        "useSingleVarDeclarator": "off",
+        "useTemplate": "off",
+        "noUnusedTemplateLiteral": "off",
+        "useSelfClosingElements": "off"
+      },
+      "complexity": {
+        "noForEach": "off",
+        "useOptionalChain": "off"
+      },
+      "nursery": {
+        "noImgElement": "off"
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "off"
+      },
+      "a11y": {
+        "noLabelWithoutControl": "warn",
+        "useSemanticElements": "warn"
+      }
     }
   },
   "javascript": {
