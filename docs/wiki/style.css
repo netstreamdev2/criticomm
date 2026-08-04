@@ -12,7 +12,6 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 @page { size: A4; margin: 21mm 16mm 21mm 20mm; }
-@page :first { margin: 0; }
 
 :root {
   --ink:   #0e1116;
@@ -158,13 +157,7 @@ table, figure, .flow, .anatomy, .stats, .role, .matrix-wrap { width: var(--full)
   display: flex; flex-direction: column; justify-content: flex-end;
   padding: 14mm 14mm 14mm 16mm;
 }
-.volume .bignum {
-  position: absolute; top: 6mm; right: 12mm;
-  font-size: 130pt; font-weight: 800; line-height: 1; letter-spacing: -6px;
-  /* A solid ghost, not a stroke: a stroked sans "I" at this size reads as an
-     empty rectangle rather than a numeral. */
-  color: rgba(255, 92, 120, 0.13);
-}
+.volume .bignum { display: none; }
 .volume .kick {
   font-size: 8pt; font-weight: 800; letter-spacing: 3.6px; text-transform: uppercase;
   color: #ff5c78; margin-bottom: 4mm;
@@ -234,11 +227,6 @@ a { color: var(--blue); text-decoration: none; }
   font-family: "Consolas",monospace; font-size: 6.6pt; font-weight: 700;
   letter-spacing: 0.2px; display: flex; align-items: center; white-space: nowrap;
   overflow: hidden;
-}
-.flow .chip.web .bar::before {
-  content: ""; flex: none; width: 1.5mm; height: 1.5mm; border-radius: 50%;
-  background: #ff5f56; box-shadow: 2.4mm 0 0 #ffbd2e, 4.8mm 0 0 #27c93f;
-  margin-right: 6.6mm;
 }
 .flow .chip .body { padding: 1.8mm 2.4mm 2.1mm 2.4mm; font-size: 7.6pt; line-height: 1.45; color: var(--ink2); }
 .flow .chip .body b { color: var(--ink); }
@@ -336,7 +324,9 @@ a { color: var(--blue); text-decoration: none; }
 .path i { font-style: normal; color: var(--ink4); font-size: 6.6pt; }
 
 /* ═══ TABLES ══════════════════════════════════════════════════════ */
-table { border-collapse: collapse; margin: 3mm 0 5.5mm 0; font-size: 8.4pt; page-break-inside: avoid; }
+table { border-collapse: collapse; margin: 3mm 0 5.5mm 0; font-size: 8.4pt; }
+thead { display: table-header-group; }
+tbody tr { page-break-inside: avoid; }
 thead th {
   text-align: left; padding: 1.7mm 2.6mm 1.8mm 0; font-size: 6.9pt; font-weight: 800;
   text-transform: uppercase; letter-spacing: 1.1px; color: var(--ink3);

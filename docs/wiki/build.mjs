@@ -199,10 +199,10 @@ body = body.replace(
 
 body = addBreadcrumbs(body);
 
-const page = (inner) => `<!doctype html>
+const page = (inner, opts = {}) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>Criticomm — Operations &amp; Engineering Manual</title>
-<style>${css}</style></head><body>
+<style>${css}${opts.coverFirst ? '@page :first { margin: 0; }' : ''}</style></head><body>
 ${inner}
 </body></html>`;
 
@@ -245,7 +245,7 @@ const rendered = [];
 units.forEach((unit, i) => {
   const htmlPath = path.join(work, `u${String(i).padStart(3, '0')}.html`);
   const pdfPath = path.join(work, `u${String(i).padStart(3, '0')}.pdf`);
-  writeFileSync(htmlPath, page(unit.html));
+  writeFileSync(htmlPath, page(unit.html, { coverFirst: unit.kind === 'front' }));
   renderToPdf(htmlPath, pdfPath);
   rendered.push({ ...unit, pdfPath });
   if (i % 8 === 0) process.stdout.write('.');
@@ -261,13 +261,15 @@ book.setAuthor('eThekwini Emergency Services');
 book.setProducer('Criticomm document pipeline');
 
 const heads = [];
+const opener = [];
 for (const unit of rendered) {
   const doc = await PDFDocument.load(readFileSync(unit.pdfPath));
   const pages = await book.copyPages(doc, doc.getPageIndices());
-  for (const p of pages) {
+  pages.forEach((p, pi) => {
     book.addPage(p);
     heads.push(unit.kind === 'part' ? unit.title : null);
-  }
+    opener.push(unit.kind === 'part' && pi === 0);
+  });
 }
 
 const sans = await book.embedFont(StandardFonts.Helvetica);
@@ -293,8 +295,10 @@ book.getPages().forEach((p, i) => {
   if (head === null) return;   // volume dividers stay clean
 
   const recto = folio % 2 === 1;
+  const isOpener = opener[i];
 
-  // ── Running head ──
+  // ── Running head (not on chapter openers — the band is the heading) ──
+  if (!isOpener) {
   const label = 'CRITICOMM';
   const chapter = head.toUpperCase();
   const y = height - 14 * MM;
@@ -313,6 +317,7 @@ book.getPages().forEach((p, i) => {
     end: { x: width - 16 * MM, y: y - 2.2 * MM },
     thickness: 0.4, color: RULE,
   });
+  }
 
   // ── Folio in a filled square, outer bottom corner ──
   const n = String(folio);
