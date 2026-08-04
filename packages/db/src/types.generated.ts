@@ -1492,6 +1492,11 @@ export type Database = {
         Args: { p_silo: Silo };
         Returns: string;
       };
+      /** Per-user request limiting (migration 0028). Identity from auth.uid(). */
+      rate_limit_hit: {
+        Args: { p_bucket: string; p_limit: number; p_window_seconds: number };
+        Returns: Array<{ allowed: boolean; remaining: number; reset_at: string }>;
+      };
       /** Cross-module search, RLS-scoped (migration 0027). */
       search_everything: {
         Args: { p_query: string; p_limit?: number };

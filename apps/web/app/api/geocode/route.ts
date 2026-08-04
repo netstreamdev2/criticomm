@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/external';
 
 /**
  * Address ⇄ coordinate lookup for the dispatch console, proxied server-side.
@@ -134,6 +135,14 @@ async function nominatimReverse(lat: string, lng: string): Promise<GeoResult[]> 
 /* ── Handler ────────────────────────────────────────────────────────── */
 
 export async function GET(req: Request) {
+  // This route needs no API key, which is why it was left open — but an
+  // unauthenticated proxy in front of Photon and Nominatim is still an open
+  // relay, and OpenStreetMap's usage policy is enforced by banning the source
+  // IP. That would take address lookup off the call-taking screen, mid-shift,
+  // with no warning. Session-gated and rate-limited for that reason alone.
+  const { deny } = await requireAuth('geocode');
+  if (deny) return deny;
+
   const url = new URL(req.url);
   const q = url.searchParams.get('q');
   const lat = url.searchParams.get('lat');

@@ -7,7 +7,7 @@ import { getPttAudioLog, isPttConfigured } from '@/lib/realptt';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
-  const { user, deny } = await requireAuth();
+  const { user, deny } = await requireAuth('ptt');
   if (deny) return deny;
   const role = (user!.app_metadata?.role ?? 'Viewer') as UserRole;
   if (!DISPATCH_ROLES.includes(role)) {

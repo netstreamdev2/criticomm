@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getFirefighterReport } from '@criticom/api';
 import { getServerSupabase } from '@/lib/supabase';
+import { enforceRateLimit } from '@/lib/rate-limit';
 import { ReportPdf } from '@/lib/pdf';
 
 /** FirefightersController.DownloadPdf — fire incident report PDF. */
@@ -14,6 +15,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const supabase = await getServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Same cost profile as the case report.
+  const limited = await enforceRateLimit(supabase, 'pdf');
+  if (limited) return limited;
 
   const r = await getFirefighterReport(supabase, id).catch(() => null);
   if (!r) return NextResponse.json({ error: 'Not found' }, { status: 404 });

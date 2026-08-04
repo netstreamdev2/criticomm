@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getIncident, getIncidentUpdates, listIncidentAttachments, listAuditLogs } from '@criticom/api';
 import { getServerSupabase } from '@/lib/supabase';
+import { enforceRateLimit } from '@/lib/rate-limit';
 import { ReportPdf } from '@/lib/pdf';
 
 /** CaseManagerController.DownloadReport — official case report PDF. */
@@ -11,6 +12,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const supabase = await getServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Rendering a case PDF downloads and embeds every scene photo — the most
+  // expensive request this service serves.
+  const limited = await enforceRateLimit(supabase, 'pdf');
+  if (limited) return limited;
 
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) return NextResponse.json({ error: 'Not found' }, { status: 404 });

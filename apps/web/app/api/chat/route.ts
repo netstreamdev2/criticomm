@@ -5,6 +5,7 @@ import {
 } from '@criticom/api';
 import type { IncidentStatus, Silo } from '@criticom/db';
 import { getRequestSupabase, type getServerSupabase } from '@/lib/supabase';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 /**
  * Criti — the assistant behind the right-hand dock and /assistant.
@@ -235,6 +236,11 @@ export async function POST(req: Request) {
   const supabase = await getRequestSupabase(req);
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Every turn is a paid model call. A screen stuck in a render loop would
+  // otherwise spend the service's whole model budget in an afternoon.
+  const limited = await enforceRateLimit(supabase, 'chat');
+  if (limited) return limited;
 
   const { messages, page } = (await req.json()) as { messages: ChatMessage[]; page?: string };
   if (!Array.isArray(messages) || messages.length === 0) {

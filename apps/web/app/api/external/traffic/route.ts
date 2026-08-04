@@ -9,7 +9,7 @@ const FIELDS = '{incidents{geometry{type,coordinates},properties{iconCategory,ev
 const DEFAULT_BBOX = '30.7,-30.1,31.2,-29.6';
 
 export async function GET(req: Request) {
-  const { deny } = await requireAuth();
+  const { deny } = await requireAuth('external');
   if (deny) return deny;
 
   const key = process.env.TOMTOM_API_KEY;

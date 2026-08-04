@@ -4,7 +4,7 @@ import { requireAuth, unconfigured, relayJson } from '@/lib/external';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
-  const { deny } = await requireAuth();
+  const { deny } = await requireAuth('external');
   if (deny) return deny;
 
   const key = process.env.FLIGHTRADAR_API_KEY;

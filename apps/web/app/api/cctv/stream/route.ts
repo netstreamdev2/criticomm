@@ -4,6 +4,7 @@ import { canAccess } from '@criticom/db/roles';
 import type { Silo, UserRole } from '@criticom/db/types';
 import { hikConfig, hikPlaybackUrl, hikPreviewUrl } from '@/lib/hikvision';
 import { getServerSupabase } from '@/lib/supabase';
+import { enforceRateLimit } from '@/lib/rate-limit';
 
 /**
  * Stream-URL broker for Hikvision cameras — live preview and recorded
@@ -23,6 +24,11 @@ export async function POST(req: Request) {
   const supabase = await getServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Every stream grant is audit-logged for chain of custody; a flood of them
+  // buries the entries that matter.
+  const limited = await enforceRateLimit(supabase, 'cctv');
+  if (limited) return limited;
 
   const role = (user.app_metadata?.role ?? 'Viewer') as UserRole;
   const silo = (user.app_metadata?.silo ?? 'Ethekwini') as Silo;

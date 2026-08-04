@@ -1,6 +1,7 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
 import { getServerSupabase } from './supabase';
+import { enforceRateLimit, type RateLimitName } from './rate-limit';
 
 /**
  * Shared helpers for the external-feed proxy routes
@@ -8,10 +9,25 @@ import { getServerSupabase } from './supabase';
  * API keys live server-side only; every route requires an authenticated session.
  */
 
-export async function requireAuth() {
+/**
+ * Session gate for a proxy route, with an optional per-user request limit.
+ *
+ * `deny` carries either the 401 or the 429, so a handler stays a two-line
+ * preamble and cannot accidentally enforce one check and skip the other:
+ *
+ *     const { deny } = await requireAuth('external');
+ *     if (deny) return deny;
+ */
+export async function requireAuth(limit?: RateLimitName) {
   const supabase = await getServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { user: null, supabase, deny: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
+
+  if (limit) {
+    const limited = await enforceRateLimit(supabase, limit);
+    if (limited) return { user, supabase, deny: limited };
+  }
+
   return { user, supabase, deny: null };
 }
 
