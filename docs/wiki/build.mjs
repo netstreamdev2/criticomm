@@ -17,14 +17,12 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Two documents from the same pipeline:
- *   wiki    — the 42-page reference. What the platform is and how it is built.
- *   manual  — the 105-page operations manual. How to carry out every task, per role.
- * Pass a name to build one, or nothing to build both.
+ * The manual is the single document. An earlier, shorter "solution wiki" was
+ * folded into it — everything that was in the wiki is now Volumes I–III and IX,
+ * and maintaining two overlapping documents guaranteed they would disagree.
  */
 const DOCS = {
-  wiki: { src: 'criticom-v5-wiki.html', out: 'Criticom-V5-Solution-Wiki.pdf' },
-  manual: { src: 'criticom-v5-manual.html', out: 'Criticom-V5-Operations-Manual.pdf' },
+  manual: { src: 'criticomm-manual.html', out: 'Criticomm-Operations-Manual.pdf' },
 };
 
 const requested = process.argv[2];
