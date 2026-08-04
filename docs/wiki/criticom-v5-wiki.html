@@ -1,0 +1,1865 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Criticom V5 — Solution Wiki</title>
+<style>
+  @page {
+    size: A4;
+    margin: 20mm 18mm 18mm 18mm;
+  }
+  @page :first { margin: 0; }
+
+  :root {
+    --ink:      #14161c;
+    --ink-soft: #4a5060;
+    --muted:    #6b7280;
+    --rule:     #d8dbe3;
+    --rule-soft:#e9ebf0;
+    --primary:  #b3202f;
+    --accent:   #1f4e9c;
+    --ok:       #1a7f4b;
+    --warn:     #9a6400;
+    --code-bg:  #f5f6f9;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Georgia", "Cambria", serif;
+    font-size: 10.2pt;
+    line-height: 1.55;
+    color: var(--ink);
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h1, h2, h3, h4, .sans {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* ── Cover ─────────────────────────────────────────────── */
+  .cover {
+    height: 297mm;
+    padding: 34mm 24mm 20mm 24mm;
+    background: linear-gradient(160deg, #14161c 0%, #1d2130 55%, #2a1418 100%);
+    color: #fff;
+    page-break-after: always;
+    position: relative;
+  }
+  .cover .rule { width: 54mm; height: 3px; background: var(--primary); margin-bottom: 12mm; }
+  .cover .eyebrow {
+    font-family: "Segoe UI", sans-serif; font-size: 10pt; letter-spacing: 3.2px;
+    text-transform: uppercase; color: #c9ccd6; margin-bottom: 6mm;
+  }
+  .cover h1 {
+    font-size: 40pt; line-height: 1.04; margin: 0 0 6mm 0; font-weight: 700; letter-spacing: -1px;
+  }
+  .cover h1 span { color: #ff6b7a; }
+  .cover .sub {
+    font-size: 14pt; color: #d5d8e0; max-width: 130mm; line-height: 1.5; margin-bottom: 16mm;
+  }
+  .cover .meta {
+    position: absolute; bottom: 22mm; left: 24mm; right: 24mm;
+    border-top: 1px solid #3a3f52; padding-top: 6mm;
+    font-family: "Segoe UI", sans-serif; font-size: 9.5pt; color: #b9bdc9;
+    display: flex; gap: 14mm; flex-wrap: wrap;
+  }
+  .cover .meta b { display: block; color: #fff; font-size: 10.5pt; margin-bottom: 1mm; }
+
+  /* ── Structure ─────────────────────────────────────────── */
+  .part {
+    page-break-before: always;
+    margin-top: 0;
+  }
+  .part-head {
+    border-bottom: 2.5px solid var(--primary);
+    padding-bottom: 3mm;
+    margin-bottom: 8mm;
+  }
+  .part-head .kicker {
+    font-family: "Segoe UI", sans-serif; font-size: 9pt; letter-spacing: 2.6px;
+    text-transform: uppercase; color: var(--primary); font-weight: 700;
+  }
+  .part-head h1 { font-size: 22pt; margin: 2mm 0 0 0; letter-spacing: -0.4px; }
+
+  h2 {
+    font-size: 14pt; margin: 9mm 0 3mm 0; color: var(--ink);
+    border-bottom: 1px solid var(--rule); padding-bottom: 1.6mm;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 11.5pt; margin: 6mm 0 2mm 0; color: var(--ink);
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 10pt; margin: 4mm 0 1.5mm 0; color: var(--ink-soft);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    page-break-after: avoid;
+  }
+  p { margin: 0 0 3mm 0; }
+  ul, ol { margin: 0 0 3mm 0; padding-left: 6mm; }
+  li { margin-bottom: 1.4mm; }
+  a { color: var(--accent); text-decoration: none; }
+
+  .lede {
+    font-size: 11pt; color: var(--ink-soft); line-height: 1.6;
+    border-left: 3px solid var(--rule); padding-left: 5mm; margin-bottom: 7mm;
+  }
+
+  /* ── Tables ────────────────────────────────────────────── */
+  table {
+    width: 100%; border-collapse: collapse; margin: 3mm 0 5mm 0;
+    font-size: 9pt; page-break-inside: avoid;
+  }
+  thead th {
+    background: #eceef3; text-align: left; padding: 2mm 2.5mm;
+    font-family: "Segoe UI", sans-serif; font-size: 8.2pt;
+    text-transform: uppercase; letter-spacing: 0.7px; color: var(--ink-soft);
+    border-bottom: 1.5px solid var(--rule);
+  }
+  tbody td {
+    padding: 1.8mm 2.5mm; border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: #fafbfc; }
+  td.mono, th.mono { font-family: "Consolas", "Courier New", monospace; font-size: 8.3pt; }
+
+  code {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 8.8pt; background: var(--code-bg);
+    padding: 0.3mm 1.2mm; border-radius: 2px; color: #8a2130;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--rule-soft);
+    border-left: 3px solid var(--accent);
+    padding: 3mm 4mm; margin: 3mm 0 5mm 0; border-radius: 3px;
+    font-family: "Consolas", "Courier New", monospace; font-size: 8.4pt;
+    line-height: 1.45; overflow-wrap: break-word; white-space: pre-wrap;
+    page-break-inside: avoid;
+  }
+  pre code { background: none; padding: 0; color: var(--ink); }
+
+  /* ── Callouts ──────────────────────────────────────────── */
+  .note, .warn, .why {
+    padding: 3mm 4mm; margin: 3mm 0 5mm 0; border-radius: 3px;
+    font-size: 9.4pt; page-break-inside: avoid;
+  }
+  .note { background: #eef3fb; border-left: 3px solid var(--accent); }
+  .warn { background: #fdf3e6; border-left: 3px solid var(--warn); }
+  .why  { background: #f3f6f3; border-left: 3px solid var(--ok); }
+  /* Only the callout's own leading <b> is the label. Bold used for emphasis
+     inside the body text must stay inline, or a mid-sentence emphasis breaks
+     the paragraph into a second heading. */
+  .note > b:first-child, .warn > b:first-child, .why > b:first-child {
+    font-family: "Segoe UI", sans-serif; font-size: 8.4pt;
+    text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 1.2mm;
+  }
+  .note > b:first-child { color: var(--accent); }
+  .warn > b:first-child { color: var(--warn); }
+  .why  > b:first-child { color: var(--ok); }
+
+  .pill {
+    display: inline-block; font-family: "Segoe UI", sans-serif; font-size: 7.6pt;
+    font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+    padding: 0.6mm 2mm; border-radius: 8px; vertical-align: 1px;
+  }
+  .pill-new  { background: #e5f3ea; color: var(--ok); }
+  .pill-core { background: #e9edf6; color: var(--accent); }
+  .pill-sec  { background: #fbe9eb; color: var(--primary); }
+
+  /* ── Contents ──────────────────────────────────────────── */
+  .toc { page-break-after: always; }
+  .toc h1 { font-size: 20pt; border-bottom: 2.5px solid var(--primary); padding-bottom: 3mm; }
+  .toc ol { list-style: none; padding: 0; margin: 6mm 0 0 0; }
+  .toc > ol > li { margin-bottom: 4mm; }
+  .toc .part-line {
+    font-family: "Segoe UI", sans-serif; font-weight: 700; font-size: 10.5pt;
+    color: var(--ink); border-bottom: 1px solid var(--rule-soft); padding-bottom: 1.2mm;
+  }
+  .toc .part-line .num { color: var(--primary); margin-right: 3mm; }
+  .toc ul { list-style: none; padding: 1.5mm 0 0 8mm; margin: 0; }
+  .toc ul li { font-size: 9.4pt; color: var(--ink-soft); margin-bottom: 0.8mm; }
+
+  .kv { display: flex; gap: 3mm; margin-bottom: 1.5mm; font-size: 9.4pt; }
+  .kv .k { min-width: 34mm; color: var(--muted); font-family: "Segoe UI", sans-serif; font-size: 8.6pt; text-transform: uppercase; letter-spacing: 0.6px; padding-top: 0.5mm; }
+
+  .avoid-break { page-break-inside: avoid; }
+  .stat-row { display: flex; gap: 4mm; margin: 4mm 0 6mm 0; flex-wrap: wrap; }
+  .stat {
+    flex: 1; min-width: 30mm; border: 1px solid var(--rule); border-radius: 4px;
+    padding: 3mm; text-align: center; background: #fafbfd;
+  }
+  .stat .n { font-family: "Segoe UI", sans-serif; font-size: 17pt; font-weight: 700; color: var(--primary); line-height: 1; }
+  .stat .l { font-size: 8pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 1.5mm; font-family: "Segoe UI", sans-serif; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════ COVER ══════════════════════════ -->
+<div class="cover">
+  <div class="rule"></div>
+  <div class="eyebrow">eThekwini Emergency Services</div>
+  <h1>Criticom <span>V5</span><br>Solution Wiki</h1>
+  <div class="sub">
+    The complete reference for the emergency dispatch, response and command platform —
+    architecture, every module, the data model, the responder app, automation, security
+    and operations.
+  </div>
+  <div class="meta">
+    <div><b>Version</b>Wave 5 · Web 110 routes · Mobile 1.1.0</div>
+    <div><b>Issued</b>4 August 2026</div>
+    <div><b>Status</b>Production</div>
+    <div><b>Audience</b>Engineering · Operations · Command</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ CONTENTS ══════════════════════════ -->
+<div class="toc">
+  <h1>Contents</h1>
+  <ol>
+    <li>
+      <div class="part-line"><span class="num">I</span><a href="#part1">What Criticom Is</a></div>
+      <ul>
+        <li>1.1 The problem it solves · 1.2 The five departments · 1.3 Lineage from V4 · 1.4 The system in numbers</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">II</span><a href="#part2">Architecture</a></div>
+      <ul>
+        <li>2.1 Topology · 2.2 Technology choices and why · 2.3 Repository layout · 2.4 The life of a call</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">III</span><a href="#part3">Authorization</a></div>
+      <ul>
+        <li>3.1 Silos · 3.2 The roles · 3.3 The route matrix · 3.4 Row-level security · 3.5 Privileged functions</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">IV</span><a href="#part4">The Console — Module by Module</a></div>
+      <ul>
+        <li>4.1 Dashboard · 4.2 Call intake · 4.3 Dispatch · 4.4 Incidents · 4.5 Responder</li>
+        <li>4.6 Metro Police · 4.7 Fire &amp; Rescue · 4.8 EMS · 4.9 Disaster Management</li>
+        <li>4.10 Case management · 4.11 HR &amp; leave · 4.12 Roster &amp; duty · 4.13 Performance</li>
+        <li>4.14 Reporting · 4.15 CCTV · 4.16 Administration · 4.17 Criti · 4.18 Search</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">V</span><a href="#part5">The Responder App</a></div>
+      <ul>
+        <li>5.1 Screens · 5.2 The duty gate · 5.3 The offline outbox · 5.4 Officer-down · 5.5 Alerting and push</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">VI</span><a href="#part6">The Automation Engine</a></div>
+      <ul>
+        <li>6.1 Why it exists · 6.2 The seven rules · 6.3 Anti-spam · 6.4 Scheduling and failure</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">VII</span><a href="#part7">Data Model</a></div>
+      <ul>
+        <li>7.1 Domains · 7.2 The incident record · 7.3 Stored procedures · 7.4 Migrations</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">VIII</span><a href="#part8">Integrations</a></div>
+      <ul>
+        <li>8.1 Catalogue · 8.2 The proxy pattern · 8.3 CCTV cut-over</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">IX</span><a href="#part9">Security</a></div>
+      <ul>
+        <li>9.1 Model · 9.2 Headers and transport · 9.3 Rate limiting · 9.4 Audit · 9.5 Outstanding items</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">X</span><a href="#part10">Operations</a></div>
+      <ul>
+        <li>10.1 Environments · 10.2 Deploying · 10.3 Backup and recovery · 10.4 First response</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">XI</span><a href="#part11">Engineering Standards</a></div>
+      <ul>
+        <li>11.1 CI · 11.2 Testing · 11.3 Linting · 11.4 Conventions</li>
+      </ul>
+    </li>
+    <li>
+      <div class="part-line"><span class="num">XII</span><a href="#part12">Appendices</a></div>
+      <ul>
+        <li>A Route index · B Table index · C Migrations · D Environment variables · E Glossary</li>
+      </ul>
+    </li>
+  </ol>
+</div>
+<!-- ══════════════════════ PART I ══════════════════════ -->
+<div class="part" id="part1">
+  <div class="part-head">
+    <div class="kicker">Part I</div>
+    <h1>What Criticom Is</h1>
+  </div>
+
+  <p class="lede">
+    Criticom is the command-and-control platform for eThekwini's emergency services. One call-taker
+    logs an incident; the platform routes it to the right departments, puts it on a map, pushes it to
+    the crews' phones, records everything they do at the scene, and keeps the evidential trail that an
+    inquiry will read a year later.
+  </p>
+
+  <h2>1.1 The problem it solves</h2>
+
+  <p>
+    Five emergency services operate across eThekwini — Metro Police, Fire &amp; Rescue, EMS, Disaster
+    Management, and the central Control Room that fields the calls. They share a city, they share
+    incidents, and they routinely need each other: a structure fire needs Fire and EMS and often
+    Police for the cordon.
+  </p>
+
+  <p>
+    What they did not share was a system. Each department kept its own records, so a call that touched
+    three services produced three partial accounts of it, and the only thing joining them was the
+    radio. Criticom's premise is that the incident is the record, and every department writes to the
+    same one.
+  </p>
+
+  <p>Three properties follow from that, and they shape almost every design decision in this document:</p>
+
+  <ul>
+    <li>
+      <b>Departments must see their own work and no more.</b> A paramedic has no business reading a
+      Metro Police case file. But when a call is routed to both, both must see it. That tension is
+      resolved once, in the database, by row-level security — not per screen.
+    </li>
+    <li>
+      <b>The record is evidence.</b> Timestamps, who did what, which crew attended, what the scene
+      looked like. These get read in disciplinary hearings, insurance disputes and inquests. A
+      timestamp that records "when the network came back" rather than "when the crew arrived" is worse
+      than no timestamp, because it looks authoritative.
+    </li>
+    <li>
+      <b>Nothing may depend on good conditions.</b> Coverage fails in basements and industrial areas.
+      Phones lock. Screens get ignored during a major incident. The platform is built so that each of
+      those degrades rather than loses data.
+    </li>
+  </ul>
+
+  <h2>1.2 The five departments</h2>
+
+  <p>
+    Departments are called <b>silos</b> throughout the codebase and the database. The term is
+    deliberate: it names the isolation boundary, which is a security concept, not an organisational
+    chart.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:34mm">Silo</th><th style="width:40mm">Service</th><th>Scope</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">Ethekwini</td><td>Control Room</td><td>Global. Takes calls, routes them, sees every department's incidents. The co-ordinating tier.</td></tr>
+      <tr><td class="mono">MetroPolice</td><td>Metro Police</td><td>Law enforcement, by-law, traffic, firearms register, SIRA security-guard reports.</td></tr>
+      <tr><td class="mono">MetroFire</td><td>Fire &amp; Rescue</td><td>Fire suppression, rescue, hydrant register, post-incident review.</td></tr>
+      <tr><td class="mono">Medical</td><td>EMS</td><td>Ambulance response, patient care records, hospital handover, restocking.</td></tr>
+      <tr><td class="mono">EthekwiniDisaster</td><td>Disaster Management</td><td>Floods, major incidents, mutual-aid partners, relief stock, post-mortem reporting.</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Each carries its own identity — official name, short name, monogram, colours, motto — stored in
+    <code>department_branding</code> and editable from Admin. Crests are <i>uploaded</i>, never shipped
+    with the app: official municipal and service insignia belong to the municipality, so the platform
+    does not fabricate them. Until one is uploaded, the interface renders a monogram badge in that
+    department's colours, so nothing looks unfinished.
+  </p>
+
+  <h2>1.3 Lineage from V4</h2>
+
+  <p>
+    Criticom V5 is a rebuild of Criticom V4, an ASP.NET MVC application of roughly 38 controllers
+    backed by five separate SQL Server databases. V5 reproduces every V4 capability and consolidates
+    the five databases into one Postgres schema with row-level security doing the separation the
+    separate databases used to do badly.
+  </p>
+
+  <p>
+    The migration ran in five waves. Waves 1–3 reached functional parity; wave 4 aligned V5 with a
+    July feature drop in V4; wave 5 — the subject of much of this document — added what a production
+    emergency service needs that V4 never had: offline field operation, an officer-down path,
+    automatic escalation, cross-module search, rate limiting and a test suite.
+  </p>
+
+  <h2>1.4 The system in numbers</h2>
+
+  <div class="stat-row">
+    <div class="stat"><div class="n">110</div><div class="l">Web routes</div></div>
+    <div class="stat"><div class="n">23</div><div class="l">API endpoints</div></div>
+    <div class="stat"><div class="n">57</div><div class="l">Tables</div></div>
+    <div class="stat"><div class="n">41</div><div class="l">Stored procedures</div></div>
+  </div>
+  <div class="stat-row">
+    <div class="stat"><div class="n">25</div><div class="l">Roles</div></div>
+    <div class="stat"><div class="n">28</div><div class="l">Migrations</div></div>
+    <div class="stat"><div class="n">9</div><div class="l">Mobile screens</div></div>
+    <div class="stat"><div class="n">47</div><div class="l">Tests</div></div>
+  </div>
+
+  <p>
+    Roughly 36,000 lines of TypeScript across the console, the responder app and two shared packages,
+    plus 5,100 lines of SQL. The SQL number matters more than it looks: a substantial part of this
+    system's behaviour — dispatch, escalation, search, rate limiting, authorization — lives in the
+    database rather than in application code, for reasons set out in Part II.
+  </p>
+</div>
+
+<!-- ══════════════════════ PART II ══════════════════════ -->
+<div class="part" id="part2">
+  <div class="part-head">
+    <div class="kicker">Part II</div>
+    <h1>Architecture</h1>
+  </div>
+
+  <h2>2.1 Topology</h2>
+
+  <table>
+    <thead><tr><th style="width:38mm">Component</th><th style="width:44mm">Runs on</th><th>Responsibility</th></tr></thead>
+    <tbody>
+      <tr><td><b>Console</b> (web)</td><td>Vercel · Next.js 15, React 19</td><td>Every operator-facing screen. Server-rendered per request; no page is statically cached, because every page is user-scoped.</td></tr>
+      <tr><td><b>Responder app</b></td><td>Expo SDK 52 / React Native 0.76</td><td>The crew's phone. Distributed through EAS; JavaScript changes ship over the air.</td></tr>
+      <tr><td><b>Database</b></td><td>Supabase Postgres 15 + PostGIS</td><td>Data, authorization, realtime, storage, and a meaningful share of the business logic.</td></tr>
+      <tr><td><b>Automations</b></td><td><code>pg_cron</code>, inside the database</td><td>Escalation, expiry warnings, digests. No separate worker to deploy or monitor.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2.2 Technology choices and why</h2>
+
+  <h3>Logic in the database, not only in the app</h3>
+
+  <p>
+    Dispatching a call writes an incident row, updates unit state, appends a timeline entry, writes an
+    audit record and raises one alert per receiving department. As application code that is six round
+    trips that can half-succeed — and a half-dispatched call is a crew that never rolls.
+  </p>
+
+  <p>
+    So those workflows are stored procedures. <code>route_incident()</code>, <code>dispatch_unit()</code>,
+    <code>raise_panic()</code>, <code>update_responder_status()</code> each do the whole job in one
+    transaction. Web and mobile call the same procedure, so the two surfaces cannot drift.
+  </p>
+
+  <div class="why">
+    <b>The trade-off</b>
+    Logic in SQL is harder to test and harder for a TypeScript developer to change. It is accepted here
+    only where atomicity is the point. Reporting, KPI arithmetic and formatting stay in TypeScript
+    (<code>packages/api</code>), where they are readable and unit-tested.
+  </div>
+
+  <h3>Authorization in the database, never only in the app</h3>
+
+  <p>
+    Row-level security decides what each user can read and write. The application never adds a
+    <code>WHERE silo = …</code> for security — only ever to reduce traffic. This is the single most
+    important architectural decision in the system, and it is what makes a shared incidents table safe
+    for five services.
+  </p>
+
+  <div class="note">
+    <b>Consequence</b>
+    A bug in a page cannot leak another department's data, because the page never had it. The database
+    returned the rows that user was entitled to and nothing else.
+  </div>
+
+  <h3>Realtime over polling</h3>
+
+  <p>
+    Dispatch boards, incident timelines and the alert bell subscribe to Postgres change streams. RLS
+    applies to the socket as well, so a subscriber is only ever delivered rows they could have queried.
+  </p>
+
+  <h3>Server-rendered, per request</h3>
+
+  <p>
+    Every console page is <code>force-dynamic</code>. Caching a page that renders one operator's
+    permitted view and serving it to another is precisely the failure this system cannot have.
+  </p>
+
+  <h2>2.3 Repository layout</h2>
+
+  <p>A pnpm workspace driven by Turborepo.</p>
+
+  <table>
+    <thead><tr><th style="width:44mm">Path</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">apps/web</td><td>The console. Next.js App Router; route groups <code>(app)</code> for authenticated screens and <code>(auth)</code> for login.</td></tr>
+      <tr><td class="mono">apps/mobile</td><td>The responder app. Expo Router; <code>lib/</code> holds the providers (auth, duty, sync, notifications, branding).</td></tr>
+      <tr><td class="mono">packages/db</td><td>Supabase client factories, generated database types, Zod schemas, and <code>roles.ts</code> — the route matrix.</td></tr>
+      <tr><td class="mono">packages/api</td><td>Every query and mutation, grouped by module. Both apps import from here; neither builds queries inline.</td></tr>
+      <tr><td class="mono">supabase/migrations</td><td>28 numbered, append-only migrations.</td></tr>
+      <tr><td class="mono">scripts</td><td>Migration runner, seed, admin creation, SAPS crime-statistics loader.</td></tr>
+      <tr><td class="mono">docs</td><td>Reconnaissance, architecture, phases, security, parity, standards, runbook.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2.4 The life of a call</h2>
+
+  <p>End to end, with the mechanism named at each step.</p>
+
+  <table>
+    <thead><tr><th style="width:8mm">#</th><th style="width:38mm">Step</th><th>What actually happens</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><b>Call arrives</b></td><td>A call-taker opens <code>/dispatch/log-call</code>. Address autocomplete resolves through the server-side geocoding proxy; the map pin and the coordinates stay in step.</td></tr>
+      <tr><td>2</td><td><b>Duplicate check</b></td><td><code>check_duplicate_incident()</code> looks back 12 hours by caller number, and by location plus type. Two callers reporting one crash produce one incident.</td></tr>
+      <tr><td>3</td><td><b>Incident created</b></td><td><code>log_incoming_call()</code> writes the row, stamps the call-taker, allocates a sequential number from <code>next_incident_number()</code>, and audits it.</td></tr>
+      <tr><td>4</td><td><b>Routed</b></td><td><code>route_incident()</code> sets the receiving departments, appends a timeline entry, audits, and raises one alert per department — in a single transaction.</td></tr>
+      <tr><td>5</td><td><b>Crews notified</b></td><td>Realtime delivers to every open screen. High and Critical raise a blocking modal. Expo push covers locked phones.</td></tr>
+      <tr><td>6</td><td><b>Unit assigned</b></td><td><code>dispatch_unit()</code> commits a specific appliance and moves it out of the available pool.</td></tr>
+      <tr><td>7</td><td><b>Crew responds</b></td><td>The responder advances En&nbsp;Route → Arrived → On&nbsp;Scene → Transporting → Resolved. Each step queues locally first and carries the time it was pressed.</td></tr>
+      <tr><td>8</td><td><b>Scene recorded</b></td><td>Photos and voice notes are retained on the device and uploaded to the <code>incident-media</code> bucket, filed against the incident.</td></tr>
+      <tr><td>9</td><td><b>Report filed</b></td><td>The attending department completes its own report — police case, fire report, or patient care record.</td></tr>
+      <tr><td>10</td><td><b>Closed</b></td><td><code>close_case()</code> records the reason and audits it. The case-report PDF embeds the timeline, attachments and audit trail.</td></tr>
+      <tr><td>11</td><td><b>Watched throughout</b></td><td>If any step stalls — unassigned too long, no arrival recorded, no update for hours — the automation engine escalates without anybody asking.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════ PART III ══════════════════════ -->
+<div class="part" id="part3">
+  <div class="part-head">
+    <div class="kicker">Part III</div>
+    <h1>Authorization</h1>
+  </div>
+
+  <p class="lede">
+    Two independent layers. The <b>route matrix</b> decides which screens a role may open. <b>Row-level
+    security</b> decides which rows they may touch. The first is convenience and clarity; the second is
+    the actual boundary. Neither is trusted to do the other's job.
+  </p>
+
+  <h2>3.1 Silos</h2>
+
+  <p>
+    Every user carries a silo and a role in their JWT app metadata. Three database helpers read them:
+    <code>current_silo()</code>, <code>app_role()</code> and <code>is_global()</code>. Policies are written
+    in terms of those, so a policy reads as the sentence a person would say: <i>your department's rows,
+    plus anything dispatched to your department, plus everything if you are global.</i>
+  </p>
+
+  <div class="warn">
+    <b>A distinction worth keeping</b>
+    <code>is_global()</code> answers "may this role see across departments" and is correct for
+    <code>SELECT</code>. It returns true for read-only roles such as <code>Viewer</code>. Using it to gate
+    writes would grant those roles write access, so a separate <code>can_write_global()</code> exists for
+    write policies. Migration 0019 fixed five policies that had conflated the two.
+  </div>
+
+  <h2>3.2 The roles</h2>
+
+  <p>
+    The <code>user_role</code> enum carries 25 values. <b>23 are assignable to people</b> from Admin →
+    Users. The two that are not: <code>System</code> is an internal service identity used by automated
+    writes, and <code>Citizen</code> exists only for the public location-share flow, where a member of the
+    public posts their GPS against a single-use token and never holds an account at all.
+  </p>
+
+  <p>Roles are grouped in <code>packages/db/src/roles.ts</code>. Groups compose, so a rule is written once.</p>
+
+  <table>
+    <thead><tr><th style="width:38mm">Group</th><th>Members</th></tr></thead>
+    <tbody>
+      <tr><td><code>ADMIN_ROLES</code></td><td>SystemAdmin, SuperAdmin, Admin</td></tr>
+      <tr><td><code>SUPERVISORY_ROLES</code></td><td>Admin tier + Supervisor, Captain, Chief, FireChief, System</td></tr>
+      <tr><td><code>CALL_TAKER_ROLES</code></td><td>Admin tier + Operator, ControlRoom, IncidentLogger, System</td></tr>
+      <tr><td><code>DISPATCH_DESK_ROLES</code></td><td>Admin tier + Dispatcher, Operator, ControlRoom, Supervisor, System</td></tr>
+      <tr><td><code>RESPONDER_ROLES</code></td><td>Responder, Police, Officer, Metro, Security, Captain, Firefighter, FireChief, Chief, Paramedic, Doctor, Disaster</td></tr>
+      <tr><td><code>POLICE_ROLES</code></td><td>Captain, Police, Officer, Metro, Security</td></tr>
+      <tr><td><code>FIRE_ROLES</code></td><td>Chief, FireChief, Firefighter</td></tr>
+      <tr><td><code>MEDICAL_ROLES</code></td><td>Paramedic, Doctor</td></tr>
+      <tr><td><code>CASE_MANAGER_ROLES</code></td><td>Admin tier + CaseManager, Dispatcher, Operator, ControlRoom, IncidentLogger, Supervisor, System, Viewer</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The two-desk split</h3>
+
+  <p>
+    <code>CALL_TAKER_ROLES</code> and <code>DISPATCH_DESK_ROLES</code> deliberately barely overlap. An
+    <code>IncidentLogger</code> may capture a call and may not work the dispatch queue; a
+    <code>Dispatcher</code> may work the queue and may not capture calls. This mirrors how the control
+    room is actually staffed, and it is pinned by tests — a regression that merged the two desks would
+    be an authorization change disguised as a convenience.
+  </p>
+
+  <h2>3.3 The route matrix</h2>
+
+  <p>
+    <code>ROUTE_RULES</code> is an ordered list of path prefixes with the roles (and optionally the silo)
+    permitted to open them. <code>canAccess(path, role, silo)</code> evaluates it. One list drives:
+  </p>
+
+  <ul>
+    <li>The Next.js middleware, which redirects an unauthorized request to <code>/403</code>.</li>
+    <li>The sidebar and top navigation, which render only reachable destinations.</li>
+    <li>The command palette, which only offers pages the user may open.</li>
+    <li>Dashboard quick actions.</li>
+  </ul>
+
+  <p>
+    Because all four read the same list, navigation and enforcement cannot drift — the classic failure
+    where a link exists to a page that then refuses to load.
+  </p>
+
+  <pre><code>// Ordered: the first matching prefix wins, so specific rules precede general ones.
+{ prefix: '/dispatch/log-call', roles: CALL_TAKER_ROLES },
+{ prefix: '/dispatch',          roles: DISPATCH_DESK_ROLES },
+{ prefix: '/police',            roles: [...POLICE_ROLES, ...ADMIN_ROLES], silo: 'MetroPolice' },
+{ prefix: '/roster/mine',       roles: undefined },   // every role
+{ prefix: '/search' },                                // every role; RLS scopes results</code></pre>
+
+  <h2>3.4 Row-level security</h2>
+
+  <p>The standard read policy, and the shape most tables follow:</p>
+
+  <pre><code>create policy incidents_read on public.incidents for select using (
+  silo = public.current_silo()                 -- my department owns it
+  or public.is_global()                        -- I am control room / admin
+  or public.current_silo() = any(dispatched_silos)  -- it was routed to us
+);</code></pre>
+
+  <p>
+    That third clause is what makes multi-department response work. A paramedic sees a Metro Police
+    incident precisely when it was routed to EMS, and not otherwise. This was verified against live
+    data during wave 5: searching as a paramedic returned the one call routed to Medical and not the
+    police-only call beside it.
+  </p>
+
+  <h2>3.5 Privileged functions</h2>
+
+  <p>
+    Stored procedures that must bypass RLS run as <code>SECURITY DEFINER</code>. Every one of them opens
+    with a role check:
+  </p>
+
+  <pre><code>perform public.require_role('SystemAdmin','SuperAdmin','Admin','Dispatcher',
+                            'Operator','ControlRoom','Supervisor','System');</code></pre>
+
+  <div class="warn">
+    <b>Historic defect, now closed</b>
+    Before migration 0019, every mutating procedure was <code>SECURITY DEFINER</code> with no role check,
+    and <code>EXECUTE</code> was granted to <code>anon</code>. A caller holding only the public anonymous
+    key could route, dispatch or close any incident in any department — and the audit log would record
+    it as legitimate with a null actor. 0019 added the guards; 0020 fixed the revocations, which had
+    silently been no-ops.
+  </div>
+
+  <h3>The deliberate exception</h3>
+
+  <p>
+    <code>raise_panic()</code> has no role gate. Any authenticated account may call for help. Gating an
+    emergency on a role matrix is how somebody dies over a provisioning mistake, and the reasoning is
+    written into the migration so a future reviewer does not "fix" it.
+  </p>
+
+  <h3>Security invoker where possible</h3>
+
+  <p>
+    <code>search_everything()</code> reads across six tables and every department. It is
+    <code>SECURITY INVOKER</code>, so RLS runs for the calling user on each branch. Making it
+    <code>DEFINER</code> for speed would turn one search box into a cross-department data leak.
+  </p>
+</div>
+
+<!-- ══════════════════════ PART IV ══════════════════════ -->
+<div class="part" id="part4">
+  <div class="part-head">
+    <div class="kicker">Part IV</div>
+    <h1>The Console — Module by Module</h1>
+  </div>
+
+  <p class="lede">
+    Every operator-facing screen, what it is for, and the decisions behind it. Routes are given as
+    paths; all of them sit under the authenticated <code>(app)</code> group unless noted.
+  </p>
+
+  <h2>4.1 Dashboard <span class="pill pill-core">/dashboard</span></h2>
+
+  <p>
+    Role-aware. A dispatcher gets the live operations board — queue depth, active deployments, a map,
+    an incident feed, SLA gauges. A responder gets their assigned calls and shift status. A supervisor
+    gets headcount and approvals. An administrator gets system health.
+  </p>
+
+  <p>
+    The shell above it carries the ops command bar on every page: an external-resources tier
+    (E-NATIS, CAS, PERSAL, FIREARM, FINES, TRACE, FORENSICS, RealPTT, FlightRadar, MarineTraffic) driven
+    by <code>OpsLink</code> configuration records, plus an internal module tier filtered by the route
+    matrix. Administrators repoint or add systems without a deployment; placeholders render dimmed
+    until an endpoint is issued.
+  </p>
+
+  <h2>4.2 Call intake <span class="pill pill-core">/dispatch/log-call</span></h2>
+
+  <p>
+    The primary call-taking screen. Caller details, description, classification driven by the
+    configurable incident-category tree, location by address autocomplete or map pin, and the receiving
+    departments.
+  </p>
+
+  <ul>
+    <li><b>Duplicate detection</b> runs before submission — 12-hour window, by caller number and by location plus type.</li>
+    <li><b>Attribution</b> stamps the call-taker, which is what the operational KPIs are computed from.</li>
+    <li><b>Geocoding</b> goes through a server-side proxy (Photon primary, Nominatim fallback). Cloud egress ranges are frequently blocked by Nominatim, which is why the primary is Photon.</li>
+    <li><b>Categories</b> come from <code>command_records</code>, so a service adds an incident type from Admin rather than by deployment.</li>
+  </ul>
+
+  <h2>4.3 Dispatch</h2>
+
+  <table>
+    <thead><tr><th style="width:44mm">Route</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/dispatch/pending</td><td>The queue, severity then call time, live. One status bar carries queue depth as a figure a dispatcher can glance at continuously.</td></tr>
+      <tr><td class="mono">/dispatch/assign/[id]</td><td>Full-detail assignment console: incident, map, available units, road-routed ETA.</td></tr>
+      <tr><td class="mono">/dispatch/kpi</td><td>Dispatcher throughput and lifecycle timings.</td></tr>
+      <tr><td class="mono">/dispatch/ptt</td><td>RealPTT console — text to radio, plus a two-hour audio log.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4.4 Incidents</h2>
+
+  <table>
+    <thead><tr><th style="width:44mm">Route</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/incidents</td><td>Filterable register of everything the user's department can see.</td></tr>
+      <tr><td class="mono">/incidents/[id]</td><td>The case file: detail, timeline, attachments, status, citizen GPS request, PDF export.</td></tr>
+      <tr><td class="mono">/incidents/map</td><td>Live GIS view, severity-coloured markers, clickable pins.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4.5 Responder <span class="pill pill-core">/responder</span> · <span class="pill pill-core">/shift/*</span></h2>
+
+  <p>
+    The console counterpart to the phone. Start of shift is a three-step gate — mental readiness
+    declaration, vehicle selection, vehicle inspection — and it must be completed before a crew may
+    take incidents.
+  </p>
+
+  <div class="why">
+    <b>Why the gate exists</b>
+    The mental check is a fitness-for-duty declaration (substance use, emotional regulation, reaction
+    time) and the vehicle inspection is a roadworthiness record. Letting somebody answer a call before
+    either exists means there is no record that they were fit to attend — which is exactly the record
+    that matters after an incident goes wrong.
+  </div>
+
+  <h2>4.6 Metro Police <span class="pill pill-core">/police/*</span></h2>
+
+  <ul>
+    <li><b>Reports</b> — seven case-report wizards covering the V4 offence types.</li>
+    <li><b>Firearms</b> — the firearm authorization register.</li>
+    <li><b>Security</b> — SIRA guard reports with a resolution flow.</li>
+    <li><b>Crime hotspots</b> — the SAPS crime-statistics dataset, ranked by station and category.</li>
+  </ul>
+
+  <h2>4.7 Fire &amp; Rescue <span class="pill pill-core">/fire/*</span></h2>
+
+  <ul>
+    <li><b>Reports</b> — fire incident reports with dispatch, arrival and clear timings, and a PDF export.</li>
+    <li><b>Hydrants</b> — the hydrant register on a map, which is operational data during a fire.</li>
+    <li><b>PIR</b> — post-incident review, with publication to the public incident feed.</li>
+  </ul>
+
+  <h2>4.8 EMS <span class="pill pill-core">/medical/*</span></h2>
+
+  <p>
+    The full patient care record: history, assessment findings, vital signs, interventions, legal
+    handover to a receiving facility, and signature capture for responder, hospital representative and
+    doctor. <code>/medical/restock</code> tracks ambulance consumables.
+  </p>
+
+  <h2>4.9 Disaster Management <span class="pill pill-core">/disaster/*</span></h2>
+
+  <p>
+    Monitoring with a live map and a wind widget for fire-spread modelling; a dispatch view; the
+    mutual-aid partner register (41 partners, seeded verbatim from V4); relief stock; and post-mortem
+    reporting.
+  </p>
+
+  <h2>4.10 Case management <span class="pill pill-core">/case-manager</span></h2>
+
+  <p>
+    Review and closure of resolved incidents, an audit view, and the official case-report PDF — which
+    downloads and embeds the scene photographs from storage rather than merely linking them, because a
+    case report has to be complete as a single document.
+  </p>
+
+  <h2>4.11 HR and leave <span class="pill pill-new">V5 addition</span></h2>
+
+  <table>
+    <thead><tr><th style="width:34mm">Route</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/hr</td><td>Command centre: headcount, on duty, on leave today, approvals waiting with inline decision, certifications expiring within 30 days.</td></tr>
+      <tr><td class="mono">/leave</td><td>Balances per member, a month calendar of who is away, reasons, and an approval trail.</td></tr>
+      <tr><td class="mono">/profile/my-hr</td><td>Self-service: own record, balances, certifications, training.</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Every pending request shows its <b>coverage impact</b> — the percentage of the department away if
+    granted — because that is the number the approver actually needs and previously had to work out in
+    their head. Entitlements live on <code>LeaveType</code> configuration rows, so HR tunes them from
+    Admin.
+  </p>
+
+  <h2>4.12 Roster and duty</h2>
+
+  <table>
+    <thead><tr><th style="width:38mm">Route</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/roster</td><td>Shift generators (224 and 24-48 rotations), shifts, assignments, endorsements.</td></tr>
+      <tr><td class="mono">/roster/allocation</td><td>Post-first duty board: the establishment a shift must fill, with coverage gaps visible, plus a person view.</td></tr>
+      <tr><td class="mono">/roster/duty-sheet</td><td>The printable DCP duty sheet — shift blocks, on-leave list, special events, sign-off columns.</td></tr>
+      <tr><td class="mono">/roster/mine</td><td>Open to every role: current duty, next duty, upcoming allocations, leave, endorsements.</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Allocations are <b>published</b> and then <b>acknowledged</b>. Publication makes a draft visible to
+    the member; acknowledgement is the accountability half, and an unacknowledged duty starting soon is
+    one of the things the automation engine chases.
+  </p>
+
+  <h2>4.13 Performance <span class="pill pill-core">/performance/*</span></h2>
+
+  <ul>
+    <li><b>Operational KPIs</b> — call-taker and dispatcher throughput, category pivot, call detail, logons, CSV export. A faithful port of V4's <code>OperationalKpiService</code>.</li>
+    <li><b>My performance</b> — self-service: own throughput against the team, monthly trend, appraisal snapshot.</li>
+    <li><b>Plans</b> — annual 1-July appraisal cycle with mid-year and final scoring and an approval workflow.</li>
+    <li><b>Rollup</b> — the same measures aggregated at every level of the reporting hierarchy.</li>
+    <li><b>Reports</b> — one date window cut three ways: by member, by department, by incident type.</li>
+  </ul>
+
+  <h2>4.14 Reporting</h2>
+
+  <table>
+    <thead><tr><th style="width:34mm">Route</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/reports</td><td>Archive of departmental reports.</td></tr>
+      <tr><td class="mono">/report-hub</td><td>Advanced filtered incident reporting with CSV export and saved templates.</td></tr>
+      <tr><td class="mono">/reports/builder</td><td>Registry-driven custom report builder: pick a dataset, filter, group, chart.</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    The builder is the one place users compose queries, so its filter layer is defensive and unit
+    tested: a filter naming a column that is not in the registry is dropped, an operator the field type
+    does not support is dropped, an enum filter may only use values the enum has, and sensitive
+    datasets are closed to ordinary roles.
+  </p>
+
+  <h2>4.15 CCTV <span class="pill pill-core">/cameras</span></h2>
+
+  <p>
+    The room runs on the SANRAL freeway matrix today and moves to Hikvision HikCentral next. Both are in
+    the integration catalogue, and <code>/api/cctv/cameras</code> serves whichever is enabled — the
+    cut-over is a toggle, not a deployment. <code>/api/cctv/stream</code> brokers signed live-preview and
+    playback URLs; signing is server-side only and every grant is audit-logged for chain of custody.
+    <code>/cameras/footage</code> is the retrieval console, capped at a 24-hour window.
+  </p>
+
+  <h2>4.16 Administration <span class="pill pill-core">/admin/*</span></h2>
+
+  <table>
+    <thead><tr><th style="width:38mm">Route</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/admin</td><td>Users and roles. All 24 roles assignable.</td></tr>
+      <tr><td class="mono">/admin/config</td><td>Incident categories, leave types, shift types, report templates, ops links. Soft delete.</td></tr>
+      <tr><td class="mono">/admin/personnel</td><td>Personnel register.</td></tr>
+      <tr><td class="mono">/admin/operators</td><td>Control-room operators and call signs.</td></tr>
+      <tr><td class="mono">/admin/vehicles</td><td>Fleet.</td></tr>
+      <tr><td class="mono">/admin/devices</td><td>MDTs, radios, tablets.</td></tr>
+      <tr><td class="mono">/admin/integrations</td><td>Integration catalogue with per-integration connection probes.</td></tr>
+      <tr><td class="mono">/admin/operations</td><td>Operational tuning — SLA clocks, alert behaviour, ETA model, basemap, board windows.</td></tr>
+      <tr><td class="mono">/admin/departments</td><td>Department branding.</td></tr>
+      <tr><td class="mono">/admin/automations</td><td><span class="pill pill-new">New</span> Automation rules, thresholds, health and run log.</td></tr>
+      <tr><td class="mono">/admin/status</td><td><span class="pill pill-new">New</span> System status — is the platform working right now.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Operational tuning</h3>
+
+  <p>
+    Twelve knobs, each declaring its type, bounds, default and description in a catalogue
+    (<code>packages/api/src/settings</code>). The admin page renders from the catalogue, so adding a knob
+    is one entry there. Values are stored as overrides in <code>app_settings</code>, validated and clamped
+    on both read and write, and every change is audited. If the table is unreachable the code defaults
+    apply — a tuning problem can never take a screen down.
+  </p>
+
+  <h2>4.17 Criti <span class="pill pill-core">/assistant</span></h2>
+
+  <p>
+    The assistant, available as a full page and as a dock on every route. It reads the live board —
+    active incidents, queue, crews on duty, available units, today's KPIs — through the caller's own
+    session, so RLS decides what it can see. It cannot surface a record the operator could not open
+    themselves.
+  </p>
+
+  <p>
+    It also acts. The model emits action codes which the server validates and executes:
+    <code>[UPDATE_STATUS|…]</code>, <code>[FILL_REPORT|…]</code>, <code>[ROUTE_INCIDENT|…]</code>,
+    <code>[BROADCAST|…]</code>. Status values, silos and fillable fields are whitelisted server-side, and
+    every executed action is audited. Groq is the primary provider, Gemini the fallback.
+  </p>
+
+  <h2>4.18 Search <span class="pill pill-new">New in wave 5</span></h2>
+
+  <p>
+    Finding a record used to mean knowing which screen it lived on. An operator holding a plate number,
+    a case number or half a surname had to first decide whether that made it an incident, a vehicle, a
+    person or a report. Under pressure that is the wrong order: you have the string, you want the record.
+  </p>
+
+  <p>
+    <code>search_everything()</code> unions six tables — incidents, personnel, fleet, police reports,
+    fire reports, security reports — behind one query, wired into <kbd>⌘K</kbd> alongside page
+    navigation and into a shareable <code>/search</code> page.
+  </p>
+
+  <div class="why">
+    <b>Trigram, not full-text</b>
+    Postgres's text search tokenises and stems, which is right for prose and wrong for nearly everything
+    an operator types: <code>INC-20260804-0042</code>, <code>ND 123-456</code>, <code>PSV-8891</code>. Those
+    are identifiers, and <code>to_tsvector</code> mangles them, so a partial identifier matches nothing.
+    <code>pg_trgm</code> matches substrings — exactly the "I only have part of it" case — and forgives a
+    misspelt surname. GIN trigram indexes cover every searched column.
+  </div>
+</div>
+
+<!-- ══════════════════════ PART V ══════════════════════ -->
+<div class="part" id="part5">
+  <div class="part-head">
+    <div class="kicker">Part V</div>
+    <h1>The Responder App</h1>
+  </div>
+
+  <p class="lede">
+    An Expo application carried by crews on shift. It is designed around three failures that will
+    happen: no signal, a locked screen, and no free hand.
+  </p>
+
+  <h2>5.1 Screens</h2>
+
+  <table>
+    <thead><tr><th style="width:34mm">Screen</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><b>Incidents</b> (tab)</td><td>Assigned calls, severity-ordered. A <b>Mine / Nearby</b> switch shows every live call in the department sorted by straight-line distance — read-only, for situational awareness.</td></tr>
+      <tr><td><b>Alerts</b> (tab)</td><td><span class="pill pill-new">New</span> Inbox with a live unread badge and acknowledgement state.</td></tr>
+      <tr><td><b>Schedule</b> (tab)</td><td>Current duty, next duty, upcoming allocations with call sign, vehicle and sector, leave balances, endorsements.</td></tr>
+      <tr><td><b>Shift</b> (tab)</td><td>The three-step start-of-duty wizard and unit compliance.</td></tr>
+      <tr><td><b>Profile</b> (tab)</td><td>Identity, duty toggle with GPS heartbeat, push diagnostics, delivery status, sign-out.</td></tr>
+      <tr><td><b>Incident detail</b></td><td>Full call, navigation handoff to the phone's map app, caller dial, status advance, evidence capture, timeline.</td></tr>
+      <tr><td><b>Leave</b></td><td><span class="pill pill-new">New</span> Apply for leave, with balances shown before the form.</td></tr>
+      <tr><td><b>Criti</b></td><td><span class="pill pill-new">New</span> The assistant, scoped to the crew member's own calls and shift.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5.2 The duty gate</h2>
+
+  <p>
+    A responder may not take incidents until today's readiness flow is complete. The gate is enforced in
+    the app shell: on opening, an unfinished flow routes to the Shift tab.
+  </p>
+
+  <p>
+    Two deliberate escapes. <b>Profile stays reachable</b> — somebody who fails the readiness check can
+    never satisfy the gate, which is correct, but they must still be able to see who they are signed in
+    as and sign out. A gate with no exit is a trap, not a control. And if the readiness check
+    <b>cannot be evaluated</b> because the device is offline, the crew is let through: the server remains
+    the record of truth, and stranding a crew behind a check we cannot run helps nobody.
+  </p>
+
+  <h2>5.3 The offline outbox <span class="pill pill-new">New in wave 5</span></h2>
+
+  <p>
+    Coverage is not a solved problem. Basements, lift shafts, the industrial south, half the N3 corridor
+    at peak. Previously a responder marking themselves On Scene in a dead zone got an error, and the
+    update was dropped — pushing recovery onto the person with the least attention to spare, and losing
+    the timestamp the incident record is later reconstructed from.
+  </p>
+
+  <p>
+    Now every field mutation is written to disk first and delivered afterwards. Three consequences
+    follow:
+  </p>
+
+  <table>
+    <thead><tr><th style="width:44mm">Property</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>The recorded time is when the responder acted</b></td>
+        <td>Operations carry their own <code>occurredAt</code>, and <code>update_responder_status()</code> accepts it — bounded to the last 12 hours and never in the future, so an honest offline timestamp is possible without opening a path to backdating. An arrival time that drifts by the length of a dead zone is evidence that misleads an inquiry.</td>
+      </tr>
+      <tr>
+        <td><b>Nothing is dropped silently</b></td>
+        <td>An operation that exhausts its retries is parked as <i>failed</i> and stays visible in the sync tray until a human resolves it. A photograph of a scene cannot be retaken an hour later.</td>
+      </tr>
+      <tr>
+        <td><b>Replay is safe</b></td>
+        <td>Delivery can be interrupted after the server committed but before the phone recorded that. Every handler tolerates running twice — status changes are assignments, notes carry a zero-width replay marker, attachments derive their storage path from the operation id and upsert, and a panic is idempotent on <code>client_ref</code>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Ordering</h3>
+
+  <p>
+    If the phone gets three seconds of signal, those seconds must carry the emergency, not a queue of
+    photographs. Delivery priority is: <b>panic</b>, then status changes (dispatch allocates crews off
+    them), then position, then notes, then attachments — the largest and least time-critical.
+  </p>
+
+  <h3>Collapsing</h3>
+
+  <p>
+    Only position heartbeats collapse: five stale fixes tell dispatch nothing the newest does not, and
+    replaying them would walk the marker backwards across the map on reconnect. Every other operation is
+    a distinct event with its own evidential value and is never merged.
+  </p>
+
+  <h3>Ownership</h3>
+
+  <div class="warn">
+    <b>Handsets are shared across shifts</b>
+    Queued work is scoped to the account that captured it. Without that, an update queued by the officer
+    going off duty would be delivered under the session of whoever signed in next — attributing their
+    action, and their position, to the wrong person in a record later read as evidence.
+  </div>
+
+  <h3>Retry policy</h3>
+
+  <p>
+    Exponential backoff capped at 60 seconds, eight attempts. Those attempts only accrue <b>while the
+    device has a connection</b> — the flush loop refuses to run when offline. So eight failures means the
+    server is rejecting the write, not that the crew drove through a tunnel. Errors that will never
+    succeed (RLS denial, missing target, 401/403/404) are not retried at all.
+  </p>
+
+  <h2>5.4 Officer-down <span class="pill pill-sec">Safety-critical</span></h2>
+
+  <p>Four constraints, in the order they mattered:</p>
+
+  <ol>
+    <li><b>Usable one-handed, without looking.</b> One fixed target in the same place on every screen, large enough to hit blind.</li>
+    <li><b>Cannot fire by accident.</b> A panic pulls crews off other calls; a few pocket presses is how a service learns to ignore the alarm. Hence hold-to-activate for 2.5 seconds, with escalating haptics so the phone confirms it is arming even face-down in a pocket.</li>
+    <li><b>Cannot depend on the network.</b> The queue takes it immediately, at the highest priority.</li>
+    <li><b>Cannot wait for GPS.</b> A fix can take fifteen seconds indoors. The position is raced against a four-second timeout and sent without coordinates if necessary — dispatch would rather have "officer down, position unknown" now than a precise position later.</li>
+  </ol>
+
+  <p>
+    <code>raise_panic()</code> then creates a Critical incident at the officer's position, sourced
+    <code>Responder-Panic</code>, and raises a blocking acknowledgement-required alert to both the
+    officer's own department and the control room. The console shows a standing banner in the app shell
+    until the incident closes — the blocking pop-up fires once, but an operator who acknowledged it and
+    went back to the queue needs a reminder that a colleague is still calling for help.
+  </p>
+
+  <div class="note">
+    <b>Position unknown</b>
+    When no fix is available the incident is placed at the eThekwini city centre rather than at 0,0 —
+    which is in the Gulf of Guinea and would put a marker in the ocean — and the address text says
+    plainly that the position is unknown.
+  </div>
+
+  <h2>5.5 Alerting and push</h2>
+
+  <p>Two deliberately overlapping channels.</p>
+
+  <table>
+    <thead><tr><th style="width:34mm">Channel</th><th>Covers</th><th style="width:44mm">Blind spot</th></tr></thead>
+    <tbody>
+      <tr><td><b>Supabase realtime</b></td><td>Everything, instantly, while the app is open — the state a crew on shift is normally in.</td><td>App closed or backgrounded.</td></tr>
+      <tr><td><b>Expo push</b></td><td>The phone locked in a cab holster.</td><td>Needs a native module, and FCM on Android.</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    The overlap is the point: either alone has a blind spot, and a missed dispatch is not a recoverable
+    error. Duplicates are cheap by comparison and are deduplicated by alert id where the two meet.
+    Additionally, when an alert arrives over realtime while the app is backgrounded, the device raises
+    it as a local notification — the socket delivered it to a screen nobody is looking at.
+  </p>
+
+  <h3>The Android FCM contract</h3>
+
+  <div class="warn">
+    <b>Build-time, not runtime</b>
+    Android remote push cannot work without a Firebase registration. Historically the app shipped
+    <code>expo-notifications</code> without <code>google-services.json</code> and failed at launch — the
+    worst outcome, because a responder with no app is worse off than a responder with no push. The
+    dynamic Expo config now <b>refuses to produce an Android build</b> without the file, with an
+    actionable message, unless <code>CRITICOM_ALLOW_NO_PUSH=1</code> states that a realtime-only build is
+    wanted deliberately.
+  </div>
+
+  <p>
+    Every <code>expo-notifications</code> call is additionally guarded, so a build without the native
+    module degrades to realtime-only rather than crashing. The Profile screen reports which case applies
+    in plain words — permission denied, no push in this build, emulator, or registration failed — because
+    a supervisor checking a handset before a shift needs to know whether it will ring, and whether that
+    is fixable there or a build fact.
+  </p>
+</div>
+<!-- ══════════════════════ PART VI ══════════════════════ -->
+<div class="part" id="part6">
+  <div class="part-head">
+    <div class="kicker">Part VI</div>
+    <h1>The Automation Engine</h1>
+  </div>
+
+  <p class="lede">
+    Everything Criticom did until wave 5 happened because a person did it. That is right for
+    dispatching and wrong for noticing.
+  </p>
+
+  <h2>6.1 Why it exists</h2>
+
+  <p>
+    A call sitting unassigned for twenty minutes. A paramedic's licence lapsing next week. A duty
+    nobody acknowledged. All three are knowable from data already in the database, and all three
+    previously depended on somebody happening to look.
+  </p>
+
+  <p>
+    The engine lives entirely in Postgres. There is no worker process to deploy, monitor or restart,
+    and the rules run in the same transaction boundary as the data they read.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:44mm">Table</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">automation_rules</td><td>One row per rule: enabled flag, interval, and a JSONB <code>config</code> holding its thresholds — so "escalate after 10 minutes" becomes 15 without a deployment.</td></tr>
+      <tr><td class="mono">automation_runs</td><td>Append-only log. Automations act on live data and raise alerts that pull crews around; when one misfires, "what did it do and when" must be answerable without reading code.</td></tr>
+      <tr><td class="mono">automation_events</td><td>The anti-spam ledger, and the most important table here.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6.2 The seven rules</h2>
+
+  <table>
+    <thead><tr><th style="width:38mm">Rule</th><th style="width:20mm">Every</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Unassigned call escalation</b><br><span class="mono">sla_unassigned</span></td><td>5 min</td>
+        <td>A call still waiting for a department raises a High alert at the warn threshold (default 10 min) and a Critical, blocking interrupt at the critical threshold (default 20 min) — to the owning department and to the control room.</td>
+      </tr>
+      <tr>
+        <td><b>No arrival recorded</b><br><span class="mono">sla_no_arrival</span></td><td>10 min</td>
+        <td>Dispatched or En Route with no arrival after 30 minutes. Confirm the crew is actually moving.</td>
+      </tr>
+      <tr>
+        <td><b>Open incident gone quiet</b><br><span class="mono">stale_incidents</span></td><td>30 min</td>
+        <td>An active incident with no timeline entry for 4 hours. Bucketed by day, so a genuinely long incident — a flood, a major fire — produces one nudge a day, not one every four hours.</td>
+      </tr>
+      <tr>
+        <td><b>Certification expiry</b><br><span class="mono">cert_expiry</span></td><td>12 h</td>
+        <td>Warns at 30, 7 and 1 days. To the member, because it is their licence to renew, and to the department, because rostering somebody unqualified is the department's problem first.</td>
+      </tr>
+      <tr>
+        <td><b>Unacknowledged duty</b><br><span class="mono">duty_unacknowledged</span></td><td>1 h</td>
+        <td>A published duty starting within 12 hours that the member has not confirmed.</td>
+      </tr>
+      <tr>
+        <td><b>Morning digest</b><br><span class="mono">daily_digest</span></td><td>30 min</td>
+        <td>Once per department per day at the configured hour: volume, criticals, closure rate, average response. Aim it at shift changeover so the incoming shift reads it.</td>
+      </tr>
+      <tr>
+        <td><b>Housekeeping</b><br><span class="mono">hygiene</span> · <span class="mono">rate_limit_gc</span></td><td>24 h / 6 h</td>
+        <td>Prunes expired alerts, old run logs, spent idempotency records and stale rate-limit counters.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>6.3 Anti-spam</h2>
+
+  <div class="why">
+    <b>The constraint that shaped the design</b>
+    An alerting system that cries wolf is worse than none, because people stop reading it.
+  </div>
+
+  <p>
+    Every action is claimed against <code>automation_events</code> with a unique index on
+    <code>(rule_key, entity_id, bucket)</code>. A rule that runs every five minutes therefore alerts once
+    per escalation tier, not every five minutes forever.
+  </p>
+
+  <pre><code>if public.automation_claim('sla_unassigned', inc.id::text, 'critical') then
+  -- raise the alert; this branch can only ever run once for this incident/tier
+end if;</code></pre>
+
+  <p>
+    Verified against the seeded database: the first pass raised 44 alerts across seven rules; a second
+    pass immediately afterwards raised none.
+  </p>
+
+  <h2>6.4 Scheduling and failure</h2>
+
+  <p>
+    One <code>pg_cron</code> job, <code>criticom-automations</code>, calls <code>run_automations()</code> every
+    five minutes. Per-rule cadence is the rule's own interval, so adding or retiming a rule is an
+    <code>UPDATE</code>, never a schedule change — and there is exactly one job to reason about when
+    something misfires at 03:00.
+  </p>
+
+  <p>
+    Five minutes is chosen against the tightest rule: unassigned escalation warns at ten. A tick at half
+    the shortest threshold bounds the lateness of an escalation at five minutes, inside the tolerance of
+    a ten-minute SLA.
+  </p>
+
+  <h3>One broken rule must not stop the rest</h3>
+
+  <p>
+    Each rule runs inside its own exception block. A rule that throws records an error against itself and
+    the loop continues. The alternative — one broken rule silently stopping SLA escalation — is precisely
+    the failure that must not happen quietly. Its <code>last_run_at</code> still advances, so a rule that
+    throws every time does not retry on every tick and bury the log in identical failures.
+  </p>
+
+  <h3>If the scheduler is not running</h3>
+
+  <p>
+    The engine is complete without <code>pg_cron</code>: anything with a clock can call
+    <code>run_automations()</code>. Migration 0026 degrades to a notice rather than failing where the
+    extension is unavailable, so a local or self-hosted environment is not blocked by a scheduler.
+    Admin → Automations reports a stalled scheduler explicitly, because a page full of enabled rules that
+    have not run in a day is worse than one that says so.
+  </p>
+</div>
+
+<!-- ══════════════════════ PART VII ══════════════════════ -->
+<div class="part" id="part7">
+  <div class="part-head">
+    <div class="kicker">Part VII</div>
+    <h1>Data Model</h1>
+  </div>
+
+  <h2>7.1 Domains</h2>
+
+  <p>57 tables. Grouped by what they are for:</p>
+
+  <table>
+    <thead><tr><th style="width:34mm">Domain</th><th>Tables</th></tr></thead>
+    <tbody>
+      <tr><td><b>Identity</b></td><td class="mono">profiles, system_profiles, personnel, reporting_lines</td></tr>
+      <tr><td><b>Incidents</b></td><td class="mono">incidents, incident_updates, incident_attachments, incident_number_counters, citizen_share_tokens</td></tr>
+      <tr><td><b>Fleet &amp; devices</b></td><td class="mono">apparatus, devices, cameras, hydrants</td></tr>
+      <tr><td><b>Police</b></td><td class="mono">metro_reports, metro_offenses, firearm_authorizations, security_reports, crime_stats</td></tr>
+      <tr><td><b>Fire</b></td><td class="mono">firefighter_reports, public_incident_reports</td></tr>
+      <tr><td><b>Medical</b></td><td class="mono">paramedic_reports, medical_histories, assessment_findings, vital_signs, interventions, legal_handovers, ambulance_restocks</td></tr>
+      <tr><td><b>Disaster</b></td><td class="mono">disaster_logs, post_mortem_reports, relief_stocks, mutual_aid_partners</td></tr>
+      <tr><td><b>Shift &amp; duty</b></td><td class="mono">shifts, rosters, duty_posts, endorsements, mental_checks, vehicle_checklists</td></tr>
+      <tr><td><b>HR</b></td><td class="mono">leave_entries, training_records, certifications</td></tr>
+      <tr><td><b>Performance</b></td><td class="mono">performance_kpis, performance_plans, performance_scores</td></tr>
+      <tr><td><b>Alerting</b></td><td class="mono">alerts, alert_reads, notifications, push_tokens</td></tr>
+      <tr><td><b>Configuration</b></td><td class="mono">command_records, app_settings, integration_settings, department_branding, report_definitions</td></tr>
+      <tr><td><b>Platform</b></td><td class="mono">audit_logs, automation_rules, automation_runs, automation_events, rate_limit_buckets</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7.2 The incident record</h2>
+
+  <p>
+    <code>incidents</code> is the spine. Every department writes to it, and its columns encode the whole
+    lifecycle.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:38mm">Group</th><th>Columns</th></tr></thead>
+    <tbody>
+      <tr><td><b>Ownership</b></td><td class="mono">silo, dispatched_silos[], source, incident_number, client_ref</td></tr>
+      <tr><td><b>Caller</b></td><td class="mono">caller_name, caller_number, caller_location, is_caller_patient, patient_name</td></tr>
+      <tr><td><b>Classification</b></td><td class="mono">incident_type, incident_severity, incident_category, region, fire_incident_type, medical_type, disaster_type</td></tr>
+      <tr><td><b>Location</b></td><td class="mono">location_address, suburb, city, postal_code, location_lat, location_lng, location_point (PostGIS)</td></tr>
+      <tr><td><b>Lifecycle</b></td><td class="mono">status, call_timestamp, incident_created_at, dispatch_time, arrived_timestamp, closed_at</td></tr>
+      <tr><td><b>Assignment</b></td><td class="mono">unit_id, unit_type, unit_status, responding_officer, acceptance</td></tr>
+      <tr><td><b>Attribution</b></td><td class="mono">call_taken_by, dispatched_by, created_by</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Two columns worth explaining</h3>
+
+  <p>
+    <code>dispatched_silos</code> is an array, and it is what makes multi-department response work: it
+    appears in the RLS read policy, so adding a department to it grants that department visibility
+    atomically with the routing decision.
+  </p>
+
+  <p>
+    <code>client_ref</code> is a device-generated UUID with a unique index. It exists so a replayed
+    create — the offline outbox retrying after the network returned — returns the original row rather
+    than raising a second emergency for the same event.
+  </p>
+
+  <h3>Incident numbering</h3>
+
+  <div class="warn">
+    <b>A defect fixed in wave 5</b>
+    Numbers were <code>INC-&lt;date&gt;-&lt;random 100–999&gt;</code> against a <code>unique (silo,
+    incident_number)</code> constraint. That is 900 values per department per day, so by the birthday
+    bound a department had roughly a 50% chance of a collision at 35 calls in a day and was essentially
+    certain past 80 — and a collision surfaced as an exception thrown at a call-taker with a caller on
+    the line. eThekwini runs well past that. Replaced with <code>next_incident_number()</code>, a
+    per-department daily counter producing <code>INC-YYYYMMDD-NNNN</code>.
+  </div>
+
+  <h2>7.3 Stored procedures</h2>
+
+  <p>41 application functions. The ones worth knowing:</p>
+
+  <table>
+    <thead><tr><th style="width:48mm">Function</th><th style="width:20mm">Security</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">log_incoming_call()</td><td>Definer</td><td>Creates an incident, allocates its number, audits.</td></tr>
+      <tr><td class="mono">check_duplicate_incident()</td><td>Definer</td><td>12-hour duplicate lookup by caller and by location + type.</td></tr>
+      <tr><td class="mono">route_incident()</td><td>Definer</td><td>Routes to departments, appends timeline, audits, raises alerts — one transaction.</td></tr>
+      <tr><td class="mono">dispatch_unit()</td><td>Definer</td><td>Commits a specific appliance.</td></tr>
+      <tr><td class="mono">update_responder_status()</td><td>Definer</td><td>Status change, accepting the time the responder acted.</td></tr>
+      <tr><td class="mono">raise_panic()</td><td>Definer</td><td>Officer-down. No role gate, by design.</td></tr>
+      <tr><td class="mono">close_case()</td><td>Definer</td><td>Closure with reason, audited.</td></tr>
+      <tr><td class="mono">toggle_duty()</td><td>Definer</td><td>Duty on/off with position.</td></tr>
+      <tr><td class="mono">assign_vehicle()</td><td>Definer</td><td>Start-of-shift vehicle allocation.</td></tr>
+      <tr><td class="mono">cleanup_on_logout()</td><td>Definer</td><td>Frees the vehicle, clears duty.</td></tr>
+      <tr><td class="mono">has_completed_shift_start_today()</td><td>Definer</td><td>The duty gate.</td></tr>
+      <tr><td class="mono">get_dispatcher_kpis()</td><td>Definer</td><td>Board summary in one round trip.</td></tr>
+      <tr><td class="mono">raise_dispatch_alerts()</td><td>Invoker</td><td>Per-department alert fanout.</td></tr>
+      <tr><td class="mono">count_unread_alerts()</td><td>Invoker</td><td>Authoritative unread badge count.</td></tr>
+      <tr><td class="mono">search_everything()</td><td>Invoker</td><td>Cross-module search.</td></tr>
+      <tr><td class="mono">rate_limit_hit()</td><td>Definer</td><td>Per-user request counting.</td></tr>
+      <tr><td class="mono">run_automations()</td><td>Definer</td><td>The scheduler entry point.</td></tr>
+      <tr><td class="mono">citizen_update_location()</td><td>Definer</td><td>Public: a citizen's browser posting GPS against a single-use token.</td></tr>
+      <tr><td class="mono">require_role()</td><td>Definer</td><td>The guard opening every privileged mutator.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7.4 Migrations</h2>
+
+  <p>
+    28 numbered files, append-only. An applied migration is never edited — the next one is written
+    instead. Each runs inside a transaction, so a failing statement rolls the whole file back and a
+    half-applied migration is not a reachable state.
+  </p>
+
+  <div class="note">
+    <b>PostgREST and function overloads</b>
+    RPCs are resolved by argument name. Adding a parameter with a default to an existing function creates
+    a <i>second</i> overload, and a call matching both resolves to neither. The old arity must be dropped
+    in the same migration — as 0024 does for <code>update_responder_status</code> and
+    <code>log_incoming_call</code>.
+  </div>
+</div>
+
+<!-- ══════════════════════ PART VIII ══════════════════════ -->
+<div class="part" id="part8">
+  <div class="part-head">
+    <div class="kicker">Part VIII</div>
+    <h1>Integrations</h1>
+  </div>
+
+  <h2>8.1 Catalogue</h2>
+
+  <p>
+    Every external system is a row in <code>integration_settings</code>, visible with a connection probe
+    at Admin → Integrations. Status shown is the live configuration.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:30mm">Category</th><th style="width:32mm">Integration</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="2"><b>Core</b></td><td>Supabase</td><td>Database, auth, storage, realtime.</td></tr>
+      <tr><td>Esri World Imagery</td><td>Map basemap.</td></tr>
+      <tr><td rowspan="2"><b>AI</b></td><td>Groq</td><td>Primary provider behind Criti.</td></tr>
+      <tr><td>Google Gemini</td><td>Fallback provider.</td></tr>
+      <tr><td rowspan="2"><b>Comms</b></td><td>RealPTT</td><td>Push-to-talk radio bridge — text to radio, audio log.</td></tr>
+      <tr><td>Zoiper</td><td>Softphone dial-out.</td></tr>
+      <tr><td rowspan="2"><b>Notifications</b></td><td>Expo Push</td><td>Responder app notifications.</td></tr>
+      <tr><td>BulkSMS</td><td>Citizen SMS and GPS-location requests.</td></tr>
+      <tr><td rowspan="2"><b>Surveillance</b></td><td>SANRAL CCTV Matrix</td><td>The current freeway camera wall.</td></tr>
+      <tr><td>Hikvision HikCentral</td><td>The incoming CCTV platform.</td></tr>
+      <tr><td rowspan="5"><b>External feeds</b></td><td>TomTom</td><td>Traffic incidents.</td></tr>
+      <tr><td>FlightRadar24</td><td>Aircraft positions and tracks.</td></tr>
+      <tr><td>AIS / Kpler</td><td>Vessel positions, Durban harbour.</td></tr>
+      <tr><td>OpenWeather</td><td>Wind and weather for fire-spread modelling.</td></tr>
+      <tr><td>i-Traffic</td><td>Camera registry import.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>8.2 The proxy pattern</h2>
+
+  <p>
+    No third-party key ever reaches a client bundle. Every external call goes through a server route
+    under <code>/api/external/*</code> which holds the key server-side, requires an authenticated session,
+    and is rate limited.
+  </p>
+
+  <p>
+    Each proxy degrades gracefully: with no key configured it returns a clear "not configured" response
+    rather than erroring or, worse, returning fabricated data. A control room must be able to tell "this
+    feed is switched off" from "this feed says there is nothing there".
+  </p>
+
+  <pre><code>const { deny } = await requireAuth('external');   // 401 or 429
+if (deny) return deny;
+const key = process.env.TOMTOM_API_KEY;
+if (!key) return unconfigured('TomTom traffic', 'TOMTOM_API_KEY');</code></pre>
+
+  <h2>8.3 CCTV cut-over</h2>
+
+  <p>
+    <code>/api/cctv/cameras</code> serves the SANRAL registry until the Hikvision integration is enabled
+    with an app key, secret and base URL — at which point the same endpoint serves the live HikCentral
+    estate. The cut-over is a toggle in Admin, not a deployment.
+  </p>
+
+  <p>
+    <code>/api/cctv/stream</code> brokers AK/SK-signed live-preview and recorded-playback URLs. Signing
+    happens server-side only, and every grant is written to the audit log for chain of custody — footage
+    retrieval is evidence handling, and who requested what has to be answerable.
+  </p>
+</div>
+
+<!-- ══════════════════════ PART IX ══════════════════════ -->
+<div class="part" id="part9">
+  <div class="part-head">
+    <div class="kicker">Part IX</div>
+    <h1>Security</h1>
+  </div>
+
+  <h2>9.1 Model</h2>
+
+  <table>
+    <thead><tr><th style="width:38mm">Layer</th><th>Control</th></tr></thead>
+    <tbody>
+      <tr><td><b>Transport</b></td><td>HTTPS throughout, HSTS with a two-year max-age and preload.</td></tr>
+      <tr><td><b>Session</b></td><td>Supabase Auth; role and silo carried in JWT app metadata, which the client cannot alter.</td></tr>
+      <tr><td><b>Route</b></td><td>Middleware evaluates the route matrix and redirects to <code>/403</code>.</td></tr>
+      <tr><td><b>Row</b></td><td>RLS on every table. Deny by default, then explicit policies.</td></tr>
+      <tr><td><b>Function</b></td><td><code>require_role()</code> opens every privileged mutator; <code>EXECUTE</code> revoked from <code>anon</code>.</td></tr>
+      <tr><td><b>Rate</b></td><td>Per-user limits on the routes that cost money or third-party quota.</td></tr>
+      <tr><td><b>Audit</b></td><td><code>audit_logs</code> on every mutation, with actor, department and detail.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9.2 Headers and transport</h2>
+
+  <p>Applied to every response:</p>
+
+  <table>
+    <thead><tr><th style="width:52mm">Header</th><th>Value / note</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">Content-Security-Policy</td><td>Self by default; Supabase REST and websockets, map tile hosts and the key-free geocoding upstreams allow-listed. <code>frame-ancestors 'none'</code>.</td></tr>
+      <tr><td class="mono">Strict-Transport-Security</td><td><code>max-age=63072000; includeSubDomains; preload</code></td></tr>
+      <tr><td class="mono">X-Frame-Options</td><td><code>DENY</code> — defence in depth for older browsers.</td></tr>
+      <tr><td class="mono">X-Content-Type-Options</td><td><code>nosniff</code></td></tr>
+      <tr><td class="mono">Referrer-Policy</td><td><code>strict-origin-when-cross-origin</code></td></tr>
+      <tr><td class="mono">Permissions-Policy</td><td>Camera, microphone and geolocation to self — the console legitimately uses all three. Everything else denied.</td></tr>
+      <tr><td class="mono">Cache-Control</td><td><code>no-store</code> on every API response. Incident data must never sit in a shared cache.</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    <code>X-Powered-By</code> is disabled: version and stack disclosure serves an attacker, not an
+    operator.
+  </p>
+
+  <div class="note">
+    <b>Known CSP loosening</b>
+    <code>script-src</code> permits <code>'unsafe-inline'</code> and <code>'unsafe-eval'</code> for Next's
+    inline bootstrap, and <code>style-src</code> permits <code>'unsafe-inline'</code> for Tailwind's runtime
+    theme variables and per-department inline colours. Tightening this needs per-request nonces, which is
+    a separate piece of work.
+  </div>
+
+  <h2>9.3 Rate limiting <span class="pill pill-new">New in wave 5</span></h2>
+
+  <p>
+    Several routes spend money or third-party quota per call: the assistant, geocoding, the traffic and
+    flight and vessel proxies, PDF rendering, RealPTT, CCTV stream grants. All are authenticated already,
+    so this is not about anonymous abuse. It is about the two things that actually happen to a running
+    service — a bug that fires the assistant on every render and burns a month's model budget in an
+    afternoon, and a console left unlocked in a control room, where the realistic damage is quota rather
+    than data.
+  </p>
+
+  <table>
+    <thead><tr><th style="width:34mm">Bucket</th><th style="width:26mm">Limit</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">chat</td><td>40 / min</td><td>A person types perhaps 6 a minute; a render loop types 600.</td></tr>
+      <tr><td class="mono">geocode</td><td>120 / min</td><td>Fires per keystroke-batch on the address field, so it needs headroom.</td></tr>
+      <tr><td class="mono">external</td><td>90 / min</td><td>Metered upstreams; panels poll on a timer.</td></tr>
+      <tr><td class="mono">pdf</td><td>20 / min</td><td>Embedding scene photographs is the most expensive request served.</td></tr>
+      <tr><td class="mono">ptt</td><td>60 / min</td><td>Radio traffic is bursty by nature.</td></tr>
+      <tr><td class="mono">cctv</td><td>60 / min</td><td>Each grant is audit-logged; a flood pollutes the trail.</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Counted in Postgres, not in the process: the console deploys serverless, so an in-memory counter is
+    per-instance and ten concurrent functions would mean ten times the intended limit — which is not a
+    limit. Identity is taken from <code>auth.uid()</code> inside the database function rather than from a
+    caller-supplied key, so a route handler cannot get it wrong and a caller cannot spend somebody else's
+    budget or reset their own.
+  </p>
+
+  <div class="why">
+    <b>It fails open</b>
+    If the limiter itself errors, the request proceeds. A rate limiter that takes down dispatch when the
+    database hiccups has caused far more harm than the runaway loop it was guarding against.
+  </div>
+
+  <h2>9.4 Audit</h2>
+
+  <p>
+    <code>audit_logs</code> records actor, department, action type, entity, and a human-readable detail
+    line for every mutation. Logon events are recorded there too, which is what the operational KPI
+    logon report is computed from. Case closures, stream grants, automation changes and manual automation
+    runs all name a person.
+  </p>
+
+  <h2>9.5 Outstanding items</h2>
+
+  <div class="warn">
+    <b>These are open and should be closed before or at handover</b>
+    <ul style="margin-top:2mm">
+      <li><b>V4 leaked credentials.</b> The previous system's BulkSMS token pair and Gemini key are present in that repository's source history — including a hardcoded token in its notifications controller. They must be <b>revoked at the provider</b>; rotating them in V5's environment is not sufficient, because the old values remain in V4's git history.</li>
+      <li><b>Setup-time credential exposure.</b> The Supabase service-role key and database password were pasted into a chat transcript during provisioning and should be rotated.</li>
+      <li><b>CSP nonces.</b> Removing <code>'unsafe-inline'</code> and <code>'unsafe-eval'</code> from <code>script-src</code>.</li>
+      <li><b>Accessibility.</b> 19 tracked warnings, mostly form labels not programmatically associated with their inputs on the call-taking screen — a screen reader announces those fields with no name.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══════════════════════ PART X ══════════════════════ -->
+<div class="part" id="part10">
+  <div class="part-head">
+    <div class="kicker">Part X</div>
+    <h1>Operations</h1>
+  </div>
+
+  <div class="warn">
+    <b>Before anything else</b>
+    Every procedure here is slower than the radio. If the platform is degraded and crews are waiting, put
+    the control room on radio and paper, then fix the platform. Nothing in this part is more urgent than
+    that.
+  </div>
+
+  <h2>10.1 Environments</h2>
+
+  <div class="kv"><div class="k">Console</div><div>Vercel, built from <code>main</code>. <code>NEXT_PUBLIC_*</code> values are inlined at build time, so an environment change needs a <b>redeploy</b>, not a restart.</div></div>
+  <div class="kv"><div class="k">Database</div><div>Supabase, region <code>eu-west-1</code>. The direct host is IPv6-only from some networks; CLI work goes through the session pooler.</div></div>
+  <div class="kv"><div class="k">Responder app</div><div>EAS. Channels: <code>development</code>, <code>preview</code>, <code>production</code>.</div></div>
+
+  <h2>10.2 Deploying</h2>
+
+  <h3>Console</h3>
+  <p>Push to <code>main</code>; CI must be green. Vercel builds the same commit.</p>
+
+  <h3>Database</h3>
+  <pre><code>set -a && . ./.env && set +a
+node scripts/apply-migration.mjs supabase/migrations/00NN_your_migration.sql</code></pre>
+  <p>
+    Apply migrations <b>before</b> the deployment that depends on them. The application tolerates a schema
+    newer than the code far better than the reverse.
+  </p>
+
+  <h3>Responder app</h3>
+  <pre><code>eas build  --profile production --platform android   # native binary
+eas update --branch  production --message "what changed"  # JavaScript only</code></pre>
+
+  <div class="warn">
+    <b>An over-the-air update can only ever ship JavaScript</b>
+    Adding a native module — a new Expo package, a permission, anything in <code>app.json</code> or
+    <code>app.config.ts</code> — requires a real build. Publishing an OTA whose JavaScript imports a native
+    module the installed binary lacks crashes every handset at launch. The defence is
+    <code>runtimeVersion</code>: it follows the app version, so bumping the version makes older binaries
+    ineligible for the update rather than being handed something that cannot boot. Wave 5 added five
+    native modules and bumped the app to <b>1.1.0</b> for exactly this reason.
+  </div>
+
+  <h2>10.3 Backup and recovery</h2>
+
+  <p>
+    Supabase takes automatic daily backups; point-in-time recovery depends on the plan — <b>verify which
+    you have before you need it</b>. Take a manual snapshot before anything irreversible:
+  </p>
+
+  <pre><code>pg_dump "$SUPABASE_DB_URL" --no-owner --no-acl -Fc -f criticom-$(date +%F).dump</code></pre>
+
+  <p>Restore into a <i>new</i> project first and check it, then cut over. What a database restore does <b>not</b> bring back:</p>
+
+  <ul>
+    <li><b>Storage</b> — <code>incident-media</code>, <code>avatars</code>, <code>department-logos</code>. Evidence photographs live here, so a restore that ignores storage silently loses the attachments a case file references.</li>
+    <li><b>Accounts created since the snapshot</b> — re-create with <code>pnpm db:create-admin</code>.</li>
+    <li><b>Push tokens</b> — harmless; phones re-register on next launch.</li>
+  </ul>
+
+  <h2>10.4 First response</h2>
+
+  <p>Work in this order. Each step rules something out.</p>
+
+  <table>
+    <thead><tr><th style="width:8mm">#</th><th style="width:44mm">Check</th><th>Interpretation</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Open <b>Admin → System Status</b></td><td>Each check states what it means rather than reporting a number. Start here.</td></tr>
+      <tr><td>2</td><td><code>/api/health/config</code></td><td>Reports which environment variables the running build can see, without exposing values. Missing values mean they were absent at <i>build</i> time — redeploy.</td></tr>
+      <tr><td>3</td><td><code>psql "$SUPABASE_DB_URL" -c 'select now()'</code></td><td>If this fails, everything else is downstream.</td></tr>
+      <tr><td>4</td><td>Sign in as a known account</td><td>Sign-in failing while the database answers points at Auth, not data.</td></tr>
+      <tr><td>5</td><td>Alerts in the last 15 minutes</td><td>Zero on a busy shift means realtime or the automation engine.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Common situations</h3>
+
+  <table>
+    <thead><tr><th style="width:52mm">Situation</th><th>Response</th></tr></thead>
+    <tbody>
+      <tr><td><b>A phone is not receiving dispatches</b></td><td>Profile → Dispatch alerts on the handset states which case applies: permission denied (fixable there), no push in this build (needs an FCM build), emulator, or registration failed. Realtime still delivers while the app is open in all four.</td></tr>
+      <tr><td><b>"My update did not go through"</b></td><td>The sync tray lists everything undelivered with its error. Queued work is not lost — it is held against that person's account and sends when they next have signal while signed in.</td></tr>
+      <tr><td><b>A panic fired by accident</b></td><td>Close the incident as any other, with a note. The panic is deliberately easy to trigger and impossible to un-send: acknowledged and closed beats a button people hesitate over.</td></tr>
+      <tr><td><b>Alert storm from a rule</b></td><td>Disable the rule from Admin → Automations, then inspect <code>automation_events</code> — repeat alerting means its claim key is wrong. Widening a threshold is the fast mitigation.</td></tr>
+      <tr><td><b>Storage filling up</b></td><td>Scene photographs and voice notes dominate. Nothing deletes them automatically, deliberately: they are evidence. Removing any is a records-retention decision, not an operational one.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════ PART XI ══════════════════════ -->
+<div class="part" id="part11">
+  <div class="part-head">
+    <div class="kicker">Part XI</div>
+    <h1>Engineering Standards</h1>
+  </div>
+
+  <h2>11.1 Continuous integration</h2>
+
+  <p>Every push and pull request. All steps block merge.</p>
+
+  <table>
+    <thead><tr><th style="width:52mm">Step</th><th>Catches</th></tr></thead>
+    <tbody>
+      <tr><td><code>pnpm lint</code></td><td>Defect-class lint rules (see 11.3).</td></tr>
+      <tr><td><code>pnpm typecheck</code></td><td>Four projects: db, api, web, mobile.</td></tr>
+      <tr><td><code>pnpm test</code></td><td>47 tests across three packages.</td></tr>
+      <tr><td><code>pnpm build</code></td><td>The production console build.</td></tr>
+      <tr><td>Migrations from empty</td><td>All 28 migrations applied in order to a throwaway PostGIS database.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="why">
+    <b>Why the migration job matters more than it looks</b>
+    A migration is the one artefact with no undo, and the sequence from nothing is exactly what a new
+    environment and a restore-from-backup both execute. A migration that only works against the current
+    production database has not been tested.
+  </div>
+
+  <h2>11.2 Testing</h2>
+
+  <p>
+    <code>node --test</code> with <code>--experimental-strip-types</code>. No framework, no transpile step,
+    no configuration file — Node 22 runs the TypeScript directly. Tests import with explicit
+    <code>.ts</code> extensions, which the loader requires and which Metro and <code>tsc</code> both resolve
+    unchanged.
+  </p>
+
+  <p>The tests exist where a silent regression is not a bad experience but a call that does not reach a crew:</p>
+
+  <table>
+    <thead><tr><th style="width:44mm">Suite</th><th>Pins</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">roles.test.ts</td><td>The route matrix — the authorization boundary. Including the two-desk split.</td></tr>
+      <tr><td class="mono">reporting/query.test.ts</td><td>That the report builder drops unknown columns, unsupported operators and invalid enum values, and keeps sensitive datasets closed.</td></tr>
+      <tr><td class="mono">automations.test.ts</td><td>That a zero threshold can never be stored — zero means "escalate the instant a call is logged".</td></tr>
+      <tr><td class="mono">outbox-policy.test.ts</td><td>Queue ordering, collapsing, retry classification and ownership. Every rule reachable only when the network is down.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>A pattern worth copying</b>
+    When safety-relevant logic is tangled with an untestable runtime (React Native, a Supabase client),
+    split the pure decisions into their own module and test that. <code>outbox-policy.ts</code> exists
+    purely for this; <code>outbox.ts</code> re-exports it so no call site had to change. Writing those
+    tests immediately found a real defect — retry attempts were accruing while the device was offline,
+    so a crew driving through a tunnel would have a scene photograph marked failed.
+  </div>
+
+  <h2>11.3 Linting</h2>
+
+  <p>
+    <code>pnpm lint</code> runs <b><code>biome lint</code></b>, not <code>biome check</code>.
+    <code>check</code> also enforces the formatter, which disagrees with this codebase's consistent
+    hand-formatting; running it produces a 150-file diff that changes no behaviour and buries every real
+    finding.
+  </p>
+
+  <p>
+    Rules the house style deliberately diverges from are off, each reviewed against its actual violations
+    and recorded with the count and reason in <code>docs/07-ENGINEERING-STANDARDS.md</code>. What remains
+    is enforced. Accessibility rules are warnings rather than errors — real defects, tracked for repair,
+    to be promoted back to errors once fixed.
+  </p>
+
+  <h2>11.4 Conventions</h2>
+
+  <ul>
+    <li>Server-action forms with uncontrolled fields.</li>
+    <li>Queries live in <code>packages/api/src/&lt;module&gt;</code>; pages never build queries inline.</li>
+    <li><code>logAudit</code> on every mutation.</li>
+    <li>Prefer <code>SECURITY INVOKER</code> and let RLS scope; reach for <code>DEFINER</code> only where atomicity or cross-department writes demand it, and guard it with <code>require_role()</code>.</li>
+    <li>Comments explain <b>why</b>, not what. A comment restating the code is noise; a comment recording the constraint that produced the code is the most valuable thing in the file.</li>
+  </ul>
+</div>
+
+<!-- ══════════════════════ PART XII ══════════════════════ -->
+<div class="part" id="part12">
+  <div class="part-head">
+    <div class="kicker">Part XII</div>
+    <h1>Appendices</h1>
+  </div>
+
+  <h2>Appendix A — API endpoints</h2>
+
+  <table>
+    <thead><tr><th style="width:52mm">Endpoint</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/api/chat</td><td>Criti. Accepts cookie or bearer authentication.</td></tr>
+      <tr><td class="mono">/api/geocode</td><td>Address ⇄ coordinate, Photon primary and Nominatim fallback.</td></tr>
+      <tr><td class="mono">/api/route</td><td>Road-routed ETA.</td></tr>
+      <tr><td class="mono">/api/wind</td><td>OpenWeather proxy.</td></tr>
+      <tr><td class="mono">/api/external/traffic</td><td>TomTom traffic incidents.</td></tr>
+      <tr><td class="mono">/api/external/pois</td><td>TomTom points of interest.</td></tr>
+      <tr><td class="mono">/api/external/flights</td><td>FlightRadar24 positions.</td></tr>
+      <tr><td class="mono">/api/external/flight-tracks</td><td>FlightRadar24 tracks.</td></tr>
+      <tr><td class="mono">/api/external/vessels</td><td>Kpler AIS vessel positions.</td></tr>
+      <tr><td class="mono">/api/cameras/import</td><td>i-Traffic camera registry import.</td></tr>
+      <tr><td class="mono">/api/cctv/cameras</td><td>Camera registry — SANRAL or HikCentral.</td></tr>
+      <tr><td class="mono">/api/cctv/stream</td><td>Signed preview and playback URLs; audit-logged.</td></tr>
+      <tr><td class="mono">/api/pdf/incident/[id]</td><td>Case-report PDF with embedded photographs.</td></tr>
+      <tr><td class="mono">/api/pdf/fire-report/[id]</td><td>Fire report PDF.</td></tr>
+      <tr><td class="mono">/api/push/notify</td><td>Expo push fanout to routed departments.</td></tr>
+      <tr><td class="mono">/api/ptt/send</td><td>RealPTT text to radio.</td></tr>
+      <tr><td class="mono">/api/ptt/audio</td><td>RealPTT two-hour audio log.</td></tr>
+      <tr><td class="mono">/api/hr/report.csv</td><td>HR report export.</td></tr>
+      <tr><td class="mono">/api/performance/operational.csv</td><td>Operational KPI export.</td></tr>
+      <tr><td class="mono">/api/report-hub/export.csv</td><td>Report hub export.</td></tr>
+      <tr><td class="mono">/api/hierarchy/export.csv</td><td>Reporting-line export.</td></tr>
+      <tr><td class="mono">/api/integrations/test/[key]</td><td>Per-integration connection probe. Admin only.</td></tr>
+      <tr><td class="mono">/api/health/config</td><td>Deployment diagnostics. Liveness public; detail admin only.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Appendix B — Migrations</h2>
+
+  <table>
+    <thead><tr><th style="width:16mm">#</th><th style="width:44mm">Name</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>0001</td><td class="mono">init</td><td>Every V4 entity translated to Postgres.</td></tr>
+      <tr><td>0002</td><td class="mono">rls</td><td>Deny-by-default, then a policy per table.</td></tr>
+      <tr><td>0003</td><td class="mono">realtime_storage</td><td>Publications and storage buckets.</td></tr>
+      <tr><td>0004</td><td class="mono">functions</td><td>The multi-step workflows.</td></tr>
+      <tr><td>0005</td><td class="mono">roles_alignment</td><td>Adds the Responder and Staff roles.</td></tr>
+      <tr><td>0006</td><td class="mono">seed_mutual_aid</td><td>All 41 V4 mutual-aid partners.</td></tr>
+      <tr><td>0007</td><td class="mono">v4_alignment</td><td>Operator attribution, admin config, endorsements, performance.</td></tr>
+      <tr><td>0008</td><td class="mono">fix_geo_trigger</td><td>Fixes a nested-condition failure in the location trigger.</td></tr>
+      <tr><td>0009</td><td class="mono">reporting_lines</td><td>The reporting hierarchy.</td></tr>
+      <tr><td>0010</td><td class="mono">alerts_push_integrations</td><td>Alerts, read receipts, push tokens, integration catalogue.</td></tr>
+      <tr><td>0011</td><td class="mono">route_incident</td><td>Routing to departments without committing a unit.</td></tr>
+      <tr><td>0012</td><td class="mono">app_settings_perf</td><td>Operational tuning store and hot-path indexes.</td></tr>
+      <tr><td>0013</td><td class="mono">ops_links_cctv</td><td>Command-bar links and CCTV wiring.</td></tr>
+      <tr><td>0014</td><td class="mono">hr_leave_upgrade</td><td>Approval trail, entitlements, HR indexes.</td></tr>
+      <tr><td>0015</td><td class="mono">leave_self_insert</td><td>Members file their own leave, Pending only.</td></tr>
+      <tr><td>0016</td><td class="mono">groq_integration</td><td>Groq as primary AI provider.</td></tr>
+      <tr><td>0017</td><td class="mono">department_branding</td><td>Per-department identity.</td></tr>
+      <tr><td>0018</td><td class="mono">security_hardening</td><td>Policy tightening.</td></tr>
+      <tr><td>0019</td><td class="mono">privileged_function_guards</td><td>Role guards on every privileged RPC.</td></tr>
+      <tr><td>0020</td><td class="mono">revoke_public_execute</td><td>Makes 0019's revocations actually take effect.</td></tr>
+      <tr><td>0021</td><td class="mono">reporting_duty_allocation</td><td>Saved report definitions and duty allocation.</td></tr>
+      <tr><td>0022</td><td class="mono">realtime_unread_alerts</td><td>Live unread count in both directions.</td></tr>
+      <tr><td>0023</td><td class="mono">duty_posts</td><td>The establishment a shift must fill.</td></tr>
+      <tr><td>0024</td><td class="mono">field_operations</td><td>Offline-safe writes, honest timestamps, panic, incident numbering.</td></tr>
+      <tr><td>0025</td><td class="mono">automation_engine</td><td>Rules, run log, idempotency ledger, dispatcher.</td></tr>
+      <tr><td>0026</td><td class="mono">automation_schedule</td><td>The <code>pg_cron</code> job.</td></tr>
+      <tr><td>0027</td><td class="mono">global_search</td><td>Trigram search across six tables.</td></tr>
+      <tr><td>0028</td><td class="mono">rate_limits</td><td>Per-user request counters.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Appendix C — Environment variables</h2>
+
+  <table>
+    <thead><tr><th style="width:56mm">Variable</th><th style="width:20mm">Used by</th><th>Effect if absent</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">NEXT_PUBLIC_SUPABASE_URL</td><td>web</td><td>Console shows the "not configured" screen.</td></tr>
+      <tr><td class="mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</td><td>web</td><td>As above.</td></tr>
+      <tr><td class="mono">SUPABASE_SERVICE_ROLE_KEY</td><td>web</td><td>Push fanout and camera import unavailable.</td></tr>
+      <tr><td class="mono">NEXT_PUBLIC_APP_URL</td><td>web</td><td>SMS share links fall back to the request host.</td></tr>
+      <tr><td class="mono">EXPO_PUBLIC_SUPABASE_URL / _ANON_KEY</td><td>mobile</td><td>App runs but cannot reach the server.</td></tr>
+      <tr><td class="mono">EXPO_PUBLIC_APP_URL</td><td>mobile</td><td>Criti unavailable on the phone.</td></tr>
+      <tr><td class="mono">GROQ_API_KEY</td><td>web</td><td>Criti falls back to Gemini.</td></tr>
+      <tr><td class="mono">GEMINI_API_KEY</td><td>web</td><td>With no Groq key either, Criti explains it is unconfigured.</td></tr>
+      <tr><td class="mono">BULKSMS_TOKEN_ID / _SECRET</td><td>web</td><td>Citizen GPS request unavailable.</td></tr>
+      <tr><td class="mono">REALPTT_ACCOUNT / _PASSWORD</td><td>web</td><td>PTT console reports not configured.</td></tr>
+      <tr><td class="mono">TOMTOM_API_KEY</td><td>web</td><td>Traffic and POI panels report not configured.</td></tr>
+      <tr><td class="mono">FLIGHTRADAR_API_KEY</td><td>web</td><td>Flight feeds unavailable.</td></tr>
+      <tr><td class="mono">MARINESIA_API_KEY</td><td>web</td><td>Vessel feed unavailable.</td></tr>
+      <tr><td class="mono">ITRAFFIC_API_KEY</td><td>web</td><td>Camera import unavailable.</td></tr>
+      <tr><td class="mono">OPENWEATHER_API_KEY</td><td>web</td><td>Wind widget unavailable.</td></tr>
+      <tr><td class="mono">HIKVISION_APP_KEY / _SECRET</td><td>web</td><td>CCTV stays on the SANRAL registry.</td></tr>
+      <tr><td class="mono">GOOGLE_SERVICES_JSON</td><td>mobile build</td><td>Android build refuses unless <code>CRITICOM_ALLOW_NO_PUSH=1</code>.</td></tr>
+      <tr><td class="mono">SUPABASE_DB_URL</td><td>scripts</td><td>Migration runner and seeds cannot connect.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Appendix D — Glossary</h2>
+
+  <table>
+    <thead><tr><th style="width:38mm">Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Silo</b></td><td>A department, and the isolation boundary around its data.</td></tr>
+      <tr><td><b>RLS</b></td><td>Row-level security. Postgres deciding, per row, who may read or write it.</td></tr>
+      <tr><td><b>Route matrix</b></td><td><code>ROUTE_RULES</code> — which roles may open which paths.</td></tr>
+      <tr><td><b>Two-desk split</b></td><td>Call-takers log; dispatchers dispatch. Deliberately separate.</td></tr>
+      <tr><td><b>Outbox</b></td><td>The responder app's durable queue of undelivered work.</td></tr>
+      <tr><td><b>Claim</b></td><td>An automation's once-only record that it has acted on a thing at a tier.</td></tr>
+      <tr><td><b>Presentation</b></td><td>An alert's delivery style: <code>toast</code> or blocking <code>modal</code>.</td></tr>
+      <tr><td><b>Endorsement</b></td><td>A duty annotation — court attendance, special event, instruction, restriction.</td></tr>
+      <tr><td><b>PIR</b></td><td>Post-incident review, Fire &amp; Rescue.</td></tr>
+      <tr><td><b>PCR</b></td><td>Patient care record, EMS.</td></tr>
+      <tr><td><b>SIRA</b></td><td>Private Security Industry Regulatory Authority — governs the guard reports.</td></tr>
+      <tr><td><b>OTA</b></td><td>Over-the-air update. JavaScript only; never native code.</td></tr>
+      <tr><td><b>Runtime version</b></td><td>The native-compatibility tag matching an OTA update to binaries that can run it.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Appendix E — Further reading</h2>
+
+  <table>
+    <thead><tr><th style="width:60mm">Document</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">docs/00-RECONNAISSANCE.md</td><td>The V4 survey this rebuild started from.</td></tr>
+      <tr><td class="mono">docs/01-ARCHITECTURE.md</td><td>Architectural decisions in detail.</td></tr>
+      <tr><td class="mono">docs/03-PHASES.md</td><td>The migration plan.</td></tr>
+      <tr><td class="mono">docs/04-SECURITY-MIGRATION.md</td><td>Data migration and credential handling.</td></tr>
+      <tr><td class="mono">docs/05-PARITY-STATUS.md</td><td>V4 → V5 parity, wave by wave.</td></tr>
+      <tr><td class="mono">docs/06-SECURITY-AUDIT.md</td><td>The security audit and its findings.</td></tr>
+      <tr><td class="mono">docs/07-ENGINEERING-STANDARDS.md</td><td>What CI enforces and why, rule by rule.</td></tr>
+      <tr><td class="mono">docs/08-RUNBOOK.md</td><td>The on-call runbook.</td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:12mm; border-top:2px solid var(--rule); padding-top:5mm; font-size:9pt; color:var(--muted);">
+    <b class="sans" style="color:var(--ink)">Criticom V5 — Solution Wiki</b><br>
+    Generated 4 August 2026 from the state of the repository at commit <code>f7909f2</code>.
+    Every figure in this document — route counts, table counts, function counts, test counts —
+    was read from the codebase and the live database rather than from memory.
+  </div>
+</div>
+
+</body>
+</html>
