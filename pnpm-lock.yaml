@@ -21,6 +21,9 @@ importers:
       '@types/node':
         specifier: ^22.7.4
         version: 22.20.1
+      pdf-lib:
+        specifier: ^1.17.1
+        version: 1.17.1
       pg:
         specifier: ^8.22.0
         version: 8.22.0

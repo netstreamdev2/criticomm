@@ -1,0 +1,629 @@
+<div class="volume">
+  <div class="bignum">V</div>
+  <div class="kick">Volume V</div>
+  <h1>Task Procedures</h1>
+  <div class="bar"></div>
+  <p>Every task on the console, in full. Each one names the screen, who may do it, what it writes to the database, and what happens afterwards.</p>
+  <div class="chaps"><div><b>22</b> &nbsp;Intake and dispatch</div><div><b>23</b> &nbsp;Working an incident</div><div><b>24</b> &nbsp;Start of shift</div><div><b>25</b> &nbsp;Departmental reports</div><div><b>26</b> &nbsp;People</div><div><b>27</b> &nbsp;Reporting and analysis</div><div><b>28</b> &nbsp;Surveillance and external systems</div></div>
+</div>
+
+<div class="part" id="c22">
+  <div class="part-head"><div class="cnum">Chapter 22</div><h1>Intake and Dispatch</h1></div>
+
+  <h2>22.1 Log an incoming call</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Log an incoming call</div>
+      <div class="m"><b>Screen</b> /dispatch/log-call &nbsp;·&nbsp; <b>Who</b> Admin tier, Operator, ControlRoom, IncidentLogger &nbsp;·&nbsp; <b>Procedure</b> <code>log_incoming_call()</code></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Open the screen fresh for each call.</b> An intake clock starts on open and is shown as <i>Time since call intake started</i>. It turns amber then red at the thresholds set in Operations Settings.</li>
+        <li><b>Caller name</b> and <b>contact number</b>.</li>
+        <li><b>Call description / narrative</b> — what is happening.</li>
+        <li><b>Location.</b> Either type into the address field and pick a suggestion, or click the map. Address, <b>Latitude</b> and <b>Longitude</b> stay in step automatically. Add <b>Suburb</b>, <b>City</b> and <b>Postal code</b> where known.</li>
+        <li><b>Classification.</b> Pick the incident category and sub-category from the configured tree, then <b>Region</b> (Central, North, South, West, Outer).</li>
+        <li><b>Incident severity</b> — Low, Medium, High or Critical. This decides whether receiving crews get a corner toast or a blocking interrupt.</li>
+        <li><b>Casualties</b>, if any: <b>Number of victims</b> (1–5, 6-10, 10+) and <b>Medical severity code</b> (P1 Red Immediate, P2 Yellow Urgent, P3 Green Delayed, P4 Blue Expectant). Tick <i>EMS not required</i> when it is plainly not a medical call.</li>
+        <li><b>Internal dispatch notes</b> — anything the crew must know before arriving.</li>
+        <li><b>Check the duplicate warning.</b> If it names an existing incident, open it rather than creating a second.</li>
+        <li><b>Receiving departments</b>, if you may route. Selecting none files the incident under your own department for the dispatch desk to route.</li>
+        <li>Submit.</li>
+      </ol>
+      <div class="after">
+        <b>Afterwards</b>
+        An incident row exists with a sequential <code>INC-YYYYMMDD-NNNN</code> number, status
+        <i>Pending Dispatch</i> (or <i>Pending Analysis</i> for Disaster Management), your name as call-taker,
+        and an audit row. If you routed it: status <i>Dispatched</i>, alerts on every screen in those
+        departments, and a push to their phones.
+      </div>
+    </div>
+  </div>
+
+  <h2>22.2 Route an incident to departments</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Route an incident</div>
+      <div class="m"><b>Who</b> Admin tier, Dispatcher, Operator, ControlRoom, Supervisor &nbsp;·&nbsp; <b>Procedure</b> <code>route_incident()</code></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident from <b>Dispatch → Pending Queue</b>.</li>
+        <li>Select every department that must attend — more than one where the call needs it.</li>
+        <li>Add notes if required.</li>
+        <li>Confirm.</li>
+      </ol>
+      <div class="after">
+        <b>One transaction</b> Status → Dispatched; <code>dispatch_time</code> stamped;
+        <code>dispatched_silos</code> set (which is what grants those departments visibility);
+        your name recorded as dispatcher; a timeline entry; an audit row; and one alert per department.
+        It cannot half-succeed.
+      </div>
+    </div>
+  </div>
+
+  <h2>22.3 Assign a unit</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Assign a specific appliance</div>
+      <div class="m"><b>Screen</b> /dispatch/assign/[id] &nbsp;·&nbsp; <b>Procedure</b> <code>dispatch_unit()</code></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>From the queue, choose <b>Assign</b> on the incident.</li>
+        <li>Review the incident detail, the map, and the available units with road-routed ETAs.</li>
+        <li>Select a unit and confirm.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> The appliance leaves the available pool; the incident carries <code>unit_id</code> and <code>unit_type</code>. Routing tells a department; assigning commits an appliance.</div>
+    </div>
+  </div>
+
+  <h2>22.4 Handle a duplicate</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Check for a duplicate</div>
+      <div class="m"><b>Automatic</b> on the log-call screen &nbsp;·&nbsp; <b>Procedure</b> <code>check_duplicate_incident()</code></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>The check runs as you capture, over a 12-hour window, matching on <b>caller number</b>, and separately on <b>location + incident type</b>.</li>
+        <li>If a match is shown, open it and confirm whether it is the same event.</li>
+        <li>Same event — add what the new caller told you as a timeline update on the existing incident and do not submit a new one.</li>
+        <li>Different event — continue and submit.</li>
+      </ol>
+      <div class="after"><b>Why it matters</b> Two incidents for one crash sends two crews and produces two partial records of the same event.</div>
+    </div>
+  </div>
+
+  <h2>22.5 Request a citizen's GPS position</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Send a location-request SMS</div>
+      <div class="m"><b>Screen</b> /incidents/[id] &nbsp;·&nbsp; <b>Needs</b> BulkSMS configured &nbsp;·&nbsp; <b>Writes</b> citizen_share_tokens</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident.</li>
+        <li>Enter the citizen's mobile number under <b>Contact citizen</b>.</li>
+        <li>Submit. A single-use token is minted and an SMS sent with a link to <code>/share-location/&lt;token&gt;</code>.</li>
+        <li>When they open it and allow location access, the position is written to the incident.</li>
+      </ol>
+      <div class="after"><b>Security</b> The public page authenticates by the token alone and can do nothing but post a position. Tokens expire and are purged.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c23">
+  <div class="part-head"><div class="cnum">Chapter 23</div><h1>Working an Incident</h1></div>
+
+  <h2>23.1 Advance the status</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Change an incident status</div>
+      <div class="m"><b>Screen</b> /responder, /incidents/[id], or the phone &nbsp;·&nbsp; <b>Procedure</b> <code>update_responder_status()</code></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident.</li>
+        <li>Press the forward button. It always names the next status in the ladder.</li>
+        <li>Press it at the moment the thing happens.</li>
+      </ol>
+      <div class="after">
+        <b>Recorded</b> The status, <code>unit_status</code>, and — on first arrival only —
+        <code>arrived_timestamp</code>. A timeline entry is written. From the phone with no signal, the
+        time recorded is when you pressed it, and the timeline says the update was delivered late.
+      </div>
+    </div>
+  </div>
+
+  <h2>23.2 Add a timeline update</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Add an update</div>
+      <div class="m"><b>Screen</b> /incidents/[id] or the phone &nbsp;·&nbsp; <b>Writes</b> incident_updates</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Type into the update box.</li>
+        <li>Send.</li>
+      </ol>
+      <div class="after"><b>Appears live</b> on every open copy of that incident, via realtime.</div>
+    </div>
+  </div>
+
+  <h2>23.3 Upload evidence</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Attach evidence to an incident</div>
+      <div class="m"><b>Screen</b> /responder or the phone &nbsp;·&nbsp; <b>Writes</b> incident_attachments + <code>incident-media</code> bucket</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident.</li>
+        <li>Choose the file and add a <b>caption</b>.</li>
+        <li>Upload.</li>
+      </ol>
+      <div class="after"><b>Storage path</b> <code>&lt;silo&gt;/&lt;incident&gt;/&lt;kind&gt;/…</code>. Attachments are embedded in the case-report PDF, so they are part of the case file rather than a side note.</div>
+    </div>
+  </div>
+
+  <h2>23.4 Close a case</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Close an incident</div>
+      <div class="m"><b>Who</b> Case manager tier and supervisors &nbsp;·&nbsp; <b>Procedure</b> <code>close_case()</code></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Read the timeline end to end.</li>
+        <li>Confirm the departmental report exists where required, and that attachments are present.</li>
+        <li>Enter the <b>reason</b>.</li>
+        <li>Close.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> Status <i>Closed</i>, <code>closed_at</code> stamped, the reason in the timeline, and an audit row. Not reversible through the interface.</div>
+    </div>
+  </div>
+
+  <h2>23.5 Produce the case-report PDF</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Download the case report</div>
+      <div class="m"><b>Endpoint</b> /api/pdf/incident/[id] &nbsp;·&nbsp; <b>Rate limit</b> 20/min</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident and choose the PDF download.</li>
+        <li>Allow it time — each scene photograph is fetched and embedded.</li>
+      </ol>
+      <div class="after"><b>Contents</b> Detail, timeline, embedded attachments, audit trail — complete as one document.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c24">
+  <div class="part-head"><div class="cnum">Chapter 24</div><h1>Start of Shift</h1></div>
+
+  <h2>24.1 The three-step gate</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Complete start of shift</div>
+      <div class="m"><b>Screens</b> /shift/mental-check → /shift/vehicle-selection → /shift/vehicle-checklist, or the phone Shift tab &nbsp;·&nbsp; <b>Resets daily</b></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Mental readiness.</b> Six declarations: <b>memory recall</b>, <b>judgment</b>, <b>situational awareness</b>, <b>not under influence</b>, <b>anger check</b>, <b>reflexes</b>. Add <b>comments</b> where anything is borderline.</li>
+        <li><b>Vehicle selection.</b> Choose an appliance from those available in your department. <code>assign_vehicle()</code> takes it out of the pool and attaches it to you.</li>
+        <li><b>Vehicle inspection.</b> Record <b>fuel level</b> — ¼, ½, ¾ or Full — and confirm <b>lights functional</b>, <b>tyres condition OK</b>, <b>equipment stocked</b>, <b>comms working</b>, <b>brakes responsive</b>.</li>
+      </ol>
+      <div class="after">
+        <b>Until all three exist for today</b> the responder app routes you to the Shift tab and you cannot
+        open incidents. Profile stays reachable so you can always see who you are signed in as and sign out.
+      </div>
+    </div>
+  </div>
+
+  <h2>24.2 Going on and off duty</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Go on duty</div>
+      <div class="m"><b>Screen</b> phone Profile tab &nbsp;·&nbsp; <b>Procedure</b> <code>toggle_duty()</code></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Profile</b> and switch <b>Duty status</b> on.</li>
+        <li>Allow location access when asked.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> A GPS heartbeat runs every 60 seconds so dispatch can see your position. It goes through the offline queue, so losing signal does not lose your position — the newest fix is delivered when you reconnect.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">End of shift</div>
+      <div class="m"><b>Procedure</b> <code>cleanup_on_logout()</code></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Check the <b>sync tray</b> is empty. If anything is waiting and you have signal, give it a moment.</li>
+        <li>Sign out from <b>Profile</b>.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> Your vehicle is released, duty is cleared, and your push registration is removed so the next person carrying the handset does not receive your alerts.</div>
+    </div>
+  </div>
+
+  <h2>24.3 Unit compliance</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Check unit compliance</div>
+      <div class="m"><b>Screen</b> /shift/unit-compliance</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Shift → Unit Compliance</b>.</li>
+        <li>Review which units have a current inspection and which do not.</li>
+      </ol>
+      <div class="after"><b>Use for</b> A supervisor confirming the fleet going out is roadworthy on paper as well as in fact.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c25">
+  <div class="part-head"><div class="cnum">Chapter 25</div><h1>Departmental Reports</h1></div>
+
+  <p class="lede">
+    Each department captures its own report against the shared incident. Full field lists appear in the
+    role playbooks (Chapters 14–16); this chapter covers what is common and what to watch.
+  </p>
+
+  <h2>25.1 Police case report</h2>
+  <p>
+    <b>Screen</b> <code>/police/reports/new</code> · <b>Writes</b> <code>metro_reports</code>. Seven
+    capture areas: heading, officer, people, outcome, property and evidence, narrative. See 14.2 for the
+    field-by-field procedure.
+  </p>
+  <div class="warn">
+    <b>The narrative is the report</b>
+    Every other field is structured data for searching and statistics. The <b>officer narrative</b> is what
+    gets read in court. Write it as an account, not as notes.
+  </div>
+
+  <h2>25.2 Fire incident report</h2>
+  <p>
+    <b>Screen</b> <code>/fire/reports/new</code> · <b>Writes</b> <code>firefighter_reports</code>. Ten
+    capture areas including timings, property, fire behaviour, response, casualties, hazmat and outcome.
+    See 15.2.
+  </p>
+  <div class="note">
+    <b>Timings feed the measures</b>
+    Dispatch, arrival, clear and total are recorded in minutes and are what the fire response-time
+    measures are computed from. Estimate honestly rather than leaving them at zero.
+  </div>
+  <p><b>PDF:</b> download from the report page — <code>/api/pdf/fire-report/[id]</code>.</p>
+
+  <h2>25.3 Patient care record</h2>
+  <p>
+    <b>Screen</b> <code>/medical/pcr/new</code> · <b>Writes</b> <code>paramedic_reports</code> plus
+    <code>medical_histories</code>, <code>assessment_findings</code>, <code>vital_signs</code>,
+    <code>interventions</code>, <code>legal_handovers</code>. See 16.2.
+  </p>
+  <div class="warn">
+    <b>Signatures</b>
+    Responder, hospital representative and doctor sign on the canvas. The handover is a legal transfer of
+    care; an unsigned PCR is an incomplete record of who was responsible for the patient and when.
+  </div>
+
+  <h2>25.4 Security and firearms</h2>
+  <p>
+    SIRA guard reports at <code>/police/security/new</code> with a <b>Resolve</b> flow requiring a
+    resolution summary; firearm authorizations at <code>/police/firearms/new</code> with a <b>Return</b>
+    action. Both are registers — the value is in them being closed out, not just opened.
+  </p>
+
+  <h2>25.5 Where reports are read</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:38mm">Screen</th><th>Shows</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/reports</td><td>The departmental archive.</td></tr>
+      <tr><td class="mono">/report-hub</td><td>Filtered incident reporting across departments, with CSV export and saved templates.</td></tr>
+      <tr><td class="mono">/reports/builder</td><td>Custom reports: choose a dataset, filter, group and chart.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="part" id="c26">
+  <div class="part-head"><div class="cnum">Chapter 26</div><h1>People</h1></div>
+
+  <h2>26.1 Rosters and shifts</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Create a shift</div>
+      <div class="m"><b>Screen</b> /roster &nbsp;·&nbsp; <b>Who</b> Supervisory tier &nbsp;·&nbsp; <b>Writes</b> shifts</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Roster</b>.</li>
+        <li>Enter <b>shift name</b>, <b>activity type</b>, <b>start time</b>, <b>end time</b>, <b>description</b> and <b>department</b>.</li>
+        <li>Save.</li>
+      </ol>
+      <div class="after"><b>Generators</b> The 224 and 24-48 rotation generators produce a pattern of shifts rather than one at a time.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Add a roster entry</div>
+      <div class="m"><b>Screen</b> /roster &nbsp;·&nbsp; <b>Writes</b> rosters</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Choose the member and the shift.</li>
+        <li>Set <b>station</b>, <b>activity type</b>, <b>call sign</b>, <b>vehicle</b>, <b>sector</b> and <b>special instructions</b>.</li>
+        <li>Save.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Record an endorsement</div>
+      <div class="m"><b>Screen</b> /roster &nbsp;·&nbsp; <b>Writes</b> endorsements</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Choose the member.</li>
+        <li>Set the <b>type</b> — court attendance, special event, instruction or restriction — with <b>details</b> and a <b>start</b> and <b>end date</b>.</li>
+        <li>Save.</li>
+      </ol>
+      <div class="after"><b>Where it shows</b> On the member's schedule, on the duty sheet, and in My Schedule on the phone.</div>
+    </div>
+  </div>
+
+  <h2>26.2 Duty allocation</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Fill and publish a duty day</div>
+      <div class="m"><b>Screen</b> /roster/allocation &nbsp;·&nbsp; <b>Writes</b> rosters, duty_posts</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Roster → Allocation</b>. The board lists every <b>post</b> the shift must fill, with its minimum staffing, and shows the gaps.</li>
+        <li><b>Assign</b> a member to a post: set badge, station, activity, vehicle, sector, call sign and instructions.</li>
+        <li>Repeat until covered. <b>Unassign</b> to correct a mistake.</li>
+        <li><b>Publish day.</b> Drafts are invisible to members until this.</li>
+        <li><b>Copy forward</b> to seed another day from this one.</li>
+      </ol>
+      <div class="after"><b>Then</b> Members <b>acknowledge</b> their allocation from My Schedule. The engine reminds anyone who has not, 12 hours before the start.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Maintain the establishment</div>
+      <div class="m"><b>Screen</b> /roster/allocation &nbsp;·&nbsp; <b>Writes</b> duty_posts</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Use <b>Save post</b> to create or edit a post: <b>name</b>, <b>minimum staff</b>, <b>station</b>, <b>sector</b>, <b>vehicle</b>, <b>call sign</b>, <b>activity</b> and <b>sort order</b>.</li>
+        <li>Use <b>Retire post</b> when a post no longer exists. Retiring rather than deleting preserves history.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Print the duty sheet</div>
+      <div class="m"><b>Screen</b> /roster/duty-sheet</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Roster → Duty Sheet</b> and choose the day.</li>
+        <li>Print. The layout carries shift blocks, the on-leave list, special events and sign-off columns.</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>26.3 Leave</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Apply for leave</div>
+      <div class="m"><b>Screen</b> /leave, or the phone &nbsp;·&nbsp; <b>Who</b> any operational role and Staff &nbsp;·&nbsp; <b>Writes</b> leave_entries</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Check your <b>balance</b> for the leave type first — it is shown above the form.</li>
+        <li>Choose the <b>type</b> from the configured list.</li>
+        <li>Set <b>from</b> and <b>to</b> dates.</li>
+        <li>Add a <b>reason</b>. Optional, but it is what your supervisor decides on.</li>
+        <li>Submit.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> Status <i>Pending</i>. You may only ever file your own request, and only as Pending — the decision is the supervisor's. You are alerted when they decide.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Decide a leave request</div>
+      <div class="m"><b>Screen</b> /hr or /leave &nbsp;·&nbsp; <b>Who</b> Supervisory tier</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>HR</b>; pending requests carry an inline decision.</li>
+        <li>Read the <b>coverage impact</b> — the share of the department away if granted.</li>
+        <li>Approve or reject.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> <code>approved_by</code> and <code>approved_at</code> are set, the member is alerted, and the decision is audited.</div>
+    </div>
+  </div>
+
+  <h2>26.4 Training and certifications</h2>
+  <p>See 18.3. The critical field is the certification <b>expiry date</b>, which drives automatic warnings at 30, 7 and 1 days to both the member and the department.</p>
+
+  <h2>26.5 Performance</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Run the appraisal cycle</div>
+      <div class="m"><b>Screens</b> /performance/kpis · /performance/plans &nbsp;·&nbsp; <b>Who</b> Supervisor and admin tier</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Add KPIs</b> for the <b>cycle year</b>: <b>department</b>, <b>title</b>, <b>description</b>, <b>weight</b>.</li>
+        <li><b>Generate plans</b> for the cycle year — one per member.</li>
+        <li>Open a plan and <b>save a score</b> per KPI: <b>stage</b> (mid-year or final), <b>score</b>, <b>comments</b>, <b>evidence</b>.</li>
+        <li><b>Approve the stage</b> to lock it.</li>
+      </ol>
+      <div class="after"><b>Retiring a KPI</b> Use <b>Deactivate</b> rather than deleting, so historical scores remain interpretable.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Read performance</div>
+      <div class="m"><b>Screens</b> /performance/operational · /mine · /rollup · /reports · /role-kpis</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Operational</b> — call-taker and dispatcher throughput, category pivot, call detail, logons, with CSV export.</li>
+        <li><b>Mine</b> — your own throughput against the team, monthly trend, appraisal snapshot.</li>
+        <li><b>Rollup</b> — the same measures aggregated up the reporting hierarchy.</li>
+        <li><b>Reports</b> — one date window by member, by department and by incident type, each with CSV.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c27">
+  <div class="part-head"><div class="cnum">Chapter 27</div><h1>Reporting and Analysis</h1></div>
+
+  <h2>27.1 Report Hub</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Build and save a filtered incident report</div>
+      <div class="m"><b>Screen</b> /report-hub &nbsp;·&nbsp; <b>Writes</b> command_records (ReportTemplate)</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Set the filters: free-text <b>search</b>, <b>status</b>, <b>department</b>, <b>category</b>, <b>region</b>, and a <b>from</b>/<b>to</b> date window.</li>
+        <li>Review the result.</li>
+        <li><b>Export CSV</b>, or <b>save as a template</b> with a name so the same cut can be repeated.</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>27.2 Report Builder</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Build a custom report</div>
+      <div class="m"><b>Screen</b> /reports/builder &nbsp;·&nbsp; <b>Writes</b> report_definitions</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Choose a <b>dataset</b> from the registry. Only datasets your role may query are offered.</li>
+        <li>Add <b>filters</b>. Fields, operators and enum values are validated against the registry.</li>
+        <li>Choose <b>grouping</b> and a <b>chart</b> type.</li>
+        <li><b>Run</b>.</li>
+        <li><b>Save</b> with a name, description and <b>visibility</b>, or <b>export CSV</b>.</li>
+      </ol>
+      <div class="after">
+        <b>Why filters get dropped silently</b> A filter naming a column that is not in the registry, an
+        operator the field type does not support, or an enum value that does not exist is discarded rather
+        than passed through to the database. This is the defence that keeps a user-composed query from
+        becoming a way to read something it should not.
+      </div>
+    </div>
+  </div>
+
+  <h2>27.3 Analytics and hierarchy</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:38mm">Screen</th><th>Shows</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/analytics</td><td>Trends, closure rate, volume charts. Admin, Viewer and Supervisor.</td></tr>
+      <tr><td class="mono">/hierarchy</td><td>The reporting structure, with CSV export.</td></tr>
+      <tr><td class="mono">/hierarchy/person</td><td>Set an individual's reporting line.</td></tr>
+      <tr><td class="mono">/dispatch/kpi</td><td>Dispatcher throughput and lifecycle timings.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>27.4 Search</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Find a record from any string</div>
+      <div class="m"><b>Screens</b> ⌘K anywhere, or /search &nbsp;·&nbsp; <b>Procedure</b> <code>search_everything()</code></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Press <kbd>⌘K</kbd> / <kbd>Ctrl+K</kbd>, or open <b>Search</b>.</li>
+        <li>Type at least two characters. Partial identifiers work — part of an incident number, a plate, a badge, a surname.</li>
+        <li>Results group by kind: incidents, personnel, fleet, police reports, fire reports, security reports.</li>
+      </ol>
+      <div class="after"><b>Scope</b> Results are RLS-scoped, so you see only what you could open anyway. The <code>/search</code> page keeps the query in the URL, so a search can be bookmarked or sent to a colleague.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c28">
+  <div class="part-head"><div class="cnum">Chapter 28</div><h1>Surveillance and External Systems</h1></div>
+
+  <h2>28.1 The camera wall</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">View cameras</div>
+      <div class="m"><b>Screen</b> /cameras &nbsp;·&nbsp; <b>Endpoint</b> /api/cctv/cameras</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Cameras</b>. The registry served is SANRAL today, or the live HikCentral estate once that integration is enabled.</li>
+        <li>Select a camera for live preview.</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>28.2 Retrieving footage</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Retrieve recorded footage</div>
+      <div class="m"><b>Screen</b> /cameras/footage &nbsp;·&nbsp; <b>Endpoint</b> /api/cctv/stream &nbsp;·&nbsp; <b>Audited</b></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Cameras → Footage</b>.</li>
+        <li>Choose the camera and a time window — capped at 24 hours per request.</li>
+        <li>Request the playback URL.</li>
+      </ol>
+      <div class="after"><b>Chain of custody</b> Every grant is written to the audit log with your name. Footage retrieval is evidence handling, and who requested what has to be answerable later.</div>
+    </div>
+  </div>
+
+  <h2>28.3 Radio (PTT)</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Send text to a radio</div>
+      <div class="m"><b>Screen</b> /dispatch/ptt &nbsp;·&nbsp; <b>Who</b> Dispatch roles &nbsp;·&nbsp; <b>Rate limit</b> 60/min</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Dispatch → PTT</b>.</li>
+        <li>Enter the destination <b>account</b> and the <b>message</b>.</li>
+        <li>Send. Your name is derived from your profile and attached as the sender.</li>
+        <li>The two-hour audio log is on the same screen.</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>28.4 External feeds</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:38mm">Feed</th><th style="width:36mm">Where it appears</th><th>Needs</th></tr></thead>
+    <tbody>
+      <tr><td>Traffic incidents</td><td>Cameras, dispatch console</td><td><code>TOMTOM_API_KEY</code></td></tr>
+      <tr><td>Points of interest</td><td>Map layers</td><td><code>TOMTOM_API_KEY</code></td></tr>
+      <tr><td>Aircraft</td><td>Disaster monitor</td><td><code>FLIGHTRADAR_API_KEY</code></td></tr>
+      <tr><td>Vessels</td><td>Disaster monitor</td><td><code>MARINESIA_API_KEY</code></td></tr>
+      <tr><td>Wind and weather</td><td>Disaster monitor</td><td><code>OPENWEATHER_API_KEY</code></td></tr>
+      <tr><td>Camera registry import</td><td>Cameras</td><td><code>ITRAFFIC_API_KEY</code></td></tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <b>When a feed is not configured</b>
+    The panel says so explicitly rather than showing an error or, worse, plausible-looking data. A control
+    room must be able to tell "this feed is off" from "this feed says there is nothing there".
+  </div>
+</div>

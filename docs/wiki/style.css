@@ -1,0 +1,382 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Criticomm Operations & Engineering Manual — page architecture
+
+   The measure is the whole design. Body prose is held to ~128mm, which
+   at 10pt Georgia is roughly 72 characters — the range the eye tracks
+   without losing its place. Reference matter that is scanned rather
+   than read (tables, the capability matrix, figures) opts out to the
+   full 166mm, because a table wants width and a paragraph does not.
+
+   Folios and running heads are NOT set here. Chrome cannot produce them
+   without printing its own URL header, so they are stamped onto the
+   rendered PDF afterwards (see build.mjs). That also lets each chapter
+   carry its own running head, which CSS paged media cannot do in any
+   current browser.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@page {
+  size: A4;
+  /* Asymmetric: a wide outer margin carries the stamped folio and rule,
+     and gives the eye somewhere to rest beside a dense page. */
+  margin: 24mm 20mm 24mm 24mm;
+}
+@page :first { margin: 0; }
+
+:root {
+  --ink:    #14161b;
+  --ink-2:  #414755;
+  --ink-3:  #717784;
+  --ink-4:  #a1a7b3;
+  --rule:   #d5d9e0;
+  --rule-2: #e9ecf1;
+  --wash:   #f6f7f9;
+  --crimson:#9e1526;
+  --blue:   #17457f;
+  --green:  #14603f;
+  --amber:  #7d5100;
+  --code-bg:#f3f4f7;
+
+  --measure: 128mm;   /* prose */
+  --full:    166mm;   /* reference matter */
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Georgia","Cambria",serif;
+  font-size: 10pt;
+  line-height: 1.62;
+  color: var(--ink);
+  margin: 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  text-rendering: geometricPrecision;
+}
+.sans, h1, h2, h3, h4, th, kbd, .num { font-family: "Segoe UI","Helvetica Neue",Arial,sans-serif; }
+
+/* ── Measure ─────────────────────────────────────────────────────── */
+p, ul, ol, .lede, blockquote { max-width: var(--measure); }
+table, figure, .matrix-wrap { width: var(--full); }
+.proc { width: 152mm; }
+.note, .warn, .why { max-width: 140mm; }
+
+/* ═══ COVER ═══════════════════════════════════════════════════════ */
+.cover {
+  height: 297mm; width: 210mm; position: relative; overflow: hidden;
+  background: #101319; color: #fff; page-break-after: always;
+}
+.cover .rule-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 10mm 10mm;
+}
+.cover .band {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 8mm;
+  background: var(--crimson);
+}
+.cover .inner { position: relative; padding: 34mm 24mm 22mm 30mm; height: 100%; }
+.cover .crest {
+  font-family: "Segoe UI",sans-serif; font-size: 8pt; letter-spacing: 3.6px;
+  text-transform: uppercase; color: #9aa2b1; padding-bottom: 3mm;
+  border-bottom: 1px solid rgba(255,255,255,0.16); display: inline-block;
+  margin-bottom: 24mm;
+}
+.cover h1 {
+  font-family: "Georgia",serif; font-size: 46pt; line-height: 1.02;
+  margin: 0; font-weight: 400; letter-spacing: -1.4px; color: #fff;
+}
+.cover h1 .lock {
+  display: block; font-family: "Segoe UI",sans-serif; font-size: 12pt;
+  font-weight: 600; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--crimson); margin-bottom: 6mm;
+}
+.cover .sub {
+  font-size: 12.5pt; color: #b9c0cc; max-width: 118mm; line-height: 1.6;
+  margin-top: 10mm; font-family: "Georgia",serif;
+}
+.cover .facts {
+  position: absolute; left: 30mm; right: 24mm; bottom: 44mm;
+  border-top: 1px solid rgba(255,255,255,0.16); padding-top: 6mm;
+  display: flex; gap: 12mm; font-family: "Segoe UI",sans-serif;
+}
+.cover .facts div .n {
+  font-size: 17pt; font-weight: 300; color: #fff; letter-spacing: -0.5px;
+}
+.cover .facts div .l {
+  font-size: 7.4pt; color: #8d94a2; text-transform: uppercase;
+  letter-spacing: 1.4px; margin-top: 1.2mm;
+}
+.cover .imprint {
+  position: absolute; left: 30mm; right: 24mm; bottom: 20mm;
+  font-family: "Segoe UI",sans-serif; font-size: 8pt; color: #767d8b;
+  display: flex; justify-content: space-between;
+}
+
+/* ═══ CONTENTS ════════════════════════════════════════════════════ */
+.toc { page-break-after: always; }
+.toc h1 {
+  font-size: 22pt; font-weight: 300; letter-spacing: -0.6px; margin: 0;
+  padding-bottom: 3mm; border-bottom: 2px solid var(--ink);
+}
+.toc .strap {
+  font-family: "Segoe UI",sans-serif; font-size: 8.2pt; color: var(--ink-3);
+  letter-spacing: 1.4px; text-transform: uppercase; margin: 3mm 0 8mm 0;
+}
+.toc .vgroup { margin-bottom: 5.5mm; page-break-inside: avoid; max-width: var(--full); }
+.toc .vhead {
+  display: flex; align-items: baseline; gap: 4mm; margin-bottom: 1.5mm;
+}
+.toc .vhead .rn {
+  font-family: "Segoe UI",sans-serif; font-size: 7.6pt; font-weight: 700;
+  color: var(--crimson); letter-spacing: 2px; min-width: 13mm;
+}
+.toc .vhead .vt {
+  font-family: "Segoe UI",sans-serif; font-size: 10.5pt; font-weight: 600;
+  letter-spacing: -0.1px; flex: 1;
+  border-bottom: 1px solid var(--ink); padding-bottom: 1.2mm;
+}
+.toc .line {
+  display: flex; gap: 4mm; font-size: 9pt; padding: 0.9mm 0 0.9mm 17mm;
+}
+.toc .line + .line { border-top: 1px solid var(--rule-2); }
+.toc .line .cn {
+  font-family: "Segoe UI",sans-serif; font-weight: 600; color: var(--ink-4);
+  min-width: 8mm; font-size: 8.2pt; padding-top: 0.5mm; text-align: right;
+}
+.toc .line .ct { font-weight: 700; }
+.toc .line .cd { color: var(--ink-3); }
+
+/* ═══ VOLUME DIVIDER ══════════════════════════════════════════════ */
+.volume {
+  page-break-before: always; page-break-after: always;
+  height: 249mm; position: relative; display: flex; flex-direction: column;
+  justify-content: center;
+}
+.volume .bignum {
+  position: absolute; top: 0; left: 0;
+  font-family: "Georgia",serif; font-size: 118pt; font-weight: 400;
+  line-height: 1; color: var(--rule-2); letter-spacing: -4px;
+}
+.volume .kick {
+  font-family: "Segoe UI",sans-serif; font-size: 8pt; font-weight: 700;
+  letter-spacing: 3.4px; text-transform: uppercase; color: var(--crimson);
+  margin-bottom: 4mm;
+}
+.volume h1 {
+  font-family: "Georgia",serif; font-size: 33pt; font-weight: 400;
+  letter-spacing: -0.9px; margin: 0 0 6mm 0; line-height: 1.06;
+  max-width: 130mm;
+}
+.volume .bar { width: 100%; max-width: var(--full); height: 2px; background: var(--ink); margin-bottom: 6mm; }
+.volume p {
+  font-size: 11.5pt; color: var(--ink-2); max-width: 122mm; line-height: 1.62;
+}
+.volume .chaps {
+  margin-top: 14mm; padding-top: 5mm; border-top: 1px solid var(--rule);
+  font-family: "Segoe UI",sans-serif; font-size: 8.8pt; color: var(--ink-3);
+  columns: 2; column-gap: 12mm; max-width: var(--full);
+}
+.volume .chaps div { margin-bottom: 1.5mm; break-inside: avoid; }
+.volume .chaps b { color: var(--ink); font-weight: 600; display: inline-block; min-width: 7mm; }
+
+/* ═══ CHAPTER ═════════════════════════════════════════════════════ */
+.part { page-break-before: always; }
+.part-head { margin-bottom: 9mm; max-width: var(--full); }
+.part-head .cnum {
+  font-family: "Segoe UI",sans-serif; font-size: 7.8pt; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase; color: var(--crimson);
+  margin-bottom: 2mm;
+}
+.part-head h1 {
+  font-family: "Georgia",serif; font-size: 23pt; font-weight: 400;
+  letter-spacing: -0.7px; margin: 0 0 4mm 0; line-height: 1.1;
+}
+.part-head::after {
+  content: ""; display: block; height: 2px; width: var(--full); background: var(--ink);
+}
+
+/* Hanging section numbers in the left gutter. */
+h2, h3 { position: relative; }
+h2 {
+  font-size: 12.4pt; font-weight: 600; letter-spacing: -0.1px;
+  margin: 9mm 0 3mm 0; padding-bottom: 1.6mm;
+  border-bottom: 1px solid var(--rule); max-width: var(--full);
+  page-break-after: avoid;
+}
+h2 .hn, h3 .hn {
+  position: absolute; left: -17mm; top: 0.3mm; width: 15mm; text-align: right;
+  font-size: 8.6pt; font-weight: 700; color: var(--crimson);
+  letter-spacing: 0.2px;
+}
+h3 { font-size: 10.6pt; font-weight: 700; margin: 6mm 0 2mm 0; page-break-after: avoid; }
+h3 .hn { color: var(--ink-4); top: 0.6mm; }
+h4 {
+  font-size: 8.4pt; font-weight: 700; color: var(--ink-3); margin: 4.5mm 0 1.5mm 0;
+  text-transform: uppercase; letter-spacing: 1.2px; page-break-after: avoid;
+}
+
+p { margin: 0 0 3mm 0; }
+ul, ol { margin: 0 0 3.5mm 0; padding-left: 5mm; }
+li { margin-bottom: 1.5mm; }
+a { color: var(--blue); text-decoration: none; }
+
+.lede {
+  font-size: 11pt; color: var(--ink-2); line-height: 1.62;
+  border-left: 2px solid var(--crimson); padding-left: 5mm; margin: 0 0 8mm 0;
+}
+
+/* ═══ TABLES ══════════════════════════════════════════════════════ */
+table { border-collapse: collapse; margin: 3.5mm 0 6mm 0; font-size: 8.6pt; page-break-inside: avoid; }
+thead th {
+  text-align: left; padding: 1.6mm 2.6mm 1.8mm 0; font-size: 7.2pt; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.1px; color: var(--ink-3);
+  border-bottom: 1.4px solid var(--ink);
+}
+thead th + th { padding-left: 2.6mm; }
+tbody td { padding: 1.7mm 2.6mm 1.7mm 0; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+tbody td + td { padding-left: 2.6mm; }
+tbody tr:last-child td { border-bottom: 1.4px solid var(--rule); }
+td.mono, th.mono, .mono { font-family: "Consolas","Courier New",monospace; font-size: 7.9pt; }
+table.zebra tbody tr:nth-child(even) { background: var(--wash); }
+table.zebra tbody tr:nth-child(even) td:first-child { box-shadow: -2mm 0 0 var(--wash); }
+
+code {
+  font-family: "Consolas","Courier New",monospace; font-size: 8.4pt;
+  background: var(--code-bg); padding: 0.2mm 1mm; border-radius: 1.5px; color: #7d1526;
+}
+pre {
+  background: #14161b; color: #dfe3ea; border-radius: 2px;
+  padding: 3.5mm 4.5mm; margin: 3mm 0 5.5mm 0; max-width: 152mm;
+  font-family: "Consolas","Courier New",monospace; font-size: 7.9pt; line-height: 1.52;
+  white-space: pre-wrap; overflow-wrap: break-word; page-break-inside: avoid;
+}
+pre code { background: none; padding: 0; color: #dfe3ea; }
+kbd {
+  border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 2px;
+  padding: 0.2mm 1.2mm; font-size: 7.6pt; background: var(--wash);
+  font-family: "Segoe UI",sans-serif;
+}
+
+/* ═══ CALLOUTS ════════════════════════════════════════════════════ */
+.note, .warn, .why {
+  padding: 3mm 4mm 3mm 4.5mm; margin: 3.5mm 0 5.5mm 0; font-size: 9pt;
+  page-break-inside: avoid; border-left: 2px solid var(--ink-4); background: var(--wash);
+}
+.note { border-left-color: var(--blue); }
+.warn { border-left-color: var(--amber); background: #fdfaf4; }
+.why  { border-left-color: var(--green); background: #f4f8f5; }
+.note > b:first-child, .warn > b:first-child, .why > b:first-child {
+  font-family: "Segoe UI",sans-serif; font-size: 7.4pt; text-transform: uppercase;
+  letter-spacing: 1.3px; display: block; margin-bottom: 1.4mm; font-weight: 700;
+}
+.note > b:first-child { color: var(--blue); }
+.warn > b:first-child { color: var(--amber); }
+.why  > b:first-child { color: var(--green); }
+.note p, .warn p, .why p, .note ul, .warn ul, .why ul { max-width: none; }
+
+.pill {
+  display: inline-block; font-family: "Segoe UI",sans-serif; font-size: 6.8pt;
+  font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+  padding: 0.4mm 1.6mm; border: 1px solid currentColor; border-radius: 1px;
+  vertical-align: 1.2px;
+}
+.pill-core { color: var(--blue); } .pill-sec { color: var(--crimson); } .pill-mob { color: #543a9c; }
+
+/* ═══ PROCEDURES ══════════════════════════════════════════════════ */
+.proc {
+  border-top: 1.8px solid var(--ink); border-bottom: 1px solid var(--rule);
+  margin: 5mm 0 6.5mm 0; page-break-inside: avoid;
+}
+.proc > .h { padding: 2.4mm 0 2.2mm 0; }
+.proc > .h .t { font-family: "Segoe UI",sans-serif; font-weight: 700; font-size: 10.2pt; }
+.proc > .h .m {
+  font-family: "Segoe UI",sans-serif; font-size: 7.4pt; color: var(--ink-3);
+  margin-top: 1.2mm;
+}
+.proc > .h .m b {
+  color: var(--ink-2); font-weight: 700; text-transform: uppercase;
+  font-size: 6.9pt; letter-spacing: 0.9px;
+}
+.proc > .b { padding: 1mm 0 3mm 0; border-top: 1px solid var(--rule-2); }
+.proc ol { counter-reset: st; list-style: none; padding-left: 0; margin: 2mm 0 0 0; max-width: none; }
+.proc ol li { counter-increment: st; position: relative; padding-left: 7.5mm; margin-bottom: 2.2mm; }
+.proc ol li::before {
+  content: counter(st); position: absolute; left: 0; top: 0.6mm;
+  font-family: "Segoe UI",sans-serif; font-size: 7pt; font-weight: 700;
+  color: var(--ink); border: 1px solid var(--ink-4);
+  width: 4.6mm; height: 4.6mm; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.proc .after {
+  border-top: 1px dotted var(--rule); margin-top: 3mm; padding-top: 2.4mm;
+  font-size: 8.5pt; color: var(--ink-2);
+}
+.proc .after b {
+  font-family: "Segoe UI",sans-serif; font-size: 6.9pt; text-transform: uppercase;
+  letter-spacing: 1.1px; color: var(--ink-3); font-weight: 700;
+}
+
+/* ═══ ROLE CARD ═══════════════════════════════════════════════════ */
+.role { page-break-inside: avoid; margin-bottom: 6mm; max-width: var(--full); }
+.role .h {
+  display: flex; align-items: baseline; gap: 5mm;
+  border-bottom: 1.8px solid var(--ink); padding-bottom: 2mm;
+}
+.role .h h3 { margin: 0; font-size: 12.6pt; font-weight: 700; letter-spacing: -0.2px; }
+.role .h .roles { font-family: "Consolas",monospace; font-size: 7.6pt; color: var(--crimson); }
+.role .who { font-size: 9.4pt; color: var(--ink-2); margin-top: 2.2mm; max-width: var(--measure); }
+
+/* ═══ STATS ═══════════════════════════════════════════════════════ */
+.stats {
+  display: flex; margin: 5mm 0 7mm 0; max-width: var(--full);
+  border-top: 1.8px solid var(--ink); border-bottom: 1px solid var(--rule);
+}
+.stats .s { flex: 1; padding: 3.5mm 2mm; text-align: center; }
+.stats .s + .s { border-left: 1px solid var(--rule-2); }
+.stats .n {
+  font-family: "Georgia",serif; font-size: 20pt; font-weight: 400;
+  letter-spacing: -0.8px; line-height: 1;
+}
+.stats .l {
+  font-family: "Segoe UI",sans-serif; font-size: 6.8pt; color: var(--ink-3);
+  text-transform: uppercase; letter-spacing: 1.2px; margin-top: 1.8mm;
+}
+
+/* ═══ FIGURES ═════════════════════════════════════════════════════ */
+figure { margin: 5.5mm 0 6.5mm 0; page-break-inside: avoid; }
+figure svg { width: 100%; height: auto; display: block; }
+figcaption {
+  font-family: "Segoe UI",sans-serif; font-size: 7.6pt; color: var(--ink-3);
+  margin-top: 2.4mm; padding-top: 1.8mm; border-top: 1px solid var(--rule);
+  max-width: 150mm; line-height: 1.5;
+}
+figcaption b {
+  color: var(--crimson); font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; font-size: 7pt;
+}
+
+/* ═══ MATRIX ══════════════════════════════════════════════════════ */
+table.matrix { font-size: 7.2pt; width: var(--full); }
+table.matrix th.rot {
+  height: 27mm; vertical-align: bottom; padding: 0 0 1.6mm 0; width: 5mm;
+  border-bottom: 1.4px solid var(--ink);
+}
+table.matrix th.rot > div {
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  font-size: 6.9pt; letter-spacing: 0.3px; text-transform: none; white-space: nowrap;
+  font-weight: 600; color: var(--ink-2);
+}
+table.matrix td { text-align: center; padding: 1.2mm 0; border-bottom: 1px solid var(--rule-2); }
+table.matrix td.r {
+  text-align: left; padding: 1.2mm 2mm 1.2mm 0; white-space: nowrap;
+  font-family: "Consolas",monospace; font-size: 7.2pt;
+}
+table.matrix tbody tr:nth-child(even) { background: var(--wash); }
+.yes { color: var(--green); font-weight: 700; }
+.no  { color: var(--ink-4); }
+.part-yes { color: var(--amber); font-weight: 700; }
+
+/* Widows and orphans matter in a document read under pressure. */
+p, li { orphans: 2; widows: 2; }

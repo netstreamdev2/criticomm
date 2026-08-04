@@ -23,12 +23,14 @@
     "db:seed-dev": "psql \"$SUPABASE_DB_URL\" -f supabase/seed/dev.sql",
     "db:load-crime": "node scripts/load-crime-stats.mjs",
     "db:create-admin": "node scripts/create-admin.mjs",
-    "db:seed": "node scripts/seed-all.mjs"
+    "db:seed": "node scripts/seed-all.mjs",
+    "docs:build": "node docs/wiki/build.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@supabase/supabase-js": "^2.110.5",
     "@types/node": "^22.7.4",
+    "pdf-lib": "^1.17.1",
     "pg": "^8.22.0",
     "supabase": "^1.200.3",
     "turbo": "^2.1.3",

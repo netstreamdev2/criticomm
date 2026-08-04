@@ -1,0 +1,953 @@
+<div class="volume">
+  <div class="bignum">IV</div>
+  <div class="kick">Volume IV</div>
+  <h1>Role Playbooks</h1>
+  <div class="bar"></div>
+  <p>One playbook per desk. What you can reach, what your shift looks like, every task you perform, and what you cannot do — with who to ask instead.</p>
+  <div class="chaps"><div><b>9</b> &nbsp;How to read a playbook</div><div><b>10</b> &nbsp;Call-taker</div><div><b>11</b> &nbsp;Control room operator</div><div><b>12</b> &nbsp;Dispatcher</div><div><b>13</b> &nbsp;Field responder</div><div><b>14</b> &nbsp;Metro Police officer</div><div><b>15</b> &nbsp;Firefighter</div><div><b>16</b> &nbsp;Paramedic</div><div><b>17</b> &nbsp;Disaster management officer</div><div><b>18</b> &nbsp;Supervisor</div><div><b>19</b> &nbsp;Case manager</div><div><b>20</b> &nbsp;Staff and Viewer</div><div><b>21</b> &nbsp;Administrator</div></div>
+</div>
+
+<div class="part" id="c9">
+  <div class="part-head"><div class="cnum">Chapter 9</div><h1>How to Read a Playbook</h1></div>
+
+  <p class="lede">
+    Twelve playbooks cover all 23 assignable roles. Several roles share a playbook because they share a
+    desk — a <code>Police</code>, an <code>Officer</code> and a <code>Metro</code> see the same screens and do
+    the same work; the distinction is rank, not permission.
+  </p>
+
+  <h2>9.1 Structure</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:36mm">Section</th><th>What it tells you</th></tr></thead>
+    <tbody>
+      <tr><td><b>Who this is</b></td><td>The job, and which role values map to it.</td></tr>
+      <tr><td><b>Reach</b></td><td>Exactly which screens the route matrix opens for this role. Anything not listed redirects to <code>/403</code>.</td></tr>
+      <tr><td><b>Shift routine</b></td><td>The order to do things in, start to end.</td></tr>
+      <tr><td><b>Tasks</b></td><td>Numbered procedures. Full steps are in Volume V; the playbook says which apply to you and in what order.</td></tr>
+      <tr><td><b>Not yours</b></td><td>What this role deliberately cannot do, and who to go to.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9.2 Two rules that apply to everybody</h2>
+  <div class="warn">
+    <b>Silo scope</b>
+    Unless you hold a global role, you see your own department's records plus anything routed to your
+    department. This is enforced in the database, so it holds on every screen, every export and every
+    search — there is no view that shows you more.
+  </div>
+  <div class="note">
+    <b>Everything you do is attributed</b>
+    Every mutation writes an audit row with your name, department and a description. This is not
+    surveillance; it is what makes the record usable as evidence, and it is what protects you when
+    somebody asks why a decision was made.
+  </div>
+
+  <h2>9.3 The role × capability matrix</h2>
+
+  <p>
+    Every assignable role against every area of the platform.
+    <span class="yes">●</span> the role opens it &nbsp;·&nbsp;
+    <span class="part-yes">◐</span> opens it, but only for its own department &nbsp;·&nbsp;
+    <span style="color:#9aa1ae">·</span> redirects to <code>/403</code>.
+  </p>
+
+  <table class="matrix">
+    <thead><tr><th style="width:26mm"></th><th class="rot"><div>Dashboard</div></th><th class="rot"><div>Log a call</div></th><th class="rot"><div>Dispatch queue</div></th><th class="rot"><div>Assign a unit</div></th><th class="rot"><div>Radio (PTT)</div></th><th class="rot"><div>Incidents</div></th><th class="rot"><div>Responder</div></th><th class="rot"><div>Start of shift</div></th><th class="rot"><div>Police</div></th><th class="rot"><div>Fire</div></th><th class="rot"><div>Medical</div></th><th class="rot"><div>Disaster</div></th><th class="rot"><div>Roster admin</div></th><th class="rot"><div>Duty allocation</div></th><th class="rot"><div>My schedule</div></th><th class="rot"><div>HR centre</div></th><th class="rot"><div>Leave</div></th><th class="rot"><div>Training</div></th><th class="rot"><div>Performance</div></th><th class="rot"><div>My performance</div></th><th class="rot"><div>Report hub</div></th><th class="rot"><div>Report builder</div></th><th class="rot"><div>Case manager</div></th><th class="rot"><div>Analytics</div></th><th class="rot"><div>Cameras</div></th><th class="rot"><div>Hierarchy</div></th><th class="rot"><div>Administration</div></th><th class="rot"><div>Search</div></th></tr></thead>
+    <tbody>
+      <tr><td class="r">SystemAdmin</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="r">SuperAdmin</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="r">Admin</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td></tr>
+      <tr><td class="r">Supervisor</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="part-yes">◐</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Dispatcher</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Operator</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">ControlRoom</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">IncidentLogger</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Viewer</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Captain</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Police</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Officer</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Metro</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Security</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Chief</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">FireChief</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Firefighter</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Paramedic</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Doctor</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Disaster</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="part-yes">◐</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">CaseManager</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Responder</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="yes">●</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="part-yes">◐</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td></tr>
+      <tr><td class="r">Staff</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="yes">●</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="no">·</td><td class="yes">●</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Three things are worth reading off this grid. The <b>two-desk split</b> shows as the gap between
+    <i>Log a call</i> and <i>Dispatch queue</i> — no operational role holds both except the control
+    room and the administrative tier. <b>Departmental sections are half-marks</b>, because holding
+    <code>Paramedic</code> opens EMS only inside the Medical department. And <b>Viewer has breadth
+    without depth</b> — wide read access, no write anywhere.
+  </p>
+
+  <div class="why">
+    <b>This grid is generated, not drawn</b>
+    It is produced by evaluating <code>canAccess()</code> — the same function the middleware, the
+    sidebar and the command palette use — for every role against every area. It cannot drift from
+    the platform's behaviour, because it is the platform's behaviour.
+  </div>
+</div>
+
+<div class="part" id="c10">
+  <div class="part-head"><div class="cnum">Chapter 10</div><h1>Call-Taker</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>IncidentLogger</h3>
+    <div class="who">The intake desk. Answers the telephone and turns a call into an incident record. Does not dispatch.</div>
+  </div></div>
+
+  <h2>10.1 Reach</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:44mm">Screen</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/dashboard</td><td>Your board.</td></tr>
+      <tr><td class="mono">/dispatch/log-call</td><td><b>Your primary screen.</b></td></tr>
+      <tr><td class="mono">/incidents · /incidents/[id] · /incidents/map</td><td>Look up what you logged.</td></tr>
+      <tr><td class="mono">/reports · /report-hub · /reports/builder</td><td>Reporting.</td></tr>
+      <tr><td class="mono">/case-manager</td><td>Case review.</td></tr>
+      <tr><td class="mono">/cameras · /cameras/footage</td><td>Camera wall and retrieval.</td></tr>
+      <tr><td class="mono">/hierarchy</td><td>Reporting lines.</td></tr>
+      <tr><td class="mono">/roster/mine · /roster/allocation</td><td>Your schedule and the duty board.</td></tr>
+      <tr><td class="mono">/leave</td><td>Apply for leave.</td></tr>
+      <tr><td class="mono">/performance/mine</td><td>Your own throughput.</td></tr>
+      <tr><td class="mono">/notifications · /profile · /search · /assistant</td><td>Universal.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>10.2 Shift routine</h2>
+  <ol>
+    <li>Sign in. Check the top bar shows your department and the alert bell for anything outstanding.</li>
+    <li>Open <b>Dispatch → Log Incoming Call</b> and leave it open. The intake clock starts when the screen opens, so a fresh screen per call keeps the timing honest.</li>
+    <li>Take calls (10.3).</li>
+    <li>Between calls, check <b>Incidents</b> for anything you logged that has not moved.</li>
+    <li>At end of shift, confirm nothing you captured is still sitting in the queue unrouted, and hand over anything unusual verbally.</li>
+  </ol>
+
+  <h2>10.3 Tasks</h2>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Log an incoming call</div>
+      <div class="m"><b>Screen</b> /dispatch/log-call &nbsp;·&nbsp; <b>Writes</b> incidents, audit_logs &nbsp;·&nbsp; <b>Full procedure</b> 22.1</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Capture <b>Caller name</b> and <b>Contact</b> as the caller gives them. Do not correct spelling later at the cost of listening.</li>
+        <li>Enter the <b>Call description / narrative</b> — what is happening, in their words.</li>
+        <li>Set the <b>location</b>: type the address and take a suggestion, or drop a pin on the map. The two stay in step; you do not need to type coordinates.</li>
+        <li>Classify: <b>incident type</b> from the configured category tree, then <b>Region</b> and <b>Incident severity</b>.</li>
+        <li>If casualties: <b>Number of victims</b> and, for EMS, the <b>Medical severity code</b> (P1 Red through P4 Blue). Tick <i>EMS not required</i> if it plainly is not a medical call.</li>
+        <li>Watch for the <b>duplicate warning</b>. If it names an existing incident, stop and check before creating a second one.</li>
+        <li>Choose the <b>receiving departments</b> if you are permitted to route; otherwise submit and the dispatch desk will.</li>
+        <li>Submit. You get the incident number in a confirmation.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> The incident exists with a sequential number, your name stamped as call-taker, and — if routed — an alert on every screen in the receiving departments and a push to their phones.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Attach something to a call at intake</div>
+      <div class="m"><b>Screen</b> /dispatch/log-call &nbsp;·&nbsp; <b>Writes</b> incident_attachments, storage</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Use the attachment control before submitting.</li>
+        <li>Submit as normal.</li>
+      </ol>
+      <div class="after"><b>If the upload fails</b> The incident is still created and you are told the attachment did not upload. Re-attach it from the incident page — the call is never lost to a failed file.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Ask a caller for their GPS position</div>
+      <div class="m"><b>Screen</b> /incidents/[id] &nbsp;·&nbsp; <b>Needs</b> BulkSMS configured &nbsp;·&nbsp; <b>Full procedure</b> 22.5</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident.</li>
+        <li>Enter the caller's mobile number in <b>Contact citizen</b> and submit.</li>
+        <li>They receive an SMS with a single-use link. When they open it and allow location, the position lands on the incident.</li>
+      </ol>
+      <div class="after"><b>Use when</b> The caller cannot describe where they are — common on freeways and in informal settlements.</div>
+    </div>
+  </div>
+
+  <h2>10.4 Not yours</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:44mm">You cannot</th><th>Go to</th></tr></thead>
+    <tbody>
+      <tr><td>Work the pending queue or assign units</td><td>Dispatcher (Chapter 12). This is the two-desk split and it is deliberate.</td></tr>
+      <tr><td>Change an incident's status</td><td>The attending crew, or the dispatch desk.</td></tr>
+      <tr><td>Close a case</td><td>Case manager or supervisor.</td></tr>
+      <tr><td>Open a department's reports</td><td>That department.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="part" id="c11">
+  <div class="part-head"><div class="cnum">Chapter 11</div><h1>Control Room Operator</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>ControlRoom · Operator</h3>
+    <div class="who">The full control-room desk: takes calls <i>and</i> dispatches. Global silo scope — sees every department.</div>
+  </div></div>
+
+  <h2>11.1 Reach</h2>
+  <p>
+    Everything the call-taker reaches, <b>plus</b> the whole dispatch desk:
+    <code>/dispatch/pending</code>, <code>/dispatch/assign/[id]</code>, <code>/dispatch/kpi</code>,
+    <code>/dispatch/ptt</code>, plus <code>/disaster</code>. Not the departmental report sections, and not
+    <code>/admin</code>.
+  </p>
+
+  <h2>11.2 Shift routine</h2>
+  <ol>
+    <li>Sign in and clear the alert bell — read anything raised overnight, including the morning digest.</li>
+    <li>Open <b>Dispatch → Pending Queue</b>. The figure at the top is your queue depth; it is live.</li>
+    <li>Work the queue oldest-and-worst first. Severity, then call time, is how it is already sorted.</li>
+    <li>Take calls as they come (10.3), routing them yourself rather than leaving them queued.</li>
+    <li>Watch for automatic escalations — an unassigned call raises a High alert at 10 minutes and a blocking Critical at 20.</li>
+    <li>Check <b>Dispatch → KPI</b> before handover so you hand over a described state, not a surprise.</li>
+  </ol>
+
+  <h2>11.3 Tasks</h2>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Route a call to departments</div>
+      <div class="m"><b>Screen</b> /dispatch/pending or the incident &nbsp;·&nbsp; <b>Procedure</b> <code>route_incident()</code> &nbsp;·&nbsp; <b>Full</b> 22.2</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident from the queue.</li>
+        <li>Select every department that needs to attend. A structure fire is usually Fire <i>and</i> EMS; add Police if a cordon is needed.</li>
+        <li>Add dispatch notes if there is something the crew must know before arriving.</li>
+        <li>Confirm.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> Status becomes Dispatched, <code>dispatch_time</code> is stamped, the timeline records who routed it, and every screen and phone in those departments is alerted. High and Critical open a blocking pop-up crews must acknowledge.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Assign a specific unit</div>
+      <div class="m"><b>Screen</b> /dispatch/assign/[id] &nbsp;·&nbsp; <b>Procedure</b> <code>dispatch_unit()</code> &nbsp;·&nbsp; <b>Full</b> 22.3</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident from the queue and choose <b>Assign</b>.</li>
+        <li>Review the map, the incident detail and the available units with their road-routed ETAs.</li>
+        <li>Select the unit and confirm.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> The appliance leaves the available pool and the incident carries the unit. Routing tells a department; assigning commits an appliance — do both.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Send a message to a radio</div>
+      <div class="m"><b>Screen</b> /dispatch/ptt &nbsp;·&nbsp; <b>Needs</b> RealPTT configured &nbsp;·&nbsp; <b>Full</b> 28.3</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the PTT console.</li>
+        <li>Enter the destination account and the message text.</li>
+        <li>Send. The two-hour audio log is on the same screen.</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>11.4 Not yours</h2>
+  <p>
+    Administration (<code>/admin</code>), departmental report capture, and HR approvals. For a role or
+    fleet change, go to an administrator; for leave decisions, a supervisor.
+  </p>
+</div>
+
+<div class="part" id="c12">
+  <div class="part-head"><div class="cnum">Chapter 12</div><h1>Dispatcher</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>Dispatcher</h3>
+    <div class="who">The dispatch desk only. Works the queue, allocates units, watches the board. Does not take calls.</div>
+  </div></div>
+
+  <h2>12.1 Reach</h2>
+  <p>
+    The dispatch desk (<code>/dispatch/pending</code>, <code>/dispatch/assign/[id]</code>,
+    <code>/dispatch/kpi</code>, <code>/dispatch/ptt</code>), incidents, reports, case management, cameras,
+    hierarchy, roster allocation, leave, own performance.
+    <b>Not <code>/dispatch/log-call</code></b> — intake is the call-taker's desk.
+  </p>
+
+  <div class="why">
+    <b>Why you cannot log a call</b>
+    The two-desk split matches how the control room is staffed and keeps the operational KPIs
+    meaningful: call-taker throughput and dispatcher throughput are separate measures, and they stop
+    being measures if one person does both under one role.
+  </div>
+
+  <h2>12.2 Shift routine</h2>
+  <ol>
+    <li>Sign in; clear the alert bell.</li>
+    <li><b>Dispatch → Pending Queue</b> is your screen for the shift. Leave it open — it is live.</li>
+    <li>For each call: route to departments, then assign a unit.</li>
+    <li>Watch the dashboard board for crews that have gone quiet — the engine will flag no-arrival after 30 minutes and silence after 4 hours, but you will usually see it first.</li>
+    <li>Use the PTT console rather than a personal handset, so the traffic is logged.</li>
+    <li>At handover, walk the incoming dispatcher through anything still open.</li>
+  </ol>
+
+  <h2>12.3 Tasks</h2>
+  <p>Routing (11.3), assigning (11.3) and PTT (11.3) as above, plus:</p>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Respond to an SLA escalation</div>
+      <div class="m"><b>Trigger</b> automation rule <code>sla_unassigned</code> &nbsp;·&nbsp; <b>See</b> 37.2</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>A High alert names the incident and how long it has waited. At the critical tier it opens a blocking pop-up.</li>
+        <li>Open the incident from the alert.</li>
+        <li>Either assign it, or record in the timeline <i>why</i> it cannot be assigned — no available unit, awaiting mutual aid.</li>
+      </ol>
+      <div class="after"><b>Note</b> The alert fires once per tier, not repeatedly. If you see the same incident escalate twice it has crossed from warn to critical, which is a real deterioration.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Handle an officer-emergency</div>
+      <div class="m"><b>Trigger</b> panic from the responder app &nbsp;·&nbsp; <b>See</b> Chapter 32</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>A Critical blocking alert opens naming the officer. Acknowledge it.</li>
+        <li>A red banner stays at the top of every page until the incident is closed — that is your standing reminder.</li>
+        <li>Open the incident. The address is the officer's coordinates, or says plainly that the position is unknown.</li>
+        <li>Assign the nearest units. Raise it on the radio in parallel; do not rely on the platform alone.</li>
+        <li>Close the incident only once contact is made, with a note recording the outcome.</li>
+      </ol>
+      <div class="after"><b>If it was accidental</b> Close it as any other incident, with a note. The button is deliberately easy to trigger — an acknowledged false alarm is a far better failure than hesitation.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c13">
+  <div class="part-head"><div class="cnum">Chapter 13</div><h1>Field Responder</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>Responder</h3>
+    <div class="who">The generic field role. Attends incidents, records what happened. Most crews will hold a departmental role instead (Chapters 14–17), which adds that department's reports.</div>
+  </div></div>
+
+  <h2>13.1 Reach</h2>
+  <p>
+    <code>/responder</code>, <code>/shift/*</code>, <code>/incidents</code>, <code>/reports</code>,
+    <code>/roster/mine</code>, <code>/roster/allocation</code>, <code>/leave</code>, <code>/training</code>,
+    <code>/performance/mine</code>, plus the responder app. <code>Responder</code> is additionally admitted
+    to all three departmental sections, which is unusual — most field roles get only their own.
+  </p>
+
+  <h2>13.2 Shift routine</h2>
+  <ol>
+    <li><b>Complete start of shift before anything else</b> (13.3). You cannot take incidents until it is done, on the phone or the console.</li>
+    <li>Go on duty on the phone's Profile tab. This starts the GPS heartbeat so dispatch can see you.</li>
+    <li>Work assigned incidents from the Incidents tab.</li>
+    <li>Record evidence at the scene while you are there.</li>
+    <li>Before signing out, check the sync tray is empty.</li>
+    <li>Sign out from the phone — this releases your vehicle and clears your duty status.</li>
+  </ol>
+
+  <h2>13.3 Tasks</h2>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Start of shift</div>
+      <div class="m"><b>Screen</b> Shift tab, or /shift/mental-check &nbsp;·&nbsp; <b>Writes</b> mental_checks, apparatus, vehicle_checklists &nbsp;·&nbsp; <b>Full</b> 24.1</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Mental readiness.</b> Answer all six honestly: memory recall, judgment, situational awareness, not under the influence, anger check, reflexes. Add comments if anything is borderline.</li>
+        <li><b>Vehicle selection.</b> Choose your appliance from those available in your department.</li>
+        <li><b>Vehicle inspection.</b> Record fuel level (¼, ½, ¾, Full) and confirm lights, tyres, equipment stock, communications and brakes.</li>
+      </ol>
+      <div class="after"><b>Why it gates everything</b> The mental check is a fitness-for-duty declaration and the inspection is a roadworthiness record. Attending a call with neither on file means there is no record you were fit to attend — which is the record that matters if the call goes wrong.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Advance an incident status</div>
+      <div class="m"><b>Screen</b> phone Incidents tab, or /responder &nbsp;·&nbsp; <b>Procedure</b> <code>update_responder_status()</code> &nbsp;·&nbsp; <b>Full</b> 23.1</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident.</li>
+        <li>Press the single forward button — it always shows the next status: <b>Mark En Route</b>, then Arrived, On Scene, Transporting, Resolved.</li>
+        <li>Press it <b>when the thing actually happens</b>, not when you next have a moment.</li>
+      </ol>
+      <div class="after"><b>With no signal</b> The card changes immediately and shows <i>Waiting to send</i>. The time recorded is when you pressed it, not when signal returned. Do not press it again.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Record scene evidence</div>
+      <div class="m"><b>Screen</b> phone incident detail &nbsp;·&nbsp; <b>Writes</b> incident_attachments, storage &nbsp;·&nbsp; <b>Full</b> 30.4</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident, scroll to <b>Scene evidence</b>.</li>
+        <li><b>Camera</b> to take a photograph, <b>Library</b> to attach an existing one, or <b>Record voice note</b> for a spoken account.</li>
+        <li>Capture what you need. Coverage does not matter — files are stored on the phone and upload themselves.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> Attachments appear in the case file and in the case-report PDF. A photograph of a scene cannot be retaken, so capture generously.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Add a timeline update</div>
+      <div class="m"><b>Screen</b> phone incident detail, or /incidents/[id]</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Type into the update box and send.</li>
+      </ol>
+      <div class="after"><b>Use for</b> Anything the record should carry that a status cannot express: what you found, what you did, who else attended, why something took the time it did.</div>
+    </div>
+  </div>
+
+  <h2>13.4 Not yours</h2>
+  <p>
+    Routing and assigning, closing cases, approving leave, administration. If you need a call sent to
+    another department, tell dispatch — do not try to route it yourself.
+  </p>
+</div>
+
+<div class="part" id="c14">
+  <div class="part-head"><div class="cnum">Chapter 14</div><h1>Metro Police Officer</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>Police · Officer · Metro · Security · Captain</h3>
+    <div class="who">Metro Police field roles. Everything in Chapter 13, plus the police report suite. Captain additionally holds supervisory reach.</div>
+  </div></div>
+
+  <h2>14.1 Reach</h2>
+  <p>
+    Field responder reach, <b>plus</b> <code>/police</code> and everything under it — reports, firearms,
+    security (SIRA) reports, crime hotspots. Restricted to the <code>MetroPolice</code> silo: an officer in
+    another department cannot open it even with the same role value.
+  </p>
+
+  <h2>14.2 Tasks</h2>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">File a police case report</div>
+      <div class="m"><b>Screen</b> /police/reports/new &nbsp;·&nbsp; <b>Writes</b> metro_reports &nbsp;·&nbsp; <b>Full</b> 25.1</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Police → Reports → New</b>.</li>
+        <li>Head the report: <b>case number</b>, <b>date</b> and <b>time of offence</b>, <b>location</b>, <b>station</b>, <b>incident category</b>.</li>
+        <li>Record yourself: <b>officer name</b>, <b>badge number</b>, <b>partner name</b>, and whether <b>bodycam</b> was active.</li>
+        <li>Record the people: <b>suspect</b> name and description, <b>offender</b> name and ID, <b>victim</b> name, ID, contact and injuries.</li>
+        <li>Record the outcome: <b>arrest made</b>, <b>charges</b>, <b>use of force</b>, <b>fine amount</b> or <b>ticket number</b>.</li>
+        <li>Record property: <b>vehicle</b> details and impound, <b>weapon</b> type and size, <b>ammunition rounds</b>, <b>contraband</b>, and the <b>evidence log</b> (weapons, drugs, property).</li>
+        <li>Write the <b>officer narrative</b> — the account that will be read in court.</li>
+        <li>Submit.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> The report is filed against your department and appears in the archive and in Report Hub exports. Link it to an incident where one exists.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Issue a firearm authorization</div>
+      <div class="m"><b>Screen</b> /police/firearms/new &nbsp;·&nbsp; <b>Writes</b> firearm_authorizations</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Police → Firearms → New</b>.</li>
+        <li>Record the officer, the firearm and the authorization period.</li>
+        <li>Submit.</li>
+      </ol>
+      <div class="after"><b>On return</b> Use <b>Return</b> against the register entry. An unreturned authorization is a live accountability gap.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Capture a SIRA security-guard report</div>
+      <div class="m"><b>Screen</b> /police/security/new &nbsp;·&nbsp; <b>Writes</b> security_reports</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Police → Security → New</b>.</li>
+        <li>Record the guard: name, guard ID, badge, contact, ID number, <b>SIRA number</b> and <b>grade</b>.</li>
+        <li>Record whether a <b>firearm was issued</b> and its number.</li>
+        <li>Record GPS arrival and departure times and the site.</li>
+        <li>Submit.</li>
+      </ol>
+      <div class="after"><b>To close it</b> Use <b>Resolve</b> and enter a resolution summary.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Check crime hotspots</div>
+      <div class="m"><b>Screen</b> /police/crime-hotspots &nbsp;·&nbsp; <b>Reads</b> crime_stats</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Police → Crime Hotspots</b>.</li>
+        <li>Filter by station and category. The dataset is the SAPS statistics, ranked.</li>
+      </ol>
+      <div class="after"><b>Use for</b> Deployment planning and briefings, not for live response.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c15">
+  <div class="part-head"><div class="cnum">Chapter 15</div><h1>Firefighter</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>Firefighter · Chief · FireChief</h3>
+    <div class="who">Fire &amp; Rescue field roles. Chapter 13, plus the fire report suite, the hydrant register and post-incident review. Chief and FireChief additionally hold supervisory reach.</div>
+  </div></div>
+
+  <h2>15.1 Reach</h2>
+  <p>Field responder reach, <b>plus</b> <code>/fire</code> — reports, hydrants, PIR. Restricted to the <code>MetroFire</code> silo.</p>
+
+  <h2>15.2 Tasks</h2>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">File a fire incident report</div>
+      <div class="m"><b>Screen</b> /fire/reports/new &nbsp;·&nbsp; <b>Writes</b> firefighter_reports &nbsp;·&nbsp; <b>Full</b> 25.2</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Fire &amp; Rescue → Reports → New</b>.</li>
+        <li>Head it: <b>report number</b>, <b>date</b> and <b>time of incident</b>, <b>location</b>, <b>type of incident</b>, <b>station number</b>, <b>fire department name</b>, and the <b>reporting officer</b> name, rank and ID.</li>
+        <li>Record the <b>timings</b> in minutes: dispatch, arrival, clear, total. These feed the response-time measures.</li>
+        <li>Record the property: <b>type</b>, <b>owner</b>, <b>contact</b>, <b>value</b>, <b>contents value</b>, <b>insurance</b>, <b>damage estimate</b>.</li>
+        <li>Record the fire: <b>point of origin</b> (room and object), <b>ignition source</b>, <b>cause</b>, <b>initial observations</b>, <b>smoke conditions</b>, <b>flame spread</b>, <b>heat signature</b>.</li>
+        <li>Record the response: <b>suppression details</b>, <b>equipment used</b>, <b>ventilation</b>, <b>salvage and overhaul</b>, <b>utilities secured</b>, <b>search and rescue</b>, <b>persons rescued</b> with location and condition.</li>
+        <li>Record casualties separately for <b>civilians</b> and <b>firefighters</b> — injuries and fatalities, each with detail.</li>
+        <li>Record <b>hazmat</b> operations, <b>hazards identified</b>, <b>medical aid provided</b>, <b>treatment</b>, <b>mutual aid</b> and <b>other agencies on scene</b>.</li>
+        <li>Close with the <b>narrative summary</b>, <b>challenges faced</b>, <b>successes</b>, <b>recommendations</b>, and whether a <b>fire investigation</b> or <b>post-incident critique</b> is to follow.</li>
+        <li>Submit.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> Download the PDF from the report page for the station file. If a critique is scheduled, the PIR flow follows.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Publish a post-incident review</div>
+      <div class="m"><b>Screen</b> /fire/pir · /fire/pir/publish/[reportId] &nbsp;·&nbsp; <b>Writes</b> public_incident_reports</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Fire &amp; Rescue → PIR</b> and choose the report.</li>
+        <li>Review the content that will be published.</li>
+        <li>Publish.</li>
+      </ol>
+      <div class="after"><b>Care</b> This makes a summary publicly visible. Check names and addresses before publishing.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Use the hydrant register</div>
+      <div class="m"><b>Screen</b> /fire/hydrants &nbsp;·&nbsp; <b>Reads</b> hydrants</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Fire &amp; Rescue → Hydrants</b>.</li>
+        <li>Find the incident location on the map; hydrants render as markers with their detail.</li>
+      </ol>
+      <div class="after"><b>Use for</b> Pre-planning and live water supply. This is operational data during a fire, not a maintenance list.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c16">
+  <div class="part-head"><div class="cnum">Chapter 16</div><h1>Paramedic</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>Paramedic · Doctor</h3>
+    <div class="who">EMS field roles. Chapter 13, plus the patient care record and ambulance restocking.</div>
+  </div></div>
+
+  <h2>16.1 Reach</h2>
+  <p>Field responder reach, <b>plus</b> <code>/medical</code> — PCR create, view and edit, and restock. Restricted to the <code>Medical</code> silo.</p>
+
+  <h2>16.2 Tasks</h2>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Complete a patient care record</div>
+      <div class="m"><b>Screen</b> /medical/pcr/new &nbsp;·&nbsp; <b>Writes</b> paramedic_reports and its child tables &nbsp;·&nbsp; <b>Full</b> 25.3</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>EMS → PCR → New</b>.</li>
+        <li><b>Patient:</b> name, date of birth, gender, address, contact, insurance, next of kin, allergies.</li>
+        <li><b>History:</b> presenting complaint and relevant medical history.</li>
+        <li><b>Assessment:</b> your findings.</li>
+        <li><b>Vital signs:</b> record each set with its time. Multiple sets are expected on a transport.</li>
+        <li><b>Interventions:</b> what you did, and when.</li>
+        <li><b>Handover:</b> the receiving facility and the legal handover record.</li>
+        <li><b>Signatures:</b> capture responder, hospital representative and doctor on the signature pad.</li>
+        <li>Submit.</li>
+      </ol>
+      <div class="after"><b>Editing</b> Use <b>PCR → Edit</b> to correct or complete a record. It remains linked to the incident, and every change is audited.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Record a restock</div>
+      <div class="m"><b>Screen</b> /medical/restock &nbsp;·&nbsp; <b>Writes</b> ambulance_restocks</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>EMS → Restock</b>.</li>
+        <li>Select the <b>unit</b>, enter the <b>drug name</b>, <b>quantity used</b> and <b>quantity remaining</b>.</li>
+        <li>Submit.</li>
+      </ol>
+      <div class="after"><b>Do it at the end of each call</b>, not at end of shift. Quantity remaining is what the next crew relies on.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c17">
+  <div class="part-head"><div class="cnum">Chapter 17</div><h1>Disaster Management Officer</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>Disaster</h3>
+    <div class="who">Major incidents, floods, multi-agency response. Works over longer timescales than the other desks.</div>
+  </div></div>
+
+  <h2>17.1 Reach</h2>
+  <p>
+    Field responder reach, <b>plus</b> <code>/disaster</code> — monitor, dispatch, partners, post-mortem.
+    Restricted to the <code>EthekwiniDisaster</code> silo. Calls arrive as
+    <b>Pending Analysis</b> rather than Pending Dispatch, because the first step is assessment.
+  </p>
+
+  <h2>17.2 Tasks</h2>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Dispatch resources to a disaster</div>
+      <div class="m"><b>Screen</b> /disaster/dispatch &nbsp;·&nbsp; <b>Writes</b> disaster_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Disaster → Dispatch</b>.</li>
+        <li>Select the resources and the partners required.</li>
+        <li>Confirm.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Post a periodic update</div>
+      <div class="m"><b>Screen</b> /disaster &nbsp;·&nbsp; <b>Writes</b> disaster_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Find the log entry for the incident.</li>
+        <li>Add the update text and submit.</li>
+      </ol>
+      <div class="after"><b>Cadence matters</b> A disaster log with hourly entries is a usable account afterwards; one with two entries is not. The engine will nudge after 4 hours of silence, but do not wait for it.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Write a post-mortem</div>
+      <div class="m"><b>Screen</b> /disaster/post-mortem &nbsp;·&nbsp; <b>Writes</b> post_mortem_reports</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Disaster → Post-mortem</b>.</li>
+        <li>Record what happened, what worked, what did not, and the recommendations.</li>
+        <li>Submit.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Find a mutual-aid partner</div>
+      <div class="m"><b>Screen</b> /disaster/partners &nbsp;·&nbsp; <b>Reads</b> mutual_aid_partners</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Disaster → Partners</b>.</li>
+        <li>Filter by the resource you need. 41 partners are registered with their contacts and capabilities.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c18">
+  <div class="part-head"><div class="cnum">Chapter 18</div><h1>Supervisor</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>Supervisor · Captain · Chief · FireChief</h3>
+    <div class="who">The supervisory tier. Runs people: rosters, duty allocation, leave, training, performance — and holds the dispatch desk too.</div>
+  </div></div>
+
+  <h2>18.1 Reach</h2>
+  <p>
+    The widest non-administrative reach: <code>/hr</code>, <code>/roster</code> and all of it,
+    <code>/leave</code> with decisions, <code>/training</code>, <code>/performance</code> in full,
+    <code>/analytics</code>, <code>/hierarchy</code>, the dispatch desk, incidents, reports, cameras.
+    Captain, Chief and FireChief also keep their departmental section from Chapters 14–16.
+  </p>
+
+  <h2>18.2 Routine</h2>
+  <ol>
+    <li><b>HR Command Centre</b> (<code>/hr</code>) first: headcount, on duty, on leave today, approvals waiting, certifications expiring within 30 days.</li>
+    <li>Decide any pending leave — each request shows its coverage impact.</li>
+    <li>Check the duty board for gaps before the shift starts.</li>
+    <li>Chase unacknowledged allocations.</li>
+    <li>Weekly: performance reports and the rollup.</li>
+    <li>Annually from 1 July: appraisal plans.</li>
+  </ol>
+
+  <h2>18.3 Tasks</h2>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Decide a leave request</div>
+      <div class="m"><b>Screen</b> /hr or /leave &nbsp;·&nbsp; <b>Writes</b> leave_entries, alerts, audit_logs &nbsp;·&nbsp; <b>Full</b> 26.3</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>HR</b> — pending requests are listed with an inline decision.</li>
+        <li>Read the <b>coverage impact</b>: the percentage of the department away if you grant it.</li>
+        <li>Approve or reject.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> The member gets a targeted alert immediately, and the decision is recorded against your name with a timestamp.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Allocate a duty</div>
+      <div class="m"><b>Screen</b> /roster/allocation &nbsp;·&nbsp; <b>Writes</b> rosters &nbsp;·&nbsp; <b>Full</b> 26.2</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Roster → Allocation</b>. The board is post-first: every post the shift must fill, with gaps visible.</li>
+        <li>Assign a member to a post, setting <b>vehicle</b>, <b>sector</b>, <b>call sign</b> and any <b>special instructions</b>.</li>
+        <li>Repeat until the gaps are closed.</li>
+        <li><b>Publish the day.</b> Until you publish, allocations are drafts and members cannot see them.</li>
+        <li>Use <b>Copy forward</b> to seed the next day from this one.</li>
+      </ol>
+      <div class="after"><b>Then chase acknowledgements.</b> Publication makes it visible; acknowledgement is the accountability half. The engine reminds members 12 hours before the start.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Record training and certifications</div>
+      <div class="m"><b>Screen</b> /training &nbsp;·&nbsp; <b>Writes</b> training_records, certifications</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Training</b>.</li>
+        <li>For training: select the member, enter the <b>training name</b>, <b>date completed</b> and <b>notes learned</b>.</li>
+        <li>For a certification: select the member, enter the <b>name</b>, <b>expiry date</b>, <b>issued by</b>, <b>date achieved</b> and remarks.</li>
+      </ol>
+      <div class="after"><b>The expiry date is load-bearing.</b> It drives automatic warnings at 30, 7 and 1 days to both the member and the department. A certification with no expiry recorded warns nobody.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Run the annual appraisal cycle</div>
+      <div class="m"><b>Screen</b> /performance/* &nbsp;·&nbsp; <b>Writes</b> performance_plans, performance_scores &nbsp;·&nbsp; <b>Full</b> 26.5</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Define KPIs</b> for the cycle year: title, description, weight, department.</li>
+        <li><b>Generate plans</b> for the cycle year — one per member.</li>
+        <li>At mid-year, open each plan and <b>save a score</b> per KPI with comments and evidence.</li>
+        <li><b>Approve the stage</b> to lock it.</li>
+        <li>Repeat at final.</li>
+      </ol>
+      <div class="after"><b>Cycle</b> The year runs from 1 July.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Set who reports to whom</div>
+      <div class="m"><b>Screen</b> /hierarchy/person &nbsp;·&nbsp; <b>Writes</b> reporting_lines</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Hierarchy</b> and find the member.</li>
+        <li>Set their reporting line.</li>
+      </ol>
+      <div class="after"><b>Why it matters</b> The performance rollup aggregates along these lines. A missing line means somebody's numbers do not reach their manager.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c19">
+  <div class="part-head"><div class="cnum">Chapter 19</div><h1>Case Manager</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>CaseManager</h3>
+    <div class="who">Reviews and closes resolved incidents, and produces the official case file.</div>
+  </div></div>
+
+  <h2>19.1 Reach</h2>
+  <p>
+    <code>/case-manager</code> and its audit view, <code>/incidents</code>, <code>/reports</code>,
+    <code>/report-hub</code>, <code>/hierarchy</code>, <code>/performance</code> rollup and reports,
+    <code>/roster/allocation</code>, <code>/leave</code>.
+  </p>
+
+  <h2>19.2 Tasks</h2>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Close a case</div>
+      <div class="m"><b>Screen</b> /incidents/[id] or /case-manager &nbsp;·&nbsp; <b>Procedure</b> <code>close_case()</code> &nbsp;·&nbsp; <b>Full</b> 23.4</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident and read the timeline end to end.</li>
+        <li>Check the departmental report exists where one is required.</li>
+        <li>Check the attachments are present.</li>
+        <li>Enter a <b>reason</b> and close.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> Status becomes Closed, <code>closed_at</code> is stamped, the reason goes into the timeline, and an audit row records you closed it. Closing is not reversible through the interface.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Produce the case-report PDF</div>
+      <div class="m"><b>Screen</b> /incidents/[id] &nbsp;·&nbsp; <b>Endpoint</b> /api/pdf/incident/[id]</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the incident and choose the PDF download.</li>
+        <li>Wait — the document downloads and embeds every scene photograph, so it is the slowest request the platform serves.</li>
+      </ol>
+      <div class="after"><b>Contents</b> Incident detail, full timeline, embedded attachments and the audit trail. It is complete as a single document, which is what a case file has to be.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Review the audit trail</div>
+      <div class="m"><b>Screen</b> /case-manager/audit &nbsp;·&nbsp; <b>Reads</b> audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Case Manager → Audit</b>.</li>
+        <li>Filter to the period or entity in question. Every mutation carries actor, department, action and detail.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c20">
+  <div class="part-head"><div class="cnum">Chapter 20</div><h1>Staff and Viewer</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>Staff</h3>
+    <div class="who">Non-operational employees. Self-service only.</div>
+  </div></div>
+  <p>
+    Reach: <code>/dashboard</code>, <code>/profile</code>, <code>/profile/my-hr</code>,
+    <code>/roster/mine</code>, <code>/roster/allocation</code>, <code>/leave</code>,
+    <code>/reports/builder</code>, <code>/notifications</code>, <code>/search</code>.
+  </p>
+  <p><b>Tasks:</b> apply for leave (26.3), view your schedule, keep your profile current, check your HR record.</p>
+
+  <div class="role" style="margin-top:8mm"><div class="h">
+    <h3>Viewer</h3>
+    <div class="who">Read-only oversight. Sees across departments and changes nothing.</div>
+  </div></div>
+  <p>
+    Reach: incidents, reports, report hub, case management, cameras, hierarchy, analytics, disaster,
+    performance rollup and reports. <b>Every screen is read-only</b> — the role appears in
+    <code>is_global()</code> but deliberately not in <code>can_write_global()</code>.
+  </p>
+  <div class="note">
+    <b>Who this is for</b>
+    Oversight that needs the whole picture without the ability to alter it: senior command, auditors,
+    a municipal oversight function. If somebody needs to change something, they need a different role,
+    not an exception.
+  </div>
+</div>
+
+<div class="part" id="c21">
+  <div class="part-head"><div class="cnum">Chapter 21</div><h1>Administrator</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>Admin · SystemAdmin · SuperAdmin</h3>
+    <div class="who">Runs the platform itself. Reaches every screen, including all of <code>/admin</code>. SystemAdmin and SuperAdmin additionally keep the left sidebar, because they genuinely work across every module at once.</div>
+  </div></div>
+
+  <h2>21.1 Routine</h2>
+  <ol>
+    <li><b>Admin → System Status</b> daily. Each check says what it means rather than reporting a number.</li>
+    <li><b>Admin → Automations</b> — confirm the engine ticked and nothing is erroring.</li>
+    <li>Weekly: integrations probe, fleet and device registers, audit spot-check.</li>
+    <li>On joiners and leavers: create or retire accounts the same day.</li>
+  </ol>
+
+  <h2>21.2 Tasks</h2>
+  <p>Full procedures are in Volume VII. In brief:</p>
+  <table class="zebra">
+    <thead><tr><th style="width:44mm">Task</th><th style="width:32mm">Screen</th><th>See</th></tr></thead>
+    <tbody>
+      <tr><td>Set a user's role</td><td class="mono">/admin</td><td>34.1</td></tr>
+      <tr><td>Add personnel</td><td class="mono">/admin/personnel</td><td>34.2</td></tr>
+      <tr><td>Add a control-room operator</td><td class="mono">/admin/operators</td><td>34.3</td></tr>
+      <tr><td>Add or retire an appliance</td><td class="mono">/admin/vehicles</td><td>34.4</td></tr>
+      <tr><td>Register a device</td><td class="mono">/admin/devices</td><td>34.5</td></tr>
+      <tr><td>Add an incident category or leave type</td><td class="mono">/admin/config</td><td>35.1</td></tr>
+      <tr><td>Repoint an external ops link</td><td class="mono">/admin/config</td><td>35.2</td></tr>
+      <tr><td>Tune an SLA clock or alert behaviour</td><td class="mono">/admin/operations</td><td>36</td></tr>
+      <tr><td>Tune or disable an automation</td><td class="mono">/admin/automations</td><td>37.3</td></tr>
+      <tr><td>Enable an integration</td><td class="mono">/admin/integrations</td><td>38.2</td></tr>
+      <tr><td>Set department branding</td><td class="mono">/admin/departments</td><td>39</td></tr>
+      <tr><td>Check platform health</td><td class="mono">/admin/status</td><td>43.1</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <b>Two things an administrator must understand</b>
+    <ul style="margin-top:2mm">
+      <li><b>Role changes are silo-scoped in effect.</b> Giving somebody <code>Paramedic</code> in the MetroPolice silo gives them a role that opens no departmental section, because <code>/medical</code> requires the Medical silo. Set both.</li>
+      <li><b>Disabling an automation is a real operational decision.</b> Turning off unassigned-call escalation means nobody is told when a call ages. Do it knowingly, and turn it back on.</li>
+    </ul>
+  </div>
+</div>

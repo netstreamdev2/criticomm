@@ -1,0 +1,564 @@
+<div class="volume">
+  <div class="bignum">VI</div>
+  <div class="kick">Volume VI</div>
+  <h1>The Responder App</h1>
+  <div class="bar"></div>
+  <p>The phone a crew carries on shift, designed around three failures that will happen: no signal, a locked screen, and no free hand.</p>
+  <div class="chaps"><div><b>29</b> &nbsp;Screens and the duty gate</div><div><b>30</b> &nbsp;Mobile task procedures</div><div><b>31</b> &nbsp;The offline outbox</div><div><b>32</b> &nbsp;Officer-down</div><div><b>33</b> &nbsp;Alerting and push</div></div>
+</div>
+
+<div class="part" id="c29">
+  <div class="part-head"><div class="cnum">Chapter 29</div><h1>Screens and the Duty Gate</h1></div>
+
+  <h2>29.1 The screens</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:32mm">Screen</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><b>Incidents</b> (tab)</td><td>Assigned calls, severity first. A <b>Mine / Nearby</b> switch shows every live call in the department sorted by distance — read-only.</td></tr>
+      <tr><td><b>Alerts</b> (tab)</td><td>Inbox with a live unread badge and acknowledgement state.</td></tr>
+      <tr><td><b>Schedule</b> (tab)</td><td>Current duty, next duty, upcoming allocations with call sign, vehicle and sector, leave balances, endorsements.</td></tr>
+      <tr><td><b>Shift</b> (tab)</td><td>The three-step start-of-duty wizard and unit compliance.</td></tr>
+      <tr><td><b>Profile</b> (tab)</td><td>Identity, duty toggle, push diagnostics, delivery status, self-service links, sign-out.</td></tr>
+      <tr><td><b>Incident detail</b></td><td>Full call, navigation handoff, caller dial, status advance, evidence capture, timeline.</td></tr>
+      <tr><td><b>Leave</b></td><td>Apply, with balances shown before the form.</td></tr>
+      <tr><td><b>Criti</b></td><td>The assistant, scoped to your own calls and shift.</td></tr>
+    </tbody>
+  </table>
+  <p>Two overlays sit above every screen: the <b>SOS button</b> (Chapter 32) and the <b>sync tray</b> (Chapter 31).</p>
+
+  <h2>29.2 The duty gate</h2>
+  <p>
+    You cannot open incidents until today's readiness flow is complete. On opening the app with it
+    outstanding, you are routed to the Shift tab.
+  </p>
+  <div class="why">
+    <b>Two deliberate escapes</b>
+    <b>Profile stays reachable</b> — somebody who fails the readiness check can never satisfy the gate,
+    which is correct, but must still be able to see who they are signed in as and sign out. A gate with no
+    exit is a trap, not a control. And if the check <b>cannot be evaluated</b> because the device is
+    offline, you are let through: the server remains the record of truth, and stranding a crew behind a
+    check we cannot run helps nobody.
+  </div>
+</div>
+
+<div class="part" id="c30">
+  <div class="part-head"><div class="cnum">Chapter 30</div><h1>Mobile Task Procedures</h1></div>
+
+  <div class="proc">
+    <div class="h"><div class="t">30.1 Sign in</div><div class="m"><b>Screen</b> Login</div></div>
+    <div class="b">
+      <ol>
+        <li>Enter your Criticomm email and password — the same credentials as the console.</li>
+        <li>The session persists, so you will not normally sign in again during a tour.</li>
+      </ol>
+      <div class="after"><b>If it hangs on "Restoring your session"</b> the app has failed through to login rather than trapping you. Sign in again.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">30.2 Work an assigned call</div><div class="m"><b>Screen</b> Incidents tab → detail</div></div>
+    <div class="b">
+      <ol>
+        <li>Open the call from the Incidents tab. Critical calls carry a red strip: <i>Priority 1 — respond immediately</i>.</li>
+        <li><b>Navigate</b> hands the coordinates to the phone's own map application for turn-by-turn.</li>
+        <li><b>Call caller</b> dials the number on the incident.</li>
+        <li>Advance the status with the single forward button as each thing happens.</li>
+        <li>Add timeline updates and evidence while on scene.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">30.3 See what else is live nearby</div><div class="m"><b>Screen</b> Incidents tab → Nearby</div></div>
+    <div class="b">
+      <ol>
+        <li>Switch to <b>Nearby</b>.</li>
+        <li>Allow location access to sort by distance; without it you still get the list, unsorted.</li>
+      </ol>
+      <div class="after"><b>Read-only</b> You cannot advance the status of a call assigned to another crew. Situational awareness, not a second dispatch desk.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">30.4 Capture evidence</div><div class="m"><b>Screen</b> incident detail → Scene evidence</div></div>
+    <div class="b">
+      <ol>
+        <li><b>Camera</b> — take a photograph. <b>Library</b> — attach an existing one.</li>
+        <li><b>Record voice note</b> — tap to start; the control turns red and counts. Tap again to stop and file it.</li>
+      </ol>
+      <div class="after"><b>Coverage is irrelevant</b> Files are copied out of the OS cache into storage the app controls, then uploaded when there is signal. A photograph of a scene that has since been cleared cannot be retaken, which is why it is retained rather than left in the cache.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">30.5 Acknowledge an alert</div><div class="m"><b>Screen</b> Alerts tab, or the full-screen interrupt</div></div>
+    <div class="b">
+      <ol>
+        <li>A High or Critical dispatch opens a full-screen alert. Choose <b>Acknowledge &amp; open</b> to go straight to the call, or <b>Acknowledge</b> to clear it.</li>
+        <li>Anything you missed is in the <b>Alerts</b> tab. Opening an unread alert there acknowledges it if acknowledgement was required.</li>
+        <li><b>Mark all read</b> clears the badge.</li>
+      </ol>
+      <div class="after"><b>The banner at the top of the inbox</b> counts alerts still waiting on your acknowledgement.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">30.6 Apply for leave</div><div class="m"><b>Screen</b> Profile → Apply for leave</div></div>
+    <div class="b">
+      <ol>
+        <li>Check your balances at the top.</li>
+        <li>Choose a type, set the dates as <code>YYYY-MM-DD</code>, add a reason.</li>
+        <li>Submit. The summary line tells you how many days and what would remain — and warns if it exceeds your balance.</li>
+      </ol>
+      <div class="after"><b>Exceeding your balance does not block submission.</b> Your supervisor decides.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">30.7 Ask Criti</div><div class="m"><b>Screen</b> Profile → Ask Criti</div></div>
+    <div class="b">
+      <ol>
+        <li>Ask about your own calls, your crew or your shift.</li>
+        <li>Suggested questions are offered on the empty screen.</li>
+      </ol>
+      <div class="after"><b>Scope</b> Criti sees exactly what you can see. If a question fails, the text is put back in the box so you need not retype it one-handed.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c31">
+  <div class="part-head"><div class="cnum">Chapter 31</div><h1>The Offline Outbox</h1></div>
+
+  <p class="lede">
+    Every field action is written to the phone before it is sent. This is why a dead zone costs you
+    nothing, and why you should never press a button twice.
+  </p>
+
+  <h2>31.1 What you see</h2>
+  
+<figure>
+<svg viewBox="0 0 720 152" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="Segoe UI,sans-serif">
+    
+    <rect x="10" y="46" width="132" height="46" rx="3" fill="#f7f8fa" stroke="#dcdfe6"/>
+    <rect x="10" y="46" width="132" height="3" rx="1.5" fill="#a8182a"/>
+    <text x="76" y="66" text-anchor="middle" font-family="Segoe UI,sans-serif"
+          font-size="11" font-weight="700" fill="#0f1116">Responder acts</text>
+    <text x="76" y="80" text-anchor="middle" font-family="Segoe UI,sans-serif"
+          font-size="8.5" fill="#6b7280">button pressed</text>
+    
+    <rect x="180" y="46" width="132" height="46" rx="3" fill="#f7f8fa" stroke="#dcdfe6"/>
+    <rect x="180" y="46" width="132" height="3" rx="1.5" fill="#3d4351"/>
+    <text x="246" y="66" text-anchor="middle" font-family="Segoe UI,sans-serif"
+          font-size="11" font-weight="700" fill="#0f1116">Written to disk</text>
+    <text x="246" y="80" text-anchor="middle" font-family="Segoe UI,sans-serif"
+          font-size="8.5" fill="#6b7280">with occurredAt</text>
+    
+    <rect x="350" y="46" width="132" height="46" rx="3" fill="#f7f8fa" stroke="#dcdfe6"/>
+    <rect x="350" y="46" width="132" height="3" rx="1.5" fill="#1a4d8f"/>
+    <text x="416" y="66" text-anchor="middle" font-family="Segoe UI,sans-serif"
+          font-size="11" font-weight="700" fill="#0f1116">UI updates</text>
+    <text x="416" y="80" text-anchor="middle" font-family="Segoe UI,sans-serif"
+          font-size="8.5" fill="#6b7280">from the queue</text>
+    
+    <rect x="520" y="10" width="190" height="42" rx="3" fill="#f7f8fa" stroke="#dcdfe6"/>
+    <rect x="520" y="10" width="190" height="3" rx="1.5" fill="#146b45"/>
+    <text x="615" y="30" text-anchor="middle" font-family="Segoe UI,sans-serif"
+          font-size="11" font-weight="700" fill="#0f1116">Delivered</text>
+    <text x="615" y="44" text-anchor="middle" font-family="Segoe UI,sans-serif"
+          font-size="8.5" fill="#6b7280">server records the real time</text>
+    
+    <rect x="520" y="92" width="190" height="42" rx="3" fill="#f7f8fa" stroke="#dcdfe6"/>
+    <rect x="520" y="92" width="190" height="3" rx="1.5" fill="#8a5a00"/>
+    <text x="615" y="112" text-anchor="middle" font-family="Segoe UI,sans-serif"
+          font-size="11" font-weight="700" fill="#0f1116">Parked as failed</text>
+    <text x="615" y="126" text-anchor="middle" font-family="Segoe UI,sans-serif"
+          font-size="8.5" fill="#6b7280">visible until a human acts</text>
+
+    <g stroke="#dcdfe6" stroke-width="1.4" fill="none">
+      <path d="M142 69 H180"/>
+      <path d="M312 69 H350"/>
+      <path d="M482 69 H500 V31 H520"/>
+      <path d="M482 69 H500 V113 H520"/>
+    </g>
+    <text x="500" y="26" font-size="7.6" fill="#146b45" text-anchor="end">online</text>
+    <text x="500" y="128" font-size="7.6" fill="#8a5a00" text-anchor="end">8 connected failures</text>
+    <text x="10" y="140" font-size="8" fill="#6b7280">
+      Priority: panic → status → position → notes → attachments. Retries only count while the device has signal.
+    </text>
+  </g>
+</svg>
+<figcaption><b>Figure 31.1</b> &nbsp;The offline path. Nothing is dropped silently, and the time recorded
+is when the responder acted — not when the network came back.</figcaption>
+</figure>
+  <table class="zebra">
+    <thead><tr><th style="width:44mm">Indicator</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><b>Waiting to send</b> on a card</td><td>Your change is recorded on the phone and will deliver itself.</td></tr>
+      <tr><td><b>Sync pill</b> above the tab bar</td><td>Count of undelivered items. Amber when offline, red when something failed.</td></tr>
+      <tr><td><b>Sync tray</b> (tap the pill)</td><td>Every undelivered item, when it was captured, how many attempts, and the error if it failed.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>31.2 What to do</h2>
+  <ol>
+    <li><b>Nothing, normally.</b> The queue delivers on reconnect, on returning to the app, and on a timer.</li>
+    <li><b>Before signing out</b>, check the tray is empty. Work is held against <i>your</i> account — if you sign out with items queued they wait for you, not for the next person carrying the handset.</li>
+    <li><b>If something shows as failed</b>, open the tray and read the error. <b>Try again now</b> retries everything.</li>
+    <li><b>Discard</b> only if you are certain the item is no longer needed. It is deleted and never reaches the case file.</li>
+  </ol>
+
+  <h2>31.3 What the queue guarantees</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:38mm">Guarantee</th><th>Consequence for you</th></tr></thead>
+    <tbody>
+      <tr><td><b>Honest times</b></td><td>The recorded time is when you pressed the button, not when signal returned.</td></tr>
+      <tr><td><b>Nothing dropped</b></td><td>An item that cannot be delivered is parked and stays visible until a human deals with it.</td></tr>
+      <tr><td><b>Safe replay</b></td><td>If delivery is interrupted mid-flight, the retry cannot create a duplicate.</td></tr>
+      <tr><td><b>Emergency first</b></td><td>A panic is delivered before a queue of photographs.</td></tr>
+      <tr><td><b>Your work only</b></td><td>Items are delivered under the account that captured them.</td></tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <b>Retries only count when you have signal</b>
+    The queue refuses to attempt delivery while the device is offline, so the retry budget is not spent
+    driving through a tunnel. Eight failures means the server is rejecting the write — a real problem
+    worth reporting.
+  </div>
+</div>
+
+<div class="part" id="c32">
+  <div class="part-head"><div class="cnum">Chapter 32</div><h1>Officer-Down</h1></div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Call for emergency assistance</div>
+      <div class="m"><b>Control</b> the SOS button, on every screen &nbsp;·&nbsp; <b>Procedure</b> <code>raise_panic()</code></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Press and hold</b> the SOS button. It reads <b>HOLD…</b> and fills.</li>
+        <li>The phone taps you at each third of the hold, so you can feel it arming without looking.</li>
+        <li>After 2.5 seconds it fires. Release earlier and nothing happens.</li>
+        <li>A confirmation tells you whether your position was captured.</li>
+      </ol>
+      <div class="after">
+        <b>What happens</b> A Critical incident is created at your position and a blocking alert is raised
+        to your own department <i>and</i> the control room. With no signal it is queued at the highest
+        priority and sent the moment you have any. Position is raced against a four-second timeout — if no
+        fix is available it sends anyway, marked position unknown.
+      </div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>Use the radio too</b>
+    The platform is a second channel, not a replacement. Raise it on the radio as well if you can.
+  </div>
+  <p>
+    <b>If you trigger it accidentally:</b> say so on the radio, and ask dispatch to close the incident with
+    a note. There is no cancel — the button is deliberately easy to trigger and impossible to un-send,
+    because hesitation is the worse failure.
+  </p>
+</div>
+
+<div class="part" id="c33">
+  <div class="part-head"><div class="cnum">Chapter 33</div><h1>Alerting and Push</h1></div>
+
+  <h2>33.1 Checking a handset before a shift</h2>
+  <p>Open <b>Profile → Dispatch alerts</b>. It states exactly one of:</p>
+  <table class="zebra">
+    <thead><tr><th style="width:44mm">Message</th><th>Meaning and action</th></tr></thead>
+    <tbody>
+      <tr><td><b>Push enabled</b></td><td>The handset will ring for a dispatch even locked. Nothing to do.</td></tr>
+      <tr><td><b>Notifications blocked</b></td><td>Permission was declined. <b>Fixable here</b> — turn notifications on for Criticomm in device settings.</td></tr>
+      <tr><td><b>Push not in this build</b></td><td>This build has no push service configured. <b>Not fixable on the device</b> — report it; the handset should not go out on shift.</td></tr>
+      <tr><td><b>Push unavailable on this device</b></td><td>An emulator or simulator. Expected in testing.</td></tr>
+      <tr><td><b>Push registration failed</b></td><td>Something went wrong registering. Report it for checking.</td></tr>
+    </tbody>
+  </table>
+  <p>In every one of these cases, alerts still arrive instantly <i>while the app is open</i>.</p>
+
+  <h2>33.2 Why there are several channels</h2>
+  <p>
+    Realtime covers open apps; push covers locked phones; a local notification covers an alert arriving
+    while the app is backgrounded; the inbox covers everything afterwards. Each alone has a blind spot,
+    and a missed dispatch is not recoverable — so they overlap deliberately, and duplicates are
+    deduplicated by alert id.
+  </p>
+</div>
+
+<div class="volume">
+  <div class="bignum">VII</div>
+  <div class="kick">Volume VII</div>
+  <h1>Administration</h1>
+  <div class="bar"></div>
+  <p>Everything under <code>/admin</code>: who exists, what the service calls things, how hard the platform pushes, and which external systems are switched on.</p>
+  <div class="chaps"><div><b>34</b> &nbsp;Users, roles and personnel</div><div><b>35</b> &nbsp;Configuration</div><div><b>36</b> &nbsp;Operations settings</div><div><b>37</b> &nbsp;Automations</div><div><b>38</b> &nbsp;Integrations</div><div><b>39</b> &nbsp;Branding</div></div>
+</div>
+
+<div class="part" id="c34">
+  <div class="part-head"><div class="cnum">Chapter 34</div><h1>Users, Roles and Personnel</h1></div>
+
+  <div class="proc">
+    <div class="h"><div class="t">34.1 Set a user's role</div><div class="m"><b>Screen</b> /admin &nbsp;·&nbsp; <b>Writes</b> profiles, audit_logs</div></div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Admin → Users &amp; Roles</b> and filter by department if needed.</li>
+        <li>Find the person and choose their <b>role</b> from the 23 assignable values.</li>
+        <li>Save.</li>
+      </ol>
+      <div class="after"><b>Set the silo too.</b> A role only opens a departmental section when the user's silo matches — <code>Paramedic</code> in the MetroPolice silo opens nothing under <code>/medical</code>.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">34.2 Add a personnel record</div><div class="m"><b>Screen</b> /admin/personnel &nbsp;·&nbsp; <b>Writes</b> personnel</div></div>
+    <div class="b">
+      <ol>
+        <li>Enter <b>silo</b>, <b>first name</b>, <b>last name</b>, <b>badge number</b> and <b>rank</b>.</li>
+        <li>Save.</li>
+      </ol>
+      <div class="after"><b>Personnel and users are separate.</b> A personnel record is the operational person; a user is a login. Linking them by <code>user_id</code> is what lets the phone find "my" incidents and schedule.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">34.3 Add a control-room operator</div><div class="m"><b>Screen</b> /admin/operators &nbsp;·&nbsp; <b>Writes</b> system_profiles</div></div>
+    <div class="b">
+      <ol>
+        <li>Enter <b>first name</b> and <b>last name</b>.</li>
+        <li>Save. A call sign is generated.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">34.4 Add or retire an appliance</div><div class="m"><b>Screen</b> /admin/vehicles &nbsp;·&nbsp; <b>Writes</b> apparatus</div></div>
+    <div class="b">
+      <ol>
+        <li>To add: enter <b>silo</b>, <b>unit number</b>, <b>name</b>, <b>type</b>, <b>make</b>, <b>model</b>, <b>licence plate</b> and <b>station number</b>.</li>
+        <li>To take one out of service: set its <b>status</b> — Out of Service, Maintenance or Decommissioned.</li>
+      </ol>
+      <div class="after"><b>Status is operational.</b> Only <i>Available</i> appliances are offered at vehicle selection and on the assignment console.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">34.5 Register a device</div><div class="m"><b>Screen</b> /admin/devices &nbsp;·&nbsp; <b>Writes</b> devices</div></div>
+    <div class="b">
+      <ol>
+        <li>Enter <b>silo</b>, <b>device ID</b>, <b>device type</b>, <b>model</b> and <b>assigned station</b>.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c35">
+  <div class="part-head"><div class="cnum">Chapter 35</div><h1>Configuration</h1></div>
+
+  <p class="lede">
+    Admin → Configuration holds the lists the service can change without a deployment. Everything here is
+    soft-deleted — toggled inactive rather than removed — so historical records stay interpretable.
+  </p>
+
+  <div class="proc">
+    <div class="h"><div class="t">35.1 Add a configuration record</div><div class="m"><b>Screen</b> /admin/config &nbsp;·&nbsp; <b>Writes</b> command_records</div></div>
+    <div class="b">
+      <ol>
+        <li>Choose the <b>module</b>: Incident Category, Leave Type, Shift Type, Report Template or Ops Link.</li>
+        <li>Enter the <b>name</b> and <b>code</b>.</li>
+        <li>For an incident sub-category, set the <b>parent</b> group; leaving it blank makes this row a group.</li>
+        <li>For a category, add extra form <b>prompts</b>, one per line, to appear on the log-call screen.</li>
+        <li>Save.</li>
+      </ol>
+      <div class="after"><b>Leave types carry entitlements.</b> The annual day allowance lives on the leave-type record, which is what the balances on the leave screens are computed against.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">35.2 Repoint an external ops link</div><div class="m"><b>Screen</b> /admin/config, module OpsLink</div></div>
+    <div class="b">
+      <ol>
+        <li>Find the link — E-NATIS, CAS, PERSAL, FIREARM, FINES, TRACE, FORENSICS and the rest.</li>
+        <li>Set its endpoint.</li>
+      </ol>
+      <div class="after"><b>Until an endpoint is issued</b> the link renders dimmed in the command bar rather than looking broken.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h"><div class="t">35.3 Retire a configuration record</div><div class="m"><b>Screen</b> /admin/config</div></div>
+    <div class="b">
+      <ol>
+        <li>Toggle the record inactive.</li>
+      </ol>
+      <div class="after"><b>It stops being offered</b> on capture forms but existing records that reference it still read correctly.</div>
+    </div>
+  </div>
+</div>
+
+<div class="part" id="c36">
+  <div class="part-head"><div class="cnum">Chapter 36</div><h1>Operations Settings</h1></div>
+
+  <p class="lede">
+    Twelve knobs at <code>/admin/operations</code>. Each declares a type, bounds and a default; values are
+    clamped on read and write, every change is audited, and if the table is unreachable the code defaults
+    apply — a tuning problem can never take a screen down.
+  </p>
+
+  <table class="zebra">
+    <thead><tr><th style="width:52mm">Setting</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">sla.clock_warn_seconds</td><td>When the intake clock on the log-call screen turns amber.</td></tr>
+      <tr><td class="mono">sla.clock_critical_seconds</td><td>When it turns red.</td></tr>
+      <tr><td class="mono">sla.response_target_minutes</td><td>The response target the dashboard gauge measures against.</td></tr>
+      <tr><td class="mono">sla.call_duration_target_minutes</td><td>The call-handling target.</td></tr>
+      <tr><td class="mono">alerts.modal_min_severity</td><td><b>Which severity interrupts with a blocking pop-up.</b> The single most operationally significant knob here.</td></tr>
+      <tr><td class="mono">alerts.sound_enabled</td><td>Whether an alert plays a tone.</td></tr>
+      <tr><td class="mono">alerts.toast_seconds</td><td>How long a corner toast stays.</td></tr>
+      <tr><td class="mono">dispatch.eta_speed_kmh</td><td>Assumed speed in the ETA model.</td></tr>
+      <tr><td class="mono">dispatch.eta_road_factor</td><td>Road-distance multiplier over straight line.</td></tr>
+      <tr><td class="mono">map.default_basemap</td><td>Which basemap loads first.</td></tr>
+      <tr><td class="mono">board.feed_items</td><td>How many items the ops board feed shows.</td></tr>
+      <tr><td class="mono">board.volume_days</td><td>The window the volume chart covers.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="proc">
+    <div class="h"><div class="t">Change a setting</div><div class="m"><b>Screen</b> /admin/operations</div></div>
+    <div class="b">
+      <ol>
+        <li>Edit the value and save. If it is out of bounds it is clamped, and the field updates to show what was actually stored.</li>
+        <li><b>Reset</b> removes the override and returns to the built-in default.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="warn">
+    <b>Raising <code>alerts.modal_min_severity</code> is an operational decision</b>
+    Set it to Critical and High-severity dispatches stop interrupting crews. That may be right for a busy
+    department, but it changes what people are pulled away from other work for. Record why.
+  </div>
+</div>
+
+<div class="part" id="c37">
+  <div class="part-head"><div class="cnum">Chapter 37</div><h1>Automations</h1></div>
+
+  <h2>37.1 What runs</h2>
+  <p>
+    Seven rules in the database on a five-minute tick. Everything Criticomm did before the current release happened
+    because a person did it — right for dispatching, wrong for noticing that a call has been waiting
+    twenty minutes or a licence lapses next week.
+  </p>
+
+  <h2>37.2 The rules</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:38mm">Rule</th><th style="width:16mm">Every</th><th>Behaviour and defaults</th></tr></thead>
+    <tbody>
+      <tr><td><b>Unassigned call escalation</b></td><td>5 min</td><td>High alert at 10 minutes waiting; Critical blocking interrupt at 20. To the owning department and the control room.</td></tr>
+      <tr><td><b>No arrival recorded</b></td><td>10 min</td><td>Dispatched or En Route with no arrival after 30 minutes.</td></tr>
+      <tr><td><b>Open incident gone quiet</b></td><td>30 min</td><td>Active incident with no timeline entry for 4 hours. At most one nudge per incident per day.</td></tr>
+      <tr><td><b>Certification expiry</b></td><td>12 h</td><td>Warns at 30, 7 and 1 days — to the member and the department.</td></tr>
+      <tr><td><b>Unacknowledged duty</b></td><td>1 h</td><td>Published duty starting within 12 hours that the member has not confirmed.</td></tr>
+      <tr><td><b>Morning digest</b></td><td>30 min</td><td>Once per department per day at the configured hour: volume, criticals, closure rate, average response.</td></tr>
+      <tr><td><b>Housekeeping</b></td><td>24 h / 6 h</td><td>Prunes expired alerts, old run logs, spent suppression records and stale rate-limit counters.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>37.3 Managing them</h2>
+  <div class="proc">
+    <div class="h"><div class="t">Tune, disable or run a rule</div><div class="m"><b>Screen</b> /admin/automations &nbsp;·&nbsp; <b>Who</b> Admin tier &nbsp;·&nbsp; <b>Audited</b></div></div>
+    <div class="b">
+      <ol>
+        <li><b>Read the health banner first.</b> It says whether the engine is ticking, when the last tick was, and how many rules are erroring.</li>
+        <li>To retime: edit the rule's thresholds and its <b>check every</b> interval, then <b>Save</b>. Out-of-range values are clamped and the field shows what was stored.</li>
+        <li><b>Run now</b> executes the rule immediately, ignoring its interval, and reports what it did.</li>
+        <li><b>Disable</b> stops it. Use this when a rule is misbehaving — a disabled rule is a known gap; a silently failing one is not.</li>
+      </ol>
+      <div class="after"><b>Recent runs</b> are listed below the rules with what each did and how many things it acted on.</div>
+    </div>
+  </div>
+
+  <h2>37.4 If the engine is not running</h2>
+  <p>
+    The status page and the automations page both say so explicitly. The engine is complete without
+    <code>pg_cron</code> — anything with a clock can drive it:
+  </p>
+  <pre><code>select public.run_automations();</code></pre>
+  <p>Point an external scheduler at that every five minutes and the service is fully functional while cron is fixed.</p>
+
+  <div class="note">
+    <b>Why you will not get spammed</b>
+    Every action is claimed against a unique <code>(rule, entity, tier)</code> record, so a rule running
+    every five minutes alerts once per escalation tier rather than every five minutes forever. If you see
+    the same incident escalate twice, it has crossed from warn to critical — a real deterioration.
+  </div>
+</div>
+
+<div class="part" id="c38">
+  <div class="part-head"><div class="cnum">Chapter 38</div><h1>Integrations</h1></div>
+
+  <h2>38.1 The catalogue</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:28mm">Category</th><th style="width:34mm">Integration</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="2"><b>Core</b></td><td>Supabase</td><td>Database, auth, storage, realtime.</td></tr>
+      <tr><td>Esri World Imagery</td><td>Map basemap.</td></tr>
+      <tr><td rowspan="2"><b>AI</b></td><td>Groq</td><td>Primary provider behind Criti.</td></tr>
+      <tr><td>Google Gemini</td><td>Fallback provider.</td></tr>
+      <tr><td rowspan="2"><b>Comms</b></td><td>RealPTT</td><td>Text to radio, audio log.</td></tr>
+      <tr><td>Zoiper</td><td>Softphone dial-out.</td></tr>
+      <tr><td rowspan="2"><b>Notifications</b></td><td>Expo Push</td><td>Responder app notifications.</td></tr>
+      <tr><td>BulkSMS</td><td>Citizen SMS and GPS requests.</td></tr>
+      <tr><td rowspan="2"><b>Surveillance</b></td><td>SANRAL CCTV Matrix</td><td>The current freeway camera wall.</td></tr>
+      <tr><td>Hikvision HikCentral</td><td>The incoming CCTV platform.</td></tr>
+      <tr><td rowspan="5"><b>External feeds</b></td><td>TomTom</td><td>Traffic incidents and points of interest.</td></tr>
+      <tr><td>FlightRadar24</td><td>Aircraft positions and tracks.</td></tr>
+      <tr><td>AIS / Kpler</td><td>Vessel positions, Durban harbour.</td></tr>
+      <tr><td>OpenWeather</td><td>Wind for fire-spread modelling.</td></tr>
+      <tr><td>i-Traffic</td><td>Camera registry import.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>38.2 Enabling one</h2>
+  <div class="proc">
+    <div class="h"><div class="t">Enable and test an integration</div><div class="m"><b>Screen</b> /admin/integrations</div></div>
+    <div class="b">
+      <ol>
+        <li>Set the integration's configuration.</li>
+        <li>Ensure the corresponding environment variable is set in the hosting environment — <b>and redeploy</b>, because these are read at build time.</li>
+        <li>Toggle it <b>enabled</b>.</li>
+        <li>Run the <b>connection probe</b> on its row.</li>
+      </ol>
+      <div class="after"><b>Keys never reach the browser.</b> Every third-party call goes through a server route that holds the key, requires a session and is rate limited.</div>
+    </div>
+  </div>
+
+  <h2>38.3 The CCTV cut-over</h2>
+  <p>
+    <code>/api/cctv/cameras</code> serves the SANRAL registry until Hikvision is enabled with an app key,
+    secret and base URL — then the same endpoint serves the live HikCentral estate. The cut-over is a
+    toggle in Admin, not a deployment. Roll back the same way.
+  </p>
+</div>
+
+<div class="part" id="c39">
+  <div class="part-head"><div class="cnum">Chapter 39</div><h1>Branding</h1></div>
+
+  <div class="proc">
+    <div class="h"><div class="t">Set a department's identity</div><div class="m"><b>Screen</b> /admin/departments &nbsp;·&nbsp; <b>Writes</b> department_branding</div></div>
+    <div class="b">
+      <ol>
+        <li>Choose the department.</li>
+        <li>Set <b>official name</b>, <b>short name</b>, <b>monogram</b>, <b>motto</b>, <b>primary colour</b> and <b>accent colour</b>.</li>
+        <li>Upload the crest, or use <b>Clear logo</b> to remove it.</li>
+      </ol>
+      <div class="after">
+        <b>Why crests are uploaded, never shipped</b> Official municipal and service insignia belong to the
+        municipality. Until one is uploaded the interface renders a monogram badge in the department's
+        colours, so nothing looks unfinished. The identity appears in the sidebar, My Schedule, and the
+        mobile shell and profile.
+      </div>
+    </div>
+  </div>
+</div>
