@@ -2,26 +2,28 @@
 /**
  * Build the Criticomm Operations & Engineering Manual.
  *
- *   node docs/wiki/build.mjs
+ *   pnpm docs:build        (or: node docs/wiki/build.mjs)
  *
- * Three stages, and the middle one is the reason this is not a one-liner:
+ * Four stages:
  *
- *   1. ASSEMBLE  style.css + front matter + the content sections into one
- *      document, adding hanging section numbers as it goes.
+ *   1. ASSEMBLE  style.css + the source sections. Two transforms run here so
+ *      the sources stay readable: section numbers are wrapped for styling, and
+ *      every procedure header gains a breadcrumb showing where in the console
+ *      or the app the task lives — derived from the route in its own metadata,
+ *      so the trail cannot disagree with the procedure it sits on.
  *
- *   2. RENDER PER UNIT  each volume divider and each chapter is rendered to
- *      its own PDF. That looks wasteful — it is roughly fifty Chrome
- *      invocations — but it is what makes real running heads possible. No
- *      browser implements CSS `string-set` / running elements, so the only way
- *      to print "Chapter 14 · Metro Police Officer" at the top of every page of
- *      chapter 14 is to know which pages belong to it. Rendering unit by unit
- *      gives exactly that.
+ *   2. RENDER PER UNIT  each volume divider and chapter renders to its own
+ *      PDF. Roughly fifty Chrome invocations, and the price is worth it: no
+ *      browser implements CSS running elements, so the only way to print
+ *      "14 · Metro Police Officer" on every page of chapter 14 is to know
+ *      which pages belong to it.
  *
- *   3. STAMP  merge the units and draw the furniture: folio on the outer edge,
- *      running head with a hairline, mirrored for recto and verso. Chrome's own
- *      --print-to-pdf-header-footer is deliberately not used; it prints the
- *      source URL and the system date, which is not something you hand to a
- *      municipality.
+ *   3. MERGE  the units into one document, tracking each page's chapter.
+ *
+ *   4. STAMP  the furniture with pdf-lib: running head with a hairline, and
+ *      the folio in a filled square on the outer edge, mirrored recto/verso.
+ *      Chrome's own header/footer is never used — it prints the source URL
+ *      and the system date.
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
@@ -61,11 +63,127 @@ if (!CHROME) {
 function renderToPdf(htmlPath, pdfPath) {
   execFileSync(CHROME, [
     '--headless', '--disable-gpu', '--no-sandbox',
-    // No header/footer: the furniture is drawn in stage 3.
     '--no-pdf-header-footer',
     `--print-to-pdf=${pdfPath}`,
     `file:///${htmlPath.split(path.sep).join('/')}`,
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
+}
+
+/* ── Breadcrumbs ────────────────────────────────────────────────────── */
+
+/**
+ * Route → where it lives in the console navigation. Longest prefix wins, so
+ * `/dispatch/assign/[id]` is tried before `/dispatch`.
+ */
+const NAV = {
+  '/dispatch/log-call': ['Console', 'Dispatch', 'Log Incoming Call'],
+  '/dispatch/pending': ['Console', 'Dispatch', 'Pending Queue'],
+  '/dispatch/assign': ['Console', 'Dispatch', 'Pending Queue', 'Assign'],
+  '/dispatch/kpi': ['Console', 'Dispatch', 'KPI'],
+  '/dispatch/ptt': ['Console', 'Dispatch', 'PTT Console'],
+  '/incidents/map': ['Console', 'Incidents', 'Live Map'],
+  '/incidents/[id]': ['Console', 'Incidents', 'Incident Detail'],
+  '/incidents': ['Console', 'Incidents'],
+  '/responder': ['Console', 'Responder', 'My Incidents'],
+  '/shift/mental-check': ['Console', 'Responder', 'Start of Shift'],
+  '/shift/vehicle-selection': ['Console', 'Responder', 'Start of Shift', 'Vehicle'],
+  '/shift/vehicle-checklist': ['Console', 'Responder', 'Start of Shift', 'Inspection'],
+  '/shift/unit-compliance': ['Console', 'Responder', 'Unit Compliance'],
+  '/police/reports/new': ['Console', 'Police', 'Reports', 'New'],
+  '/police/firearms/new': ['Console', 'Police', 'Firearms', 'New'],
+  '/police/firearms': ['Console', 'Police', 'Firearms'],
+  '/police/security/new': ['Console', 'Police', 'Security', 'New'],
+  '/police/security': ['Console', 'Police', 'Security'],
+  '/police/crime-hotspots': ['Console', 'Police', 'Crime Hotspots'],
+  '/fire/reports/new': ['Console', 'Fire & Rescue', 'Reports', 'New'],
+  '/fire/pir': ['Console', 'Fire & Rescue', 'PIR'],
+  '/fire/hydrants': ['Console', 'Fire & Rescue', 'Hydrants'],
+  '/medical/pcr/new': ['Console', 'EMS', 'PCR', 'New'],
+  '/medical/pcr': ['Console', 'EMS', 'PCR'],
+  '/medical/restock': ['Console', 'EMS', 'Restock'],
+  '/disaster/dispatch': ['Console', 'Disaster', 'Dispatch'],
+  '/disaster/partners': ['Console', 'Disaster', 'Partners'],
+  '/disaster/post-mortem': ['Console', 'Disaster', 'Post-mortem'],
+  '/disaster': ['Console', 'Disaster', 'Monitor'],
+  '/roster/allocation': ['Console', 'Roster', 'Allocation'],
+  '/roster/duty-sheet': ['Console', 'Roster', 'Duty Sheet'],
+  '/roster/mine': ['Console', 'Roster', 'My Schedule'],
+  '/roster': ['Console', 'Roster'],
+  '/leave': ['Console', 'Leave'],
+  '/hr': ['Console', 'HR Command Centre'],
+  '/training': ['Console', 'Training'],
+  '/performance/kpis': ['Console', 'Performance', 'KPIs'],
+  '/performance/plans': ['Console', 'Performance', 'Plans'],
+  '/performance/operational': ['Console', 'Performance', 'Operational'],
+  '/report-hub': ['Console', 'Report Hub'],
+  '/reports/builder': ['Console', 'Reports', 'Builder'],
+  '/cameras/footage': ['Console', 'Cameras', 'Footage'],
+  '/cameras': ['Console', 'Cameras'],
+  '/hierarchy/person': ['Console', 'Hierarchy', 'Person'],
+  '/admin/automations': ['Console', 'Admin', 'Automations'],
+  '/admin/operations': ['Console', 'Admin', 'Operations Settings'],
+  '/admin/integrations': ['Console', 'Admin', 'Integrations'],
+  '/admin/departments': ['Console', 'Admin', 'Departments'],
+  '/admin/personnel': ['Console', 'Admin', 'Personnel'],
+  '/admin/operators': ['Console', 'Admin', 'Operators'],
+  '/admin/vehicles': ['Console', 'Admin', 'Fleet'],
+  '/admin/devices': ['Console', 'Admin', 'Devices'],
+  '/admin/config': ['Console', 'Admin', 'Configuration'],
+  '/admin/status': ['Console', 'Admin', 'System Status'],
+  '/admin': ['Console', 'Admin', 'Users & Roles'],
+  '/profile': ['Console', 'Profile'],
+  '/search': ['Console', 'Search'],
+  '/analytics': ['Console', 'Analytics'],
+  '/case-manager': ['Console', 'Case Manager'],
+};
+
+/** Phone screens are named by phrase in the metadata, not by route. */
+const APP_SCREENS = [
+  ['scene evidence', ['App', 'Incident', 'Scene Evidence']],
+  ['incident detail', ['App', 'Incidents', 'Incident Detail']],
+  ['incidents tab', ['App', 'Incidents']],
+  ['alerts tab', ['App', 'Alerts']],
+  ['shift tab', ['App', 'Shift']],
+  ['profile tab', ['App', 'Profile']],
+  ['profile → apply for leave', ['App', 'Profile', 'Leave']],
+  ['profile → ask criti', ['App', 'Profile', 'Criti']],
+  ['profile', ['App', 'Profile']],
+  ['login', ['App', 'Login']],
+  ['sos button', ['App', 'SOS']],
+  ['phone', ['App']],
+];
+
+function trailFor(meta) {
+  const seg = /<b>Screens?<\/b>\s*([^·&<]*)/.exec(meta)?.[1]?.trim().toLowerCase() ?? '';
+  if (!seg) return null;
+  if (seg.startsWith('/')) {
+    const route = seg.split(/[,\s]/)[0];
+    const key = Object.keys(NAV)
+      .sort((a, b) => b.length - a.length)
+      .find((k) => route.startsWith(k));
+    return key ? NAV[key] : null;
+  }
+  const hit = APP_SCREENS.find(([phrase]) => seg.includes(phrase));
+  return hit ? hit[1] : null;
+}
+
+/** Add a breadcrumb trail to every procedure whose metadata names a screen. */
+function addBreadcrumbs(html) {
+  let added = 0;
+  const out = html.split('<div class="proc">').map((chunk, i) => {
+    if (i === 0) return chunk;
+    const meta = /<div class="m">([\s\S]*?)<\/div>/.exec(chunk)?.[1];
+    const trail = meta ? trailFor(meta) : null;
+    if (!trail) return '<div class="proc">' + chunk;
+    added += 1;
+    const chips = trail.map((t) => `<span>${t}</span>`).join('<i>&#9656;</i>');
+    return '<div class="proc">' + chunk.replace(
+      /(<div class="t">[^<]*<\/div>)/,
+      `$1<div class="path">${chips}</div>`,
+    );
+  }).join('');
+  console.log(`Breadcrumbs on ${added} procedures`);
+  return out;
 }
 
 /* ── Stage 1 — assemble ─────────────────────────────────────────────── */
@@ -73,14 +191,13 @@ function renderToPdf(htmlPath, pdfPath) {
 const css = readFileSync(path.join(here, 'style.css'), 'utf8');
 let body = SECTIONS.map((f) => readFileSync(path.join(here, 'src', f), 'utf8')).join('\n');
 
-/**
- * Pull the leading "9.3" out of a heading so the stylesheet can hang it in the
- * gutter. Done here rather than in the source so the source stays readable.
- */
+// Hang the "9.3" out of headings so the stylesheet can colour it.
 body = body.replace(
   /<(h2|h3)>((?:\d+\.\d+|[A-H])\s*(?:—\s*)?)\s/g,
   (_m, tag, num) => `<${tag}><span class="hn">${num.trim()}</span>`,
 );
+
+body = addBreadcrumbs(body);
 
 const page = (inner) => `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -89,13 +206,8 @@ const page = (inner) => `<!doctype html>
 ${inner}
 </body></html>`;
 
-/* ── Stage 2 — split into units and render each ─────────────────────── */
+/* ── Stage 2 — split into units and render ──────────────────────────── */
 
-/**
- * Units are top-level blocks: the front matter, each volume divider, and each
- * chapter. Splitting on the opening tags is safe because both always start at
- * the beginning of a line in the sources.
- */
 function splitUnits(html) {
   const marks = [...html.matchAll(/^<div class="(volume|part)"[^>]*>/gm)]
     .map((m) => ({ index: m.index, kind: m[1] }));
@@ -114,13 +226,12 @@ function splitUnits(html) {
   return units;
 }
 
-/** The running head for a chapter: "14 · Metro Police Officer". */
 function titleOf(chunk, kind) {
   if (kind !== 'part') return null;
   const num = /<div class="cnum">([^<]+)<\/div>/.exec(chunk)?.[1] ?? '';
   const name = /<h1>([\s\S]*?)<\/h1>/.exec(chunk)?.[1] ?? '';
   const clean = (s) => s.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').trim();
-  const n = clean(num).replace(/^Chapter\s+/i, '');
+  const n = clean(num).replace(/^Chapter\s+/i, '').replace(/^Appendix\s+/i, '').replace(/^Appendices\s+/i, '');
   return n ? `${n} · ${clean(name)}` : clean(name);
 }
 
@@ -141,7 +252,7 @@ units.forEach((unit, i) => {
 });
 process.stdout.write(' done\n');
 
-/* ── Stage 3 — merge and stamp ──────────────────────────────────────── */
+/* ── Stages 3 & 4 — merge and stamp ─────────────────────────────────── */
 
 const book = await PDFDocument.create();
 book.setTitle('Criticomm — Operations & Engineering Manual');
@@ -149,9 +260,7 @@ book.setSubject('Emergency dispatch, response and command platform');
 book.setAuthor('eThekwini Emergency Services');
 book.setProducer('Criticomm document pipeline');
 
-/** Which running head each merged page carries; null = no furniture. */
 const heads = [];
-
 for (const unit of rendered) {
   const doc = await PDFDocument.load(readFileSync(unit.pdfPath));
   const pages = await book.copyPages(doc, doc.getPageIndices());
@@ -161,20 +270,17 @@ for (const unit of rendered) {
   }
 }
 
-const roman = await book.embedFont(StandardFonts.Helvetica);
-const romanBold = await book.embedFont(StandardFonts.HelveticaBold);
+const sans = await book.embedFont(StandardFonts.Helvetica);
+const sansBold = await book.embedFont(StandardFonts.HelveticaBold);
 
 const MM = 2.83465;
-const INK = rgb(0.09, 0.10, 0.13);
-const MUTED = rgb(0.50, 0.53, 0.58);
-const RULE = rgb(0.84, 0.86, 0.88);
-const CRIMSON = rgb(0.62, 0.08, 0.15);
+const INK = rgb(0.055, 0.067, 0.086);
+const MUTED = rgb(0.42, 0.44, 0.50);
+const RULE = rgb(0.86, 0.88, 0.90);
+const RED = rgb(0.753, 0.063, 0.188);
+const WHITE = rgb(1, 1, 1);
 
-/**
- * Folio numbering starts at the first content page — the cover and contents are
- * front matter and are not numbered, which is the convention and also means the
- * printed number matches "page N of the manual" as a reader would count it.
- */
+// Folios start at the first content page; front matter stays unnumbered.
 const firstContent = heads.findIndex((h) => h !== null);
 let folio = 0;
 
@@ -182,61 +288,42 @@ book.getPages().forEach((p, i) => {
   const head = heads[i];
   const { width, height } = p.getSize();
 
-  // Front matter and volume dividers stay clean.
   if (i < firstContent) return;
   folio += 1;
-  if (head === null) return;
+  if (head === null) return;   // volume dividers stay clean
 
   const recto = folio % 2 === 1;
-  const outer = recto ? width - 20 * MM : 24 * MM;
 
   // ── Running head ──
   const label = 'CRITICOMM';
   const chapter = head.toUpperCase();
-  const y = height - 15 * MM;
-
-  const labelW = romanBold.widthOfTextAtSize(label, 6.4);
-  const chapW = roman.widthOfTextAtSize(chapter, 6.4);
+  const y = height - 14 * MM;
+  const chapW = sans.widthOfTextAtSize(chapter, 6.4);
+  const labelW = sansBold.widthOfTextAtSize(label, 6.4);
 
   if (recto) {
-    p.drawText(chapter, {
-      x: width - 20 * MM - chapW, y, size: 6.4, font: roman, color: MUTED,
-      characterSpacing: 0.8,
-    });
-    p.drawText(label, {
-      x: 24 * MM, y, size: 6.4, font: romanBold, color: CRIMSON, characterSpacing: 1.4,
-    });
+    p.drawText(label, { x: 20 * MM, y, size: 6.4, font: sansBold, color: RED, characterSpacing: 1.6 });
+    p.drawText(chapter, { x: width - 16 * MM - chapW, y, size: 6.4, font: sans, color: MUTED, characterSpacing: 0.8 });
   } else {
-    p.drawText(chapter, {
-      x: 24 * MM, y, size: 6.4, font: roman, color: MUTED, characterSpacing: 0.8,
-    });
-    p.drawText(label, {
-      x: width - 20 * MM - labelW, y, size: 6.4, font: romanBold, color: CRIMSON,
-      characterSpacing: 1.4,
-    });
+    p.drawText(chapter, { x: 20 * MM, y, size: 6.4, font: sans, color: MUTED, characterSpacing: 0.8 });
+    p.drawText(label, { x: width - 16 * MM - labelW, y, size: 6.4, font: sansBold, color: RED, characterSpacing: 1.6 });
   }
-
   p.drawLine({
-    start: { x: 24 * MM, y: y - 2.4 * MM },
-    end: { x: width - 20 * MM, y: y - 2.4 * MM },
+    start: { x: 20 * MM, y: y - 2.2 * MM },
+    end: { x: width - 16 * MM, y: y - 2.2 * MM },
     thickness: 0.4, color: RULE,
   });
 
-  // ── Folio ──
+  // ── Folio in a filled square, outer bottom corner ──
   const n = String(folio);
-  const nW = romanBold.widthOfTextAtSize(n, 8.5);
+  const sq = 6.4 * MM;
+  const sx = recto ? width - 16 * MM - sq : 20 * MM;
+  const sy = 9.5 * MM;
+  p.drawRectangle({ x: sx, y: sy, width: sq, height: sq, color: INK });
+  const nW = sansBold.widthOfTextAtSize(n, 8.2);
   p.drawText(n, {
-    x: recto ? outer - nW : outer,
-    y: 13 * MM, size: 8.5, font: romanBold, color: INK,
-  });
-
-  // A short rule beside the folio, on the outer edge — quiet, but it makes the
-  // page feel set rather than printed.
-  const rx = recto ? outer - nW - 4 * MM : outer + nW + 4 * MM;
-  p.drawLine({
-    start: { x: rx, y: 14.2 * MM },
-    end: { x: recto ? rx - 8 * MM : rx + 8 * MM, y: 14.2 * MM },
-    thickness: 0.6, color: CRIMSON,
+    x: sx + (sq - nW) / 2, y: sy + 2.1 * MM,
+    size: 8.2, font: sansBold, color: WHITE,
   });
 });
 

@@ -1,382 +1,495 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Criticomm Operations & Engineering Manual — page architecture
+   Criticomm Operations & Engineering Manual — design system
 
-   The measure is the whole design. Body prose is held to ~128mm, which
-   at 10pt Georgia is roughly 72 characters — the range the eye tracks
-   without losing its place. Reference matter that is scanned rather
-   than read (tables, the capability matrix, figures) opts out to the
-   full 166mm, because a table wants width and a paragraph does not.
+   A product field guide, not a book: bold sans typography, dark chapter
+   bands, and visual flow strips that show which screen a task starts on
+   and where it ends. Every major task in Volume V opens with one.
 
-   Folios and running heads are NOT set here. Chrome cannot produce them
-   without printing its own URL header, so they are stamped onto the
-   rendered PDF afterwards (see build.mjs). That also lets each chapter
-   carry its own running head, which CSS paged media cannot do in any
-   current browser.
+   Folios and running heads are stamped onto the rendered PDF afterwards
+   (build.mjs) — no browser can produce per-chapter running heads, and
+   Chrome's built-in header prints the source URL, which is not something
+   you hand to a municipality.
    ═══════════════════════════════════════════════════════════════════ */
 
-@page {
-  size: A4;
-  /* Asymmetric: a wide outer margin carries the stamped folio and rule,
-     and gives the eye somewhere to rest beside a dense page. */
-  margin: 24mm 20mm 24mm 24mm;
-}
+@page { size: A4; margin: 21mm 16mm 21mm 20mm; }
 @page :first { margin: 0; }
 
 :root {
-  --ink:    #14161b;
-  --ink-2:  #414755;
-  --ink-3:  #717784;
-  --ink-4:  #a1a7b3;
-  --rule:   #d5d9e0;
-  --rule-2: #e9ecf1;
-  --wash:   #f6f7f9;
-  --crimson:#9e1526;
-  --blue:   #17457f;
-  --green:  #14603f;
-  --amber:  #7d5100;
-  --code-bg:#f3f4f7;
+  --ink:   #0e1116;
+  --ink2:  #3c4250;
+  --ink3:  #6a7180;
+  --ink4:  #a2a8b4;
+  --line:  #e2e5ea;
+  --line2: #eff1f5;
+  --wash:  #f6f7fa;
+  --red:   #c01030;
+  --red-2: #8e0b22;
+  --red-w: #fbeef1;
+  --blue:  #1d5dc0;
+  --blue-w:#eef3fc;
+  --green: #0f7a4a;
+  --green-w:#eef7f2;
+  --amber: #b36d00;
+  --amber-w:#fdf6ea;
+  --violet:#6c46c9;
 
-  --measure: 128mm;   /* prose */
-  --full:    166mm;   /* reference matter */
+  --measure: 132mm;
+  --full:    174mm;
 }
 
 * { box-sizing: border-box; }
 
 body {
-  font-family: "Georgia","Cambria",serif;
-  font-size: 10pt;
-  line-height: 1.62;
-  color: var(--ink);
-  margin: 0;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-  text-rendering: geometricPrecision;
+  font-family: "Segoe UI","Helvetica Neue",Arial,sans-serif;
+  font-size: 9.4pt; line-height: 1.58; color: var(--ink);
+  margin: 0; background: #fff;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
 }
-.sans, h1, h2, h3, h4, th, kbd, .num { font-family: "Segoe UI","Helvetica Neue",Arial,sans-serif; }
+.mono, code, kbd, td.mono, th.mono { font-family: "Consolas","Courier New",monospace; }
 
-/* ── Measure ─────────────────────────────────────────────────────── */
-p, ul, ol, .lede, blockquote { max-width: var(--measure); }
-table, figure, .matrix-wrap { width: var(--full); }
-.proc { width: 152mm; }
-.note, .warn, .why { max-width: 140mm; }
+p, ul, ol, .lede { max-width: var(--measure); }
+table, figure, .flow, .anatomy, .stats, .role, .matrix-wrap { width: var(--full); max-width: var(--full); }
+.proc { width: var(--full); }
 
 /* ═══ COVER ═══════════════════════════════════════════════════════ */
 .cover {
   height: 297mm; width: 210mm; position: relative; overflow: hidden;
-  background: #101319; color: #fff; page-break-after: always;
+  background:
+    linear-gradient(118deg, #0e1116 0 62%, #c01030 62% 63%, #14090d 63%);
+  color: #fff; page-break-after: always;
 }
-.cover .rule-grid {
+.cover .grid {
   position: absolute; inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-  background-size: 10mm 10mm;
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 12mm 12mm;
 }
-.cover .band {
-  position: absolute; left: 0; top: 0; bottom: 0; width: 8mm;
-  background: var(--crimson);
-}
-.cover .inner { position: relative; padding: 34mm 24mm 22mm 30mm; height: 100%; }
+.cover .inner { position: relative; height: 100%; padding: 30mm 20mm 18mm 22mm; }
 .cover .crest {
-  font-family: "Segoe UI",sans-serif; font-size: 8pt; letter-spacing: 3.6px;
-  text-transform: uppercase; color: #9aa2b1; padding-bottom: 3mm;
-  border-bottom: 1px solid rgba(255,255,255,0.16); display: inline-block;
-  margin-bottom: 24mm;
+  display: inline-block; font-size: 8pt; font-weight: 700; letter-spacing: 3.4px;
+  text-transform: uppercase; color: #cfd4dd;
+  border: 1px solid rgba(255,255,255,0.25); border-radius: 1.5mm;
+  padding: 1.8mm 3.6mm; margin-bottom: 20mm;
+}
+.cover .crest::before {
+  content: ""; display: inline-block; width: 2.2mm; height: 2.2mm;
+  border-radius: 50%; background: var(--red); margin-right: 2.6mm;
+  vertical-align: 0.2mm;
+}
+.cover .brand {
+  font-size: 15pt; font-weight: 800; letter-spacing: 7px; text-transform: uppercase;
+  color: #ff5c78; margin-bottom: 4mm;
 }
 .cover h1 {
-  font-family: "Georgia",serif; font-size: 46pt; line-height: 1.02;
-  margin: 0; font-weight: 400; letter-spacing: -1.4px; color: #fff;
-}
-.cover h1 .lock {
-  display: block; font-family: "Segoe UI",sans-serif; font-size: 12pt;
-  font-weight: 600; letter-spacing: 5px; text-transform: uppercase;
-  color: var(--crimson); margin-bottom: 6mm;
+  font-size: 47pt; font-weight: 800; letter-spacing: -1.8px; line-height: 1.0;
+  margin: 0 0 9mm 0; color: #fff;
 }
 .cover .sub {
-  font-size: 12.5pt; color: #b9c0cc; max-width: 118mm; line-height: 1.6;
-  margin-top: 10mm; font-family: "Georgia",serif;
+  font-size: 12pt; font-weight: 350; color: #c3c9d4; max-width: 116mm; line-height: 1.6;
+}
+.cover .cflow {
+  position: absolute; left: 22mm; right: 20mm; bottom: 52mm;
+  display: flex; align-items: center; gap: 2.2mm;
+}
+.cover .cflow span {
+  flex: 1; text-align: center; border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 1.6mm; padding: 2.4mm 0; font-size: 8pt; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase; color: #e8ebf0;
+  background: rgba(255,255,255,0.04);
+}
+.cover .cflow i {
+  flex: none; width: 4mm; height: 1.5px; background: rgba(255,255,255,0.4);
+  position: relative;
+}
+.cover .cflow i::after {
+  content: ""; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  border-left: 1.6mm solid rgba(255,255,255,0.6);
+  border-top: 1.1mm solid transparent; border-bottom: 1.1mm solid transparent;
 }
 .cover .facts {
-  position: absolute; left: 30mm; right: 24mm; bottom: 44mm;
-  border-top: 1px solid rgba(255,255,255,0.16); padding-top: 6mm;
-  display: flex; gap: 12mm; font-family: "Segoe UI",sans-serif;
+  position: absolute; left: 22mm; right: 20mm; bottom: 26mm;
+  display: flex; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 5mm;
 }
-.cover .facts div .n {
-  font-size: 17pt; font-weight: 300; color: #fff; letter-spacing: -0.5px;
-}
-.cover .facts div .l {
-  font-size: 7.4pt; color: #8d94a2; text-transform: uppercase;
-  letter-spacing: 1.4px; margin-top: 1.2mm;
+.cover .facts div { flex: 1; }
+.cover .facts .n { font-size: 19pt; font-weight: 800; letter-spacing: -0.8px; }
+.cover .facts .l {
+  font-size: 6.8pt; font-weight: 700; color: #8d94a2; text-transform: uppercase;
+  letter-spacing: 1.4px; margin-top: 1mm;
 }
 .cover .imprint {
-  position: absolute; left: 30mm; right: 24mm; bottom: 20mm;
-  font-family: "Segoe UI",sans-serif; font-size: 8pt; color: #767d8b;
+  position: absolute; left: 22mm; right: 20mm; bottom: 14mm;
   display: flex; justify-content: space-between;
+  font-size: 7.6pt; color: #767d8b;
 }
 
 /* ═══ CONTENTS ════════════════════════════════════════════════════ */
 .toc { page-break-after: always; }
-.toc h1 {
-  font-size: 22pt; font-weight: 300; letter-spacing: -0.6px; margin: 0;
-  padding-bottom: 3mm; border-bottom: 2px solid var(--ink);
+.toc > h1 { font-size: 30pt; font-weight: 800; letter-spacing: -1.2px; margin: 0 0 1mm 0; }
+.toc > .strap {
+  font-size: 7.8pt; font-weight: 700; color: var(--red); letter-spacing: 2.2px;
+  text-transform: uppercase; margin-bottom: 7mm;
 }
-.toc .strap {
-  font-family: "Segoe UI",sans-serif; font-size: 8.2pt; color: var(--ink-3);
-  letter-spacing: 1.4px; text-transform: uppercase; margin: 3mm 0 8mm 0;
+.toc .vgroup {
+  border: 1.5px solid var(--line); border-radius: 2.5mm; padding: 3.4mm 4.5mm 2.6mm 4.5mm;
+  margin-bottom: 3.6mm; page-break-inside: avoid; max-width: var(--full);
 }
-.toc .vgroup { margin-bottom: 5.5mm; page-break-inside: avoid; max-width: var(--full); }
-.toc .vhead {
-  display: flex; align-items: baseline; gap: 4mm; margin-bottom: 1.5mm;
-}
+.toc .vhead { display: flex; align-items: center; gap: 3.5mm; margin-bottom: 2mm; }
 .toc .vhead .rn {
-  font-family: "Segoe UI",sans-serif; font-size: 7.6pt; font-weight: 700;
-  color: var(--crimson); letter-spacing: 2px; min-width: 13mm;
+  background: var(--red); color: #fff; font-size: 7.6pt; font-weight: 800;
+  letter-spacing: 1px; border-radius: 1.2mm; padding: 1mm 2.6mm; text-transform: uppercase;
 }
-.toc .vhead .vt {
-  font-family: "Segoe UI",sans-serif; font-size: 10.5pt; font-weight: 600;
-  letter-spacing: -0.1px; flex: 1;
-  border-bottom: 1px solid var(--ink); padding-bottom: 1.2mm;
-}
-.toc .line {
-  display: flex; gap: 4mm; font-size: 9pt; padding: 0.9mm 0 0.9mm 17mm;
-}
-.toc .line + .line { border-top: 1px solid var(--rule-2); }
+.toc .vhead .vt { font-size: 11.5pt; font-weight: 800; letter-spacing: -0.2px; }
+.toc .line { display: flex; gap: 3.5mm; font-size: 8.8pt; padding: 1mm 0; }
+.toc .line + .line { border-top: 1px solid var(--line2); }
 .toc .line .cn {
-  font-family: "Segoe UI",sans-serif; font-weight: 600; color: var(--ink-4);
-  min-width: 8mm; font-size: 8.2pt; padding-top: 0.5mm; text-align: right;
+  font-weight: 800; color: var(--red); min-width: 7mm; font-size: 8.4pt;
+  text-align: right; padding-top: 0.2mm;
 }
 .toc .line .ct { font-weight: 700; }
-.toc .line .cd { color: var(--ink-3); }
+.toc .line .cd { color: var(--ink3); }
 
 /* ═══ VOLUME DIVIDER ══════════════════════════════════════════════ */
 .volume {
   page-break-before: always; page-break-after: always;
-  height: 249mm; position: relative; display: flex; flex-direction: column;
-  justify-content: center;
+  height: 253mm; position: relative; overflow: hidden;
+  background: linear-gradient(150deg, #0e1116 0 68%, #1a0e13 100%);
+  border-radius: 4mm; color: #fff;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 14mm 14mm 14mm 16mm;
 }
 .volume .bignum {
-  position: absolute; top: 0; left: 0;
-  font-family: "Georgia",serif; font-size: 118pt; font-weight: 400;
-  line-height: 1; color: var(--rule-2); letter-spacing: -4px;
+  position: absolute; top: 6mm; right: 12mm;
+  font-size: 130pt; font-weight: 800; line-height: 1; letter-spacing: -6px;
+  /* A solid ghost, not a stroke: a stroked sans "I" at this size reads as an
+     empty rectangle rather than a numeral. */
+  color: rgba(255, 92, 120, 0.13);
 }
 .volume .kick {
-  font-family: "Segoe UI",sans-serif; font-size: 8pt; font-weight: 700;
-  letter-spacing: 3.4px; text-transform: uppercase; color: var(--crimson);
-  margin-bottom: 4mm;
+  font-size: 8pt; font-weight: 800; letter-spacing: 3.6px; text-transform: uppercase;
+  color: #ff5c78; margin-bottom: 4mm;
 }
 .volume h1 {
-  font-family: "Georgia",serif; font-size: 33pt; font-weight: 400;
-  letter-spacing: -0.9px; margin: 0 0 6mm 0; line-height: 1.06;
-  max-width: 130mm;
+  font-size: 34pt; font-weight: 800; letter-spacing: -1.4px; margin: 0 0 5mm 0;
+  line-height: 1.04; max-width: 140mm;
 }
-.volume .bar { width: 100%; max-width: var(--full); height: 2px; background: var(--ink); margin-bottom: 6mm; }
-.volume p {
-  font-size: 11.5pt; color: var(--ink-2); max-width: 122mm; line-height: 1.62;
-}
+.volume .bar { width: 30mm; height: 2.5mm; background: var(--red); border-radius: 1mm; margin-bottom: 6mm; }
+.volume p { font-size: 11.2pt; font-weight: 350; color: #b9c0cc; max-width: 128mm; line-height: 1.62; }
 .volume .chaps {
-  margin-top: 14mm; padding-top: 5mm; border-top: 1px solid var(--rule);
-  font-family: "Segoe UI",sans-serif; font-size: 8.8pt; color: var(--ink-3);
-  columns: 2; column-gap: 12mm; max-width: var(--full);
+  margin-top: 10mm; padding-top: 5mm; border-top: 1px solid rgba(255,255,255,0.16);
+  font-size: 8.6pt; color: #8d94a2; columns: 2; column-gap: 12mm;
 }
-.volume .chaps div { margin-bottom: 1.5mm; break-inside: avoid; }
-.volume .chaps b { color: var(--ink); font-weight: 600; display: inline-block; min-width: 7mm; }
+.volume .chaps div { margin-bottom: 1.6mm; break-inside: avoid; }
+.volume .chaps b { color: #ff9db0; font-weight: 800; display: inline-block; min-width: 7mm; }
 
 /* ═══ CHAPTER ═════════════════════════════════════════════════════ */
 .part { page-break-before: always; }
-.part-head { margin-bottom: 9mm; max-width: var(--full); }
-.part-head .cnum {
-  font-family: "Segoe UI",sans-serif; font-size: 7.8pt; font-weight: 700;
-  letter-spacing: 3px; text-transform: uppercase; color: var(--crimson);
-  margin-bottom: 2mm;
-}
-.part-head h1 {
-  font-family: "Georgia",serif; font-size: 23pt; font-weight: 400;
-  letter-spacing: -0.7px; margin: 0 0 4mm 0; line-height: 1.1;
+.part-head {
+  position: relative; overflow: hidden;
+  background: var(--ink); border-radius: 3mm; color: #fff;
+  padding: 6.5mm 8mm; margin-bottom: 8mm; width: var(--full);
 }
 .part-head::after {
-  content: ""; display: block; height: 2px; width: var(--full); background: var(--ink);
+  content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 2.5mm;
+  background: var(--red);
 }
+.part-head .cnum {
+  font-size: 7.4pt; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+  color: #ff5c78; margin-bottom: 1.6mm;
+}
+.part-head h1 { font-size: 20pt; font-weight: 800; letter-spacing: -0.7px; margin: 0; line-height: 1.08; }
 
-/* Hanging section numbers in the left gutter. */
-h2, h3 { position: relative; }
 h2 {
-  font-size: 12.4pt; font-weight: 600; letter-spacing: -0.1px;
-  margin: 9mm 0 3mm 0; padding-bottom: 1.6mm;
-  border-bottom: 1px solid var(--rule); max-width: var(--full);
+  font-size: 12.6pt; font-weight: 800; letter-spacing: -0.2px;
+  margin: 8.5mm 0 3mm 0; padding-bottom: 1.6mm;
+  border-bottom: 1.5px solid var(--ink); max-width: var(--full);
   page-break-after: avoid;
 }
-h2 .hn, h3 .hn {
-  position: absolute; left: -17mm; top: 0.3mm; width: 15mm; text-align: right;
-  font-size: 8.6pt; font-weight: 700; color: var(--crimson);
-  letter-spacing: 0.2px;
-}
-h3 { font-size: 10.6pt; font-weight: 700; margin: 6mm 0 2mm 0; page-break-after: avoid; }
-h3 .hn { color: var(--ink-4); top: 0.6mm; }
+h2 .hn, h3 .hn { color: var(--red); margin-right: 2.4mm; }
+h3 { font-size: 10.4pt; font-weight: 800; margin: 6mm 0 2mm 0; page-break-after: avoid; }
+h3 .hn { color: var(--ink4); }
 h4 {
-  font-size: 8.4pt; font-weight: 700; color: var(--ink-3); margin: 4.5mm 0 1.5mm 0;
-  text-transform: uppercase; letter-spacing: 1.2px; page-break-after: avoid;
+  font-size: 8.2pt; font-weight: 800; color: var(--ink3); margin: 4.5mm 0 1.6mm 0;
+  text-transform: uppercase; letter-spacing: 1.3px; page-break-after: avoid;
 }
-
-p { margin: 0 0 3mm 0; }
-ul, ol { margin: 0 0 3.5mm 0; padding-left: 5mm; }
-li { margin-bottom: 1.5mm; }
+p { margin: 0 0 2.8mm 0; }
+ul, ol { margin: 0 0 3.2mm 0; padding-left: 5mm; }
+li { margin-bottom: 1.4mm; }
 a { color: var(--blue); text-decoration: none; }
 
 .lede {
-  font-size: 11pt; color: var(--ink-2); line-height: 1.62;
-  border-left: 2px solid var(--crimson); padding-left: 5mm; margin: 0 0 8mm 0;
+  font-size: 10.8pt; font-weight: 350; color: var(--ink2); line-height: 1.62;
+  border-left: 2.5mm solid var(--red); border-radius: 0.6mm;
+  padding: 1mm 0 1mm 5mm; margin: 0 0 7mm 0;
 }
+
+/* ═══ FLOW STRIPS ═════════════════════════════════════════════════ */
+.flow { display: flex; align-items: stretch; margin: 4mm 0 1.6mm 0; page-break-inside: avoid; }
+.flow .chip {
+  flex: 1; min-width: 0; display: flex; flex-direction: column;
+  border: 1.5px solid var(--ink); border-radius: 2.2mm; overflow: hidden; background: #fff;
+}
+.flow .chip .bar {
+  background: var(--ink); color: #fff; padding: 1.5mm 2.4mm;
+  font-family: "Consolas",monospace; font-size: 6.6pt; font-weight: 700;
+  letter-spacing: 0.2px; display: flex; align-items: center; white-space: nowrap;
+  overflow: hidden;
+}
+.flow .chip.web .bar::before {
+  content: ""; flex: none; width: 1.5mm; height: 1.5mm; border-radius: 50%;
+  background: #ff5f56; box-shadow: 2.4mm 0 0 #ffbd2e, 4.8mm 0 0 #27c93f;
+  margin-right: 6.6mm;
+}
+.flow .chip .body { padding: 1.8mm 2.4mm 2.1mm 2.4mm; font-size: 7.6pt; line-height: 1.45; color: var(--ink2); }
+.flow .chip .body b { color: var(--ink); }
+.flow .chip.start .bar { background: var(--red); }
+.flow .chip.act   .bar { background: var(--blue); }
+.flow .chip.done  .bar { background: var(--green); }
+.flow .chip.sys   .bar { background: var(--ink3); }
+.flow .chip.app   .bar { background: var(--violet); }
+.flow .arr { flex: none; width: 6mm; position: relative; }
+.flow .arr::before {
+  content: ""; position: absolute; left: 0.4mm; right: 2mm; top: 50%;
+  height: 1.5px; background: var(--ink); transform: translateY(-50%);
+}
+.flow .arr::after {
+  content: ""; position: absolute; right: 0.6mm; top: 50%; transform: translateY(-50%);
+  border-left: 1.9mm solid var(--ink);
+  border-top: 1.3mm solid transparent; border-bottom: 1.3mm solid transparent;
+}
+.flowcap {
+  font-size: 6.9pt; font-weight: 800; color: var(--ink3); letter-spacing: 1.4px;
+  text-transform: uppercase; margin: 0 0 5mm 0;
+}
+.flowcap b { color: var(--red); }
+
+/* ═══ SCREEN ANATOMY ══════════════════════════════════════════════ */
+.anatomy {
+  border: 2px solid var(--ink); border-radius: 2.8mm; overflow: hidden;
+  margin: 4mm 0 1.6mm 0; page-break-inside: avoid; background: #fff;
+}
+.anatomy .abar {
+  background: var(--ink); color: #fff; padding: 2mm 3mm;
+  font-family: "Consolas",monospace; font-size: 7.4pt; font-weight: 700;
+  display: flex; align-items: center;
+}
+.anatomy .abar::before {
+  content: ""; flex: none; width: 1.8mm; height: 1.8mm; border-radius: 50%;
+  background: #ff5f56; box-shadow: 2.8mm 0 0 #ffbd2e, 5.6mm 0 0 #27c93f;
+  margin-right: 7.6mm;
+}
+.anatomy .abar .aclock { margin-left: auto; color: #ffbd2e; font-size: 6.8pt; letter-spacing: 0.4px; }
+.anatomy .agrid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; padding: 4mm 3.5mm 3.5mm 3.5mm; }
+.anatomy .zone {
+  border: 1.3px dashed var(--ink4); border-radius: 1.8mm; padding: 3mm 2.8mm 2.4mm 2.8mm;
+  position: relative;
+}
+.anatomy .zone.wide { grid-column: 1 / -1; }
+.anatomy .zn {
+  position: absolute; top: -2.8mm; left: 2.6mm;
+  background: var(--red); color: #fff; font-size: 7.2pt; font-weight: 800;
+  width: 5.2mm; height: 5.2mm; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.6px solid #fff; box-shadow: 0 0 0 1px var(--red);
+}
+.anatomy .zt { font-size: 8pt; font-weight: 800; margin-bottom: 1.6mm; }
+.mf { display: flex; align-items: center; gap: 1.8mm; margin: 1.1mm 0; }
+.mf .lbl {
+  font-size: 6.4pt; font-weight: 700; color: var(--ink3); min-width: 15mm;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.mf .box { flex: 1; height: 4.4mm; border: 1px solid var(--line); border-radius: 1mm; background: var(--wash); }
+.mf .box.sm { flex: none; width: 15mm; }
+.mpill {
+  display: inline-block; border: 1.2px solid var(--line); border-radius: 99px;
+  padding: 0.8mm 2.6mm; font-size: 6.9pt; font-weight: 700; color: var(--ink2);
+  margin: 0 1mm 1mm 0; background: #fff;
+}
+.mpill.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.mpill.hot { background: var(--red); color: #fff; border-color: var(--red); }
+.mbtn {
+  display: inline-block; background: var(--red); color: #fff; font-size: 7.6pt;
+  font-weight: 800; padding: 1.8mm 4mm; border-radius: 1.5mm; letter-spacing: 0.3px;
+}
+.mmap {
+  height: 13mm; border-radius: 1.4mm; margin-top: 1.4mm; position: relative;
+  background:
+    linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px),
+    linear-gradient(135deg, #dfeadf, #d3e2e8);
+  background-size: 5mm 5mm, 5mm 5mm, 100% 100%;
+}
+.mmap .pin {
+  position: absolute; left: 50%; top: 45%; width: 3mm; height: 3mm;
+  background: var(--red); border: 1.4px solid #fff; border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+}
+
+/* ═══ BREADCRUMB PATH ═════════════════════════════════════════════ */
+.path { display: flex; flex-wrap: wrap; align-items: center; gap: 1.2mm; margin: 1.4mm 0 0.4mm 0; }
+.path span {
+  font-size: 6.7pt; font-weight: 700; color: var(--ink2);
+  background: #fff; border: 1px solid var(--line); border-radius: 1.1mm;
+  padding: 0.7mm 2.2mm;
+}
+.path span:first-child { background: var(--ink); color: #fff; border-color: var(--ink); }
+.path i { font-style: normal; color: var(--ink4); font-size: 6.6pt; }
 
 /* ═══ TABLES ══════════════════════════════════════════════════════ */
-table { border-collapse: collapse; margin: 3.5mm 0 6mm 0; font-size: 8.6pt; page-break-inside: avoid; }
+table { border-collapse: collapse; margin: 3mm 0 5.5mm 0; font-size: 8.4pt; page-break-inside: avoid; }
 thead th {
-  text-align: left; padding: 1.6mm 2.6mm 1.8mm 0; font-size: 7.2pt; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 1.1px; color: var(--ink-3);
-  border-bottom: 1.4px solid var(--ink);
+  text-align: left; padding: 1.7mm 2.6mm 1.8mm 0; font-size: 6.9pt; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1.1px; color: var(--ink3);
+  border-bottom: 2px solid var(--ink);
 }
 thead th + th { padding-left: 2.6mm; }
-tbody td { padding: 1.7mm 2.6mm 1.7mm 0; border-bottom: 1px solid var(--rule-2); vertical-align: top; }
+tbody td { padding: 1.7mm 2.6mm 1.7mm 0; border-bottom: 1px solid var(--line2); vertical-align: top; }
 tbody td + td { padding-left: 2.6mm; }
-tbody tr:last-child td { border-bottom: 1.4px solid var(--rule); }
-td.mono, th.mono, .mono { font-family: "Consolas","Courier New",monospace; font-size: 7.9pt; }
+tbody tr:last-child td { border-bottom: 1.5px solid var(--line); }
+td.mono, th.mono, .mono { font-size: 7.7pt; }
 table.zebra tbody tr:nth-child(even) { background: var(--wash); }
-table.zebra tbody tr:nth-child(even) td:first-child { box-shadow: -2mm 0 0 var(--wash); }
 
 code {
-  font-family: "Consolas","Courier New",monospace; font-size: 8.4pt;
-  background: var(--code-bg); padding: 0.2mm 1mm; border-radius: 1.5px; color: #7d1526;
+  font-size: 8.2pt; background: var(--wash); border: 1px solid var(--line2);
+  padding: 0.2mm 1.1mm; border-radius: 1.2px; color: var(--red-2);
 }
 pre {
-  background: #14161b; color: #dfe3ea; border-radius: 2px;
-  padding: 3.5mm 4.5mm; margin: 3mm 0 5.5mm 0; max-width: 152mm;
-  font-family: "Consolas","Courier New",monospace; font-size: 7.9pt; line-height: 1.52;
+  background: var(--ink); color: #dfe3ea; border-radius: 2mm;
+  padding: 3.4mm 4.4mm; margin: 3mm 0 5.5mm 0; max-width: 160mm;
+  font-family: "Consolas","Courier New",monospace; font-size: 7.8pt; line-height: 1.52;
   white-space: pre-wrap; overflow-wrap: break-word; page-break-inside: avoid;
 }
-pre code { background: none; padding: 0; color: #dfe3ea; }
+pre code { background: none; border: none; padding: 0; color: #dfe3ea; }
 kbd {
-  border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 2px;
-  padding: 0.2mm 1.2mm; font-size: 7.6pt; background: var(--wash);
-  font-family: "Segoe UI",sans-serif;
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 1.4px;
+  padding: 0.2mm 1.3mm; font-size: 7.4pt; background: var(--wash);
+  font-family: "Segoe UI",sans-serif; font-weight: 700;
 }
 
 /* ═══ CALLOUTS ════════════════════════════════════════════════════ */
 .note, .warn, .why {
-  padding: 3mm 4mm 3mm 4.5mm; margin: 3.5mm 0 5.5mm 0; font-size: 9pt;
-  page-break-inside: avoid; border-left: 2px solid var(--ink-4); background: var(--wash);
+  border-radius: 2.2mm; padding: 3mm 4mm 3mm 4mm; margin: 3.5mm 0 5.5mm 0;
+  font-size: 8.8pt; page-break-inside: avoid; max-width: 152mm;
 }
-.note { border-left-color: var(--blue); }
-.warn { border-left-color: var(--amber); background: #fdfaf4; }
-.why  { border-left-color: var(--green); background: #f4f8f5; }
+.note { background: var(--blue-w); }
+.warn { background: var(--amber-w); }
+.why  { background: var(--green-w); }
 .note > b:first-child, .warn > b:first-child, .why > b:first-child {
-  font-family: "Segoe UI",sans-serif; font-size: 7.4pt; text-transform: uppercase;
-  letter-spacing: 1.3px; display: block; margin-bottom: 1.4mm; font-weight: 700;
+  display: flex; align-items: center; gap: 2mm;
+  font-size: 7.2pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px;
+  margin-bottom: 1.5mm;
 }
 .note > b:first-child { color: var(--blue); }
 .warn > b:first-child { color: var(--amber); }
 .why  > b:first-child { color: var(--green); }
+.note > b:first-child::before, .warn > b:first-child::before, .why > b:first-child::before {
+  flex: none; width: 4.2mm; height: 4.2mm; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 7pt; font-weight: 800;
+}
+.note > b:first-child::before { content: "i"; background: var(--blue); }
+.warn > b:first-child::before { content: "!"; background: var(--amber); }
+.why  > b:first-child::before { content: "\2713"; background: var(--green); }
 .note p, .warn p, .why p, .note ul, .warn ul, .why ul { max-width: none; }
 
 .pill {
-  display: inline-block; font-family: "Segoe UI",sans-serif; font-size: 6.8pt;
-  font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
-  padding: 0.4mm 1.6mm; border: 1px solid currentColor; border-radius: 1px;
-  vertical-align: 1.2px;
+  display: inline-block; font-size: 6.6pt; font-weight: 800; letter-spacing: 0.8px;
+  text-transform: uppercase; padding: 0.5mm 1.8mm; border-radius: 1mm;
+  vertical-align: 1.2px; color: #fff;
 }
-.pill-core { color: var(--blue); } .pill-sec { color: var(--crimson); } .pill-mob { color: #543a9c; }
+.pill-core { background: var(--blue); }
+.pill-sec  { background: var(--red); }
+.pill-mob  { background: var(--violet); }
 
 /* ═══ PROCEDURES ══════════════════════════════════════════════════ */
 .proc {
-  border-top: 1.8px solid var(--ink); border-bottom: 1px solid var(--rule);
-  margin: 5mm 0 6.5mm 0; page-break-inside: avoid;
+  border: 1.5px solid var(--line); border-radius: 2.5mm; overflow: hidden;
+  margin: 4mm 0 6mm 0; page-break-inside: avoid;
 }
-.proc > .h { padding: 2.4mm 0 2.2mm 0; }
-.proc > .h .t { font-family: "Segoe UI",sans-serif; font-weight: 700; font-size: 10.2pt; }
-.proc > .h .m {
-  font-family: "Segoe UI",sans-serif; font-size: 7.4pt; color: var(--ink-3);
-  margin-top: 1.2mm;
+.proc > .h {
+  background: var(--wash); border-bottom: 1.5px solid var(--line);
+  border-left: 2.5mm solid var(--red);
+  padding: 2.6mm 4mm 2.4mm 4mm;
 }
+.proc > .h .t { font-size: 10.4pt; font-weight: 800; letter-spacing: -0.2px; }
+.proc > .h .m { font-size: 7.3pt; color: var(--ink3); margin-top: 1mm; }
 .proc > .h .m b {
-  color: var(--ink-2); font-weight: 700; text-transform: uppercase;
-  font-size: 6.9pt; letter-spacing: 0.9px;
+  color: var(--ink2); font-weight: 800; text-transform: uppercase;
+  font-size: 6.7pt; letter-spacing: 0.9px;
 }
-.proc > .b { padding: 1mm 0 3mm 0; border-top: 1px solid var(--rule-2); }
-.proc ol { counter-reset: st; list-style: none; padding-left: 0; margin: 2mm 0 0 0; max-width: none; }
-.proc ol li { counter-increment: st; position: relative; padding-left: 7.5mm; margin-bottom: 2.2mm; }
+.proc > .b { padding: 3mm 4mm 3.2mm 4mm; }
+.proc ol { counter-reset: st; list-style: none; padding-left: 0; margin: 0; max-width: none; }
+.proc ol li { counter-increment: st; position: relative; padding-left: 8mm; margin-bottom: 2.2mm; }
 .proc ol li::before {
-  content: counter(st); position: absolute; left: 0; top: 0.6mm;
-  font-family: "Segoe UI",sans-serif; font-size: 7pt; font-weight: 700;
-  color: var(--ink); border: 1px solid var(--ink-4);
-  width: 4.6mm; height: 4.6mm; border-radius: 50%;
+  content: counter(st); position: absolute; left: 0; top: 0.3mm;
+  font-size: 7.2pt; font-weight: 800; color: #fff; background: var(--red);
+  width: 4.8mm; height: 4.8mm; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
 }
 .proc .after {
-  border-top: 1px dotted var(--rule); margin-top: 3mm; padding-top: 2.4mm;
-  font-size: 8.5pt; color: var(--ink-2);
+  background: var(--wash); border-radius: 1.8mm; margin-top: 3mm;
+  padding: 2.4mm 3.2mm; font-size: 8.4pt; color: var(--ink2);
 }
 .proc .after b {
-  font-family: "Segoe UI",sans-serif; font-size: 6.9pt; text-transform: uppercase;
-  letter-spacing: 1.1px; color: var(--ink-3); font-weight: 700;
+  font-size: 6.8pt; text-transform: uppercase; letter-spacing: 1.1px;
+  color: var(--red); font-weight: 800;
 }
 
 /* ═══ ROLE CARD ═══════════════════════════════════════════════════ */
-.role { page-break-inside: avoid; margin-bottom: 6mm; max-width: var(--full); }
+.role { page-break-inside: avoid; margin-bottom: 6mm; }
 .role .h {
-  display: flex; align-items: baseline; gap: 5mm;
-  border-bottom: 1.8px solid var(--ink); padding-bottom: 2mm;
+  background: var(--ink); color: #fff; border-radius: 2.5mm;
+  padding: 4mm 5mm; display: flex; align-items: baseline; gap: 5mm;
 }
-.role .h h3 { margin: 0; font-size: 12.6pt; font-weight: 700; letter-spacing: -0.2px; }
-.role .h .roles { font-family: "Consolas",monospace; font-size: 7.6pt; color: var(--crimson); }
-.role .who { font-size: 9.4pt; color: var(--ink-2); margin-top: 2.2mm; max-width: var(--measure); }
+.role .h h3 { margin: 0; font-size: 13pt; font-weight: 800; letter-spacing: -0.3px; color: #fff; }
+.role .h .roles { font-family: "Consolas",monospace; font-size: 7.4pt; color: #ff9db0; }
+.role .who { font-size: 9.2pt; color: var(--ink2); margin-top: 2.4mm; max-width: var(--measure); }
 
 /* ═══ STATS ═══════════════════════════════════════════════════════ */
-.stats {
-  display: flex; margin: 5mm 0 7mm 0; max-width: var(--full);
-  border-top: 1.8px solid var(--ink); border-bottom: 1px solid var(--rule);
+.stats { display: flex; gap: 2.5mm; margin: 5mm 0 7mm 0; }
+.stats .s {
+  flex: 1; border: 1.5px solid var(--line); border-radius: 2.2mm;
+  border-top: 2.5mm solid var(--red);
+  padding: 3mm 2mm 2.6mm 2mm; text-align: center; background: #fff;
 }
-.stats .s { flex: 1; padding: 3.5mm 2mm; text-align: center; }
-.stats .s + .s { border-left: 1px solid var(--rule-2); }
-.stats .n {
-  font-family: "Georgia",serif; font-size: 20pt; font-weight: 400;
-  letter-spacing: -0.8px; line-height: 1;
-}
+.stats .n { font-size: 17pt; font-weight: 800; letter-spacing: -1px; line-height: 1; }
 .stats .l {
-  font-family: "Segoe UI",sans-serif; font-size: 6.8pt; color: var(--ink-3);
-  text-transform: uppercase; letter-spacing: 1.2px; margin-top: 1.8mm;
+  font-size: 6.6pt; font-weight: 700; color: var(--ink3); text-transform: uppercase;
+  letter-spacing: 1.1px; margin-top: 1.8mm;
 }
 
 /* ═══ FIGURES ═════════════════════════════════════════════════════ */
-figure { margin: 5.5mm 0 6.5mm 0; page-break-inside: avoid; }
+figure { margin: 5mm 0 6.5mm 0; page-break-inside: avoid; }
 figure svg { width: 100%; height: auto; display: block; }
 figcaption {
-  font-family: "Segoe UI",sans-serif; font-size: 7.6pt; color: var(--ink-3);
-  margin-top: 2.4mm; padding-top: 1.8mm; border-top: 1px solid var(--rule);
-  max-width: 150mm; line-height: 1.5;
+  font-size: 7.4pt; color: var(--ink3); margin-top: 2.2mm; padding-top: 1.8mm;
+  border-top: 1.5px solid var(--line); max-width: 158mm; line-height: 1.5;
 }
 figcaption b {
-  color: var(--crimson); font-weight: 700; text-transform: uppercase;
-  letter-spacing: 1px; font-size: 7pt;
+  color: #fff; background: var(--red); font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.8px; font-size: 6.6pt; border-radius: 1mm; padding: 0.5mm 1.8mm;
+  margin-right: 1.6mm;
 }
 
 /* ═══ MATRIX ══════════════════════════════════════════════════════ */
-table.matrix { font-size: 7.2pt; width: var(--full); }
+table.matrix { font-size: 7pt; width: var(--full); }
 table.matrix th.rot {
-  height: 27mm; vertical-align: bottom; padding: 0 0 1.6mm 0; width: 5mm;
-  border-bottom: 1.4px solid var(--ink);
+  height: 27mm; vertical-align: bottom; padding: 0 0 1.6mm 0; width: 5.1mm;
+  border-bottom: 2px solid var(--ink);
 }
 table.matrix th.rot > div {
   writing-mode: vertical-rl; transform: rotate(180deg);
-  font-size: 6.9pt; letter-spacing: 0.3px; text-transform: none; white-space: nowrap;
-  font-weight: 600; color: var(--ink-2);
+  font-size: 6.8pt; letter-spacing: 0.3px; text-transform: none; white-space: nowrap;
+  font-weight: 700; color: var(--ink2);
 }
-table.matrix td { text-align: center; padding: 1.2mm 0; border-bottom: 1px solid var(--rule-2); }
+table.matrix td { text-align: center; padding: 1.15mm 0; border-bottom: 1px solid var(--line2); }
 table.matrix td.r {
-  text-align: left; padding: 1.2mm 2mm 1.2mm 0; white-space: nowrap;
-  font-family: "Consolas",monospace; font-size: 7.2pt;
+  text-align: left; padding: 1.15mm 2mm 1.15mm 0; white-space: nowrap;
+  font-family: "Consolas",monospace; font-size: 7.1pt;
 }
 table.matrix tbody tr:nth-child(even) { background: var(--wash); }
-.yes { color: var(--green); font-weight: 700; }
-.no  { color: var(--ink-4); }
-.part-yes { color: var(--amber); font-weight: 700; }
+.yes { color: var(--green); font-weight: 800; }
+.no  { color: var(--ink4); }
+.part-yes { color: var(--amber); font-weight: 800; }
 
-/* Widows and orphans matter in a document read under pressure. */
 p, li { orphans: 2; widows: 2; }

@@ -11,6 +11,47 @@
   <div class="part-head"><div class="cnum">Chapter 22</div><h1>Intake and Dispatch</h1></div>
 
   <h2>22.1 Log an incoming call</h2>
+  <div class="flow">
+    <div class="chip start"><div class="bar">CALL COMES IN</div><div class="body"><b>The phone rings.</b> Open the intake screen fresh — the clock starts now.</div></div>
+    <div class="arr"></div>
+    <div class="chip web"><div class="bar">/dispatch/log-call</div><div class="body">Work the five zones: <b>caller · location · classification · severity · departments</b>.</div></div>
+    <div class="arr"></div>
+    <div class="chip sys"><div class="bar">DUPLICATE CHECK</div><div class="body">A 12-hour match on caller number, and on location + type, names the existing call.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">SUBMIT</div><div class="body"><b>log_incoming_call()</b> issues INC-YYYYMMDD-NNNN and stamps you as call-taker.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">DISPATCHED</div><div class="body">One alert per routed department · push to locked phones · timeline opens.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · From the phone ringing to crews alerted — one screen, one submit</div>
+
+  <div class="anatomy">
+    <div class="abar">/dispatch/log-call — Log Incoming Call<span class="aclock">TIME SINCE INTAKE STARTED&nbsp; 00:41</span></div>
+    <div class="agrid">
+      <div class="zone"><span class="zn">1</span><div class="zt">Caller</div>
+        <div class="mf"><span class="lbl">Name</span><span class="box"></span></div>
+        <div class="mf"><span class="lbl">Contact</span><span class="box"></span></div>
+        <div class="mf"><span class="lbl">Narrative</span><span class="box"></span></div>
+      </div>
+      <div class="zone"><span class="zn">2</span><div class="zt">Location</div>
+        <div class="mf"><span class="lbl">Address</span><span class="box"></span></div>
+        <div class="mmap"><span class="pin"></span></div>
+      </div>
+      <div class="zone"><span class="zn">3</span><div class="zt">Classification</div>
+        <span class="mpill on">Structure Fire</span><span class="mpill">Sub-category</span><span class="mpill">Region · Central</span>
+        <div class="mf" style="margin-top:1.6mm"><span class="lbl">Notes</span><span class="box"></span></div>
+      </div>
+      <div class="zone"><span class="zn">4</span><div class="zt">Severity &amp; casualties</div>
+        <span class="mpill">Low</span><span class="mpill">Medium</span><span class="mpill hot">High</span><span class="mpill">Critical</span>
+        <div class="mf" style="margin-top:1.6mm"><span class="lbl">Victims</span><span class="box sm"></span><span class="lbl" style="min-width:auto">P-code</span><span class="box sm"></span></div>
+      </div>
+      <div class="zone wide"><span class="zn">5</span><div class="zt">Route &amp; dispatch</div>
+        <span class="mpill on">Fire &amp; Rescue</span><span class="mpill on">EMS</span><span class="mpill">Metro Police</span><span class="mpill">Disaster Mgmt</span>
+        <span class="mbtn" style="float:right">Dispatch Incident&nbsp;&nbsp;&#10132;</span>
+      </div>
+    </div>
+  </div>
+  <div class="flowcap"><b>Screen anatomy</b> · The five zones of the intake screen — the numbered steps below walk them in order</div>
+
   <div class="proc">
     <div class="h">
       <div class="t">Log an incoming call</div>
@@ -41,6 +82,17 @@
   </div>
 
   <h2>22.2 Route an incident to departments</h2>
+  <div class="flow">
+    <div class="chip web"><div class="bar">/dispatch/pending</div><div class="body">Take the <b>oldest, worst call</b> — the queue is already sorted that way.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">SELECT DEPARTMENTS</div><div class="body">Every service that must attend, plus notes the crews need before arriving.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">route_incident()</div><div class="body">Status → <b>Dispatched</b> · timeline entry · audit row · <b>one transaction</b>.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">ALERTED</div><div class="body">One alert per department. High and Critical open a blocking pop-up.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · From the pending queue to every attending department alerted</div>
+
   <div class="proc">
     <div class="h">
       <div class="t">Route an incident</div>
@@ -63,6 +115,17 @@
   </div>
 
   <h2>22.3 Assign a unit</h2>
+  <div class="flow">
+    <div class="chip web"><div class="bar">/dispatch/pending</div><div class="body">Choose <b>Assign</b> on the routed call.</div></div>
+    <div class="arr"></div>
+    <div class="chip web"><div class="bar">/dispatch/assign/[id]</div><div class="body">Map · incident detail · <b>available units with road-routed ETAs</b>.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">dispatch_unit()</div><div class="body">Commits the appliance and records it against the incident.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">UNIT COMMITTED</div><div class="body">Leaves the available pool · crews see the call on their phones.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · From a routed call to a specific appliance rolling</div>
+
   <div class="proc">
     <div class="h">
       <div class="t">Assign a specific appliance</div>
@@ -117,6 +180,17 @@
   <div class="part-head"><div class="cnum">Chapter 23</div><h1>Working an Incident</h1></div>
 
   <h2>23.1 Advance the status</h2>
+  <div class="flow">
+    <div class="chip app"><div class="bar">APP · INCIDENTS</div><div class="body">Open your call. The forward button always names the <b>next</b> status.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">TAP "MARK EN ROUTE"</div><div class="body">Press it <b>when the thing happens</b>, not when you next have a moment.</div></div>
+    <div class="arr"></div>
+    <div class="chip sys"><div class="bar">OUTBOX</div><div class="body">Written to the phone first, with the time you pressed it.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">TIMELINE</div><div class="body">The server records <b>when you acted</b> — even if delivery came later.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · From a button press in the field to an honest timestamp in the record</div>
+
   <div class="proc">
     <div class="h">
       <div class="t">Change an incident status</div>
@@ -168,6 +242,17 @@
   </div>
 
   <h2>23.4 Close a case</h2>
+  <div class="flow">
+    <div class="chip web"><div class="bar">/incidents/[id]</div><div class="body">Read the <b>timeline end to end</b> before anything else.</div></div>
+    <div class="arr"></div>
+    <div class="chip sys"><div class="bar">CHECKS</div><div class="body">Departmental report filed where required · attachments present.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">close_case(reason)</div><div class="body">The reason goes into the timeline; the closure is audited to you.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">CLOSED</div><div class="body"><b>closed_at</b> stamped. Not reversible through the interface.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · From a resolved call to a closed, audited case file</div>
+
   <div class="proc">
     <div class="h">
       <div class="t">Close an incident</div>
@@ -204,6 +289,17 @@
   <div class="part-head"><div class="cnum">Chapter 24</div><h1>Start of Shift</h1></div>
 
   <h2>24.1 The three-step gate</h2>
+  <div class="flow">
+    <div class="chip app"><div class="bar">APP · SHIFT TAB</div><div class="body">An unfinished flow routes you here on open — nothing else unlocks first.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">MENTAL READINESS</div><div class="body">Six declarations, answered honestly. Comments where borderline.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">VEHICLE + INSPECTION</div><div class="body">Choose the appliance, record fuel and the five checks.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">GATE OPENS</div><div class="body">Incidents unlock. The fitness and roadworthiness records now exist.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · From opening the app to being cleared for incidents</div>
+
   <div class="proc">
     <div class="h">
       <div class="t">Complete start of shift</div>
@@ -379,6 +475,17 @@
   </div>
 
   <h2>26.2 Duty allocation</h2>
+  <div class="flow">
+    <div class="chip web"><div class="bar">/roster/allocation</div><div class="body">The board shows <b>every post and its gaps</b> for the day.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">ASSIGN</div><div class="body">Member → post, with vehicle, sector, call sign and instructions.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">PUBLISH DAY</div><div class="body">Drafts become visible to members — not before.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">ACKNOWLEDGED</div><div class="body">Members confirm from My Schedule; the engine nudges at T-12h.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · From an empty board to an acknowledged duty day</div>
+
   <div class="proc">
     <div class="h">
       <div class="t">Fill and publish a duty day</div>
@@ -423,6 +530,19 @@
   </div>
 
   <h2>26.3 Leave</h2>
+  <div class="flow">
+    <div class="chip start"><div class="bar">APPLY</div><div class="body">From <b>/leave</b> or the app — balances are shown before the form.</div></div>
+    <div class="arr"></div>
+    <div class="chip sys"><div class="bar">PENDING</div><div class="body">You may only file your own request, and only as Pending.</div></div>
+    <div class="arr"></div>
+    <div class="chip web"><div class="bar">/hr</div><div class="body">Your supervisor sees it with the <b>coverage impact</b> computed.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">DECIDE</div><div class="body">Approve or reject — recorded by name, with a timestamp.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">MEMBER ALERTED</div><div class="body">A targeted alert lands the moment the decision is made.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · From a request on the phone to a decided, audited outcome</div>
+
   <div class="proc">
     <div class="h">
       <div class="t">Apply for leave</div>
