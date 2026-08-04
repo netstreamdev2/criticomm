@@ -1,6 +1,82 @@
 # 05 — V4 → V5 Parity Status
 
-Updated: 2026-07-24 (wave 4 — July feature-drop alignment). Build: `pnpm --filter @criticom/web build` ✅ (86 routes) · typecheck ✅ (db, api, web, mobile).
+Updated: 2026-08-04 (wave 5 — field hardening, automation, search, CI).
+Build ✅ · typecheck ✅ · lint ✅ · 47 tests ✅ · 28 migrations apply from empty ✅.
+
+---
+
+## Wave 5 (2026-08-04)
+
+V4 parity was already complete. This wave is about what a production emergency
+service needs that V4 never had.
+
+**The responder app stops losing work.** An offline outbox
+(`apps/mobile/lib/outbox-policy.ts` + `outbox.ts` + `sync.tsx`) writes every
+field mutation to disk before sending it. Status changes, notes, photos, voice
+notes and position heartbeats all queue; a panic jumps the queue. Ops carry the
+time the responder acted, so an arrival timestamp no longer drifts by the length
+of a dead zone — and migration `0024` teaches `update_responder_status` to
+accept that time, bounded to the last 12 hours and never in the future. Nothing
+is dropped silently: an op that exhausts its retries parks as `failed` and stays
+in the sync tray. Entries are scoped to the account that captured them, because
+handsets are shared across shifts.
+
+**Officer-down.** Hold-to-trigger SOS on every mobile screen. `raise_panic`
+(0024) creates a Critical incident at the officer's position and raises a
+blocking, acknowledgement-required alert to their department *and* the control
+room; a standing banner sits in the web app shell until the incident closes.
+Deliberately no role gate — gating an emergency on a role matrix is how someone
+dies over a provisioning mistake. Idempotent via `client_ref`, so a replayed
+panic returns the original rather than raising a second emergency.
+
+**Push, restored safely.** `app.config.ts` now refuses to produce an Android
+build without `google-services.json` instead of shipping one that crashes at
+launch, and every `expo-notifications` call is guarded so a build without the
+native module degrades to realtime-only.
+
+**Mobile reaches parity on the field surfaces**: alerts inbox with a live badge
+and acknowledgement state, a Mine/Nearby switch on incidents with distance
+sorting, leave applications, and Criti — which needed a bearer-token auth path
+(`createBearerClient` + `getRequestSupabase`) for a client with no cookie jar.
+
+**The platform notices things on its own.** Seven rules on a five-minute
+`pg_cron` tick (`0025`/`0026`): unassigned-call escalation, no arrival recorded,
+open incident gone quiet, certification expiry, unacknowledged duty reminders, a
+per-department morning digest, and housekeeping. Every action is claimed against
+a `(rule, entity, bucket)` unique index, so a rule that runs every five minutes
+alerts once per tier rather than forever — an alerting system that cries wolf is
+worse than none. Thresholds are tunable from **Admin → Automations** without a
+deploy.
+
+**Global search** (`0027`) across incidents, personnel, fleet and reports, in ⌘K
+and at `/search`. Trigram rather than full-text, because operators type
+identifiers (`INC-…`, plates, badges) that `to_tsvector` mangles. `SECURITY
+INVOKER`, so RLS scopes every branch.
+
+**Production hardening.** Per-user rate limits counted in Postgres (`0028`) on
+the routes that spend money or third-party quota, failing open. `/api/geocode`
+closed — it needed no key, but an open relay in front of Nominatim gets the
+deployment's IP banned. **Admin → System Status** answers "is the platform
+working" in one page. `docs/07-ENGINEERING-STANDARDS.md` and
+`docs/08-RUNBOOK.md` record what CI enforces and what to do at 03:00.
+
+**CI** (`.github/workflows/ci.yml`) gates lint, typecheck, test and build, plus a
+job that applies all 28 migrations to a throwaway PostGIS from empty.
+
+### Fixed along the way
+
+- **Incident numbers collided.** `INC-<date>-<random 100..999>` against a unique
+  constraint: ~50% chance of a collision at 35 calls in a silo-day, surfacing as
+  an exception thrown at a call-taker with a caller on the line. Now a per-silo
+  daily counter (`0024`).
+- **The outbox retry budget was wrong**, and attempts accrued while offline — a
+  crew driving through a tunnel would have a scene photo marked failed. Found by
+  writing the test.
+- **`pnpm lint` was red on `main`**, which makes a lint worse than useless.
+
+---
+
+## Wave 4 and earlier
 
 **Wave 4 aligned V5 with the V4 commits from 2026-07-21 → 07-23:**
 - **Schema `0007_v4_alignment.sql`** — incidents get `call_taken_by`, `dispatched_by`, `incident_category`, `region` (operator attribution for KPIs); personnel get `service_number`/`force_number`; rosters get `call_sign`/`shift_group_code`/`special_instructions`/`vehicle`/`sector`/`status`; five new tables — `command_records` (admin config), `endorsements`, `performance_kpis`, `performance_plans`, `performance_scores` — all with RLS + default config/KPI seed.

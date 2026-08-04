@@ -2,7 +2,8 @@ import {
   LayoutDashboard, PhoneCall, Radio, MapPinned, ShieldAlert, FlameKindling, Stethoscope,
   Mountain, FileText, Camera, Users, ClipboardCheck, BarChart3, Settings, ListChecks,
   CalendarClock, Bell, Briefcase, GraduationCap, Gauge, FolderClosed, Map, Bot,
-  RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network, PlugZap, type LucideIcon,
+  RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network, PlugZap, Activity,
+  type LucideIcon,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -103,6 +104,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/integrations', label: 'Integrations', icon: PlugZap, keywords: 'api keys gemini bulksms realptt tomtom feeds connections' },
       { href: '/admin/operations', label: 'Operations Settings', icon: Gauge, keywords: 'sla clocks eta alert sound thresholds tuning knobs' },
       { href: '/admin/automations', label: 'Automations', icon: Bot, keywords: 'rules escalation sla breach expiry reminders digest scheduler cron background' },
+      { href: '/admin/status', label: 'System Status', icon: Activity, keywords: 'health uptime diagnostics is it working down degraded checks' },
       { href: '/admin/departments', label: 'Departments', icon: ShieldAlert, keywords: 'branding logo crest colours identity metro police fire ems disaster' },
       { href: '/profile', label: 'Settings', icon: Settings, keywords: 'profile account my hr' },
     ],
