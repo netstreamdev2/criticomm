@@ -1,21 +1,41 @@
-MIT License
+PROPRIETARY SOFTWARE LICENSE
 
-Copyright (c) 2026 Kruz Naidoo
+Copyright (c) 2026 Kruz Naidoo. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software, its source code, database schemas, documentation, designs and
+all associated files (collectively, the "Software") are the proprietary and
+confidential property of Kruz Naidoo (the "Owner").
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+NO LICENSE GRANTED. Except as expressly authorized in writing by the Owner,
+no person or entity may:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+  1. use, execute, or deploy the Software, in whole or in part;
+  2. copy, reproduce, or create derivative works of the Software;
+  3. modify, adapt, translate, decompile, disassemble, or reverse engineer
+     the Software;
+  4. publish, distribute, sublicense, rent, lease, sell, or otherwise make
+     the Software available to any third party;
+  5. remove or alter any proprietary notice contained in the Software.
+
+AUTHORIZED USE. Any access to the Software granted by the Owner — including
+operational use by an organisation, evaluation, or development work performed
+on the Owner's behalf — is limited strictly to the scope of that written
+authorization. Such access conveys no ownership, no right to modify, and no
+right to redistribute. All rights not expressly granted are reserved by the
+Owner.
+
+TERMINATION. Any authorization may be revoked by the Owner at any time.
+Upon revocation, all copies of the Software in the possession of the
+authorized party must be destroyed or returned.
+
+UNAUTHORIZED USE of the Software is a violation of copyright law and of this
+notice, and may result in civil liability and criminal prosecution to the
+fullest extent permitted by applicable law.
+
+NO WARRANTY. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+EVENT SHALL THE OWNER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+For licensing enquiries, contact the Owner.

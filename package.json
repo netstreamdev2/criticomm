@@ -2,7 +2,7 @@
   "name": "criticom-v5",
   "version": "0.1.0",
   "private": true,
-  "license": "MIT",
+  "license": "UNLICENSED",
   "author": "Kruz Naidoo",
   "packageManager": "pnpm@9.12.0",
   "engines": {

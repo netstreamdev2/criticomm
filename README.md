@@ -5,7 +5,7 @@
 Built for eThekwini Emergency Services and architected so any number of organisations run on one deployment, each fully isolated at the database.
 
 [![CI](https://github.com/Netstream-Project/CriticommNew/actions/workflows/ci.yml/badge.svg)](https://github.com/Netstream-Project/CriticommNew/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
 
 ---
 
@@ -169,4 +169,7 @@ Transport (HSTS, strict CSP) → session (Supabase Auth; role/silo/tenant in JWT
 
 ## License
 
-[MIT](LICENSE) © 2026 Kruz Naidoo
+**Proprietary** — Copyright © 2026 Kruz Naidoo. All rights reserved.
+
+This software may not be used, copied, modified or distributed without the Owner's prior
+written authorization. See [LICENSE](LICENSE).
