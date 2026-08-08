@@ -625,6 +625,17 @@ export type Database = {
         Update: Partial<Omit<Database['public']['Tables']['firearm_checklists']['Row'], 'passed'>>;
         Relationships: [];
       };
+      /** Per-tenant document counters behind next_doc_number() (migration 0033). */
+      doc_counters: {
+        Row: {
+          tenant_id: string;
+          prefix: string;
+          last_seq: number;
+        };
+        Insert: Partial<Database['public']['Tables']['doc_counters']['Row']>;
+        Update: Partial<Database['public']['Tables']['doc_counters']['Row']>;
+        Relationships: [];
+      };
       /** Per-tenant module access denials — deny-only overlay (migration 0035). */
       access_rules: {
         Row: {

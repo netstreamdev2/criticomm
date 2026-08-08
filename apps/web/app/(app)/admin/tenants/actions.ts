@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createTenant, logAudit, setTenantActive } from '@criticom/api';
+import { createTenant, deleteTenant, logAudit, setTenantActive } from '@criticom/api';
 import { getSession } from '@/lib/session';
 import { getServiceSupabase } from '@/lib/supabase';
 
@@ -53,6 +53,38 @@ export async function setTenantActiveAction(formData: FormData) {
     }).catch(() => {});
     revalidatePath('/admin/tenants');
     return { ok: true };
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
+}
+
+export async function deleteTenantAction(formData: FormData) {
+  try {
+    const { supabase, fullName } = await requireSuperAdmin();
+
+    const id = String(formData.get('id') ?? '');
+    const confirmSlug = String(formData.get('confirm_slug') ?? '').trim().toLowerCase();
+    if (!id) return { error: 'No tenant selected.' };
+
+    // Deleting an organisation is the one action here with no undo, so the
+    // caller must type the slug — a click can be a slip; a typed slug cannot.
+    const service = getServiceSupabase();
+    const { data: target } = await service.from('tenants').select('slug, name').eq('id', id).maybeSingle();
+    if (!target) return { error: 'Tenant not found.' };
+    if (confirmSlug !== target.slug) {
+      return { error: `Type the tenant's slug ("${target.slug}") to confirm deletion.` };
+    }
+
+    const tenant = await deleteTenant(service, { id });
+
+    await logAudit(supabase, {
+      silo: 'Ethekwini', action_type: 'TenantDeleted', entity_type: 'tenant',
+      entity_id: id, user_name: fullName,
+      details: `Deleted tenant "${tenant.name}" (${tenant.slug})`,
+    }).catch(() => {});
+
+    revalidatePath('/admin/tenants');
+    return { ok: true, name: tenant.name };
   } catch (e) {
     return { error: (e as Error).message };
   }

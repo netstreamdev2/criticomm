@@ -73,7 +73,7 @@ export default async function TenantsPage() {
         </CardHeader>
       </Card>
 
-      <TenantForms tenants={tenants.map((t) => ({ id: t.id, name: t.name, active: t.active }))} />
+      <TenantForms tenants={tenants.map((t) => ({ id: t.id, name: t.name, slug: t.slug, active: t.active }))} />
     </div>
   );
 }

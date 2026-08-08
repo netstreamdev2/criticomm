@@ -65,3 +65,48 @@ export async function setTenantActive(
     .eq('id', args.id);
   if (error) throw error;
 }
+
+/**
+ * Delete a tenant outright. Service-role only — and even then it refuses:
+ *
+ *   • the founding tenant, which every tenant-less JWT falls back to; and
+ *   • any tenant that still has users, because deleting the organisation from
+ *     under signed-in people orphans their data and their sessions. Move or
+ *     remove the users first; deactivating (setTenantActive) is the reversible
+ *     alternative and the right tool for "switch this customer off".
+ *
+ * Tenant-scoped configuration goes with it (feature_flags cascades by FK;
+ * access_rules and doc_counters are cleared here).
+ */
+export async function deleteTenant(
+  service: CriticomClient,
+  args: { id: string },
+): Promise<Tenant> {
+  const { data: tenant, error: tErr } = await service
+    .from('tenants').select('*').eq('id', args.id).maybeSingle();
+  if (tErr) throw tErr;
+  if (!tenant) throw new Error('Tenant not found.');
+  if (tenant.slug === 'ethekwini') {
+    throw new Error('The founding tenant cannot be deleted — tenant-less sessions resolve to it.');
+  }
+
+  const { count, error: pErr } = await service
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .eq('tenant_id', args.id);
+  if (pErr) throw pErr;
+  if ((count ?? 0) > 0) {
+    throw new Error(
+      `${count} user${count === 1 ? ' is' : 's are'} still assigned to "${tenant.name}". `
+      + 'Reassign or remove them first (Admin → Tenants), or deactivate the tenant instead.',
+    );
+  }
+
+  const { error: rErr } = await service.from('access_rules').delete().eq('tenant_id', args.id);
+  if (rErr) throw rErr;
+  const { error: cErr } = await service.from('doc_counters').delete().eq('tenant_id', args.id);
+  if (cErr) throw cErr;
+  const { error } = await service.from('tenants').delete().eq('id', args.id);
+  if (error) throw error;
+  return tenant;
+}
