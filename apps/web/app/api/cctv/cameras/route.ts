@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireFeatureApi } from '@/lib/features';
 import { listCameras } from '@criticom/api';
 import { canAccess } from '@criticom/db/roles';
 import type { Silo, UserRole } from '@criticom/db/types';
@@ -29,6 +30,9 @@ export type CctvCamera = {
 };
 
 export async function GET() {
+  const off = await requireFeatureApi('web.cameras');
+  if (off) return off;
+
   const supabase = await getServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

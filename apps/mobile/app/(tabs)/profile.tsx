@@ -8,6 +8,7 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useNotifications, type PushStatus } from '@/lib/notifications';
 import { useSync } from '@/lib/sync';
+import { useFeatures } from '@/lib/features';
 import { useDept } from '@/lib/branding';
 import { DeptBadge } from '@/components/dept-badge';
 import { colors, radius, space, type } from '@/lib/theme';
@@ -53,6 +54,7 @@ export default function ProfileScreen() {
   const { session, fullName, role, silo } = useAuth();
   const { pushEnabled, pushStatus, releasePushToken } = useNotifications();
   const { enqueue, pending, failed, online } = useSync();
+  const { enabled: featureOn } = useFeatures();
   const dept = useDept();
   const [onDuty, setOnDuty] = useState(false);
   const [unit, setUnit] = useState<string | null>(null);
@@ -265,18 +267,22 @@ export default function ProfileScreen() {
       <SectionLabel>Self-service</SectionLabel>
       <Card>
         <View style={{ gap: space.sm }}>
-          <Button
-            label="Apply for leave"
-            icon="calendar-outline"
-            variant="subtle"
-            onPress={() => router.push('/leave')}
-          />
-          <Button
-            label="Ask Criti"
-            icon="sparkles-outline"
-            variant="subtle"
-            onPress={() => router.push('/assistant')}
-          />
+          {featureOn('mobile.leave') ? (
+            <Button
+              label="Apply for leave"
+              icon="calendar-outline"
+              variant="subtle"
+              onPress={() => router.push('/leave')}
+            />
+          ) : null}
+          {featureOn('mobile.assistant') ? (
+            <Button
+              label="Ask Criti"
+              icon="sparkles-outline"
+              variant="subtle"
+              onPress={() => router.push('/assistant')}
+            />
+          ) : null}
         </View>
       </Card>
 

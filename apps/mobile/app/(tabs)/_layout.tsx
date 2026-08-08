@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { countUnreadAlerts, subscribeAlerts, subscribeMyAlertReads } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { useFeature } from '@/lib/features';
 import { colors, type } from '@/lib/theme';
 
 /**
@@ -43,6 +44,7 @@ function useUnreadAlerts(): number {
 
 export default function TabsLayout() {
   const unread = useUnreadAlerts();
+  const alertsOn = useFeature('mobile.alerts_inbox');
 
   return (
     <Tabs
@@ -73,6 +75,16 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          title: 'Criticomm',
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'grid' : 'grid-outline'} color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="incidents"
+        options={{
           title: 'My Incidents',
           tabBarLabel: 'Incidents',
           tabBarIcon: ({ color, size, focused }) => (
@@ -83,6 +95,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="alerts"
         options={{
+          href: alertsOn ? undefined : null,
           title: 'Alerts',
           tabBarBadge: unread > 0 ? (unread > 99 ? '99+' : unread) : undefined,
           tabBarBadgeStyle: { backgroundColor: colors.primary, color: '#fff', fontSize: 10 },

@@ -3,6 +3,7 @@ import {
   Mountain, FileText, Camera, Users, ClipboardCheck, BarChart3, Settings, ListChecks,
   CalendarClock, Bell, Briefcase, GraduationCap, Gauge, FolderClosed, Map, Bot,
   RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network, PlugZap, Activity,
+  ToggleRight, Building2,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -105,6 +106,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/operations', label: 'Operations Settings', icon: Gauge, keywords: 'sla clocks eta alert sound thresholds tuning knobs' },
       { href: '/admin/automations', label: 'Automations', icon: Bot, keywords: 'rules escalation sla breach expiry reminders digest scheduler cron background' },
       { href: '/admin/status', label: 'System Status', icon: Activity, keywords: 'health uptime diagnostics is it working down degraded checks' },
+      { href: '/admin/features', label: 'Features', icon: ToggleRight, keywords: 'flags toggles switches modules enable disable superadmin' },
+      { href: '/admin/tenants', label: 'Tenants', icon: Building2, keywords: 'organisations municipalities multi-tenant provisioning' },
       { href: '/admin/departments', label: 'Departments', icon: ShieldAlert, keywords: 'branding logo crest colours identity metro police fire ems disaster' },
       { href: '/profile', label: 'Settings', icon: Settings, keywords: 'profile account my hr' },
     ],

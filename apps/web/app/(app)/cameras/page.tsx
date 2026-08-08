@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { requireFeaturePage } from '@/lib/features';
 import { Film } from 'lucide-react';
 import { listCameras } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -12,6 +13,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Surveillance · Criticom' };
 
 export default async function CamerasPage() {
+  await requireFeaturePage('web.cameras');
   const { supabase } = await getSession();
   const cameras = await listCameras(supabase);
 

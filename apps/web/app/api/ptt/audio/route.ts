@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireFeatureApi } from '@/lib/features';
 import { DISPATCH_ROLES, type UserRole } from '@criticom/db';
 import { requireAuth, unconfigured } from '@/lib/external';
 import { getPttAudioLog, isPttConfigured } from '@/lib/realptt';
@@ -7,6 +8,9 @@ import { getPttAudioLog, isPttConfigured } from '@/lib/realptt';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
+  const off = await requireFeatureApi('web.ptt');
+  if (off) return off;
+
   const { user, deny } = await requireAuth('ptt');
   if (deny) return deny;
   const role = (user!.app_metadata?.role ?? 'Viewer') as UserRole;

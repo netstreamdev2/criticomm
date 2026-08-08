@@ -16,9 +16,9 @@ export type DeptIdentity = DepartmentBranding & { logoUrl: string | null };
 const STORAGE_KEY = 'criticom:collapsed-nav-groups';
 
 function NavList({
-  silo, role, onNavigate,
+  silo, role, onNavigate, hiddenHrefs = [],
 }: {
-  silo: string; role: string; onNavigate?: () => void;
+  silo: string; role: string; onNavigate?: () => void; hiddenHrefs?: string[];
 }) {
   const pathname = usePathname();
   const [filter, setFilter] = useState('');
@@ -47,7 +47,7 @@ function NavList({
       ...g,
       items: g.items.filter(
         (i) =>
-          canAccess(i.href, role as UserRole, silo as Silo) &&
+          canAccess(i.href, role as UserRole, silo as Silo) && !hiddenHrefs.includes(i.href) &&
           (!q || i.label.toLowerCase().includes(q) || (i.keywords ?? '').includes(q)),
       ),
     })).filter((g) => g.items.length > 0);
@@ -157,9 +157,9 @@ function Brand({ dept }: { dept?: DeptIdentity }) {
 
 /** Desktop rail (lg+) + mobile drawer. */
 export function Sidebar({
-  silo, role, dept,
+  silo, role, dept, hiddenHrefs = [],
 }: {
-  silo: string; role: string; dept?: DeptIdentity;
+  silo: string; role: string; dept?: DeptIdentity; hiddenHrefs?: string[];
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -171,7 +171,7 @@ export function Sidebar({
     <>
       <aside className="hidden h-screen flex-col border-r border-border bg-bg-soft lg:sticky lg:top-0 lg:flex">
         <Brand dept={dept} />
-        <NavList silo={silo} role={role} />
+        <NavList silo={silo} role={role} hiddenHrefs={hiddenHrefs} />
       </aside>
 
       <button
@@ -199,7 +199,7 @@ export function Sidebar({
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <NavList silo={silo} role={role} onNavigate={() => setOpen(false)} />
+            <NavList silo={silo} role={role} hiddenHrefs={hiddenHrefs} onNavigate={() => setOpen(false)} />
           </div>
         </div>
       )}

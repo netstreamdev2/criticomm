@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
  * appears is filtered by the same `canAccess` matrix the middleware enforces,
  * so this can never advertise a destination that would bounce to /403.
  */
-export function TopNav({ role, silo }: { role: string; silo: string }) {
+export function TopNav({ role, silo, hiddenHrefs = [] }: { role: string; silo: string; hiddenHrefs?: string[] }) {
   const pathname = usePathname();
   const [open, setOpen] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -45,7 +45,7 @@ export function TopNav({ role, silo }: { role: string; silo: string }) {
   const groups = NAV_GROUPS
     .map((g) => ({
       ...g,
-      items: g.items.filter((i) => canAccess(i.href, role as UserRole, silo as Silo)),
+      items: g.items.filter((i) => canAccess(i.href, role as UserRole, silo as Silo) && !hiddenHrefs.includes(i.href)),
     }))
     .filter((g) => g.items.length > 0);
 

@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { getOperationalSettings, listOpsLinks } from '@criticom/api';
+import { featureEnabled, getFeatureMap, getOperationalSettings, listOpsLinks } from '@criticom/api';
+import { hiddenHrefs as hiddenFor } from '@/lib/features';
 import type { Silo } from '@criticom/db';
 import { OpsCommandBar } from '@/components/ops-command-bar';
 import { getBrandingMap } from '@/lib/branding';
@@ -55,11 +56,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   // Admin-tuned alert behaviour, command-bar links and department identity;
   // all three fail safe.
-  const [settings, opsLinks, branding] = await Promise.all([
+  const [settings, opsLinks, branding, features] = await Promise.all([
     getOperationalSettings(supabase),
     listOpsLinks(supabase),
     getBrandingMap(),
+    getFeatureMap(supabase),
   ]);
+  const hidden = hiddenFor(features);
   const dept = branding[silo as Silo];
 
   // Only the admin tier keeps the sidebar. They genuinely work across every
@@ -72,7 +75,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <ToastProvider>
       <div className={usesSidebar ? 'min-h-screen lg:grid lg:grid-cols-[264px_1fr]' : 'min-h-screen'}>
-        {usesSidebar ? <Sidebar silo={silo} role={role} dept={dept} /> : null}
+        {usesSidebar ? <Sidebar silo={silo} role={role} dept={dept} hiddenHrefs={hidden} /> : null}
         <div className="flex min-h-screen min-w-0 flex-col">
           <Topbar fullName={fullName} role={role} silo={silo} hasSidebar={usesSidebar} />
           {/* Role navigation and the external ops links share one bar — two
@@ -85,7 +88,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <OpsCommandBar role={role} silo={silo} links={opsLinks} />
             {usesSidebar ? null : (
               <div className="flex flex-wrap items-center justify-center gap-1">
-                <TopNav role={role} silo={silo} />
+                <TopNav role={role} silo={silo} hiddenHrefs={hidden} />
               </div>
             )}
           </div>
@@ -102,7 +105,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             {children}
           </main>
         </div>
-        <CommandPalette silo={silo} role={role} />
+        <CommandPalette silo={silo} role={role} hiddenHrefs={hidden} searchEnabled={featureEnabled(features, 'web.search')} />
         <AlertCenter
           silo={silo}
           role={role}
@@ -113,7 +116,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             toastSeconds: settings['alerts.toast_seconds'],
           }}
         />
-        <AssistantDock fullName={fullName} role={role} silo={silo} />
+        {featureEnabled(features, 'web.assistant') ? <AssistantDock fullName={fullName} role={role} silo={silo} /> : null}
       </div>
     </ToastProvider>
   );

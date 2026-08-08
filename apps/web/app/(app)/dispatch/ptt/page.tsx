@@ -1,4 +1,5 @@
 import { listPersonnel } from '@criticom/api';
+import { requireFeaturePage } from '@/lib/features';
 import { getSession, siloFilter } from '@/lib/session';
 import { PttConsole } from './ptt-console';
 
@@ -6,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'PTT Radio Console · Criticom' };
 
 export default async function PttPage() {
+  await requireFeaturePage('web.ptt');
   const { supabase, silo } = await getSession();
   const personnel = await listPersonnel(supabase, siloFilter(silo));
 

@@ -21,3 +21,5 @@ export * from './reporting/index';
 export * from './duty/index';
 export * from './automations/index';
 export * from './search/index';
+export * from './features/index';
+export * from './tenants/index';

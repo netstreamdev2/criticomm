@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { requireFeaturePage } from '@/lib/features';
 import { type ChartSpec, type ReportDefinition, datasetsForRole, getReport, listReports } from '@criticom/api';
 import { getSession } from '@/lib/session';
 import { ReportBuilder } from './builder-client';
@@ -11,6 +12,7 @@ export default async function ReportBuilderPage({
 }: {
   searchParams: Promise<{ id?: string; dataset?: string }>;
 }) {
+  await requireFeaturePage('web.reports_builder');
   const { supabase, role, userId } = await getSession();
   const params = await searchParams;
 

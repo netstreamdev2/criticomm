@@ -88,6 +88,8 @@ export type Database = {
       profiles: {
         Row: {
           id: string;
+          /** Organisation this account belongs to (migration 0030). */
+          tenant_id: string;
           silo: Silo;
           role: UserRole;
           full_name: string | null;
@@ -369,6 +371,34 @@ export type Database = {
         };
         Insert: Partial<Database['public']['Tables']['department_branding']['Row']>;
         Update: Partial<Database['public']['Tables']['department_branding']['Row']>;
+        Relationships: [];
+      };
+      /** Organisations on the platform (migration 0029). */
+      tenants: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          active: boolean;
+          settings: Record<string, unknown>;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['tenants']['Row']>;
+        Update: Partial<Database['public']['Tables']['tenants']['Row']>;
+        Relationships: [];
+      };
+      /** Per-tenant feature switches (migration 0029). */
+      feature_flags: {
+        Row: {
+          tenant_id: string;
+          key: string;
+          enabled: boolean;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['feature_flags']['Row']>;
+        Update: Partial<Database['public']['Tables']['feature_flags']['Row']>;
         Relationships: [];
       };
       /** Background rules and their thresholds (migration 0025). */

@@ -1,10 +1,12 @@
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { requireFeaturePage } from '@/lib/features';
 import { FootageFinder } from './footage-finder';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'CCTV Footage · Criticom' };
 
-export default function FootagePage() {
+export default async function FootagePage() {
+  await requireFeaturePage('web.cameras');
   return (
     <div className="space-y-4">
       <header>

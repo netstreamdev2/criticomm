@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { requireFeaturePage } from '@/lib/features';
 import { Search } from 'lucide-react';
 import { groupSearchHits, searchEverything, MIN_SEARCH_LENGTH, SEARCH_KIND_LABELS } from '@criticom/api';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,6 +21,7 @@ export default async function SearchPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
+  await requireFeaturePage('web.search');
   const { q } = await searchParams;
   const query = (q ?? '').trim();
   const supabase = await getServerSupabase();

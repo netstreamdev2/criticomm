@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireFeatureApi } from '@/lib/features';
 import {
   getDispatcherKpis, getOnDutyResponders, listActiveIncidents, listApparatus,
   listPendingIncidents, logAudit, raiseAlert, routeIncident, updateResponderStatus,
@@ -231,6 +232,9 @@ async function executeActions(
 /* ── Handler ────────────────────────────────────────────────────────── */
 
 export async function POST(req: Request) {
+  const off = await requireFeatureApi('web.assistant');
+  if (off) return off;
+
   // Cookies from the console, bearer token from the responder app — same
   // RLS-scoped client either way, so Criti sees exactly what the caller may.
   const supabase = await getRequestSupabase(req);

@@ -1,0 +1,82 @@
+import type { Ionicons } from '@expo/vector-icons';
+
+/**
+ * The module registry — the responder app's shape, as data.
+ *
+ * Every screen the app offers beyond its core (incidents + shift + profile)
+ * is a module: a destination, an icon, a description for the Home grid, and
+ * the feature flag that governs it. The Home screen renders this list, and
+ * the tab bar consults it, so adding a module is one entry here plus its
+ * screen file — no layout surgery, and the flag wiring cannot be forgotten
+ * because it is part of the entry's type.
+ */
+
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
+
+export type AppModule = {
+  key: string;
+  title: string;
+  /** One line under the title on the Home card — what the crew does with it. */
+  blurb: string;
+  icon: IconName;
+  href: string;
+  /** Feature flag that must be on; undefined = always available. */
+  feature?: string;
+  /** Accent for the card rail; defaults to the theme accent. */
+  tone?: 'accent' | 'primary' | 'low' | 'medium';
+};
+
+export const MODULES: AppModule[] = [
+  {
+    key: 'incidents',
+    title: 'My Incidents',
+    blurb: 'Your assigned calls, live. Advance status as things happen.',
+    icon: 'radio-outline',
+    href: '/(tabs)/incidents',
+  },
+  {
+    key: 'alerts',
+    title: 'Alerts',
+    blurb: 'Everything that came in while you were busy, with what still needs your acknowledgement.',
+    icon: 'notifications-outline',
+    href: '/(tabs)/alerts',
+    feature: 'mobile.alerts_inbox',
+  },
+  {
+    key: 'schedule',
+    title: 'My Schedule',
+    blurb: 'Current duty, next duty, allocations, balances and endorsements.',
+    icon: 'calendar-outline',
+    href: '/(tabs)/schedule',
+  },
+  {
+    key: 'shift',
+    title: 'Start of Shift',
+    blurb: 'Mental readiness, vehicle selection and inspection — the gate to taking calls.',
+    icon: 'clipboard-outline',
+    href: '/(tabs)/shift',
+  },
+  {
+    key: 'leave',
+    title: 'Leave',
+    blurb: 'Apply from the field; balances shown before the form.',
+    icon: 'airplane-outline',
+    href: '/leave',
+    feature: 'mobile.leave',
+    tone: 'low',
+  },
+  {
+    key: 'assistant',
+    title: 'Criti',
+    blurb: 'Ask about your calls, your crew, your shift — scoped to what you can already see.',
+    icon: 'sparkles-outline',
+    href: '/assistant',
+    feature: 'mobile.assistant',
+    tone: 'accent',
+  },
+];
+
+/** Home shows what the tab bar cannot fit; the rest is one tap deeper. */
+export function homeModules(enabled: (key: string) => boolean): AppModule[] {
+  return MODULES.filter((m) => (m.feature ? enabled(m.feature) : true));
+}

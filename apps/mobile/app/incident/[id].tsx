@@ -12,6 +12,7 @@ import {
 import type { Database, IncidentStatus } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useSync } from '@/lib/sync';
+import { useFeature } from '@/lib/features';
 import { retainAttachment } from '@/lib/outbox';
 import {
   colors, radius, severityColor, space, timeAgo, type,
@@ -39,6 +40,7 @@ const clean = (message: string) => message.replace(/​[\w-]+$/, '');
 export default function IncidentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { enqueue, pending } = useSync();
+  const voiceOn = useFeature('mobile.voice_notes');
   const [incident, setIncident] = useState<Incident | null>(null);
   const [updates, setUpdates] = useState<Update[]>([]);
   const [note, setNote] = useState('');
@@ -347,30 +349,32 @@ export default function IncidentDetailScreen() {
           </View>
         </View>
 
-        <View style={{ marginTop: space.sm }}>
-          {recording ? (
-            <Pressable
-              onPress={() => void stopRecording()}
-              accessibilityRole="button"
-              accessibilityLabel="Stop recording and file the voice note"
-              style={({ pressed }) => [styles.recording, pressed && { opacity: 0.85 }]}
-            >
-              <View style={styles.recordingDot} />
-              <Text style={styles.recordingText}>
-                Recording{recordingSince ? ` · ${Math.floor((Date.now() - recordingSince) / 1000)}s` : ''} — tap to stop
-              </Text>
-              <Ionicons name="stop-circle" size={20} color={colors.critical} />
-            </Pressable>
-          ) : (
-            <Button
-              label="Record voice note"
-              icon="mic-outline"
-              variant="subtle"
-              disabled={busy === 'upload'}
-              onPress={() => void startRecording()}
-            />
-          )}
-        </View>
+        {voiceOn ? (
+          <View style={{ marginTop: space.sm }}>
+            {recording ? (
+              <Pressable
+                onPress={() => void stopRecording()}
+                accessibilityRole="button"
+                accessibilityLabel="Stop recording and file the voice note"
+                style={({ pressed }) => [styles.recording, pressed && { opacity: 0.85 }]}
+              >
+                <View style={styles.recordingDot} />
+                <Text style={styles.recordingText}>
+                  Recording{recordingSince ? ` · ${Math.floor((Date.now() - recordingSince) / 1000)}s` : ''} — tap to stop
+                </Text>
+                <Ionicons name="stop-circle" size={20} color={colors.critical} />
+              </Pressable>
+            ) : (
+              <Button
+                label="Record voice note"
+                icon="mic-outline"
+                variant="subtle"
+                disabled={busy === 'upload'}
+                onPress={() => void startRecording()}
+              />
+            )}
+          </View>
+        ) : null}
 
         {queued.media > 0 ? (
           <Text style={styles.queuedNote}>

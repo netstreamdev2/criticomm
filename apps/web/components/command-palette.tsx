@@ -36,7 +36,7 @@ const KIND_ICON: Record<SearchKind, LucideIcon> = {
  * "dispatch" almost always means the screen, and a navigator that buries the
  * destination under twelve incidents stops being a navigator.
  */
-export function CommandPalette({ silo, role }: { silo: string; role: string }) {
+export function CommandPalette({ silo, role, hiddenHrefs = [], searchEnabled = true }: { silo: string; role: string; hiddenHrefs?: string[]; searchEnabled?: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -51,7 +51,7 @@ export function CommandPalette({ silo, role }: { silo: string; role: string }) {
     () =>
       NAV_GROUPS.flatMap((g) =>
         g.items
-          .filter((i) => canAccess(i.href, role as UserRole, silo as Silo))
+          .filter((i) => canAccess(i.href, role as UserRole, silo as Silo) && !hiddenHrefs.includes(i.href))
           .map((i) => ({ ...i, group: g.label })),
       ),
     [role, silo],
@@ -85,7 +85,7 @@ export function CommandPalette({ silo, role }: { silo: string; role: string }) {
    */
   useEffect(() => {
     const trimmed = query.trim();
-    if (!open || trimmed.length < MIN_SEARCH_LENGTH) {
+    if (!open || !searchEnabled || trimmed.length < MIN_SEARCH_LENGTH) {
       setHits([]);
       setSearching(false);
       return;

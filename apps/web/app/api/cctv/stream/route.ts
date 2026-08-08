@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireFeatureApi } from '@/lib/features';
 import { logAudit } from '@criticom/api';
 import { canAccess } from '@criticom/db/roles';
 import type { Silo, UserRole } from '@criticom/db/types';
@@ -21,6 +22,9 @@ export const dynamic = 'force-dynamic';
 const PROTOCOLS = ['hls', 'rtsp', 'rtmp', 'ws'] as const;
 
 export async function POST(req: Request) {
+  const off = await requireFeatureApi('web.cameras');
+  if (off) return off;
+
   const supabase = await getServerSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

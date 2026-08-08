@@ -1,8 +1,10 @@
 import { ChatClient } from './chat-client';
+import { requireFeaturePage } from '@/lib/features';
 
 export const metadata = { title: 'Criti Assistant · Criticom' };
 
-export default function AssistantPage() {
+export default async function AssistantPage() {
+  await requireFeaturePage('web.assistant');
   return (
     <div className="flex h-[calc(100vh-8.5rem)] flex-col space-y-4">
       <header>

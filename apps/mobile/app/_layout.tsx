@@ -7,6 +7,7 @@ import { BrandingProvider } from '@/lib/branding';
 import { NotificationsProvider, useNotificationRouting } from '@/lib/notifications';
 import { DutyProvider, useDuty } from '@/lib/duty';
 import { SyncProvider } from '@/lib/sync';
+import { FeaturesProvider } from '@/lib/features';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { PanicButton } from '@/components/panic-button';
 import { SyncTray } from '@/components/sync-tray';
@@ -102,6 +103,7 @@ export default function RootLayout() {
       <DutyProvider>
       <AuthGate>
         <BrandingProvider>
+        <FeaturesProvider>
         {/* Sync wraps notifications: an alert handler may need to queue work,
             and the panic path must never be blocked on the alert subsystem. */}
         <SyncProvider>
@@ -142,6 +144,7 @@ export default function RootLayout() {
           <SyncTray />
         </NotificationsProvider>
         </SyncProvider>
+        </FeaturesProvider>
         </BrandingProvider>
       </AuthGate>
       </DutyProvider>

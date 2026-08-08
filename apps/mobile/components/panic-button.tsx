@@ -7,6 +7,7 @@ import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/lib/auth';
 import { useSync } from '@/lib/sync';
+import { useFeature } from '@/lib/features';
 import { colors, radius, space, type } from '@/lib/theme';
 
 /**
@@ -33,6 +34,7 @@ const HOLD_MS = 2500;
 const GPS_TIMEOUT_MS = 4000;
 
 export function PanicButton() {
+  const panicOn = useFeature('mobile.panic');
   const { session, silo, fullName } = useAuth();
   const { enqueue } = useSync();
   const [holding, setHolding] = useState(false);
@@ -134,7 +136,7 @@ export function PanicButton() {
 
   useEffect(() => () => clearNudges(), []);
 
-  if (!session) return null;
+  if (!session || !panicOn) return null;
 
   return (
     <>
