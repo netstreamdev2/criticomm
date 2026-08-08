@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { AlertTriangle, CheckCircle2, MinusCircle } from 'lucide-react';
 import { listAutomationRules, summariseAutomations } from '@criticom/api';
-import { ADMIN_ROLES } from '@criticom/db';
+import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
@@ -44,7 +44,7 @@ const LEVEL_STYLE: Record<Level, { icon: typeof CheckCircle2; className: string;
 
 export default async function StatusPage() {
   const { supabase, role } = await getSession();
-  if (!ADMIN_ROLES.includes(role)) redirect('/dashboard');
+  if (!ADMIN_CONSOLE_ROLES.includes(role)) redirect('/dashboard');
 
   const checks: Check[] = [];
 

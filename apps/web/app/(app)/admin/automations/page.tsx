@@ -3,7 +3,7 @@ import { AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
 import {
   listAutomationRules, listAutomationRuns, summariseAutomations, RULE_FIELDS,
 } from '@criticom/api';
-import { ADMIN_ROLES } from '@criticom/db';
+import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
@@ -14,7 +14,7 @@ export const metadata = { title: 'Automations · Criticom' };
 
 export default async function AutomationsPage() {
   const { supabase, role } = await getSession();
-  if (!ADMIN_ROLES.includes(role)) redirect('/dashboard');
+  if (!ADMIN_CONSOLE_ROLES.includes(role)) redirect('/dashboard');
 
   const [rules, runs] = await Promise.all([
     listAutomationRules(supabase),

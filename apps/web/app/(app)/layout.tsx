@@ -1,6 +1,8 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
-import { featureEnabled, getFeatureMap, getOperationalSettings, listOpsLinks } from '@criticom/api';
+import {
+  deniedHrefs, featureEnabled, getFeatureMap, getOperationalSettings, listAccessRules, listOpsLinks,
+} from '@criticom/api';
 import { hiddenHrefs as hiddenFor } from '@/lib/features';
 import type { Silo } from '@criticom/db';
 import { OpsCommandBar } from '@/components/ops-command-bar';
@@ -56,13 +58,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   // Admin-tuned alert behaviour, command-bar links and department identity;
   // all three fail safe.
-  const [settings, opsLinks, branding, features] = await Promise.all([
+  const [settings, opsLinks, branding, features, accessRules] = await Promise.all([
     getOperationalSettings(supabase),
     listOpsLinks(supabase),
     getBrandingMap(),
     getFeatureMap(supabase),
+    listAccessRules(supabase),
   ]);
-  const hidden = hiddenFor(features);
+  // Two subtractive overlays on the nav: features the tenant has switched off,
+  // and modules the SuperAdmin has hidden for this tenant or this role.
+  // Middleware refuses the routes themselves; this keeps the links honest.
+  const hidden = [...hiddenFor(features), ...deniedHrefs(accessRules, role)];
   const dept = branding[silo as Silo];
 
   // Only the admin tier keeps the sidebar. They genuinely work across every

@@ -2,12 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { addConfigRecord, toggleConfigStatus, logAudit, type ConfigModule } from '@criticom/api';
-import { ADMIN_ROLES } from '@criticom/db';
+import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!ADMIN_ROLES.includes(session.role)) throw new Error('Forbidden');
+  if (!ADMIN_CONSOLE_ROLES.includes(session.role)) throw new Error('Forbidden');
   return session;
 }
 

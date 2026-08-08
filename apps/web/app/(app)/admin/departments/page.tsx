@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { ALL_SILOS } from '@criticom/api';
-import { ADMIN_ROLES } from '@criticom/db';
+import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { getBrandingMap } from '@/lib/branding';
@@ -11,7 +11,7 @@ export const metadata = { title: 'Departments · Criticom' };
 
 export default async function DepartmentsPage() {
   const { role } = await getSession();
-  if (!ADMIN_ROLES.includes(role)) redirect('/dashboard');
+  if (!ADMIN_CONSOLE_ROLES.includes(role)) redirect('/dashboard');
 
   const branding = await getBrandingMap();
 

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import {
   getOperationalSettings, OPERATIONAL_SETTINGS, type SettingDef,
 } from '@criticom/api';
-import { ADMIN_ROLES } from '@criticom/db';
+import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { SettingRow } from './setting-row';
@@ -12,7 +12,7 @@ export const metadata = { title: 'Operations Settings · Criticom' };
 
 export default async function OperationsSettingsPage() {
   const { supabase, role } = await getSession();
-  if (!ADMIN_ROLES.includes(role)) redirect('/dashboard');
+  if (!ADMIN_CONSOLE_ROLES.includes(role)) redirect('/dashboard');
 
   const settings = await getOperationalSettings(supabase);
 

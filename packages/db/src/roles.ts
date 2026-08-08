@@ -19,6 +19,16 @@ import type { Silo, UserRole } from './types.generated';
 
 export const ADMIN_ROLES: UserRole[] = ['SystemAdmin', 'SuperAdmin', 'Admin'];
 
+/**
+ * Who may open the operational admin consoles (integrations, automations,
+ * operations settings, status, departments…): the admin tier plus the
+ * SystemController seat. Account administration (Users & Roles writes) and
+ * platform administration (tenants, features, access rules) deliberately
+ * stay on ADMIN_ROLES / SuperAdmin — the controller runs the platform's
+ * modules, it does not reshape accounts or tenants.
+ */
+export const ADMIN_CONSOLE_ROLES: UserRole[] = [...ADMIN_ROLES, 'SystemController'];
+
 export const SUPERVISORY_ROLES: UserRole[] = [
   ...ADMIN_ROLES, 'Supervisor', 'Captain', 'Chief', 'FireChief', 'System',
 ];
@@ -142,10 +152,12 @@ export const ROUTE_RULES: RouteRule[] = [
  */
 export function canAccess(pathname: string, role: UserRole, silo: Silo): boolean {
   // The SystemController is a command-and-reporting seat over every module in
-  // every silo. The only doors it does not hold keys to are tenant and feature
-  // administration — those belong to the SuperAdmin desk.
+  // every silo. The only doors it does not hold keys to are tenant, feature
+  // and access administration — those belong to the SuperAdmin desk.
   if (role === 'SystemController') {
-    return !pathname.startsWith('/admin/tenants') && !pathname.startsWith('/admin/features');
+    return !pathname.startsWith('/admin/tenants')
+      && !pathname.startsWith('/admin/features')
+      && !pathname.startsWith('/admin/access');
   }
   const rule = ROUTE_RULES
     .filter((r) => pathname === r.prefix || pathname.startsWith(`${r.prefix}/`))

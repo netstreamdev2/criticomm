@@ -25,3 +25,4 @@ export * from './features/index';
 export * from './tenants/index';
 export * from './command/index';
 export * from './enforcement/index';
+export * from './access/index';

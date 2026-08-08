@@ -2,12 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { createPersonnel, logAudit } from '@criticom/api';
-import { ADMIN_ROLES, type Silo } from '@criticom/db';
+import { ADMIN_CONSOLE_ROLES, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
 export async function createPersonnelAction(formData: FormData) {
   const session = await getSession();
-  if (!ADMIN_ROLES.includes(session.role) && session.role !== 'Supervisor') throw new Error('Forbidden');
+  if (!ADMIN_CONSOLE_ROLES.includes(session.role) && session.role !== 'Supervisor') throw new Error('Forbidden');
   const S = (k: string) => String(formData.get(k) ?? '').trim() || null;
 
   const p = await createPersonnel(session.supabase, {

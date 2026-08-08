@@ -10,6 +10,46 @@ const PUBLIC_PATHS = ['/login', '/reset-password', '/share-location'];
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+/**
+ * Per-tenant access rules (migration 0035) — the SuperAdmin's deny-only
+ * overlay on the route matrix. Cached per tenant for 60s so the edge does one
+ * small indexed read a minute, not one per request; a toggle therefore takes
+ * effect within a minute, which the Access Control console says out loud.
+ *
+ * Deliberately inlined rather than imported from @criticom/api: the edge
+ * bundle must not pull the full client package, and the logic is six lines.
+ */
+type AccessRule = { href: string; role: string; allowed: boolean };
+const RULES_TTL_MS = 60_000;
+const rulesCache = new Map<string, { at: number; rules: AccessRule[] }>();
+
+async function tenantRules(
+  supabase: { from: (t: string) => { select: (c: string) => PromiseLike<{ data: AccessRule[] | null }> } },
+  tenantKey: string,
+): Promise<AccessRule[]> {
+  const hit = rulesCache.get(tenantKey);
+  if (hit && Date.now() - hit.at < RULES_TTL_MS) return hit.rules;
+  try {
+    // RLS scopes the query to the caller's tenant — no filter needed here.
+    const { data } = await supabase.from('access_rules').select('href, role, allowed');
+    const rules = data ?? [];
+    rulesCache.set(tenantKey, { at: Date.now(), rules });
+    return rules;
+  } catch {
+    // Fail open to "no denials": the matrix and flags still stand underneath.
+    return hit?.rules ?? [];
+  }
+}
+
+function ruleDenied(rules: AccessRule[], role: string, pathname: string): boolean {
+  if (role === 'SuperAdmin') return false; // the rule-writer can never be locked out
+  return rules.some(
+    (r) => !r.allowed
+      && (r.role === '*' || r.role === role)
+      && (pathname === r.href || pathname.startsWith(`${r.href}/`)),
+  );
+}
+
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request });
 
@@ -76,6 +116,19 @@ export async function middleware(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = '/403';
       return NextResponse.redirect(url);
+    }
+
+    // The SuperAdmin's per-tenant overlay: only checked once the code matrix
+    // has allowed the route, because rules can only subtract. Page routes
+    // only — APIs are guarded by feature flags and their own role checks.
+    if (!isPublic && !isApi && pathname !== '/403' && pathname !== '/dashboard') {
+      const tenantKey = (user.app_metadata?.tenant_id as string | undefined) ?? 'founding';
+      const rules = await tenantRules(supabase, tenantKey);
+      if (ruleDenied(rules, userRole, pathname)) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/dashboard';
+        return NextResponse.redirect(url);
+      }
     }
   }
 

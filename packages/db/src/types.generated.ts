@@ -625,6 +625,21 @@ export type Database = {
         Update: Partial<Omit<Database['public']['Tables']['firearm_checklists']['Row'], 'passed'>>;
         Relationships: [];
       };
+      /** Per-tenant module access denials — deny-only overlay (migration 0035). */
+      access_rules: {
+        Row: {
+          tenant_id: string;
+          href: string;
+          /** '*' applies to every role; otherwise a user_role value. */
+          role: string;
+          allowed: boolean;
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['access_rules']['Row']>;
+        Update: Partial<Database['public']['Tables']['access_rules']['Row']>;
+        Relationships: [];
+      };
       /** Background rules and their thresholds (migration 0025). */
       automation_rules: {
         Row: {

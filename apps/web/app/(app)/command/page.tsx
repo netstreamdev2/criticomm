@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import {
-  dutyTaskCounts, featureEnabled, getDutySheet, listAllProfiles, listDutyTasks, listLeaveEntries,
+  deniedHrefs, dutyTaskCounts, featureEnabled, getDutySheet, listAccessRules, listAllProfiles,
+  listDutyTasks, listLeaveEntries,
 } from '@criticom/api';
 import { canAccess, type Silo } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -91,12 +92,13 @@ export default async function CommandPage({
   const board = ((params.silo as Silo | undefined) ?? own ?? 'MetroPolice') as Silo;
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Johannesburg' });
 
-  const [features, profiles, leave, sheet, tasks] = await Promise.all([
+  const [features, profiles, leave, sheet, tasks, accessRules] = await Promise.all([
     getFeatures(),
     listAllProfiles(supabase, own),
     listLeaveEntries(supabase),
     getDutySheet(supabase, { silo: board, date: today }),
     listDutyTasks(supabase, { silo: board }),
+    listAccessRules(supabase),
   ]);
 
   const onDuty = profiles.filter((p) => p.is_on_duty).length;
@@ -113,7 +115,9 @@ export default async function CommandPage({
   const counts = dutyTaskCounts(tasks);
   const openTasks = tasks.filter((t) => t.status !== 'Completed' && t.status !== 'Cancelled');
 
-  const hidden = hiddenHrefs(features);
+  // Feature switches and the SuperAdmin's access rules both subtract from the
+  // launcher — a tile that middleware would refuse must never be offered.
+  const hidden = [...hiddenHrefs(features), ...deniedHrefs(accessRules, role)];
   const mayApprove = ['SystemAdmin', 'SuperAdmin', 'Admin', 'Supervisor', 'SystemController'].includes(role);
 
   const memberStatus = (m: { user_id: string; status: string; acknowledged_at: string | null }) => {

@@ -5,14 +5,14 @@ import {
   logAudit, resetOperationalSetting, updateOperationalSetting,
   OPERATIONAL_SETTINGS, type OperationalSettingKey,
 } from '@criticom/api';
-import { ADMIN_ROLES } from '@criticom/db';
+import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
 const VALID_KEYS = new Set<string>(OPERATIONAL_SETTINGS.map((d) => d.key));
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!ADMIN_ROLES.includes(session.role)) throw new Error('Forbidden');
+  if (!ADMIN_CONSOLE_ROLES.includes(session.role)) throw new Error('Forbidden');
   return session;
 }
 

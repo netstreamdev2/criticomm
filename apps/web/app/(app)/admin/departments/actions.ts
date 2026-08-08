@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { logAudit, updateDepartmentBranding } from '@criticom/api';
-import { ADMIN_ROLES, type Silo } from '@criticom/db';
+import { ADMIN_CONSOLE_ROLES, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
 const SILOS: Silo[] = ['Ethekwini', 'MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
@@ -10,7 +10,7 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 
 async function requireAdmin() {
   const session = await getSession();
-  if (!ADMIN_ROLES.includes(session.role)) throw new Error('Forbidden');
+  if (!ADMIN_CONSOLE_ROLES.includes(session.role)) throw new Error('Forbidden');
   return session;
 }
 

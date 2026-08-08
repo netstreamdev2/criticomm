@@ -2,12 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { createSystemProfile, generateCallSign, logAudit } from '@criticom/api';
-import { ADMIN_ROLES } from '@criticom/db';
+import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
 export async function createOperatorAction(formData: FormData) {
   const session = await getSession();
-  if (!ADMIN_ROLES.includes(session.role)) throw new Error('Forbidden');
+  if (!ADMIN_CONSOLE_ROLES.includes(session.role)) throw new Error('Forbidden');
   const S = (k: string) => String(formData.get(k) ?? '').trim() || null;
 
   const first = String(formData.get('first_name'));

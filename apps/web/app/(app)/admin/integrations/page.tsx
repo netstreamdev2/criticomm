@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { listIntegrations } from '@criticom/api';
-import { ADMIN_ROLES } from '@criticom/db';
+import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { IntegrationCard } from './integration-card';
@@ -51,7 +51,7 @@ const PURPOSE: Record<string, string> = {
 
 export default async function IntegrationsPage() {
   const { supabase, role } = await getSession();
-  if (!ADMIN_ROLES.includes(role)) redirect('/dashboard');
+  if (!ADMIN_CONSOLE_ROLES.includes(role)) redirect('/dashboard');
 
   const integrations = await listIntegrations(supabase).catch(() => []);
 
