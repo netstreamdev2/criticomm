@@ -30,6 +30,15 @@ const FEATURE_ROUTES: Record<string, string[]> = {
   'web.ptt': ['/dispatch/ptt'],
   'web.reports_builder': ['/reports/builder'],
   'web.search': ['/search'],
+  'web.command': ['/command'],
+  'web.duty_maintenance': ['/duty-tasks'],
+  'web.time_attendance': ['/attendance'],
+  'web.enforcement': [
+    '/police/fines', '/police/charges', '/police/transactions',
+    '/police/warrants', '/police/summons',
+  ],
+  'web.mail': ['/mail'],
+  'web.sections': ['/admin/sections'],
 };
 
 /** Hrefs the nav should not offer under this feature map. */

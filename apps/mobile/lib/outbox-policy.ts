@@ -48,6 +48,26 @@ export type OutboxOp =
       kind: 'duty_location';
       lat: number;
       lng: number;
+    }
+  | {
+      kind: 'firearm_check';
+      /** Client-generated row uuid — the primary key on replay, so a retry
+       *  that raced a committed insert dedupes instead of double-filing. */
+      rowId: string;
+      checkKind: 'Issue' | 'Return' | 'Inspection';
+      serialNumber: string;
+      makeModel?: string;
+      serialVerified: boolean;
+      barrelClear: boolean;
+      actionFunctional: boolean;
+      safetyFunctional: boolean;
+      sightsSecure: boolean;
+      cleaned: boolean;
+      magazines: number;
+      roundsIssued: number;
+      roundsReturned?: number;
+      defects?: string;
+      userName: string;
     };
 
 export type OutboxStatus = 'queued' | 'failed';
@@ -100,6 +120,8 @@ export function describe(op: OutboxOp): string {
       return 'EMERGENCY — officer needs assistance';
     case 'duty_location':
       return 'Position update';
+    case 'firearm_check':
+      return `Firearm ${op.checkKind.toLowerCase()} · ${op.serialNumber}`;
   }
 }
 
@@ -115,7 +137,10 @@ const PRIORITY: Record<OutboxOp['kind'], number> = {
   incident_status: 1,
   duty_location: 2,
   incident_note: 3,
-  evidence: 4,
+  // Armoury paperwork matters, but never ahead of anything an active incident
+  // is waiting on — only the attachments queue behind it.
+  firearm_check: 4,
+  evidence: 5,
 };
 
 export function comparePriority(a: OutboxEntry, b: OutboxEntry): number {

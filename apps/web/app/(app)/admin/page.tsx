@@ -13,6 +13,7 @@ const ROLES: UserRole[] = [
   'SystemAdmin', 'SuperAdmin', 'Admin', 'Supervisor', 'Dispatcher', 'Operator', 'ControlRoom',
   'IncidentLogger', 'Viewer', 'Captain', 'Police', 'Officer', 'Metro', 'Security', 'Chief',
   'FireChief', 'Firefighter', 'Paramedic', 'Doctor', 'Disaster', 'CaseManager', 'Responder', 'Staff',
+  'SystemController',
 ];
 const SILOS: Silo[] = ['Ethekwini', 'MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
 

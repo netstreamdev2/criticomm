@@ -23,3 +23,5 @@ export * from './automations/index';
 export * from './search/index';
 export * from './features/index';
 export * from './tenants/index';
+export * from './command/index';
+export * from './enforcement/index';

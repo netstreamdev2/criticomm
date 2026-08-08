@@ -35,7 +35,7 @@ export async function applyLeaveAction(formData: FormData) {
 
 export async function setLeaveStatusAction(formData: FormData) {
   const { supabase, role, fullName } = await getSession();
-  if (!ADMIN_ROLES.includes(role) && role !== 'Supervisor') return;
+  if (!ADMIN_ROLES.includes(role) && role !== 'Supervisor' && role !== 'SystemController') return;
 
   const entry = await setLeaveStatusWithTrail(supabase, {
     id: String(formData.get('id')),

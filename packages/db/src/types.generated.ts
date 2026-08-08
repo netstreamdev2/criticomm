@@ -14,7 +14,7 @@ export type UserRole =
   | 'Chief' | 'FireChief' | 'Firefighter'
   | 'Paramedic' | 'Doctor'
   | 'Disaster' | 'CaseManager' | 'Citizen'
-  | 'Responder' | 'Staff';
+  | 'Responder' | 'Staff' | 'SystemController';
 
 export type IncidentStatus =
   | 'New' | 'Pending' | 'Pending Dispatch' | 'Pending Analysis'
@@ -399,6 +399,230 @@ export type Database = {
         };
         Insert: Partial<Database['public']['Tables']['feature_flags']['Row']>;
         Update: Partial<Database['public']['Tables']['feature_flags']['Row']>;
+        Relationships: [];
+      };
+      /** Operational areas officers are posted to (migration 0033). */
+      sections: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          code: string;
+          name: string;
+          region: string | null;
+          active: boolean;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['sections']['Row']>;
+        Update: Partial<Database['public']['Tables']['sections']['Row']>;
+        Relationships: [];
+      };
+      /** Duty Maintenance — numbered DM- station tasks (migration 0033). */
+      duty_tasks: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          task_number: string;
+          title: string;
+          details: string | null;
+          assigned_user_id: string | null;
+          assigned_name: string | null;
+          unit_ref: string | null;
+          section_code: string | null;
+          due_date: string | null;
+          status: 'Pending' | 'In Progress' | 'Completed' | 'Cancelled';
+          progress: number;
+          created_by: string | null;
+          created_name: string | null;
+          created_at: string;
+          completed_at: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['duty_tasks']['Row']>;
+        Update: Partial<Database['public']['Tables']['duty_tasks']['Row']>;
+        Relationships: [];
+      };
+      /** Time & Attendance clock register — append-only (migration 0033). */
+      attendance_events: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          user_id: string;
+          user_name: string | null;
+          kind: 'clock_in' | 'clock_out';
+          at: string;
+          source: 'console' | 'mobile';
+          note: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['attendance_events']['Row']>;
+        Update: Partial<Database['public']['Tables']['attendance_events']['Row']>;
+        Relationships: [];
+      };
+      /** Enforcement: traffic/bylaw fines (migration 0033). */
+      fines: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          fine_number: string;
+          offender_name: string;
+          offender_id_number: string | null;
+          vehicle_reg: string | null;
+          offence_code: string | null;
+          offence_description: string;
+          amount: number;
+          location: string | null;
+          incident_id: string | null;
+          issued_by: string | null;
+          issued_by_name: string | null;
+          issued_at: string;
+          due_date: string | null;
+          status: 'Unpaid' | 'Partially Paid' | 'Paid' | 'Disputed' | 'Cancelled';
+          notes: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['fines']['Row']>;
+        Update: Partial<Database['public']['Tables']['fines']['Row']>;
+        Relationships: [];
+      };
+      /** Enforcement: criminal charges (migration 0033). */
+      charges: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          charge_number: string;
+          accused_name: string;
+          accused_id_number: string | null;
+          charge_code: string | null;
+          description: string;
+          statute: string | null;
+          severity: 'Minor' | 'Serious' | 'Severe';
+          status: 'Open' | 'Referred to Court' | 'Withdrawn' | 'Convicted' | 'Acquitted';
+          officer_id: string | null;
+          officer_name: string | null;
+          opened_at: string;
+          court_name: string | null;
+          court_date: string | null;
+          case_ref: string | null;
+          incident_id: string | null;
+          notes: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['charges']['Row']>;
+        Update: Partial<Database['public']['Tables']['charges']['Row']>;
+        Relationships: [];
+      };
+      /** Money that moves against a fine or a charge (migration 0033). */
+      charge_transactions: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          charge_id: string | null;
+          fine_id: string | null;
+          tx_type: 'Payment' | 'Bail' | 'Court Fee' | 'Refund' | 'Adjustment';
+          amount: number;
+          method: 'Cash' | 'Card' | 'EFT' | 'Other';
+          reference: string | null;
+          recorded_by: string | null;
+          recorded_name: string | null;
+          recorded_at: string;
+          note: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['charge_transactions']['Row']>;
+        Update: Partial<Database['public']['Tables']['charge_transactions']['Row']>;
+        Relationships: [];
+      };
+      /** Arrest and search warrants (migration 0033). */
+      warrants: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          warrant_number: string;
+          subject_name: string;
+          subject_id_number: string | null;
+          warrant_type: 'Arrest' | 'Search';
+          issued_by_court: string | null;
+          issue_date: string;
+          expiry_date: string | null;
+          status: 'Active' | 'Executed' | 'Cancelled' | 'Expired';
+          executed_at: string | null;
+          executing_officer: string | null;
+          address: string | null;
+          notes: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['warrants']['Row']>;
+        Update: Partial<Database['public']['Tables']['warrants']['Row']>;
+        Relationships: [];
+      };
+      /** Court summonses (migration 0033). */
+      summonses: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          summons_number: string;
+          recipient_name: string;
+          recipient_id_number: string | null;
+          offence: string;
+          court_name: string | null;
+          court_date: string | null;
+          address: string | null;
+          status: 'Issued' | 'Served' | 'Court Date Set' | 'Concluded' | 'Withdrawn';
+          served_at: string | null;
+          served_by: string | null;
+          notes: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['summonses']['Row']>;
+        Update: Partial<Database['public']['Tables']['summonses']['Row']>;
+        Relationships: [];
+      };
+      /** Internal operator-to-operator mail (migration 0033). */
+      mail_messages: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          from_user: string;
+          from_name: string | null;
+          to_user: string;
+          to_name: string | null;
+          subject: string;
+          body: string;
+          sent_at: string;
+          read_at: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['mail_messages']['Row']>;
+        Update: Partial<Database['public']['Tables']['mail_messages']['Row']>;
+        Relationships: [];
+      };
+      /** Armoury checklist captured on the phone (migration 0033). */
+      firearm_checklists: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          user_id: string;
+          user_name: string | null;
+          kind: 'Issue' | 'Return' | 'Inspection';
+          serial_number: string;
+          make_model: string | null;
+          serial_verified: boolean;
+          barrel_clear: boolean;
+          action_functional: boolean;
+          safety_functional: boolean;
+          sights_secure: boolean;
+          cleaned: boolean;
+          magazines: number;
+          rounds_issued: number;
+          rounds_returned: number | null;
+          defects: string | null;
+          /** Generated column — never sent on insert. */
+          passed: boolean;
+          created_at: string;
+        };
+        Insert: Partial<Omit<Database['public']['Tables']['firearm_checklists']['Row'], 'passed'>>;
+        Update: Partial<Omit<Database['public']['Tables']['firearm_checklists']['Row'], 'passed'>>;
         Relationships: [];
       };
       /** Background rules and their thresholds (migration 0025). */
@@ -1520,6 +1744,11 @@ export type Database = {
       };
       next_incident_number: {
         Args: { p_silo: Silo };
+        Returns: string;
+      };
+      /** Per-tenant document numbering: DM-/FN-/CH-/WA-/SM- (migration 0033). */
+      next_doc_number: {
+        Args: { p_prefix: string };
         Returns: string;
       };
       /** Per-user request limiting (migration 0028). Identity from auth.uid(). */

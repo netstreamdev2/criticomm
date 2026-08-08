@@ -173,6 +173,36 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
     const op = entry.op as Extract<OutboxOp, { kind: 'duty_location' }>;
     await toggleDuty(client, { onDuty: true, latitude: op.lat, longitude: op.lng });
   },
+
+  /**
+   * Idempotent through the client-generated row id: the insert carries it as
+   * the primary key, so a replay of a committed insert violates the PK — which
+   * is proof it already landed, and is swallowed as success rather than parked.
+   * `occurredAt` is written as created_at: the checklist happened at the
+   * armoury counter, not when the phone found signal.
+   */
+  firearm_check: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'firearm_check' }>;
+    const { error } = await client.from('firearm_checklists').insert({
+      id: op.rowId,
+      kind: op.checkKind,
+      serial_number: op.serialNumber,
+      make_model: op.makeModel ?? null,
+      serial_verified: op.serialVerified,
+      barrel_clear: op.barrelClear,
+      action_functional: op.actionFunctional,
+      safety_functional: op.safetyFunctional,
+      sights_secure: op.sightsSecure,
+      cleaned: op.cleaned,
+      magazines: op.magazines,
+      rounds_issued: op.roundsIssued,
+      rounds_returned: op.roundsReturned ?? null,
+      defects: op.defects ?? null,
+      user_name: op.userName,
+      created_at: entry.occurredAt,
+    });
+    if (error && error.code !== '23505') throw error;
+  },
 };
 
 /* ── Provider ───────────────────────────────────────────────────────── */

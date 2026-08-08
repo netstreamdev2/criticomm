@@ -135,6 +135,10 @@ export default function RootLayout() {
               name="leave"
               options={{ title: 'Leave', headerBackTitle: 'Back' }}
             />
+            <Stack.Screen
+              name="firearm-check"
+              options={{ title: 'Firearm Check', headerBackTitle: 'Back' }}
+            />
           </Stack>
 
           {/* Overlays sit above every screen in the stack. */}

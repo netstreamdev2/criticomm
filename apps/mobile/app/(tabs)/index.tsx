@@ -49,7 +49,7 @@ export default function HomeScreen() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   const undelivered = pending.length + failed.length;
-  const modules = homeModules(enabled);
+  const modules = homeModules(enabled, silo);
 
   return (
     <ScrollView

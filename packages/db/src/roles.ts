@@ -54,7 +54,7 @@ export const RESPONDER_ROLES: UserRole[] = [
 /** Roles that can see any silo's routes/data (V4 GLOBAL list + auth.is_global()). */
 export const GLOBAL_ROLES: UserRole[] = [
   'SystemAdmin', 'SuperAdmin', 'Dispatcher', 'Operator', 'ControlRoom',
-  'IncidentLogger', 'Viewer', 'System',
+  'IncidentLogger', 'Viewer', 'System', 'SystemController',
 ];
 
 export const POLICE_ROLES: UserRole[] = ['Captain', 'Police', 'Officer', 'Metro', 'Security'];
@@ -105,6 +105,14 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/roster/allocation', roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'Staff', 'CaseManager'] },
   { prefix: '/roster/mine',  roles: undefined },
   { prefix: '/roster',       roles: SUPERVISORY_ROLES },
+  // The command dashboard: one screen with duty state, approvals, tasks and
+  // the module launcher. Command staff and the controller seat.
+  { prefix: '/command',      roles: [...SUPERVISORY_ROLES, 'SystemController'] },
+  // Duty Maintenance: supervisors run the board; assignees advance their own.
+  { prefix: '/duty-tasks',   roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'Staff'] },
+  // Time & Attendance and internal mail are for everyone who works here.
+  { prefix: '/attendance' },
+  { prefix: '/mail' },
   // HR command centre: supervisors and the admin tier run people-readiness.
   { prefix: '/hr',           roles: SUPERVISORY_ROLES },
   // Everyone who works here files leave — the desk (dispatch tier) included.
@@ -133,6 +141,12 @@ export const ROUTE_RULES: RouteRule[] = [
  * Returns true when `role`/`silo` may open `pathname`.
  */
 export function canAccess(pathname: string, role: UserRole, silo: Silo): boolean {
+  // The SystemController is a command-and-reporting seat over every module in
+  // every silo. The only doors it does not hold keys to are tenant and feature
+  // administration — those belong to the SuperAdmin desk.
+  if (role === 'SystemController') {
+    return !pathname.startsWith('/admin/tenants') && !pathname.startsWith('/admin/features');
+  }
   const rule = ROUTE_RULES
     .filter((r) => pathname === r.prefix || pathname.startsWith(`${r.prefix}/`))
     .sort((a, b) => b.prefix.length - a.prefix.length)[0];

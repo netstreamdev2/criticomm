@@ -1,4 +1,5 @@
 import type { Ionicons } from '@expo/vector-icons';
+import type { Silo } from '@criticom/db/types';
 
 /**
  * The module registry — the responder app's shape, as data.
@@ -22,6 +23,8 @@ export type AppModule = {
   href: string;
   /** Feature flag that must be on; undefined = always available. */
   feature?: string;
+  /** Department the module belongs to; undefined = every silo sees it. */
+  silo?: Silo;
   /** Accent for the card rail; defaults to the theme accent. */
   tone?: 'accent' | 'primary' | 'low' | 'medium';
 };
@@ -66,6 +69,16 @@ export const MODULES: AppModule[] = [
     tone: 'low',
   },
   {
+    key: 'firearm',
+    title: 'Firearm Check',
+    blurb: 'The armoury checklist — issue, return or inspect, safety items first.',
+    icon: 'shield-checkmark-outline',
+    href: '/firearm-check',
+    feature: 'mobile.firearm_check',
+    silo: 'MetroPolice',
+    tone: 'medium',
+  },
+  {
     key: 'assistant',
     title: 'Criti',
     blurb: 'Ask about your calls, your crew, your shift — scoped to what you can already see.',
@@ -77,6 +90,11 @@ export const MODULES: AppModule[] = [
 ];
 
 /** Home shows what the tab bar cannot fit; the rest is one tap deeper. */
-export function homeModules(enabled: (key: string) => boolean): AppModule[] {
-  return MODULES.filter((m) => (m.feature ? enabled(m.feature) : true));
+export function homeModules(enabled: (key: string) => boolean, silo?: Silo): AppModule[] {
+  return MODULES.filter(
+    (m) =>
+      (m.feature ? enabled(m.feature) : true)
+      // Ethekwini is the global silo — its members see every department's modules.
+      && (m.silo && silo ? m.silo === silo || silo === 'Ethekwini' : true),
+  );
 }

@@ -52,7 +52,42 @@ export const FEATURES: FeatureDef[] = [
     description: 'Off: /reports/builder is hidden. Report Hub and the fixed reports remain.',
     defaultEnabled: true,
   },
+  {
+    key: 'web.command', surface: 'web', label: 'Command dashboard',
+    description: 'Off: the /command dashboard is hidden. Every module it launches remains reachable from the sidebar.',
+    defaultEnabled: true,
+  },
+  {
+    key: 'web.duty_maintenance', surface: 'web', label: 'Duty Maintenance',
+    description: 'Off: the DM- task board is hidden. Existing tasks keep their numbers and reappear when re-enabled.',
+    defaultEnabled: true,
+  },
+  {
+    key: 'web.time_attendance', surface: 'web', label: 'Time & Attendance',
+    description: 'Off: the clock register is hidden and clock in/out refuses. Duty state on rosters is unaffected.',
+    defaultEnabled: true,
+  },
+  {
+    key: 'web.enforcement', surface: 'web', label: 'Enforcement suite',
+    description: 'Off: fines, charges, transactions, warrants and summonses are hidden together — they share one paper trail.',
+    defaultEnabled: true,
+  },
+  {
+    key: 'web.mail', surface: 'web', label: 'Internal mail',
+    description: 'Off: the mail module is hidden. Alerts and notifications are separate systems and keep working.',
+    defaultEnabled: true,
+  },
+  {
+    key: 'web.sections', surface: 'web', label: 'Sections register',
+    description: 'Off: the sections admin page is hidden. Codes already stamped on rosters and tasks still display.',
+    defaultEnabled: true,
+  },
   // ── Responder app ───────────────────────────────────────────────────
+  {
+    key: 'mobile.firearm_check', surface: 'mobile', label: 'Firearm checklist',
+    description: 'Off: the armoury checklist module leaves the phone. Console viewing of past checklists remains.',
+    defaultEnabled: true,
+  },
   {
     key: 'mobile.panic', surface: 'mobile', label: 'Officer-down (SOS)',
     description: 'Off: the SOS button is removed from every screen. Only turn this off for a tenant that has its own duress system.',

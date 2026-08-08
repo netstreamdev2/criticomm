@@ -3,7 +3,8 @@ import {
   Mountain, FileText, Camera, Users, ClipboardCheck, BarChart3, Settings, ListChecks,
   CalendarClock, Bell, Briefcase, GraduationCap, Gauge, FolderClosed, Map, Bot,
   RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network, PlugZap, Activity,
-  ToggleRight, Building2,
+  ToggleRight, Building2, LayoutGrid, Wrench, Timer, Mail, Receipt, Scale, Landmark,
+  ScrollText, FileWarning, Grid3x3, Crosshair,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -27,6 +28,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Overview',
     items: [
       { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, keywords: 'home start overview' },
+      { href: '/command', label: 'Command', icon: LayoutGrid, keywords: 'controller modules launcher duty board approvals system modules' },
     ],
   },
   {
@@ -62,6 +64,12 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Departments',
     items: [
       { href: '/police', label: 'Police Operations', icon: ShieldAlert, keywords: 'metro reports firearms armoury security' },
+      { href: '/police/fines', label: 'Fines', icon: Receipt, keywords: 'enforcement traffic bylaw ticket offender fn' },
+      { href: '/police/charges', label: 'Charges', icon: Scale, keywords: 'enforcement criminal accused court ch' },
+      { href: '/police/transactions', label: 'Charge Transactions', icon: Landmark, keywords: 'enforcement bail payment court fee ledger money' },
+      { href: '/police/warrants', label: 'Warrants', icon: FileWarning, keywords: 'enforcement arrest search execute wa' },
+      { href: '/police/summons', label: 'Summons', icon: ScrollText, keywords: 'enforcement court serve recipient sm' },
+      { href: '/police/firearm-checks', label: 'Firearm Checks', icon: Crosshair, keywords: 'armoury checklist gun weapon inspection safety phone' },
       { href: '/fire', label: 'Fire & Rescue', icon: FlameKindling, keywords: 'hydrants pir firefighter' },
       { href: '/medical', label: 'EMS', icon: Stethoscope, keywords: 'medical pcr paramedic patient' },
       { href: '/disaster', label: 'Disaster Mgmt', icon: Mountain, keywords: 'flood relief mutual aid' },
@@ -77,6 +85,9 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/roster', label: 'Roster', icon: CalendarClock, keywords: 'duty shifts allocation endorsements schedule board' },
       { href: '/roster/duty-sheet', label: 'Duty Sheet', icon: IdCard, keywords: 'parade print dcp' },
       { href: '/leave', label: 'Leave', icon: Briefcase, keywords: 'time off absence balances calendar approvals' },
+      { href: '/duty-tasks', label: 'Duty Maintenance', icon: Wrench, keywords: 'dm tasks station inspection calibration restock due progress' },
+      { href: '/attendance', label: 'Time & Attendance', icon: Timer, keywords: 'clock in out punches register hours absence' },
+      { href: '/mail', label: 'Mail', icon: Mail, keywords: 'internal messages inbox compose operator' },
       { href: '/training', label: 'Training', icon: GraduationCap, keywords: 'certifications courses' },
       { href: '/performance', label: 'Performance', icon: BarChart3, keywords: 'appraisals kpis operational' },
       { href: '/performance/reports', label: 'Performance Reports', icon: Target, keywords: 'reports member department incident csv export' },
@@ -100,6 +111,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/config', label: 'Configuration', icon: SlidersHorizontal, keywords: 'categories leave shift types' },
       { href: '/admin/personnel', label: 'Personnel', icon: IdCard, keywords: 'staff register' },
       { href: '/admin/operators', label: 'Operators', icon: Users, keywords: 'control room call signs' },
+      { href: '/admin/sections', label: 'Sections', icon: Grid3x3, keywords: 'areas regions nr dr beachfront chatsworth codes duty board' },
       { href: '/admin/vehicles', label: 'Fleet', icon: RadioTower, keywords: 'apparatus vehicles' },
       { href: '/admin/devices', label: 'Devices', icon: Radio, keywords: 'mdt radios tablets' },
       { href: '/admin/integrations', label: 'Integrations', icon: PlugZap, keywords: 'api keys gemini bulksms realptt tomtom feeds connections' },
@@ -125,6 +137,9 @@ const SEGMENT_LABELS: Record<string, string> = {
   shift: 'Shift', 'mental-check': 'Readiness Check', 'vehicle-selection': 'Vehicle Selection',
   'vehicle-checklist': 'Vehicle Checklist', 'unit-compliance': 'Unit Compliance', reason: 'Not Passed',
   police: 'Police', fire: 'Fire & Rescue', medical: 'EMS', disaster: 'Disaster Mgmt',
+  command: 'Command', 'duty-tasks': 'Duty Maintenance', attendance: 'Time & Attendance',
+  mail: 'Mail', fines: 'Fines', charges: 'Charges', transactions: 'Charge Transactions',
+  warrants: 'Warrants', summons: 'Summons', 'firearm-checks': 'Firearm Checks', sections: 'Sections',
   firearms: 'Armoury', security: 'Security Reports', 'crime-hotspots': 'Crime Hotspots',
   hydrants: 'Hydrants', pir: 'Public Reports', publish: 'Publish', pcr: 'Patient Care Reports',
   restock: 'Restock', 'post-mortem': 'Post-Mortem', partners: 'Mutual Aid',
