@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { DashboardPeek } from '@/components/landing/dashboard-peek';
+import { HeroVisual } from '@/components/landing/hero-visual';
 import { Realtime } from '@/components/landing/realtime';
 import { Storyboard } from '@/components/landing/storyboard';
 
@@ -207,7 +208,10 @@ function Section({
   id, children, className = '',
 }: { id?: string; children: React.ReactNode; className?: string }) {
   return (
-    <section id={id} className={`mx-auto w-full max-w-6xl px-6 py-20 sm:px-8 lg:py-28 ${className}`}>
+    <section
+      id={id}
+      className={`lp-anchor mx-auto w-full max-w-6xl px-6 py-20 sm:px-8 lg:py-28 ${className}`}
+    >
       {children}
     </section>
   );
@@ -215,7 +219,7 @@ function Section({
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-[#05050f] text-white">
+    <main className="lp-page min-h-screen bg-[#05050f] text-white">
       {/* ── Header ───────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-30 border-b border-white/10 bg-[#05050f]/85 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6 sm:px-8">
@@ -252,46 +256,52 @@ export default function LandingPage() {
         <span className="auth-ping-dot text-[#22c55e]" style={{ top: '30%', right: '12%' }}><span className="auth-ping-core" /></span>
         <span className="auth-ping-dot text-[#f59e0b]" style={{ top: '74%', right: '20%' }}><span className="auth-ping-core" /></span>
 
-        <div className="auth-reveal relative z-10 mx-auto w-full max-w-6xl px-6 py-24 sm:px-8 lg:py-36">
-          <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/75 backdrop-blur">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#22c55e]" />
-            eThekwini Emergency Services
-          </p>
-          <h1 className="max-w-4xl text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-            Every emergency,{' '}
-            <span className="bg-gradient-to-r from-[#ff5a68] via-[#ff8a94] to-[#3b82f6] bg-clip-text text-transparent">
-              one command platform
-            </span>
-            .
-          </h1>
-          <p className="mt-7 max-w-2xl text-lg leading-relaxed text-white/70">
-            Criticomm unifies dispatch, field response and the record that follows — across Metro Police,
-            Fire &amp; Rescue, EMS and Disaster Management. One call taken. One number issued. One trail,
-            from the first ring to the closed case.
-          </p>
+        <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 px-6 py-24 sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:py-32">
+          <div>
+            <p className="lp-enter lp-d1 mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/75 backdrop-blur">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#22c55e]" />
+              eThekwini Emergency Services
+            </p>
+            <h1 className="lp-enter lp-d2 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+              Every emergency,{' '}
+              <span className="bg-gradient-to-r from-[#ff5a68] via-[#ff8a94] to-[#3b82f6] bg-clip-text text-transparent">
+                one command platform
+              </span>
+              .
+            </h1>
+            <p className="lp-enter lp-d3 mt-7 max-w-xl text-lg leading-relaxed text-white/70">
+              Criticomm unifies dispatch, field response and the record that follows — across Metro
+              Police, Fire &amp; Rescue, EMS and Disaster Management. One call taken. One number issued.
+              One trail, from the first ring to the closed case.
+            </p>
 
-          <div className="mt-10 flex flex-wrap items-center gap-3">
-            <Link
-              href="/login"
-              className="inline-flex h-12 items-center rounded-md bg-[#dc3545] px-7 text-base font-semibold text-white shadow-lg shadow-[#dc3545]/25 transition-colors hover:bg-[#c32b3a]"
-            >
-              Open the console
-            </Link>
-            <a
-              href="#flow"
-              className="inline-flex h-12 items-center rounded-md border border-white/20 bg-white/5 px-7 text-base font-semibold text-white backdrop-blur transition-colors hover:bg-white/10"
-            >
-              See how a call flows
-            </a>
+            <div className="lp-enter lp-d4 mt-10 flex flex-wrap items-center gap-3">
+              <Link
+                href="/login"
+                className="lp-ease inline-flex h-12 items-center rounded-md bg-[#dc3545] px-7 text-base font-semibold text-white shadow-lg shadow-[#dc3545]/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#c32b3a] hover:shadow-xl hover:shadow-[#dc3545]/30"
+              >
+                Open the console
+              </Link>
+              <a
+                href="#story"
+                className="lp-ease inline-flex h-12 items-center rounded-md border border-white/20 bg-white/5 px-7 text-base font-semibold text-white backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:border-white/35 hover:bg-white/10"
+              >
+                See how it saves minutes
+              </a>
+            </div>
+
+            <div className="lp-enter lp-d5 mt-12 flex flex-wrap gap-2">
+              {DEPARTMENTS.map((d) => (
+                <span key={d.label} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-white/80 backdrop-blur">
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.dot }} />
+                  {d.label}
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-12 flex flex-wrap gap-2">
-            {DEPARTMENTS.map((d) => (
-              <span key={d.label} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm text-white/80 backdrop-blur">
-                <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.dot }} />
-                {d.label}
-              </span>
-            ))}
+          <div className="lp-enter lp-d4">
+            <HeroVisual />
           </div>
         </div>
       </div>
@@ -299,7 +309,7 @@ export default function LandingPage() {
       {/* ── The problem ──────────────────────────────────────────────── */}
       <Section id="why">
         <Eyebrow>Why it exists</Eyebrow>
-        <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           A city&rsquo;s emergency response was running on four separate memories.
         </h2>
         <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
@@ -308,9 +318,9 @@ export default function LandingPage() {
           up until the moment something needs more than one department at once.
         </p>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-3">
+        <div className="lp-stagger mt-14 grid gap-5 md:grid-cols-3">
           {PROBLEMS.map((p) => (
-            <div key={p.title} className="rounded-xl border border-white/10 bg-white/[0.03] p-6">
+            <div key={p.title} className="lp-card p-6">
               <div className="mb-4 h-1 w-10 rounded-full bg-[#dc3545]" />
               <h3 className="text-lg font-bold">{p.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/60">{p.body}</p>
@@ -323,7 +333,7 @@ export default function LandingPage() {
       <div className="border-y border-white/10 bg-white/[0.02]">
         <Section>
           <Eyebrow hex="#3b82f6">The vision</Eyebrow>
-          <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
             One platform that holds the whole picture — and never loses a minute of it.
           </h2>
           <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
@@ -331,9 +341,9 @@ export default function LandingPage() {
             put together the way it is, and each of them costs something to keep.
           </p>
 
-          <div className="mt-14 grid gap-6 lg:grid-cols-3">
+          <div className="lp-stagger mt-14 grid gap-6 lg:grid-cols-3">
             {PILLARS.map((p, i) => (
-              <div key={p.kicker} className="relative rounded-xl border border-white/10 bg-[#05050f] p-7">
+              <div key={p.kicker} className="lp-card relative p-7">
                 <span
                   className="absolute left-0 top-7 h-12 w-[3px] rounded-r"
                   style={{ background: p.hex }}
@@ -353,7 +363,7 @@ export default function LandingPage() {
       {/* ── The life of a call ───────────────────────────────────────── */}
       <Section id="flow">
         <Eyebrow hex="#22c55e">How it works</Eyebrow>
-        <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           The life of a call.
         </h2>
         <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
@@ -361,11 +371,11 @@ export default function LandingPage() {
           green the case file. The automation engine watches every step and escalates any that stalls.
         </p>
 
-        <ol className="mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ol className="lp-stagger mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {LIFECYCLE.map((s) => (
             <li
               key={s.n}
-              className="flex items-start gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-5 transition-colors hover:bg-white/[0.06]"
+              className="lp-card flex items-start gap-4 p-5"
             >
               <span
                 className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
@@ -381,7 +391,7 @@ export default function LandingPage() {
           ))}
         </ol>
 
-        <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.03] p-6 sm:p-7">
+        <div className="lp-card lp-reveal mt-8 p-6 sm:p-7">
           <p className="text-sm leading-relaxed text-white/65">
             <span className="font-semibold text-white">What makes it one trail:</span> the number issued
             at step 3 is the only number that incident will ever have. Routing at step 4 adds departments
@@ -397,7 +407,7 @@ export default function LandingPage() {
       <div className="border-y border-white/10 bg-white/[0.02]">
         <Section id="story">
           <Eyebrow>How it saves lives</Eyebrow>
-          <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
             Where the minutes are won.
           </h2>
           <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
@@ -417,7 +427,7 @@ export default function LandingPage() {
       {/* ── Two surfaces + console peek ──────────────────────────────── */}
       <Section id="console">
         <Eyebrow hex="#f59e0b">A look inside</Eyebrow>
-        <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           A console for the room. An app for the vehicle.
         </h2>
         <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
@@ -429,8 +439,8 @@ export default function LandingPage() {
         <DashboardPeek />
 
         <div className="mt-6">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-xl border border-white/10 bg-[#05050f] p-8">
+          <div className="lp-stagger grid gap-6 lg:grid-cols-2">
+            <div className="lp-card p-8">
               <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-[#dc3545]/15 text-2xl">🖥️</div>
               <h3 className="text-2xl font-bold">The console</h3>
               <p className="mt-3 leading-relaxed text-white/60">
@@ -452,7 +462,7 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-[#05050f] p-8">
+            <div className="lp-card p-8">
               <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-[#3b82f6]/15 text-2xl">📱</div>
               <h3 className="text-2xl font-bold">The responder app</h3>
               <p className="mt-3 leading-relaxed text-white/60">
@@ -480,7 +490,7 @@ export default function LandingPage() {
       <div className="border-y border-white/10 bg-white/[0.02]">
         <Section id="realtime">
           <Eyebrow hex="#3b82f6">Realtime, actually</Eyebrow>
-          <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
             The screen is never out of date.
           </h2>
           <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
@@ -496,7 +506,7 @@ export default function LandingPage() {
       {/* ── Platform modules ─────────────────────────────────────────── */}
       <Section id="platform">
         <Eyebrow hex="#a855f7">The platform</Eyebrow>
-        <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           Everything the service runs on, in one place.
         </h2>
         <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
@@ -504,9 +514,9 @@ export default function LandingPage() {
           emergency service, on one login and one record.
         </p>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="lp-stagger mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {MODULE_GROUPS.map((g) => (
-            <div key={g.label} className="rounded-xl border border-white/10 bg-white/[0.03] p-6">
+            <div key={g.label} className="lp-card p-6">
               <p className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.16em]" style={{ color: g.hex }}>
                 <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: g.hex }} />
                 {g.label}
@@ -523,11 +533,11 @@ export default function LandingPage() {
       <div className="border-y border-white/10 bg-white/[0.02]">
         <Section>
           <Eyebrow hex="#22c55e">Built for how the work happens</Eyebrow>
-          <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
             The hard parts, handled properly.
           </h2>
 
-          <div className="mt-14 grid gap-x-10 gap-y-9 md:grid-cols-2">
+          <div className="lp-stagger mt-14 grid gap-x-10 gap-y-9 md:grid-cols-2">
             {CAPABILITIES.map((c) => (
               <div key={c.title}>
                 <h3 className="flex items-center gap-3 text-lg font-bold">
@@ -544,13 +554,13 @@ export default function LandingPage() {
       {/* ── Outcomes ─────────────────────────────────────────────────── */}
       <Section id="outcomes">
         <Eyebrow>The outcome</Eyebrow>
-        <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           What changes when it is all one system.
         </h2>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="lp-stagger mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {OUTCOMES.map((o) => (
-            <div key={o.title} className="rounded-xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-6">
+            <div key={o.title} className="lp-card p-6">
               <h3 className="text-base font-bold">{o.title}</h3>
               <p className="mt-2.5 text-sm leading-relaxed text-white/60">{o.body}</p>
             </div>
@@ -565,7 +575,7 @@ export default function LandingPage() {
         <div className="auth-aurora" style={{ width: 460, height: 460, bottom: -200, right: '10%', background: 'radial-gradient(circle, rgba(59,130,246,0.38), transparent 65%)', animationDelay: '-9s' }} />
 
         <Section className="relative z-10 text-center">
-          <h2 className="mx-auto max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+          <h2 className="lp-reveal mx-auto max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
             Built for eThekwini. Ready for the next city.
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/70">

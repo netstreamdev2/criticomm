@@ -107,7 +107,7 @@ export function Storyboard() {
         ))}
       </div>
 
-      <ol className="relative space-y-4">
+      <ol className="lp-stagger relative space-y-4">
         {/* The spine. Hidden on small screens, where the cards stack instead. */}
         <span aria-hidden className="absolute left-[92px] top-3 hidden h-[calc(100%-2rem)] w-px bg-gradient-to-b from-[#dc3545] via-[#3b82f6] to-[#22c55e] lg:block" />
 
@@ -123,7 +123,7 @@ export function Storyboard() {
               />
             </div>
 
-            <div className="rounded-xl border border-white/10 bg-white/[0.03] p-6 transition-colors hover:bg-white/[0.055]">
+            <div className="lp-card p-6">
               <div className="flex flex-wrap items-center gap-3">
                 <h3 className="text-lg font-bold">{b.title}</h3>
                 <span
@@ -146,7 +146,7 @@ export function Storyboard() {
         ))}
       </ol>
 
-      <p className="mt-10 rounded-xl border border-white/10 bg-white/[0.03] p-6 text-sm leading-relaxed text-white/65">
+      <p className="lp-card lp-reveal mt-10 p-6 text-sm leading-relaxed text-white/65">
         <span className="font-semibold text-white">Forty-nine minutes, one file.</span>{' '}
         No part of this depends on anyone remembering to write something down, and no part of it stops
         working when the signal does. That is the entire argument: in an emergency service the minutes

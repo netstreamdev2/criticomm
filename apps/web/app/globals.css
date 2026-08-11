@@ -313,6 +313,94 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
   animation: auth-sheen 6s ease-in-out infinite; animation-delay: 1.5s;
 }
 
+/* ── Landing page: motion system ────────────────────────────────
+   Three rules hold the whole page together:
+
+   1. Nothing moves without a reason. Entrances orient you; the looping
+      demonstrations show a behaviour that would otherwise be a claim.
+   2. One easing curve and one distance. Everything decelerates on the same
+      cubic-bezier and travels the same short distance, so a page full of
+      independent animations still reads as one hand.
+   3. Content is visible by default. Every reveal is opt-in behind @supports,
+      so a browser without scroll-driven animations shows a complete page
+      rather than a blank one. */
+
+.lp-ease { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Anchor targets must clear the sticky header, or a jump-link lands with its
+   own heading hidden behind the bar. */
+.lp-anchor { scroll-margin-top: 5.5rem; }
+
+html:has(.lp-page) { scroll-behavior: smooth; }
+
+/* Entrance used above the fold, where there is no scroll to drive it. */
+@keyframes lp-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+.lp-enter { animation: lp-enter 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.lp-d1 { animation-delay: 0.06s; }
+.lp-d2 { animation-delay: 0.14s; }
+.lp-d3 { animation-delay: 0.22s; }
+.lp-d4 { animation-delay: 0.30s; }
+.lp-d5 { animation-delay: 0.38s; }
+.lp-d6 { animation-delay: 0.46s; }
+
+/* Scroll-driven reveals. Progressive enhancement: without support for
+   animation-timeline the declarations never apply and nothing is hidden. */
+@keyframes lp-reveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .lp-reveal {
+      animation: lp-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 4% entry 58%;
+    }
+    /* Children of a stagger group resolve slightly later than the one before,
+       which reads as a cascade as the group scrolls in. */
+    .lp-stagger > * {
+      animation: lp-reveal linear both;
+      animation-timeline: view();
+    }
+    .lp-stagger > *:nth-child(1) { animation-range: entry 2%  entry 50%; }
+    .lp-stagger > *:nth-child(2) { animation-range: entry 7%  entry 55%; }
+    .lp-stagger > *:nth-child(3) { animation-range: entry 12% entry 60%; }
+    .lp-stagger > *:nth-child(4) { animation-range: entry 17% entry 65%; }
+    .lp-stagger > *:nth-child(5) { animation-range: entry 21% entry 69%; }
+    .lp-stagger > *:nth-child(6) { animation-range: entry 25% entry 73%; }
+    .lp-stagger > *:nth-child(n + 7) { animation-range: entry 29% entry 77%; }
+  }
+}
+
+/* The one card treatment on the page. A hairline, a top inner highlight so the
+   edge catches light, and a lift on hover that is felt more than seen. */
+.lp-card {
+  border: 1px solid rgb(255 255 255 / 0.09);
+  border-radius: 0.75rem;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.055), rgb(255 255 255 / 0.018));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.lp-card:hover {
+  transform: translateY(-3px);
+  border-color: rgb(255 255 255 / 0.17);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.09),
+    0 20px 44px -24px rgb(0 0 0 / 0.9);
+}
+
+/* A hairline that fades out at both ends — a divider without a hard stop. */
+.lp-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.13), transparent);
+}
+
 /* ── Landing page: live demonstrations ──────────────────────────
    The landing page shows what "realtime" means rather than asserting it, so
    these run continuously. All of it is CSS — the page ships no client
@@ -374,13 +462,76 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
 @keyframes lp-tick { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
 .lp-tick { animation: lp-tick 2.4s ease-in-out infinite; }
 
+/* ── Hero: one call reaching four services ──────────────────────
+   The hero visual animates the platform's central claim, so the motion has
+   to mean something: the call lands, routes outward to each service, and
+   crews come back toward it. */
+
+/* The call itself, at the centre. */
+@keyframes lp-core {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.14); opacity: 0.88; }
+}
+.lp-core { animation: lp-core 2.8s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+
+/* Rings leaving the centre — the call being heard. */
+@keyframes lp-ripple {
+  from { r: 14; opacity: 0.5; }
+  to   { r: 96; opacity: 0; }
+}
+.lp-ripple { animation: lp-ripple 4s ease-out infinite; }
+
+/* A pulse of light travelling out along a routing line. `--len` is the path
+   length, so one keyframe serves lines of different lengths. */
+@keyframes lp-flow { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+.lp-flow {
+  stroke-dasharray: 16 999;
+  animation: lp-flow 3.2s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+
+/* Each service lighting up as the routing reaches it. */
+@keyframes lp-node {
+  0%, 22%   { opacity: 0.32; transform: scale(0.9); }
+  38%, 72%  { opacity: 1; transform: scale(1); }
+  92%, 100% { opacity: 0.32; transform: scale(0.9); }
+}
+.lp-node { animation: lp-node 3.2s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+
+/* A crew moving back down the line toward the incident. */
+@keyframes lp-inbound {
+  0%, 40%   { offset-distance: 100%; opacity: 0; }
+  52%       { opacity: 1; }
+  95%, 100% { offset-distance: 0%; opacity: 0; }
+}
+.lp-inbound { animation: lp-inbound 3.2s cubic-bezier(0.4, 0, 0.3, 1) infinite; }
+
+/* Traffic drifting along the map's arterials — the city is awake. */
+@keyframes lp-traffic { from { stroke-dashoffset: 120; } to { stroke-dashoffset: 0; } }
+.lp-traffic { stroke-dasharray: 5 13; animation: lp-traffic 5.5s linear infinite; }
+
+/* A unit driving its road. offset-path pins the marker to the road geometry
+   itself, so it stays on the road at every viewport size; offset-rotate is
+   pinned to 0 because the default (auto) would tip the call-sign label over
+   as the road curves. */
+@keyframes lp-patrol { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+.lp-patrol { offset-rotate: 0deg; animation: lp-patrol 16s linear infinite alternate; }
+.lp-inbound { offset-rotate: 0deg; }
+
 @media (prefers-reduced-motion: reduce) {
   .auth-aurora, .auth-grid, .auth-ping-dot::before, .auth-ping-dot::after,
   .auth-reveal, .auth-sheen::after { animation: none; }
   .lp-track, .lp-sweep, .lp-clock, .lp-notify, .lp-alarm,
-  .lp-swap-out, .lp-swap-in, .lp-tick { animation: none; }
-  /* The clock is mid-drain when stopped; give it a settled width. */
+  .lp-swap-out, .lp-swap-in, .lp-tick, .lp-enter, .lp-reveal,
+  .lp-core, .lp-ripple, .lp-flow, .lp-node, .lp-inbound,
+  .lp-traffic, .lp-patrol { animation: none; }
+  .lp-stagger > * { animation: none; }
+  /* Settled states, so nothing is left mid-gesture or invisible. */
   .lp-clock { width: 38%; background-color: #f59e0b; }
+  .lp-ripple, .lp-inbound { opacity: 0; }
+  .lp-node { opacity: 1; }
+  .lp-flow { stroke-dasharray: none; }
+  .lp-traffic { stroke-dasharray: 5 13; }
+  .lp-card:hover { transform: none; }
   /* Without the cross-fade both states would stack; keep the later one. */
   .lp-swap-out { opacity: 0; }
   .lp-swap-in  { opacity: 1; }

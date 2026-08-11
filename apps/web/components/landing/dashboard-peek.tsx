@@ -51,7 +51,7 @@ function Stat({ label, value, sub, tone }: { label: string; value: string; sub: 
 
 export function DashboardPeek() {
   return (
-    <div className="mt-14 grid gap-6 lg:grid-cols-[1.55fr_1fr]">
+    <div className="lp-reveal mt-14 grid gap-6 lg:grid-cols-[1.55fr_1fr]">
       {/* ── Console ─────────────────────────────────────────────────── */}
       <div className="overflow-hidden rounded-xl border border-white/12 bg-[#080816] shadow-2xl shadow-black/50">
         {/* window chrome */}

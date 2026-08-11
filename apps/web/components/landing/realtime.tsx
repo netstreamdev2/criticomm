@@ -7,16 +7,7 @@
  * — the panels stay legible, they simply stop moving.
  */
 
-/**
- * One tracked unit on the map: start point, end point, colour, label.
- * Positions are percentages of the panel so the map scales to any width; the
- * right-hand extents stay under ~70% to leave room for the call-sign label.
- */
-const UNITS = [
-  { id: 'EMS-12', hex: '#22c55e', x0: '5%', y0: '55%', x1: '48%', y1: '33%', delay: '0s' },
-  { id: 'MP-04', hex: '#f59e0b', x0: '62%', y0: '17%', x1: '30%', y1: '64%', delay: '-4s' },
-  { id: 'FR-07', hex: '#dc3545', x0: '70%', y0: '73%', x1: '54%', y1: '25%', delay: '-7s' },
-];
+import { CityMap } from '@/components/landing/city-map';
 
 function Panel({
   title, body, children, wide = false,
@@ -24,7 +15,7 @@ function Panel({
   title: string; body: string; children: React.ReactNode; wide?: boolean;
 }) {
   return (
-    <div className={`overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] ${wide ? 'lg:col-span-2' : ''}`}>
+    <div className={`lp-card overflow-hidden ${wide ? 'lg:col-span-2' : ''}`}>
       <div className="border-b border-white/10 bg-[#080816] p-5">{children}</div>
       <div className="p-5">
         <h3 className="font-bold">{title}</h3>
@@ -36,64 +27,14 @@ function Panel({
 
 export function Realtime() {
   return (
-    <div className="mt-14 grid gap-5 lg:grid-cols-2">
+    <div className="lp-stagger mt-14 grid gap-5 lg:grid-cols-2">
       {/* ── Live map ──────────────────────────────────────────────── */}
       <Panel
         wide
         title="Every unit, live on one map"
         body="Crews report their position as they move, so the control room is looking at where everyone actually is — not where they said they were going twenty minutes ago. The nearest unit to the next call is a fact on the screen rather than a guess over the radio."
       >
-        <div className="relative h-[176px] overflow-hidden rounded-lg bg-[#050512]">
-          {/* streets */}
-          {/* biome-ignore lint/a11y/noSvgWithoutTitle: decorative street lines behind
-              the demo; aria-hidden is correct here — the panel's heading and body
-              already describe it, and a title would only add noise to a screen reader. */}
-          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 400 176" aria-hidden focusable="false" preserveAspectRatio="none">
-            <g stroke="#ffffff14" strokeWidth="1">
-              <path d="M0 44 H400 M0 96 H400 M0 140 H400" />
-              <path d="M70 0 V176 M170 0 V176 M270 0 V176 M350 0 V176" />
-            </g>
-            <path d="M0 20 C120 40 240 10 400 34" stroke="#3b82f633" strokeWidth="6" fill="none" />
-            <path d="M0 158 C140 132 260 168 400 146" stroke="#3b82f622" strokeWidth="8" fill="none" />
-          </svg>
-
-          {/* radar sweep at the control room */}
-          <span aria-hidden className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2">
-            <span className="lp-sweep block h-full w-full rounded-full"
-              style={{ background: 'conic-gradient(from 0deg, transparent 0deg, rgba(59,130,246,0.16) 40deg, transparent 80deg)' }} />
-          </span>
-
-          {/* the incident */}
-          <span className="auth-ping-dot text-[#ef4444]" style={{ top: '33%', left: '48%' }}>
-            <span className="auth-ping-core" />
-          </span>
-
-          {/* tracked units. left/top are also set statically so that when the
-              animation is disabled the markers sit at their start positions
-              rather than collapsing into the corner. */}
-          {UNITS.map((u) => (
-            <span
-              key={u.id}
-              className="lp-track absolute flex items-center gap-1.5"
-              style={{
-                ['--x0' as string]: u.x0, ['--y0' as string]: u.y0,
-                ['--x1' as string]: u.x1, ['--y1' as string]: u.y1,
-                left: u.x0, top: u.y0,
-                animationDelay: u.delay,
-              }}
-            >
-              <span className="h-2.5 w-2.5 rounded-full ring-2 ring-[#050512]"
-                style={{ background: u.hex, boxShadow: `0 0 10px ${u.hex}` }} />
-              <span className="rounded bg-black/60 px-1.5 py-0.5 font-mono text-[9px] font-bold" style={{ color: u.hex }}>
-                {u.id}
-              </span>
-            </span>
-          ))}
-
-          <span className="absolute bottom-2.5 left-3 rounded bg-black/50 px-2 py-1 text-[9px] font-semibold uppercase tracking-wider text-white/45">
-            3 units · 1 active incident
-          </span>
-        </div>
+        <CityMap />
       </Panel>
 
       {/* ── Response clock ────────────────────────────────────────── */}
