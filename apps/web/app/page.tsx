@@ -709,8 +709,9 @@ export default function LandingPage() {
 
           <div className="mt-6 flex flex-col gap-3 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
             <p>
-              &copy; 2026 <span className="text-white/55">Kruz Naidoo</span>. All rights reserved.
-              Proprietary software — no use, copying or modification without written authorization.
+              &copy; 2026 <span className="text-white/55">Netstream Integrated Solutions</span>. All rights
+              reserved. Proprietary software — no use, copying or modification without written
+              authorization.
             </p>
             <p className="flex shrink-0 items-center gap-2">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#22c55e]" />
