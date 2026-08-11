@@ -313,9 +313,77 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
   animation: auth-sheen 6s ease-in-out infinite; animation-delay: 1.5s;
 }
 
+/* ── Landing page: live demonstrations ──────────────────────────
+   The landing page shows what "realtime" means rather than asserting it, so
+   these run continuously. All of it is CSS — the page ships no client
+   JavaScript and prerenders static — and all of it stops under
+   prefers-reduced-motion, where a looping animation beside safety-critical
+   copy is worse than no animation at all. */
+
+/* A unit tracking across the map. One keyframe serves every marker; each
+   supplies its own start/end through custom properties.
+   Positions are percentages driven through left/top rather than a translate:
+   a percentage in `translate` resolves against the marker's own box, not the
+   map, so a pixel-based transform would push markers off the edge of a narrow
+   panel. Three markers animating layout is a cost worth paying for a map that
+   is correct at every width. */
+@keyframes lp-track {
+  from { left: var(--x0); top: var(--y0); }
+  to   { left: var(--x1); top: var(--y1); }
+}
+.lp-track { animation: lp-track 11s ease-in-out infinite alternate; }
+
+/* Control-room radar sweep. */
+@keyframes lp-sweep { to { transform: rotate(360deg); } }
+.lp-sweep { animation: lp-sweep 7s linear infinite; transform-origin: center; }
+
+/* A response clock running down, and the breach that follows.
+   Both halves must live in ONE `animation` declaration: `animation` is a
+   single property, so two classes each setting it do not compose — the later
+   rule wins outright and the other keyframe silently never runs. */
+@keyframes lp-drain { from { width: 100%; } to { width: 4%; } }
+@keyframes lp-breach {
+  0%, 62%   { background-color: #22c55e; }
+  63%, 82%  { background-color: #f59e0b; }
+  83%, 100% { background-color: #ef4444; }
+}
+.lp-clock { animation: lp-drain 9s linear infinite, lp-breach 9s linear infinite; }
+
+/* Something arriving: a push notification, an alert, an assignment. */
+@keyframes lp-notify {
+  0%, 8%    { opacity: 0; transform: translateY(12px) scale(0.96); }
+  18%, 72%  { opacity: 1; transform: translateY(0) scale(1); }
+  86%, 100% { opacity: 0; transform: translateY(-8px) scale(0.99); }
+}
+.lp-notify { animation: lp-notify 6s ease-in-out infinite; }
+
+/* Officer-down: the interrupt that outranks the screen you were on. */
+@keyframes lp-alarm {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  50%      { box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
+}
+.lp-alarm { animation: lp-alarm 1.8s ease-out infinite; }
+
+/* One status, two consoles, no refresh: the pair cross-fades in place. */
+@keyframes lp-swap-out { 0%, 42% { opacity: 1; } 52%, 100% { opacity: 0; } }
+@keyframes lp-swap-in  { 0%, 42% { opacity: 0; } 52%, 100% { opacity: 1; } }
+.lp-swap-out { animation: lp-swap-out 5s ease-in-out infinite; }
+.lp-swap-in  { animation: lp-swap-in  5s ease-in-out infinite; }
+
+/* The automation engine's heartbeat. */
+@keyframes lp-tick { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+.lp-tick { animation: lp-tick 2.4s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   .auth-aurora, .auth-grid, .auth-ping-dot::before, .auth-ping-dot::after,
   .auth-reveal, .auth-sheen::after { animation: none; }
+  .lp-track, .lp-sweep, .lp-clock, .lp-notify, .lp-alarm,
+  .lp-swap-out, .lp-swap-in, .lp-tick { animation: none; }
+  /* The clock is mid-drain when stopped; give it a settled width. */
+  .lp-clock { width: 38%; background-color: #f59e0b; }
+  /* Without the cross-fade both states would stack; keep the later one. */
+  .lp-swap-out { opacity: 0; }
+  .lp-swap-in  { opacity: 1; }
   * { transition-duration: 0.01ms !important; }
 }
 

@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { DashboardPeek } from '@/components/landing/dashboard-peek';
+import { Realtime } from '@/components/landing/realtime';
+import { Storyboard } from '@/components/landing/storyboard';
 
 /**
  * The public landing page — the only page on this deployment that anyone can
@@ -221,10 +224,11 @@ export default function LandingPage() {
             <img src="/criticomm-logo.png" alt="Criticomm" className="h-8 w-auto" />
           </div>
           <nav className="flex items-center gap-1 sm:gap-4">
-            <a href="#why" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white sm:block">Why</a>
+            <a href="#why" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white lg:block">Why</a>
             <a href="#flow" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white sm:block">How it works</a>
-            <a href="#platform" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white sm:block">Platform</a>
-            <a href="#outcomes" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white lg:block">Outcomes</a>
+            <a href="#story" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white sm:block">Storyboard</a>
+            <a href="#realtime" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white lg:block">Realtime</a>
+            <a href="#platform" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white lg:block">Platform</a>
             <Link
               href="/login"
               className="inline-flex h-10 items-center rounded-md bg-[#dc3545] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#c32b3a]"
@@ -389,15 +393,43 @@ export default function LandingPage() {
         </div>
       </Section>
 
-      {/* ── Two surfaces ─────────────────────────────────────────────── */}
+      {/* ── Storyboard ───────────────────────────────────────────────── */}
       <div className="border-y border-white/10 bg-white/[0.02]">
-        <Section>
-          <Eyebrow hex="#f59e0b">Two surfaces</Eyebrow>
+        <Section id="story">
+          <Eyebrow>How it saves lives</Eyebrow>
           <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            A console for the room. An app for the vehicle.
+            Where the minutes are won.
           </h2>
+          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+            Nobody is saved by software. People are saved by a crew arriving sooner, with the right
+            equipment, knowing what they are driving into — and by the crew that stayed free because
+            nobody sent three of them to the same crash. Here is one incident, beat by beat, and what
+            the platform is doing at each one.
+          </p>
+          <p className="mt-4 text-sm text-white/40">
+            A composed scenario for illustration — the capabilities are real, the incident is not.
+          </p>
 
-          <div className="mt-14 grid gap-6 lg:grid-cols-2">
+          <Storyboard />
+        </Section>
+      </div>
+
+      {/* ── Two surfaces + console peek ──────────────────────────────── */}
+      <Section id="console">
+        <Eyebrow hex="#f59e0b">A look inside</Eyebrow>
+        <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          A console for the room. An app for the vehicle.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          The command dashboard puts the operational day on one screen — strength on duty, coverage,
+          approvals waiting and calls running past their target. The app carries the same incident into
+          the vehicle.
+        </p>
+
+        <DashboardPeek />
+
+        <div className="mt-6">
+          <div className="grid gap-6 lg:grid-cols-2">
             <div className="rounded-xl border border-white/10 bg-[#05050f] p-8">
               <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-[#dc3545]/15 text-2xl">🖥️</div>
               <h3 className="text-2xl font-bold">The console</h3>
@@ -441,6 +473,23 @@ export default function LandingPage() {
               </ul>
             </div>
           </div>
+        </div>
+      </Section>
+
+      {/* ── Realtime ─────────────────────────────────────────────────── */}
+      <div className="border-y border-white/10 bg-white/[0.02]">
+        <Section id="realtime">
+          <Eyebrow hex="#3b82f6">Realtime, actually</Eyebrow>
+          <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+            The screen is never out of date.
+          </h2>
+          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+            Not polled every thirty seconds, and not refreshed by hand. Positions, statuses, alerts and
+            response clocks arrive as they change — which is the only version of &ldquo;live&rdquo; that
+            is any use when a decision is being made right now. Everything below is running.
+          </p>
+
+          <Realtime />
         </Section>
       </div>
 
