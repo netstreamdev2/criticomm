@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { BrandMark } from '@/components/landing/brand-mark';
 import { DashboardPeek } from '@/components/landing/dashboard-peek';
 import { HeroVisual } from '@/components/landing/hero-visual';
 import { Realtime } from '@/components/landing/realtime';
@@ -27,6 +28,19 @@ const DEPARTMENTS = [
   { label: 'Fire & Rescue', dot: '#dc3545' },
   { label: 'EMS', dot: '#22c55e' },
   { label: 'Disaster Management', dot: '#3b82f6' },
+];
+
+/**
+ * Header navigation. The two links that carry the story survive to the
+ * smallest screen that shows any; the rest appear as there is room. Breakpoint
+ * classes are written out in full so Tailwind's scanner can see them.
+ */
+const NAV_LINKS = [
+  { href: '#why', label: 'Why', breakpoint: 'md:block' },
+  { href: '#flow', label: 'How it works', breakpoint: 'sm:block' },
+  { href: '#story', label: 'Storyboard', breakpoint: 'sm:block' },
+  { href: '#realtime', label: 'Realtime', breakpoint: 'lg:block' },
+  { href: '#platform', label: 'Platform', breakpoint: 'lg:block' },
 ];
 
 /** The eleven steps every call passes through, in the order they happen. */
@@ -221,26 +235,34 @@ export default function LandingPage() {
   return (
     <main className="lp-page min-h-screen bg-[#05050f] text-white">
       {/* ── Header ───────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#05050f]/85 backdrop-blur">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6 sm:px-8">
-          <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/criticomm-logo.png" alt="Criticomm" className="h-8 w-auto" />
-          </div>
-          <nav className="flex items-center gap-1 sm:gap-4">
-            <a href="#why" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white lg:block">Why</a>
-            <a href="#flow" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white sm:block">How it works</a>
-            <a href="#story" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white sm:block">Storyboard</a>
-            <a href="#realtime" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white lg:block">Realtime</a>
-            <a href="#platform" className="hidden rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:text-white lg:block">Platform</a>
+      <header className="lp-header sticky top-0 z-30 backdrop-blur-md">
+        <div className="mx-auto flex h-[72px] w-full max-w-6xl items-center justify-between gap-4 px-6 sm:px-8">
+          <BrandMark tagline />
+
+          <nav className="flex items-center gap-0.5 sm:gap-1">
+            {NAV_LINKS.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className={`lp-navlink hidden rounded-md px-3 py-2 text-sm text-white/65 transition-colors duration-300 hover:text-white ${l.breakpoint}`}
+              >
+                {l.label}
+              </a>
+            ))}
             <Link
               href="/login"
-              className="inline-flex h-10 items-center rounded-md bg-[#dc3545] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#c32b3a]"
+              className="lp-ease ml-2 inline-flex h-10 items-center rounded-lg bg-[#dc3545] px-5 text-sm font-semibold text-white shadow-lg shadow-[#dc3545]/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#c32b3a] hover:shadow-xl hover:shadow-[#dc3545]/30"
             >
               Sign in
             </Link>
           </nav>
         </div>
+
+        {/* A hairline of brand colour under the bar — the one flourish. */}
+        <div
+          aria-hidden
+          className="h-px w-full bg-gradient-to-r from-transparent via-[#dc3545]/40 to-transparent"
+        />
       </header>
 
       {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -596,39 +618,101 @@ export default function LandingPage() {
       </div>
 
       {/* ── Footer ───────────────────────────────────────────────────── */}
-      <footer className="border-t border-white/10 bg-[#05050f]">
-        <div className="mx-auto w-full max-w-6xl px-6 py-12 sm:px-8">
-          <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+      <footer className="relative overflow-hidden border-t border-white/10 bg-[#04040c]">
+        {/* A last breath of brand colour where the page ends. */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#dc3545]/45 to-transparent"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[680px] -translate-x-1/2 rounded-full"
+          style={{ background: 'radial-gradient(circle, rgba(220,53,69,0.11), transparent 70%)' }}
+        />
+
+        <div className="relative mx-auto w-full max-w-6xl px-6 py-16 sm:px-8">
+          <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+            {/* Brand */}
             <div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/criticomm-logo.png" alt="Criticomm" className="h-9 w-auto" />
-              <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/50">
-                Emergency command platform for dispatch, field response and the record that follows.
+              <BrandMark size="lg" href={null} />
+              <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/50">
+                Emergency command platform for dispatch, field response, and the record that follows —
+                built for eThekwini, ready for the next city.
               </p>
+              <div className="mt-6 flex flex-wrap gap-1.5">
+                {DEPARTMENTS.map((d) => (
+                  <span
+                    key={d.label}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-white/55"
+                  >
+                    <span className="h-1 w-1 rounded-full" style={{ background: d.dot }} />
+                    {d.label}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-x-12 gap-y-6 text-sm">
-              <div>
-                <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-white/40">Platform</p>
-                <ul className="space-y-2 text-white/60">
-                  <li><a href="#why" className="transition-colors hover:text-white">Why it exists</a></li>
-                  <li><a href="#flow" className="transition-colors hover:text-white">How it works</a></li>
-                  <li><a href="#platform" className="transition-colors hover:text-white">Modules</a></li>
-                  <li><a href="#outcomes" className="transition-colors hover:text-white">Outcomes</a></li>
+
+            {/* Link columns */}
+            {[
+              {
+                heading: 'The story',
+                links: [
+                  { href: '#why', label: 'Why it exists' },
+                  { href: '#flow', label: 'How it works' },
+                  { href: '#story', label: 'Storyboard' },
+                  { href: '#outcomes', label: 'Outcomes' },
+                ],
+              },
+              {
+                heading: 'The platform',
+                links: [
+                  { href: '#console', label: 'Console & app' },
+                  { href: '#realtime', label: 'Realtime' },
+                  { href: '#platform', label: 'Modules' },
+                ],
+              },
+            ].map((col) => (
+              <div key={col.heading}>
+                <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-white/35">
+                  {col.heading}
+                </p>
+                <ul className="space-y-2.5 text-sm">
+                  {col.links.map((l) => (
+                    <li key={l.href}>
+                      <a href={l.href} className="text-white/60 transition-colors duration-300 hover:text-white">
+                        {l.label}
+                      </a>
+                    </li>
+                  ))}
                 </ul>
               </div>
-              <div>
-                <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-white/40">Access</p>
-                <ul className="space-y-2 text-white/60">
-                  <li><Link href="/login" className="transition-colors hover:text-white">Sign in</Link></li>
-                  <li className="text-white/40">Authorised personnel only</li>
-                </ul>
-              </div>
+            ))}
+
+            {/* Access */}
+            <div>
+              <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-white/35">Access</p>
+              <Link
+                href="/login"
+                className="lp-ease inline-flex h-10 items-center rounded-lg border border-white/20 bg-white/5 px-5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-white/35 hover:bg-white/10"
+              >
+                Sign in
+              </Link>
+              <p className="mt-4 text-xs leading-relaxed text-white/40">
+                Authorised personnel only.
+                <br />
+                Every action is attributed and audited.
+              </p>
             </div>
           </div>
 
-          <div className="mt-10 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
-            <p>&copy; 2026 Kruz Naidoo. All rights reserved. Proprietary software.</p>
-            <p className="flex items-center gap-2">
+          <div className="lp-rule mt-14" />
+
+          <div className="mt-6 flex flex-col gap-3 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              &copy; 2026 <span className="text-white/55">Kruz Naidoo</span>. All rights reserved.
+              Proprietary software — no use, copying or modification without written authorization.
+            </p>
+            <p className="flex shrink-0 items-center gap-2">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#22c55e]" />
               All access is audited
             </p>
