@@ -1,283 +1,6 @@
 <div class="volume">
-  <div class="bignum">VIII</div>
-  <div class="kick">Volume VIII</div>
-  <h1>Running It</h1>
-  <div class="bar"></div>
-  <p>Security, deployment, recovery and what to do at three in the morning.</p>
-  <div class="chaps"><div><b>40</b> &nbsp;Security</div><div><b>41</b> &nbsp;Deploying</div><div><b>42</b> &nbsp;Backup and recovery</div><div><b>43</b> &nbsp;First response</div><div><b>44</b> &nbsp;Engineering standards</div></div>
-</div>
-
-<div class="part" id="c40">
-  <div class="part-head"><div class="cnum">Chapter 40</div><h1>Security</h1></div>
-
-  <h2>40.1 The model</h2>
-  <table class="zebra">
-    <thead><tr><th style="width:32mm">Layer</th><th>Control</th></tr></thead>
-    <tbody>
-      <tr><td><b>Transport</b></td><td>HTTPS throughout; HSTS with a two-year max-age and preload.</td></tr>
-      <tr><td><b>Session</b></td><td>Supabase Auth. Role and silo in JWT app metadata, which the client cannot alter.</td></tr>
-      <tr><td><b>Route</b></td><td>Middleware evaluates the route matrix; unauthorized → <code>/403</code>.</td></tr>
-      <tr><td><b>Row</b></td><td>RLS on every table. Deny by default, then explicit policies.</td></tr>
-      <tr><td><b>Function</b></td><td><code>require_role()</code> opens every privileged mutator; <code>EXECUTE</code> revoked from <code>anon</code>.</td></tr>
-      <tr><td><b>Rate</b></td><td>Per-user limits on routes that cost money or third-party quota.</td></tr>
-      <tr><td><b>Audit</b></td><td><code>audit_logs</code> on every mutation with actor, department and detail.</td></tr>
-    </tbody>
-  </table>
-
-  <h2>40.2 Headers</h2>
-  <table class="zebra">
-    <thead><tr><th style="width:50mm">Header</th><th>Value / note</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">Content-Security-Policy</td><td>Self by default; Supabase REST and websockets, map tile hosts and the key-free geocoding upstreams allow-listed. <code>frame-ancestors 'none'</code>.</td></tr>
-      <tr><td class="mono">Strict-Transport-Security</td><td><code>max-age=63072000; includeSubDomains; preload</code></td></tr>
-      <tr><td class="mono">X-Frame-Options</td><td><code>DENY</code></td></tr>
-      <tr><td class="mono">X-Content-Type-Options</td><td><code>nosniff</code></td></tr>
-      <tr><td class="mono">Referrer-Policy</td><td><code>strict-origin-when-cross-origin</code></td></tr>
-      <tr><td class="mono">Permissions-Policy</td><td>Camera, microphone, geolocation to self — the console uses all three. Everything else denied.</td></tr>
-      <tr><td class="mono">Cache-Control</td><td><code>no-store</code> on every API response.</td></tr>
-    </tbody>
-  </table>
-  <div class="note">
-    <b>Known loosening</b>
-    <code>script-src</code> permits <code>'unsafe-inline'</code> and <code>'unsafe-eval'</code> for Next's
-    inline bootstrap; <code>style-src</code> permits <code>'unsafe-inline'</code> for Tailwind's runtime theme
-    variables and per-department colours. Tightening needs per-request nonces — separate work.
-  </div>
-
-  <h2>40.3 Rate limiting</h2>
-  <table class="zebra">
-    <thead><tr><th style="width:28mm">Bucket</th><th style="width:24mm">Limit</th><th>Rationale</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">chat</td><td>40 / min</td><td>A person types perhaps 6 a minute; a render loop types 600.</td></tr>
-      <tr><td class="mono">geocode</td><td>120 / min</td><td>Fires per keystroke-batch on the address field.</td></tr>
-      <tr><td class="mono">external</td><td>90 / min</td><td>Metered upstreams; panels poll on a timer.</td></tr>
-      <tr><td class="mono">pdf</td><td>20 / min</td><td>Embedding photographs is the most expensive request served.</td></tr>
-      <tr><td class="mono">ptt</td><td>60 / min</td><td>Radio traffic is bursty.</td></tr>
-      <tr><td class="mono">cctv</td><td>60 / min</td><td>Each grant is audit-logged; a flood pollutes the trail.</td></tr>
-    </tbody>
-  </table>
-  <p>
-    Counted in Postgres because the console deploys serverless — an in-memory counter is per-instance, and
-    ten concurrent functions would mean ten times the limit. Identity comes from <code>auth.uid()</code>
-    inside the database function, so a handler cannot get it wrong and a caller cannot spend somebody
-    else's budget.
-  </p>
-  <div class="why">
-    <b>It fails open</b>
-    If the limiter errors, the request proceeds. A rate limiter that takes down dispatch when the database
-    hiccups causes more harm than the runaway loop it guards against.
-  </div>
-  <p>
-    <b>If an operator hits a 429 in normal work, the limit is wrong, not the operator.</b> Raise it in
-    <code>apps/web/lib/rate-limit.ts</code> and deploy. To clear one person's counter:
-  </p>
-  <pre><code>delete from rate_limit_buckets where key like 'chat:%&lt;user-uuid&gt;';</code></pre>
-
-  <h2>40.4 Outstanding items</h2>
-  <div class="warn">
-    <b>Open, and to be closed before or at handover</b>
-    <ul style="margin-top:2mm">
-      <li><b>Legacy credentials.</b> The superseded system's BulkSMS token pair and Gemini key are in that repository's source history, including a hardcoded token in its notifications controller. They must be <b>revoked at the provider</b> — rotating them here does not help, because the old values remain in that repository’s history.</li>
-      <li><b>Setup-time exposure.</b> The Supabase service-role key and database password were pasted into a chat transcript during provisioning and should be rotated.</li>
-      <li><b>CSP nonces.</b> Removing <code>'unsafe-inline'</code> and <code>'unsafe-eval'</code>.</li>
-      <li><b>Accessibility.</b> 19 tracked warnings, mostly labels not programmatically associated with inputs on the call-taking screen — a screen reader announces those fields with no name.</li>
-    </ul>
-  </div>
-</div>
-
-<div class="part" id="c41">
-  <div class="part-head"><div class="cnum">Chapter 41</div><h1>Deploying</h1></div>
-
-  <h2>41.1 Console</h2>
-  <p>
-    Push to <code>main</code>; CI must be green; Vercel builds the same commit. Environment changes need a
-    <b>redeploy</b>, not a restart — <code>NEXT_PUBLIC_*</code> values are compiled into the bundle.
-  </p>
-
-  <h2>41.2 Database</h2>
-  <pre><code>set -a && . ./.env && set +a
-node scripts/apply-migration.mjs supabase/migrations/00NN_your_migration.sql</code></pre>
-  <ul>
-    <li>Migrations are append-only and numbered. Never edit an applied one — write the next.</li>
-    <li>Each file runs in a transaction, so a failure rolls the whole file back.</li>
-    <li>Apply <b>before</b> the deployment that depends on them: the app tolerates a schema newer than the code far better than the reverse.</li>
-  </ul>
-  <div class="note">
-    <b>PostgREST resolves RPCs by argument name</b>
-    Adding a parameter with a default to an existing function creates a <i>second</i> overload, and a call
-    matching both resolves to neither. Drop the old arity in the same migration.
-  </div>
-
-  <h2>41.3 Responder app</h2>
-  <pre><code>eas build  --profile production --platform android   # native binary
-eas build  --profile preview    --platform android   # internal APK, no push
-eas update --branch  production --message "what changed"   # JavaScript only</code></pre>
-
-  <div class="warn">
-    <b>The OTA trap — read before publishing an update</b>
-    An over-the-air update ships <b>JavaScript only</b>. If the new JavaScript imports a native module the
-    installed binary does not contain, every handset crashes at launch. The defence is
-    <code>runtimeVersion</code>, which follows the app version: <b>bump the version whenever you add a
-    native module</b>, and older binaries become ineligible for the update instead of being handed
-    something that cannot boot. Adding five native modules is exactly why the app moved to 1.1.0.
-  </div>
-
-  <h3>The Android FCM contract</h3>
-  <p>
-    A production Android build <b>refuses to build</b> without <code>google-services.json</code>, rather than
-    producing an app that cannot receive a dispatch. Supply it as an EAS secret:
-  </p>
-  <pre><code>eas secret:create --scope project --name GOOGLE_SERVICES_JSON \
-  --type file --value ./google-services.json</code></pre>
-  <p>
-    The <code>preview</code> profile carries <code>CRITICOM_ALLOW_NO_PUSH=1</code> for internal builds without
-    push. Those are fine for testing and <b>should not go out on shift</b> — alerts arrive only while the
-    app is open.
-  </p>
-</div>
-
-<div class="part" id="c42">
-  <div class="part-head"><div class="cnum">Chapter 42</div><h1>Backup and Recovery</h1></div>
-
-  <p>
-    Supabase takes automatic daily backups; point-in-time recovery depends on the plan.
-    <b>Verify which you have before you need it.</b>
-  </p>
-  <pre><code>pg_dump "$SUPABASE_DB_URL" --no-owner --no-acl -Fc -f criticom-$(date +%F).dump</code></pre>
-  <p>Restore into a <i>new</i> project first and check it, then cut over. Restoring over a live database while crews are working turns one incident into two.</p>
-
-  <table class="zebra">
-    <thead><tr><th style="width:44mm">Not covered by a database restore</th><th>Consequence</th></tr></thead>
-    <tbody>
-      <tr><td><b>Storage buckets</b><br><code>incident-media</code>, <code>avatars</code>, <code>department-logos</code></td><td>Evidence photographs live here. A restore that ignores storage silently loses the attachments a case file references.</td></tr>
-      <tr><td><b>Accounts created since the snapshot</b></td><td>Re-create with <code>pnpm db:create-admin</code>.</td></tr>
-      <tr><td><b>Push tokens</b></td><td>Harmless — phones re-register on next launch.</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="part" id="c43">
-  <div class="part-head"><div class="cnum">Chapter 43</div><h1>First Response</h1></div>
-
-  <div class="warn">
-    <b>Before anything else</b>
-    Every procedure here is slower than the radio. If the platform is degraded and crews are waiting, put
-    the control room on radio and paper, then fix the platform.
-  </div>
-
-  <h2>43.1 Triage order</h2>
-  <table class="zebra">
-    <thead><tr><th style="width:7mm">#</th><th style="width:44mm">Check</th><th>Interpretation</th></tr></thead>
-    <tbody>
-      <tr><td>1</td><td><b>Admin → System Status</b></td><td>Each check states what it means. Start here.</td></tr>
-      <tr><td>2</td><td><code>/api/health/config</code></td><td>Which environment variables the running build can see. Missing means absent at <i>build</i> time — redeploy.</td></tr>
-      <tr><td>3</td><td><code>psql "$SUPABASE_DB_URL" -c 'select now()'</code></td><td>If this fails, everything else is downstream.</td></tr>
-      <tr><td>4</td><td>Sign in as a known account</td><td>Sign-in failing while the database answers points at Auth, not data.</td></tr>
-      <tr><td>5</td><td>Alerts in the last 15 minutes</td><td>Zero on a busy shift means realtime or the automation engine.</td></tr>
-    </tbody>
-  </table>
-
-  <h2>43.2 Common situations</h2>
-  <table class="zebra">
-    <thead><tr><th style="width:50mm">Situation</th><th>Response</th></tr></thead>
-    <tbody>
-      <tr><td><b>A phone is not receiving dispatches</b></td><td>Profile → Dispatch alerts states which of five cases applies (33.1). Realtime still delivers while the app is open in all of them.</td></tr>
-      <tr><td><b>"My update did not go through"</b></td><td>The sync tray lists everything undelivered with its error. Queued work is held against that person's account and sends when they next have signal while signed in.</td></tr>
-      <tr><td><b>A panic fired by accident</b></td><td>Close the incident with a note. It is deliberately impossible to un-send.</td></tr>
-      <tr><td><b>Alert storm from a rule</b></td><td>Disable the rule from Admin → Automations, then inspect <code>automation_events</code> — repeat alerting means its claim key is wrong. Widening a threshold is the fast mitigation.</td></tr>
-      <tr><td><b>Automations not running</b></td><td>See 37.4. Drive <code>run_automations()</code> from any external scheduler while cron is fixed.</td></tr>
-      <tr><td><b>Storage filling up</b></td><td>Scene photographs dominate. Nothing deletes them automatically, deliberately — they are evidence. Removing any is a records-retention decision.</td></tr>
-      <tr><td><b>Incident numbers look odd</b></td><td>Format is <code>INC-YYYYMMDD-NNNN</code>, sequential per department per day. Numbers before migration 0024 used a random suffix and are not sequential — history, not a fault.</td></tr>
-    </tbody>
-  </table>
-
-  <h2>43.3 Useful queries</h2>
-  <pre><code>-- Live officer emergencies
-select incident_number, silo, responding_officer, location_address, incident_created_at
-  from incidents
- where source = 'Responder-Panic' and status not in ('Closed','Resolved');
-
--- Calls waiting for a department right now
-select incident_number, silo, incident_severity,
-       round(extract(epoch from (now() - call_timestamp)) / 60) as minutes_waiting
-  from incidents
- where status in ('New','Pending','Pending Dispatch','Pending Analysis')
- order by call_timestamp;
-
--- Automation health
-select key, enabled, last_status, last_run_at, last_detail
-  from automation_rules order by key;
-
--- Recent sign-ins
-select user_name, silo, timestamp from audit_logs
- where action_type = 'Logon' order by timestamp desc limit 20;</code></pre>
-</div>
-
-<div class="part" id="c44">
-  <div class="part-head"><div class="cnum">Chapter 44</div><h1>Engineering Standards</h1></div>
-
-  <h2>44.1 CI</h2>
-  <table class="zebra">
-    <thead><tr><th style="width:50mm">Step</th><th>Catches</th></tr></thead>
-    <tbody>
-      <tr><td><code>pnpm lint</code></td><td>Defect-class lint rules.</td></tr>
-      <tr><td><code>pnpm typecheck</code></td><td>Four projects: db, api, web, mobile.</td></tr>
-      <tr><td><code>pnpm test</code></td><td>47 tests across three packages.</td></tr>
-      <tr><td><code>pnpm build</code></td><td>The production console build.</td></tr>
-      <tr><td>Migrations from empty</td><td>All 28 applied in order to a throwaway PostGIS database.</td></tr>
-    </tbody>
-  </table>
-  <div class="why">
-    <b>Why the migration job matters</b>
-    A migration is the one artefact with no undo, and the sequence from nothing is what a new environment
-    and a restore both execute. A migration that only works against the current production database has
-    not been tested.
-  </div>
-
-  <h2>44.2 Testing</h2>
-  <p>
-    <code>node --test</code> with <code>--experimental-strip-types</code>. No framework, no transpile,
-    no config — Node 22 runs the TypeScript directly. Imports use explicit <code>.ts</code> extensions.
-  </p>
-  <table class="zebra">
-    <thead><tr><th style="width:44mm">Suite</th><th>Pins</th></tr></thead>
-    <tbody>
-      <tr><td class="mono">roles.test.ts</td><td>The route matrix, including the two-desk split.</td></tr>
-      <tr><td class="mono">reporting/query.test.ts</td><td>That the report builder drops unknown columns, unsupported operators and invalid enum values.</td></tr>
-      <tr><td class="mono">automations.test.ts</td><td>That a zero threshold can never be stored.</td></tr>
-      <tr><td class="mono">outbox-policy.test.ts</td><td>Queue ordering, collapsing, retry classification, ownership.</td></tr>
-    </tbody>
-  </table>
-  <div class="note">
-    <b>A pattern worth copying</b>
-    When safety-relevant logic is tangled with an untestable runtime, split the pure decisions into their
-    own module and test that. <code>outbox-policy.ts</code> exists for this; <code>outbox.ts</code> re-exports
-    it so no call site changed. Writing those tests immediately found a real defect — retry attempts were
-    accruing while offline, so a crew in a tunnel would have a scene photograph marked failed.
-  </div>
-
-  <h2>44.3 Linting</h2>
-  <p>
-    <code>pnpm lint</code> runs <b><code>biome lint</code></b>, not <code>biome check</code>. The formatter
-    disagrees with this codebase's consistent hand-formatting; running it produces a 150-file diff that
-    changes no behaviour and buries every real finding. Rules the house style diverges from are off, each
-    reviewed against its actual violations and recorded with count and reason in
-    <code>docs/07-ENGINEERING-STANDARDS.md</code>.
-  </p>
-
-  <h2>44.4 Conventions</h2>
-  <ul>
-    <li>Server-action forms with uncontrolled fields.</li>
-    <li>Queries live in <code>packages/api/src/&lt;module&gt;</code>; pages never build queries inline.</li>
-    <li><code>logAudit</code> on every mutation.</li>
-    <li>Prefer <code>SECURITY INVOKER</code> and let RLS scope; reach for <code>DEFINER</code> only where atomicity or cross-department writes demand it, and guard it.</li>
-    <li>Comments explain <b>why</b>, not what.</li>
-  </ul>
-</div>
-
-<div class="volume">
-  <div class="bignum">IX</div>
-  <div class="kick">Volume IX</div>
+  <div class="bignum">X</div>
+  <div class="kick">Volume X</div>
   <h1>Reference</h1>
   <div class="bar"></div>
   <p>Indexes for looking things up: every action and its fields, routes, endpoints, tables, procedures, migrations, environment variables and terms.</p>
@@ -287,7 +10,7 @@ select user_name, silo, timestamp from audit_logs
 <div class="part" id="cA">
   <div class="part-head"><div class="cnum">Appendix A</div><h1>Action Index</h1></div>
 
-  <p class="lede">All 67 server actions with the fields each expects. This is the definitive list of what a user can change, and it is generated from the code.</p>
+  <p class="lede">All 89 server actions with the fields each expects. This is the definitive list of what a user can change, and it is generated from the code.</p>
 
   <table class="zebra">
     <thead><tr><th style="width:44mm">Action</th><th style="width:26mm">Screen</th><th>Fields</th></tr></thead>
@@ -359,6 +82,28 @@ select user_name, silo, timestamp from audit_logs
       <tr><td class="mono">deleteReportAction</td><td class="mono">/reports/builder</td><td class="mono">id</td></tr>
       <tr><td class="mono">updateProfileAction</td><td class="mono">/profile</td><td class="mono">profile fields</td></tr>
       <tr><td class="mono">generateCallSignAction</td><td class="mono">/profile</td><td class="mono">first_name, last_name</td></tr>
+      <tr><td class="mono">createDutyTaskAction</td><td class="mono">/duty-tasks</td><td class="mono">title, details, silo, assigned_user_id, assigned_name, unit_ref, section_code, due_date</td></tr>
+      <tr><td class="mono">updateDutyTaskAction</td><td class="mono">/duty-tasks</td><td class="mono">id, status, progress</td></tr>
+      <tr><td class="mono">clockAction</td><td class="mono">/attendance</td><td class="mono">kind, note</td></tr>
+      <tr><td class="mono">sendMailAction</td><td class="mono">/mail</td><td class="mono">to_user, to_name, subject, body</td></tr>
+      <tr><td class="mono">markReadAction</td><td class="mono">/mail</td><td class="mono">id</td></tr>
+      <tr><td class="mono">issueFineAction</td><td class="mono">/police/fines</td><td class="mono">offender_name, offender_id_number, vehicle_reg, offence_code, offence_description, amount, location, due_date, notes</td></tr>
+      <tr><td class="mono">setFineStatusAction</td><td class="mono">/police/fines</td><td class="mono">id, status</td></tr>
+      <tr><td class="mono">openChargeAction</td><td class="mono">/police/charges</td><td class="mono">accused_name, accused_id_number, charge_code, description, statute, severity, court_name, court_date, case_ref, notes</td></tr>
+      <tr><td class="mono">setChargeStatusAction</td><td class="mono">/police/charges/[id]</td><td class="mono">id, status, court_name, court_date</td></tr>
+      <tr><td class="mono">recordTransactionAction</td><td class="mono">/police/transactions</td><td class="mono">charge_id, fine_id, tx_type, amount, method, reference, note</td></tr>
+      <tr><td class="mono">issueWarrantAction</td><td class="mono">/police/warrants</td><td class="mono">subject_name, subject_id_number, warrant_type, issued_by_court, expiry_date, address, notes</td></tr>
+      <tr><td class="mono">setWarrantStatusAction</td><td class="mono">/police/warrants</td><td class="mono">id, status</td></tr>
+      <tr><td class="mono">issueSummonsAction</td><td class="mono">/police/summons</td><td class="mono">recipient_name, recipient_id_number, offence, court_name, court_date, address, notes</td></tr>
+      <tr><td class="mono">setSummonsStatusAction</td><td class="mono">/police/summons</td><td class="mono">id, status</td></tr>
+      <tr><td class="mono">createSectionAction</td><td class="mono">/admin/sections</td><td class="mono">silo, code, name, region</td></tr>
+      <tr><td class="mono">setSectionActiveAction</td><td class="mono">/admin/sections</td><td class="mono">id, active</td></tr>
+      <tr><td class="mono">toggleFeatureAction</td><td class="mono">/admin/features</td><td class="mono">key, enabled</td></tr>
+      <tr><td class="mono">setModuleAccessAction</td><td class="mono">/admin/access</td><td class="mono">tenant_id, href, role, deny</td></tr>
+      <tr><td class="mono">createTenantAction</td><td class="mono">/admin/tenants</td><td class="mono">slug, name</td></tr>
+      <tr><td class="mono">setTenantActiveAction</td><td class="mono">/admin/tenants</td><td class="mono">id, active</td></tr>
+      <tr><td class="mono">deleteTenantAction</td><td class="mono">/admin/tenants</td><td class="mono">id, confirm_slug</td></tr>
+      <tr><td class="mono">assignUserTenantAction</td><td class="mono">/admin/tenants</td><td class="mono">email, tenant_id</td></tr>
     </tbody>
   </table>
 </div>
@@ -429,6 +174,9 @@ select user_name, silo, timestamp from audit_logs
       <tr><td><b>Performance</b></td><td class="mono">performance_kpis, performance_plans, performance_scores</td></tr>
       <tr><td><b>Alerting</b></td><td class="mono">alerts, alert_reads, notifications, push_tokens</td></tr>
       <tr><td><b>Configuration</b></td><td class="mono">command_records, app_settings, integration_settings, department_branding, report_definitions</td></tr>
+      <tr><td><b>Command</b></td><td class="mono">sections, duty_tasks, attendance_events, mail_messages, doc_counters</td></tr>
+      <tr><td><b>Enforcement</b></td><td class="mono">fines, charges, charge_transactions, warrants, summonses, firearm_checklists</td></tr>
+      <tr><td><b>Tenancy</b></td><td class="mono">tenants, feature_flags, access_rules</td></tr>
       <tr><td><b>Platform</b></td><td class="mono">audit_logs, automation_rules, automation_runs, automation_events, rate_limit_buckets</td></tr>
     </tbody>
   </table>
@@ -456,6 +204,8 @@ select user_name, silo, timestamp from audit_logs
       <tr><td class="mono">rate_limit_hit()</td><td>Definer</td><td>Per-user request counting.</td></tr>
       <tr><td class="mono">run_automations()</td><td>Definer</td><td>Scheduler entry point.</td></tr>
       <tr><td class="mono">citizen_update_location()</td><td>Definer</td><td>Public token-authenticated GPS post.</td></tr>
+      <tr><td class="mono">next_doc_number()</td><td>Definer</td><td>Per-tenant FN/CH/WA/SM/DM numbering; never resets.</td></tr>
+      <tr><td class="mono">current_tenant()</td><td>Definer</td><td>Resolves the caller's organisation. DEFINER is load-bearing — as invoker it recurses through its own policy.</td></tr>
       <tr><td class="mono">require_role()</td><td>Definer</td><td>The guard opening every privileged mutator.</td></tr>
     </tbody>
   </table>
@@ -492,6 +242,13 @@ select user_name, silo, timestamp from audit_logs
       <tr><td>0026</td><td class="mono">automation_schedule</td><td>The <code>pg_cron</code> job.</td></tr>
       <tr><td>0027</td><td class="mono">global_search</td><td>Trigram search across six tables.</td></tr>
       <tr><td>0028</td><td class="mono">rate_limits</td><td>Per-user request counters.</td></tr>
+      <tr><td>0029</td><td class="mono">tenants_features</td><td>Organisations, current_tenant(), feature switches.</td></tr>
+      <tr><td>0030</td><td class="mono">tenant_isolation</td><td>tenant_id plus one restrictive policy on every table.</td></tr>
+      <tr><td>0031</td><td class="mono">tenant_functions</td><td>Privileged functions regenerated with tenant guards.</td></tr>
+      <tr><td>0032</td><td class="mono">system_controller_role</td><td>The SystemController enum value, alone in its own transaction.</td></tr>
+      <tr><td>0033</td><td class="mono">command_modules</td><td>Sections, duty tasks, attendance, enforcement suite, mail, firearm checklists, doc_counters.</td></tr>
+      <tr><td>0034</td><td class="mono">controller_access</td><td>Older by-name policies widened to the controller seat.</td></tr>
+      <tr><td>0035</td><td class="mono">access_rules</td><td>Per-tenant, per-role deny-only module overlay.</td></tr>
     </tbody>
   </table>
 </div>

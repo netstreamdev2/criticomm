@@ -207,7 +207,7 @@ itself; the automation engine runs inside it rather than as a separate service t
 
   <h2>3.2 The roles</h2>
   <p>
-    The <code>user_role</code> enum has 25 values; <b>23 are assignable to people</b> from Admin → Users.
+    The <code>user_role</code> enum has 26 values; <b>24 are assignable to people</b> from Admin → Users.
     <code>System</code> is an internal service identity, and <code>Citizen</code> exists only for the public
     location-share flow, where a member of the public posts GPS against a single-use token and never
     holds an account.
@@ -216,6 +216,8 @@ itself; the automation engine runs inside it rather than as a separate service t
     <thead><tr><th style="width:44mm">Group</th><th>Members</th></tr></thead>
     <tbody>
       <tr><td><code>ADMIN_ROLES</code></td><td>SystemAdmin, SuperAdmin, Admin</td></tr>
+      <tr><td><code>ADMIN_CONSOLE_ROLES</code></td><td>Admin tier + SystemController — the operational admin consoles, not account or platform writes</td></tr>
+      <tr><td><code>GLOBAL_ROLES</code></td><td>SystemAdmin, SuperAdmin, Dispatcher, Operator, ControlRoom, IncidentLogger, Viewer, System, SystemController</td></tr>
       <tr><td><code>SUPERVISORY_ROLES</code></td><td>Admin tier + Supervisor, Captain, Chief, FireChief, System</td></tr>
       <tr><td><code>CALL_TAKER_ROLES</code></td><td>Admin tier + Operator, ControlRoom, IncidentLogger, System</td></tr>
       <tr><td><code>DISPATCH_DESK_ROLES</code></td><td>Admin tier + Dispatcher, Operator, ControlRoom, Supervisor, System</td></tr>

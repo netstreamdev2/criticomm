@@ -1,0 +1,733 @@
+<div class="volume">
+  <div class="bignum">IX</div>
+  <div class="kick">Volume IX</div>
+  <h1>The Command Platform</h1>
+  <div class="bar"></div>
+  <p>The command desk and the modules it runs: the duty board's vocabulary, station tasks, the clock register, internal mail, the enforcement paper trail, and the armoury checklist. Then the two layers that decide what any of it looks like for a given organisation — tenancy, and the switches above it.</p>
+  <div class="chaps"><div><b>45</b> &nbsp;The System Controller</div><div><b>46</b> &nbsp;Sections</div><div><b>47</b> &nbsp;Duty Maintenance</div><div><b>48</b> &nbsp;Time and Attendance</div><div><b>49</b> &nbsp;Internal mail</div><div><b>50</b> &nbsp;The enforcement suite</div><div><b>51</b> &nbsp;Firearm checklists</div><div><b>52</b> &nbsp;Multi-tenancy</div><div><b>53</b> &nbsp;Feature switches and access control</div></div>
+</div>
+
+<!-- ══════════════════════════ 45 ══════════════════════════ -->
+<div class="part" id="c45">
+  <div class="part-head"><div class="cnum">Chapter 45</div><h1>The System Controller</h1></div>
+
+  <div class="role"><div class="h">
+    <h3>SystemController</h3>
+    <div class="who">The command-and-reporting seat. Watches every department at once, runs the operational modules, and answers for the shape of the day — without holding the keys to accounts, tenants or the platform's own switches.</div>
+  </div></div>
+
+  <p class="lede">This role was added with the command platform. It exists because there was a gap between a Supervisor — who runs one department's people — and the admin tier, whose powers include creating accounts and reshaping the platform itself. A controller needs the first without the second.</p>
+
+  <h2>45.1 Reach</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:46mm">Screen</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">/command</td><td><b>Your primary screen.</b> The operational day on one page.</td></tr>
+      <tr><td class="mono">/dispatch/* · /incidents/*</td><td>Every department's calls, live.</td></tr>
+      <tr><td class="mono">/duty-tasks</td><td>Station tasks — create, assign, chase.</td></tr>
+      <tr><td class="mono">/attendance</td><td>The clock register for the whole silo.</td></tr>
+      <tr><td class="mono">/mail</td><td>Internal messages.</td></tr>
+      <tr><td class="mono">/police/fines · charges · transactions · warrants · summons</td><td>The enforcement paper trail.</td></tr>
+      <tr><td class="mono">/police/firearm-checks</td><td>Armoury checklists from the field, read-only.</td></tr>
+      <tr><td class="mono">/roster · /roster/allocation · /leave</td><td>Duty board and leave decisions.</td></tr>
+      <tr><td class="mono">/admin/personnel · operators · sections · vehicles · devices</td><td>The registers the modules draw on.</td></tr>
+      <tr><td class="mono">/admin/automations · operations · integrations · status · departments · config</td><td>Operational administration.</td></tr>
+      <tr><td class="mono">/analytics · /performance · /report-hub · /reports/builder</td><td>Reporting across every department.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>What a controller cannot reach</b>
+    <code>/admin</code> account writes (creating users, changing roles), <code>/admin/tenants</code>,
+    <code>/admin/features</code> and <code>/admin/access</code>. Those are the platform tier, not the
+    command desk. A controller who needs a new account or a module switched on asks a SuperAdmin —
+    and that request leaves a trail on both sides, which is the point.
+  </div>
+
+  <h2>45.2 Shift routine</h2>
+  <ol>
+    <li>Sign in and open <b>Command</b>. Read the three tiles first: strength on duty, leave awaiting a decision, and calls past their response target.</li>
+    <li>Clear the leave queue. Anything marked urgent starts within seven days and blocks somebody's planning.</li>
+    <li>Read the allocation panel shift block by shift block. <i>Pending</i> against a name means the member has not acknowledged; <i>Absent</i> means they were expected and are not there.</li>
+    <li>Check the coverage bar against the establishment. A number well under strength is the day's first problem, not the afternoon's.</li>
+    <li>Work the duty-maintenance card — anything overdue is chased now.</li>
+    <li>Through the day, keep the command screen open. It is the only screen that shows every department at once.</li>
+    <li>Before handover, confirm nothing is left breaching, no leave decision is outstanding, and any task you could not close has a note on it.</li>
+  </ol>
+
+  <h2>45.3 Tasks</h2>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Read the command dashboard</div>
+      <div class="m"><b>Screen</b> /command &nbsp;·&nbsp; <b>Who</b> Supervisory tier, SystemController &nbsp;·&nbsp; <b>Reads</b> profiles, rosters, leave_entries, duty_tasks</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Responders on duty</b> counts profiles currently flagged on duty against total personnel in your scope.</li>
+        <li><b>Leave for approval</b> splits pending from urgent, where urgent means the leave starts within seven days.</li>
+        <li><b>Duty allocation</b> groups today's roster into shift blocks. Each member carries a state: <i>Confirmed</i> (acknowledged), <i>On leave</i> (approved leave overlapping today), <i>Absent</i> (marked absent on the roster), or <i>Pending</i> (allocated, not yet acknowledged).</li>
+        <li><b>Allocation coverage</b> is allocated members over total personnel, as a percentage and a bar.</li>
+        <li><b>Duty maintenance</b> lists open tasks with their progress, and totals overdue / in progress / pending / done.</li>
+        <li><b>System modules</b> at the foot is the launcher. It shows only what your role may open and what your organisation has switched on, so a tile you cannot see is a tile you would not be allowed through anyway.</li>
+      </ol>
+      <div class="after">
+        <b>Scope</b> A controller and the global tier see every department; a supervisor sees their own.
+        The board defaults to Metro Police for a seat carried under the global Ethekwini silo, because
+        that is the busiest board — not because the others are hidden.
+      </div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Approve or reject leave from the command screen</div>
+      <div class="m"><b>Screen</b> /command &nbsp;·&nbsp; <b>Who</b> Admin tier, Supervisor, SystemController &nbsp;·&nbsp; <b>Writes</b> leave_entries, alerts, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Find the request in the <b>Leave approvals</b> card.</li>
+        <li>Check the dates against the allocation panel — approving somebody out of a shift that is already short is the decision this screen exists to inform.</li>
+        <li><b>Approve</b>, or <b>✕</b> to reject.</li>
+      </ol>
+      <div class="after">
+        <b>Afterwards</b> The entry's status changes with your name and the moment on it, the member
+        gets an alert (and a push to their phone), and an audit row is written. Identical in every
+        respect to deciding it from the Leave screen — same table, same trail.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ 46 ══════════════════════════ -->
+<div class="part" id="c46">
+  <div class="part-head"><div class="cnum">Chapter 46</div><h1>Sections</h1></div>
+
+  <p class="lede">A section is an operational area — the code that appears beside an officer's name on the duty board. They are configuration, not code: an organisation defines its own.</p>
+
+  <h2>46.1 The founding set</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:24mm">Code</th><th style="width:56mm">Name</th><th>Region</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">NR</td><td>North Region</td><td>North</td></tr>
+      <tr><td class="mono">W</td><td>Inner West</td><td>West</td></tr>
+      <tr><td class="mono">DR</td><td>Durban Central</td><td>Central</td></tr>
+      <tr><td class="mono">B</td><td>Beachfront</td><td>Central</td></tr>
+      <tr><td class="mono">CH</td><td>Chatsworth</td><td>South</td></tr>
+      <tr><td class="mono">OR</td><td>Operational Response Services</td><td>Metro-wide</td></tr>
+    </tbody>
+  </table>
+  <p>Seeded for Metro Police in the founding tenant. A new tenant starts with none and defines its own.</p>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Add a section</div>
+      <div class="m"><b>Screen</b> /admin/sections &nbsp;·&nbsp; <b>Who</b> Admin tier, SystemController &nbsp;·&nbsp; <b>Writes</b> sections, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Code</b> — one to six letters or digits, uppercase. Short, because it has to fit beside a name on a duty board.</li>
+        <li><b>Name</b> — what people actually call the area.</li>
+        <li><b>Region</b>, optionally.</li>
+        <li><b>Department</b> — the silo it belongs to.</li>
+        <li>Add.</li>
+      </ol>
+      <div class="after">
+        <b>Codes are permanent.</b> A code is stamped onto duty tasks and roster rows as text, so
+        renaming one afterwards would leave history pointing at a code that no longer means the same
+        thing. To take a section out of use, <b>retire</b> it — it stops being offered on new records
+        and stays readable on old ones.
+      </div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Retire or reactivate a section</div>
+      <div class="m"><b>Screen</b> /admin/sections &nbsp;·&nbsp; <b>Who</b> Admin tier, SystemController</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Find the section in the register.</li>
+        <li><b>Retire</b>, or <b>Reactivate</b> to bring it back.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> Retired sections disappear from the pickers on new records. Nothing already stamped with the code changes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ 47 ══════════════════════════ -->
+<div class="part" id="c47">
+  <div class="part-head"><div class="cnum">Chapter 47</div><h1>Duty Maintenance</h1></div>
+
+  <p class="lede">The standing work of a station that is not a call: vehicle inspections, CCTV checks, radio calibration, first-aid restocks. Numbered <code>DM-NNNN</code>, owned by a person, and due on a date.</p>
+
+  <div class="flow">
+    <div class="chip web"><div class="bar">/duty-tasks</div><div class="body">Supervisor schedules the task — title, owner, unit, section, due date.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">next_doc_number('DM')</div><div class="body">The task takes the next <b>DM-</b> number for this organisation.</div></div>
+    <div class="arr"></div>
+    <div class="chip sys"><div class="bar">ALERT</div><div class="body">The assignee is told at once — console alert and push.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">PROGRESS</div><div class="body">The owner advances it. Any progress above zero moves it to <b>In Progress</b>.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">COMPLETED</div><div class="body">Progress pins to 100 and the completion moment is stamped.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · From scheduled to closed, with the owner able to move it themselves</div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Schedule a duty task</div>
+      <div class="m"><b>Screen</b> /duty-tasks &nbsp;·&nbsp; <b>Who</b> Supervisory tier, SystemController &nbsp;·&nbsp; <b>Writes</b> duty_tasks, alerts, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Task</b> — what has to be done, phrased so the person doing it needs no further explanation.</li>
+        <li><b>Department</b>, if you run more than one board.</li>
+        <li><b>Assignee</b>. Leaving it unassigned is allowed and means nobody has been told.</li>
+        <li><b>Unit / apparatus</b> and <b>section</b>, where the task belongs to one.</li>
+        <li><b>Due date</b>.</li>
+        <li><b>Detail</b>, if the title cannot carry it.</li>
+        <li>Create task.</li>
+      </ol>
+      <div class="after">
+        <b>Afterwards</b> The task exists as <code>DM-NNNN</code> at <i>Pending</i>, 0% progress. An
+        assignee is alerted immediately, phone included. The task appears on the command dashboard's
+        maintenance card and counts toward its totals.
+      </div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Advance a duty task</div>
+      <div class="m"><b>Screen</b> /duty-tasks &nbsp;·&nbsp; <b>Who</b> Supervisory tier and SystemController for any task; the assignee for their own</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Find the task. Overdue rows carry the date in red.</li>
+        <li>Set <b>progress</b> in tens, and the <b>status</b>.</li>
+        <li>Save.</li>
+      </ol>
+      <div class="after">
+        <b>Rules the screen applies for you</b> Progress above zero with no status chosen moves the
+        task to <i>In Progress</i>. Choosing <i>Completed</i> pins progress to 100 and stamps the
+        moment — you cannot record a task as complete and half-done at the same time. Only a
+        supervisor may <i>Cancel</i>.
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Why an assignee may move their own task</b>
+    The alternative is a supervisor transcribing progress reported over a radio, which is slower and
+    less accurate than the person holding the spanner typing it. Row-level security allows exactly
+    this and nothing wider: an assignee may update the task assigned to them, and no other.
+  </div>
+</div>
+
+<!-- ══════════════════════════ 48 ══════════════════════════ -->
+<div class="part" id="c48">
+  <div class="part-head"><div class="cnum">Chapter 48</div><h1>Time and Attendance</h1></div>
+
+  <p class="lede">A clock register. Deliberately the simplest module on the platform, and deliberately the least editable.</p>
+
+  <div class="note">
+    <b>The register is append-only</b>
+    There is no policy that permits updating or deleting an attendance event — not for a supervisor,
+    not for an administrator. An attendance record that can be edited after the fact is not an
+    attendance record. Corrections are new punches, and they are visible as corrections.
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Clock in or out</div>
+      <div class="m"><b>Screen</b> /attendance &nbsp;·&nbsp; <b>Who</b> Anybody signed in &nbsp;·&nbsp; <b>Writes</b> attendance_events, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Time &amp; Attendance</b>. The chip beside the button tells you what the platform currently believes: on the clock since a time, or off.</li>
+        <li>Press <b>Clock in</b> or <b>Clock out</b>.</li>
+      </ol>
+      <div class="after">
+        <b>Double punches are refused</b> If your last event was a clock-in, another clock-in does
+        nothing. The guard sits in the action rather than the table, because the table is append-only
+        by design and cannot express "no two of these in a row".
+      </div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Read the register</div>
+      <div class="m"><b>Screen</b> /attendance &nbsp;·&nbsp; <b>Who</b> Own record: anybody. Whole silo: supervisory tier, SystemController, global tier</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Hours this week</b> pairs each person's ins with their outs and totals the spans. Somebody still on the clock accrues up to now, and is marked <i>On duty</i>.</li>
+        <li><b>Register</b> lists every punch, newest first, with its source — <i>console</i> or <i>mobile</i>.</li>
+      </ol>
+      <div class="after">
+        <b>An unmatched in</b> counts to the present moment rather than being discarded. Somebody who
+        forgot to clock out shows an implausible total, which is the correct outcome: it is visible,
+        and it is theirs to explain.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ 49 ══════════════════════════ -->
+<div class="part" id="c49">
+  <div class="part-head"><div class="cnum">Chapter 49</div><h1>Internal Mail</h1></div>
+
+  <p class="lede">Operator-to-operator messages that never leave the platform — which is exactly why they exist. A message here is inside row-level security and on the audit trail; the same message on e-mail is neither.</p>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Send a message</div>
+      <div class="m"><b>Screen</b> /mail &nbsp;·&nbsp; <b>Who</b> Anybody signed in &nbsp;·&nbsp; <b>Writes</b> mail_messages, alerts, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Pick the recipient, write a <b>subject</b> and a <b>message</b>.</li>
+        <li>Send.</li>
+      </ol>
+      <div class="after">
+        <b>Afterwards</b> The message appears in their inbox immediately, and they also receive a
+        low-priority alert — so it reaches a phone without pretending to be an emergency. You can see
+        when they read it.
+      </div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Read and mark a message</div>
+      <div class="m"><b>Screen</b> /mail &nbsp;·&nbsp; <b>Who</b> Sender and recipient only</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Unread messages carry an accent border in the <b>Inbox</b>.</li>
+        <li><b>Mark read</b> when you have dealt with it.</li>
+      </ol>
+      <div class="after">
+        <b>Who can see it</b> Only the two people on it. Not their supervisor, not an administrator,
+        not the global tier. Mail is the one module on the platform where the admin tier has no
+        elevated read — a message people believe is private has to actually be private, or they will
+        use something the platform cannot audit.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ 50 ══════════════════════════ -->
+<div class="part" id="c50">
+  <div class="part-head"><div class="cnum">Chapter 50</div><h1>The Enforcement Suite</h1></div>
+
+  <p class="lede">Metro Police paperwork: fines, charges, the money that moves against them, warrants and summonses. Five screens sharing one numbering scheme and one paper trail.</p>
+
+  <h2>50.1 Document numbers</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:22mm">Prefix</th><th style="width:44mm">Document</th><th>Screen</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">FN-</td><td>Fine</td><td class="mono">/police/fines</td></tr>
+      <tr><td class="mono">CH-</td><td>Charge</td><td class="mono">/police/charges</td></tr>
+      <tr><td class="mono">WA-</td><td>Warrant</td><td class="mono">/police/warrants</td></tr>
+      <tr><td class="mono">SM-</td><td>Summons</td><td class="mono">/police/summons</td></tr>
+      <tr><td class="mono">DM-</td><td>Duty task</td><td class="mono">/duty-tasks</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>These numbers never reset</b>
+    Incident numbers restart every day, because an incident is a thing that happened on a date. A
+    fine number is quoted in a courtroom months later, so it is sequential per organisation and runs
+    forever. Two organisations may each hold <code>FN-0001</code> and they are different documents;
+    within one organisation a number is issued once and never reissued.
+  </div>
+
+  <h2>50.2 Fines</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Issue a fine</div>
+      <div class="m"><b>Screen</b> /police/fines &nbsp;·&nbsp; <b>Who</b> Police roles, Supervisor, admin tier, SystemController &nbsp;·&nbsp; <b>Writes</b> fines, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Offender name</b> and <b>ID number</b>.</li>
+        <li><b>Vehicle registration</b> where the offence involves one — it is stored uppercase.</li>
+        <li><b>Offence code</b> and <b>description</b>.</li>
+        <li><b>Amount</b> and <b>due date</b>.</li>
+        <li><b>Location</b> and any <b>notes</b>.</li>
+        <li>Issue fine.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> The fine exists as <code>FN-NNNN</code> at <i>Unpaid</i>, stamped with your name and the moment, on the audit trail.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Record a payment against a fine</div>
+      <div class="m"><b>Screen</b> /police/fines &nbsp;·&nbsp; <b>Writes</b> charge_transactions, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Find the fine. The <b>Paid</b> column shows what the ledger already holds against it.</li>
+        <li>The payment box is pre-filled with the outstanding balance. Adjust it for a part payment.</li>
+        <li>Choose the <b>method</b> and record.</li>
+        <li>Set the fine's <b>status</b> to match — <i>Partially Paid</i> or <i>Paid</i>.</li>
+      </ol>
+      <div class="after">
+        <b>The ledger is the truth, the status is a label.</b> Payments accumulate as transactions;
+        the status field is set by a person. They are kept separate on purpose — an automatic status
+        would hide a mismatch between what was banked and what was recorded, which is the one thing a
+        financial trail must never do.
+      </div>
+    </div>
+  </div>
+
+  <h2>50.3 Charges</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Open a charge</div>
+      <div class="m"><b>Screen</b> /police/charges &nbsp;·&nbsp; <b>Writes</b> charges, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Accused name</b> and <b>ID number</b>.</li>
+        <li><b>Charge code</b>, <b>description</b>, <b>statute</b> and <b>severity</b> — Minor, Serious or Severe.</li>
+        <li><b>SAPS case reference</b>, where one exists.</li>
+        <li><b>Court</b> and <b>court date</b> if already set.</li>
+        <li>Open charge.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> <code>CH-NNNN</code> at <i>Open</i>, with you recorded as the officer.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Work a charge and its ledger</div>
+      <div class="m"><b>Screen</b> /police/charges/[id] &nbsp;·&nbsp; <b>Writes</b> charges, charge_transactions, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open the charge from the register.</li>
+        <li><b>Disposition</b> — move the status through <i>Referred to Court</i>, <i>Withdrawn</i>, <i>Convicted</i> or <i>Acquitted</i>, setting the court and date as they are known.</li>
+        <li><b>Record a transaction</b> for bail, court fees, payments, refunds or adjustments, with a receipt reference.</li>
+        <li>The <b>ledger</b> lists everything recorded, with a net total. Refunds subtract.</li>
+      </ol>
+    </div>
+  </div>
+
+  <h2>50.4 Warrants and summonses</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Register a warrant</div>
+      <div class="m"><b>Screen</b> /police/warrants &nbsp;·&nbsp; <b>Writes</b> warrants, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Subject name</b> and <b>ID number</b>.</li>
+        <li><b>Type</b> — Arrest or Search.</li>
+        <li><b>Issuing court</b>, <b>expiry date</b> and <b>address</b>.</li>
+        <li>Register.</li>
+      </ol>
+      <div class="after">
+        <b>Executing one</b> Set the status to <i>Executed</i> from the register; the moment and your
+        name are stamped onto it automatically. <i>Cancelled</i> and <i>Expired</i> are also
+        available. Only active warrants offer the control.
+      </div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Issue and serve a summons</div>
+      <div class="m"><b>Screen</b> /police/summons &nbsp;·&nbsp; <b>Writes</b> summonses, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Recipient</b>, <b>ID number</b> and the <b>offence</b>.</li>
+        <li><b>Court</b>, <b>court date</b> and the <b>service address</b>.</li>
+        <li>Issue.</li>
+        <li>When it is served, set the status to <b>Served</b> — the moment and the server's name are stamped for you.</li>
+      </ol>
+      <div class="after"><b>Onward</b> <i>Court Date Set</i>, then <i>Concluded</i> or <i>Withdrawn</i>. Concluded and withdrawn summonses stop offering the control.</div>
+    </div>
+  </div>
+
+  <h2>50.5 The transactions register</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Record a transaction against any document</div>
+      <div class="m"><b>Screen</b> /police/transactions &nbsp;·&nbsp; <b>Writes</b> charge_transactions, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Choose the <b>charge</b> or the <b>fine</b> it settles against.</li>
+        <li><b>Type</b>, <b>amount</b>, <b>method</b> and <b>reference</b>.</li>
+        <li>Record.</li>
+      </ol>
+      <div class="after">
+        <b>A transaction must reference something.</b> The database refuses a row that names neither a
+        charge nor a fine — money with no document against it is not a record, it is a rumour.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ 51 ══════════════════════════ -->
+<div class="part" id="c51">
+  <div class="part-head"><div class="cnum">Chapter 51</div><h1>Firearm Checklists</h1></div>
+
+  <p class="lede">The armoury checklist an officer completes at the counter — on the phone, where the firearm is. The console reads them and never writes them.</p>
+
+  <div class="flow">
+    <div class="chip start"><div class="bar">AT THE COUNTER</div><div class="body">Firearm issued, returned or inspected on parade.</div></div>
+    <div class="arr"></div>
+    <div class="chip app"><div class="bar">PHONE · Firearm Check</div><div class="body">Serial, make, the five safety items, magazines and rounds.</div></div>
+    <div class="arr"></div>
+    <div class="chip sys"><div class="bar">OUTBOX</div><div class="body">Queued with a client-generated row id. Armouries have no signal.</div></div>
+    <div class="arr"></div>
+    <div class="chip act"><div class="bar">DELIVERED</div><div class="body">Stored with the time it was <b>completed</b>, not the time it was sent.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">/police/firearm-checks</div><div class="body">Read-only on the console, pass or fail computed by the database.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · From the armoury counter to the register, through a basement with no coverage</div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Complete a firearm checklist</div>
+      <div class="m"><b>Screen</b> Phone → Home → Firearm Check &nbsp;·&nbsp; <b>Who</b> Metro Police, when the module is enabled &nbsp;·&nbsp; <b>Writes</b> firearm_checklists</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Choose the type — <b>Issue</b>, <b>Return</b> or <b>Inspection</b>.</li>
+        <li><b>Serial number</b> (stored uppercase) and <b>make / model</b>.</li>
+        <li>Work the five <b>safety checks</b>: serial verified against the register, barrel clear, action cycles, safety catch functional, sights secure. Then <b>cleaned and oiled</b>.</li>
+        <li><b>Magazines</b> and <b>rounds</b>. A Return also asks for rounds back.</li>
+        <li><b>Defects or remarks</b> — anything the armourer must know.</li>
+        <li>Submit.</li>
+      </ol>
+      <div class="after">
+        <b>Pass is computed, not claimed.</b> The database derives pass or fail from the five safety
+        items as a generated column. An officer cannot record a pass with a box unticked, and no
+        screen can be built that would let them. The form shows the same derivation live, so the
+        result is never a surprise.
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Offline and replay</b>
+    The checklist is queued through the outbox (Chapter 31) with a row id generated on the handset.
+    If delivery is interrupted after the database committed but before the phone knew, the retry
+    violates the primary key — and that violation is proof it already landed, so it is treated as
+    success rather than filed twice. The stored time is when the officer stood at the counter.
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Review the checklist register</div>
+      <div class="m"><b>Screen</b> /police/firearm-checks &nbsp;·&nbsp; <b>Who</b> Captain, Supervisor, admin tier, SystemController; an officer sees their own</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Each row shows the officer, the type, the firearm, the six checks as pass/fail chips, the ammunition counts and the result.</li>
+        <li>Anything not passed is worth a conversation the same day.</li>
+      </ol>
+      <div class="after">
+        <b>Read-only, deliberately.</b> A checklist is testimony from the person holding the weapon at
+        that moment. Nobody amends it from a desk afterwards — a correction is a new checklist.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ 52 ══════════════════════════ -->
+<div class="part" id="c52">
+  <div class="part-head"><div class="cnum">Chapter 52</div><h1>Multi-Tenancy</h1></div>
+
+  <p class="lede">One deployment carries many organisations. A municipality's data does not exist for another one — on any screen, in any export, in any search.</p>
+
+  <h2>52.1 How isolation works</h2>
+  <div class="flow">
+    <div class="chip sys"><div class="bar">JWT</div><div class="body">The signed-in session carries <b>tenant_id</b> in its app metadata.</div></div>
+    <div class="arr"></div>
+    <div class="chip sys"><div class="bar">current_tenant()</div><div class="body">Reads it, falling back to the founding organisation for older sessions.</div></div>
+    <div class="arr"></div>
+    <div class="chip sys"><div class="bar">RESTRICTIVE POLICY</div><div class="body">Every table carries one, ANDed onto whatever else permits the row.</div></div>
+    <div class="arr"></div>
+    <div class="chip done"><div class="bar">SCOPED</div><div class="body">Cross-tenant rows are not filtered out by the app — they are never returned.</div></div>
+  </div>
+  <div class="flowcap"><b>Flow</b> · Tenancy is enforced by the database on every query, not by the screens</div>
+
+  <div class="note">
+    <b>Why the policy is RESTRICTIVE</b>
+    Ordinary row-level security policies are permissive: they OR together, so each one can only widen
+    access. Tenancy added that way would have <i>widened</i> what people could see. A restrictive
+    policy ANDs instead — every other rule still applies, and tenancy is layered on top as a
+    condition none of them can override.
+  </div>
+
+  <h2>52.2 What is per-tenant</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:52mm">Thing</th><th>Behaviour</th></tr></thead>
+    <tbody>
+      <tr><td>Incident numbers</td><td>Restart daily <i>within</i> an organisation. Two may both hold INC-…-0001.</td></tr>
+      <tr><td>Document numbers</td><td>FN/CH/WA/SM/DM run per organisation and never reset.</td></tr>
+      <tr><td>Personnel, call signs, sections</td><td>Entirely separate registers.</td></tr>
+      <tr><td>Settings, integrations, branding</td><td>Keyed per organisation.</td></tr>
+      <tr><td>Feature switches and access rules</td><td>Per organisation (Chapter 53).</td></tr>
+      <tr><td>Search</td><td>Runs under the caller's own permissions, so results are already scoped.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Create an organisation</div>
+      <div class="m"><b>Screen</b> /admin/tenants &nbsp;·&nbsp; <b>Who</b> SuperAdmin only &nbsp;·&nbsp; <b>Writes</b> tenants, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Name</b> — how it is displayed.</li>
+        <li><b>Slug</b> — lowercase letters, digits and hyphens, two to thirty-nine characters. <b>Permanent once created.</b></li>
+        <li>Create.</li>
+      </ol>
+      <div class="after"><b>Afterwards</b> The organisation exists and is active. It has no users until somebody is assigned to it.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Assign a user to an organisation</div>
+      <div class="m"><b>Screen</b> /admin/tenants &nbsp;·&nbsp; <b>Who</b> SuperAdmin only &nbsp;·&nbsp; <b>Writes</b> auth metadata, profiles, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Enter the account's <b>e-mail</b> and pick the <b>organisation</b>.</li>
+        <li>Reassign.</li>
+      </ol>
+      <div class="after">
+        <b>Takes effect at their next sign-in.</b> The change is written into the account's token
+        metadata, and a token already issued keeps its old organisation until it is replaced. Their
+        profile row moves with them; their historical records do not — a person changes organisation,
+        history stays where it happened.
+      </div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Suspend or delete an organisation</div>
+      <div class="m"><b>Screen</b> /admin/tenants &nbsp;·&nbsp; <b>Who</b> SuperAdmin only</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Suspending</b> is the reversible off-switch, and is what you almost always want.</li>
+        <li><b>Deleting</b> requires typing the organisation's slug to confirm. A click can be a slip; a typed slug cannot.</li>
+      </ol>
+      <div class="after">
+        <b>Two deletions are refused outright.</b> The founding organisation, because every session
+        without an explicit organisation resolves to it. And any organisation that still has users
+        assigned — reassign or remove them first. Deleting clears that organisation's feature
+        switches, access rules and document counters along with its register row.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ 53 ══════════════════════════ -->
+<div class="part" id="c53">
+  <div class="part-head"><div class="cnum">Chapter 53</div><h1>Feature Switches and Access Control</h1></div>
+
+  <p class="lede">Two layers that shape a deployment without a code change. Both belong to the SuperAdmin, and neither can grant anybody anything.</p>
+
+  <h2>53.1 The three gates</h2>
+  <table class="zebra">
+    <thead><tr><th style="width:44mm">Gate</th><th style="width:34mm">Answers</th><th>Where it lives</th></tr></thead>
+    <tbody>
+      <tr><td><b>Feature switch</b></td><td>Does this organisation have the capability at all?</td><td>Per-tenant, stored as deviations from the catalogue</td></tr>
+      <tr><td><b>Route matrix</b></td><td>May this role open this screen?</td><td>Code — the same matrix in Chapter 3</td></tr>
+      <tr><td><b>Access rule</b></td><td>Has the SuperAdmin hidden it here?</td><td>Per-tenant, per-role, deny only</td></tr>
+    </tbody>
+  </table>
+  <p>They compose with AND. A screen opens only when all three allow it.</p>
+
+  <div class="note">
+    <b>Neither layer can grant</b>
+    A feature switch gates <i>availability</i>, never <i>authorization</i> — turning one on gives no
+    role anything the route matrix and row-level security would have refused. Access rules subtract
+    only: a stored row can remove a module, never add one. A mistaken or malicious row can therefore
+    hide something, but it can never escalate anybody.
+  </div>
+
+  <h2>53.2 Feature switches</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Turn a capability on or off for an organisation</div>
+      <div class="m"><b>Screen</b> /admin/features &nbsp;·&nbsp; <b>Who</b> SuperAdmin only &nbsp;·&nbsp; <b>Writes</b> feature_flags, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Each switch names what turning it <b>off</b> does — that is the decision being made.</li>
+        <li>Toggle it.</li>
+      </ol>
+      <div class="after">
+        <b>Afterwards</b> The screens it covers disappear from navigation and refuse if reached
+        directly; APIs it covers answer <i>not found</i>. Consoles pick the change up live. On the
+        phone the change lands on next sign-in or foreground.
+      </div>
+    </div>
+  </div>
+
+  <table class="zebra">
+    <thead><tr><th style="width:52mm">Switch</th><th>What OFF removes</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">web.command</td><td>The command dashboard. Its modules stay reachable from the sidebar.</td></tr>
+      <tr><td class="mono">web.enforcement</td><td>Fines, charges, transactions, warrants and summonses — together, since they share one paper trail.</td></tr>
+      <tr><td class="mono">web.duty_maintenance</td><td>The DM- task board. Existing tasks keep their numbers.</td></tr>
+      <tr><td class="mono">web.time_attendance</td><td>The clock register, and clocking in or out.</td></tr>
+      <tr><td class="mono">web.mail</td><td>Internal mail. Alerts and notifications are separate and keep working.</td></tr>
+      <tr><td class="mono">web.sections</td><td>The sections register. Codes already stamped on records still display.</td></tr>
+      <tr><td class="mono">web.assistant · web.cameras · web.ptt · web.search · web.reports_builder</td><td>As documented in Chapter 35.</td></tr>
+      <tr><td class="mono">mobile.firearm_check</td><td>The armoury checklist leaves the phone. Console review remains.</td></tr>
+      <tr><td class="mono">mobile.panic · assistant · leave · nearby · voice_notes · alerts_inbox</td><td>As documented in Chapter 35.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>The catalogue is code; the database stores only deviations</b>
+    Shipping a new capability adds a catalogue entry with its default, and every organisation gets
+    that default with no data migration. A row appears only when a SuperAdmin actually flips a
+    switch — so the absence of a row means "as shipped", not "unknown".
+  </div>
+
+  <h2>53.3 Access control</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Hide a module for an organisation or a role</div>
+      <div class="m"><b>Screen</b> /admin/access &nbsp;·&nbsp; <b>Who</b> SuperAdmin only &nbsp;·&nbsp; <b>Writes</b> access_rules, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Pick the <b>organisation</b> across the top. One SuperAdmin administers every one from this screen.</li>
+        <li>To hide a module from everybody there, toggle it from <b>Visible</b> to <b>Hidden</b>.</li>
+        <li>To deny it to one role, pick the role and press <b>Deny role</b>. Existing denials show as chips; click one to restore it.</li>
+      </ol>
+      <div class="after">
+        <b>Afterwards</b> The module leaves the sidebar, the top navigation, the command palette and
+        the command dashboard's launcher, and the route itself refuses. Enforcement is cached for a
+        minute at the edge, so a change takes effect everywhere within about that long.
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Two safeguards</b>
+    The SuperAdmin is exempt from every access rule — the seat that writes the rules can never lock
+    itself out of the screen that writes them. And the dashboard, the profile screen and the three
+    platform-tier consoles cannot be hidden at all: every account needs somewhere to land and a way
+    to sign out, and a gate with no exit is a trap rather than a control.
+  </div>
+</div>

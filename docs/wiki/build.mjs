@@ -41,7 +41,11 @@ const SECTIONS = [
   'roles.html',
   'tasks.html',
   'mobile-admin.html',
-  'running-ref.html',
+  'running.html',
+  // Volume IX sits after chapter 44 so chapter numbers stay ascending across
+  // the whole document, and before Reference, which readers expect last.
+  'command.html',
+  'reference.html',
 ];
 
 /* ── Chrome ─────────────────────────────────────────────────────────── */
@@ -120,6 +124,21 @@ const NAV = {
   '/cameras/footage': ['Console', 'Cameras', 'Footage'],
   '/cameras': ['Console', 'Cameras'],
   '/hierarchy/person': ['Console', 'Hierarchy', 'Person'],
+  '/command': ['Console', 'Command'],
+  '/duty-tasks': ['Console', 'Duty Maintenance'],
+  '/attendance': ['Console', 'Time & Attendance'],
+  '/mail': ['Console', 'Mail'],
+  '/police/fines': ['Console', 'Police', 'Fines'],
+  '/police/charges/[id]': ['Console', 'Police', 'Charges', 'Charge'],
+  '/police/charges': ['Console', 'Police', 'Charges'],
+  '/police/transactions': ['Console', 'Police', 'Charge Transactions'],
+  '/police/warrants': ['Console', 'Police', 'Warrants'],
+  '/police/summons': ['Console', 'Police', 'Summons'],
+  '/police/firearm-checks': ['Console', 'Police', 'Firearm Checks'],
+  '/admin/sections': ['Console', 'Admin', 'Sections'],
+  '/admin/access': ['Console', 'Admin', 'Access Control'],
+  '/admin/features': ['Console', 'Admin', 'Features'],
+  '/admin/tenants': ['Console', 'Admin', 'Tenants'],
   '/admin/automations': ['Console', 'Admin', 'Automations'],
   '/admin/operations': ['Console', 'Admin', 'Operations Settings'],
   '/admin/integrations': ['Console', 'Admin', 'Integrations'],
@@ -139,6 +158,9 @@ const NAV = {
 
 /** Phone screens are named by phrase in the metadata, not by route. */
 const APP_SCREENS = [
+  // Longest / most specific phrases first — this list is searched in order,
+  // and the catch-all 'phone' at the bottom would otherwise swallow them.
+  ['firearm check', ['App', 'Firearm Check']],
   ['scene evidence', ['App', 'Incident', 'Scene Evidence']],
   ['incident detail', ['App', 'Incidents', 'Incident Detail']],
   ['incidents tab', ['App', 'Incidents']],
