@@ -7,6 +7,12 @@ import type { Silo, UserRole } from '@criticom/db/types';
 
 const PUBLIC_PATHS = ['/login', '/reset-password', '/share-location'];
 
+/**
+ * The landing page. Kept out of PUBLIC_PATHS because that list is prefix-based
+ * and '/' is a prefix of everything — an exact match is the only safe form.
+ */
+const LANDING_PATH = '/';
+
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -71,7 +77,8 @@ export async function middleware(request: NextRequest) {
   });
 
   const { pathname } = request.nextUrl;
-  const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const isPublic = pathname === LANDING_PATH
+    || PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   // API callers need a status code they can branch on. Redirecting them to the
   // HTML login page yields a 200 full of markup and the classic
   // "Unexpected token '<'" JSON parse error at the call site.
