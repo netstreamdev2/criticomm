@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BrandMark } from '@/components/landing/brand-mark';
 import { DashboardPeek } from '@/components/landing/dashboard-peek';
+import {
+  Desks, Faq, FactsBand, Integrations, Security, Services, Stack,
+} from '@/components/landing/details';
 import { HeroVisual } from '@/components/landing/hero-visual';
 import { Realtime } from '@/components/landing/realtime';
 import { Storyboard } from '@/components/landing/storyboard';
@@ -36,11 +39,12 @@ const DEPARTMENTS = [
  * classes are written out in full so Tailwind's scanner can see them.
  */
 const NAV_LINKS = [
-  { href: '#why', label: 'Why', breakpoint: 'md:block' },
-  { href: '#flow', label: 'How it works', breakpoint: 'sm:block' },
+  { href: '#why', label: 'Why', breakpoint: 'lg:block' },
   { href: '#story', label: 'Storyboard', breakpoint: 'sm:block' },
-  { href: '#realtime', label: 'Realtime', breakpoint: 'lg:block' },
-  { href: '#platform', label: 'Platform', breakpoint: 'lg:block' },
+  { href: '#realtime', label: 'Realtime', breakpoint: 'md:block' },
+  { href: '#platform', label: 'Platform', breakpoint: 'sm:block' },
+  { href: '#security', label: 'Security', breakpoint: 'lg:block' },
+  { href: '#faq', label: 'FAQ', breakpoint: 'lg:block' },
 ];
 
 /** The eleven steps every call passes through, in the order they happen. */
@@ -328,6 +332,9 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* ── Facts ────────────────────────────────────────────────────── */}
+      <FactsBand />
+
       {/* ── The problem ──────────────────────────────────────────────── */}
       <Section id="why">
         <Eyebrow>Why it exists</Eyebrow>
@@ -525,6 +532,21 @@ export default function LandingPage() {
         </Section>
       </div>
 
+      {/* ── The services ─────────────────────────────────────────────── */}
+      <Section id="services">
+        <Eyebrow hex="#f59e0b">The services</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          Four services, four sets of paperwork, one incident.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          Each service keeps the forms it is legally and operationally required to keep — a patient care
+          report is not a fire report, and neither is a charge sheet. What they share is the incident
+          underneath, so routing a call to three of them produces one file with three departments
+          writing into it, not three files that disagree.
+        </p>
+        <Services />
+      </Section>
+
       {/* ── Platform modules ─────────────────────────────────────────── */}
       <Section id="platform">
         <Eyebrow hex="#a855f7">The platform</Eyebrow>
@@ -551,9 +573,24 @@ export default function LandingPage() {
         </div>
       </Section>
 
-      {/* ── Capabilities ─────────────────────────────────────────────── */}
+      {/* ── The desks ────────────────────────────────────────────────── */}
       <div className="border-y border-white/10 bg-white/[0.02]">
-        <Section>
+        <Section id="desks">
+          <Eyebrow hex="#a855f7">Who is on it</Eyebrow>
+          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+            Twenty-four roles, five desks.
+          </h2>
+          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+            A role is not a job title here — it is a set of doors. What each one may open is decided by
+            the route matrix in code and row-level security in the database, so the answer is the same
+            whether somebody arrives through a screen, a bookmark or the API.
+          </p>
+          <Desks />
+        </Section>
+      </div>
+
+      {/* ── Capabilities ─────────────────────────────────────────────── */}
+      <Section>
           <Eyebrow hex="#22c55e">Built for how the work happens</Eyebrow>
           <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
             The hard parts, handled properly.
@@ -570,6 +607,49 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+      </Section>
+
+      {/* ── Security ─────────────────────────────────────────────────── */}
+      <div className="border-y border-white/10 bg-white/[0.02]">
+        <Section id="security">
+          <Eyebrow hex="#22c55e">Security</Eyebrow>
+          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+            The database decides, not the screen.
+          </h2>
+          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+            Emergency records are evidence. They get read back in disciplinary hearings, inquests and
+            court, sometimes years later — so the question is never only &ldquo;can this person see
+            it&rdquo; but &ldquo;can anyone prove what it said and who changed it&rdquo;.
+          </p>
+          <Security />
+        </Section>
+      </div>
+
+      {/* ── Integrations ─────────────────────────────────────────────── */}
+      <Section id="integrations">
+        <Eyebrow hex="#3b82f6">Integrations</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          It plugs into what the city already runs.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          Nine external systems, each one an admin switch rather than a deployment: radio, SMS, two
+          camera platforms, two traffic feeds and the assistant&rsquo;s AI providers.
+        </p>
+        <Integrations />
+      </Section>
+
+      {/* ── Stack ────────────────────────────────────────────────────── */}
+      <div className="border-y border-white/10 bg-white/[0.02]">
+        <Section id="stack">
+          <Eyebrow hex="#94a3b8">What it is built on</Eyebrow>
+          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+            Boring where it matters.
+          </h2>
+          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+            Nothing here is chosen to be interesting. An emergency platform is judged on the night it
+            is needed, so every layer is something with a long, dull, well-understood failure record.
+          </p>
+          <Stack />
         </Section>
       </div>
 
@@ -589,6 +669,17 @@ export default function LandingPage() {
           ))}
         </div>
       </Section>
+
+      {/* ── FAQ ──────────────────────────────────────────────────────── */}
+      <div className="border-y border-white/10 bg-white/[0.02]">
+        <Section id="faq">
+          <Eyebrow>Questions</Eyebrow>
+          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+            The eight things people ask first.
+          </h2>
+          <Faq />
+        </Section>
+      </div>
 
       {/* ── Multi-tenant CTA ─────────────────────────────────────────── */}
       <div className="relative overflow-hidden border-t border-white/10">
