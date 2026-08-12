@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { BrandMark } from '@/components/landing/brand-mark';
 import { DashboardPeek } from '@/components/landing/dashboard-peek';
 import {
-  Desks, Faq, FactsBand, Integrations, Security, Services, Stack,
+  Desks, Faq, FactsBand, Integrations, Oversight, Security, Services, Stack,
 } from '@/components/landing/details';
 import { HeroVisual } from '@/components/landing/hero-visual';
 import { Realtime } from '@/components/landing/realtime';
@@ -157,51 +157,6 @@ const MODULE_GROUPS = [
   },
 ];
 
-const CAPABILITIES = [
-  {
-    title: 'Works with no signal',
-    body:
-      'Status changes, notes, photographs and voice notes queue on the handset and deliver themselves '
-      + 'when coverage returns. Nothing is dropped silently; anything that cannot be delivered stays '
-      + 'visible until a person resolves it.',
-  },
-  {
-    title: 'Officer down',
-    body:
-      'One press raises a Critical incident with the officer’s position, opens a full-screen interrupt '
-      + 'on every console, and outranks everything else in the delivery queue. It works offline and it '
-      + 'works from any screen.',
-  },
-  {
-    title: 'Authorization in the database',
-    body:
-      'Every table denies by default and every query is scoped by the database itself — not by the '
-      + 'application asking nicely. A bug in a screen cannot show someone another department’s or '
-      + 'another municipality’s data.',
-  },
-  {
-    title: 'Multi-tenant by construction',
-    body:
-      'One deployment carries many municipalities, each isolated at the row level with its own '
-      + 'incident numbering, personnel, configuration and branding. Two cities can both hold '
-      + 'incident 0001 and never see each other.',
-  },
-  {
-    title: 'Configurable without a rebuild',
-    body:
-      'Feature switches turn whole capabilities on or off per organisation, and access rules hide '
-      + 'modules per role. Shaping a deployment for a customer is an afternoon of toggles, not a '
-      + 'development cycle.',
-  },
-  {
-    title: 'Everything is on the record',
-    body:
-      'Dispatches, status changes, approvals, enforcement documents and administrative changes all '
-      + 'land on an audit trail with who, what and when — because in this domain the record is the '
-      + 'product.',
-  },
-];
-
 const OUTCOMES = [
   { title: 'Nothing is lost', body: 'The dead-zone minute, the photograph, the arrival time — all captured where the work happened and delivered intact.' },
   { title: 'One version of events', body: 'Control room, field crew and command read the same incident, live, instead of three accounts assembled afterwards.' },
@@ -222,10 +177,16 @@ function Eyebrow({ children, hex = '#ff5a68' }: { children: React.ReactNode; hex
   );
 }
 
+/**
+ * A page section. `tint` paints the alternating band, which used to be a
+ * hand-written wrapper div around every other section — easy to get wrong when
+ * a section is inserted, and it had in fact drifted. Owning it here means the
+ * rhythm is visible as one flag per section in the page below.
+ */
 function Section({
-  id, children, className = '',
-}: { id?: string; children: React.ReactNode; className?: string }) {
-  return (
+  id, tint = false, children, className = '',
+}: { id?: string; tint?: boolean; children: React.ReactNode; className?: string }) {
+  const inner = (
     <section
       id={id}
       className={`lp-anchor mx-auto w-full max-w-6xl px-6 py-20 sm:px-8 lg:py-28 ${className}`}
@@ -233,6 +194,8 @@ function Section({
       {children}
     </section>
   );
+  if (!tint) return inner;
+  return <div className="border-y border-white/10 bg-white/[0.02]">{inner}</div>;
 }
 
 export default function LandingPage() {
@@ -359,35 +322,33 @@ export default function LandingPage() {
       </Section>
 
       {/* ── The vision ───────────────────────────────────────────────── */}
-      <div className="border-y border-white/10 bg-white/[0.02]">
-        <Section>
-          <Eyebrow hex="#3b82f6">The vision</Eyebrow>
-          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            One platform that holds the whole picture — and never loses a minute of it.
-          </h2>
-          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
-            Three commitments shaped every decision in the build. They are the reasons the system is
-            put together the way it is, and each of them costs something to keep.
-          </p>
+      <Section tint>
+        <Eyebrow hex="#3b82f6">The vision</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          One platform that holds the whole picture — and never loses a minute of it.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          Three commitments shaped every decision in the build. They are the reasons the system is
+          put together the way it is, and each of them costs something to keep.
+        </p>
 
-          <div className="lp-stagger mt-14 grid gap-6 lg:grid-cols-3">
-            {PILLARS.map((p, i) => (
-              <div key={p.kicker} className="lp-card relative p-7">
-                <span
-                  className="absolute left-0 top-7 h-12 w-[3px] rounded-r"
-                  style={{ background: p.hex }}
-                />
-                <p className="text-5xl font-bold leading-none text-white/10">0{i + 1}</p>
-                <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em]" style={{ color: p.hex }}>
-                  {p.kicker}
-                </p>
-                <h3 className="mt-2 text-xl font-bold leading-snug">{p.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/60">{p.body}</p>
-              </div>
-            ))}
-          </div>
-        </Section>
-      </div>
+        <div className="lp-stagger mt-14 grid gap-6 lg:grid-cols-3">
+          {PILLARS.map((p, i) => (
+            <div key={p.kicker} className="lp-card relative p-7">
+              <span
+                className="absolute left-0 top-7 h-12 w-[3px] rounded-r"
+                style={{ background: p.hex }}
+              />
+              <p className="text-5xl font-bold leading-none text-white/10">0{i + 1}</p>
+              <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em]" style={{ color: p.hex }}>
+                {p.kicker}
+              </p>
+              <h3 className="mt-2 text-xl font-bold leading-snug">{p.title}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-white/60">{p.body}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
 
       {/* ── The life of a call ───────────────────────────────────────── */}
       <Section id="flow">
@@ -433,25 +394,23 @@ export default function LandingPage() {
       </Section>
 
       {/* ── Storyboard ───────────────────────────────────────────────── */}
-      <div className="border-y border-white/10 bg-white/[0.02]">
-        <Section id="story">
-          <Eyebrow>How it saves lives</Eyebrow>
-          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            Where the minutes are won.
-          </h2>
-          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
-            Nobody is saved by software. People are saved by a crew arriving sooner, with the right
-            equipment, knowing what they are driving into — and by the crew that stayed free because
-            nobody sent three of them to the same crash. Here is one incident, beat by beat, and what
-            the platform is doing at each one.
-          </p>
-          <p className="mt-4 text-sm text-white/40">
-            A composed scenario for illustration — the capabilities are real, the incident is not.
-          </p>
+      <Section tint id="story">
+        <Eyebrow>How it saves lives</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          Where the minutes are won.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          Nobody is saved by software. People are saved by a crew arriving sooner, with the right
+          equipment, knowing what they are driving into — and by the crew that stayed free because
+          nobody sent three of them to the same crash. Here is one incident, beat by beat, and what
+          the platform is doing at each one.
+        </p>
+        <p className="mt-4 text-sm text-white/40">
+          A composed scenario for illustration — the capabilities are real, the incident is not.
+        </p>
 
-          <Storyboard />
-        </Section>
-      </div>
+        <Storyboard />
+      </Section>
 
       {/* ── Two surfaces + console peek ──────────────────────────────── */}
       <Section id="console">
@@ -516,21 +475,19 @@ export default function LandingPage() {
       </Section>
 
       {/* ── Realtime ─────────────────────────────────────────────────── */}
-      <div className="border-y border-white/10 bg-white/[0.02]">
-        <Section id="realtime">
-          <Eyebrow hex="#3b82f6">Realtime, actually</Eyebrow>
-          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            The screen is never out of date.
-          </h2>
-          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
-            Not polled every thirty seconds, and not refreshed by hand. Positions, statuses, alerts and
-            response clocks arrive as they change — which is the only version of &ldquo;live&rdquo; that
-            is any use when a decision is being made right now. Everything below is running.
-          </p>
+      <Section tint id="realtime">
+        <Eyebrow hex="#3b82f6">Realtime, actually</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          The screen is never out of date.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          Not polled every thirty seconds, and not refreshed by hand. Positions, statuses, alerts and
+          response clocks arrive as they change — which is the only version of &ldquo;live&rdquo; that
+          is any use when a decision is being made right now. Everything below is running.
+        </p>
 
-          <Realtime />
-        </Section>
-      </div>
+        <Realtime />
+      </Section>
 
       {/* ── The services ─────────────────────────────────────────────── */}
       <Section id="services">
@@ -548,7 +505,7 @@ export default function LandingPage() {
       </Section>
 
       {/* ── Platform modules ─────────────────────────────────────────── */}
-      <Section id="platform">
+      <Section tint id="platform">
         <Eyebrow hex="#a855f7">The platform</Eyebrow>
         <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           Everything the service runs on, in one place.
@@ -574,59 +531,49 @@ export default function LandingPage() {
       </Section>
 
       {/* ── The desks ────────────────────────────────────────────────── */}
-      <div className="border-y border-white/10 bg-white/[0.02]">
-        <Section id="desks">
-          <Eyebrow hex="#a855f7">Who is on it</Eyebrow>
-          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            Twenty-four roles, five desks.
-          </h2>
-          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
-            A role is not a job title here — it is a set of doors. What each one may open is decided by
-            the route matrix in code and row-level security in the database, so the answer is the same
-            whether somebody arrives through a screen, a bookmark or the API.
-          </p>
-          <Desks />
-        </Section>
-      </div>
+      <Section id="desks">
+        <Eyebrow>Who is on it</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          Twenty-four roles, five desks.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          A role is not a job title here — it is a set of doors. What each one may open is decided by
+          the route matrix in code and row-level security in the database, so the answer is the same
+          whether somebody arrives through a screen, a bookmark or the API.
+        </p>
+        <Desks />
+      </Section>
 
-      {/* ── Capabilities ─────────────────────────────────────────────── */}
-      <Section>
-          <Eyebrow hex="#22c55e">Built for how the work happens</Eyebrow>
-          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            The hard parts, handled properly.
-          </h2>
-
-          <div className="lp-stagger mt-14 grid gap-x-10 gap-y-9 md:grid-cols-2">
-            {CAPABILITIES.map((c) => (
-              <div key={c.title}>
-                <h3 className="flex items-center gap-3 text-lg font-bold">
-                  <span className="inline-block h-4 w-1 rounded-full bg-[#22c55e]" />
-                  {c.title}
-                </h3>
-                <p className="mt-2.5 pl-7 text-sm leading-relaxed text-white/60">{c.body}</p>
-              </div>
-            ))}
-          </div>
+      {/* ── Reporting and oversight ──────────────────────────────────── */}
+      <Section tint id="oversight">
+        <Eyebrow hex="#f59e0b">Reporting and oversight</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          Every question, and the screen that answers it.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          A record is only worth keeping if somebody can interrogate it afterwards. These are the
+          questions a command team, a council committee and an inquiry actually ask — and where each
+          one is answered without anybody writing a query.
+        </p>
+        <Oversight />
       </Section>
 
       {/* ── Security ─────────────────────────────────────────────────── */}
-      <div className="border-y border-white/10 bg-white/[0.02]">
-        <Section id="security">
-          <Eyebrow hex="#22c55e">Security</Eyebrow>
-          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            The database decides, not the screen.
-          </h2>
-          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
-            Emergency records are evidence. They get read back in disciplinary hearings, inquests and
-            court, sometimes years later — so the question is never only &ldquo;can this person see
-            it&rdquo; but &ldquo;can anyone prove what it said and who changed it&rdquo;.
-          </p>
-          <Security />
-        </Section>
-      </div>
+      <Section id="security">
+        <Eyebrow hex="#22c55e">Security</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          The database decides, not the screen.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          Emergency records are evidence. They get read back in disciplinary hearings, inquests and
+          court, sometimes years later — so the question is never only &ldquo;can this person see
+          it&rdquo; but &ldquo;can anyone prove what it said and who changed it&rdquo;.
+        </p>
+        <Security />
+      </Section>
 
       {/* ── Integrations ─────────────────────────────────────────────── */}
-      <Section id="integrations">
+      <Section tint id="integrations">
         <Eyebrow hex="#3b82f6">Integrations</Eyebrow>
         <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           It plugs into what the city already runs.
@@ -639,22 +586,20 @@ export default function LandingPage() {
       </Section>
 
       {/* ── Stack ────────────────────────────────────────────────────── */}
-      <div className="border-y border-white/10 bg-white/[0.02]">
-        <Section id="stack">
-          <Eyebrow hex="#94a3b8">What it is built on</Eyebrow>
-          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            Boring where it matters.
-          </h2>
-          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
-            Nothing here is chosen to be interesting. An emergency platform is judged on the night it
-            is needed, so every layer is something with a long, dull, well-understood failure record.
-          </p>
-          <Stack />
-        </Section>
-      </div>
+      <Section id="stack">
+        <Eyebrow hex="#94a3b8">What it is built on</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          Boring where it matters.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          Nothing here is chosen to be interesting. An emergency platform is judged on the night it
+          is needed, so every layer is something with a long, dull, well-understood failure record.
+        </p>
+        <Stack />
+      </Section>
 
       {/* ── Outcomes ─────────────────────────────────────────────────── */}
-      <Section id="outcomes">
+      <Section tint id="outcomes">
         <Eyebrow>The outcome</Eyebrow>
         <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           What changes when it is all one system.
@@ -671,15 +616,13 @@ export default function LandingPage() {
       </Section>
 
       {/* ── FAQ ──────────────────────────────────────────────────────── */}
-      <div className="border-y border-white/10 bg-white/[0.02]">
-        <Section id="faq">
-          <Eyebrow>Questions</Eyebrow>
-          <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
-            The eight things people ask first.
-          </h2>
-          <Faq />
-        </Section>
-      </div>
+      <Section id="faq">
+        <Eyebrow hex="#3b82f6">Questions</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          The eight things people ask first.
+        </h2>
+        <Faq />
+      </Section>
 
       {/* ── Multi-tenant CTA ─────────────────────────────────────────── */}
       <div className="relative overflow-hidden border-t border-white/10">

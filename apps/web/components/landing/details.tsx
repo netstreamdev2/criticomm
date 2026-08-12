@@ -235,6 +235,74 @@ export function Security() {
   );
 }
 
+/* ── Reporting and oversight ──────────────────────────────────────────── */
+
+const OVERSIGHT = [
+  {
+    q: 'What happened last night?',
+    tool: 'Report Hub',
+    route: '/report-hub',
+    a: 'Fixed exports with filters and date ranges, ready to hand to a committee without anybody writing a query.',
+  },
+  {
+    q: 'I need a number nobody built a report for.',
+    tool: 'Report Builder',
+    route: '/reports/builder',
+    a: 'Choose a dataset, group it, chart it, save it and share it with your department — a report is configuration, not a change request.',
+  },
+  {
+    q: 'Where is that vehicle / person / case number?',
+    tool: 'Global search',
+    route: '/search',
+    a: 'One box across incidents, people, vehicles and documents, matching on partial identifiers. It runs under your own permissions, so results are already scoped.',
+  },
+  {
+    q: 'Are we getting better or worse?',
+    tool: 'Analytics',
+    route: '/analytics',
+    a: 'Trends over time by department, category and severity, against the response targets set in Operations Settings.',
+  },
+  {
+    q: 'Was this case closed properly?',
+    tool: 'Case Manager',
+    route: '/case-manager',
+    a: 'Closure review with the reason, the reviewer and the full timeline — the screen that turns a closed call into a defensible one.',
+  },
+  {
+    q: 'Who did that, and when?',
+    tool: 'Audit trail',
+    route: '/case-manager/audit',
+    a: 'Every dispatch, status change, approval, enforcement document and administrative change, attributed and timestamped.',
+  },
+  {
+    q: 'How is my team actually performing?',
+    tool: 'Performance',
+    route: '/performance',
+    a: 'KPIs, appraisal plans and rollups by member, department and incident — plus a self-service view so people can see their own before a review, not during it.',
+  },
+];
+
+export function Oversight() {
+  return (
+    <div className="lp-stagger mt-14 space-y-3">
+      {OVERSIGHT.map((o) => (
+        <div key={o.tool} className="lp-card grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] sm:p-6">
+          <div>
+            <p className="text-base font-bold leading-snug text-white/90">&ldquo;{o.q}&rdquo;</p>
+            <p className="mt-2 inline-flex items-center gap-2 text-xs">
+              <span className="font-semibold text-[#f59e0b]">{o.tool}</span>
+              <span className="font-mono text-[11px] text-white/35">{o.route}</span>
+            </p>
+          </div>
+          <p className="text-sm leading-relaxed text-white/55 sm:border-l sm:border-white/10 sm:pl-5">
+            {o.a}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /* ── Stack ────────────────────────────────────────────────────────────── */
 
 const STACK = [
