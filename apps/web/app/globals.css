@@ -327,6 +327,22 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
 
 .lp-ease { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
 
+/* The page's measure. One definition, used by the header, every section and
+   the footer, so they can never disagree about where the page edge is.
+   It widens in steps rather than filling the viewport: layouts get the extra
+   room, but prose inside stays capped separately (max-w-3xl), because a line
+   of body text running the width of a 2560px monitor is unreadable no matter
+   how much of the screen it uses. */
+.lp-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem; /* 1152 — phones through laptops */
+}
+@media (min-width: 1280px) { .lp-container { max-width: 80rem; } }   /* 1280 */
+@media (min-width: 1536px) { .lp-container { max-width: 90rem; } }   /* 1440 */
+@media (min-width: 1920px) { .lp-container { max-width: 100rem; } }  /* 1600 */
+@media (min-width: 2400px) { .lp-container { max-width: 112rem; } }  /* 1792 */
+
 /* Anchor targets must clear the sticky header, or a jump-link lands with its
    own heading hidden behind the bar. */
 .lp-anchor { scroll-margin-top: 5.5rem; }

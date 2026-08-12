@@ -23,7 +23,7 @@ const FACTS = [
 export function FactsBand() {
   return (
     <div className="border-y border-white/10 bg-white/[0.02]">
-      <div className="lp-stagger mx-auto grid w-full max-w-6xl grid-cols-2 gap-px overflow-hidden px-6 py-14 sm:px-8 lg:grid-cols-6 lg:py-16">
+      <div className="lp-stagger lp-container grid grid-cols-2 gap-px overflow-hidden px-6 py-14 sm:px-8 lg:grid-cols-6 lg:py-16 2xl:px-10">
         {FACTS.map((f) => (
           <div key={f.label} className="px-2 py-3 lg:px-4">
             <p className="bg-gradient-to-b from-white to-white/55 bg-clip-text text-3xl font-bold text-transparent lg:text-4xl">
@@ -75,7 +75,7 @@ const SERVICES = [
 
 export function Services() {
   return (
-    <div className="lp-stagger mt-14 grid gap-5 lg:grid-cols-2">
+    <div className="lp-stagger mt-14 grid gap-5 lg:grid-cols-2 2xl:grid-cols-4">
       {SERVICES.map((s) => (
         <div key={s.name} className="lp-card p-7">
           <div className="flex items-center gap-3">
@@ -136,7 +136,7 @@ export function Desks() {
   return (
     <div className="lp-stagger mt-14 space-y-4">
       {DESKS.map((d) => (
-        <div key={d.desk} className="lp-card grid gap-5 p-6 lg:grid-cols-[200px_1fr] lg:p-7">
+        <div key={d.desk} className="lp-card grid gap-5 p-6 lg:grid-cols-[200px_1fr] lg:p-7 2xl:grid-cols-[260px_1fr]">
           <div>
             <h3 className="flex items-center gap-2.5 text-base font-bold">
               <span className="h-2 w-2 rounded-full" style={{ background: d.hex }} />
@@ -179,7 +179,7 @@ const INTEGRATIONS = [
 export function Integrations() {
   return (
     <>
-      <div className="lp-stagger mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="lp-stagger mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
         {INTEGRATIONS.map((g) => (
           <div key={g.cat} className="lp-card p-6">
             <p className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.16em]" style={{ color: g.hex }}>

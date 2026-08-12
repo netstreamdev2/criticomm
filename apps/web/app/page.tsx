@@ -189,7 +189,7 @@ function Section({
   const inner = (
     <section
       id={id}
-      className={`lp-anchor mx-auto w-full max-w-6xl px-6 py-20 sm:px-8 lg:py-28 ${className}`}
+      className={`lp-anchor lp-container px-6 py-20 sm:px-8 lg:py-28 2xl:px-10 2xl:py-32 ${className}`}
     >
       {children}
     </section>
@@ -203,7 +203,7 @@ export default function LandingPage() {
     <main className="lp-page min-h-screen bg-[#05050f] text-white">
       {/* ── Header ───────────────────────────────────────────────────── */}
       <header className="lp-header sticky top-0 z-30 backdrop-blur-md">
-        <div className="mx-auto flex h-[72px] w-full max-w-6xl items-center justify-between gap-4 px-6 sm:px-8">
+        <div className="lp-container flex h-[72px] items-center justify-between gap-4 px-6 sm:px-8 2xl:px-10">
           <BrandMark tagline />
 
           <nav className="flex items-center gap-0.5 sm:gap-1">
@@ -245,13 +245,13 @@ export default function LandingPage() {
         <span className="auth-ping-dot text-[#22c55e]" style={{ top: '30%', right: '12%' }}><span className="auth-ping-core" /></span>
         <span className="auth-ping-dot text-[#f59e0b]" style={{ top: '74%', right: '20%' }}><span className="auth-ping-core" /></span>
 
-        <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 px-6 py-24 sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:py-32">
+        <div className="lp-container relative z-10 grid items-center gap-12 px-6 py-24 sm:px-8 lg:grid-cols-[1.15fr_1fr] lg:py-32 2xl:gap-16 2xl:px-10 2xl:py-40">
           <div>
             <p className="lp-enter lp-d1 mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/75 backdrop-blur">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#22c55e]" />
               eThekwini Emergency Services
             </p>
-            <h1 className="lp-enter lp-d2 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+            <h1 className="lp-enter lp-d2 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl 2xl:text-7xl">
               Every emergency,{' '}
               <span className="bg-gradient-to-r from-[#ff5a68] via-[#ff8a94] to-[#3b82f6] bg-clip-text text-transparent">
                 one command platform
@@ -361,7 +361,7 @@ export default function LandingPage() {
           green the case file. The automation engine watches every step and escalates any that stalls.
         </p>
 
-        <ol className="lp-stagger mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <ol className="lp-stagger mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {LIFECYCLE.map((s) => (
             <li
               key={s.n}
@@ -664,7 +664,7 @@ export default function LandingPage() {
           style={{ background: 'radial-gradient(circle, rgba(220,53,69,0.11), transparent 70%)' }}
         />
 
-        <div className="relative mx-auto w-full max-w-6xl px-6 py-16 sm:px-8">
+        <div className="lp-container relative px-6 py-16 sm:px-8 2xl:px-10">
           <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
             {/* Brand */}
             <div>
