@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BrandMark } from '@/components/landing/brand-mark';
 import { DashboardPeek } from '@/components/landing/dashboard-peek';
+import { Decisions, GoingLive, HeroProof, Manual, ShiftDay } from '@/components/landing/depth';
 import {
   Desks, Faq, FactsBand, Integrations, Oversight, Security, Services, Stack,
 } from '@/components/landing/details';
@@ -39,11 +40,12 @@ const DEPARTMENTS = [
  * classes are written out in full so Tailwind's scanner can see them.
  */
 const NAV_LINKS = [
-  { href: '#why', label: 'Why', breakpoint: 'lg:block' },
+  { href: '#why', label: 'Why', breakpoint: 'xl:block' },
   { href: '#story', label: 'Storyboard', breakpoint: 'sm:block' },
-  { href: '#realtime', label: 'Realtime', breakpoint: 'md:block' },
+  { href: '#decisions', label: 'Decisions', breakpoint: 'md:block' },
   { href: '#platform', label: 'Platform', breakpoint: 'sm:block' },
   { href: '#security', label: 'Security', breakpoint: 'lg:block' },
+  { href: '#manual', label: 'Manual', breakpoint: 'xl:block' },
   { href: '#faq', label: 'FAQ', breakpoint: 'lg:block' },
 ];
 
@@ -287,6 +289,10 @@ export default function LandingPage() {
                 </span>
               ))}
             </div>
+
+            <div className="lp-enter lp-d6">
+              <HeroProof />
+            </div>
           </div>
 
           <div className="lp-enter lp-d4">
@@ -322,7 +328,7 @@ export default function LandingPage() {
       </Section>
 
       {/* ── The vision ───────────────────────────────────────────────── */}
-      <Section tint>
+      <Section tint id="vision">
         <Eyebrow hex="#3b82f6">The vision</Eyebrow>
         <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           One platform that holds the whole picture — and never loses a minute of it.
@@ -412,8 +418,23 @@ export default function LandingPage() {
         <Storyboard />
       </Section>
 
+
+      {/* ── Three decisions ──────────────────────────────────────────── */}
+      <Section id="decisions">
+        <Eyebrow hex="#dc3545">The decisions</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          Three choices that shaped everything else.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          Every one of these had an easier alternative that most systems take, and every one costs
+          something real to hold. They are here with their costs attached, because a platform that
+          only lists its advantages is telling you about its brochure rather than its architecture.
+        </p>
+        <Decisions />
+      </Section>
+
       {/* ── Two surfaces + console peek ──────────────────────────────── */}
-      <Section id="console">
+      <Section tint id="console">
         <Eyebrow hex="#f59e0b">A look inside</Eyebrow>
         <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           A console for the room. An app for the vehicle.
@@ -475,7 +496,7 @@ export default function LandingPage() {
       </Section>
 
       {/* ── Realtime ─────────────────────────────────────────────────── */}
-      <Section tint id="realtime">
+      <Section id="realtime">
         <Eyebrow hex="#3b82f6">Realtime, actually</Eyebrow>
         <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           The screen is never out of date.
@@ -487,6 +508,21 @@ export default function LandingPage() {
         </p>
 
         <Realtime />
+      </Section>
+
+
+      {/* ── The shift ────────────────────────────────────────────────── */}
+      <Section tint id="shift">
+        <Eyebrow hex="#a855f7">A shift, end to end</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          One incident is the easy part. A whole shift is the job.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          The storyboard follows a single call. This is the twelve hours around it — the readiness
+          gate before anybody takes a job, the board at handover, the quiet hours where the platform
+          does the remembering, and the file that is already complete when the shift ends.
+        </p>
+        <ShiftDay />
       </Section>
 
       {/* ── The services ─────────────────────────────────────────────── */}
@@ -598,8 +634,23 @@ export default function LandingPage() {
         <Stack />
       </Section>
 
+
+      {/* ── The manual ───────────────────────────────────────────────── */}
+      <Section tint id="manual">
+        <Eyebrow hex="#94a3b8">Written down</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          Nothing here lives only in someone&rsquo;s head.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          The difference between a system a municipality owns and one it is merely renting is whether
+          anybody but the original developer can run it. Every role, every task and every procedure is
+          documented — and the document is generated from the codebase, so it stays true.
+        </p>
+        <Manual />
+      </Section>
+
       {/* ── Outcomes ─────────────────────────────────────────────────── */}
-      <Section tint id="outcomes">
+      <Section id="outcomes">
         <Eyebrow>The outcome</Eyebrow>
         <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           What changes when it is all one system.
@@ -613,6 +664,20 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+      </Section>
+
+
+      {/* ── Going live ───────────────────────────────────────────────── */}
+      <Section tint id="go-live">
+        <Eyebrow hex="#22c55e">Going live</Eyebrow>
+        <h2 className="lp-reveal max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+          From an empty organisation to a running control room.
+        </h2>
+        <p className="mt-6 max-w-3xl text-lg leading-relaxed text-white/65">
+          Eight steps, none of which require a developer. A new municipality is provisioned,
+          configured and trained from the same console its supervisors will use every day.
+        </p>
+        <GoingLive />
       </Section>
 
       {/* ── FAQ ──────────────────────────────────────────────────────── */}
