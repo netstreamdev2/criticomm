@@ -391,6 +391,99 @@ html:has(.lp-page) { scroll-behavior: smooth; }
   }
 }
 
+/* ── Motion vocabulary ──────────────────────────────────────────────
+   Six primitives, each meaning one thing, so twenty sections can each have
+   their own character without the page turning into a fairground:
+
+     lp-rail   an accent bar growing from its anchored edge — "this begins here"
+     lp-pop    something arriving with weight — badges, chips, numerals
+     lp-uline  a rule sweeping under a heading — "this section starts"
+     lp-draw   a line drawn by the scroll itself — progress through a sequence
+     lp-rows   list or table rows resolving in order — "read these in sequence"
+     lp-item   a hover nudge on anything list-shaped — affordance, not decoration
+
+   All of them animate transform and opacity only, so they stay on the
+   compositor, and all of them are switched off under prefers-reduced-motion. */
+
+@keyframes lp-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes lp-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes lp-pop-in {
+  from { opacity: 0; transform: scale(0.82); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .lp-rail {
+      transform-origin: top;
+      animation: lp-grow-y 1ms linear both;
+      animation-timeline: view();
+      animation-range: entry 6% entry 52%;
+    }
+    .lp-uline {
+      transform-origin: left;
+      animation: lp-grow-x 1ms linear both;
+      animation-timeline: view();
+      animation-range: entry 8% entry 58%;
+    }
+    /* Drawn across the whole time the element is on screen, so the line keeps
+       pace with the reader rather than finishing before they arrive. */
+    .lp-draw {
+      transform-origin: top;
+      animation: lp-grow-y 1ms linear both;
+      animation-timeline: view();
+      animation-range: entry 30% exit 20%;
+    }
+    .lp-pop {
+      animation: lp-pop-in 1ms linear both;
+      animation-timeline: view();
+      animation-range: entry 8% entry 60%;
+    }
+    .lp-pops > * {
+      animation: lp-pop-in 1ms linear both;
+      animation-timeline: view();
+    }
+    .lp-pops > *:nth-child(1) { animation-range: entry 4%  entry 44%; }
+    .lp-pops > *:nth-child(2) { animation-range: entry 8%  entry 48%; }
+    .lp-pops > *:nth-child(3) { animation-range: entry 12% entry 52%; }
+    .lp-pops > *:nth-child(4) { animation-range: entry 16% entry 56%; }
+    .lp-pops > *:nth-child(5) { animation-range: entry 20% entry 60%; }
+    .lp-pops > *:nth-child(6) { animation-range: entry 24% entry 64%; }
+    .lp-pops > *:nth-child(7) { animation-range: entry 28% entry 68%; }
+    .lp-pops > *:nth-child(8) { animation-range: entry 32% entry 72%; }
+    .lp-pops > *:nth-child(n + 9) { animation-range: entry 36% entry 76%; }
+
+    .lp-rows > * {
+      animation: lp-reveal 1ms linear both;
+      animation-timeline: view();
+    }
+    .lp-rows > *:nth-child(1) { animation-range: entry 2%  entry 40%; }
+    .lp-rows > *:nth-child(2) { animation-range: entry 6%  entry 44%; }
+    .lp-rows > *:nth-child(3) { animation-range: entry 10% entry 48%; }
+    .lp-rows > *:nth-child(4) { animation-range: entry 14% entry 52%; }
+    .lp-rows > *:nth-child(5) { animation-range: entry 18% entry 56%; }
+    .lp-rows > *:nth-child(6) { animation-range: entry 22% entry 60%; }
+    .lp-rows > *:nth-child(7) { animation-range: entry 26% entry 64%; }
+    .lp-rows > *:nth-child(n + 8) { animation-range: entry 30% entry 68%; }
+  }
+}
+
+/* Hover affordances. These are transitions rather than animations, so they
+   work everywhere and cost nothing until touched. */
+.lp-item {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s ease;
+}
+.lp-item:hover { transform: translateX(4px); color: rgb(255 255 255 / 0.95); }
+
+.lp-glow {
+  transition: box-shadow 0.35s ease, border-color 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lp-glow:hover { transform: translateY(-2px); box-shadow: 0 0 0 1px currentColor, 0 8px 24px -12px currentColor; }
+
+/* A table row lighting up under the cursor. */
+.lp-trow { transition: background-color 0.3s ease; }
+.lp-trow:hover { background-color: rgb(255 255 255 / 0.04); }
+
 /* The one card treatment on the page. A hairline, a top inner highlight so the
    edge catches light, and a lift on hover that is felt more than seen. */
 .lp-card {
@@ -582,6 +675,12 @@ html:has(.lp-page) { scroll-behavior: smooth; }
   .lp-stagger > * { animation: none; }
   .lp-header { animation: none; }
   .lp-navlink::after { transition: none; }
+  /* The motion vocabulary. Each needs its finished state pinned, or an element
+     whose animation supplied that state would be left collapsed or invisible. */
+  .lp-rail, .lp-uline, .lp-draw, .lp-pop { animation: none; transform: none; opacity: 1; }
+  .lp-pops > *, .lp-rows > * { animation: none; transform: none; opacity: 1; }
+  .lp-item, .lp-glow, .lp-trow { transition: none; }
+  .lp-item:hover, .lp-glow:hover { transform: none; box-shadow: none; }
   /* Settled states, so nothing is left mid-gesture or invisible. */
   .lp-clock { width: 38%; background-color: #f59e0b; }
   .lp-ripple, .lp-inbound { opacity: 0; }

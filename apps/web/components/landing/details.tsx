@@ -23,7 +23,7 @@ const FACTS = [
 export function FactsBand() {
   return (
     <div className="border-y border-white/10 bg-white/[0.02]">
-      <div className="lp-stagger lp-container grid grid-cols-2 gap-px overflow-hidden px-6 py-14 sm:px-8 lg:grid-cols-6 lg:py-16 2xl:px-10">
+      <div className="lp-stagger lp-pops lp-container grid grid-cols-2 gap-px overflow-hidden px-6 py-14 sm:px-8 lg:grid-cols-6 lg:py-16 2xl:px-10">
         {FACTS.map((f) => (
           <div key={f.label} className="px-2 py-3 lg:px-4">
             <p className="bg-gradient-to-b from-white to-white/55 bg-clip-text text-3xl font-bold text-transparent lg:text-4xl">
@@ -79,11 +79,11 @@ export function Services() {
       {SERVICES.map((s) => (
         <div key={s.name} className="lp-card p-7">
           <div className="flex items-center gap-3">
-            <span className="h-8 w-1 rounded-full" style={{ background: s.hex }} />
+            <span aria-hidden className="lp-rail h-8 w-1 rounded-full" style={{ background: s.hex }} />
             <h3 className="text-xl font-bold">{s.name}</h3>
           </div>
           <p className="mt-3 text-sm leading-relaxed text-white/60">{s.line}</p>
-          <ul className="mt-5 space-y-2 border-t border-white/10 pt-4 text-sm text-white/70">
+          <ul className="lp-rows mt-5 space-y-2 border-t border-white/10 pt-4 text-sm text-white/70">
             {s.gets.map((g) => (
               <li key={g} className="flex gap-3">
                 <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full" style={{ background: s.hex }} />
@@ -147,11 +147,11 @@ export function Desks() {
             </p>
           </div>
           <div>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="lp-pops flex flex-wrap gap-1.5">
               {d.roles.map((r) => (
                 <span
                   key={r}
-                  className="rounded-md border px-2 py-1 font-mono text-[11px]"
+                  className="lp-glow rounded-md border px-2 py-1 font-mono text-[11px]"
                   style={{ borderColor: `${d.hex}44`, color: `${d.hex}` }}
                 >
                   {r}
@@ -186,9 +186,9 @@ export function Integrations() {
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: g.hex }} />
               {g.cat}
             </p>
-            <ul className="mt-4 space-y-3">
+            <ul className="lp-rows mt-4 space-y-3">
               {g.items.map(([name, what]) => (
-                <li key={name}>
+                <li key={name} className="lp-item cursor-default">
                   <p className="text-sm font-semibold">{name}</p>
                   <p className="mt-0.5 text-xs leading-relaxed text-white/50">{what}</p>
                 </li>
@@ -225,7 +225,7 @@ export function Security() {
       {SECURITY.map((s) => (
         <div key={s.t}>
           <h3 className="flex items-start gap-3 text-base font-bold">
-            <span className="mt-1.5 inline-block h-3 w-1 shrink-0 rounded-full bg-[#22c55e]" />
+            <span aria-hidden className="lp-rail mt-1.5 inline-block h-3 w-1 shrink-0 rounded-full bg-[#22c55e]" />
             {s.t}
           </h3>
           <p className="mt-2 pl-4 text-sm leading-relaxed text-white/55">{s.d}</p>
@@ -289,7 +289,7 @@ export function Oversight() {
         <div key={o.tool} className="lp-card grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] sm:p-6">
           <div>
             <p className="text-base font-bold leading-snug text-white/90">&ldquo;{o.q}&rdquo;</p>
-            <p className="mt-2 inline-flex items-center gap-2 text-xs">
+            <p className="lp-item mt-2 inline-flex items-center gap-2 text-xs">
               <span className="font-semibold text-[#f59e0b]">{o.tool}</span>
               <span className="font-mono text-[11px] text-white/35">{o.route}</span>
             </p>
@@ -326,9 +326,9 @@ export function Stack() {
               <th className="px-6 py-4 font-semibold">Why it is there</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="lp-rows">
             {STACK.map((r) => (
-              <tr key={r.layer} className="border-b border-white/[0.06] last:border-0">
+              <tr key={r.layer} className="lp-trow border-b border-white/[0.06] last:border-0">
                 <td className="px-6 py-4 font-semibold">{r.layer}</td>
                 <td className="px-6 py-4 font-mono text-[13px] text-white/70">{r.items}</td>
                 <td className="px-6 py-4 leading-relaxed text-white/50">{r.why}</td>
@@ -367,6 +367,7 @@ export function Faq() {
     <div className="lp-stagger mt-14 grid gap-4 lg:grid-cols-2">
       {FAQ.map(([q, a]) => (
         <div key={q} className="lp-card p-6">
+          <span aria-hidden className="lp-uline mb-3.5 block h-px w-8 origin-left bg-[#3b82f6]" />
           <h3 className="text-base font-bold leading-snug">{q}</h3>
           <p className="mt-3 text-sm leading-relaxed text-white/55">{a}</p>
         </div>

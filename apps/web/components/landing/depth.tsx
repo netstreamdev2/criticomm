@@ -20,7 +20,7 @@ const PROOF = [
 
 export function HeroProof() {
   return (
-    <div className="mt-10 flex flex-wrap items-center gap-x-2 gap-y-2 border-t border-white/10 pt-6">
+    <div className="lp-pops mt-10 flex flex-wrap items-center gap-x-2 gap-y-2 border-t border-white/10 pt-6">
       {PROOF.map((p, i) => (
         <span key={p} className="flex items-center gap-2">
           {i > 0 && <span aria-hidden className="hidden h-3 w-px bg-white/15 sm:block" />}
@@ -84,12 +84,12 @@ export function Decisions() {
         <div key={d.n} className="lp-card overflow-hidden">
           <div className="grid gap-6 p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:p-8">
             <div>
-              <p className="text-5xl font-bold leading-none text-white/10">{d.n}</p>
+              <p className="lp-pop text-5xl font-bold leading-none text-white/10">{d.n}</p>
               <h3 className="mt-4 text-xl font-bold leading-snug">{d.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/65">{d.decision}</p>
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-3 lg:border-l lg:border-white/10 lg:pl-8">
+            <div className="lp-rows grid gap-5 sm:grid-cols-3 lg:border-l lg:border-white/10 lg:pl-8">
               {[
                 ['Instead of', d.instead, '#94a3b8'],
                 ['What it costs', d.cost, '#f59e0b'],
@@ -161,7 +161,7 @@ export function ShiftDay() {
         <div key={s.title} className="lp-card relative p-6">
           <span
             aria-hidden
-            className="absolute left-0 top-6 h-10 w-[3px] rounded-r"
+            className="lp-rail absolute left-0 top-6 h-10 w-[3px] rounded-r"
             style={{ background: s.hex }}
           />
           <p
@@ -193,7 +193,7 @@ const ROLLOUT = [
 
 export function GoingLive() {
   return (
-    <ol className="lp-stagger mt-14 grid gap-3 md:grid-cols-2 2xl:grid-cols-4">
+    <ol className="lp-stagger lp-pops mt-14 grid gap-3 md:grid-cols-2 2xl:grid-cols-4">
       {ROLLOUT.map(([title, body], i) => (
         <li key={title} className="lp-card p-5">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-xs font-bold text-white/70">
@@ -223,7 +223,7 @@ export function Manual() {
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/40">
           Operations &amp; Engineering Manual
         </p>
-        <div className="mt-5 flex flex-wrap items-baseline gap-x-8 gap-y-3">
+        <div className="lp-pops mt-5 flex flex-wrap items-baseline gap-x-8 gap-y-3">
           {[['138', 'pages'], ['10', 'volumes'], ['53', 'chapters'], ['107', 'procedures']].map(
             ([n, l]) => (
               <span key={l}>
@@ -246,9 +246,9 @@ export function Manual() {
 
       <div className="lp-card p-8">
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/40">Contents</p>
-        <ul className="mt-5 space-y-2.5">
+        <ul className="lp-rows mt-5 space-y-2.5">
           {VOLUMES.map(([n, t]) => (
-            <li key={n} className="flex items-baseline gap-4 border-b border-white/[0.06] pb-2.5 last:border-0">
+            <li key={n} className="lp-item flex cursor-default items-baseline gap-4 border-b border-white/[0.06] pb-2.5 last:border-0">
               <span className="w-8 shrink-0 font-mono text-xs text-white/35">{n}</span>
               <span className="text-sm text-white/75">{t}</span>
             </li>

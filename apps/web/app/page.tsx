@@ -173,7 +173,7 @@ const OUTCOMES = [
 function Eyebrow({ children, hex = '#ff5a68' }: { children: React.ReactNode; hex?: string }) {
   return (
     <p className="mb-3 flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.2em]" style={{ color: hex }}>
-      <span className="inline-block h-px w-8" style={{ background: hex }} />
+      <span className="lp-uline inline-block h-px w-8" style={{ background: hex }} />
       {children}
     </p>
   );
@@ -318,8 +318,9 @@ export default function LandingPage() {
 
         <div className="lp-stagger mt-14 grid gap-5 md:grid-cols-3">
           {PROBLEMS.map((p) => (
-            <div key={p.title} className="lp-card p-6">
-              <div className="mb-4 h-1 w-10 rounded-full bg-[#dc3545]" />
+            <div key={p.title} className="lp-card relative overflow-hidden p-6">
+              <span aria-hidden className="lp-rail absolute left-0 top-0 h-full w-[2px] bg-[#dc3545]/60" />
+              <div className="lp-uline mb-4 h-1 w-10 origin-left rounded-full bg-[#dc3545]" />
               <h3 className="text-lg font-bold">{p.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/60">{p.body}</p>
             </div>
@@ -342,10 +343,11 @@ export default function LandingPage() {
           {PILLARS.map((p, i) => (
             <div key={p.kicker} className="lp-card relative p-7">
               <span
-                className="absolute left-0 top-7 h-12 w-[3px] rounded-r"
+                aria-hidden
+                className="lp-rail absolute left-0 top-7 h-12 w-[3px] rounded-r"
                 style={{ background: p.hex }}
               />
-              <p className="text-5xl font-bold leading-none text-white/10">0{i + 1}</p>
+              <p className="lp-pop text-5xl font-bold leading-none text-white/10">0{i + 1}</p>
               <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em]" style={{ color: p.hex }}>
                 {p.kicker}
               </p>
@@ -367,7 +369,7 @@ export default function LandingPage() {
           green the case file. The automation engine watches every step and escalates any that stalls.
         </p>
 
-        <ol className="lp-stagger mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+        <ol className="lp-stagger lp-pops mt-14 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {LIFECYCLE.map((s) => (
             <li
               key={s.n}
@@ -559,7 +561,7 @@ export default function LandingPage() {
                 {g.label}
               </p>
               <ul className="mt-4 space-y-2 text-sm text-white/65">
-                {g.items.map((i) => <li key={i}>{i}</li>)}
+                {g.items.map((i) => <li key={i} className="lp-item cursor-default">{i}</li>)}
               </ul>
             </div>
           ))}
@@ -659,6 +661,7 @@ export default function LandingPage() {
         <div className="lp-stagger mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {OUTCOMES.map((o) => (
             <div key={o.title} className="lp-card p-6">
+              <span aria-hidden className="lp-uline mb-4 block h-px w-12 origin-left bg-[#ff5a68]" />
               <h3 className="text-base font-bold">{o.title}</h3>
               <p className="mt-2.5 text-sm leading-relaxed text-white/60">{o.body}</p>
             </div>

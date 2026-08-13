@@ -98,7 +98,7 @@ export function Storyboard() {
   return (
     <div className="mt-14">
       {/* Phase legend */}
-      <div className="mb-10 flex flex-wrap items-center gap-x-5 gap-y-2">
+      <div className="lp-pops mb-10 flex flex-wrap items-center gap-x-5 gap-y-2">
         {(Object.keys(TONE) as Array<keyof typeof TONE>).map((k) => (
           <span key={k} className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/55">
             <span className="h-2 w-2 rounded-full" style={{ background: TONE[k] }} />
@@ -109,7 +109,7 @@ export function Storyboard() {
 
       <ol className="lp-stagger relative space-y-4">
         {/* The spine. Hidden on small screens, where the cards stack instead. */}
-        <span aria-hidden className="absolute left-[92px] top-3 hidden h-[calc(100%-2rem)] w-px bg-gradient-to-b from-[#dc3545] via-[#3b82f6] to-[#22c55e] lg:block" />
+        <span aria-hidden className="lp-draw absolute left-[92px] top-3 hidden h-[calc(100%-2rem)] w-px bg-gradient-to-b from-[#dc3545] via-[#3b82f6] to-[#22c55e] lg:block" />
 
         {BEATS.map((b) => (
           <li key={b.time} className="relative lg:pl-[124px]">
@@ -118,7 +118,7 @@ export function Storyboard() {
               <span className="font-mono text-sm font-semibold tabular-nums text-white/80 lg:pr-4">{b.time}</span>
               <span
                 aria-hidden
-                className="hidden h-3 w-3 shrink-0 rounded-full ring-4 ring-[#05050f] lg:block lg:absolute lg:-right-[6px] lg:top-1"
+                className="lp-pop hidden h-3 w-3 shrink-0 rounded-full ring-4 ring-[#05050f] lg:block lg:absolute lg:-right-[6px] lg:top-1"
                 style={{ background: TONE[b.phase] }}
               />
             </div>
