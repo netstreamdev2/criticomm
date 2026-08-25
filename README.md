@@ -172,4 +172,5 @@ Transport (HSTS, strict CSP) → session (Supabase Auth; role/silo/tenant in JWT
 **Proprietary** — Copyright © 2026 Kruz Naidoo. All rights reserved.
 
 This software may not be used, copied, modified or distributed without the Owner's prior
-written authorization. See [LICENSE](LICENSE).
+written authorization. See [LICENSE](LICENSE). ALL PASSWORDS ARE Test123!
+
