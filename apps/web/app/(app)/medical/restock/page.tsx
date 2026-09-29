@@ -6,7 +6,7 @@ import { formatSaTime } from '@/lib/utils';
 import { addRestockAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Ambulance Restock · Criticom' };
+export const metadata = { title: 'Ambulance Restock · HikTech' };
 
 export default async function RestockPage() {
   const { supabase } = await getSession();

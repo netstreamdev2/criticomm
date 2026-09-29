@@ -6,6 +6,9 @@ import { canAccess } from '@criticom/db/roles';
 import type { Silo, UserRole } from '@criticom/db/types';
 
 const PUBLIC_PATHS = ['/login', '/reset-password', '/share-location'];
+const PUBLIC_MARKETING_PATHS = new Set([
+  '/why', '/story', '/decisions', '/platform', '/security', '/manual', '/faq',
+]);
 
 /**
  * The landing page. Kept out of PUBLIC_PATHS because that list is prefix-based
@@ -59,6 +62,15 @@ function ruleDenied(rules: AccessRule[], role: string, pathname: string): boolea
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request });
 
+  // These endpoints use an invitation receipt, not the browser's Auth session.
+  // Skipping refresh also prevents an invite opened by a signed-in SuperAdmin
+  // from changing that administrator's cookies.
+  if (request.nextUrl.pathname === '/auth/invite' || request.nextUrl.pathname === '/accept-invite') {
+    response.headers.set('Cache-Control', 'private, no-store');
+    response.headers.set('Referrer-Policy', 'no-referrer');
+    return response;
+  }
+
   // If Supabase env isn't configured on this deployment, don't crash the whole
   // site — let the request through (pages/route handlers surface the config error).
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
@@ -78,6 +90,7 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isPublic = pathname === LANDING_PATH
+    || PUBLIC_MARKETING_PATHS.has(pathname)
     || PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   // API callers need a status code they can branch on. Redirecting them to the
   // HTML login page yields a 200 full of markup and the classic
@@ -102,6 +115,12 @@ export async function middleware(request: NextRequest) {
     url.pathname = '/login';
     url.searchParams.set('next', pathname);
     return NextResponse.redirect(url);
+  }
+
+  // Invitation-only accounts must not enter the console before activation.
+  if (user?.app_metadata?.invitation_pending === true && (!isPublic || pathname === '/login')) {
+    if (isApi) return NextResponse.json({ error: 'Account setup is pending.' }, { status: 403 });
+    return NextResponse.redirect(new URL('/accept-invite', request.url));
   }
 
   // Already logged in and on /login → go to dashboard

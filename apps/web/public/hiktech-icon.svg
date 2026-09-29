@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="HIKTECH">
+  <rect x="0.5" y="0.5" width="63" height="63" rx="12.5" fill="#fff" stroke="#D5D9DE"/>
+  <g transform="skewX(-11)" fill="#E31E2B">
+    <path d="M18 13h10v14h15V13h10v38H43V36H28v15H18z"/>
+  </g>
+</svg>

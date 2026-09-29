@@ -5,7 +5,7 @@ import { PcrFormSections, type PcrDefaults } from '../../pcr-form';
 import { updatePcrAction } from '../../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Edit PCR · Criticom' };
+export const metadata = { title: 'Edit PCR · HikTech' };
 
 export default async function EditPcrPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

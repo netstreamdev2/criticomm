@@ -10,7 +10,7 @@ import { LiveWall } from './live-wall';
 import { TrafficPanel } from './traffic-panel';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Surveillance · Criticom' };
+export const metadata = { title: 'Surveillance · HikTech' };
 
 export default async function CamerasPage() {
   await requireFeaturePage('web.cameras');

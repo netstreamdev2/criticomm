@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { setLeaveStatusAction } from '../leave/actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'HR Command Centre · Criticom' };
+export const metadata = { title: 'HR Command Centre · HikTech' };
 
 const QUICK = [
   { href: '/leave', label: 'Leave', desc: 'Balances, calendar, approvals', icon: Briefcase },

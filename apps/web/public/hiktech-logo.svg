@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 714 154" role="img" aria-labelledby="title description">
+  <title id="title">HIKTECH</title>
+  <desc id="description">Italic HIKTECH wordmark with HIK in red and TECH in silver grey.</desc>
+  <g transform="translate(19 0) skewX(-11)">
+    <g fill="#E31E2B">
+      <path d="M35 27h25v37h38V27h25v100H98V87H60v40H35z"/>
+      <path d="M136 27h25v100h-25z"/>
+      <path d="M174 27h25v43l36-43h32l-44 50 46 50h-34l-36-42v42h-25z"/>
+    </g>
+    <g fill="#D5D9DE">
+      <path d="M294 27h93v23h-34v77h-25V50h-34z"/>
+      <path d="M398 27h86v23h-61v17h54v22h-54v15h61v23h-86z"/>
+      <path d="M522 27h67v23h-61c-9 0-13 4-13 13v28c0 9 4 13 13 13h61v23h-67c-21 0-32-11-32-32V59c0-21 11-32 32-32z"/>
+      <path d="M602 27h25v37h38V27h25v100h-25V87h-38v40h-25z"/>
+    </g>
+  </g>
+</svg>

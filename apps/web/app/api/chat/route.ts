@@ -22,7 +22,7 @@ import { enforceRateLimit } from '@/lib/rate-limit';
  */
 export const dynamic = 'force-dynamic';
 
-const SYSTEM_INSTRUCTION = `You are Criti, the AI assistant embedded in the Criticom emergency-management platform for eThekwini Emergency Services.
+const SYSTEM_INSTRUCTION = `You are Criti, the AI assistant embedded in the HikTech emergency-management platform for eThekwini Emergency Services.
 
 RULES FOR INTERACTION:
 1. STRICT FACTUALITY: Never invent or guess data, addresses, names, IDs or numbers. Use ONLY the records in [LIVE OPERATIONS BOARD]. If a section says "None", say plainly that there are no such records.

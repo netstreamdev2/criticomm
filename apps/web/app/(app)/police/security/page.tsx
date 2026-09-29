@@ -7,7 +7,7 @@ import { formatSaTime } from '@/lib/utils';
 import { resolveSecurityReportAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Security Reports · Criticom' };
+export const metadata = { title: 'Security Reports · HikTech' };
 
 export default async function SecurityReportsPage() {
   const { supabase } = await getSession();

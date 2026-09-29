@@ -63,7 +63,7 @@ export async function GET(req: Request) {
   return new Response(`﻿${rows.join('\r\n')}\r\n`, {
     headers: {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="criticomm-${kind}-report-${from}-to-${to}.csv"`,
+      'Content-Disposition': `attachment; filename="hiktech-${kind}-report-${from}-to-${to}.csv"`,
     },
   });
 }

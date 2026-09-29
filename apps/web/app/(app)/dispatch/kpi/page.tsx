@@ -4,7 +4,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'KPI Dashboard · Criticom' };
+export const metadata = { title: 'KPI Dashboard · HikTech' };
 
 function BarRow({ label, value, max }: { label: string; value: number; max: number }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;

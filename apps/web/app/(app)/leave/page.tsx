@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { applyLeaveAction, setLeaveStatusAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Leave · Criticom' };
+export const metadata = { title: 'Leave · HikTech' };
 
 const FALLBACK_TYPES = ['Annual', 'Sick', 'Family Responsibility', 'Study', 'Maternity/Paternity', 'Unpaid', 'Special'];
 

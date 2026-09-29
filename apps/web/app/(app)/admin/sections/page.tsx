@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { createSectionAction, setSectionActiveAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Sections · Criticomm' };
+export const metadata = { title: 'Sections · HikTech' };
 
 const SILOS: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
 

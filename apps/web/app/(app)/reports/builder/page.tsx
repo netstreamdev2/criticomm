@@ -5,7 +5,7 @@ import { getSession } from '@/lib/session';
 import { ReportBuilder } from './builder-client';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Report builder · Criticom' };
+export const metadata = { title: 'Report builder · HikTech' };
 
 export default async function ReportBuilderPage({
   searchParams,

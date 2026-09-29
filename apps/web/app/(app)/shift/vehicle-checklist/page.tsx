@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { CheckField, SelectField } from '@/components/fields';
 import { vehicleChecklistAction } from '../actions';
 
-export const metadata = { title: 'Vehicle Checklist · Criticom' };
+export const metadata = { title: 'Vehicle Checklist · HikTech' };
 
 const ITEMS = [
   { name: 'lights_functional', label: 'Emergency lights + siren functional' },

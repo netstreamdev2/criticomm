@@ -36,10 +36,17 @@ const SERVICES: Service[] = [
 
 export function HeroVisual() {
   return (
-    <div className="relative mx-auto w-full max-w-[460px]">
+    <div className="lp-visual relative mx-auto w-full max-w-[640px] overflow-hidden rounded-[22px] border border-white/10 bg-[#191b20]/90 p-4 shadow-[0_28px_80px_rgba(0,0,0,0.38)] sm:p-6">
+      <div className="relative z-10 flex items-start justify-between gap-4 border-b border-white/10 pb-4">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#f26368]">HikTech / Live coordination</p>
+          <h2 className="mt-1 text-lg font-medium tracking-tight text-white sm:text-xl">Four services. One response.</h2>
+        </div>
+        <span className="whitespace-nowrap rounded-full border border-[#ef454b]/25 bg-[#ef454b]/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#ff777c]">4 in 1</span>
+      </div>
       <svg
         viewBox="0 0 400 340"
-        className="h-auto w-full overflow-visible"
+        className="relative z-10 mx-auto h-auto w-full max-w-[540px] overflow-visible"
         role="img"
         aria-label="One emergency call routed to Metro Police, Fire and Rescue, EMS and Disaster Management, with units responding."
       >
@@ -121,9 +128,10 @@ export function HeroVisual() {
         <text x={CX} y={CY + 4} textAnchor="middle" fill="#ffffff" fontSize="10" fontWeight="800">1</text>
       </svg>
 
-      <p className="mt-2 text-center text-xs text-white/40">
-        One call · one number · four services · every unit accounted for
-      </p>
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-4 text-[11px] text-white/45">
+        <span>One call · one number · four services</span>
+        <span className="inline-flex items-center gap-2 text-white/65"><span className="h-1.5 w-1.5 rounded-full bg-[#22c55e]" /> Every unit accounted for</span>
+      </div>
     </div>
   );
 }

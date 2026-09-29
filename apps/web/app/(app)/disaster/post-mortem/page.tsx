@@ -7,7 +7,7 @@ import { formatSaTime } from '@/lib/utils';
 import { postMortemAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Post-Mortem Reports · Criticom' };
+export const metadata = { title: 'Post-Mortem Reports · HikTech' };
 
 export default async function PostMortemPage() {
   const { supabase, fullName } = await getSession();

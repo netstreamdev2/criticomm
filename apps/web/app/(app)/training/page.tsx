@@ -6,7 +6,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { addTrainingAction, addCertificationAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Training · Criticom' };
+export const metadata = { title: 'Training · HikTech' };
 
 type PersonnelJoin = { personnel?: { first_name?: string; last_name?: string; badge_number?: string } };
 const who = (r: PersonnelJoin) =>

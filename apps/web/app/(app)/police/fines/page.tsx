@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { issueFineAction, recordTransactionAction, setFineStatusAction } from '../enforcement-actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Fines · Criticomm' };
+export const metadata = { title: 'Fines · HikTech' };
 
 const STATUS_TONE: Record<string, string> = {
   Unpaid: 'bg-severity-medium/15 text-severity-medium-ink',

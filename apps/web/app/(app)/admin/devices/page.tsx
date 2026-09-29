@@ -7,7 +7,7 @@ import { formatSaTime } from '@/lib/utils';
 import { createDeviceAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Devices Admin · Criticom' };
+export const metadata = { title: 'Devices Admin · HikTech' };
 
 export default async function AdminDevicesPage() {
   const { supabase } = await getSession();

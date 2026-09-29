@@ -5,7 +5,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Fire & Rescue · Criticom' };
+export const metadata = { title: 'Fire & Rescue · HikTech' };
 
 export default async function FirePage() {
   const { supabase } = await getSession();

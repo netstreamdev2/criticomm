@@ -6,7 +6,7 @@ import { cn, formatSaTime } from '@/lib/utils';
 import { markReadAction, sendMailAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Mail · Criticomm' };
+export const metadata = { title: 'Mail · HikTech' };
 
 export default async function MailPage() {
   await requireFeaturePage('web.mail');

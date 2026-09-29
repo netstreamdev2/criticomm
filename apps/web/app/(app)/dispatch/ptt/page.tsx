@@ -4,7 +4,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { PttConsole } from './ptt-console';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'PTT Radio Console · Criticom' };
+export const metadata = { title: 'PTT Radio Console · HikTech' };
 
 export default async function PttPage() {
   await requireFeaturePage('web.ptt');

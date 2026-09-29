@@ -8,7 +8,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'My HR · Criticom' };
+export const metadata = { title: 'My HR · HikTech' };
 
 export default async function MyHrPage() {
   const { supabase, userId, silo, role, fullName } = await getSession();

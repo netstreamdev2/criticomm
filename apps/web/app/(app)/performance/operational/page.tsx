@@ -6,7 +6,7 @@ import { formatSaTime } from '@/lib/utils';
 import { PerfNav, cycleWindow } from '../perf-nav';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Operational KPIs · Criticom' };
+export const metadata = { title: 'Operational KPIs · HikTech' };
 
 export default async function OperationalKpiPage({
   searchParams,

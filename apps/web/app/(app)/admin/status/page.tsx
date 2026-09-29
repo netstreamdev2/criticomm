@@ -8,7 +8,7 @@ import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'System status · Criticom' };
+export const metadata = { title: 'System status · HikTech' };
 
 /**
  * One page that answers "is the platform actually working right now".

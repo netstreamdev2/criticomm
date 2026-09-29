@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getServerSupabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Search · Criticom' };
+export const metadata = { title: 'Search · HikTech' };
 
 /**
  * The full-page counterpart to ⌘K.

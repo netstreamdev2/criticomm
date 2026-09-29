@@ -7,7 +7,7 @@ import { cn, formatSaTime } from '@/lib/utils';
 import { issueWarrantAction, setWarrantStatusAction } from '../enforcement-actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Warrants · Criticomm' };
+export const metadata = { title: 'Warrants · HikTech' };
 
 const STATUS_TONE: Record<string, string> = {
   Active: 'bg-severity-critical/15 text-severity-critical-ink',

@@ -7,7 +7,7 @@ import { PendingRealtimeBridge } from './realtime-bridge';
 import { IncidentRow, StopClick } from './incident-row';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Pending queue · Criticom' };
+export const metadata = { title: 'Pending queue · HikTech' };
 
 export default async function PendingPage() {
   const supabase = await getServerSupabase();

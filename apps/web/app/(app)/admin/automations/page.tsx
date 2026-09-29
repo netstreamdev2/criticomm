@@ -10,7 +10,7 @@ import { timeAgo } from '@/lib/utils';
 import { RuleCard } from './rule-card';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Automations · Criticom' };
+export const metadata = { title: 'Automations · HikTech' };
 
 export default async function AutomationsPage() {
   const { supabase, role } = await getSession();

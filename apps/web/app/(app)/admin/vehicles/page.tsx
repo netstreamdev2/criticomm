@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session';
 import { createApparatusAction, setApparatusStatusAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Fleet Admin · Criticom' };
+export const metadata = { title: 'Fleet Admin · HikTech' };
 
 const STATUSES = ['Available', 'In Use', 'En Route', 'On Scene', 'Out of Service', 'Maintenance', 'Decommissioned'];
 

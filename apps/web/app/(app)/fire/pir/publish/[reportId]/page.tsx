@@ -5,7 +5,7 @@ import { getSession } from '@/lib/session';
 import { publishPirAction } from '../../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Publish PIR · Criticom' };
+export const metadata = { title: 'Publish PIR · HikTech' };
 
 export default async function PublishPirPage({
   params,

@@ -37,7 +37,7 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className="hik-login-form space-y-4">
       <div>
         <Label htmlFor="email">Email</Label>
         <Input
@@ -63,11 +63,11 @@ export function LoginForm() {
         />
       </div>
       {error && (
-        <p className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical-ink">
+        <p role="alert" className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical-ink">
           {error}
         </p>
       )}
-      <Button type="submit" className="w-full" disabled={isPending}>
+      <Button type="submit" className="hik-login-submit w-full" disabled={isPending}>
         {isPending ? 'Signing in…' : 'Sign in'}
       </Button>
       <p className="text-center text-xs text-muted-foreground">

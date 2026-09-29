@@ -1,7 +1,7 @@
 import { ChatClient } from './chat-client';
 import { requireFeaturePage } from '@/lib/features';
 
-export const metadata = { title: 'Criti Assistant · Criticom' };
+export const metadata = { title: 'Criti Assistant · HikTech' };
 
 export default async function AssistantPage() {
   await requireFeaturePage('web.assistant');

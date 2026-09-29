@@ -4,7 +4,7 @@ import { getSession } from '@/lib/session';
 import { AllocationBoard } from './allocation-client';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Duty allocation · Criticom' };
+export const metadata = { title: 'Duty allocation · HikTech' };
 
 /** Today in SA time — the board is a local-operations artefact, not a UTC one. */
 function saToday() {

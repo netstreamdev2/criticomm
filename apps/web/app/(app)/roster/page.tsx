@@ -13,7 +13,7 @@ import {
 import { WeekBoard } from './week-board';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Roster · Criticom' };
+export const metadata = { title: 'Roster · HikTech' };
 
 const ENDORSEMENT_TYPES = ['Court Attendance', 'Special Event', 'Special Instruction', 'Restriction'];
 

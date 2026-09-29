@@ -7,7 +7,7 @@ import { PerfNav } from '../../perf-nav';
 import { saveScoreAction, approveStageAction } from '../../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Appraisal Plan · Criticom' };
+export const metadata = { title: 'Appraisal Plan · HikTech' };
 
 type Stage = 'MidYear' | 'Final';
 

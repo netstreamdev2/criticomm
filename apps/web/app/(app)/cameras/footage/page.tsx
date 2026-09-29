@@ -3,7 +3,7 @@ import { requireFeaturePage } from '@/lib/features';
 import { FootageFinder } from './footage-finder';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'CCTV Footage · Criticom' };
+export const metadata = { title: 'CCTV Footage · HikTech' };
 
 export default async function FootagePage() {
   await requireFeaturePage('web.cameras');

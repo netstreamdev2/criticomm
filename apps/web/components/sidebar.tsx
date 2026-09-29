@@ -3,17 +3,244 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, Menu, X, Search } from 'lucide-react';
+import { BarChart3, ChevronDown, Menu, Target, X, Search } from 'lucide-react';
 import { canAccess, type Silo, type UserRole } from '@criticom/db';
 import type { DepartmentBranding } from '@criticom/api';
 import { DeptBadge } from '@/components/dept-badge';
-import { NAV_GROUPS } from '@/lib/nav';
+import { ALL_NAV_ITEMS, NAV_GROUPS, type NavGroup } from '@/lib/nav';
 import { cn } from '@/lib/utils';
 
 /** Branding for the signed-in user's own department, resolved server-side. */
 export type DeptIdentity = DepartmentBranding & { logoUrl: string | null };
 
 const STORAGE_KEY = 'criticom:collapsed-nav-groups';
+
+// Super Admin works at the platform level. Keep this navigation separate from
+// the department and responder menu without changing their route permissions.
+const adminLink = (href: string, label?: string) => {
+  const item = ALL_NAV_ITEMS.find((entry) => entry.href === href);
+  if (!item) throw new Error(`Missing administration navigation route: ${href}`);
+  return { ...item, label: label ?? item.label };
+};
+
+const SUPER_ADMIN_GROUPS: NavGroup[] = [
+  {
+    id: 'platform-overview', label: 'Platform', items: [
+      adminLink('/dashboard', 'Overview'),
+      adminLink('/admin/tenants', 'Organisations'),
+      adminLink('/admin/status', 'System Status'),
+    ],
+  },
+  {
+    id: 'platform-governance', label: 'Governance', items: [
+      adminLink('/admin', 'Users & Roles'),
+      adminLink('/admin/access', 'Access Control'),
+      adminLink('/admin/features', 'Features'),
+    ],
+  },
+  {
+    id: 'platform-settings', label: 'Platform Settings', items: [
+      adminLink('/admin/integrations', 'Integrations'),
+      adminLink('/admin/automations', 'Automations'),
+      adminLink('/admin/operations', 'Operations Settings'),
+      adminLink('/admin/departments', 'Department Branding'),
+    ],
+  },
+  { id: 'account', label: 'Account', items: [adminLink('/profile', 'My Profile')] },
+];
+
+const SYSTEM_ADMIN_GROUPS: NavGroup[] = [
+  {
+    id: 'organisation-overview', label: 'Organisation', items: [
+      adminLink('/dashboard', 'Overview'),
+      adminLink('/command', 'Command Centre'),
+      adminLink('/analytics', 'Analytics'),
+      adminLink('/report-hub', 'Reports'),
+    ],
+  },
+  {
+    id: 'organisation-resources', label: 'People & Resources', items: [
+      adminLink('/admin', 'Users & Roles'),
+      adminLink('/admin/personnel', 'Personnel'),
+      adminLink('/admin/vehicles', 'Fleet'),
+      adminLink('/admin/devices', 'Devices'),
+    ],
+  },
+  {
+    id: 'organisation-settings', label: 'Organisation Settings', items: [
+      adminLink('/admin/config', 'Configuration'),
+      adminLink('/admin/departments', 'Department Branding'),
+      adminLink('/admin/integrations', 'Integrations'),
+      adminLink('/admin/operations', 'Operations Settings'),
+      adminLink('/admin/automations', 'Automations'),
+    ],
+  },
+  { id: 'organisation-health', label: 'Health', items: [adminLink('/admin/status', 'System Status')] },
+  { id: 'organisation-account', label: 'Account', items: [adminLink('/profile', 'My Profile')] },
+];
+
+const SUPERVISOR_GROUPS: NavGroup[] = [
+  {
+    id: 'supervisor-overview', label: 'Overview', items: [
+      adminLink('/dashboard', 'Team Dashboard'),
+      adminLink('/command', 'Command Board'),
+    ],
+  },
+  {
+    id: 'supervisor-team', label: 'Team & Duty', items: [
+      adminLink('/roster/allocation', 'Duty Allocation'),
+      adminLink('/roster', 'Roster'),
+      adminLink('/roster/duty-sheet', 'Duty Sheet'),
+      adminLink('/hr', 'Team Readiness'),
+      adminLink('/attendance', 'Attendance'),
+      adminLink('/leave', 'Leave Approvals'),
+      adminLink('/training', 'Training'),
+    ],
+  },
+  {
+    id: 'supervisor-operations', label: 'Operations', items: [
+      adminLink('/dispatch/pending', 'Pending Dispatch'),
+      adminLink('/incidents', 'Incidents'),
+      adminLink('/incidents/map', 'Live Map'),
+      adminLink('/duty-tasks', 'Duty Maintenance'),
+      adminLink('/report-hub', 'Reports'),
+    ],
+  },
+  {
+    id: 'supervisor-performance', label: 'Performance', items: [
+      { href: '/performance/operational', label: 'Operational KPIs', icon: BarChart3 },
+      { href: '/performance/plans', label: 'Appraisals', icon: Target },
+      adminLink('/performance/reports', 'Performance Reports'),
+    ],
+  },
+  {
+    id: 'supervisor-account', label: 'Account', items: [
+      adminLink('/notifications', 'Notifications'),
+      adminLink('/profile', 'My Profile'),
+    ],
+  },
+];
+
+const CAPTAIN_GROUPS: NavGroup[] = [
+  { id: 'captain-overview', label: 'Overview', items: [
+    adminLink('/dashboard', 'Captain Dashboard'),
+    adminLink('/command', 'Command Board'),
+  ] },
+  { id: 'captain-team', label: 'Team & Duty', items: [
+    adminLink('/roster/allocation', 'Duty Allocation'),
+    adminLink('/roster', 'Roster'),
+    adminLink('/roster/duty-sheet', 'Duty Sheet'),
+    adminLink('/hr', 'Team Readiness'),
+    adminLink('/leave', 'Leave'),
+    adminLink('/training', 'Training'),
+  ] },
+  { id: 'captain-operations', label: 'Police Operations', items: [
+    adminLink('/police', 'Police Overview'),
+    adminLink('/incidents', 'Incidents'),
+    adminLink('/incidents/map', 'Live Map'),
+    adminLink('/responder', 'My Incidents'),
+    adminLink('/duty-tasks', 'Duty Maintenance'),
+  ] },
+  { id: 'captain-account', label: 'My Work', items: [
+    adminLink('/roster/mine', 'My Schedule'),
+    adminLink('/shift/mental-check', 'Start of Shift'),
+    adminLink('/notifications', 'Notifications'),
+    adminLink('/profile', 'My Profile'),
+  ] },
+];
+
+const POLICE_OFFICER_GROUPS: NavGroup[] = [
+  { id: 'officer-overview', label: 'My Work', items: [
+    adminLink('/dashboard', 'Overview'),
+    adminLink('/responder', 'My Incidents'),
+    adminLink('/roster/mine', 'My Schedule'),
+    adminLink('/roster/allocation', 'Published Duty Board'),
+  ] },
+  { id: 'officer-shift', label: 'On Shift', items: [
+    adminLink('/shift/mental-check', 'Start of Shift'),
+    adminLink('/duty-tasks', 'My Duty Tasks'),
+    adminLink('/incidents/map', 'Live Map'),
+  ] },
+  { id: 'officer-police', label: 'Police', items: [
+    adminLink('/police', 'Police Operations'),
+    adminLink('/police/fines', 'Fines'),
+    adminLink('/police/warrants', 'Warrants'),
+    adminLink('/police/summons', 'Summons'),
+    adminLink('/police/firearm-checks', 'Firearm Checks'),
+  ] },
+  { id: 'officer-account', label: 'Account', items: [
+    adminLink('/leave', 'Leave'),
+    adminLink('/performance/mine', 'My Performance'),
+    adminLink('/notifications', 'Notifications'),
+    adminLink('/profile', 'My Profile'),
+  ] },
+];
+
+const DISPATCHER_GROUPS: NavGroup[] = [
+  {
+    id: 'dispatcher-overview', label: 'Overview', items: [
+      adminLink('/dashboard', 'Dispatch Dashboard'),
+    ],
+  },
+  {
+    id: 'dispatcher-live', label: 'Live Dispatch', items: [
+      adminLink('/dispatch/pending', 'Pending Queue'),
+      adminLink('/incidents', 'Incidents'),
+      adminLink('/incidents/map', 'Live Map'),
+      adminLink('/dispatch/ptt', 'PTT Radio'),
+    ],
+  },
+  {
+    id: 'dispatcher-support', label: 'Duty & Reporting', items: [
+      adminLink('/roster/allocation', 'Duty Board'),
+      adminLink('/dispatch/kpi', 'Dispatch KPIs'),
+      adminLink('/report-hub', 'Reports'),
+    ],
+  },
+  {
+    id: 'dispatcher-account', label: 'Account', items: [
+      adminLink('/notifications', 'Notifications'),
+      adminLink('/profile', 'My Profile'),
+    ],
+  },
+];
+
+const SYSTEM_CONTROLLER_GROUPS: NavGroup[] = [
+  { id: 'controller-command', label: 'Command', items: [
+    adminLink('/command', 'Command Centre'),
+    adminLink('/dispatch/pending', 'Pending Dispatch'),
+    adminLink('/incidents', 'Incidents'),
+    adminLink('/incidents/map', 'Live Map'),
+  ] },
+  { id: 'controller-monitoring', label: 'Monitoring', items: [
+    adminLink('/cameras', 'Surveillance'),
+    adminLink('/cameras/footage', 'CCTV Footage'),
+    adminLink('/dispatch/ptt', 'PTT Radio'),
+    adminLink('/dispatch/kpi', 'Dispatch KPIs'),
+  ] },
+  { id: 'controller-duty', label: 'Duty & People', items: [
+    adminLink('/roster/allocation', 'Duty Allocation'),
+    adminLink('/roster', 'Roster'),
+    adminLink('/duty-tasks', 'Duty Maintenance'),
+    adminLink('/attendance', 'Attendance'),
+    adminLink('/leave', 'Leave'),
+  ] },
+  { id: 'controller-reports', label: 'Reports', items: [
+    adminLink('/report-hub', 'Report Hub'),
+    adminLink('/analytics', 'Analytics'),
+  ] },
+  { id: 'controller-systems', label: 'Operational Systems', items: [
+    adminLink('/admin/personnel', 'Personnel'),
+    adminLink('/admin/vehicles', 'Fleet'),
+    adminLink('/admin/devices', 'Devices'),
+    adminLink('/admin/integrations', 'Integrations'),
+    adminLink('/admin/status', 'System Status'),
+  ] },
+  { id: 'controller-account', label: 'Account', items: [
+    adminLink('/notifications', 'Notifications'),
+    adminLink('/profile', 'My Profile'),
+  ] },
+];
 
 function NavList({
   silo, role, onNavigate, hiddenHrefs = [],
@@ -43,7 +270,14 @@ function NavList({
   // Filter to what this role may access, then apply the search box.
   const groups = useMemo(() => {
     const q = filter.trim().toLowerCase();
-    return NAV_GROUPS.map((g) => ({
+    const sourceGroups = role === 'SuperAdmin' ? SUPER_ADMIN_GROUPS
+      : role === 'SystemAdmin' ? SYSTEM_ADMIN_GROUPS
+      : role === 'Supervisor' ? SUPERVISOR_GROUPS
+      : role === 'Captain' ? CAPTAIN_GROUPS
+      : ['Police', 'Officer', 'Metro'].includes(role) ? POLICE_OFFICER_GROUPS
+      : role === 'Dispatcher' ? DISPATCHER_GROUPS
+      : role === 'SystemController' ? SYSTEM_CONTROLLER_GROUPS : NAV_GROUPS;
+    return sourceGroups.map((g) => ({
       ...g,
       items: g.items.filter(
         (i) =>
@@ -53,8 +287,12 @@ function NavList({
     })).filter((g) => g.items.length > 0);
   }, [role, silo, filter]);
 
-  const isActive = (href: string) =>
-    pathname === href || (href !== '/dashboard' && pathname.startsWith(`${href}/`));
+  const activeHref = groups
+    .flatMap((group) => group.items)
+    .map((item) => item.href)
+    .filter((href) => pathname === href || pathname.startsWith(`${href}/`))
+    .sort((a, b) => b.length - a.length)[0];
+  const isActive = (href: string) => href === activeHref;
 
   return (
     <>
@@ -127,19 +365,44 @@ function NavList({
   );
 }
 
-function Brand({ dept }: { dept?: DeptIdentity }) {
+function Brand({ dept, role, tenantName }: { dept?: DeptIdentity; role: string; tenantName?: string }) {
   return (
     <div className="shrink-0 border-b border-border">
-      <div className="flex h-16 items-center px-5">
+      <div className="flex h-16 items-center px-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/criticomm-logo.png"
-          alt="CRITICOMM — All in One EMS Dispatch Software"
-          className="max-h-9 w-auto"
+          src="/hiktech-brand.svg"
+          alt="HIKTECH"
+          className="h-auto w-[190px] max-w-full rounded-md bg-white p-2"
         />
       </div>
       {/* Whose service this screen belongs to, in that service's own colour. */}
-      {dept ? (
+      {role === 'SuperAdmin' ? (
+        <div className="border-t border-border px-5 py-3">
+          <span className="block text-xs font-bold text-fg">Platform Administration</span>
+          <span className="block text-[10px] text-muted-foreground">All organisations</span>
+        </div>
+      ) : role === 'SystemAdmin' ? (
+        <div className="border-t border-border px-5 py-3">
+          <span className="block text-xs font-bold text-fg">Organisation Administration</span>
+          <span className="block truncate text-[10px] text-muted-foreground">{tenantName ?? 'Your organisation'}</span>
+        </div>
+      ) : role === 'Supervisor' ? (
+        <div className="border-t border-border px-5 py-3">
+          <span className="block text-xs font-bold text-fg">Team Supervision</span>
+          <span className="block truncate text-[10px] text-muted-foreground">{tenantName ?? 'Your organisation'}</span>
+        </div>
+      ) : role === 'Captain' ? (
+        <div className="border-t border-border px-5 py-3">
+          <span className="block text-xs font-bold text-fg">Metro Police Captain</span>
+          <span className="block truncate text-[10px] text-muted-foreground">{tenantName ?? 'Your organisation'}</span>
+        </div>
+      ) : role === 'SystemController' ? (
+        <div className="border-t border-border px-5 py-3">
+          <span className="block text-xs font-bold text-fg">System Controller</span>
+          <span className="block truncate text-[10px] text-muted-foreground">All departments · {tenantName ?? 'Your organisation'}</span>
+        </div>
+      ) : dept ? (
         <div
           className="flex items-center gap-2.5 px-5 py-2.5"
           style={{ background: `linear-gradient(90deg, ${dept.primary_color}1f, transparent 80%)` }}
@@ -157,9 +420,9 @@ function Brand({ dept }: { dept?: DeptIdentity }) {
 
 /** Desktop rail (lg+) + mobile drawer. */
 export function Sidebar({
-  silo, role, dept, hiddenHrefs = [],
+  silo, role, dept, tenantName, hiddenHrefs = [],
 }: {
-  silo: string; role: string; dept?: DeptIdentity; hiddenHrefs?: string[];
+  silo: string; role: string; dept?: DeptIdentity; tenantName?: string; hiddenHrefs?: string[];
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -170,7 +433,7 @@ export function Sidebar({
   return (
     <>
       <aside className="hidden h-screen flex-col border-r border-border bg-bg-soft lg:sticky lg:top-0 lg:flex">
-        <Brand dept={dept} />
+        <Brand dept={dept} role={role} tenantName={tenantName} />
         <NavList silo={silo} role={role} hiddenHrefs={hiddenHrefs} />
       </aside>
 
@@ -189,7 +452,7 @@ export function Sidebar({
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-border bg-bg-soft shadow-2xl">
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-border pl-5 pr-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/criticomm-logo.png" alt="CRITICOMM" className="max-h-8 w-auto" />
+              <img src="/hiktech-brand.svg" alt="HIKTECH" className="h-auto w-[190px] max-w-full rounded-md bg-white p-2" />
               <button
                 type="button"
                 aria-label="Close"
@@ -199,6 +462,36 @@ export function Sidebar({
                 <X className="h-5 w-5" />
               </button>
             </div>
+            {role === 'SuperAdmin' && (
+              <div className="border-b border-border px-5 py-3">
+                <span className="block text-xs font-bold text-fg">Platform Administration</span>
+                <span className="block text-[10px] text-muted-foreground">All organisations</span>
+              </div>
+            )}
+            {role === 'SystemAdmin' && (
+              <div className="border-b border-border px-5 py-3">
+                <span className="block text-xs font-bold text-fg">Organisation Administration</span>
+                <span className="block truncate text-[10px] text-muted-foreground">{tenantName ?? 'Your organisation'}</span>
+              </div>
+            )}
+            {role === 'Supervisor' && (
+              <div className="border-b border-border px-5 py-3">
+                <span className="block text-xs font-bold text-fg">Team Supervision</span>
+                <span className="block truncate text-[10px] text-muted-foreground">{tenantName ?? 'Your organisation'}</span>
+              </div>
+            )}
+            {role === 'Captain' && (
+              <div className="border-b border-border px-5 py-3">
+                <span className="block text-xs font-bold text-fg">Metro Police Captain</span>
+                <span className="block truncate text-[10px] text-muted-foreground">{tenantName ?? 'Your organisation'}</span>
+              </div>
+            )}
+            {role === 'SystemController' && (
+              <div className="border-b border-border px-5 py-3">
+                <span className="block text-xs font-bold text-fg">System Controller</span>
+                <span className="block truncate text-[10px] text-muted-foreground">All departments · {tenantName ?? 'Your organisation'}</span>
+              </div>
+            )}
             <NavList silo={silo} role={role} hiddenHrefs={hiddenHrefs} onNavigate={() => setOpen(false)} />
           </div>
         </div>

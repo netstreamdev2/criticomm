@@ -5,7 +5,7 @@ import { getSession } from '@/lib/session';
 import { FeatureRow } from './feature-row';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Features · Criticomm' };
+export const metadata = { title: 'Features · HikTech' };
 
 /**
  * The feature console. SuperAdmin only — a feature switch changes what an

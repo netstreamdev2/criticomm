@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import {
   getDispatcherKpis, listActiveIncidents, listPendingIncidents, listClosedIncidents,
   getMyPersonnel, listMyAssignedIncidents, hasCompletedShiftStartToday, getMyPerformance,
@@ -16,7 +17,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Dashboard · Criticom' };
+export const metadata = { title: 'Dashboard · HikTech' };
 
 type Persona = 'admin' | 'command' | 'supervisor' | 'responder' | 'casemanager' | 'viewer';
 const SUPERVISOR_ROLES: UserRole[] = ['Supervisor', 'Captain', 'FireChief', 'Chief'];
@@ -100,6 +101,15 @@ const PERSONA_TITLE: Record<Persona, string> = {
   responder: 'Responder Portal', casemanager: 'Case Management', viewer: 'Operations Overview',
 };
 
+function DashboardLogo() {
+  return (
+    <div className="flex justify-end">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/hiktech-brand.svg" alt="HIKTECH" className="h-auto w-[160px] max-w-full rounded-md bg-white p-2" />
+    </div>
+  );
+}
+
 function Tile({ label, value, accent = 'text-fg' }: { label: string; value: React.ReactNode; accent?: string }) {
   return (
     <Card>
@@ -139,15 +149,21 @@ function ActiveIncidentsPanel({ rows }: { rows: Awaited<ReturnType<typeof listAc
 
 export default async function DashboardPage() {
   const { supabase, silo, role, fullName, userId } = await getSession();
+  if (role === 'SystemController') redirect('/command');
+  if (role === 'Captain') {
+    return <CaptainDashboard supabase={supabase} silo={silo} fullName={fullName} userId={userId} />;
+  }
   const persona = resolvePersona(role);
   const sf = siloFilter(silo);
   const first = fullName.split(' ')[0];
+  const usesSidebar = ['SystemAdmin', 'SuperAdmin', 'Supervisor', 'Captain', 'Dispatcher', 'SystemController', 'Police', 'Officer', 'Metro'].includes(role);
 
   // Dispatchers get the V4-style ops board: stats above the fold, feed +
   // critical wait, the live map, throughput. Quick actions follow below.
   if (persona === 'command') {
     return (
       <div className="space-y-4">
+        {!usesSidebar && <DashboardLogo />}
         <DispatchBoard supabase={supabase} sf={sf} role={role} silo={silo} />
         <section className="space-y-3 pt-2">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
@@ -159,6 +175,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {!usesSidebar && <DashboardLogo />}
       {/* Hero */}
       <section className="overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-primary/15 via-bg-card to-bg-soft p-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">{PERSONA_TITLE[persona]}</p>
@@ -183,6 +200,63 @@ export default async function DashboardPage() {
         <ResponderBody supabase={supabase} userId={userId} silo={silo} fullName={fullName} />
       )}
       {persona === 'casemanager' && <CaseManagerBody supabase={supabase} sf={sf} />}
+    </div>
+  );
+}
+
+async function CaptainDashboard({
+  supabase, silo, fullName, userId,
+}: {
+  supabase: Awaited<ReturnType<typeof getSession>>['supabase'];
+  silo: Silo; fullName: string; userId: string;
+}) {
+  const sf = siloFilter(silo);
+  const me = await getMyPersonnel(supabase, userId).catch(() => null);
+  const [personnel, active, compliance, mine] = await Promise.all([
+    listPersonnel(supabase, sf),
+    listActiveIncidents(supabase, sf),
+    getUnitCompliance(supabase, sf).catch(() => ({ mentalChecks: [], vehicleChecklists: [] })),
+    listMyAssignedIncidents(supabase, me?.assigned_apparatus_id ?? null).catch(() => []),
+  ]);
+  const onDuty = personnel.filter((person) => person.is_on_duty).length;
+
+  return (
+    <div className="space-y-5">
+      <section className="relative overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/20 via-bg-card to-bg-soft p-5 shadow-[0_12px_40px_-30px_var(--accent)] sm:p-7">
+        <div aria-hidden className="pointer-events-none absolute -right-10 -top-20 h-56 w-56 rounded-full bg-accent/10 blur-3xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-5">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent">Metro Police · Captain</p>
+            <h1 className="mt-2 text-2xl font-bold text-fg sm:text-3xl">Your team, at a glance</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{fullName} · Crew readiness, live incidents and your own assignments.</p>
+          </div>
+          <Link href="/roster/allocation" className="inline-flex min-h-10 items-center rounded-lg bg-accent px-4 text-sm font-bold text-bg shadow-sm transition-opacity hover:opacity-90">
+            Open duty board →
+          </Link>
+        </div>
+      </section>
+
+      <section aria-label="Team status" className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <Tile label="Team members" value={personnel.length} />
+        <Tile label="On duty now" value={onDuty} accent="text-severity-low-ink" />
+        <Tile label="Readiness checks today" value={compliance.mentalChecks.length} accent="text-accent" />
+        <Tile label="Active police incidents" value={active.length} accent="text-severity-medium-ink" />
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        {[
+          { href: '/responder', label: 'My incidents', detail: `${mine.length} assigned to your unit` },
+          { href: '/police', label: 'Police operations', detail: 'Department tools and reports' },
+          { href: '/roster/mine', label: 'My schedule', detail: 'Your upcoming duty' },
+        ].map((item) => (
+          <Link key={item.href} href={item.href} className="group rounded-xl border border-border bg-bg-card p-4 transition-colors hover:border-accent/50 hover:bg-accent/5">
+            <span className="block text-sm font-bold text-fg group-hover:text-accent">{item.label} →</span>
+            <span className="mt-1 block text-xs text-muted-foreground">{item.detail}</span>
+          </Link>
+        ))}
+      </section>
+
+      <ActiveIncidentsPanel rows={active} />
     </div>
   );
 }

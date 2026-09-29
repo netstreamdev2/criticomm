@@ -4,7 +4,7 @@ import { getSession } from '@/lib/session';
 import { assignVehicleAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Vehicle Selection · Criticom' };
+export const metadata = { title: 'Vehicle Selection · HikTech' };
 
 export default async function VehicleSelectionPage() {
   const { supabase, silo } = await getSession();

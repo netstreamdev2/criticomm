@@ -7,7 +7,7 @@ import { getSession } from '@/lib/session';
 import { setRoleAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Admin · Criticom' };
+export const metadata = { title: 'Admin · HikTech' };
 
 const ROLES: UserRole[] = [
   'SystemAdmin', 'SuperAdmin', 'Admin', 'Supervisor', 'Dispatcher', 'Operator', 'ControlRoom',

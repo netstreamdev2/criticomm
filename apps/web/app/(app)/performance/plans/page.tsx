@@ -8,7 +8,7 @@ import { PerfNav } from '../perf-nav';
 import { generatePlansAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Appraisal Plans · Criticom' };
+export const metadata = { title: 'Appraisal Plans · HikTech' };
 
 const STATUS_COLOR: Record<string, string> = {
   Active: 'text-muted-foreground',

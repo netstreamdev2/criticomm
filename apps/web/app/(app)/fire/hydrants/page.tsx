@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Hydrants · Criticom' };
+export const metadata = { title: 'Hydrants · HikTech' };
 
 const STATUS_COLOR: Record<string, string> = {
   Operational: 'text-severity-low-ink',

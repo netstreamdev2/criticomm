@@ -26,7 +26,7 @@ export default function GlobalError({
           justifyContent: 'center',
           background: '#050510',
           color: '#fff',
-          fontFamily: 'Inter, system-ui, sans-serif',
+          fontFamily: 'Rubik, system-ui, sans-serif',
           padding: '1.5rem',
         }}
       >
@@ -41,7 +41,7 @@ export default function GlobalError({
               margin: 0,
             }}
           >
-            CRITICOMM
+            HIKTECH
           </p>
           <h1 style={{ margin: '0.75rem 0 0', fontSize: '1.5rem', lineHeight: 1.3 }}>
             The console hit an unexpected error

@@ -10,7 +10,7 @@ import {
 } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Incident · Criticom' };
+export const metadata = { title: 'Incident · HikTech' };
 
 const NEXT_STATUSES = ['Dispatched', 'En Route', 'Arrived', 'On Scene', 'Transporting', 'Resolved'] as const;
 

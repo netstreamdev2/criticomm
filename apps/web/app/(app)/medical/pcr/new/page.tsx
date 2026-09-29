@@ -1,7 +1,7 @@
 import { PcrFormSections } from '../pcr-form';
 import { createPcrAction } from '../../actions';
 
-export const metadata = { title: 'New PCR · Criticom' };
+export const metadata = { title: 'New PCR · HikTech' };
 
 export default function NewPcrPage() {
   return (

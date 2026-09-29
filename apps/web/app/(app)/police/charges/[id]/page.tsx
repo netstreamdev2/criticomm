@@ -8,7 +8,7 @@ import { formatSaTime } from '@/lib/utils';
 import { recordTransactionAction, setChargeStatusAction } from '../../enforcement-actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Charge · Criticomm' };
+export const metadata = { title: 'Charge · HikTech' };
 
 export default async function ChargeDetailPage({
   params,

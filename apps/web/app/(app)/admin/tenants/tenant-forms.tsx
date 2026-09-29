@@ -54,6 +54,7 @@ export function TenantForms({ tenants }: { tenants: Array<{ id: string; name: st
     });
   };
 
+
   const remove = () => {
     const fd = new FormData();
     fd.set('id', deleteId);

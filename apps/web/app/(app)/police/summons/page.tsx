@@ -7,7 +7,7 @@ import { cn, formatSaTime } from '@/lib/utils';
 import { issueSummonsAction, setSummonsStatusAction } from '../enforcement-actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Summons · Criticomm' };
+export const metadata = { title: 'Summons · HikTech' };
 
 const STATUS_TONE: Record<string, string> = {
   Issued: 'bg-severity-medium/15 text-severity-medium-ink',

@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'PCR · Criticom' };
+export const metadata = { title: 'PCR · HikTech' };
 
 function Item({ label, value }: { label: string; value: React.ReactNode }) {
   if (value === null || value === undefined || value === '' || value === false) return null;

@@ -6,7 +6,7 @@ import { formatSaTime } from '@/lib/utils';
 import { PerfNav } from './perf-nav';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Performance · Criticom' };
+export const metadata = { title: 'Performance · HikTech' };
 
 export default async function PerformancePage() {
   const { supabase, silo } = await getSession();

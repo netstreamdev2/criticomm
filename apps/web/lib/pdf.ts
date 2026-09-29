@@ -24,8 +24,8 @@ export class ReportPdf {
       x: 0, y: r.page.getHeight() - 70, width: r.page.getWidth(), height: 70,
       color: rgb(0.07, 0.09, 0.15),
     });
-    r.page.drawText('CRITICOM — eThekwini Emergency Services', {
-      x: r.margin, y: r.page.getHeight() - 32, size: 10, font: r.bold, color: rgb(0.4, 0.75, 1),
+    r.page.drawText('HIKTECH - eThekwini Emergency Services', {
+      x: r.margin, y: r.page.getHeight() - 32, size: 10, font: r.bold, color: rgb(0.89, 0.12, 0.17),
     });
     r.page.drawText(title, {
       x: r.margin, y: r.page.getHeight() - 52, size: 16, font: r.bold, color: rgb(1, 1, 1),

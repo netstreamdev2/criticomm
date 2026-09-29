@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export const metadata = { title: 'Check Failed · Criticom' };
+export const metadata = { title: 'Check Failed · HikTech' };
 
 export default function ReasonPage() {
   return (

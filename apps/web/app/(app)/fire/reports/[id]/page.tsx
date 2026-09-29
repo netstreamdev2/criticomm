@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Fire Report · Criticom' };
+export const metadata = { title: 'Fire Report · HikTech' };
 
 function Item({ label, value }: { label: string; value: React.ReactNode }) {
   if (value === null || value === undefined || value === '' || value === false || value === 0) return null;

@@ -49,7 +49,7 @@ const config: Config = {
         xl: 'calc(var(--c-radius-lg) + 0.25rem)',
         '2xl': 'calc(var(--c-radius-lg) + 0.5rem)',
       },
-      fontFamily: { sans: ['var(--c-font)', 'Inter', 'ui-sans-serif', 'system-ui'] },
+      fontFamily: { sans: ['var(--font-rubik)', 'ui-sans-serif', 'system-ui'] },
     },
   },
   plugins: [animate],

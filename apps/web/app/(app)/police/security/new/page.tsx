@@ -2,7 +2,7 @@ import { FormSection, TextField, TextAreaField, SelectField, CheckField } from '
 import { getSession } from '@/lib/session';
 import { createSecurityReportAction } from '../actions';
 
-export const metadata = { title: 'New Security Report · Criticom' };
+export const metadata = { title: 'New Security Report · HikTech' };
 
 const INCIDENT_TYPES = [
   'Trespassing', 'Theft', 'Burglary', 'Vandalism', 'Assault', 'Suspicious activity',

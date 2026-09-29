@@ -2,7 +2,7 @@ import { FormSection, TextField, TextAreaField, SelectField, CheckField } from '
 import { getSession } from '@/lib/session';
 import { createMetroReportAction } from '../../actions';
 
-export const metadata = { title: 'New Police Report · Criticom' };
+export const metadata = { title: 'New Police Report · HikTech' };
 
 const WIZARDS = ['Arrest', 'Accident', 'Vehicle', 'Firearm', 'Incident', 'Tow', 'Dog'];
 

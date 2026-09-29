@@ -7,7 +7,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Incidents · Criticom' };
+export const metadata = { title: 'Incidents · HikTech' };
 
 const STATUSES: IncidentStatus[] = [
   'New', 'Pending', 'Pending Dispatch', 'Pending Analysis', 'Dispatched',

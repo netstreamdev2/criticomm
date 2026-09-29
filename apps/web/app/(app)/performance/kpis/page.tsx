@@ -8,7 +8,7 @@ import { PerfNav } from '../perf-nav';
 import { addKpiAction, deactivateKpiAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'KPI Config · Criticom' };
+export const metadata = { title: 'KPI Config · HikTech' };
 
 export default async function KpiConfigPage({
   searchParams,

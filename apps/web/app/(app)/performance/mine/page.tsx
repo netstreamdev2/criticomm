@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session';
 import { PerfNav, cycleWindow } from '../perf-nav';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'My Performance · Criticom' };
+export const metadata = { title: 'My Performance · HikTech' };
 
 export default async function MyPerformancePage({
   searchParams,

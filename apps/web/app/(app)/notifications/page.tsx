@@ -10,7 +10,7 @@ import { formatSaTime } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Notifications · Criticom' };
+export const metadata = { title: 'Notifications · HikTech' };
 
 const KIND_META: Record<AlertKind, { label: string; icon: typeof Info; tone: string }> = {
   assignment: { label: 'Dispatch', icon: Radio, tone: 'text-primary' },

@@ -9,7 +9,7 @@ import {
 import { HierarchyToolbar } from './toolbar';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Department Hierarchy · Criticom' };
+export const metadata = { title: 'Department Hierarchy · HikTech' };
 
 function PersonNode({ node }: { node: OrgNode }) {
   const m = node.m;

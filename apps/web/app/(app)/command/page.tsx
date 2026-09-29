@@ -11,7 +11,7 @@ import { cn, formatSaTime } from '@/lib/utils';
 import { setLeaveStatusAction } from '../leave/actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Command · Criticomm' };
+export const metadata = { title: 'Command · HikTech' };
 
 /**
  * The command dashboard — one screen with the operational day on it: who is

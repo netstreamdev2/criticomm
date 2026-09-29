@@ -11,7 +11,7 @@ import { getBrandingMap } from '@/lib/branding';
 import { formatSaTime, cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'My Schedule · Criticom' };
+export const metadata = { title: 'My Schedule · HikTech' };
 
 const dayLabel = (iso: string) =>
   new Date(iso).toLocaleDateString('en-ZA', { weekday: 'short', day: 'numeric', month: 'short' });

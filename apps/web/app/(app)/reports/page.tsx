@@ -7,7 +7,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Reports Archive · Criticom' };
+export const metadata = { title: 'Reports Archive · HikTech' };
 
 export default async function ReportsPage({
   searchParams,

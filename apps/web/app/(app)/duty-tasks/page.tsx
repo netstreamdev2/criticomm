@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { createDutyTaskAction, updateDutyTaskAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Duty Maintenance · Criticomm' };
+export const metadata = { title: 'Duty Maintenance · HikTech' };
 
 const SILOS: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
 

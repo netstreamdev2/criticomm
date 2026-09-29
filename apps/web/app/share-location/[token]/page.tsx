@@ -1,6 +1,6 @@
 import { ShareLocationClient } from './share-client';
 
-export const metadata = { title: 'Share your location · Criticom Emergency Services' };
+export const metadata = { title: 'Share your location · HikTech Emergency Services' };
 
 /**
  * Public page (no auth) — citizens land here from the SMS deep link

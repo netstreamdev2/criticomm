@@ -8,7 +8,7 @@ import { cn, formatSaTime } from '@/lib/utils';
 import { clockAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Time & Attendance · Criticomm' };
+export const metadata = { title: 'Time & Attendance · HikTech' };
 
 export default async function AttendancePage() {
   await requireFeaturePage('web.time_attendance');

@@ -10,7 +10,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime, timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Dispatch · Criticom' };
+export const metadata = { title: 'Dispatch · HikTech' };
 
 /** Read-only field styled like the intake console, so the two screens rhyme. */
 function Field({ label, value, mono, span }: {

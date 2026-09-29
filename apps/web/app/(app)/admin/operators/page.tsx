@@ -7,7 +7,7 @@ import { formatSaTime } from '@/lib/utils';
 import { createOperatorAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Operators · Criticom' };
+export const metadata = { title: 'Operators · HikTech' };
 
 export default async function AdminOperatorsPage() {
   const { supabase } = await getSession();

@@ -61,7 +61,7 @@ export async function requestCitizenLocationAction(formData: FormData) {
   const link = `${origin}/share-location/${token}`;
   const result = await sendSms(
     phone,
-    `CRITICOM ALERT: Emergency responders require your exact location. Tap here to share GPS: ${link}`,
+    `HIKTECH ALERT: Emergency responders require your exact location. Tap here to share GPS: ${link}`,
   );
 
   const outcome = result.ok

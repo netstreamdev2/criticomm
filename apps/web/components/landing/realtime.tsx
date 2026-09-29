@@ -16,7 +16,7 @@ function Panel({
 }) {
   return (
     <div className={`lp-card overflow-hidden ${wide ? 'lg:col-span-2' : ''}`}>
-      <div className="border-b border-white/10 bg-[#080816] p-5">{children}</div>
+      <div className="hk-dark-demo border-b border-white/10 bg-[#080816] p-5">{children}</div>
       <div className="p-5">
         <h3 className="font-bold">{title}</h3>
         <p className="mt-2 text-sm leading-relaxed text-white/60">{body}</p>
@@ -93,7 +93,7 @@ export function Realtime() {
           <div className="lp-notify w-full max-w-[280px] rounded-xl border border-white/15 bg-white/10 p-3 backdrop-blur">
             <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-white/50">
               <span className="inline-block h-3 w-3 rounded bg-[#dc3545]" />
-              Criticomm · now
+              HikTech · now
             </p>
             <p className="mt-1.5 text-sm font-bold">Critical assignment</p>
             <p className="mt-0.5 text-[11px] text-white/65">Taxi rollover, M4 nb Umgeni — entrapment</p>

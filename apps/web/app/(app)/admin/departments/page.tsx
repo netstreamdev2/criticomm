@@ -7,7 +7,7 @@ import { getBrandingMap } from '@/lib/branding';
 import { DepartmentCard } from './department-card';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Departments · Criticom' };
+export const metadata = { title: 'Departments · HikTech' };
 
 export default async function DepartmentsPage() {
   const { role } = await getSession();

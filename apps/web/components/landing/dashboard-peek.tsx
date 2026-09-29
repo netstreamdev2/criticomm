@@ -51,7 +51,7 @@ function Stat({ label, value, sub, tone }: { label: string; value: string; sub: 
 
 export function DashboardPeek() {
   return (
-    <div className="lp-reveal mt-14 grid gap-6 lg:grid-cols-[1.55fr_1fr]">
+    <div className="hk-dark-demo lp-reveal mt-14 grid gap-6 lg:grid-cols-[1.55fr_1fr]">
       {/* ── Console ─────────────────────────────────────────────────── */}
       <div className="overflow-hidden rounded-xl border border-white/12 bg-[#080816] shadow-2xl shadow-black/50">
         {/* window chrome */}
@@ -59,7 +59,7 @@ export function DashboardPeek() {
           <span className="h-2.5 w-2.5 rounded-full bg-[#ef4444]/70" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#f59e0b]/70" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#22c55e]/70" />
-          <span className="ml-3 truncate font-mono text-[11px] text-white/35">criticomm — command</span>
+          <span className="ml-3 truncate font-mono text-[11px] text-white/35">HikTech — command</span>
           <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-semibold text-[#4ade80]">
             <span className="lp-tick h-1.5 w-1.5 rounded-full bg-[#22c55e]" />
             LIVE

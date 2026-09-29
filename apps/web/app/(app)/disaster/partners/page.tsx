@@ -4,7 +4,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Mutual-Aid Partners · Criticom' };
+export const metadata = { title: 'Mutual-Aid Partners · HikTech' };
 
 export default async function PartnersPage({
   searchParams,

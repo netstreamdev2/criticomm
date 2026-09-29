@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'EMS · Criticom' };
+export const metadata = { title: 'EMS · HikTech' };
 
 export default async function MedicalPage() {
   const { supabase } = await getSession();

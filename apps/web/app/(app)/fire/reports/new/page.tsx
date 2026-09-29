@@ -2,7 +2,7 @@ import { FormSection, TextField, TextAreaField, SelectField, CheckField } from '
 import { getSession } from '@/lib/session';
 import { createFireReportAction } from '../../actions';
 
-export const metadata = { title: 'New Fire Report · Criticom' };
+export const metadata = { title: 'New Fire Report · HikTech' };
 
 const INCIDENT_TYPES = [
   'Structure Fire', 'Vehicle Fire', 'Wildland/Veld Fire', 'Rubbish Fire', 'Electrical Fire',

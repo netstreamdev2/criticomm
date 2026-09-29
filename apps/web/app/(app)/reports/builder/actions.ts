@@ -111,7 +111,7 @@ export async function exportCsvAction(
     return {
       ok: true,
       csv: toCsv(result.columns, result.rows),
-      filename: `criticom-${dataset.key}-${stamp}.csv`,
+      filename: `hiktech-${dataset.key}-${stamp}.csv`,
     };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'Export failed.' };

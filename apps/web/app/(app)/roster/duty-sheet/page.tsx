@@ -5,7 +5,7 @@ import { formatSaTime } from '@/lib/utils';
 import { PrintButton } from './print-button';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Duty Sheet · Criticom' };
+export const metadata = { title: 'Duty Sheet · HikTech' };
 
 const SILOS: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
 

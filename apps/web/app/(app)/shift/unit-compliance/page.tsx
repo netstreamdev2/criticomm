@@ -5,7 +5,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Unit Compliance · Criticom' };
+export const metadata = { title: 'Unit Compliance · HikTech' };
 
 export default async function UnitCompliancePage() {
   const { supabase, silo } = await getSession();

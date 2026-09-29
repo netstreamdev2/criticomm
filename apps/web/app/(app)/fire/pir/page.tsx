@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Public Incident Reports · Criticom' };
+export const metadata = { title: 'Public Incident Reports · HikTech' };
 
 export default async function PirPage() {
   const { supabase } = await getSession();

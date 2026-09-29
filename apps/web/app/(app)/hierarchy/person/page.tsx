@@ -16,7 +16,7 @@ import { setReportsToAction } from './actions';
 const CAN_EDIT = new Set([...ADMIN_ROLES, 'Supervisor', 'Captain', 'FireChief', 'Chief']);
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Personnel Record · Criticom' };
+export const metadata = { title: 'Personnel Record · HikTech' };
 
 function Item({ label, value }: { label: string; value: React.ReactNode }) {
   if (value === null || value === undefined || value === '') return null;

@@ -5,7 +5,7 @@ import { getSession } from '@/lib/session';
 import { dispatchResourcesAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Dispatch Resources · Criticom' };
+export const metadata = { title: 'Dispatch Resources · HikTech' };
 
 const DISASTER_TYPES = [
   'Flood', 'Storm / severe weather', 'Fire — informal settlement', 'Landslide',

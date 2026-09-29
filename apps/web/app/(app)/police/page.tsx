@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Police Operations · Criticom' };
+export const metadata = { title: 'Police Operations · HikTech' };
 
 const WIZARDS = ['Arrest', 'Accident', 'Vehicle', 'Firearm', 'Incident', 'Tow', 'Dog'];
 

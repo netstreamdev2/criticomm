@@ -7,7 +7,7 @@ import { getSession } from '@/lib/session';
 import { addConfigAction, toggleConfigAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Configuration · Criticom' };
+export const metadata = { title: 'Configuration · HikTech' };
 
 const MODULES: { key: ConfigModule; label: string; hint: string }[] = [
   { key: 'IncidentCategory', label: 'Incident Categories', hint: 'Category groups and their sub-categories (10-codes) with optional form prompts.' },

@@ -8,7 +8,7 @@ import { formatSaTime } from '@/lib/utils';
 import { createPersonnelAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Personnel Admin · Criticom' };
+export const metadata = { title: 'Personnel Admin · HikTech' };
 
 export default async function AdminPersonnelPage({
   searchParams,

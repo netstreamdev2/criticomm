@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Patient Care Reports · Criticom' };
+export const metadata = { title: 'Patient Care Reports · HikTech' };
 
 export default async function PcrListPage() {
   const { supabase } = await getSession();

@@ -8,7 +8,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Performance Reports · Criticom' };
+export const metadata = { title: 'Performance Reports · HikTech' };
 
 const fmtMins = (m: number | null) =>
   m === null ? '—' : m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`;

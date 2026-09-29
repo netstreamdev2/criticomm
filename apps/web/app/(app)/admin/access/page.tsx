@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 import { setModuleAccessAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Access Control · Criticomm' };
+export const metadata = { title: 'Access Control · HikTech' };
 
 /**
  * The SuperAdmin's per-tenant access console: hide any module for a whole

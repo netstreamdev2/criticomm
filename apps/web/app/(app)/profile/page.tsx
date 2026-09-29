@@ -7,7 +7,7 @@ import { ThemeGrid } from '@/components/theme-picker';
 import { updateProfileAction, generateCallSignAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Profile · Criticom' };
+export const metadata = { title: 'Profile · HikTech' };
 
 export default async function ProfilePage() {
   const { supabase, userId, silo, role, fullName } = await getSession();

@@ -6,7 +6,7 @@ import { getSession } from '@/lib/session';
 import { IntegrationCard } from './integration-card';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Integrations · Criticom' };
+export const metadata = { title: 'Integrations · HikTech' };
 
 /**
  * Which server-side environment variables each integration needs. Only
@@ -75,7 +75,7 @@ export default async function IntegrationsPage() {
       <header>
         <h1 className="text-2xl font-bold">Integrations</h1>
         <p className="text-muted-foreground">
-          Every external service Criticom talks to — what it powers, whether its credentials are
+          Every external service HikTech talks to — what it powers, whether its credentials are
           present, and whether it currently answers.
         </p>
       </header>

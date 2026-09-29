@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import {
-  deniedHrefs, featureEnabled, getFeatureMap, getOperationalSettings, listAccessRules, listOpsLinks,
+  deniedHrefs, featureEnabled, getFeatureMap, getMyTenant, getOperationalSettings, listAccessRules, listOpsLinks,
 } from '@criticom/api';
 import { hiddenHrefs as hiddenFor } from '@/lib/features';
 import type { Silo } from '@criticom/db';
@@ -58,12 +58,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   // Admin-tuned alert behaviour, command-bar links and department identity;
   // all three fail safe.
-  const [settings, opsLinks, branding, features, accessRules] = await Promise.all([
+  const [settings, opsLinks, branding, features, accessRules, tenant] = await Promise.all([
     getOperationalSettings(supabase),
     listOpsLinks(supabase),
     getBrandingMap(),
     getFeatureMap(supabase),
     listAccessRules(supabase),
+    role === 'SystemAdmin' || role === 'Supervisor' || role === 'Captain' || role === 'SystemController'
+      ? getMyTenant(supabase).catch(() => null) : Promise.resolve(null),
   ]);
   // Two subtractive overlays on the nav: features the tenant has switched off,
   // and modules the SuperAdmin has hidden for this tenant or this role.
@@ -71,17 +73,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const hidden = [...hiddenFor(features), ...deniedHrefs(accessRules, role)];
   const dept = branding[silo as Silo];
 
-  // Only the admin tier keeps the sidebar. They genuinely work across every
-  // module at once; a dispatcher or a responder lives on two or three screens,
-  // and a permanent 264px column of links they cannot use costs them map and
-  // queue width on the view that actually matters. Everyone else gets the same
-  // destinations as a collapsed bar under the header.
-  const usesSidebar = role === 'SystemAdmin' || role === 'SuperAdmin';
+  // Admin tiers, supervisory roles, Dispatcher and Metro Police officers have curated sidebars. The remaining
+  // operational roles use compact top navigation to preserve workspace width.
+  const usesSidebar = ['SystemAdmin', 'SuperAdmin', 'Supervisor', 'Captain', 'Dispatcher', 'SystemController', 'Police', 'Officer', 'Metro'].includes(role);
 
   return (
     <ToastProvider>
       <div className={usesSidebar ? 'min-h-screen lg:grid lg:grid-cols-[264px_1fr]' : 'min-h-screen'}>
-        {usesSidebar ? <Sidebar silo={silo} role={role} dept={dept} hiddenHrefs={hidden} /> : null}
+        {usesSidebar ? <Sidebar silo={silo} role={role} dept={dept} tenantName={tenant?.name} hiddenHrefs={hidden} /> : null}
         <div className="flex min-h-screen min-w-0 flex-col">
           <Topbar fullName={fullName} role={role} silo={silo} hasSidebar={usesSidebar} />
           {/* Role navigation and the external ops links share one bar — two
@@ -90,14 +89,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           {/* External ops links sit above role navigation: the links are a
               reference strip you dip into, the navigation is the thing you
               come back to, so it reads better closest to the page it acts on. */}
-          <div className="flex flex-col gap-1 border-b border-border bg-bg-soft/95 px-3 py-1.5 backdrop-blur sm:px-4">
-            <OpsCommandBar role={role} silo={silo} links={opsLinks} />
-            {usesSidebar ? null : (
-              <div className="flex flex-wrap items-center justify-center gap-1">
-                <TopNav role={role} silo={silo} hiddenHrefs={hidden} />
-              </div>
-            )}
-          </div>
+          {role !== 'Supervisor' && role !== 'Dispatcher' && (
+            <div className="flex flex-col gap-1 border-b border-border bg-bg-soft/95 px-3 py-1.5 backdrop-blur sm:px-4">
+              <OpsCommandBar role={role} silo={silo} links={opsLinks} hiddenHrefs={hidden} />
+              {usesSidebar ? null : (
+                <div className="flex flex-wrap items-center justify-center gap-1">
+                  <TopNav role={role} silo={silo} hiddenHrefs={hidden} />
+                </div>
+              )}
+            </div>
+          )}
           <main className="flex-1 bg-bg p-3 sm:p-4">
             {/* An officer calling for help outranks whatever screen you are
                 on, so this sits above the page rather than inside one. It

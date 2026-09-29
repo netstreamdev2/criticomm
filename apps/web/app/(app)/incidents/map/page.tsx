@@ -4,7 +4,7 @@ import { LeafletMap, type MapMarker } from '@/components/leaflet-map';
 import { getSession, siloFilter } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Live Map · Criticom' };
+export const metadata = { title: 'Live Map · HikTech' };
 
 export default async function LiveMapPage() {
   const { supabase, silo } = await getSession();

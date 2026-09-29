@@ -4,7 +4,7 @@ import { SimpleBarChart, MultiBarChart, SeverityDonut } from '@/components/chart
 import { getSession, siloFilter } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Analytics · Criticom' };
+export const metadata = { title: 'Analytics · HikTech' };
 
 export default async function AnalyticsPage() {
   const { supabase, silo } = await getSession();

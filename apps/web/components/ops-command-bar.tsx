@@ -41,10 +41,38 @@ const OPERATIONS: Array<{ href: string; label: string; icon: typeof MapIcon }> =
   { href: '/report-hub', label: 'Report Hub', icon: BarChart3 },
 ];
 
+const CONTROLLER_SHORTCUTS = [
+  { href: '/command', label: 'Command', icon: Radio },
+  { href: '/dispatch/pending', label: 'Dispatch', icon: ListChecks },
+  { href: '/incidents/map', label: 'Live Map', icon: MapIcon },
+  { href: '/cameras', label: 'Surveillance', icon: Camera },
+  { href: '/cameras/footage', label: 'CCTV Footage', icon: Film },
+  { href: '/dispatch/ptt', label: 'PTT Radio', icon: RadioTower },
+  { href: '/dispatch/kpi', label: 'KPIs', icon: BarChart3 },
+];
+
+const CAPTAIN_SHORTCUTS = [
+  { href: '/dashboard', label: 'Overview', icon: Radio },
+  { href: '/roster/allocation', label: 'Duty Board', icon: ListChecks },
+  { href: '/incidents/map', label: 'Live Map', icon: MapIcon },
+  { href: '/police', label: 'Police Ops', icon: Siren },
+  { href: '/responder', label: 'My Incidents', icon: Truck },
+  { href: '/shift/mental-check', label: 'Start Shift', icon: RadioTower },
+];
+
+const POLICE_OFFICER_SHORTCUTS = [
+  { href: '/dashboard', label: 'Overview', icon: Radio },
+  { href: '/responder', label: 'My Incidents', icon: Truck },
+  { href: '/roster/mine', label: 'My Schedule', icon: ListChecks },
+  { href: '/shift/mental-check', label: 'Start Shift', icon: Siren },
+  { href: '/incidents/map', label: 'Live Map', icon: MapIcon },
+  { href: '/police', label: 'Police Ops', icon: RadioTower },
+];
+
 export function OpsCommandBar({
-  role, silo, links,
+  role, silo, links, hiddenHrefs = [],
 }: {
-  role: string; silo: string; links: OpsLink[];
+  role: string; silo: string; links: OpsLink[]; hiddenHrefs?: string[];
 }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
@@ -79,6 +107,36 @@ export function OpsCommandBar({
   const s = silo as Silo;
   const modules = MODULES.filter((m) => canAccess(m.href, r, s));
   const operations = OPERATIONS.filter((o) => canAccess(o.href, r, s));
+
+  if (role === 'SystemController' || role === 'Captain' || ['Police', 'Officer', 'Metro'].includes(role)) {
+    const shortcutItems = role === 'Captain' ? CAPTAIN_SHORTCUTS
+      : role === 'SystemController' ? CONTROLLER_SHORTCUTS : POLICE_OFFICER_SHORTCUTS;
+    const shortcuts = shortcutItems.filter((item) =>
+      canAccess(item.href, r, s) && !hiddenHrefs.includes(item.href));
+    return (
+      <nav aria-label={role === 'Captain' ? 'Captain shortcuts' : role === 'SystemController' ? 'Controller shortcuts' : 'Officer shortcuts'} className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
+        {shortcuts.map((item) => {
+          const Icon = item.icon;
+          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={active ? 'page' : undefined}
+              className={cn(
+                'group relative inline-flex min-h-9 items-center gap-2 rounded-md px-3 text-[11px] font-bold uppercase tracking-[0.12em] text-fg/65 transition-colors hover:bg-accent/5 hover:text-fg',
+                active && 'bg-accent/5 text-fg',
+              )}
+            >
+              <Icon className={cn('h-4 w-4 text-accent/75 transition-colors group-hover:text-accent', active && 'text-accent')} aria-hidden />
+              {item.label}
+              {active && <span aria-hidden className="absolute inset-x-3 bottom-0 h-px bg-accent shadow-[0_0_9px_var(--accent)]" />}
+            </Link>
+          );
+        })}
+      </nav>
+    );
+  }
 
   // Nothing this role can use → no bar at all (e.g. a citizen account).
   if (modules.length === 0 && operations.length === 0 && links.length === 0) return null;

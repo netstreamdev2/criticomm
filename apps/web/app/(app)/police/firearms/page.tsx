@@ -7,7 +7,7 @@ import { formatSaTime } from '@/lib/utils';
 import { returnFirearmAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Armoury · Criticom' };
+export const metadata = { title: 'Armoury · HikTech' };
 
 export default async function FirearmsPage() {
   const { supabase } = await getSession();

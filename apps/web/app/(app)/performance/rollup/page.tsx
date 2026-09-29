@@ -5,7 +5,7 @@ import { PerfNav } from '../perf-nav';
 import { RollupExplorer } from './rollup-client';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'KPI rollup · Criticom' };
+export const metadata = { title: 'KPI rollup · HikTech' };
 
 const WINDOWS = [7, 30, 90, 365] as const;
 

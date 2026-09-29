@@ -6,7 +6,7 @@ import { timeAgo } from '@/lib/utils';
 import { responderStatusAction, uploadEvidenceAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'My Incidents · Criticom' };
+export const metadata = { title: 'My Incidents · HikTech' };
 
 const FLOW: Array<{ from: string[]; next: string }> = [
   { from: ['Dispatched'], next: 'En Route' },

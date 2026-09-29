@@ -2,7 +2,7 @@ import { FormSection, TextField, TextAreaField, SelectField } from '@/components
 import { getSession } from '@/lib/session';
 import { createFirearmAction } from '../../actions';
 
-export const metadata = { title: 'Issue Firearm · Criticom' };
+export const metadata = { title: 'Issue Firearm · HikTech' };
 
 export default async function NewFirearmPage() {
   const { fullName } = await getSession();

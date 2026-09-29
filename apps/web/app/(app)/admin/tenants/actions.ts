@@ -4,12 +4,13 @@ import { revalidatePath } from 'next/cache';
 import { createTenant, deleteTenant, logAudit, setTenantActive } from '@criticom/api';
 import { getSession } from '@/lib/session';
 import { getServiceSupabase } from '@/lib/supabase';
+import { inviteTenantAdmin } from '@/lib/invitations/server';
 
 /**
  * Tenant administration. SuperAdmin only, and every action audited.
  *
- * Assigning a user to a tenant is the one operation here that needs the
- * service role: it rewrites JWT app metadata, which no user session may do.
+ * Invitations and tenant reassignment need the service role: they write Auth
+ * accounts and trusted app metadata, which no ordinary user session may do.
  * The role check therefore happens BEFORE the elevated client is created —
  * the service key must never be reachable from an unauthorised code path,
  * even one that would fail later.
@@ -19,6 +20,20 @@ async function requireSuperAdmin() {
   const session = await getSession();
   if (session.role !== 'SuperAdmin') throw new Error('SuperAdmin only.');
   return session;
+}
+
+export async function inviteSystemAdminAction(formData: FormData) {
+  try {
+    const session = await requireSuperAdmin();
+    const result = await inviteTenantAdmin({ id: session.userId, role: session.role, name: session.fullName }, {
+      name: String(formData.get('name') ?? ''),
+      email: String(formData.get('email') ?? ''),
+      tenantId: String(formData.get('tenant_id') ?? ''),
+    });
+    return { ok: true as const, ...result };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Could not send the invitation. Please try again.' };
+  }
 }
 
 export async function createTenantAction(formData: FormData) {

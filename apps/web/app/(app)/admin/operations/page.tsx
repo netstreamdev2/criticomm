@@ -8,7 +8,7 @@ import { getSession } from '@/lib/session';
 import { SettingRow } from './setting-row';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Operations Settings · Criticom' };
+export const metadata = { title: 'Operations Settings · HikTech' };
 
 export default async function OperationsSettingsPage() {
   const { supabase, role } = await getSession();

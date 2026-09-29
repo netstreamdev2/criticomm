@@ -1,5 +1,5 @@
 /* =====================================================================
-   CRITICOMM THEMES
+   HIKTECH THEMES
    Each theme is a set of CSS custom properties consumed by tailwind.config
    via rgb(var(--c-x) / <alpha-value>). Applied by setting data-theme on
    <html>; see components/theme-provider.tsx.
@@ -38,7 +38,7 @@
   --c-font: 'Inter';
 }
 
-/* ── Criticom Light ─────────────────────────────────────────── */
+/* ── HikTech Light ─────────────────────────────────────────── */
 [data-theme='criticom-light'] {
   color-scheme: light;
   --c-bg: 244 246 251;

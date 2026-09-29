@@ -8,7 +8,7 @@ import { formatSaTime, timeAgo } from '@/lib/utils';
 import { periodicUpdateAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Disaster Management · Criticom' };
+export const metadata = { title: 'Disaster Management · HikTech' };
 
 type TimelineEntry = { timestamp: string; text: string };
 

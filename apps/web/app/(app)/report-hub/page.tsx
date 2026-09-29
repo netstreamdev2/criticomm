@@ -8,7 +8,7 @@ import { formatSaTime } from '@/lib/utils';
 import { saveTemplateAction } from './actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Report Hub · Criticom' };
+export const metadata = { title: 'Report Hub · HikTech' };
 
 const STATUSES: IncidentStatus[] = [
   'New', 'Pending', 'Pending Dispatch', 'Dispatched', 'En Route', 'Arrived',

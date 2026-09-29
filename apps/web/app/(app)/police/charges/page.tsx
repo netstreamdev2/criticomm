@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { openChargeAction } from '../enforcement-actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Charges · Criticomm' };
+export const metadata = { title: 'Charges · HikTech' };
 
 const STATUS_TONE: Record<string, string> = {
   Open: 'bg-severity-medium/15 text-severity-medium-ink',

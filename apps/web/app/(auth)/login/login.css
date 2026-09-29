@@ -1,0 +1,186 @@
+.hik-login { min-height: 100vh; }
+.hik-login[data-mode='dark'] { --hk-accent: #f13a42; }
+.hik-login-shell { min-height: calc(100vh - 36px); }
+.hik-login-header {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: calc(100% - 38px);
+  min-height: 78px;
+  margin: 18px auto 0;
+  padding: 9px 13px 9px 19px;
+  border-radius: 24px;
+}
+.hik-login-header::before {
+  position: absolute;
+  inset: 1px 1px auto;
+  height: 48%;
+  border-radius: inherit;
+  background: linear-gradient(rgb(255 255 255 / 0.3), transparent);
+  content: '';
+  pointer-events: none;
+}
+.hik-login[data-mode='dark'] .hik-login-header::before { background: linear-gradient(rgb(255 255 255 / 0.075), transparent); }
+.hik-login-header-actions { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; }
+.hik-login-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 15px;
+  border: 1px solid var(--hk-line);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+  color: var(--hk-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.hik-login-back:hover { background: var(--hk-glass); }
+.hik-login-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+  gap: 18px;
+  min-height: calc(100vh - 150px);
+  margin: 18px;
+}
+.hik-login-story {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  padding: clamp(37px, 5vw, 76px);
+  overflow: hidden;
+  border: 1px solid var(--hk-line);
+  border-radius: 28px;
+  background: radial-gradient(circle at 80% 75%, var(--hk-hero-glow), transparent 40%), linear-gradient(125deg, var(--hk-hero-a), var(--hk-hero-b));
+}
+.hik-login-story::after {
+  position: absolute;
+  top: 8%;
+  right: -41%;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--hk-line);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+.hik-login-story-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background-image: linear-gradient(var(--hk-map-line) 1px, transparent 1px), linear-gradient(90deg, var(--hk-map-line) 1px, transparent 1px);
+  background-size: 77px 77px;
+  mask-image: linear-gradient(90deg, transparent 20%, #000 100%);
+  pointer-events: none;
+}
+.hik-login-story-copy { position: relative; z-index: 1; }
+.hik-login-story h1 {
+  max-width: 720px;
+  margin: 29px 0 23px;
+  color: var(--hk-ink);
+  font-size: clamp(47px, 5vw, 83px);
+  font-weight: 700;
+  letter-spacing: -0.073em;
+  line-height: 1.03;
+}
+.hik-login-story h1 em { color: var(--hk-accent); font-style: normal; }
+.hik-login-story-copy > p:last-child { max-width: 565px; margin: 0; color: var(--hk-muted); font-size: 17px; line-height: 1.65; }
+.hik-login-visual {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 480px);
+  margin: 40px 0 35px auto;
+  padding: 21px;
+  border-radius: 23px;
+  transform: rotate(-2deg);
+}
+.hik-login-visual-head { display: flex; justify-content: space-between; gap: 15px; padding-bottom: 16px; border-bottom: 1px solid var(--hk-line); color: var(--hk-soft); font-size: 9px; font-weight: 800; letter-spacing: 0.12em; }
+.hik-login-visual-head > span:last-child { display: inline-flex; align-items: center; gap: 6px; color: var(--hk-accent); white-space: nowrap; }
+.hik-login-visual-head i { width: 6px; height: 6px; border-radius: 50%; background: var(--hk-accent); }
+.hik-login-visual-steps { display: grid; }
+.hik-login-visual-steps > div { display: flex; align-items: center; gap: 13px; min-height: 66px; border-bottom: 1px solid var(--hk-line); }
+.hik-login-visual-steps > div:last-child { border-bottom: 0; }
+.hik-login-step-number { display: grid; flex: none; width: 35px; height: 35px; place-items: center; border-radius: 10px; background: rgb(214 24 32 / 0.11); color: var(--hk-accent); font-size: 11px; font-weight: 800; }
+.hik-login-visual-steps > div > span:nth-child(2) { display: grid; gap: 4px; }
+.hik-login-visual-steps small { color: var(--hk-soft); font-size: 8px; font-weight: 800; letter-spacing: 0.13em; }
+.hik-login-visual-steps strong { color: var(--hk-ink); font-size: 13px; }
+.hik-login-step-check { display: grid; width: 22px; height: 22px; margin-left: auto; place-items: center; border-radius: 50%; background: var(--hk-accent); color: #fff; }
+.hik-login-story-foot { position: relative; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0; color: var(--hk-soft); font-size: 9px; font-weight: 800; letter-spacing: 0.13em; }
+.hik-login-story-foot span { width: 3px; height: 3px; border-radius: 50%; background: var(--hk-accent); }
+
+.hik-login-access { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 55px 28px; }
+.hik-login-access::before { position: absolute; width: min(95%, 700px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, var(--hk-hero-glow), transparent 68%); filter: blur(26px); content: ''; pointer-events: none; }
+.hik-login-card { position: relative; width: min(100%, 515px); padding: clamp(30px, 3.4vw, 54px); border-radius: 27px; }
+.hik-login-lock { display: grid; width: 48px; height: 48px; place-items: center; border-radius: 14px; background: rgb(214 24 32 / 0.11); color: var(--hk-accent); }
+.hik-login-kicker { margin: 29px 0 0; color: var(--hk-accent); font-size: 10px; font-weight: 800; letter-spacing: 0.17em; }
+.hik-login-card h2 { margin: 11px 0 10px; color: var(--hk-ink); font-size: clamp(34px, 3vw, 47px); font-weight: 700; letter-spacing: -0.06em; line-height: 1.1; }
+.hik-login-instruction { margin: 0 0 32px; color: var(--hk-muted); font-size: 14px; line-height: 1.6; }
+.hik-login-form { display: grid; gap: 18px; }
+.hik-login-form > div { margin: 0; }
+.hik-login-form label { color: var(--hk-ink); font-size: 13px; font-weight: 700; }
+.hik-login-form input {
+  height: 51px;
+  margin-top: 9px;
+  padding: 0 15px;
+  border: 1px solid var(--hk-line);
+  border-radius: 12px;
+  background: var(--hk-glass);
+  color: var(--hk-ink);
+  font-size: 14px;
+}
+.hik-login-form input:focus { border-color: var(--hk-accent); box-shadow: 0 0 0 3px rgb(214 24 32 / 0.12); }
+.hik-login-form .hik-login-submit { height: 52px; margin-top: 7px; border-radius: 999px; background: var(--hk-accent); color: #fff; font-size: 14px; font-weight: 700; box-shadow: 0 9px 22px rgb(214 24 32 / 0.19); }
+.hik-login-form .hik-login-submit:hover { background: #b9131b; }
+.hik-login-form > p:last-child { margin: 2px 0 0; color: var(--hk-soft); font-size: 11px; line-height: 1.5; text-align: left; }
+.hik-login-form [role='alert'] { color: var(--hk-accent); }
+.hik-login-card-foot { display: flex; align-items: center; gap: 9px; margin-top: 31px; padding-top: 19px; border-top: 1px solid var(--hk-line); color: var(--hk-soft); font-size: 11px; }
+.hik-login-card-foot span { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--hk-accent); }
+.hik-login-help { position: relative; display: flex; flex-wrap: wrap; gap: 5px; margin: 25px 0 0; color: var(--hk-muted); font-size: 12px; }
+.hik-login-help a { display: inline-flex; align-items: center; gap: 3px; color: var(--hk-accent); font-weight: 700; }
+.hik-login-help a:hover { text-decoration: underline; }
+
+@media (max-width: 1100px) {
+  .hik-login-grid { grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr); }
+  .hik-login-story h1 { font-size: clamp(43px, 5vw, 65px); }
+}
+@media (max-width: 800px) {
+  .hik-login-grid { grid-template-columns: 1fr; }
+  .hik-login-access { order: 1; min-height: 590px; padding: 40px 20px; }
+  .hik-login-story { order: 2; min-height: 580px; }
+  .hik-login-story h1 { max-width: 600px; }
+}
+@media (max-width: 680px) {
+  .hik-login { padding: 8px; }
+  .hik-login-shell { min-height: calc(100vh - 16px); border-radius: 25px; }
+  .hik-login-header { width: calc(100% - 18px); min-height: 66px; margin-top: 9px; padding: 8px 10px; border-radius: 19px; }
+  .hik-login-header .hik-home-logo { padding: 8px 9px; border-radius: 9px; }
+  .hik-login-header .hik-home-logo img { width: 145px; }
+  .hik-login-header-actions { gap: 6px; }
+  .hik-login-back { width: 40px; min-height: 40px; padding: 0; }
+  .hik-login-back span { display: none; }
+  .hik-login-grid { gap: 10px; margin: 10px; }
+  .hik-login-access { min-height: 0; padding: 31px 11px 35px; }
+  .hik-login-card { padding: 29px 25px; border-radius: 22px; }
+  .hik-login-card h2 { font-size: 37px; }
+  .hik-login-story { min-height: 0; padding: 42px 26px 27px; border-radius: 22px; }
+  .hik-login-story h1 { font-size: clamp(41px, 9vw, 60px); }
+  .hik-login-story-copy > p:last-child { font-size: 15px; }
+  .hik-login-visual { margin: 38px 0 30px; }
+}
+@media (max-width: 380px) {
+  .hik-login-header .hik-home-logo img { width: 120px; }
+  .hik-login-card { padding: 26px 21px; }
+  .hik-login-card h2 { font-size: 34px; }
+  .hik-login-story { padding-right: 19px; padding-left: 19px; }
+  .hik-login-story h1 { font-size: 39px; }
+  .hik-login-visual { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hik-login *, .hik-login *::before, .hik-login *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

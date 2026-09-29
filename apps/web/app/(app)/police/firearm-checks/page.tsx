@@ -5,7 +5,7 @@ import { getSession } from '@/lib/session';
 import { cn, formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Firearm checks · Criticomm' };
+export const metadata = { title: 'Firearm checks · HikTech' };
 
 /**
  * The console view of the armoury checklists officers complete on the phone.

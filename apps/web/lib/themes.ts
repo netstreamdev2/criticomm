@@ -16,12 +16,12 @@ export type ThemeMeta = {
 
 export const THEMES: ThemeMeta[] = [
   {
-    id: 'criticom-dark', name: 'Criticom Dark', mode: 'dark',
+    id: 'criticom-dark', name: 'HikTech Dark', mode: 'dark',
     description: 'The default command-centre look — deep navy with emergency red.',
     swatch: ['#050510', '#11112a', '#dc3545', '#3b82f6'],
   },
   {
-    id: 'criticom-light', name: 'Criticom Light', mode: 'light',
+    id: 'criticom-light', name: 'HikTech Light', mode: 'light',
     description: 'Same identity, bright control-room lighting.',
     swatch: ['#f4f6fb', '#ffffff', '#cd2837', '#2563eb'],
   },

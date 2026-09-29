@@ -8,7 +8,7 @@ import { formatSaTime } from '@/lib/utils';
 import { recordTransactionAction } from '../enforcement-actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Charge Transactions · Criticomm' };
+export const metadata = { title: 'Charge Transactions · HikTech' };
 
 export default async function TransactionsPage() {
   await requireFeaturePage('web.enforcement');

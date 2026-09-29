@@ -4,7 +4,7 @@ import { canAccess } from '@criticom/db';
 import { getSession } from '@/lib/session';
 import { LogCallForm } from './log-call-form';
 
-export const metadata: Metadata = { title: 'Log incoming call · Criticom' };
+export const metadata: Metadata = { title: 'Log incoming call · HikTech' };
 export const dynamic = 'force-dynamic';
 
 export default async function LogCallPage() {

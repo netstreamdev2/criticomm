@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { CheckField, TextAreaField } from '@/components/fields';
 import { mentalCheckAction } from '../actions';
 
-export const metadata = { title: 'Mental Readiness Check · Criticom' };
+export const metadata = { title: 'Mental Readiness Check · HikTech' };
 
 const CHECKS = [
   { name: 'memory_recall', label: 'Memory recall — I can recall my callsign, unit and standing orders' },
