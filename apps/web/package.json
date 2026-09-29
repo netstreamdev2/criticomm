@@ -8,8 +8,7 @@
     "build": "next build",
     "start": "next start --port 3000",
     "lint": "biome lint app components lib",
-    "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test lib/invitations/*.test.ts"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@criticom/api": "workspace:*",

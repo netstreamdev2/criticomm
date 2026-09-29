@@ -3,7 +3,6 @@ import { listTenants } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { TenantForms } from './tenant-forms';
-import { InviteSystemAdminForm } from './invite-form';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Tenants · HikTech' };
@@ -66,13 +65,14 @@ export default async function TenantsPage() {
         <CardHeader>
           <CardTitle>Provisioning an organisation</CardTitle>
           <CardDescription>
-            Create the tenant, then invite its first SystemAdmin using their email address.
-            Existing accounts can be reassigned using the separate form below.
+            Create the tenant, then assign its first administrator below — the assignment rewrites
+            the account&rsquo;s tenant claim and takes effect on their next sign-in. From there that
+            administrator builds their own departments, users and configuration inside their own
+            boundary.
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <InviteSystemAdminForm tenants={tenants.map((t) => ({ id: t.id, name: t.name, active: t.active }))} />
       <TenantForms tenants={tenants.map((t) => ({ id: t.id, name: t.name, slug: t.slug, active: t.active }))} />
     </div>
   );
