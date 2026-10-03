@@ -349,12 +349,37 @@ export async function getMyPerformance(
     cat.set(key, row);
   }
 
-  // Appraisal snapshot.
+  const { cycleYear, cycleLabel: label, hasPlan, planStatus, appraisal, midYearAverage, finalAverage } =
+    await getMyAppraisal(client, args.userId);
+
+  return {
+    asCallTaker: stat(taken, 'As call taker'),
+    asDispatcher: stat(dispatched, 'As dispatcher'),
+    asResponder: stat(attended, 'As responder'),
+    teamAvgCallsTaken: ranked.length ? Math.round((ranked.reduce((s, [, n]) => s + n, 0) / ranked.length) * 10) / 10 : 0,
+    rankByVolume: rankByVolume > 0 ? rankByVolume : ranked.length + 1,
+    teamSize: ranked.length,
+    monthlyTrend: [...monthly.entries()].sort().map(([label, count]) => ({ label, count })),
+    myCategoryBreakdown: [...cat.values()].sort((a, b) => b.total - a.total),
+    hasPlan,
+    cycleYear,
+    cycleLabel: label,
+    planStatus,
+    appraisal,
+    midYearAverage,
+    finalAverage,
+  };
+}
+
+export type AppraisalLine = { kpiTitle: string; midYearScore: number | null; finalScore: number | null; approved: boolean };
+
+/** This cycle's appraisal plan for one member: per-KPI scores and averages (out of 5). */
+export async function getMyAppraisal(client: CriticomClient, userId: string) {
   const cycleYear = cycleYearFor();
   const { data: plan } = await client
     .from('performance_plans').select('*')
-    .eq('user_id', args.userId).eq('cycle_year', cycleYear).maybeSingle();
-  let appraisal: Array<{ kpiTitle: string; midYearScore: number | null; finalScore: number | null; approved: boolean }> = [];
+    .eq('user_id', userId).eq('cycle_year', cycleYear).maybeSingle();
+  let appraisal: AppraisalLine[] = [];
   let midYearAverage: number | null = null;
   let finalAverage: number | null = null;
   if (plan) {
@@ -377,24 +402,43 @@ export async function getMyPerformance(
     midYearAverage = mids.length ? Math.round((mids.reduce((s, x) => s + x, 0) / mids.length) * 10) / 10 : null;
     finalAverage = fins.length ? Math.round((fins.reduce((s, x) => s + x, 0) / fins.length) * 10) / 10 : null;
   }
-
   return {
-    asCallTaker: stat(taken, 'As call taker'),
-    asDispatcher: stat(dispatched, 'As dispatcher'),
-    asResponder: stat(attended, 'As responder'),
-    teamAvgCallsTaken: ranked.length ? Math.round((ranked.reduce((s, [, n]) => s + n, 0) / ranked.length) * 10) / 10 : 0,
-    rankByVolume: rankByVolume > 0 ? rankByVolume : ranked.length + 1,
-    teamSize: ranked.length,
-    monthlyTrend: [...monthly.entries()].sort().map(([label, count]) => ({ label, count })),
-    myCategoryBreakdown: [...cat.values()].sort((a, b) => b.total - a.total),
-    hasPlan: Boolean(plan),
     cycleYear,
     cycleLabel: cycleLabel(cycleYear),
+    hasPlan: Boolean(plan),
     planStatus: plan?.status ?? null,
     appraisal,
     midYearAverage,
     finalAverage,
   };
+}
+
+/** One incident this officer responded to, lead or backup (migration 0042). */
+export type MyResponse = {
+  role: 'lead' | 'backup';
+  status: Database['public']['Enums']['incident_status'];
+  joined_at: string;
+  incident: Pick<Incident,
+    'id' | 'incident_number' | 'incident_type' | 'incident_category' | 'status'
+    | 'accepted_by' | 'accepted_at' | 'arrived_timestamp' | 'resolved_at' | 'report_filed_at' | 'closed_at'>;
+};
+
+/**
+ * A field officer's own response history since `since`, by user id (not by
+ * display name), lead and backup. The phone works the figures out from it.
+ */
+export async function listMyResponses(client: CriticomClient, userId: string, since: string) {
+  const { data, error } = await client
+    .from('incident_responders')
+    .select(`role, status, joined_at, incident:incidents!inner(
+      id, incident_number, incident_type, incident_category, status,
+      accepted_by, accepted_at, arrived_timestamp, resolved_at, report_filed_at, closed_at)`)
+    .eq('user_id', userId)
+    .gte('joined_at', since)
+    .order('joined_at', { ascending: false })
+    .limit(1000);
+  if (error) throw error;
+  return (data ?? []) as unknown as MyResponse[];
 }
 
 /** PerformanceController.RoleKpis — control-room role member throughput. */

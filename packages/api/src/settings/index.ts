@@ -43,6 +43,7 @@ export type OperationalSettingKey =
   | 'alerts.toast_seconds'
   | 'dispatch.eta_speed_kmh'
   | 'dispatch.eta_road_factor'
+  | 'duty.max_shift_hours'
   | 'map.default_basemap'
   | 'board.feed_items'
   | 'board.volume_days';
@@ -108,6 +109,12 @@ export const OPERATIONAL_SETTINGS: readonly SettingDef[] = [
     description: 'Multiplier converting straight-line distance to road distance (urban ≈ 1.35).',
     category: 'Dispatch & ETA', type: 'number', default: 1.35, min: 1, max: 3,
   },
+  {
+    key: 'duty.max_shift_hours',
+    label: 'Auto off-duty after',
+    description: 'Hours after going on duty in the app before an officer who never signed off is taken off duty (never mid-call). Read by the database sweep, migration 0041.',
+    category: 'Dispatch & ETA', type: 'number', default: 14, min: 4, max: 24, unit: 'h',
+  },
 
   // ── Map & board ──
   {
@@ -141,6 +148,7 @@ export type OperationalSettings = {
   'alerts.toast_seconds': number;
   'dispatch.eta_speed_kmh': number;
   'dispatch.eta_road_factor': number;
+  'duty.max_shift_hours': number;
   'map.default_basemap': 'satellite' | 'street';
   'board.feed_items': number;
   'board.volume_days': number;

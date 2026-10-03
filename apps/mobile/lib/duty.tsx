@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { hasCompletedShiftStartToday } from '@criticom/api';
+import {
+  countOnDuty, getMyPersonnel, hasCompletedShiftStartToday, onDutyFlip, subscribePersonnel,
+} from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 
@@ -16,6 +18,10 @@ import { useAuth } from '@/lib/auth';
  *
  * `hasCompletedShiftStartToday()` is the authority — it resets daily, so the
  * flow is re-run at the start of every shift rather than once per install.
+ *
+ * Alongside it, live: whether this officer is on duty (and so receives
+ * dispatches) and how many in their department are. Both follow the personnel
+ * table in real time — toggled here, on the Shift tab, or by the server.
  */
 
 type DutyState = {
@@ -23,11 +29,15 @@ type DutyState = {
   shiftStarted: boolean | null;
   checking: boolean;
   /** Re-ask the server. Call after finishing the flow. */
-  refresh: () => Promise<void>;
+  refresh: () => Promise<boolean>;
+  /** On duty right now — the flag dispatch reads. null until known. */
+  onDuty: boolean | null;
+  /** Officers on duty in this department right now. null until known. */
+  teamOnDuty: number | null;
 };
 
 const Ctx = createContext<DutyState>({
-  shiftStarted: null, checking: true, refresh: async () => {},
+  shiftStarted: null, checking: true, refresh: async () => false, onDuty: null, teamOnDuty: null,
 });
 
 export function useDuty(): DutyState {
@@ -35,25 +45,28 @@ export function useDuty(): DutyState {
 }
 
 export function DutyProvider({ children }: { children: React.ReactNode }) {
-  const { session } = useAuth();
+  const { session, silo } = useAuth();
   const [shiftStarted, setShiftStarted] = useState<boolean | null>(null);
   const [checking, setChecking] = useState(true);
+  const [onDuty, setOnDuty] = useState<boolean | null>(null);
+  const [teamOnDuty, setTeamOnDuty] = useState<number | null>(null);
 
   const refresh = useCallback(async () => {
     if (!session) {
       setShiftStarted(null);
       setChecking(false);
-      return;
+      return false;
     }
     setChecking(true);
     try {
-      setShiftStarted(await hasCompletedShiftStartToday(getSupabase()));
+      const cleared = await hasCompletedShiftStartToday(getSupabase());
+      setShiftStarted(cleared);
+      return cleared;
     } catch {
-      // Offline or the check failed. Do NOT assume the shift has started —
-      // but do not strand the crew behind a gate we cannot evaluate either.
-      // Treating it as started lets them work; the flow is still reachable
-      // from the Shift tab, and the server remains the record of truth.
-      setShiftStarted(true);
+      // The server is the authority for today's clearance. A network error
+      // cannot silently unlock incidents.
+      setShiftStarted(false);
+      return false;
     } finally {
       setChecking(false);
     }
@@ -61,8 +74,31 @@ export function DutyProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => { void refresh(); }, [refresh]);
 
+  useEffect(() => {
+    if (!session) { setOnDuty(null); setTeamOnDuty(null); return; }
+    const sb = getSupabase();
+    const userId = session.user.id;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const read = () => {
+      // Offline, the last known values stand.
+      void getMyPersonnel(sb, userId).then((me) => setOnDuty(Boolean(me?.is_on_duty))).catch(() => {});
+      void countOnDuty(sb, silo).then(setTeamOnDuty).catch(() => {});
+    };
+    read();
+    // RLS limits the stream to this department's people; GPS heartbeats are
+    // filtered out, only on/off duty flips re-read.
+    const off = subscribePersonnel(sb, onDutyFlip(() => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(read, 250);
+    }));
+    return () => {
+      off();
+      if (timer) clearTimeout(timer);
+    };
+  }, [session, silo]);
+
   return (
-    <Ctx.Provider value={{ shiftStarted, checking, refresh }}>
+    <Ctx.Provider value={{ shiftStarted, checking, refresh, onDuty, teamOnDuty }}>
       {children}
     </Ctx.Provider>
   );

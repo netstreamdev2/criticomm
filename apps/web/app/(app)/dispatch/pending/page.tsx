@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import { getServerSupabase } from '@/lib/supabase';
-import { listPendingIncidents } from '@criticom/api';
+import { canAccess } from '@criticom/db';
+import { getSession } from '@/lib/session';
+import { listOnDutyOfficers, listPendingIncidents } from '@criticom/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { timeAgo } from '@/lib/utils';
 import { PendingRealtimeBridge } from './realtime-bridge';
@@ -10,8 +11,17 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Pending queue · HikTech' };
 
 export default async function PendingPage() {
-  const supabase = await getServerSupabase();
-  const pending = await listPendingIncidents(supabase);
+  const { supabase, role, silo } = await getSession();
+  const [pending, officers] = await Promise.all([
+    listPendingIncidents(supabase),
+    listOnDutyOfficers(supabase, ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster']).catch(() => []),
+  ]);
+  // Who a dispatch would reach right now; live via the realtime bridge.
+  const onDuty = officers.length;
+  const free = officers.filter((o) => o.activeCalls === 0).length;
+  // Two-desk split (Operations Manual 3.2): a Dispatcher works this queue and
+  // never captures calls, so only chairs that may log a call see the button.
+  const canLogCall = canAccess('/dispatch/log-call', role, silo);
 
   return (
     <div className="space-y-4">
@@ -33,12 +43,25 @@ export default async function PendingPage() {
             severity, then call time · live
           </span>
         </div>
-        <Link
-          href="/dispatch/log-call"
-          className="inline-flex h-9 items-center rounded-md bg-primary px-3.5 text-sm font-semibold"
+        <span
+          className={`inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-semibold ${
+            onDuty === 0
+              ? 'border-severity-critical/40 bg-severity-critical/10 text-severity-critical-ink'
+              : 'border-severity-low/40 bg-severity-low/10 text-severity-low-ink'
+          }`}
+          title={onDuty === 0 ? 'No one is on duty to receive a dispatch' : undefined}
         >
-          + Log new call
-        </Link>
+          <span className={`h-2 w-2 rounded-full ${onDuty === 0 ? 'bg-severity-critical' : 'animate-pulse bg-severity-low'}`} />
+          {onDuty === 0 ? 'No one on duty' : `${onDuty} on duty · ${free} free`}
+        </span>
+        {canLogCall ? (
+          <Link
+            href="/dispatch/log-call"
+            className="inline-flex h-9 items-center rounded-md bg-primary px-3.5 text-sm font-semibold"
+          >
+            + Log new call
+          </Link>
+        ) : null}
       </header>
 
       <Card>
@@ -82,7 +105,7 @@ export default async function PendingPage() {
                         href={`/dispatch/assign/${i.id}`}
                         className="inline-flex h-8 items-center rounded-md bg-accent px-3 text-xs font-semibold"
                       >
-                        Assign
+                        Dispatch
                       </Link>
                     </StopClick>
                   </td>

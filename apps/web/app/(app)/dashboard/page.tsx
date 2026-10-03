@@ -13,6 +13,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { HourlyAreaChart, SeverityDonut } from '@/components/charts';
 import { QuickLinks } from '@/components/quick-links';
 import { DispatchBoard } from './dispatch-board';
+import { BoardLive } from './board-live';
 import { getSession, siloFilter } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 
@@ -175,6 +176,8 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Live: on-duty and incident figures move without a refresh. */}
+      <BoardLive />
       {!usesSidebar && <DashboardLogo />}
       {/* Hero */}
       <section className="overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-primary/15 via-bg-card to-bg-soft p-6">
@@ -222,6 +225,7 @@ async function CaptainDashboard({
 
   return (
     <div className="space-y-5">
+      <BoardLive />
       <section className="relative overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/20 via-bg-card to-bg-soft p-5 shadow-[0_12px_40px_-30px_var(--accent)] sm:p-7">
         <div aria-hidden className="pointer-events-none absolute -right-10 -top-20 h-56 w-56 rounded-full bg-accent/10 blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-5">

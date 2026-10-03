@@ -2,46 +2,42 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  getIncident, getIncidentUpdates, subscribeIncidentTimeline,
+  getFieldIncident, getIncidentUpdates, listIncidentAttachments, subscribeIncidentTimeline, type FieldIncident,
 } from '@criticom/api';
 import type { Database, IncidentStatus } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/auth';
+import { useDuty } from '@/lib/duty';
+import { callView, isPoliceCall, MAX_PHOTOS, photosRemaining } from '@/lib/response';
 import { useSync } from '@/lib/sync';
 import { useFeature } from '@/lib/features';
 import { retainAttachment } from '@/lib/outbox';
-import {
-  colors, radius, severityColor, space, timeAgo, type,
-} from '@/lib/theme';
+import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import {
   Banner, Button, Card, EmptyState, Input, KeyValue, Muted, SectionLabel,
   SeverityPill, StatusBadge, Title,
 } from '@/components/ui';
 
-type Incident = Database['public']['Tables']['incidents']['Row'];
 type Update = Database['public']['Tables']['incident_updates']['Row'];
-
-/** Mirrors the ladder on the incidents list — one forward step at a time. */
-const NEXT: Partial<Record<IncidentStatus, IncidentStatus>> = {
-  Dispatched: 'En Route',
-  'En Route': 'Arrived',
-  Arrived: 'On Scene',
-  'On Scene': 'Transporting',
-  Transporting: 'Resolved',
-};
 
 /** Strips the zero-width outbox replay marker before anything is displayed. */
 const clean = (message: string) => message.replace(/​[\w-]+$/, '');
 
 export default function IncidentDetailScreen() {
+  const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const { session, silo } = useAuth();
+  const { onDuty } = useDuty();
   const { enqueue, pending } = useSync();
+  const [photosFiled, setPhotosFiled] = useState(0);
   const voiceOn = useFeature('mobile.voice_notes');
-  const [incident, setIncident] = useState<Incident | null>(null);
+  const [incident, setIncident] = useState<FieldIncident | null>(null);
   const [updates, setUpdates] = useState<Update[]>([]);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState<string | null>(null);
@@ -55,21 +51,26 @@ export default function IncidentDetailScreen() {
   const load = useCallback(async () => {
     if (!id) return;
     const sb = getSupabase();
-    const [inc, upd] = await Promise.all([
-      getIncident(sb, id).catch(() => null),
+    const [inc, upd, files] = await Promise.all([
+      getFieldIncident(sb, id).catch(() => null),
       getIncidentUpdates(sb, id).catch(() => []),
+      listIncidentAttachments(sb, id).catch(() => []),
     ]);
     setIncident(inc);
     setUpdates(upd);
+    setPhotosFiled(files.filter((a) => a.kind === 'image').length);
     setLoading(false);
   }, [id]);
 
   useEffect(() => {
     void load();
     if (!id) return;
-    const off = subscribeIncidentTimeline(getSupabase(), id, (u) =>
-      setUpdates((cur) => [u, ...cur]),
-    );
+    // Every status change and filed photo writes a timeline entry, so the
+    // timeline doubles as the signal to refresh the call itself.
+    const off = subscribeIncidentTimeline(getSupabase(), id, (u) => {
+      setUpdates((cur) => (cur.some((x) => x.id === u.id) ? cur : [u, ...cur]));
+      void getFieldIncident(getSupabase(), id).then(setIncident).catch(() => {});
+    });
     return off;
   }, [id, load]);
 
@@ -93,6 +94,7 @@ export default function IncidentDetailScreen() {
       status: status?.op.kind === 'incident_status' ? (status.op.status as IncidentStatus) : null,
       notes: forThis.filter((e) => e.op.kind === 'incident_note').length,
       media: forThis.filter((e) => e.op.kind === 'evidence').length,
+      photos: forThis.filter((e) => e.op.kind === 'evidence' && e.op.mediaKind === 'image').length,
     };
   }, [pending, id]);
 
@@ -115,16 +117,21 @@ export default function IncidentDetailScreen() {
   };
 
   const advance = async () => {
-    if (!incident) return;
-    const current = queued.status ?? incident.status;
-    const next = NEXT[current];
-    if (!next) return;
+    if (!incident || !session) return;
+    const action = callView(incident, { userId: session.user.id, silo, onDuty }, queued.status).action;
+    if (!action) return;
+    if (action.kind === 'report') { router.push(`/report/${incident.id}`); return; }
     setBusy('status');
     try {
+      if (action.kind === 'respond' && onDuty === false) {
+        notify('You are off duty. Go on duty to respond to incidents.');
+        return;
+      }
+      // Queued, not sent; the server decides lead or backup and tells dispatch.
       await enqueue({
         kind: 'incident_status',
         incidentId: incident.id,
-        status: next,
+        status: action.kind === 'respond' ? 'En Route' : action.status,
         incidentNumber: incident.incident_number,
       });
     } catch (e) {
@@ -137,6 +144,10 @@ export default function IncidentDetailScreen() {
   const capture = async (source: 'camera' | 'library') => {
     if (!incident) return;
     setMessage(null);
+    if (photosRemaining(photosFiled, queued.photos) === 0) {
+      notify(`This case file already holds ${MAX_PHOTOS} photos — the maximum.`);
+      return;
+    }
     if (source === 'camera') {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') { notify('Camera permission denied.'); return; }
@@ -261,8 +272,14 @@ export default function IncidentDetailScreen() {
   }
 
   const sev = severityColor(incident.incident_severity);
-  const status = queued.status ?? incident.status;
-  const next = NEXT[status];
+  // Lead or backup, assigned or open — the same rules as the Calls list (0042).
+  const view = callView(incident, { userId: session?.user.id ?? '', silo, onDuty }, queued.status);
+  const status = view.role === 'lead' && queued.status ? queued.status : incident.status;
+  const mine = view.role !== null;
+  const action = view.action;
+  const closed = status === 'Resolved' || status === 'Closed';
+  const canCapture = !closed && (mine || !isPoliceCall(incident));
+  const photosLeft = photosRemaining(photosFiled, queued.photos);
 
   return (
     <ScrollView
@@ -308,18 +325,55 @@ export default function IncidentDetailScreen() {
         <View style={{ marginTop: space.sm }}>
           <KeyValue label="Caller" value={incident.caller_name || '—'} />
           <KeyValue label="Contact" value={incident.caller_number || '—'} />
+          {incident.dispatched_by ? <KeyValue label="Dispatched by" value={incident.dispatched_by} /> : null}
+          {incident.assigned_to_name ? (
+            <KeyValue
+              label="Assigned to"
+              value={incident.assigned_to === session?.user.id ? 'You' : incident.assigned_to_name}
+            />
+          ) : null}
+          {view.lead ? (
+            <KeyValue
+              label="Lead"
+              value={`${view.lead.user_id === session?.user.id ? 'You' : (view.lead.name ?? 'Officer')} · ${view.lead.status}`}
+            />
+          ) : null}
+          {view.backups.length ? (
+            <KeyValue
+              label="Backup"
+              value={view.backups.map((b) => `${b.user_id === session?.user.id ? 'You' : (b.name ?? 'Officer')} (${b.status})`).join(', ')}
+            />
+          ) : null}
         </View>
 
-        {next ? (
+        {incident.report_filed_at ? (
+          <View style={styles.filed}>
+            <Ionicons name="lock-closed" size={14} color={colors.low} />
+            <Text style={styles.filedText}>Report filed {timeAgo(incident.report_filed_at)} — incident resolved and on record.</Text>
+          </View>
+        ) : null}
+
+        {action ? (
           <View style={{ marginTop: space.md }}>
+            {view.blocked ? (
+              <Text style={styles.blocked}>{view.blocked}</Text>
+            ) : action.kind === 'respond' ? (
+              <Text style={styles.viewOnly}>
+                {action.asLead ? 'You will lead this incident.' : 'You will join as backup.'} Dispatch is told at once.
+              </Text>
+            ) : null}
             <Button
-              label={`Mark ${next}`}
-              icon="arrow-forward-circle"
+              label={action.kind === 'report' ? 'File incident report' : action.kind === 'respond' ? 'Responding' : action.label}
+              icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'car-sport' : 'arrow-forward-circle'}
+              variant={action.kind === 'report' ? 'success' : 'primary'}
               size="lg"
               busy={busy === 'status'}
+              disabled={Boolean(view.blocked)}
               onPress={() => void advance()}
             />
           </View>
+        ) : view.note && !closed ? (
+          <Text style={styles.viewOnly}>{view.note}</Text>
         ) : null}
 
         <View style={styles.actions}>
@@ -332,21 +386,32 @@ export default function IncidentDetailScreen() {
         </View>
       </Card>
 
-      {/* Evidence */}
+      {/* Evidence — captured while the call is worked; permanent once filed. */}
       <SectionLabel>Scene evidence</SectionLabel>
+      {canCapture ? (
       <Card accent={recording ? colors.critical : undefined}>
         <Muted>
           Photos and voice notes are stored on the phone first and filed into the case
           the moment there is signal — capture them whether or not you have coverage.
+          Filed evidence cannot be deleted.
         </Muted>
+
+        <Text style={styles.photoCount}>
+          Photos {MAX_PHOTOS - photosLeft}/{MAX_PHOTOS}{photosLeft === 0 ? ' — limit reached' : ''}
+        </Text>
 
         <View style={styles.actions}>
           <View style={{ flex: 1 }}>
-            <Button label="Camera" icon="camera" busy={busy === 'upload'} onPress={() => void capture('camera')} />
+            <Button label="Camera" icon="camera" busy={busy === 'upload'} disabled={photosLeft === 0} onPress={() => void capture('camera')} />
           </View>
           <View style={{ flex: 1 }}>
-            <Button label="Library" icon="images-outline" variant="outline" busy={busy === 'upload'} onPress={() => void capture('library')} />
+            <Button label="Library" icon="images-outline" variant="outline" busy={busy === 'upload'} disabled={photosLeft === 0} onPress={() => void capture('library')} />
           </View>
+        </View>
+
+        {/* Video evidence is planned; the control is shown so crews know it is coming. */}
+        <View style={{ marginTop: space.sm }}>
+          <Button label="Video · coming soon" icon="videocam-outline" variant="outline" disabled />
         </View>
 
         {voiceOn ? (
@@ -382,6 +447,15 @@ export default function IncidentDetailScreen() {
           </Text>
         ) : null}
       </Card>
+      ) : (
+        <Card>
+          <Muted>
+            {closed
+              ? `The case file is closed. ${photosFiled} photo${photosFiled === 1 ? '' : 's'} on record.`
+              : 'Evidence is captured by the crew working this incident.'}
+          </Muted>
+        </Card>
+      )}
 
       {/* Timeline */}
       <SectionLabel>Updates ({updates.length})</SectionLabel>
@@ -435,7 +509,7 @@ export default function IncidentDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   container: { padding: space.lg, paddingBottom: space['3xl'] },
   center: {
     flex: 1, backgroundColor: colors.bg,
@@ -453,6 +527,14 @@ const styles = StyleSheet.create({
   queuedChip: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   queuedText: { ...type.small, fontSize: 11, color: colors.medium, fontWeight: '700' },
   queuedNote: { ...type.small, fontSize: 12, color: colors.medium, marginTop: space.md },
+  photoCount: { ...type.small, fontSize: 12, color: colors.muted, fontWeight: '700', marginTop: space.md },
+  blocked: { ...type.small, fontSize: 12, color: colors.medium, fontWeight: '700', marginBottom: space.sm },
+  viewOnly: { ...type.small, fontSize: 12, color: colors.muted, marginTop: space.md },
+  filed: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: space.md,
+    padding: space.sm, borderRadius: radius.md, backgroundColor: colors.lowSoft,
+  },
+  filedText: { ...type.small, fontSize: 12, color: colors.low, fontWeight: '700', flexShrink: 1 },
 
   recording: {
     flexDirection: 'row', alignItems: 'center', gap: space.sm,
@@ -473,4 +555,4 @@ const styles = StyleSheet.create({
   timelineBody: { flex: 1, paddingBottom: space.lg },
   updateText: { color: colors.text, fontSize: 14, lineHeight: 20 },
   updateMeta: { ...type.small, fontSize: 12, color: colors.muted, marginTop: 3 },
-});
+}));

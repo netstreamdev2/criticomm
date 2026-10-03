@@ -139,3 +139,4 @@ export async function listCrimeStats(client: CriticomClient, year?: string) {
   if (error) throw error;
   return data ?? [];
 }
+export * from './report-types';

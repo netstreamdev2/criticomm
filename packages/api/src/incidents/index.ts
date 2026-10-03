@@ -32,6 +32,8 @@ export async function logIncomingCall(
     p_patient_name: input.patient_name ?? null,
     p_number_of_victims: input.number_of_victims ?? null,
     p_notes: input.notes ?? null,
+    p_incident_category: input.incident_category ?? null,
+    p_region: input.region ?? null,
   });
   if (error) throw error;
   return data as Incident;
@@ -64,10 +66,9 @@ export async function dispatchUnit(client: CriticomClient, input: DispatchUnitIn
 }
 
 /**
- * Route an incident to one or more departments straight from the dispatch
- * console, before any specific appliance is committed. Marks the incident
- * Dispatched, logs the routing, and pops an alert on every screen in each
- * receiving department. Use `dispatchUnit` once an actual unit is assigned.
+ * Dispatch a call to one or more departments (migration 0040). It goes out to
+ * every officer on duty there; the first to accept takes it. Refused with
+ * "No one is on duty to receive the dispatch" when nobody is.
  */
 export async function routeIncident(
   client: CriticomClient,
@@ -172,12 +173,50 @@ export async function listPendingIncidents(client: CriticomClient, silo?: Silo) 
     .from('incidents')
     .select('*')
     .in('status', ['Pending Dispatch', 'Pending', 'New', 'Pending Analysis'])
-    .order('incident_severity', { ascending: false })
     .order('call_timestamp', { ascending: true });
   if (silo) q = q.eq('silo', silo);
   const { data, error } = await q;
   if (error) throw error;
-  return data ?? [];
+  // An officer's SOS first, then by real severity (the column sorts as text,
+  // which put Medium above Critical), then the longest-waiting first.
+  const rank = (i: Incident) => (i.source === 'Responder-Panic' ? -1 : (PENDING_RANK[i.incident_severity] ?? 9));
+  return (data ?? []).sort((a, b) => rank(a) - rank(b));
+}
+
+const PENDING_RANK: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+
+/**
+ * Police Home tiles (V4 dashboard): live incidents, their severity split, and
+ * how many closed today. Counts only — no rows travel — and RLS scopes them
+ * to what the caller's service can see.
+ */
+export async function getIncidentOverview(client: CriticomClient) {
+  const saDate = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Johannesburg', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+  const todayStart = new Date(`${saDate}T00:00:00+02:00`).toISOString();
+
+  const live = () => client.from('incidents').select('id', { count: 'exact', head: true })
+    .not('status', 'in', '("Closed","Resolved")');
+  const [all, high, medium, low, closed] = await Promise.all([
+    live(),
+    live().in('incident_severity', ['High', 'Critical']),
+    live().eq('incident_severity', 'Medium'),
+    live().eq('incident_severity', 'Low'),
+    client.from('incidents').select('id', { count: 'exact', head: true })
+      .in('status', ['Closed', 'Resolved'])
+      .gte('closed_at', todayStart),
+  ]);
+  for (const res of [all, high, medium, low, closed]) {
+    if (res.error) throw res.error;
+  }
+  return {
+    live: all.count ?? 0,
+    high: high.count ?? 0,
+    medium: medium.count ?? 0,
+    low: low.count ?? 0,
+    closedToday: closed.count ?? 0,
+  };
 }
 
 /** IncidentsController.Dashboard — active (in-flight) incidents */
@@ -187,7 +226,9 @@ export async function listActiveIncidents(client: CriticomClient, silo?: Silo) {
     .select('*')
     .not('status', 'in', '("Closed","Resolved")')
     .order('incident_created_at', { ascending: false });
-  if (silo) q = q.eq('silo', silo);
+  // A department's live calls are the ones it owns AND the ones routed to it
+  // (Operations Manual 3.4) — a control-room call sent to Police is Police work.
+  if (silo) q = q.or(`silo.eq.${silo},dispatched_silos.cs.{${silo}}`);
   const { data, error } = await q;
   if (error) throw error;
   return data ?? [];
@@ -354,3 +395,277 @@ export async function listIncidentAttachments(client: CriticomClient, incidentId
 
 /** Lookup status type union (re-export for client-side use). */
 export type { IncidentStatus };
+
+/* ── Police response: dispatch → accept → report (migration 0039) ────────── */
+
+type MetroReport = Database['public']['Tables']['metro_reports']['Row'];
+
+/**
+ * The latest call this officer leads and has not closed out. A lead cannot
+ * sign out or go off duty while one is open (0039); backup can.
+ */
+export async function getMyOpenIncident(client: CriticomClient, userId: string) {
+  const { data, error } = await client
+    .from('incidents')
+    .select('*')
+    .eq('accepted_by', userId)
+    .not('status', 'in', '("Closed","Resolved")')
+    .order('accepted_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data as Incident | null;
+}
+
+/** File the case report; the server resolves the call and tells command. */
+export async function fileIncidentReport(
+  client: CriticomClient,
+  args: {
+    incidentId: string;
+    reportType: string;
+    fields: Record<string, unknown>;
+    details?: Record<string, unknown>;
+  },
+) {
+  const { data, error } = await client.rpc('file_incident_report', {
+    p_incident_id: args.incidentId,
+    p_report_type: args.reportType,
+    p_fields: args.fields,
+    p_details: args.details ?? {},
+  });
+  if (error) throw error;
+  return data as MetroReport;
+}
+
+/** The filed case report for an incident, if any. */
+export async function getIncidentReport(client: CriticomClient, incidentId: string) {
+  const { data, error } = await client
+    .from('metro_reports')
+    .select('*')
+    .eq('incident_id', incidentId)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data as MetroReport | null;
+}
+
+/* ── Dispatch: send to all, or assign; lead + backup (migrations 0040, 0042) ── */
+
+export type IncidentResponder = Pick<
+  Database['public']['Tables']['incident_responders']['Row'],
+  'user_id' | 'name' | 'silo' | 'role' | 'status' | 'joined_at'
+>;
+
+/** An incident with who is responding to it. */
+export type FieldIncident = Incident & { responders: IncidentResponder[] };
+
+const RESPONDERS = 'responders:incident_responders(user_id, name, silo, role, status, joined_at)';
+
+/** Statuses before a call has been sent out; officers never see these. */
+const NOT_YET_SENT = '("New","Pending","Pending Dispatch","Pending Analysis","Closed","Resolved")';
+
+/** Assign a call to one on-duty officer; they lead it. Re-assigning is allowed until someone leads. */
+export async function assignIncident(
+  client: CriticomClient,
+  args: { incident_id: string; user_id: string; notes?: string | null },
+) {
+  const { data, error } = await client.rpc('assign_incident', {
+    p_incident_id: args.incident_id,
+    p_user_id: args.user_id,
+    p_notes: args.notes ?? null,
+  });
+  if (error) throw error;
+  return data as Incident;
+}
+
+/**
+ * Every live call an officer can see from the field: those sent to their
+ * department, assigned to them, or that they respond to — whoever holds them.
+ */
+export async function listFieldIncidents(client: CriticomClient, silo: Silo, userId: string) {
+  const { data, error } = await client
+    .from('incidents')
+    .select(`*, ${RESPONDERS}`)
+    .not('status', 'in', NOT_YET_SENT)
+    .or(`dispatched_silos.cs.{${silo}},assigned_to.eq.${userId},accepted_by.eq.${userId}`)
+    .order('dispatch_time', { ascending: false, nullsFirst: false })
+    .limit(300);
+  if (error) throw error;
+  return (data ?? []) as unknown as FieldIncident[];
+}
+
+/** One call with its responders. */
+export async function getFieldIncident(client: CriticomClient, id: string) {
+  const { data, error } = await client
+    .from('incidents')
+    .select(`*, ${RESPONDERS}`)
+    .eq('id', id)
+    .maybeSingle();
+  if (error) throw error;
+  return data as unknown as FieldIncident | null;
+}
+
+/** The open calls this officer is responding to, lead or backup. */
+export async function listMyActiveIncidents(client: CriticomClient, userId: string) {
+  const { data, error } = await client
+    .from('incidents')
+    .select(`*, ${RESPONDERS}, mine:incident_responders!inner(user_id)`)
+    .eq('mine.user_id', userId)
+    .not('status', 'in', '("Closed","Resolved")')
+    .order('updated_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as FieldIncident[];
+}
+
+/**
+ * Open incidents dispatch has assigned to this officer, newest first. Callers
+ * drop the ones the officer is already responding to.
+ */
+export async function listAssignedToMe(client: CriticomClient, userId: string) {
+  const { data, error } = await client
+    .from('incidents')
+    .select('id, incident_number, incident_type, incident_severity, location_address, status')
+    .eq('assigned_to', userId)
+    .not('status', 'in', '("Closed","Resolved")')
+    .order('assigned_at', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * How many incidents dispatch assigned to this officer since midnight (SA
+ * time) — answered, closed or still waiting.
+ */
+export async function countAssignedToMeToday(client: CriticomClient, userId: string) {
+  const saDate = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Africa/Johannesburg', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+  const { count, error } = await client
+    .from('incidents')
+    .select('id', { count: 'exact', head: true })
+    .eq('assigned_to', userId)
+    .gte('assigned_at', new Date(`${saDate}T00:00:00+02:00`).toISOString());
+  if (error) throw error;
+  return count ?? 0;
+}
+
+/** Who is responding to a call, lead first. */
+export async function listIncidentResponders(client: CriticomClient, incidentId: string) {
+  const { data, error } = await client
+    .from('incident_responders')
+    .select('user_id, name, silo, role, status, joined_at')
+    .eq('incident_id', incidentId)
+    .order('role', { ascending: false })
+    .order('joined_at');
+  if (error) throw error;
+  return (data ?? []) as IncidentResponder[];
+}
+
+export type OnDutyOfficer = {
+  userId: string;
+  name: string;
+  badge: string;
+  silo: Silo;
+  station: string | null;
+  unitNumber: string | null;
+  lat: number | null;
+  lng: number | null;
+  /** When the officer's record (and GPS heartbeat) last changed. */
+  seenAt: string;
+  /** When they went on duty in the app (migration 0041). */
+  onDutySince: string | null;
+  /** The latest open call this officer is on, if any. */
+  busyWith: { id: string; number: string } | null;
+  /** Open calls they respond to or are assigned to — officers may hold several (0042). */
+  activeCalls: number;
+};
+
+/**
+ * Officers on duty in the app right now — the people a dispatch reaches —
+ * with their last position and whether they are already on a call.
+ */
+export async function listOnDutyOfficers(client: CriticomClient, silos?: Silo[]) {
+  let q = client
+    .from('personnel')
+    .select('user_id, first_name, last_name, rank, badge_number, silo, station, latitude, longitude, updated_at, duty_started_at, apparatus:assigned_apparatus_id (unit_number)')
+    .eq('is_on_duty', true)
+    .not('user_id', 'is', null);
+  if (silos?.length) q = q.in('silo', silos);
+  const { data: people, error } = await q;
+  if (error) throw error;
+
+  const officers: OnDutyOfficer[] = ((people ?? []) as Array<Record<string, unknown>>).map((p) => {
+    const lat = (p.latitude as number | null) ?? null;
+    const lng = (p.longitude as number | null) ?? null;
+    const noFix = lat === null || lng === null || (lat === 0 && lng === 0);
+    return {
+      userId: p.user_id as string,
+      name: `${p.rank ?? ''} ${p.first_name ?? ''} ${p.last_name ?? ''}`.replace(/\s+/g, ' ').trim(),
+      badge: String(p.badge_number ?? ''),
+      silo: p.silo as Silo,
+      station: (p.station as string | null) ?? null,
+      unitNumber: (p.apparatus as { unit_number?: string } | null)?.unit_number ?? null,
+      lat: noFix ? null : lat,
+      lng: noFix ? null : lng,
+      seenAt: String(p.updated_at),
+      onDutySince: (p.duty_started_at as string | null) ?? null,
+      busyWith: null,
+      activeCalls: 0,
+    };
+  });
+
+  const ids = officers.map((o) => o.userId);
+  if (ids.length) {
+    // Calls they respond to (lead or backup) and calls assigned to them but
+    // not yet answered; each counted once per officer.
+    const [responding, assigned] = await Promise.all([
+      client
+        .from('incident_responders')
+        .select('user_id, incident:incidents!inner(id, incident_number, status)')
+        .in('user_id', ids)
+        .not('incident.status', 'in', '("Closed","Resolved")'),
+      client
+        .from('incidents')
+        .select('id, incident_number, assigned_to')
+        .in('assigned_to', ids)
+        .not('status', 'in', '("Closed","Resolved")'),
+    ]);
+    if (responding.error) throw responding.error;
+    if (assigned.error) throw assigned.error;
+    const calls = new Map<string, Map<string, string>>();
+    const add = (userId: string | null, id: string, number: string) => {
+      if (!userId) return;
+      const mine = calls.get(userId) ?? new Map<string, string>();
+      mine.set(id, number);
+      calls.set(userId, mine);
+    };
+    for (const r of (responding.data ?? []) as unknown as Array<{ user_id: string; incident: { id: string; incident_number: string } }>) {
+      add(r.user_id, r.incident.id, r.incident.incident_number);
+    }
+    for (const a of assigned.data ?? []) add(a.assigned_to, a.id, a.incident_number);
+    for (const officer of officers) {
+      const mine = calls.get(officer.userId);
+      if (!mine) continue;
+      officer.activeCalls = mine.size;
+      const [first] = mine.entries();
+      if (first) officer.busyWith = { id: first[0], number: first[1] };
+    }
+  }
+  return officers;
+}
+
+/**
+ * Short-lived links to evidence files, keyed by storage path. Storage RLS
+ * decides what the caller may open; files they cannot see are simply absent.
+ */
+export async function signIncidentMedia(client: CriticomClient, paths: string[], expiresIn = 3600) {
+  const urls = new Map<string, string>();
+  if (paths.length === 0) return urls;
+  const { data, error } = await client.storage.from('incident-media').createSignedUrls(paths, expiresIn);
+  if (error) throw error;
+  for (const row of data ?? []) {
+    if (row.path && row.signedUrl) urls.set(row.path, row.signedUrl);
+  }
+  return urls;
+}

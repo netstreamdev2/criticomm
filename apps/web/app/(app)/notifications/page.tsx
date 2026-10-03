@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Radio, Megaphone, Siren, Info, Bell, ArrowUpRight } from 'lucide-react';
+import { Radio, Megaphone, Siren, Info, Bell, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { listMyAlerts, listNotifications } from '@criticom/api';
 import type { AlertKind } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -19,6 +19,13 @@ const KIND_META: Record<AlertKind, { label: string; icon: typeof Info; tone: str
   broadcast: { label: 'Broadcast', icon: Megaphone, tone: 'text-severity-medium-ink' },
   system: { label: 'System', icon: Bell, tone: 'text-muted-foreground' },
   info: { label: 'Info', icon: Info, tone: 'text-muted-foreground' },
+  dispatch: { label: 'Dispatch', icon: Radio, tone: 'text-primary' },
+  accepted: { label: 'Accepted', icon: CheckCircle2, tone: 'text-severity-low-ink' },
+  resolved: { label: 'Resolved', icon: CheckCircle2, tone: 'text-success' },
+  responding: { label: 'Responding', icon: Radio, tone: 'text-accent' },
+  reassigned: { label: 'Reassigned', icon: Info, tone: 'text-muted-foreground' },
+  backup: { label: 'Backup', icon: Radio, tone: 'text-accent' },
+  sos: { label: 'SOS', icon: Siren, tone: 'text-severity-critical-ink' },
 };
 
 export default async function NotificationsPage() {

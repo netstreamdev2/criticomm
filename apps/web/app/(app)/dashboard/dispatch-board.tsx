@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { LeafletMap, type MapMarker } from '@/components/leaflet-map';
 import type { getSession } from '@/lib/session';
 import { timeAgo, cn } from '@/lib/utils';
+import { BoardLive } from './board-live';
 
 type Supabase = Awaited<ReturnType<typeof getSession>>['supabase'];
 type Incident = Database['public']['Tables']['incidents']['Row'];
@@ -40,6 +41,22 @@ const FEED_META: Record<string, { label: string; icon: typeof MapPin; tone: stri
 const FEED_DEFAULT = { label: 'Incoming Incident', icon: AlertCircle, tone: 'text-severity-medium-ink', chip: 'bg-severity-medium/15' };
 
 const PIN_KIND: Record<string, string> = { Critical: 'critical', High: 'critical', Medium: 'medium', Low: 'low' };
+
+/* ── South African days ─────────────────────────────────────────────── */
+
+// The control room works in SAST. The server may run in UTC (Vercel), so
+// "today" and the per-day volume buckets are computed for Africa/Johannesburg
+// explicitly — otherwise the board rolls over at 02:00 local time.
+const SA_DAY = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Africa/Johannesburg', year: 'numeric', month: '2-digit', day: '2-digit',
+});
+/** YYYY-MM-DD in SAST. */
+const saDay = (d: Date | string) => SA_DAY.format(typeof d === 'string' ? new Date(d) : d);
+/** Midnight SAST of the given SA day, as an instant. */
+const saMidnight = (day: string) => new Date(`${day}T00:00:00+02:00`);
+
+const avgMinutes = (spans: number[]) =>
+  spans.length ? Math.round(spans.reduce((s, m) => s + m, 0) / spans.length) : null;
 
 /* ── Tiny inline visuals (server-safe SVG/divs) ─────────────────────── */
 
@@ -88,8 +105,8 @@ export async function DispatchBoard({
   const settings = await getOperationalSettings(supabase);
   const volumeDays = settings['board.volume_days'];
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const today = saDay(new Date());
+  const todayStart = saMidnight(today);
   const tenDaysAgo = new Date(todayStart.getTime() - (volumeDays - 1) * 86_400_000);
 
   const feedQ = supabase
@@ -106,8 +123,14 @@ export async function DispatchBoard({
     .from('incidents')
     .select('closed_at, call_timestamp')
     .gte('closed_at', todayStart.toISOString());
+  // Response time = call to arrival on scene (Operations Manual 36: the
+  // response target the gauge measures against), for calls reached today.
+  const arrivedQ = supabase
+    .from('incidents')
+    .select('call_timestamp, arrived_timestamp')
+    .gte('arrived_timestamp', todayStart.toISOString());
 
-  const [kpi, active, pending, feedRes, totalRes, recentRes, closedRes] = await Promise.all([
+  const [kpi, active, pending, feedRes, totalRes, recentRes, closedRes, arrivedRes] = await Promise.all([
     getDispatcherKpis(supabase, sf),
     listActiveIncidents(supabase, sf),
     listPendingIncidents(supabase, sf),
@@ -115,6 +138,7 @@ export async function DispatchBoard({
     sf ? totalQ.eq('silo', sf) : totalQ,
     sf ? recentQ.eq('silo', sf) : recentQ,
     sf ? closedQ.eq('silo', sf) : closedQ,
+    sf ? arrivedQ.eq('silo', sf) : arrivedQ,
   ]);
 
   // Live = everything not yet resolved: the active board plus the queue.
@@ -139,10 +163,10 @@ export async function DispatchBoard({
   // still occupy a bar.
   const perDay = new Map<string, number>();
   for (let i = 0; i < volumeDays; i++) {
-    perDay.set(new Date(tenDaysAgo.getTime() + i * 86_400_000).toISOString().slice(0, 10), 0);
+    perDay.set(saDay(new Date(tenDaysAgo.getTime() + i * 86_400_000)), 0);
   }
   for (const row of recentRes.data ?? []) {
-    const day = String(row.incident_created_at).slice(0, 10);
+    const day = saDay(String(row.incident_created_at));
     if (perDay.has(day)) perDay.set(day, (perDay.get(day) ?? 0) + 1);
   }
 
@@ -151,9 +175,15 @@ export async function DispatchBoard({
     .filter((r) => r.closed_at && r.call_timestamp)
     .map((r) => (new Date(r.closed_at!).getTime() - new Date(r.call_timestamp).getTime()) / 60_000)
     .filter((m) => m >= 0);
-  const avgDuration = durations.length
-    ? Math.round(durations.reduce((s, m) => s + m, 0) / durations.length)
-    : 0;
+  const avgDuration = avgMinutes(durations);
+
+  const responses = (arrivedRes.data ?? [])
+    .filter((r) => r.arrived_timestamp && r.call_timestamp)
+    .map((r) => (new Date(r.arrived_timestamp!).getTime() - new Date(r.call_timestamp).getTime()) / 60_000)
+    .filter((m) => m >= 0);
+  const avgResponse = avgMinutes(responses);
+  // Call → dispatch, from the KPI function (all calls in scope).
+  const avgDispatch = Math.round(Number(kpi.avgResponseTime ?? 0));
 
   const markers: MapMarker[] = live
     .filter((i) => i.location_lat && i.location_lng)
@@ -167,10 +197,9 @@ export async function DispatchBoard({
       href: `/incidents/${i.id}`,
     }));
 
-  const avgResponse = Math.round(Number(kpi.avgResponseTime ?? 0));
-
   return (
     <>
+      <BoardLive />
       {/* ── Row 1: headline stats ── */}
       <section className="grid gap-4 md:grid-cols-3">
         <Card className="relative h-full overflow-hidden">
@@ -345,22 +374,35 @@ export async function DispatchBoard({
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Total calls logged</p>
             <p className="mt-1 text-4xl font-bold">{totalRes.count ?? 0}</p>
             <MiniBars counts={[...perDay.values()]} />
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              {perDay.get(today) ?? 0} today · last {volumeDays} days shown
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 text-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Avg response time</p>
-            <p className="mt-1 text-4xl font-bold">{avgResponse}</p>
-            <Ring value={avgResponse} max={settings['sla.response_target_minutes']} />
+            <p className="mt-1 text-4xl font-bold">
+              {avgResponse ?? '—'}{avgResponse !== null ? <span className="text-lg text-muted-foreground"> min</span> : null}
+            </p>
+            <Ring value={avgResponse ?? 0} max={settings['sla.response_target_minutes']} />
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Call → on scene today · target {settings['sla.response_target_minutes']} min · dispatch {avgDispatch} min
+            </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 text-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Avg call duration</p>
-            <p className="mt-1 text-4xl font-bold">{avgDuration}</p>
-            <Ring value={avgDuration} max={settings['sla.call_duration_target_minutes']} />
+            <p className="mt-1 text-4xl font-bold">
+              {avgDuration ?? '—'}{avgDuration !== null ? <span className="text-lg text-muted-foreground"> min</span> : null}
+            </p>
+            <Ring value={avgDuration ?? 0} max={settings['sla.call_duration_target_minutes']} />
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              Call → closed today · target {settings['sla.call_duration_target_minutes']} min
+            </p>
           </CardContent>
         </Card>
 

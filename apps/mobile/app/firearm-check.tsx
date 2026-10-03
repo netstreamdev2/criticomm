@@ -5,7 +5,7 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useFeature } from '@/lib/features';
 import { useSync } from '@/lib/sync';
-import { colors, space } from '@/lib/theme';
+import { colors, space, makeStyles } from '@/lib/theme';
 import {
   Banner, Button, Card, CheckRow, EmptyState, Input, KeyValue, Muted, SectionLabel, Segmented, Title,
 } from '@/components/ui';
@@ -43,6 +43,7 @@ const uuid = () =>
   });
 
 export default function FirearmCheckScreen() {
+  const styles = useStyles();
   const { session, fullName } = useAuth();
   const { enqueue, online } = useSync();
   const featureOn = useFeature('mobile.firearm_check');
@@ -236,9 +237,9 @@ export default function FirearmCheckScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   container: { padding: space.lg, paddingBottom: space['3xl'], gap: space.xs },
   center: { flex: 1, backgroundColor: colors.bg, justifyContent: 'center' },
   row: { flexDirection: 'row', gap: space.sm },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-});
+}));

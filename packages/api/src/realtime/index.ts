@@ -78,6 +78,60 @@ export function subscribeIncidentTimeline(
   };
 }
 
+export type PersonnelChange = {
+  event: 'INSERT' | 'UPDATE' | 'DELETE';
+  id: string | null;
+  isOnDuty: boolean | null;
+};
+
+/**
+ * Personnel changes as they happen — an officer going on or off duty, changing
+ * vehicle, or sending a GPS heartbeat. Pass `userId` to watch one officer.
+ * Wrap the handler in `onDutyFlip` to ignore the heartbeats.
+ */
+export function subscribePersonnel(
+  client: CriticomClient,
+  onChange: (change: PersonnelChange) => void,
+  opts: { userId?: string } = {},
+) {
+  const filter = opts.userId ? `user_id=eq.${opts.userId}` : undefined;
+  const channel = client
+    .channel(uniqueTopic(`personnel:${opts.userId ?? 'all'}`))
+    .on(
+      'postgres_changes' as never,
+      { event: '*', schema: 'public', table: 'personnel', filter },
+      (payload: {
+        eventType: PersonnelChange['event'];
+        new: { id?: string; is_on_duty?: boolean } | null;
+        old: { id?: string } | null;
+      }) => onChange({
+        event: payload.eventType,
+        id: payload.new?.id ?? payload.old?.id ?? null,
+        isOnDuty: payload.new?.is_on_duty ?? null,
+      }),
+    )
+    .subscribe();
+  return () => {
+    void client.removeChannel(channel);
+  };
+}
+
+/**
+ * Only pass on changes to who is on duty. Every on-duty phone sends a GPS
+ * heartbeat a minute; refreshing a dashboard for each would thrash it. The
+ * first update seen from an officer passes (their state is not known yet),
+ * then only real on/off flips do.
+ */
+export function onDutyFlip(handler: () => void) {
+  const known = new Map<string, boolean | null>();
+  return (change: PersonnelChange) => {
+    if (change.event !== 'UPDATE' || !change.id) { handler(); return; }
+    const before = known.get(change.id);
+    known.set(change.id, change.isOnDuty);
+    if (before !== change.isOnDuty) handler();
+  };
+}
+
 /** Dispatcher → responder ad-hoc notification (replaces SignalR ReceiveNotification). */
 export async function sendNotificationToUser(
   client: CriticomClient,

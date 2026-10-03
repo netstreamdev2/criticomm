@@ -25,7 +25,12 @@ export type IncidentSeverity = 'Low' | 'Medium' | 'High' | 'Critical';
 
 /** Why an alert was raised — drives its icon and grouping. */
 export type AlertKind =
-  | 'assignment' | 'incident_new' | 'incident_update' | 'broadcast' | 'system' | 'info';
+  | 'assignment' | 'incident_new' | 'incident_update' | 'broadcast' | 'system' | 'info'
+  // Police response (migrations 0039/0040): an open dispatch to on-duty
+  // officers, and the call being accepted / resolved, told to command.
+  | 'dispatch' | 'accepted' | 'resolved'
+  // Assign / backup (0042) and an officer's SOS to dispatch and command (0043).
+  | 'responding' | 'reassigned' | 'backup' | 'sos';
 
 /** How forcefully an alert interrupts: a corner toast or a modal that blocks. */
 export type AlertPresentation = 'toast' | 'modal';
@@ -160,6 +165,19 @@ export type Database = {
           region: string | null;
           /** Device-generated idempotency key for offline creation (0024). */
           client_ref: string | null;
+          /** Officer who accepted the call by marking En Route (0039). */
+          accepted_by: string | null;
+          accepted_at: string | null;
+          dispatched_by_id: string | null;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          /** Set when the case report is filed — the officer's close-out (0039). */
+          report_filed_at: string | null;
+          /** Dispatcher assigned the call to this officer (0042). */
+          assigned_to: string | null;
+          assigned_to_name: string | null;
+          assigned_at: string | null;
+          assigned_by: string | null;
         };
         Insert: Partial<Database['public']['Tables']['incidents']['Row']>;
         Update: Partial<Database['public']['Tables']['incidents']['Row']>;
@@ -203,6 +221,8 @@ export type Database = {
         Row: {
           id: string;
           silo: Silo;
+          /** Set by migration 0030 (tenant isolation). */
+          tenant_id: string;
           user_id: string | null;
           first_name: string;
           last_name: string;
@@ -213,6 +233,8 @@ export type Database = {
           latitude: number | null;
           longitude: number | null;
           is_on_duty: boolean;
+          /** Set by migration 0041: when the officer went on duty in the app. */
+          duty_started_at: string | null;
           last_login: string | null;
           station: string | null;
           platoon: string | null;
@@ -231,6 +253,33 @@ export type Database = {
             columns: ['assigned_apparatus_id'];
             isOneToOne: false;
             referencedRelation: 'apparatus';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      incident_responders: {
+        /** Who is responding to a call: one lead, any number of backup (0042). */
+        Row: {
+          id: string;
+          tenant_id: string;
+          incident_id: string;
+          user_id: string;
+          silo: Silo;
+          name: string | null;
+          unit_id: string | null;
+          role: 'lead' | 'backup';
+          status: IncidentStatus;
+          joined_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['incident_responders']['Row']>;
+        Update: Partial<Database['public']['Tables']['incident_responders']['Row']>;
+        Relationships: [
+          {
+            foreignKeyName: 'incident_responders_incident_id_fkey';
+            columns: ['incident_id'];
+            isOneToOne: false;
+            referencedRelation: 'incidents';
             referencedColumns: ['id'];
           },
         ];
@@ -620,9 +669,52 @@ export type Database = {
           /** Generated column — never sent on insert. */
           passed: boolean;
           created_at: string;
+          /** Start-of-shift book-out (migration 0037). */
+          firearm_id: string | null;
+          chamber_status: 'condition_1' | 'condition_3' | 'unloaded' | null;
+          condition: 'clean' | 'requires_cleaning' | 'damaged' | null;
+          shift_start: boolean;
         };
         Insert: Partial<Omit<Database['public']['Tables']['firearm_checklists']['Row'], 'passed'>>;
         Update: Partial<Omit<Database['public']['Tables']['firearm_checklists']['Row'], 'passed'>>;
+        Relationships: [];
+      };
+      /** Armoury register maintained by command staff (migration 0037). */
+      firearms: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          serial_number: string;
+          make: string;
+          model: string;
+          calibre: string | null;
+          firearm_type: 'Sidearm' | 'Rifle' | 'Shotgun' | 'Less-lethal' | 'Other';
+          status: 'Available' | 'Issued' | 'Maintenance' | 'Retired';
+          issued_to: string | null;
+          issued_at: string | null;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['firearms']['Row']>;
+        Update: Partial<Database['public']['Tables']['firearms']['Row']>;
+        Relationships: [];
+      };
+      /** "No firearm drawn" at start of shift (migration 0037). Written via declare_shift_no_firearm(). */
+      shift_no_firearm_declarations: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          user_id: string;
+          user_name: string | null;
+          reason: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['shift_no_firearm_declarations']['Row']>;
+        Update: Partial<Database['public']['Tables']['shift_no_firearm_declarations']['Row']>;
         Relationships: [];
       };
       /** Per-tenant document counters behind next_doc_number() (migration 0033). */
@@ -723,6 +815,7 @@ export type Database = {
       audit_logs: {
         Row: {
           id: string;
+          tenant_id: string;
           silo: Silo;
           timestamp: string;
           user_id: string | null;
@@ -833,6 +926,7 @@ export type Database = {
       vehicle_checklists: {
         Row: {
           id: string;
+          officer_submitted: boolean;
           silo: Silo;
           user_id: string;
           apparatus_id: string;
@@ -843,6 +937,27 @@ export type Database = {
           equipment_stocked: boolean;
           comms_working: boolean;
           brakes_responsive: boolean;
+          /** DMPS 187(c) sheet (migration 0037). Null on pre-0037 rows. */
+          form_version: '187c' | null;
+          inspection_ref: string | null;
+          ndm_number: string | null;
+          mileage_km: number | null;
+          shift_type: 'DAY' | 'NIGHT' | 'MORNING' | 'AFTERNOON' | null;
+          inspection_date: string | null;
+          /** `group.item` → status. */
+          items: Record<string, 'ok' | 'fault' | 'nil'>;
+          /** Counted by the server on insert. */
+          items_ok: number;
+          items_fault: number;
+          items_nil: number;
+          fault_remarks: string | null;
+          /** Stamped by the server from the personnel record. */
+          inspector_name: string | null;
+          signature_svg: string | null;
+          photo_paths: string[];
+          licence_disk_path: string | null;
+          licence_photo_path: string | null;
+          declaration_accepted: boolean;
         };
         Insert: Partial<Database['public']['Tables']['vehicle_checklists']['Row']>;
         Update: Partial<Database['public']['Tables']['vehicle_checklists']['Row']>;
@@ -951,6 +1066,11 @@ export type Database = {
           weapon_size: string | null;
           contraband_details: string | null;
           created_at: string;
+          /** Context-aware report kind and its type-specific answers (0039). */
+          report_type: string | null;
+          details: Record<string, unknown>;
+          filed_by: string | null;
+          filed_at: string | null;
         };
         Insert: Partial<Database['public']['Tables']['metro_reports']['Row']>;
         Update: Partial<Database['public']['Tables']['metro_reports']['Row']>;
@@ -1736,6 +1856,9 @@ export type Database = {
           p_source?: string | null;
           /** Device-generated idempotency key (migration 0024). */
           p_client_ref?: string | null;
+          /** Stamped in the same transaction (migration 0038). */
+          p_incident_category?: string | null;
+          p_region?: string | null;
         };
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
@@ -1804,6 +1927,15 @@ export type Database = {
         Args: { p_incident_id: string; p_reason?: string | null };
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
+      file_incident_report: {
+        Args: {
+          p_incident_id: string;
+          p_report_type: string;
+          p_fields: Record<string, unknown>;
+          p_details?: Record<string, unknown>;
+        };
+        Returns: Database['public']['Tables']['metro_reports']['Row'];
+      };
       get_dispatcher_kpis: {
         Args: { p_silo?: Silo | null };
         Returns: {
@@ -1825,6 +1957,31 @@ export type Database = {
       };
       cleanup_on_logout: { Args: Record<string, never>; Returns: void };
       has_completed_shift_start_today: { Args: Record<string, never>; Returns: boolean };
+      shift_requires_firearm: { Args: Record<string, never>; Returns: boolean };
+      shift_readiness_passed_today: { Args: Record<string, never>; Returns: boolean };
+      shift_vehicle_passed_today: { Args: Record<string, never>; Returns: boolean };
+      shift_firearm_issued_today: { Args: Record<string, never>; Returns: boolean };
+      shift_firearm_resolved_today: { Args: Record<string, never>; Returns: boolean };
+      declare_shift_no_firearm: {
+        Args: { p_reason?: string | null };
+        Returns: Database['public']['Tables']['shift_no_firearm_declarations']['Row'];
+      };
+      issue_shift_firearm: {
+        Args: {
+          p_firearm_id: string;
+          p_rounds_issued: number;
+          p_magazines: number;
+          p_chamber_status: 'condition_1' | 'condition_3' | 'unloaded';
+          p_condition: 'clean' | 'requires_cleaning' | 'damaged';
+          p_serial_verified: boolean;
+          p_barrel_clear: boolean;
+          p_action_functional: boolean;
+          p_safety_functional: boolean;
+          p_sights_secure: boolean;
+          p_notes?: string | null;
+        };
+        Returns: Database['public']['Tables']['firearm_checklists']['Row'];
+      };
       assign_vehicle: { Args: { p_apparatus_id: string }; Returns: Database['public']['Tables']['apparatus']['Row'] };
       citizen_update_location: { Args: { p_token: string; p_latitude: number; p_longitude: number }; Returns: void };
       raise_dispatch_alerts: {
@@ -1833,6 +1990,10 @@ export type Database = {
       };
       route_incident: {
         Args: { p_incident_id: string; p_silos: Silo[]; p_notes?: string | null };
+        Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      assign_incident: {
+        Args: { p_incident_id: string; p_user_id: string; p_notes?: string | null };
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
     };

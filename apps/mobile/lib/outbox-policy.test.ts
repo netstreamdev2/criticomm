@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  backoffMs, comparePriority, dedupeKeyOf, describe, isMine, isPermanent, MAX_ATTEMPTS,
+  asUuid, backoffMs, comparePriority, dedupeKeyOf, describe, isMine, isPermanent, MAX_ATTEMPTS, newEntryId,
   type OutboxEntry, type OutboxOp,
 } from './outbox-policy.ts';
 
@@ -97,6 +97,7 @@ test('authorisation and missing-target failures are not retried', () => {
   // Retrying these forever drains a phone battery and buries real failures.
   assert.equal(isPermanent({ code: '42501' }), true, 'RLS denial');
   assert.equal(isPermanent({ code: '23503' }), true, 'foreign key gone');
+  assert.equal(isPermanent({ code: 'P0001' }), true, 'server business rule');
   assert.equal(isPermanent({ status: 401 }), true);
   assert.equal(isPermanent({ status: 403 }), true);
   assert.equal(isPermanent({ status: 404 }), true);
@@ -158,4 +159,20 @@ test('a long note is truncated rather than overflowing the tray', () => {
   });
   assert.ok(long.length < 60, `description was ${long.length} chars`);
   assert.match(long, /…$/);
+});
+
+test('new entry ids are v4 UUIDs — the server keys idempotency on uuid columns', () => {
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  for (let i = 0; i < 50; i++) assert.match(newEntryId(), uuid);
+  assert.notEqual(newEntryId(), newEntryId());
+});
+
+test('old-style ids map to the same UUID every time; UUIDs pass through', () => {
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+  const legacy = 'lzx3k9-abc12345';
+  assert.match(asUuid(legacy), uuid);
+  assert.equal(asUuid(legacy), asUuid(legacy));
+  assert.notEqual(asUuid(legacy), asUuid('lzx3k9-abc12346'));
+  const real = newEntryId();
+  assert.equal(asUuid(real), real);
 });

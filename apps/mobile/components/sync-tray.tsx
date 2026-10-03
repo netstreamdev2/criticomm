@@ -4,8 +4,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSync } from '@/lib/sync';
-import { colors, radius, space, timeAgo, type } from '@/lib/theme';
+import { colors, radius, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { Button } from '@/components/ui';
+import { CENTRE_RISE, useTabBarHeight } from '@/components/tab-bar';
 
 /**
  * The sync tray — the app's answer to "did that actually send?".
@@ -20,6 +21,8 @@ import { Button } from '@/components/ui';
  * is empty and the phone is online.
  */
 export function SyncTray() {
+  const styles = useStyles();
+  const tabBar = useTabBarHeight();
   const { pending, failed, online, syncing, retryAll, discard, describeOp } = useSync();
   const [open, setOpen] = useState(false);
 
@@ -57,6 +60,7 @@ export function SyncTray() {
         accessibilityLabel={`Sync status: ${label}`}
         style={({ pressed }) => [
           styles.pill,
+          { bottom: tabBar + CENTRE_RISE + space.md },
           { borderColor: `${tone}88`, backgroundColor: `${tone}22` },
           pressed && { opacity: 0.8 },
         ]}
@@ -149,11 +153,10 @@ export function SyncTray() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   pill: {
     position: 'absolute',
-    // Clear of the tab bar so it never covers a navigation target.
-    bottom: 96,
+    // Clear of the tab bar and its raised centre button (bottom is set from its height).
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
@@ -209,4 +212,4 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
   },
-});
+}));

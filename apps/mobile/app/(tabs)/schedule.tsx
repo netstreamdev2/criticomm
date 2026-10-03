@@ -8,7 +8,7 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useDept } from '@/lib/branding';
 import { DeptHeader } from '@/components/dept-badge';
-import { colors, radius, space, type } from '@/lib/theme';
+import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Card, EmptyState, Muted, SectionLabel, Title } from '@/components/ui';
 
 const dayLabel = (iso: string) =>
@@ -16,11 +16,12 @@ const dayLabel = (iso: string) =>
 const timeLabel = (iso: string) =>
   new Date(iso).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' });
 
-const STATUS_COLOUR: Record<string, string> = {
+/** Read at render time, so it follows the light/dark theme. */
+const STATUS_COLOUR = (): Record<string, string> => ({
   Approved: colors.low,
   Rejected: colors.critical,
   Pending: colors.medium,
-};
+});
 
 /** A published duty allocation, with the post it fills joined on. */
 type Allocated = {
@@ -38,6 +39,7 @@ type Allocated = {
 
 /** "When am I working?" — the crew's own roster, leave and endorsements. */
 export default function ScheduleScreen() {
+  const styles = useStyles();
   const { session, silo, fullName, role } = useAuth();
   const dept = useDept();
   const [schedule, setSchedule] = useState<MySchedule | null>(null);
@@ -266,7 +268,7 @@ export default function ScheduleScreen() {
       {(schedule?.leave ?? []).length === 0 ? (
         <Card tight><Muted>No upcoming leave.</Muted></Card>
       ) : schedule!.leave.map((l) => (
-        <Card key={l.id} tight accent={STATUS_COLOUR[l.status] ?? colors.border}>
+        <Card key={l.id} tight accent={STATUS_COLOUR()[l.status] ?? colors.border}>
           <View style={styles.rowBetween}>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={styles.dutyName}>{l.absence ?? 'Leave'}</Text>
@@ -276,7 +278,7 @@ export default function ScheduleScreen() {
               </Muted>
               {l.approved_by ? <Muted>Decided by {l.approved_by}</Muted> : null}
             </View>
-            <Text style={[styles.status, { color: STATUS_COLOUR[l.status] ?? colors.muted }]}>
+            <Text style={[styles.status, { color: STATUS_COLOUR()[l.status] ?? colors.muted }]}>
               {l.status}
             </Text>
           </View>
@@ -305,6 +307,7 @@ export default function ScheduleScreen() {
 }
 
 function Chip({ icon, text }: { icon: React.ComponentProps<typeof Ionicons>['name']; text: string }) {
+  const styles = useStyles();
   return (
     <View style={styles.chip}>
       <Ionicons name={icon} size={11} color={colors.muted} />
@@ -313,7 +316,7 @@ function Chip({ icon, text }: { icon: React.ComponentProps<typeof Ionicons>['nam
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   container: { padding: space.lg, paddingBottom: space['3xl'] },
   identity: { marginTop: space.md, paddingTop: space.md, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
   name: { ...type.bodyStrong, color: colors.text },
@@ -359,4 +362,4 @@ const styles = StyleSheet.create({
   fill: { height: '100%', borderRadius: 3 },
 
   status: { ...type.small, fontWeight: '700' },
-});
+}));

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Criticom role and workflow map</title>
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #142238; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 297mm; height: 210mm; overflow: hidden; page-break-after: always; background: #f6f9fc; position: relative; }
+  .page:last-child { page-break-after: auto; }
+  .head { height: 29mm; padding: 6mm 10mm 4mm; background: #101d32; color: #fff; display: flex; justify-content: space-between; align-items: flex-end; }
+  .eyebrow { font-size: 8pt; font-weight: 700; letter-spacing: 2px; color: #76d8d0; text-transform: uppercase; }
+  h1 { font-size: 22pt; letter-spacing: -.8px; line-height: 1.08; margin: 2mm 0 0; }
+  .head-note { text-align: right; font-size: 8pt; color: #bdd0e0; max-width: 75mm; line-height: 1.35; }
+  .content { padding: 6mm 10mm 6mm; }
+  .section-title { font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #435c75; margin: 0 0 2.2mm; }
+  .subtitle { font-size: 9pt; color: #52657a; line-height: 1.3; margin: 0 0 4mm; }
+  .row { display: flex; align-items: stretch; gap: 2.6mm; }
+  .card { background: #fff; border: 1px solid #dce6ef; border-radius: 4mm; padding: 3.2mm 3.7mm; box-shadow: 0 1.4mm 4mm rgba(25,45,68,.045); }
+  .card h2 { font-size: 11.5pt; margin: 0 0 1.3mm; line-height: 1.08; }
+  .card p { font-size: 8.2pt; color: #53687d; line-height: 1.25; margin: 0; }
+  .card .role { display: inline-block; margin-top: 1.5mm; color: #0b7390; font-size: 7.3pt; font-weight: 700; }
+  .accent-blue { border-top: 3px solid #4085e8; }
+  .accent-teal { border-top: 3px solid #16aaa0; }
+  .accent-gold { border-top: 3px solid #dfac37; }
+  .accent-violet { border-top: 3px solid #8667d4; }
+  .arrow { width: 10mm; min-width: 10mm; display: flex; align-items: center; justify-content: center; color: #4085e8; font-size: 22pt; font-weight: 700; }
+  .governance .card { height: 28mm; }
+  .governance .card:first-child { width: 67mm; }
+  .governance .card:nth-child(3) { width: 67mm; }
+  .governance .scope { flex: 1; background: #eaf2f9; border: 1px dashed #acc4d9; border-radius: 3mm; padding: 3mm; font-size: 8pt; line-height: 1.3; color: #405974; }
+  .handoff { height: 10mm; display: flex; align-items: center; gap: 3mm; padding-left: 29mm; font-size: 8pt; color: #50657c; }
+  .handoff .down { font-size: 18pt; font-weight: 700; color: #16aaa0; line-height: .7; }
+  .ops .card { width: 31.7%; height: 32mm; }
+  .ops { justify-content: space-between; }
+  .ops .card .role { margin-top: 2mm; }
+  .divider { height: 1px; background: #dbe6ef; margin: 5mm 0 4mm; }
+  .departments { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.6mm; }
+  .dept { min-height: 30mm; border: 1px solid #dbe6ef; border-left: 3px solid #16aaa0; border-radius: 3mm; background: #fff; padding: 3mm 3.5mm; }
+  .dept h3 { margin: 0 0 1.5mm; font-size: 10pt; }
+  .dept p { margin: 0 0 1.3mm; font-size: 7.8pt; line-height: 1.25; color: #4e637a; }
+  .tag { display: inline-block; border-radius: 9mm; padding: .8mm 2mm; background: #dbf4ec; color: #087765; font-size: 7pt; font-weight: 700; }
+  .tag.gray { background: #e8eef4; color: #52677e; }
+  .rule-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.6mm; margin-top: 4mm; }
+  .rule { border-radius: 2.5mm; background: #eaf0f6; border-left: 2px solid #5686b3; padding: 2.5mm 2.8mm; font-size: 7.4pt; line-height: 1.23; color: #40566d; }
+  .rule b { color: #1b3c5a; }
+  .footer { position: absolute; bottom: 4mm; left: 10mm; right: 10mm; display: flex; justify-content: space-between; border-top: 1px solid #d4e0e9; padding-top: 2mm; font-size: 7pt; color: #63778b; }
+
+  .lane-title { font-size: 9pt; text-transform: uppercase; letter-spacing: 1.1px; font-weight: 800; color: #45637c; margin: 0 0 2.5mm; }
+  .flow { display: flex; align-items: stretch; gap: 0; }
+  .step { width: 49mm; min-height: 37mm; background: #fff; border: 1px solid #dce6ef; border-top: 3px solid #4085e8; border-radius: 3mm; padding: 3mm; }
+  .step.teal { border-top-color: #16aaa0; }
+  .step.gold { border-top-color: #dfac37; }
+  .step h2 { font-size: 10.2pt; margin: 0 0 1.3mm; }
+  .step p { color: #50657a; font-size: 7.8pt; line-height: 1.25; margin: 0; }
+  .step .tiny { display: block; margin-top: 2mm; color: #0f7a85; font-size: 7pt; font-weight: 700; }
+  .flow .between { flex: 1; min-width: 6mm; display: flex; justify-content: center; align-items: center; color: #4085e8; font-size: 17pt; font-weight: 700; }
+  .flow-note { display: flex; gap: 4mm; margin-top: 2mm; font-size: 7.7pt; color: #50657a; }
+  .flow-note span { flex: 1; }
+  .app-lane { margin-top: 6mm; display: grid; grid-template-columns: 73mm 13mm 73mm 13mm 73mm; align-items: center; justify-content: center; }
+  .app-box { background: #fff; border: 1px solid #dce6ef; border-radius: 3mm; padding: 3mm 3.5mm; height: 30mm; }
+  .app-box h2 { margin: 0 0 1.3mm; font-size: 10pt; }
+  .app-box p { margin: 0; font-size: 7.8pt; line-height: 1.26; color: #4f6378; }
+  .app-arrow { text-align: center; color: #16aaa0; font-size: 21pt; font-weight: 700; }
+  .return { width: 245mm; margin: 2mm auto 0; text-align: center; color: #167e83; font-size: 8pt; font-weight: 700; }
+  .return .line { height: 1px; width: 100%; margin: 1mm 0; background: #16aaa0; position: relative; }
+  .return .line:before { content: '◀'; position: absolute; left: -1mm; top: -3.6mm; font-size: 10pt; }
+  .after { margin-top: 5mm; display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 3mm; }
+  .after .card { height: 26mm; }
+  .after .card h2 { font-size: 10pt; }
+  .after .card p { font-size: 7.7pt; }
+  .caution { margin-top: 4mm; background: #fff8e9; border: 1px solid #f2dba1; border-radius: 2.5mm; padding: 2.4mm 3mm; font-size: 7.5pt; line-height: 1.28; color: #6a571f; }
+</style>
+</head>
+<body>
+<section class="page" id="page-1">
+  <div class="head"><div><div class="eyebrow">Criticom · role map · 01 / 02</div><h1>Who governs, who operates, who responds</h1></div><div class="head-note">A role is a set of responsibilities and access rules.<br>It is not always a person's rank or direct manager.</div></div>
+  <div class="content">
+    <p class="section-title">1 · Governance sets the boundaries</p>
+    <div class="row governance">
+      <div class="card accent-violet"><h2>Super Admin</h2><p>Platform and tenant setup; access and feature controls.</p><span class="role">Web · platform scope</span></div>
+      <div class="arrow">→</div>
+      <div class="card accent-blue"><h2>System Admin / Admin</h2><p>Organisation users, roles, resources and configuration.</p><span class="role">Web · organisation scope</span></div>
+      <div class="scope"><b>Two boundaries:</b> tenant = organisation; silo = department. Pages, actions and database policies must agree for a boundary to hold.</div>
+    </div>
+    <div class="handoff"><span class="down">↓</span><span>Sets up the people, equipment and access used by the operational desks below.</span></div>
+    <p class="section-title">2 · Operations are parallel desks, not another admin ladder</p>
+    <div class="row ops">
+      <div class="card accent-teal"><h2>System Controller</h2><p>Cross-department command view: coverage, incidents, surveillance and operational systems.</p><span class="role">Web · command / monitor</span></div>
+      <div class="card accent-gold"><h2>Department lead</h2><p>Supervisor; Police Captain; FireChief / Chief. Plans duty and oversees the team.</p><span class="role">Web + optional field app</span></div>
+      <div class="card accent-blue"><h2>Call and dispatch desks</h2><p>Logger records calls; Dispatcher assigns units. ControlRoom / Operator can do both.</p><span class="role">Web · work handoff, not rank</span></div>
+    </div>
+    <div class="divider"></div>
+    <p class="section-title">3 · Four field departments receive the work</p>
+    <div class="departments">
+      <div class="dept"><h3>Metro Police</h3><p>Captain leads; Police / Officer / Metro and Security respond.</p><span class="tag">Field app important</span></div>
+      <div class="dept"><h3>Metro Fire</h3><p>FireChief / Chief lead; Firefighter responds.</p><span class="tag">Field app important</span></div>
+      <div class="dept"><h3>Medical</h3><p>Doctor and Paramedic are field roles. A distinct team-lead role is not defined.</p><span class="tag">Field app important</span></div>
+      <div class="dept"><h3>Disaster</h3><p>Disaster responder is defined. A distinct team-lead role is not defined.</p><span class="tag">Field app important</span></div>
+    </div>
+    <div class="rule-strip">
+      <div class="rule"><b>Logger:</b> may log a call; cannot use the dispatch queue or assign units.</div>
+      <div class="rule"><b>Dispatcher:</b> may work the queue; cannot use the call-intake route.</div>
+      <div class="rule"><b>System Controller:</b> operates modules; tenant, feature and access controls are excluded.</div>
+      <div class="rule"><b>Field staff:</b> receive assigned work; account and platform administration are separate.</div>
+    </div>
+  </div>
+  <div class="footer"><span>Role map from web routes, dashboard personas, seed accounts and mobile modules · September 2026</span><span>1 / 2</span></div>
+</section>
+<section class="page" id="page-2">
+  <div class="head"><div><div class="eyebrow">Criticom · workflow map · 02 / 02</div><h1>How work reaches a device and returns</h1></div><div class="head-note">Solid arrows show a handoff or data update.<br>The same person may cover more than one desk.</div></div>
+  <div class="content">
+    <p class="lane-title">A · Incident workflow</p>
+    <div class="flow">
+      <div class="step"><h2>Caller</h2><p>Reports an emergency, location and contact details.</p><span class="tiny">Outside the platform</span></div>
+      <div class="between">→</div>
+      <div class="step"><h2>Call intake</h2><p>IncidentLogger captures the report. ControlRoom / Operator can also do this.</p><span class="tiny">Creates incident record</span></div>
+      <div class="between">→</div>
+      <div class="step gold"><h2>Pending queue</h2><p>The new incident waits for routing and a unit assignment.</p><span class="tiny">Shared operational record</span></div>
+      <div class="between">→</div>
+      <div class="step"><h2>Dispatch desk</h2><p>Dispatcher routes the call and assigns a unit. ControlRoom / Operator can also do this.</p><span class="tiny">Updates incident + alerts crew</span></div>
+      <div class="between">→</div>
+      <div class="step teal"><h2>Field crew · mobile</h2><p>Police, Fire, Medical or Disaster crew receives the job and updates its status.</p><span class="tiny">Acknowledges / en route / on scene</span></div>
+    </div>
+    <div class="flow-note"><span><b>Separate desks:</b> Logger cannot dispatch; Dispatcher cannot log intake.</span><span><b>Combined desk:</b> ControlRoom or Operator can cover both jobs.</span></div>
+    <div class="divider"></div>
+    <p class="lane-title">B · Duty and shift workflow</p>
+    <div class="app-lane">
+      <div class="app-box"><h2>Department lead · web</h2><p>Creates duty posts, assigns people for a date and publishes the board.</p></div>
+      <div class="app-arrow">→</div>
+      <div class="app-box"><h2>Shared records</h2><p>Published roster, post, incident and status data connect web and mobile.</p></div>
+      <div class="app-arrow">→</div>
+      <div class="app-box"><h2>Field worker · app</h2><p>Reads schedule; acknowledges duty; completes shift checks; receives and updates incidents.</p></div>
+    </div>
+    <div class="return"><div class="line"></div>App acknowledgements, on-duty status and incident updates return to supervisor / dispatch views</div>
+    <div class="after">
+      <div class="card accent-gold"><h2>Case Manager</h2><p>Reviews the incident record and closes cases after the operational response.</p></div>
+      <div class="card accent-violet"><h2>Viewer</h2><p>Observes dashboards, incidents and reports. Intended as a read-oriented seat.</p></div>
+      <div class="card accent-teal"><h2>Mobile priority</h2><p>Core for field responders; useful for Captain / Fire leadership when they also respond. Admin, intake, dispatch and controller work is mainly web.</p></div>
+    </div>
+    <div class="caution"><b>Code reality:</b> These arrows explain the intended workflow, not a guarantee that every data permission is complete. Route rules split intake from dispatch and server actions check some writes; tenant and silo isolation also depend on deployed database policies. Viewer write restrictions and cross-tenant behavior require a separate security audit. Mobile schedule refreshes on open / pull; a new duty publication is not confirmed as a device push alert.</div>
+  </div>
+  <div class="footer"><span>Conceptual guide for product review · No production data was queried or changed</span><span>2 / 2</span></div>
+</section>
+</body>
+</html>

@@ -4,11 +4,11 @@ import { canAccess } from '@criticom/db';
 import { getSession } from '@/lib/session';
 import { LogCallForm } from './log-call-form';
 
-export const metadata: Metadata = { title: 'Log incoming call · HikTech' };
+export const metadata: Metadata = { title: 'Log incoming call · Criticomm' };
 export const dynamic = 'force-dynamic';
 
 export default async function LogCallPage() {
-  const { supabase, silo, role, fullName } = await getSession();
+  const { supabase, silo, role } = await getSession();
   const [categoryTree, settings] = await Promise.all([
     getIncidentCategoryTree(supabase).catch(() => []),
     getOperationalSettings(supabase),
@@ -22,14 +22,11 @@ export default async function LogCallPage() {
   return (
     <LogCallForm
       defaultSilo={silo}
-      callTaker={fullName}
       canRoute={canRoute}
       categoryTree={categoryTree}
       tuning={{
         clockWarnSeconds: settings['sla.clock_warn_seconds'],
         clockCriticalSeconds: settings['sla.clock_critical_seconds'],
-        etaSpeedKmh: settings['dispatch.eta_speed_kmh'],
-        etaRoadFactor: settings['dispatch.eta_road_factor'],
       }}
     />
   );

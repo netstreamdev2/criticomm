@@ -34,6 +34,19 @@ export async function getOnDutyResponders(client: CriticomClient, silo?: Silo) {
   return data ?? [];
 }
 
+/** How many officers are on duty in the app — the people a dispatch reaches. */
+export async function countOnDuty(client: CriticomClient, silo?: Silo) {
+  let q = client
+    .from('personnel')
+    .select('id', { count: 'exact', head: true })
+    .eq('is_on_duty', true)
+    .not('user_id', 'is', null);
+  if (silo) q = q.eq('silo', silo);
+  const { count, error } = await q;
+  if (error) throw error;
+  return count ?? 0;
+}
+
 /** Get my personnel record (incl. assigned vehicle) */
 export async function getMyPersonnel(client: CriticomClient, userId: string) {
   const { data, error } = await client

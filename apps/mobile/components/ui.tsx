@@ -3,9 +3,7 @@ import {
   type PressableProps, type StyleProp, type TextInputProps, type TextStyle, type ViewStyle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {
-  colors, elevation, radius, severityColor, space, statusColor, type,
-} from '@/lib/theme';
+import { colors, elevation, radius, severityColor, space, statusColor, type, makeStyles } from '@/lib/theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -20,6 +18,7 @@ export function Card({
   accent?: string;
   tight?: boolean;
 }) {
+  const styles = useStyles();
   return (
     <View style={[styles.card, tight && styles.cardTight, style]}>
       {accent ? <View style={[styles.cardRail, { backgroundColor: accent }]} /> : null}
@@ -30,16 +29,19 @@ export function Card({
 
 /** Small all-caps heading that separates groups of cards. */
 export function SectionLabel({ children }: { children: React.ReactNode }) {
+  const styles = useStyles();
   return <Text style={styles.sectionLabel}>{String(children).toUpperCase()}</Text>;
 }
 
 /* ── Typography ────────────────────────────────────────────────────── */
 
 export function Title({ children, style }: { children: React.ReactNode; style?: StyleProp<TextStyle> }) {
+  const styles = useStyles();
   return <Text style={[styles.title, style]}>{children}</Text>;
 }
 
 export function Muted({ children, style }: { children: React.ReactNode; style?: StyleProp<TextStyle> }) {
+  const styles = useStyles();
   return <Text style={[styles.muted, style]}>{children}</Text>;
 }
 
@@ -47,21 +49,23 @@ export function Muted({ children, style }: { children: React.ReactNode; style?: 
 
 type ButtonVariant = 'primary' | 'outline' | 'danger' | 'success' | 'subtle';
 
-const VARIANT_BG: Record<ButtonVariant, string> = {
+/** Read at render time, so it follows the light/dark theme. */
+const VARIANT_BG = (): Record<ButtonVariant, string> => ({
   primary: colors.accent,
   outline: 'transparent',
   danger: colors.critical,
   success: colors.low,
   subtle: colors.bgElevated,
-};
+});
 
-const VARIANT_FG: Record<ButtonVariant, string> = {
+/** Read at render time, so it follows the light/dark theme. */
+const VARIANT_FG = (): Record<ButtonVariant, string> => ({
   primary: '#fff',
   outline: colors.textDim,
   danger: '#fff',
   success: '#fff',
   subtle: colors.text,
-};
+});
 
 export function Button({
   label, variant = 'primary', busy, icon, size = 'md', ...props
@@ -72,8 +76,9 @@ export function Button({
   icon?: IconName;
   size?: 'sm' | 'md' | 'lg';
 }) {
+  const styles = useStyles();
   const disabled = Boolean(props.disabled) || Boolean(busy);
-  const fg = VARIANT_FG[variant];
+  const fg = VARIANT_FG()[variant];
   return (
     <Pressable
       accessibilityRole="button"
@@ -84,7 +89,7 @@ export function Button({
         styles.button,
         size === 'sm' && styles.buttonSm,
         size === 'lg' && styles.buttonLg,
-        { backgroundColor: VARIANT_BG[variant] },
+        { backgroundColor: VARIANT_BG()[variant] },
         variant === 'outline' && styles.buttonOutline,
         pressed && { opacity: 0.75, transform: [{ scale: 0.985 }] },
         disabled && { opacity: 0.45 },
@@ -109,6 +114,7 @@ export function Button({
 export function Input({
   label, hint, icon, ...props
 }: TextInputProps & { label?: string; hint?: string; icon?: IconName }) {
+  const styles = useStyles();
   return (
     <View>
       {label ? <Text style={styles.fieldLabel}>{label.toUpperCase()}</Text> : null}
@@ -128,6 +134,7 @@ export function Input({
 /* ── Status indicators ─────────────────────────────────────────────── */
 
 export function SeverityPill({ severity }: { severity: string }) {
+  const styles = useStyles();
   return (
     <View style={[styles.pill, { backgroundColor: severityColor(severity) }]}>
       <Text style={styles.pillText}>{severity.toUpperCase()}</Text>
@@ -136,6 +143,7 @@ export function SeverityPill({ severity }: { severity: string }) {
 }
 
 export function StatusBadge({ status }: { status: string }) {
+  const styles = useStyles();
   const tone = statusColor(status);
   return (
     <View style={[styles.badge, { borderColor: `${tone}66`, backgroundColor: `${tone}1f` }]}>
@@ -147,6 +155,7 @@ export function StatusBadge({ status }: { status: string }) {
 
 /** Neutral key/value line for detail cards. */
 export function KeyValue({ label, value }: { label: string; value: React.ReactNode }) {
+  const styles = useStyles();
   return (
     <View style={styles.kv}>
       <Text style={styles.kvLabel}>{label}</Text>
@@ -164,6 +173,7 @@ export function Banner({
   children: React.ReactNode;
   onDismiss?: () => void;
 }) {
+  const styles = useStyles();
   const map = {
     error: { colour: colors.critical, icon: 'alert-circle' as IconName },
     success: { colour: colors.low, icon: 'checkmark-circle' as IconName },
@@ -190,6 +200,7 @@ export function EmptyState({
   body?: string;
   action?: React.ReactNode;
 }) {
+  const styles = useStyles();
   return (
     <View style={styles.empty}>
       <View style={styles.emptyIcon}>
@@ -205,6 +216,7 @@ export function EmptyState({
 /* ── Wizard progress ───────────────────────────────────────────────── */
 
 export function Stepper({ steps, current }: { steps: string[]; current: number }) {
+  const styles = useStyles();
   return (
     <View style={styles.stepper}>
       {steps.map((label, i) => {
@@ -236,7 +248,8 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
 /** Segmented picker — used for fuel level and other short option sets. */
 export function Segmented<T extends string>({
   options, value, onChange,
-}: { options: readonly T[]; value: T; onChange: (v: T) => void }) {
+}: { options: readonly T[]; value: T | null; onChange: (v: T) => void }) {
+  const styles = useStyles();
   return (
     <View style={styles.segmented}>
       {options.map((opt) => {
@@ -266,6 +279,7 @@ export function Segmented<T extends string>({
 export function CheckRow({
   label, checked, onToggle,
 }: { label: string; checked: boolean; onToggle: () => void }) {
+  const styles = useStyles();
   return (
     <Pressable
       onPress={onToggle}
@@ -285,7 +299,7 @@ export function CheckRow({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   card: {
     backgroundColor: colors.bgCard,
     borderColor: colors.border,
@@ -436,4 +450,4 @@ const styles = StyleSheet.create({
   },
   checkBoxActive: { backgroundColor: colors.low, borderColor: colors.low },
   checkLabel: { color: colors.textDim, flex: 1, fontSize: 14, lineHeight: 19 },
-});
+}));

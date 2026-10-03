@@ -36,6 +36,15 @@ export type OutboxOp =
       caption?: string;
     }
   | {
+      /** The police case report that closes the call (migration 0039). */
+      kind: 'incident_report';
+      incidentId: string;
+      incidentNumber: string;
+      reportType: string;
+      fields: Record<string, string>;
+      details: Record<string, string>;
+    }
+  | {
       kind: 'panic';
       silo: Silo;
       lat: number | null;
@@ -116,6 +125,8 @@ export function describe(op: OutboxOp): string {
       return `Update · ${op.message.slice(0, 40)}${op.message.length > 40 ? '…' : ''}`;
     case 'evidence':
       return `${op.mediaKind === 'audio' ? 'Voice note' : 'Photo'} · ${op.filename}`;
+    case 'incident_report':
+      return `Case report · ${op.incidentNumber}`;
     case 'panic':
       return 'EMERGENCY — officer needs assistance';
     case 'duty_location':
@@ -135,6 +146,9 @@ export function describe(op: OutboxOp): string {
 const PRIORITY: Record<OutboxOp['kind'], number> = {
   panic: 0,
   incident_status: 1,
+  // After the status it depends on (the server wants the officer On Scene),
+  // ahead of photos: the report is what tells command the call is closed.
+  incident_report: 2,
   duty_location: 2,
   incident_note: 3,
   // Armoury paperwork matters, but never ahead of anything an active incident
@@ -174,7 +188,10 @@ export function backoffMs(attempts: number): number {
  * treated as transient, which is the safe default for a queue whose whole
  * purpose is surviving a bad connection.
  */
-const PERMANENT_CODES = new Set(['42501', '23503', '23505', 'PGRST301', '22P02']);
+// P0001 is a business rule the server raised on purpose ("file the report on
+// INC-… first", "10 photos is the maximum") — the same request will be refused
+// again, so it is surfaced to the officer instead of retried.
+const PERMANENT_CODES = new Set(['42501', '23503', '23505', 'PGRST301', '22P02', 'P0001']);
 
 export function isPermanent(error: unknown): boolean {
   const e = error as { code?: string; status?: number } | null;
@@ -192,4 +209,45 @@ export function isPermanent(error: unknown): boolean {
  */
 export function isMine(entry: OutboxEntry, userId: string): boolean {
   return entry.userId === undefined || entry.userId === userId;
+}
+
+/* ── Entry ids ──────────────────────────────────────────────────────────── */
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * A random v4 UUID for a new outbox entry. The id doubles as the server's
+ * idempotency key (incidents.client_ref, firearm_checklists.id), and those
+ * columns are uuid — an id in any other shape is rejected outright (22P02),
+ * which the queue treats as permanent: the op would never be delivered.
+ */
+export function newEntryId(random: () => number = Math.random): string {
+  const hex = Array.from({ length: 32 }, () => Math.floor(random() * 16).toString(16));
+  hex[12] = '4';
+  hex[16] = ((Number.parseInt(hex[16] ?? '0', 16) & 0x3) | 0x8).toString(16);
+  const h = hex.join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+
+/**
+ * The entry's id as a UUID. Entries queued by older builds have ids like
+ * "lzx3k-abc12345"; they map to the same UUID on every attempt, so delivery
+ * stays idempotent and an SOS stuck on a phone can still go through.
+ */
+export function asUuid(id: string): string {
+  if (UUID_RE.test(id)) return id.toLowerCase();
+  // Four 32-bit FNV-1a passes with different seeds → 128 deterministic bits.
+  const words = [0x811c9dc5, 0x01000193, 0xdeadbeef, 0x12345678].map((seed) => {
+    let h = seed >>> 0;
+    for (let i = 0; i < id.length; i++) {
+      h ^= id.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return h.toString(16).padStart(8, '0');
+  });
+  const hex = words.join('').split('');
+  hex[12] = '4';
+  hex[16] = ((Number.parseInt(hex[16] ?? '0', 16) & 0x3) | 0x8).toString(16);
+  const h = hex.join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
 }

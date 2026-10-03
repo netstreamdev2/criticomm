@@ -14,6 +14,15 @@ import { getServerSupabase } from '@/lib/supabase';
  *
  * Best-effort by design: a push failure must never surface as a dispatch
  * failure. The console fires this and moves on.
+ *
+ * Recipients are always resolved here, never taken from the browser:
+ *   - `{ incidentId, crew: true }` — the on-duty crew of the unit the incident
+ *     is dispatched to (unit dispatch).
+ *   - `{ incidentId, silos }` — every on-duty responder in those departments
+ *     (send to all, migrations 0040/0042 — officers may hold several calls).
+ *   - `{ incidentId, userId }` — the one officer the call is assigned to,
+ *     and only if the incident really is assigned to them (0042).
+ * Only officers on duty, and only in the caller's own tenant, are reached.
  */
 export const dynamic = 'force-dynamic';
 
@@ -34,11 +43,13 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = (await req.json()) as { incidentId?: string; silos?: Silo[] };
+  const body = (await req.json()) as { incidentId?: string; silos?: Silo[]; crew?: boolean; userId?: string };
   const incidentId = body.incidentId;
   const silos = body.silos ?? [];
-  if (!incidentId || silos.length === 0) {
-    return NextResponse.json({ error: 'incidentId and silos are required' }, { status: 400 });
+  const crew = body.crew === true;
+  const assignee = typeof body.userId === 'string' ? body.userId : null;
+  if (!incidentId || (!crew && !assignee && silos.length === 0)) {
+    return NextResponse.json({ error: 'incidentId and one of crew, userId or silos are required' }, { status: 400 });
   }
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -59,10 +70,35 @@ export async function POST(req: Request) {
     .maybeSingle();
   if (!incident) return NextResponse.json({ error: 'Incident not found' }, { status: 404 });
 
+  // Tenant and unit come from the record itself, not the request.
+  const { data: scope } = await admin.from('incidents').select('*').eq('id', incidentId).maybeSingle();
+  const { tenant_id: tenantId, unit_id: unitId, assigned_to: assignedTo, source, created_by: createdBy } = (scope ?? {}) as {
+    tenant_id?: string; unit_id?: string | null; assigned_to?: string | null; source?: string | null; created_by?: string | null;
+  };
+  // The officer who raised an SOS is the one in trouble: never pushed their own SOS (0044).
+  const raiser = source === 'Responder-Panic' ? createdBy ?? null : null;
+  if (!tenantId) return NextResponse.json({ sent: 0 });
+  if (crew && !unitId) return NextResponse.json({ sent: 0, reason: 'No unit dispatched yet.' });
+  // The browser cannot point a push at anyone the call is not assigned to.
+  if (assignee && assignedTo !== assignee) return NextResponse.json({ sent: 0, reason: 'Not assigned to that officer.' });
+
+  let onDuty = admin
+    .from('personnel')
+    .select('user_id')
+    .eq('is_on_duty', true)
+    .eq('tenant_id', tenantId)
+    .not('user_id', 'is', null);
+  onDuty = crew
+    ? onDuty.eq('assigned_apparatus_id', unitId!)
+    : assignee ? onDuty.eq('user_id', assignee) : onDuty.in('silo', silos);
+  const { data: people } = await onDuty;
+  const userIds = (people ?? []).map((p) => p.user_id).filter((u): u is string => Boolean(u) && u !== raiser);
+  if (userIds.length === 0) return NextResponse.json({ sent: 0 });
+
   const { data: tokens } = await admin
     .from('push_tokens')
     .select('token')
-    .in('silo', silos);
+    .in('user_id', userIds);
 
   const recipients = (tokens ?? [])
     .map((t) => t.token)
@@ -72,7 +108,11 @@ export async function POST(req: Request) {
 
   const messages: PushMessage[] = recipients.map((to) => ({
     to,
-    title: `${incident.incident_severity} — ${incident.incident_number}`,
+    title: crew
+      ? `${incident.incident_number} assigned to your unit`
+      : assignee
+        ? `${incident.incident_number} assigned to you · ${incident.incident_severity}`
+        : `New incident ${incident.incident_number} · ${incident.incident_severity}`,
     body: `${incident.incident_type} · ${incident.location_address}`,
     sound: 'default',
     priority: 'high',

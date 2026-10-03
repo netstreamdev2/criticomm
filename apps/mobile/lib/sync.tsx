@@ -5,14 +5,14 @@ import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import * as FileSystem from 'expo-file-system';
 import {
-  addIncidentUpdate, raisePanic, toggleDuty, updateResponderStatus,
+  addIncidentUpdate, fileIncidentReport, raisePanic, toggleDuty, updateResponderStatus,
   uploadIncidentEvidence,
 } from '@criticom/api';
 import type { CriticomClient, IncidentStatus } from '@criticom/db';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import {
-  backoffMs, comparePriority, dedupeKeyOf, describe, isMine, isPermanent, MAX_ATTEMPTS,
+  asUuid, backoffMs, comparePriority, dedupeKeyOf, describe, isMine, isPermanent, MAX_ATTEMPTS, newEntryId,
   readOutbox, releaseAttachment, writeOutbox,
   type OutboxEntry, type OutboxOp,
 } from '@/lib/outbox';
@@ -41,7 +41,7 @@ const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
  * zero bytes. Reading the file as base64 and handing over an ArrayBuffer is the
  * one path that works on both platforms, so the decode lives here.
  */
-function decodeBase64(input: string): Uint8Array {
+export function decodeBase64(input: string): Uint8Array {
   const clean = input.replace(/[^A-Za-z0-9+/]/g, '');
   const bytes = new Uint8Array((clean.length * 3) >> 2);
   let byte = 0;
@@ -78,6 +78,20 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
       incident_id: op.incidentId,
       status: op.status as IncidentStatus,
       occurred_at: entry.occurredAt,
+    });
+  },
+
+  /**
+   * Idempotent on the server: once a report is filed for the call, a replay
+   * returns that report instead of filing a second one.
+   */
+  incident_report: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'incident_report' }>;
+    await fileIncidentReport(client, {
+      incidentId: op.incidentId,
+      reportType: op.reportType,
+      fields: op.fields,
+      details: op.details,
     });
   },
 
@@ -160,7 +174,8 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
       lng: op.lng,
       accuracy: op.accuracy,
       note: op.note,
-      clientRef: entry.id,
+      // Older builds queued non-UUID ids; this maps them to a stable UUID.
+      clientRef: asUuid(entry.id),
       occurredAt: entry.occurredAt,
     });
   },
@@ -235,8 +250,8 @@ export function useSync(): SyncApi {
   return ctx;
 }
 
-const newId = () =>
-  `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+/** A v4 UUID: the id is also the server's idempotency key, and those columns are uuid. */
+const newId = () => newEntryId();
 
 export function SyncProvider({ children }: { children: React.ReactNode }) {
   const { session } = useAuth();

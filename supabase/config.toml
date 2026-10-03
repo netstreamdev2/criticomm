@@ -35,7 +35,7 @@ file_size_limit = "50MiB"
 [auth]
 enabled = true
 site_url = "http://localhost:3000"
-additional_redirect_urls = ["http://localhost:3000", "criticom://"]
+additional_redirect_urls = ["http://localhost:3000", "http://localhost:3000/auth/invite", "http://127.0.0.1:3000/auth/invite", "criticom://"]
 jwt_expiry = 3600
 enable_signup = false # admins create users in this app
 enable_anonymous_sign_ins = false
@@ -45,6 +45,10 @@ enable_signup = false
 double_confirm_changes = true
 enable_confirmations = true
 secure_password_change = true
+
+[auth.email.template.invite]
+subject = "You’re invited to Criticomm"
+content_path = "./supabase/templates/invite.html"
 
 [auth.sms]
 enable_signup = false

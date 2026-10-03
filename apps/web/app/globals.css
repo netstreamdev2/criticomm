@@ -4,12 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  font-family: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+}
+
 body {
   background-color: rgb(var(--c-bg));
   color: rgb(var(--c-fg));
-  font-family: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   transition: background-color 200ms ease, color 200ms ease;
+}
+
+button, input, select, textarea {
+  font: inherit;
 }
 
 /* ── Scrollbars ─────────────────────────────────────────────── */

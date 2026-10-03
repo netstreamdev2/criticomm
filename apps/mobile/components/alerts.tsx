@@ -4,10 +4,11 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { markAlertRead } from '@criticom/api';
+import { markAlertRead, subscribeIncidentUpdates } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/auth';
 import { useNotifications } from '@/lib/notifications';
-import { colors, radius, severityColor, space, type } from '@/lib/theme';
+import { colors, radius, severityColor, space, type, makeStyles } from '@/lib/theme';
 import { Button } from '@/components/ui';
 
 const SILO_LABELS: Record<string, string> = {
@@ -23,6 +24,7 @@ const SILO_LABELS: Record<string, string> = {
  * the back button, and slide away on their own.
  */
 export function AlertBanners() {
+  const styles = useStyles();
   const { banners, dismissBanner } = useNotifications();
   const router = useRouter();
 
@@ -74,15 +76,38 @@ function SlideIn({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Full-screen interrupt for a High or Critical call routed to this crew's
- * department. Deliberately hard to dismiss by accident: no backdrop tap, no
- * swipe — the responder has to acknowledge, which is recorded against the alert.
+ * Full-screen interrupt for a call sent out to this officer (an open
+ * dispatch: first to respond leads) or assigned to them. Deliberately hard
+ * to dismiss by accident: no backdrop tap, no swipe — the responder has to
+ * press a button, which is recorded against the alert.
  */
 export function AssignmentAlert() {
+  const styles = useStyles();
   const { assignments, clearAssignment } = useNotifications();
+  const { session } = useAuth();
   const router = useRouter();
   const pulse = useRef(new Animated.Value(0)).current;
   const current = assignments[0];
+  const open = current?.kind === 'dispatch';
+  // A colleague's SOS: raised (to command, kind 'sos') or dispatched to me
+  // (the server leads the title with "SOS", migration 0043).
+  const sos = current?.kind === 'sos' || Boolean(current?.title.startsWith('SOS'));
+
+  // An open call another officer has already taken is no longer this
+  // officer's to answer: take it off their screen.
+  const waiting = assignments.filter((a) => a.kind === 'dispatch' && a.incident_id).map((a) => a.incident_id).join(',');
+  useEffect(() => {
+    if (!waiting || !session) return;
+    const ids = new Set(waiting.split(','));
+    return subscribeIncidentUpdates(getSupabase(), 'all', (incident) => {
+      if (!ids.has(incident.id)) return;
+      if (incident.accepted_by && incident.accepted_by !== session.user.id) {
+        for (const a of assignments) {
+          if (a.incident_id === incident.id) clearAssignment(a.id);
+        }
+      }
+    });
+  }, [waiting, session, assignments, clearAssignment]);
 
   useEffect(() => {
     if (!current) return;
@@ -104,7 +129,10 @@ export function AssignmentAlert() {
     // Best-effort: never trap a responder behind a failed write.
     void markAlertRead(getSupabase(), current.id, { acknowledged: true }).catch(() => {});
     clearAssignment(current.id);
-    if (thenOpen && current.incident_id) router.push(`/incident/${current.incident_id}`);
+    if (!thenOpen || !current.incident_id) return;
+    // Command's copy of a raised SOS is not theirs to respond to: open it in full.
+    if (current.kind === 'sos') router.push(`/incident/${current.incident_id}`);
+    else router.push({ pathname: '/(tabs)/incidents', params: { open: current.incident_id } });
   };
 
   return (
@@ -119,7 +147,9 @@ export function AssignmentAlert() {
               <Text style={styles.cardKicker}>
                 {current.severity.toUpperCase()} · {SILO_LABELS[current.silo] ?? current.silo}
               </Text>
-              <Text style={styles.cardHeading}>Incident assigned</Text>
+              <Text style={styles.cardHeading}>
+                {sos ? 'OFFICER SOS' : open ? 'New incident' : 'Incident assigned'}
+              </Text>
             </View>
           </View>
 
@@ -146,6 +176,12 @@ export function AssignmentAlert() {
               </Text>
             </View>
 
+            {open ? (
+              <Text style={styles.open}>
+                Sent to everyone on duty. The first to respond leads; others can join as backup.
+              </Text>
+            ) : null}
+
             {assignments.length > 1 ? (
               <Text style={styles.queued}>+{assignments.length - 1} more waiting</Text>
             ) : null}
@@ -153,14 +189,14 @@ export function AssignmentAlert() {
             <View style={{ gap: space.sm, marginTop: space.xl }}>
               {current.incident_id ? (
                 <Button
-                  label="Acknowledge & open"
+                  label={open ? 'View incident' : 'Acknowledge & open'}
                   icon="arrow-forward-circle"
                   size="lg"
                   onPress={() => acknowledge(true)}
                 />
               ) : null}
               <Button
-                label="Acknowledge"
+                label={open ? 'Dismiss' : 'Acknowledge'}
                 variant="outline"
                 onPress={() => acknowledge(false)}
               />
@@ -172,7 +208,7 @@ export function AssignmentAlert() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   bannerStack: {
     position: 'absolute', top: 0, left: 0, right: 0,
     padding: space.md, gap: space.sm, zIndex: 100,
@@ -213,8 +249,9 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 17, fontWeight: '700', lineHeight: 23 },
   metaRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm, marginTop: space.md },
   metaText: { ...type.small, color: colors.muted, flex: 1, lineHeight: 19 },
+  open: { ...type.small, color: colors.text, fontWeight: '700', marginTop: space.lg, lineHeight: 19 },
   queued: {
     ...type.small, color: colors.medium, fontWeight: '700',
     marginTop: space.lg,
   },
-});
+}));

@@ -1,6 +1,7 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
 import { View, ActivityIndicator, Platform, Pressable, StyleSheet, Text } from 'react-native';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { BrandingProvider } from '@/lib/branding';
@@ -11,7 +12,10 @@ import { FeaturesProvider } from '@/lib/features';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { PanicButton } from '@/components/panic-button';
 import { SyncTray } from '@/components/sync-tray';
-import { colors, space, type } from '@/lib/theme';
+import { colors, space, type, makeStyles, useTheme, loadThemeMode } from '@/lib/theme';
+import { HikTechLogo } from '@/components/hiktech-logo';
+import ShiftScreen from './(tabs)/shift';
+import { RUBIK_FONTS, fontFamily } from '@/lib/font';
 
 /**
  * Root error boundary. expo-router renders this instead of unmounting when
@@ -23,9 +27,10 @@ import { colors, space, type } from '@/lib/theme';
  * difference between "the app is broken" and a report someone can act on.
  */
 export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Promise<void> }) {
+  const styles = useStyles();
   return (
     <View style={styles.splash}>
-      <Text style={styles.errBrand}>CRITICOMM</Text>
+      <View style={{ marginBottom: space.md }}><HikTechLogo height={16} /></View>
       <Text style={styles.errTitle}>The app hit an unexpected error</Text>
       <Text style={styles.errBody} numberOfLines={8}>
         {error?.message ?? 'No detail available.'}
@@ -46,6 +51,7 @@ export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Pro
 }
 
 function AuthGate({ children }: { children: React.ReactNode }) {
+  const styles = useStyles();
   const { session, loading } = useAuth();
   const { shiftStarted, checking } = useDuty();
   const segments = useSegments();
@@ -57,28 +63,29 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     if (!session && !inLogin) { router.replace('/login'); return; }
     if (session && inLogin) { router.replace('/'); return; }
 
-    // Signed in but today's readiness flow is outstanding — send them there
-    // before anything else. A crew member should meet the mental check on
-    // opening the app, not have to find it.
-    if (session && !checking && shiftStarted === false) {
-      // segments is a narrow tuple type, so match on membership rather than
-      // indexing into it.
-      const seg = segments as readonly string[];
-      // Profile stays reachable. Someone who fails the readiness check can
-      // never satisfy the gate — correct, they are not fit to attend — but
-      // they must still be able to see who they are signed in as and sign
-      // out. A gate with no exit is a trap, not a control.
-      const allowed = seg.includes('shift') || seg.includes('profile');
-      if (!allowed) router.replace('/(tabs)/shift');
-    }
-  }, [session, loading, segments, router, shiftStarted, checking]);
+  }, [session, loading, segments, router]);
 
-  if (loading) {
+  if (loading || (session && checking)) {
     return (
       <View style={styles.splash}>
         <ActivityIndicator color={colors.accent} size="large" />
-        <Text style={styles.splashBrand}>CRITICOMM</Text>
+        <View style={{ marginTop: space.sm }}><HikTechLogo height={16} /></View>
         <Text style={styles.splashSub}>Restoring your session…</Text>
+      </View>
+    );
+  }
+  // Expo Router needs its root navigator mounted before any redirects. Cover it
+  // with a full-screen, touch-blocking assessment while clearance is pending.
+  // Nothing underneath is visible, tappable, or exposed to screen readers.
+  if (session && shiftStarted !== true) {
+    return (
+      <View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }} pointerEvents="none" importantForAccessibility="no-hide-descendants">
+          {children}
+        </View>
+        <View style={StyleSheet.absoluteFillObject}>
+          <ShiftScreen gated />
+        </View>
       </View>
     );
   }
@@ -97,9 +104,21 @@ function NotificationRouter() {
 }
 
 export default function RootLayout() {
+  const { isDark } = useTheme();
+  const [fontsLoaded, fontError] = useFonts(RUBIK_FONTS);
+  // The saved light/dark choice is read before the first screen draws, so the
+  // app never flashes the other theme.
+  const [themeReady, setThemeReady] = useState(false);
+  useEffect(() => {
+    void loadThemeMode().finally(() => setThemeReady(true));
+  }, []);
+  // A font that fails to load must not leave a responder on a blank screen —
+  // carry on in the system font.
+  if ((!fontsLoaded && !fontError) || !themeReady) return null;
+
   return (
     <AuthProvider>
-      <StatusBar style="light" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <DutyProvider>
       <AuthGate>
         <BrandingProvider>
@@ -116,7 +135,7 @@ export default function RootLayout() {
                 ...(Platform.OS === 'ios' ? { shadowOpacity: 0 } : { elevation: 0 }),
               },
               headerTintColor: colors.text,
-              headerTitleStyle: { fontWeight: '800', fontSize: 17 },
+              headerTitleStyle: { fontFamily, fontWeight: '800', fontSize: 17 },
               headerShadowVisible: false,
               contentStyle: { backgroundColor: colors.bg },
             }}
@@ -126,6 +145,10 @@ export default function RootLayout() {
             <Stack.Screen
               name="incident/[id]"
               options={{ title: 'Incident', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="report/[id]"
+              options={{ title: 'Incident Report', headerBackTitle: 'Back' }}
             />
             <Stack.Screen
               name="assistant"
@@ -138,6 +161,22 @@ export default function RootLayout() {
             <Stack.Screen
               name="firearm-check"
               options={{ title: 'Firearm Check', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="alerts"
+              options={{ title: 'Alerts', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="my-incidents"
+              options={{ title: 'My incidents', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="my-performance"
+              options={{ title: 'My performance', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="live-map"
+              options={{ title: 'Live Map', headerBackTitle: 'Back' }}
             />
           </Stack>
 
@@ -156,7 +195,7 @@ export default function RootLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   splash: {
     flex: 1, backgroundColor: colors.bg,
     alignItems: 'center', justifyContent: 'center', gap: space.md,
@@ -189,4 +228,4 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   errButtonText: { color: '#ffffff', fontWeight: '700', fontSize: 14 },
-});
+}));

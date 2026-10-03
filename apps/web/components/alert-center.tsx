@@ -7,9 +7,10 @@ import {
   markAlertRead, subscribeAlerts, subscribeIncidentUpdates, subscribeNewIncidents,
   type Alert,
 } from '@criticom/api';
-import { GLOBAL_ROLES, type Silo, type UserRole } from '@criticom/db';
+import { DISPATCH_DESK_ROLES, GLOBAL_ROLES, type Silo, type UserRole } from '@criticom/db';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
-import { useToast, type ToastTone } from '@/components/toast';
+import { useToast, type Severity, type ToastTone } from '@/components/toast';
+import { SosAlert } from '@/components/sos-alert';
 import { cn } from '@/lib/utils';
 
 const SILO_LABELS: Record<string, string> = {
@@ -24,6 +25,13 @@ const toneFor = (severity: string): ToastTone =>
   severity === 'Critical' ? 'critical' : severity === 'High' ? 'warning' : 'info';
 
 const SEVERITY_RANK: Record<string, number> = { Low: 0, Medium: 1, High: 2, Critical: 3 };
+
+/**
+ * How long a new-call card stays, as a multiple of the admin toast setting.
+ * The heavier the call, the longer it waits to be seen — a Critical card
+ * should still be on screen when the dispatcher looks up from the radio.
+ */
+const NEW_CALL_HOLD: Record<Severity, number> = { Low: 1.25, Medium: 2, High: 3, Critical: 4 };
 
 /** Admin-tuned behaviour (Admin → Operations Settings), with safe defaults. */
 export type AlertTuning = {
@@ -54,12 +62,25 @@ export function AlertCenter({
   silo: string; role: string; userId: string; tuning?: AlertTuning;
 }) {
   const router = useRouter();
-  const { push, chime: rawChime } = useToast();
+  const { push, chime: rawChime, chimeSeverity: rawChimeSeverity } = useToast();
   const [queue, setQueue] = useState<Alert[]>([]);
   const [acking, setAcking] = useState(false);
 
-  // Sound is an admin knob — a silent control room stays silent.
-  const chime: typeof rawChime = tuning.soundEnabled ? rawChime : () => {};
+  // Sound is an admin knob — a silent control room stays silent. Stable
+  // callbacks, so toggling nothing never re-subscribes the realtime streams.
+  const { soundEnabled } = tuning;
+  const chime = useCallback<typeof rawChime>(
+    (tone) => { if (soundEnabled) rawChime(tone); },
+    [soundEnabled, rawChime],
+  );
+  const chimeSeverity = useCallback<typeof rawChimeSeverity>(
+    (severity) => { if (soundEnabled) rawChimeSeverity(severity); },
+    [soundEnabled, rawChimeSeverity],
+  );
+
+  // The dispatch desk works the pending queue (Operations Manual ch. 11–12):
+  // a new call is its next job, so it gets the full severity card and tone.
+  const isDispatchDesk = DISPATCH_DESK_ROLES.includes(role as UserRole);
   const toastMs = tuning.toastSeconds * 1000;
   const interruptsAt = SEVERITY_RANK[tuning.modalMinSeverity] ?? 2;
 
@@ -72,6 +93,14 @@ export function AlertCenter({
   const lastStatus = useRef(new Map<string, string>());
 
   const showAlert = useCallback((alert: Alert) => {
+    // An officer's SOS (migration 0043) goes to the front of the queue and
+    // brings its own siren, whatever the sound setting: a colleague is calling
+    // for help.
+    if (alert.kind === 'sos') {
+      setQueue((cur) => (cur.some((a) => a.id === alert.id) ? cur : [alert, ...cur]));
+      return;
+    }
+
     // The admin threshold decides what interrupts: an alert blocks the screen
     // when its severity clears the configured bar, or when the sender demanded
     // acknowledgement outright. Everything else is a corner toast.
@@ -115,6 +144,38 @@ export function AlertCenter({
     });
 
     const offNew = subscribeNewIncidents(sb, scope, (incident) => {
+      // The person who logged it already has their own confirmation.
+      if (incident.created_by && incident.created_by === userId) return;
+
+      // An officer's SOS raises its own blocking alert; a second card for the
+      // same emergency would only compete with it.
+      if (isDispatchDesk && incident.source !== 'Responder-Panic') {
+        const severity = (SEVERITY_RANK[incident.incident_severity] !== undefined
+          ? incident.incident_severity : 'Low') as Severity;
+        push({
+          id: `new-${incident.id}`,
+          title: `New ${severity} call ${incident.incident_number}`,
+          duration: Math.round(toastMs * NEW_CALL_HOLD[severity]),
+          incident: {
+            severity,
+            number: incident.incident_number,
+            type: incident.incident_type,
+            location: incident.location_address,
+            meta: [
+              incident.caller_name ? `Caller ${incident.caller_name}` : null,
+              incident.region,
+              incident.call_taken_by ? `by ${incident.call_taken_by}` : null,
+            ].filter((m): m is string => Boolean(m)),
+            actions: [
+              { label: 'Open', href: `/incidents/${incident.id}` },
+              { label: 'Assign →', href: `/dispatch/assign/${incident.id}`, primary: true },
+            ],
+          },
+        });
+        chimeSeverity(severity);
+        return;
+      }
+
       push({
         id: `new-${incident.id}`,
         title: `New ${incident.incident_severity} call — ${SILO_LABELS[incident.silo] ?? incident.silo}`,
@@ -141,7 +202,7 @@ export function AlertCenter({
     });
 
     return () => { offAlerts(); offNew(); offUpd(); };
-  }, [scope, userId, push, chime, showAlert]);
+  }, [scope, userId, push, chime, chimeSeverity, showAlert, isDispatchDesk, toastMs]);
 
   const current = queue[0];
 
@@ -161,6 +222,30 @@ export function AlertCenter({
   };
 
   if (!current) return null;
+
+  if (current.kind === 'sos') {
+    return (
+      <SosAlert
+        alert={current}
+        waiting={queue.length - 1}
+        acking={acking}
+        onAcknowledge={(href) => {
+          void (async () => {
+            setAcking(true);
+            try {
+              await markAlertRead(getBrowserSupabase(), current.id, { acknowledged: true });
+            } catch {
+              // Best-effort, as for every alert: never trap the operator.
+            } finally {
+              setAcking(false);
+              setQueue((cur) => cur.slice(1));
+              if (href) router.push(href);
+            }
+          })();
+        }}
+      />
+    );
+  }
 
   const critical = current.severity === 'Critical';
 

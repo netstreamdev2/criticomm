@@ -1,6 +1,6 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import type { DeptIdentity } from '@/lib/branding';
-import { radius, type as typography } from '@/lib/theme';
+import { colors, radius, type as typography, makeStyles } from '@/lib/theme';
 
 /**
  * The department crest. Uses the uploaded logo when Admin → Departments has
@@ -13,6 +13,7 @@ export function DeptBadge({
   dept: DeptIdentity;
   size?: number;
 }) {
+  const styles = useStyles();
   if (dept.logoUrl) {
     return (
       <View style={[styles.logoWrap, { width: size, height: size, borderRadius: radius.md }]}>
@@ -47,6 +48,7 @@ export function DeptBadge({
 
 /** Crest + names, for headers and the profile screen. */
 export function DeptHeader({ dept }: { dept: DeptIdentity }) {
+  const styles = useStyles();
   return (
     <View style={styles.header}>
       <DeptBadge dept={dept} size={44} />
@@ -58,7 +60,7 @@ export function DeptHeader({ dept }: { dept: DeptIdentity }) {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   logoWrap: {
     alignItems: 'center', justifyContent: 'center',
     backgroundColor: 'rgba(255,255,255,0.95)',
@@ -71,6 +73,6 @@ const styles = StyleSheet.create({
     color: '#fff', fontWeight: '800', letterSpacing: 0.5,
   },
   header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  short: { ...typography.h2, color: '#fff' },
-  official: { ...typography.small, color: '#9ca3af', marginTop: 1 },
-});
+  short: { ...typography.h2, color: colors.text },
+  official: { ...typography.small, color: colors.muted, marginTop: 1 },
+}));

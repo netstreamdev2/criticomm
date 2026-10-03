@@ -4,7 +4,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getSupabase } from '@/lib/supabase';
-import { colors, radius, space, type } from '@/lib/theme';
+import { colors, radius, space, type, makeStyles } from '@/lib/theme';
+import { HikTechLogo } from '@/components/hiktech-logo';
 import { Banner, Button, Input } from '@/components/ui';
 
 const DEPARTMENTS = [
@@ -15,6 +16,7 @@ const DEPARTMENTS = [
 ];
 
 export default function LoginScreen() {
+  const styles = useStyles();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
@@ -46,7 +48,7 @@ export default function LoginScreen() {
           <View style={styles.badge}>
             <Ionicons name="shield-half" size={26} color={colors.primary} />
           </View>
-          <Text style={styles.brand}>CRITICOMM</Text>
+          <View style={{ marginVertical: 10 }}><HikTechLogo height={18} /></View>
           <Text style={styles.heading}>Responder sign in</Text>
           <Text style={styles.sub}>
             eThekwini Emergency Services. Authorised personnel only — all access is audited.
@@ -123,7 +125,7 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: space['2xl'] },
   box: { width: '100%', maxWidth: 420, alignSelf: 'center' },
@@ -161,4 +163,4 @@ const styles = StyleSheet.create({
   },
   pulse: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.low },
   footerText: { ...type.small, fontSize: 12, color: colors.muted },
-});
+}));

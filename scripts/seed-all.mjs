@@ -90,7 +90,8 @@ async function upsertUsers() {
     id: u.id, silo: u.silo, role: u.role, full_name: u.fullName, email: u.email,
     badge_number: badge(i), rank: u.role, station: 'Durban Central', status: 'Active',
     call_sign: `${u.fullName.split(' ')[0]}-${100 + i}`,
-    is_on_duty: ['Police', 'Firefighter', 'Paramedic', 'Disaster'].includes(u.role),
+    // Officers go on duty from the app after start of shift (migration 0041).
+    is_on_duty: false,
     last_login: nowIso(),
   })));
   if (error) console.error('profiles upsert:', error.message);
@@ -155,7 +156,7 @@ async function seedPersonnel(users, apparatus) {
       silo: u.silo, user_id: u.id, first_name: first, last_name: rest.join(' ') || 'Officer',
       badge_number: `P${2000 + i}`, rank: u.role, unit: pick(['Alpha', 'Bravo', 'Charlie'], i),
       assigned_apparatus_id: siloVeh[i % Math.max(1, siloVeh.length)]?.id ?? null,
-      is_on_duty: true, station: 'Durban Central', platoon: pick(['A', 'B', 'C', 'D'], i),
+      is_on_duty: false, station: 'Durban Central', platoon: pick(['A', 'B', 'C', 'D'], i),
       service_number: `SVC${5000 + i}`, force_number: `F${700 + i}`,
       latitude: jitter().lat, longitude: jitter().lng, last_login: nowIso(),
     });
@@ -168,7 +169,7 @@ async function seedPersonnel(users, apparatus) {
       rows.push({
         silo, first_name: pick(firstNames, i + silo.length), last_name: pick(lastNames, i),
         badge_number: `${silo.slice(0, 2).toUpperCase()}${3000 + i}`, rank: pick(['Constable', 'Sergeant', 'Officer'], i),
-        unit: pick(['Alpha', 'Bravo', 'Charlie'], i), is_on_duty: i % 2 === 0, station: 'Durban Central',
+        unit: pick(['Alpha', 'Bravo', 'Charlie'], i), is_on_duty: false, station: 'Durban Central',
         platoon: pick(['A', 'B', 'C', 'D'], i), service_number: `SVC${6000 + i}${silo.length}`, force_number: `F${800 + i}`,
       });
     }

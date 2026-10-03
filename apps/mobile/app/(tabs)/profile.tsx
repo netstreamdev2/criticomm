@@ -9,10 +9,14 @@ import { useAuth } from '@/lib/auth';
 import { useNotifications, type PushStatus } from '@/lib/notifications';
 import { useSync } from '@/lib/sync';
 import { useFeatures } from '@/lib/features';
+import { useOpenCall } from '@/lib/open-call';
+import { useDuty } from '@/lib/duty';
 import { useDept } from '@/lib/branding';
 import { DeptBadge } from '@/components/dept-badge';
-import { colors, radius, space, type } from '@/lib/theme';
+import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/components/ui';
+import { MyIncidents } from '@/components/my-incidents';
+import { MyPerformance } from '@/components/my-performance';
 
 const HEARTBEAT_MS = 60_000;
 
@@ -29,11 +33,11 @@ const PUSH_COPY: Record<PushStatus, { heading: string; detail: string }> = {
   },
   enabled: {
     heading: 'Push enabled',
-    detail: 'Calls routed to your department reach this phone even when the screen is locked. High and Critical calls open a full-screen alert you must acknowledge.',
+    detail: 'Incidents routed to your department reach this phone even when the screen is locked. High and Critical incidents open a full-screen alert you must acknowledge.',
   },
   denied: {
     heading: 'Notifications blocked',
-    detail: 'This phone will not ring for a dispatch. Turn notifications on for Criticom in the device settings. Alerts still arrive instantly while the app is open.',
+    detail: 'This phone will not ring for a dispatch. Turn notifications on for HikTech in the device settings. Alerts still arrive instantly while the app is open.',
   },
   unsupported: {
     heading: 'Push not in this build',
@@ -50,12 +54,14 @@ const PUSH_COPY: Record<PushStatus, { heading: string; detail: string }> = {
 };
 
 export default function ProfileScreen() {
+  const styles = useStyles();
   const router = useRouter();
   const { session, fullName, role, silo } = useAuth();
   const { pushEnabled, pushStatus, releasePushToken } = useNotifications();
   const { enqueue, pending, failed, online } = useSync();
   const { enabled: featureOn } = useFeatures();
   const dept = useDept();
+  const { refresh: refreshOpenCall } = useOpenCall();
   const [onDuty, setOnDuty] = useState(false);
   const [unit, setUnit] = useState<string | null>(null);
   const [lastPing, setLastPing] = useState<string | null>(null);
@@ -75,6 +81,12 @@ export default function ProfileScreen() {
   }, [session]);
 
   useEffect(() => { void load(); }, [load]);
+
+  // Follow duty changes made elsewhere (the Shift tab, the server) live.
+  const { onDuty: liveOnDuty } = useDuty();
+  useEffect(() => {
+    if (liveOnDuty !== null) setOnDuty(liveOnDuty);
+  }, [liveOnDuty]);
 
   /**
    * GPS heartbeat — posts position to personnel.lat/lng while on duty
@@ -116,7 +128,27 @@ export default function ProfileScreen() {
     };
   }, [onDuty, sendHeartbeat]);
 
+  /**
+   * An officer on a call stays on duty and signed in until its report is
+   * filed — leaving would strand the call with no unit. The server holds the
+   * same line (migration 0039); this says so before anything is attempted.
+   */
+  const stillOnCall = async (action: string) => {
+    const open = await refreshOpenCall();
+    if (!open) return false;
+    Alert.alert(
+      `You are on ${open.incident_number}`,
+      `File its incident report before you ${action}.`,
+      [
+        { text: 'OK', style: 'cancel' },
+        { text: 'Open incident', onPress: () => router.push(`/incident/${open.id}`) },
+      ],
+    );
+    return true;
+  };
+
   const flipDuty = async (value: boolean) => {
+    if (!value && (await stillOnCall('go off duty'))) return;
     setOnDuty(value);
     setError(null);
     try {
@@ -139,7 +171,8 @@ export default function ProfileScreen() {
     await sb.auth.signOut();
   };
 
-  const confirmSignOut = () => {
+  const confirmSignOut = async () => {
+    if (await stillOnCall('sign out')) return;
     const undelivered = pending.length + failed.length;
     // Undelivered work is held against the account that captured it, so it is
     // not lost — but the next person to carry this handset cannot send it, and
@@ -218,6 +251,11 @@ export default function ProfileScreen() {
       </Card>
 
       {/* Alerts */}
+      {/* My work — the same cards as Home, each opening its own page */}
+      <SectionLabel>My work</SectionLabel>
+      <MyIncidents />
+      <MyPerformance />
+
       <SectionLabel>Dispatch alerts</SectionLabel>
       <Card accent={pushEnabled ? colors.accent : colors.medium}>
         <View style={styles.rowBetween}>
@@ -291,16 +329,16 @@ export default function ProfileScreen() {
       <Card>
         <Muted>Signing out frees your vehicle and clears duty status (V4 logout parity).</Muted>
         <View style={{ marginTop: space.md }}>
-          <Button label="Sign out" icon="log-out-outline" variant="danger" onPress={confirmSignOut} />
+          <Button label="Sign out" icon="log-out-outline" variant="danger" onPress={() => void confirmSignOut()} />
         </View>
       </Card>
 
-      <Text style={styles.version}>CRITICOMM Responder · eThekwini Emergency Services</Text>
+      <Text style={styles.version}>HikTech Responder · eThekwini Emergency Services</Text>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   container: { padding: space.lg, paddingBottom: space['3xl'] },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 
@@ -331,4 +369,4 @@ const styles = StyleSheet.create({
     ...type.small, fontSize: 11, color: colors.muted,
     textAlign: 'center', marginTop: space.lg,
   },
-});
+}));

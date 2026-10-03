@@ -1,0 +1,164 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { activityOf, callView, nextStep, photosRemaining, pickActivity, type FieldCall } from './response.ts';
+
+/**
+ * The officer's ladder decides when a call can be closed. A police call that
+ * could be marked Resolved without its report would leave command with no
+ * record of what happened — the server refuses it, so the phone must never
+ * offer it.
+ */
+
+const police = { silo: 'MetroPolice' };
+const routedToPolice = { silo: 'Ethekwini', dispatched_silos: ['MetroPolice'] };
+const fire = { silo: 'MetroFire' };
+
+test('police calls go en route, on scene, then report', () => {
+  assert.deepEqual(nextStep(police, 'Dispatched'), { kind: 'status', status: 'En Route', label: 'Accept · Mark En Route' });
+  assert.deepEqual(nextStep(police, 'En Route'), { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.equal(nextStep(police, 'On Scene')?.kind, 'report');
+  assert.equal(nextStep(routedToPolice, 'On Scene')?.kind, 'report', 'routed from the control room');
+});
+
+test('police calls are never offered a bare Resolved', () => {
+  for (const s of ['Dispatched', 'En Route', 'Arrived', 'On Scene', 'Transporting'] as const) {
+    const step = nextStep(police, s);
+    assert.ok(!(step?.kind === 'status' && step.status === 'Resolved'), s);
+  }
+});
+
+test('nothing is left once the report is filed or the call is closed', () => {
+  assert.equal(nextStep({ ...police, report_filed_at: '2026-10-01T10:00:00Z' }, 'On Scene'), null);
+  assert.equal(nextStep(police, 'Resolved'), null);
+  assert.equal(nextStep(fire, 'Closed'), null);
+});
+
+test('other services keep the full ladder', () => {
+  assert.deepEqual(nextStep(fire, 'En Route'), { kind: 'status', status: 'Arrived', label: 'Mark Arrived' });
+  assert.deepEqual(nextStep(fire, 'Transporting'), { kind: 'status', status: 'Resolved', label: 'Mark Resolved' });
+});
+
+test('the photo allowance counts queued photos and never goes negative', () => {
+  assert.equal(photosRemaining(0, 0), 10);
+  assert.equal(photosRemaining(7, 2), 1);
+  assert.equal(photosRemaining(10, 3), 0);
+});
+
+test('home activity follows the open call', () => {
+  const call = (status: Parameters<typeof nextStep>[1] | null) => ({ id: 'i1', incident_number: 'INC-1', status });
+  assert.deepEqual(activityOf(null, false), { kind: 'idle' });
+  assert.deepEqual(activityOf(null, true), { kind: 'idle' }, 'no call, nothing to report on');
+  assert.equal(activityOf(call('En Route'), false).kind, 'en_route');
+  assert.equal(activityOf(call(null), false).kind, 'en_route', 'accepted offline, status not back yet');
+  assert.equal(activityOf(call('Arrived'), false).kind, 'on_scene');
+  assert.equal(activityOf(call('On Scene'), false).kind, 'on_scene');
+  assert.equal(activityOf(call('Transporting'), false).kind, 'transporting');
+  assert.deepEqual(activityOf(call('On Scene'), true), { kind: 'reporting', incidentId: 'i1', incidentNumber: 'INC-1' });
+});
+
+test('the most pressing of several calls shows on home', () => {
+  const calls = [
+    { id: 'a', incident_number: 'INC-A', status: 'En Route' as const },
+    { id: 'b', incident_number: 'INC-B', status: 'On Scene' as const },
+  ];
+  assert.equal(pickActivity([], () => false).kind, 'idle');
+  assert.deepEqual(pickActivity(calls, () => false), { kind: 'on_scene', incidentId: 'b', incidentNumber: 'INC-B' });
+  assert.equal(pickActivity(calls, (id) => id === 'a').kind, 'reporting', 'a report outranks being on scene');
+});
+
+/* ── Lead and backup (migration 0042) ─────────────────────────────────── */
+
+const me = { userId: 'me', silo: 'MetroPolice', onDuty: true };
+const sent: FieldCall = { id: 'i1', silo: 'MetroPolice', status: 'Dispatched', dispatched_silos: ['MetroPolice'], responders: [] };
+
+test('a call sent to all, nobody responding: I can respond and would lead', () => {
+  const v = callView(sent, me);
+  assert.equal(v.assignment.kind, 'open');
+  assert.deepEqual(v.action, { kind: 'respond', asLead: true, label: 'Responding' });
+  assert.equal(v.role, null);
+});
+
+test('assigned to me: I lead; assigned to someone else: I can back up', () => {
+  const toMe = callView({ ...sent, assigned_to: 'me' }, me);
+  assert.equal(toMe.assignment.kind, 'you');
+  assert.deepEqual(toMe.action, { kind: 'respond', asLead: true, label: 'Responding' });
+
+  const toOther = callView({ ...sent, assigned_to: 'a', assigned_to_name: 'Sgt Dube' }, me);
+  assert.deepEqual(toOther.assignment, { kind: 'other', name: 'Sgt Dube' });
+  assert.deepEqual(toOther.action, { kind: 'respond', asLead: false, label: 'Responding' });
+});
+
+test('assigned to me works even outside my department', () => {
+  const v = callView({ ...sent, dispatched_silos: ['MetroFire'], assigned_to: 'me' }, me);
+  assert.equal(v.action?.kind, 'respond');
+});
+
+test('not sent to my department, or not sent yet: view only', () => {
+  assert.equal(callView({ ...sent, dispatched_silos: ['MetroFire'] }, me).action, null);
+  assert.equal(callView({ ...sent, status: 'Pending Dispatch' }, me).action, null);
+});
+
+test('off duty: the button shows but is blocked', () => {
+  const v = callView(sent, { ...me, onDuty: false });
+  assert.equal(v.action?.kind, 'respond');
+  assert.ok(v.blocked);
+});
+
+test('the lead works the ladder; backup marks on scene and stops', () => {
+  const lead = callView({
+    ...sent, status: 'En Route', accepted_by: 'me',
+    responders: [{ user_id: 'me', name: 'Me', role: 'lead', status: 'En Route' }],
+  }, me);
+  assert.equal(lead.role, 'lead');
+  assert.deepEqual(lead.action, { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.equal(callView({ ...sent, status: 'On Scene', accepted_by: 'me' }, me).action?.kind, 'report');
+
+  const withBackup: FieldCall = {
+    ...sent, status: 'On Scene', accepted_by: 'a',
+    responders: [
+      { user_id: 'a', name: 'Sgt Dube', role: 'lead', status: 'On Scene' },
+      { user_id: 'me', name: 'Me', role: 'backup', status: 'En Route' },
+    ],
+  };
+  const backup = callView(withBackup, me);
+  assert.equal(backup.role, 'backup');
+  assert.equal(backup.myStatus, 'En Route', "my own status, not the lead's");
+  assert.deepEqual(backup.action, { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.equal(backup.backups.length, 1);
+
+  const arrived = callView(withBackup, me, 'On Scene');
+  assert.equal(arrived.action, null);
+  assert.ok(arrived.note);
+});
+
+test("responding offline counts at once, under the server's lead rule", () => {
+  assert.equal(callView(sent, me, 'En Route').role, 'lead');
+  assert.equal(callView({ ...sent, accepted_by: 'a' }, me, 'En Route').role, 'backup');
+});
+
+test('a closed call offers nothing', () => {
+  assert.equal(callView({ ...sent, status: 'Resolved' }, me).action, null);
+});
+
+test('assigned and not yet responded replaces idle, never the work in hand', () => {
+  const waiting = [
+    { id: 'n', incident_number: 'INC-NEW' },
+    { id: 'o', incident_number: 'INC-OLD' },
+  ];
+  assert.deepEqual(pickActivity([], () => false, waiting), {
+    kind: 'assigned', incidentId: 'n', incidentNumber: 'INC-NEW', count: 2,
+  });
+  const working = [{ id: 'a', incident_number: 'INC-A', status: 'En Route' as const }];
+  assert.equal(pickActivity(working, () => false, waiting).kind, 'en_route');
+  assert.equal(pickActivity([], () => false, []).kind, 'idle');
+});
+
+test('my own SOS: no Responding, just the reassurance', () => {
+  const sos: FieldCall = { ...sent, source: 'Responder-Panic', created_by: 'me' };
+  const v = callView(sos, me);
+  assert.equal(v.ownSos, true);
+  assert.equal(v.action, null);
+  assert.ok(v.note?.includes('your SOS'));
+  // Anyone else it was sent to can respond as usual.
+  assert.equal(callView({ ...sos, created_by: 'someone-else' }, me).action?.kind, 'respond');
+});

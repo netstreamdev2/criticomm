@@ -73,9 +73,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const hidden = [...hiddenFor(features), ...deniedHrefs(accessRules, role)];
   const dept = branding[silo as Silo];
 
-  // Admin tiers, supervisory roles, Dispatcher and Metro Police officers have curated sidebars. The remaining
-  // operational roles use compact top navigation to preserve workspace width.
-  const usesSidebar = ['SystemAdmin', 'SuperAdmin', 'Supervisor', 'Captain', 'Dispatcher', 'SystemController', 'Police', 'Officer', 'Metro'].includes(role);
+  // Admin tiers, supervisory roles, the two control-room desks (Dispatcher and
+  // IncidentLogger) and Metro Police officers have curated sidebars. The
+  // remaining operational roles use compact top navigation to preserve
+  // workspace width.
+  const usesSidebar = ['SystemAdmin', 'SuperAdmin', 'Supervisor', 'Captain', 'Dispatcher', 'IncidentLogger', 'SystemController', 'Police', 'Officer', 'Metro'].includes(role);
 
   return (
     <ToastProvider>
@@ -89,7 +91,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           {/* External ops links sit above role navigation: the links are a
               reference strip you dip into, the navigation is the thing you
               come back to, so it reads better closest to the page it acts on. */}
-          {role !== 'Supervisor' && role !== 'Dispatcher' && (
+          {role !== 'Supervisor' && role !== 'Dispatcher' && role !== 'IncidentLogger' && (
             <div className="flex flex-col gap-1 border-b border-border bg-bg-soft/95 px-3 py-1.5 backdrop-blur sm:px-4">
               <OpsCommandBar role={role} silo={silo} links={opsLinks} hiddenHrefs={hidden} />
               {usesSidebar ? null : (
@@ -99,7 +101,20 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               )}
             </div>
           )}
-          <main className="flex-1 bg-bg p-3 sm:p-4">
+          <main
+            className="flex-1 bg-bg p-3 sm:p-4"
+            // Both control-room desks (call-taker and dispatcher) sit on the
+            // earth-at-night backdrop, the
+            // same image as the shift screens. Fixed so it stays put behind
+            // long forms; the tint keeps cards and text readable over it.
+            style={role === 'IncidentLogger' || role === 'Dispatcher' ? {
+              backgroundImage:
+                "linear-gradient(180deg, rgba(2, 9, 20, .55), rgba(2, 9, 20, .35) 45%, rgba(2, 9, 20, .65)), url('/shift-earth-network.png')",
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              backgroundAttachment: 'fixed',
+            } : undefined}
+          >
             {/* An officer calling for help outranks whatever screen you are
                 on, so this sits above the page rather than inside one. It
                 renders nothing when there is no live panic. Suspended so its

@@ -9,7 +9,7 @@ import {
 import type { Silo } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
-import { colors, radius, space, type } from '@/lib/theme';
+import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import {
   Banner, Button, Card, Input, KeyValue, Muted, SectionLabel, Title,
 } from '@/components/ui';
@@ -35,13 +35,15 @@ type Balance = Awaited<ReturnType<typeof getLeaveBalances>>[number];
 const isoDate = (d: Date) => d.toISOString().slice(0, 10);
 const VALID_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
-const STATUS_TONE: Record<string, string> = {
+/** Read at render time, so it follows the light/dark theme. */
+const STATUS_TONE = (): Record<string, string> => ({
   Approved: colors.low,
   Rejected: colors.critical,
   Pending: colors.medium,
-};
+});
 
 export default function LeaveScreen() {
+  const styles = useStyles();
   const { session, silo } = useAuth();
   const [types, setTypes] = useState<string[]>([]);
   const [balances, setBalances] = useState<Balance[]>([]);
@@ -252,7 +254,7 @@ export default function LeaveScreen() {
         <Card><Muted>You have not applied for leave yet.</Muted></Card>
       ) : (
         history.slice(0, 20).map((row) => {
-          const statusTone = STATUS_TONE[row.status] ?? colors.muted;
+          const statusTone = STATUS_TONE()[row.status] ?? colors.muted;
           return (
             <Card key={row.id} accent={statusTone} tight>
               <View style={styles.rowBetween}>
@@ -277,7 +279,7 @@ export default function LeaveScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   container: { padding: space.lg, paddingBottom: space['3xl'] },
   center: {
     flex: 1, backgroundColor: colors.bg,
@@ -306,4 +308,4 @@ const styles = StyleSheet.create({
 
   status: { borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: space.md, paddingVertical: 3 },
   statusText: { fontSize: 12, fontWeight: '700' },
-});
+}));

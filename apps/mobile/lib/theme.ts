@@ -1,12 +1,24 @@
+import { useSyncExternalStore } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 /**
- * Mobile design tokens — mirrors the web app's `criticom-dark` theme
- * (apps/web/app/themes.css) so both surfaces read as one product.
+ * Mobile design tokens — dark mirrors the web app's `criticom-dark` theme
+ * (apps/web/app/themes.css) so both surfaces read as one product; light is
+ * its daytime counterpart, chosen with the toggle in the header.
  *
- * The responder app stays dark-only on purpose: crews work night shifts and
- * read screens in cabs, so a bright mode would hurt more than it helps.
+ * How the switch works, and why it is safe:
+ *   • `colors` and `paper` are single objects whose values are swapped in
+ *     place, so every `colors.x` read at render time is the current theme.
+ *   • Every stylesheet is built through `makeStyles`, which rebuilds it when
+ *     the theme changes and re-renders the component using it — the whole app
+ *     changes at once, in place, without a reload (a half-filled shift form
+ *     keeps its answers).
+ *   • Each light value was picked against its partner background, so text
+ *     never ends up white-on-white or dark-on-dark: text sits on bg/bgCard/
+ *     panel; `onColor` (white) only ever sits on a saturated fill.
  */
 
-export const colors = {
+const dark = {
   bg: '#050510',
   bgSoft: '#0b0b1a',
   bgCard: '#11112a',
@@ -28,7 +40,202 @@ export const colors = {
   highSoft: 'rgba(249, 115, 22, 0.16)',
   critical: '#ef4444',
   criticalSoft: 'rgba(239, 68, 68, 0.16)',
-} as const;
+  /** Home cards: frosted panel over the earth-at-night backdrop. */
+  panel: 'rgba(14,15,24,0.92)',
+  panelBorder: 'rgba(255,255,255,0.07)',
+  /** Thin separators inside panels. */
+  divider: 'rgba(255,255,255,0.10)',
+  hairline: 'rgba(255,255,255,0.06)',
+  /** Empty part of progress tracks and bars. */
+  track: 'rgba(255,255,255,0.08)',
+  /** Text and icons on a saturated fill (buttons, pills) — white in both themes. */
+  onColor: '#ffffff',
+  /** "Idle" on the home activity chip. */
+  idle: '#bae6fd',
+  /** Cyan accents (map, backup tags) — readable on the theme's background. */
+  cyan: '#22d3ee',
+  /** Light-blue accent text (section titles). */
+  accentInk: '#93c5fd',
+  /** Purple accent text (backup, transporting). */
+  purple: '#a855f7',
+};
+
+export type Palette = { [K in keyof typeof dark]: string };
+
+const light: Palette = {
+  bg: '#f2f4f9',
+  bgSoft: '#ffffff',
+  bgCard: '#ffffff',
+  bgElevated: '#e9edf5',
+  border: '#dfe4ee',
+  borderStrong: '#c6cedd',
+  text: '#0f172a',
+  textDim: '#334155',
+  muted: '#5f6b7e',
+  primary: '#dc3545',
+  primarySoft: 'rgba(220, 53, 69, 0.10)',
+  accent: '#2563eb',
+  accentSoft: 'rgba(37, 99, 235, 0.10)',
+  low: '#059669',
+  lowSoft: 'rgba(5, 150, 105, 0.12)',
+  medium: '#d97706',
+  mediumSoft: 'rgba(217, 119, 6, 0.12)',
+  high: '#ea580c',
+  highSoft: 'rgba(234, 88, 12, 0.12)',
+  critical: '#dc2626',
+  criticalSoft: 'rgba(220, 38, 38, 0.10)',
+  panel: '#ffffff',
+  panelBorder: '#dfe4ee',
+  divider: '#e5e9f1',
+  hairline: '#edf0f5',
+  track: '#e6eaf1',
+  onColor: '#ffffff',
+  idle: '#0369a1',
+  cyan: '#0891b2',
+  accentInk: '#1d4ed8',
+  purple: '#7c3aed',
+};
+
+/**
+ * Start-of-shift paperwork (components/shift-form.tsx): shaded dark slate, or
+ * the white sheet of the paper 187(c) in light mode.
+ */
+const paperDark = {
+  /** Panels: groups, headers, footers. */
+  sheet: '#161d2f',
+  /** Behind the panels. */
+  canvas: '#0f1424',
+  /** Inputs and wells, a step darker than the panel they sit on. */
+  field: '#0c1120',
+  /** Buttons, item rows and chips, a step lighter than the panel. */
+  raised: '#1d2539',
+  /** The crest band. */
+  head: '#121a2e',
+  ink: '#eef2f8',
+  inkDim: '#c5ccda',
+  muted: '#8d97ab',
+  faint: '#5f6a80',
+  line: '#253049',
+  lineStrong: '#33405e',
+  blue: '#3b82f6',
+  blueSoft: 'rgba(59,130,246,0.16)',
+  /** Blue text (section titles, Next): light blue on dark, deep blue on white. */
+  blueInk: '#93c5fd',
+  green: '#10b981',
+  greenSoft: 'rgba(16,185,129,0.15)',
+  red: '#ef4444',
+  redSoft: 'rgba(239,68,68,0.14)',
+  amber: '#f59e0b',
+  amberSoft: 'rgba(245,158,11,0.14)',
+  lime: '#84cc16',
+  limeSoft: 'rgba(132,204,22,0.14)',
+};
+
+export type PaperPalette = { [K in keyof typeof paperDark]: string };
+
+const paperLight: PaperPalette = {
+  sheet: '#ffffff',
+  canvas: '#eef2f8',
+  field: '#f8fafc',
+  raised: '#f3f6fb',
+  head: '#ffffff',
+  ink: '#1e293b',
+  inkDim: '#334155',
+  muted: '#64748b',
+  faint: '#94a3b8',
+  line: '#e2e8f0',
+  lineStrong: '#cbd5e1',
+  blue: '#2563eb',
+  blueSoft: 'rgba(37,99,235,0.08)',
+  blueInk: '#1d4ed8',
+  green: '#059669',
+  greenSoft: 'rgba(5,150,105,0.10)',
+  red: '#dc2626',
+  redSoft: 'rgba(220,38,38,0.08)',
+  amber: '#d97706',
+  amberSoft: 'rgba(217,119,6,0.10)',
+  lime: '#65a30d',
+  limeSoft: 'rgba(101,163,13,0.10)',
+};
+
+/** The live palettes: one object each, values swapped in place on a switch. */
+export const colors: Palette = { ...dark };
+export const paper: PaperPalette = { ...paperDark };
+
+/* ── Theme state ─────────────────────────────────────────────────────────── */
+
+export type ThemeMode = 'dark' | 'light';
+
+const STORAGE_KEY = 'hiktech.theme';
+let mode: ThemeMode = 'dark';
+let version = 0;
+const listeners = new Set<() => void>();
+const subscribe = (l: () => void) => { listeners.add(l); return () => { listeners.delete(l); }; };
+const getVersion = () => version;
+
+function apply(next: ThemeMode) {
+  mode = next;
+  Object.assign(colors, next === 'light' ? light : dark);
+  Object.assign(paper, next === 'light' ? paperLight : paperDark);
+  version += 1;
+  for (const l of listeners) l();
+}
+
+export function getThemeMode(): ThemeMode {
+  return mode;
+}
+
+/** Switch the whole app, and remember it on this phone. */
+export function setThemeMode(next: ThemeMode) {
+  if (next === mode) return;
+  apply(next);
+  void AsyncStorage.setItem(STORAGE_KEY, next).catch(() => {});
+}
+
+/** Read the saved choice; call once before the first screen renders. */
+export async function loadThemeMode() {
+  try {
+    const saved = await AsyncStorage.getItem(STORAGE_KEY);
+    if ((saved === 'light' || saved === 'dark') && saved !== mode) apply(saved);
+  } catch {
+    // No storage: stay dark.
+  }
+}
+
+/** The current theme; re-renders the caller when it changes. */
+export function useTheme() {
+  useSyncExternalStore(subscribe, getVersion, getVersion);
+  return {
+    mode,
+    isDark: mode === 'dark',
+    setMode: setThemeMode,
+    toggle: () => setThemeMode(mode === 'dark' ? 'light' : 'dark'),
+  };
+}
+
+/**
+ * A component's stylesheet, rebuilt for the current theme. Use instead of a
+ * module-level `StyleSheet.create`, whose values would be frozen at load:
+ *
+ *   const useStyles = makeStyles(() => StyleSheet.create({ … colors.x … }));
+ *   function Thing() { const styles = useStyles(); … }
+ *
+ * Built once per theme and shared by every instance.
+ */
+export function makeStyles<T>(factory: () => T): () => T {
+  let cached: T | undefined;
+  let builtFor = -1;
+  return function useStyles() {
+    const v = useSyncExternalStore(subscribe, getVersion, getVersion);
+    if (cached === undefined || builtFor !== v) {
+      cached = factory();
+      builtFor = v;
+    }
+    return cached;
+  };
+}
+
+/* ── Fixed tokens ────────────────────────────────────────────────────────── */
 
 /** 4pt grid. */
 export const space = {

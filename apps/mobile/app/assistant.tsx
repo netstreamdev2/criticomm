@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { callApi } from '@/lib/api-host';
-import { colors, radius, space, type } from '@/lib/theme';
+import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, EmptyState, Input, Muted } from '@/components/ui';
 
 /**
@@ -21,13 +21,14 @@ import { Banner, Button, EmptyState, Input, Muted } from '@/components/ui';
 type Message = { role: 'user' | 'assistant'; text: string };
 
 const SUGGESTIONS = [
-  'What are my open calls?',
+  'What are my open incidents?',
   'Who else is on duty in my department?',
-  'What is the status of the last call I attended?',
+  'What is the status of the last incident I attended?',
   'When is my next shift?',
 ];
 
 export default function AssistantScreen() {
+  const styles = useStyles();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -81,7 +82,7 @@ export default function AssistantScreen() {
           <EmptyState
             icon="sparkles-outline"
             title="Ask Criti"
-            body="Criti can see the same board you can — your calls, your crew, your shift. It cannot see another department's records."
+            body="Criti can see the same board you can — your incidents, your crew, your shift. It cannot see another department's records."
             action={
               <View style={{ gap: space.sm }}>
                 {SUGGESTIONS.map((s) => (
@@ -118,7 +119,7 @@ export default function AssistantScreen() {
       <View style={styles.composer}>
         <View style={{ flex: 1 }}>
           <Input
-            placeholder="Ask about your calls, crew or shift…"
+            placeholder="Ask about your incidents, crew or shift…"
             value={input}
             onChangeText={setInput}
             onSubmitEditing={() => void send(input)}
@@ -138,7 +139,7 @@ export default function AssistantScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   thread: { padding: space.lg, gap: space.sm, paddingBottom: space.xl },
 
   bubble: {
@@ -175,4 +176,4 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
     backgroundColor: colors.bgSoft,
   },
-});
+}));

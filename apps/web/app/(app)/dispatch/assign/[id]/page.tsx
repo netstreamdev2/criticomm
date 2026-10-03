@@ -3,7 +3,10 @@ import { notFound } from 'next/navigation';
 import {
   Ambulance, ArrowUpRight, FileText, Headset, MapPin, Paperclip, Phone, User,
 } from 'lucide-react';
-import { getIncident, getIncidentUpdates, listIncidentAttachments } from '@criticom/api';
+import {
+  getIncident, getIncidentUpdates, getOperationalSettings, listIncidentAttachments, listOnDutyOfficers,
+} from '@criticom/api';
+import type { Silo } from '@criticom/db';
 import { LeafletMap } from '@/components/leaflet-map';
 import { AssignForm } from './assign-form';
 import { getSession } from '@/lib/session';
@@ -28,19 +31,38 @@ function Field({ label, value, mono, span }: {
 
 export default async function AssignPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { supabase, fullName } = await getSession();
+  const { supabase } = await getSession();
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) notFound();
 
-  const [{ data: vehicles = [] }, attachments, updates] = await Promise.all([
-    supabase
-      .from('apparatus')
-      .select('id, unit_number, name, type, status, silo')
-      .eq('status', 'Available')
-      .order('silo'),
+  // Everyone on duty in the field departments; the form narrows them to the
+  // departments the dispatcher routes the call to and keeps the list live.
+  const fieldSilos: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
+  const [officers, settings, attachments, updates] = await Promise.all([
+    listOnDutyOfficers(supabase, fieldSilos).catch(() => []),
+    getOperationalSettings(supabase),
     listIncidentAttachments(supabase, id).catch(() => []),
     getIncidentUpdates(supabase, id).catch(() => []),
   ]);
+
+  const locked =
+    incident.status === 'Resolved' || incident.status === 'Closed'
+      ? `${incident.incident_number} is ${incident.status.toLowerCase()} — it can no longer be dispatched.`
+      : incident.accepted_by
+        ? `${incident.responding_officer ?? 'An officer'} is leading this incident${incident.accepted_at ? ` (responded ${timeAgo(incident.accepted_at)})` : ''}. Other officers can still join it as backup from the app.`
+        : null;
+
+  // On-duty officers' last GPS fixes, beside the scene.
+  const unitMarkers = officers.flatMap((o) =>
+    o.lat !== null && o.lng !== null
+      ? [{
+          id: o.userId,
+          lat: o.lat,
+          lng: o.lng,
+          kind: 'unit',
+          popupHtml: `<strong>${o.name}</strong>${o.unitNumber ? ` · ${o.unitNumber}` : ''}<br/>${o.activeCalls ? `On ${o.activeCalls} incident${o.activeCalls === 1 ? '' : 's'}` : 'Free'}`,
+        }]
+      : []);
 
   const hasPoint = Boolean(incident.location_lat && incident.location_lng);
   const pinKind =
@@ -53,7 +75,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
       {/* Header */}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Dispatch unit</h1>
+          <h1 className="text-2xl font-bold">Dispatch call</h1>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             Incident <span className="font-mono text-fg">{incident.incident_number}</span>
             <span className="severity-pill" data-sev={incident.incident_severity}>{incident.incident_severity}</span>
@@ -114,8 +136,9 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
                       lng: incident.location_lng,
                       kind: pinKind,
                       popupHtml: `<strong>${incident.incident_number}</strong><br/>${incident.location_address}`,
-                    }]}
-                    center={[incident.location_lat, incident.location_lng]}
+                    }, ...unitMarkers]}
+                    // With crews on the map, frame them all; otherwise zoom on the scene.
+                    center={unitMarkers.length ? undefined : [incident.location_lat, incident.location_lng]}
                     zoom={15}
                     height={280}
                     satellite
@@ -234,10 +257,22 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
       {/* ══ ROUTING & UNIT ══ */}
       <AssignForm
         incidentId={incident.id}
+        incidentNumber={incident.incident_number}
         silo={incident.silo}
+        dispatchedSilos={incident.dispatched_silos ?? []}
         severity={incident.incident_severity}
-        vehicles={vehicles ?? []}
-        dispatchedBy={fullName}
+        scene={hasPoint ? [incident.location_lat, incident.location_lng] : null}
+        officers={officers}
+        eta={{
+          speedKmh: settings['dispatch.eta_speed_kmh'],
+          roadFactor: settings['dispatch.eta_road_factor'],
+        }}
+        locked={locked}
+        awaiting={incident.status === 'Dispatched' && !incident.accepted_by}
+        sosRaiser={incident.source === 'Responder-Panic' ? incident.created_by : null}
+        assignedTo={incident.assigned_to && !incident.accepted_by
+          ? { userId: incident.assigned_to, name: incident.assigned_to_name ?? 'an officer', at: incident.assigned_at }
+          : null}
       />
     </div>
   );

@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { countUnreadAlerts, subscribeAlerts, subscribeMyAlertReads } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useFeature } from '@/lib/features';
-import { colors, type } from '@/lib/theme';
+import { colors, useTheme } from '@/lib/theme';
+import { fontFamily } from '@/lib/font';
+import { CurvedTabBar } from '@/components/tab-bar';
+import { HikTechLogo } from '@/components/hiktech-logo';
+import { AlertsBell, HeaderSearch } from '@/components/alerts-bell';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 /**
- * Live unread count for the Alerts tab badge.
+ * Live unread count for the Alerts bell in the header.
  *
  * Counted server-side rather than by fetching rows and measuring them: a busy
  * shift would otherwise cap at the page size and quietly under-report. Both
@@ -43,11 +47,13 @@ function useUnreadAlerts(): number {
 }
 
 export default function TabsLayout() {
+  useTheme();
   const unread = useUnreadAlerts();
   const alertsOn = useFeature('mobile.alerts_inbox');
 
   return (
     <Tabs
+      tabBar={(props) => <CurvedTabBar {...props} />}
       screenOptions={{
         headerStyle: {
           backgroundColor: colors.bgSoft,
@@ -57,81 +63,31 @@ export default function TabsLayout() {
           ...(Platform.OS === 'ios' ? { shadowOpacity: 0 } : { elevation: 0 }),
         },
         headerTintColor: colors.text,
-        headerTitleStyle: { fontWeight: '800', fontSize: 17, letterSpacing: -0.2 },
-        tabBarStyle: {
-          backgroundColor: colors.bgSoft,
-          borderTopColor: colors.border,
-          borderTopWidth: StyleSheet.hairlineWidth,
-          height: Platform.OS === 'ios' ? 86 : 62,
-          paddingTop: 6,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
-        },
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.muted,
-        tabBarLabelStyle: { ...type.small, fontSize: 11, fontWeight: '700' },
+        headerTitleStyle: { fontFamily, fontWeight: '800', fontSize: 17, letterSpacing: -0.2 },
+        // Light/dark slide, search, then the alerts bell, top-right on every tab.
+        headerRight: () => (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <ThemeToggle />
+            <HeaderSearch />
+            {alertsOn ? <AlertsBell count={unread} /> : <View style={{ width: 12 }} />}
+          </View>
+        ),
         sceneStyle: { backgroundColor: colors.bg },
       }}
     >
+      {/* Order here is navigation order; CurvedTabBar draws Incidents in the centre. */}
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Criticomm',
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? 'grid' : 'grid-outline'} color={color} size={size} />
-          ),
+          title: 'HikTech',
+          headerTitle: '',
+          headerLeft: () => <View style={{ marginLeft: 16 }}><HikTechLogo height={14} /></View>,
         }}
       />
-      <Tabs.Screen
-        name="incidents"
-        options={{
-          title: 'My Incidents',
-          tabBarLabel: 'Incidents',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? 'radio' : 'radio-outline'} color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="alerts"
-        options={{
-          href: alertsOn ? undefined : null,
-          title: 'Alerts',
-          tabBarBadge: unread > 0 ? (unread > 99 ? '99+' : unread) : undefined,
-          tabBarBadgeStyle: { backgroundColor: colors.primary, color: '#fff', fontSize: 10 },
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? 'notifications' : 'notifications-outline'} color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="schedule"
-        options={{
-          title: 'My Schedule',
-          tabBarLabel: 'Schedule',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="shift"
-        options={{
-          title: 'Shift',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? 'clipboard' : 'clipboard-outline'} color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={focused ? 'person' : 'person-outline'} color={color} size={size} />
-          ),
-        }}
-      />
+      <Tabs.Screen name="shift" options={{ title: 'Shift' }} />
+      <Tabs.Screen name="incidents" options={{ title: 'Incidents' }} />
+      <Tabs.Screen name="schedule" options={{ title: 'My Schedule' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
   );
 }

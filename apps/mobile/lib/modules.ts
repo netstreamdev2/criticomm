@@ -33,7 +33,7 @@ export const MODULES: AppModule[] = [
   {
     key: 'incidents',
     title: 'My Incidents',
-    blurb: 'Your assigned calls, live. Advance status as things happen.',
+    blurb: 'Your incidents, live. Respond and advance status as things happen.',
     icon: 'radio-outline',
     href: '/(tabs)/incidents',
   },
@@ -42,7 +42,7 @@ export const MODULES: AppModule[] = [
     title: 'Alerts',
     blurb: 'Everything that came in while you were busy, with what still needs your acknowledgement.',
     icon: 'notifications-outline',
-    href: '/(tabs)/alerts',
+    href: '/alerts',
     feature: 'mobile.alerts_inbox',
   },
   {
@@ -55,7 +55,7 @@ export const MODULES: AppModule[] = [
   {
     key: 'shift',
     title: 'Start of Shift',
-    blurb: 'Mental readiness, vehicle selection and inspection — the gate to taking calls.',
+    blurb: 'Mental readiness, vehicle selection and inspection — the gate to responding to incidents.',
     icon: 'clipboard-outline',
     href: '/(tabs)/shift',
   },
@@ -81,7 +81,7 @@ export const MODULES: AppModule[] = [
   {
     key: 'assistant',
     title: 'Criti',
-    blurb: 'Ask about your calls, your crew, your shift — scoped to what you can already see.',
+    blurb: 'Ask about your incidents, your crew, your shift — scoped to what you can already see.',
     icon: 'sparkles-outline',
     href: '/assistant',
     feature: 'mobile.assistant',

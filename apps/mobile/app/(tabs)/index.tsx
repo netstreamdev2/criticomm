@@ -9,8 +9,10 @@ import { useDuty } from '@/lib/duty';
 import { useSync } from '@/lib/sync';
 import { useFeatures } from '@/lib/features';
 import { homeModules } from '@/lib/modules';
-import { colors, radius, space, type } from '@/lib/theme';
+import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Card } from '@/components/ui';
+import { PoliceHome } from '@/components/police-home';
+import { HomeHeader } from '@/components/home-header';
 
 /**
  * Home — the modular front door.
@@ -21,9 +23,20 @@ import { Card } from '@/components/ui';
  * three states a crew member actually checks between calls: am I cleared for
  * duty, what is assigned to me, and did everything I did reach the server.
  */
+/**
+ * Police (and Ethekwini field officers, who work from the Metro Police
+ * armoury and fleet) get the minimal V4-style home; other services keep the
+ * module grid.
+ */
 export default function HomeScreen() {
+  const { silo } = useAuth();
+  return silo === 'MetroPolice' || silo === 'Ethekwini' ? <PoliceHome /> : <ModuleHome />;
+}
+
+function ModuleHome() {
+  const styles = useStyles();
   const router = useRouter();
-  const { session, fullName, silo } = useAuth();
+  const { session, silo } = useAuth();
   const { shiftStarted } = useDuty();
   const { pending, failed, online } = useSync();
   const { enabled } = useFeatures();
@@ -45,9 +58,6 @@ export default function HomeScreen() {
 
   useFocusEffect(useCallback(() => { void load(); }, [load]));
 
-  const firstName = (fullName || '').split(/[\s@]/)[0] || 'there';
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   const undelivered = pending.length + failed.length;
   const modules = homeModules(enabled, silo);
 
@@ -68,9 +78,7 @@ export default function HomeScreen() {
         />
       }
     >
-      {/* Identity strip */}
-      <Text style={styles.greeting}>{greeting},</Text>
-      <Text style={styles.name}>{firstName}</Text>
+      <HomeHeader />
 
       {/* The three states that matter between calls */}
       <View style={styles.statusRow}>
@@ -147,11 +155,8 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   container: { padding: space.lg, paddingBottom: space['3xl'] },
-
-  greeting: { ...type.small, color: colors.muted },
-  name: { ...type.display, color: colors.text, marginBottom: space.lg },
 
   statusRow: { flexDirection: 'row', gap: space.sm, marginBottom: space.xl },
   status: {
@@ -185,4 +190,4 @@ const styles = StyleSheet.create({
     ...type.small, fontSize: 11, color: colors.muted,
     textAlign: 'center', marginTop: space.xl,
   },
-});
+}));

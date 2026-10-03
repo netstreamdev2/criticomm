@@ -10,7 +10,7 @@ import {
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { clearBadge } from '@/lib/push';
-import { colors, radius, severityColor, space, timeAgo, type } from '@/lib/theme';
+import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, EmptyState, Muted } from '@/components/ui';
 
 type AlertRow = Awaited<ReturnType<typeof listMyAlerts>>[number];
@@ -28,6 +28,7 @@ type AlertRow = Awaited<ReturnType<typeof listMyAlerts>>[number];
  * glance that something is still waiting on them.
  */
 export default function AlertsScreen() {
+  const styles = useStyles();
   const router = useRouter();
   const { session, silo } = useAuth();
   const [alerts, setAlerts] = useState<AlertRow[]>([]);
@@ -122,7 +123,7 @@ export default function AlertsScreen() {
           <EmptyState
             icon="notifications-outline"
             title="No alerts"
-            body="Dispatch assignments and department broadcasts land here. High and Critical calls also open a full-screen alert you have to acknowledge."
+            body="Dispatch assignments and department broadcasts land here. High and Critical incidents also open a full-screen alert you have to acknowledge."
           />
         )
       }
@@ -177,7 +178,7 @@ export default function AlertsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles(() => StyleSheet.create({
   list: { padding: space.lg, paddingBottom: space['3xl'] },
   head: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -209,4 +210,4 @@ const styles = StyleSheet.create({
   ackPending: { ...type.small, fontSize: 12, color: colors.critical, fontWeight: '700' },
   ackDone: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   ackDoneText: { ...type.small, fontSize: 12, color: colors.low, fontWeight: '600' },
-});
+}));

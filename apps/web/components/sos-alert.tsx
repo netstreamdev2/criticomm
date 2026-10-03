@@ -1,0 +1,230 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { AlertTriangle, Clock, MapPin, Radio, Siren, UserRound, Volume2 } from 'lucide-react';
+import { getIncident, type Alert } from '@criticom/api';
+import type { Database } from '@criticom/db';
+import { getBrowserSupabase } from '@/lib/supabase-browser';
+import { LeafletMap } from '@/components/leaflet-map';
+import { cn, timeAgo } from '@/lib/utils';
+
+type Incident = Database['public']['Tables']['incidents']['Row'];
+
+/** One wail is this long; it repeats every SIREN_EVERY_MS until acknowledged. */
+const SIREN_MS = 3200;
+const SIREN_EVERY_MS = 6000;
+/** A forgotten tab must not wail forever. */
+const SIREN_MAX_MS = 5 * 60_000;
+
+/**
+ * A two-tone wail, longer and unlike every other chime in the console, so an
+ * SOS is recognised by ear from across the room. Synthesised (WebAudio), so it
+ * needs no audio file. Browsers only let a page make sound after it has been
+ * clicked once; until then `blocked` is true and the dialog says so.
+ */
+function useSiren(active: boolean) {
+  const ctxRef = useRef<AudioContext | null>(null);
+  const [blocked, setBlocked] = useState(false);
+
+  useEffect(() => {
+    if (!active) return;
+    const Ctor = window.AudioContext
+      ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Ctor) return;
+    const ctx = ctxRef.current ?? new Ctor();
+    ctxRef.current = ctx;
+
+    const wail = () => {
+      if (ctx.state === 'suspended') {
+        void ctx.resume().catch(() => {});
+        setBlocked(ctx.state === 'suspended');
+      }
+      const t0 = ctx.currentTime + 0.02;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      // Up-down sweeps between two pitches, like a police siren.
+      for (let i = 0; i < SIREN_MS / 800; i++) {
+        osc.frequency.setValueAtTime(620, t0 + i * 0.8);
+        osc.frequency.linearRampToValueAtTime(1080, t0 + i * 0.8 + 0.4);
+        osc.frequency.linearRampToValueAtTime(620, t0 + i * 0.8 + 0.8);
+      }
+      gain.gain.setValueAtTime(0.0001, t0);
+      gain.gain.exponentialRampToValueAtTime(0.12, t0 + 0.08);
+      gain.gain.setValueAtTime(0.12, t0 + SIREN_MS / 1000 - 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + SIREN_MS / 1000);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + SIREN_MS / 1000 + 0.05);
+    };
+
+    wail();
+    const started = Date.now();
+    const timer = setInterval(() => {
+      if (Date.now() - started > SIREN_MAX_MS) { clearInterval(timer); return; }
+      wail();
+    }, SIREN_EVERY_MS);
+    return () => clearInterval(timer);
+  }, [active]);
+
+  /** Called on any click in the dialog: lets a blocked siren start. */
+  const unlock = () => {
+    const ctx = ctxRef.current;
+    if (ctx && ctx.state === 'suspended') {
+      void ctx.resume().then(() => setBlocked(false)).catch(() => {});
+    }
+  };
+
+  return { blocked, unlock };
+}
+
+const hasPoint = (i: Incident | null) => Boolean(i && i.location_lat && i.location_lng);
+
+/**
+ * The SOS dialog: an officer pressed the app's SOS button. It blocks the
+ * console with a siren until acknowledged, shows where they are, and leads to
+ * dispatch — the SOS waits in the pending queue until someone sends it out.
+ */
+export function SosAlert({
+  alert, waiting, acking, onAcknowledge,
+}: {
+  alert: Alert;
+  /** Other alerts queued behind this one. */
+  waiting: number;
+  acking: boolean;
+  /** Acknowledge, then optionally go somewhere. */
+  onAcknowledge: (href?: string) => void;
+}) {
+  const [incident, setIncident] = useState<Incident | null>(null);
+  const { blocked, unlock } = useSiren(true);
+
+  useEffect(() => {
+    if (!alert.incident_id) return;
+    void getIncident(getBrowserSupabase(), alert.incident_id).then(setIncident).catch(() => {});
+  }, [alert.incident_id]);
+
+  const raisedAt = incident?.call_timestamp ?? alert.created_at;
+  const lateBy = incident ? new Date(alert.created_at).getTime() - new Date(incident.call_timestamp).getTime() : 0;
+  const sentOffline = lateBy > 30_000;
+  const id = alert.incident_id;
+
+  return (
+    <div
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="sos-title"
+      onPointerDown={unlock}
+      className="fixed inset-0 z-[95] flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
+    >
+      <div className="alert-modal-enter w-full max-w-3xl overflow-hidden rounded-2xl border-2 border-severity-critical bg-bg-card shadow-2xl ring-4 ring-severity-critical/30">
+        {/* Banner */}
+        <div className="flex flex-wrap items-center gap-3 bg-severity-critical px-6 py-4">
+          <Siren className="h-7 w-7 shrink-0 animate-pulse" />
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] opacity-90">SOS · officer emergency</p>
+            <p id="sos-title" className="text-xl font-extrabold leading-tight">{alert.title}</p>
+          </div>
+          {incident ? (
+            <span className="rounded-md bg-black/25 px-2.5 py-1 font-mono text-sm font-bold">{incident.incident_number}</span>
+          ) : null}
+        </div>
+
+        {blocked ? (
+          <button
+            type="button"
+            onClick={unlock}
+            className="flex w-full items-center justify-center gap-2 bg-severity-critical/15 px-4 py-2 text-xs font-semibold text-severity-critical-ink"
+          >
+            <Volume2 className="h-4 w-4" /> Click anywhere to sound the SOS alarm
+          </button>
+        ) : null}
+
+        <div className="grid gap-5 p-6 md:grid-cols-[1.3fr_1fr]">
+          {/* Where */}
+          <div className="overflow-hidden rounded-xl border border-border">
+            {hasPoint(incident) ? (
+              <LeafletMap
+                markers={[{ id: incident!.id, lat: incident!.location_lat, lng: incident!.location_lng, kind: 'critical' }]}
+                center={[incident!.location_lat, incident!.location_lng]}
+                zoom={16}
+                height={280}
+                satellite
+                pin
+              />
+            ) : (
+              <div className="flex h-[280px] flex-col items-center justify-center gap-2 bg-bg-soft p-6 text-center">
+                <MapPin className="h-8 w-8 text-severity-critical-ink" />
+                <p className="font-bold">{incident ? 'Position unknown' : 'Locating…'}</p>
+                {incident ? (
+                  <p className="text-sm text-muted-foreground">Raise the officer on the radio for their location.</p>
+                ) : null}
+              </div>
+            )}
+          </div>
+
+          {/* Who and what */}
+          <div className="space-y-3 text-sm">
+            <p className="flex items-center gap-2 text-base font-bold">
+              <UserRound className="h-4 w-4 text-severity-critical-ink" />
+              {alert.created_by_name ?? incident?.responding_officer ?? 'Officer'}
+            </p>
+            {alert.body ? (
+              <p className="flex items-start gap-2 text-muted-foreground">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{alert.body}</span>
+              </p>
+            ) : null}
+            {incident?.notes ? (
+              <p className="flex items-start gap-2 rounded-lg border border-severity-medium/40 bg-severity-medium/10 px-3 py-2 text-xs">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-severity-medium-ink" />
+                <span>{incident.notes}</span>
+              </p>
+            ) : null}
+            <p className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Clock className="h-3.5 w-3.5" />
+              Raised {new Date(raisedAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              {' '}({timeAgo(raisedAt)})
+              {sentOffline ? <span className="font-semibold text-severity-medium-ink">· sent offline, arrived late</span> : null}
+            </p>
+            <p className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Radio className="h-3.5 w-3.5" />
+              Waiting in the dispatch queue — send it to officers on duty or assign it.
+            </p>
+            {waiting > 0 ? <p className="text-xs font-semibold">+{waiting} more alert{waiting === 1 ? '' : 's'} waiting</p> : null}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-border px-6 py-4 sm:flex-row">
+          {id ? (
+            <button
+              type="button"
+              disabled={acking}
+              onClick={() => onAcknowledge(`/dispatch/assign/${id}`)}
+              className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-severity-critical text-sm font-extrabold uppercase tracking-wider disabled:opacity-60"
+            >
+              <Siren className="h-4 w-4" /> Dispatch SOS
+            </button>
+          ) : null}
+          {id ? (
+            <button
+              type="button"
+              disabled={acking}
+              onClick={() => onAcknowledge(`/incidents/${id}`)}
+              className="h-12 rounded-lg border border-border px-5 text-sm font-semibold hover:bg-muted disabled:opacity-60"
+            >
+              Open incident
+            </button>
+          ) : null}
+          <button
+            type="button"
+            disabled={acking}
+            onClick={() => onAcknowledge()}
+            className={cn('h-12 rounded-lg border border-border px-5 text-sm font-semibold hover:bg-muted disabled:opacity-60', !id && 'flex-1')}
+          >
+            Acknowledge
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

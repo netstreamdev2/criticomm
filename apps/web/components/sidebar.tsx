@@ -205,6 +205,39 @@ const DISPATCHER_GROUPS: NavGroup[] = [
   },
 ];
 
+// The intake desk (Operations Manual ch. 10): Log Incoming Call is the primary
+// screen, everything else is look-up and self-service. No dispatch queue —
+// routing is the dispatch desk's job.
+const INCIDENT_LOGGER_GROUPS: NavGroup[] = [
+  { id: 'logger-intake', label: 'Call Intake', items: [
+    adminLink('/dispatch/log-call', 'Log Incoming Call'),
+    adminLink('/dashboard', 'Intake Dashboard'),
+  ] },
+  { id: 'logger-incidents', label: 'Incidents', items: [
+    adminLink('/incidents', 'Incidents'),
+    adminLink('/incidents/map', 'Live Map'),
+    adminLink('/case-manager', 'Case Manager'),
+  ] },
+  { id: 'logger-monitoring', label: 'Monitoring', items: [
+    adminLink('/cameras', 'Surveillance'),
+    adminLink('/cameras/footage', 'CCTV Footage'),
+  ] },
+  { id: 'logger-reports', label: 'Reports', items: [
+    adminLink('/report-hub', 'Report Hub'),
+    adminLink('/reports', 'Reports'),
+    adminLink('/reports/builder', 'Report Builder'),
+  ] },
+  { id: 'logger-account', label: 'My Work', items: [
+    adminLink('/roster/mine', 'My Schedule'),
+    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/leave', 'Leave'),
+    adminLink('/performance/mine', 'My Performance'),
+    adminLink('/hierarchy', 'Hierarchy'),
+    adminLink('/notifications', 'Notifications'),
+    adminLink('/profile', 'My Profile'),
+  ] },
+];
+
 const SYSTEM_CONTROLLER_GROUPS: NavGroup[] = [
   { id: 'controller-command', label: 'Command', items: [
     adminLink('/command', 'Command Centre'),
@@ -276,6 +309,7 @@ function NavList({
       : role === 'Captain' ? CAPTAIN_GROUPS
       : ['Police', 'Officer', 'Metro'].includes(role) ? POLICE_OFFICER_GROUPS
       : role === 'Dispatcher' ? DISPATCHER_GROUPS
+      : role === 'IncidentLogger' ? INCIDENT_LOGGER_GROUPS
       : role === 'SystemController' ? SYSTEM_CONTROLLER_GROUPS : NAV_GROUPS;
     return sourceGroups.map((g) => ({
       ...g,

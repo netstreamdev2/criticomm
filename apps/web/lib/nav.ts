@@ -56,6 +56,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/responder', label: 'My Incidents', icon: Radio, keywords: 'assigned jobs my unit' },
       { href: '/shift/mental-check', label: 'Start of Shift', icon: ClipboardCheck, keywords: 'readiness vehicle check on duty' },
       { href: '/shift/unit-compliance', label: 'Unit Compliance', icon: Gauge, keywords: 'checks today' },
+      { href: '/shift/readiness-review', label: 'Readiness Review', icon: ClipboardCheck, keywords: 'officer mental check answers audit history' },
       { href: '/performance/mine', label: 'My Performance', icon: Target, keywords: 'kpi appraisal score' },
     ],
   },

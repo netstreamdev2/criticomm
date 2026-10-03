@@ -41,6 +41,9 @@ export const logIncomingCallSchema = z.object({
   patient_name: z.string().optional().nullable(),
   number_of_victims: z.number().int().nonnegative().optional().nullable(),
   notes: z.string().optional().nullable(),
+  /** The category group the 10-code belongs to. */
+  incident_category: z.string().optional().nullable(),
+  region: z.string().optional().nullable(),
 });
 
 export type LogIncomingCallInput = z.infer<typeof logIncomingCallSchema>;

@@ -1,10 +1,15 @@
 import { notFound } from 'next/navigation';
-import { getIncident, getIncidentUpdates, listIncidentAttachments, listAuditLogs } from '@criticom/api';
+import { FileText, Lock } from 'lucide-react';
+import {
+  getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listIncidentAttachments, listIncidentResponders,
+  signIncidentMedia,
+} from '@criticom/api';
 import { CASE_MANAGER_ROLES } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
+import { PoliceReportCard } from './report-card';
 import {
   addUpdateAction, closeCaseAction, requestCitizenLocationAction, setStatusAction,
 } from './actions';
@@ -24,11 +29,20 @@ export default async function IncidentDetailPage({
 
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) notFound();
-  const [updates, attachments, audit] = await Promise.all([
+  const [updates, attachments, audit, report, responders] = await Promise.all([
     getIncidentUpdates(supabase, id),
     listIncidentAttachments(supabase, id),
-    listAuditLogs(supabase, { entityType: 'incident', entityId: id, limit: 200 }).catch(() => []),
+    // Console actions log as 'incident', server RPCs as 'incidents' — the id is enough.
+    listAuditLogs(supabase, { entityId: id, limit: 200 }).catch(() => []),
+    getIncidentReport(supabase, id).catch(() => null),
+    listIncidentResponders(supabase, id).catch(() => []),
   ]);
+  const media = await signIncidentMedia(supabase, attachments.map((a) => a.storage_path)).catch(
+    () => new Map<string, string>(),
+  );
+  const photos = attachments.filter((a) => a.kind === 'image');
+  const voiceNotes = attachments.filter((a) => a.kind === 'audio');
+  const otherFiles = attachments.filter((a) => a.kind !== 'image' && a.kind !== 'audio');
 
   const isClosed = incident.status === 'Closed' || incident.status === 'Resolved';
   const canClose = CASE_MANAGER_ROLES.includes(role);
@@ -38,7 +52,10 @@ export default async function IncidentDetailPage({
     { label: 'Call received', at: incident.call_timestamp },
     { label: 'Incident created', at: incident.incident_created_at },
     { label: 'Unit dispatched', at: incident.dispatch_time },
+    { label: 'Assigned', at: incident.assigned_at },
+    { label: 'Lead responding · en route', at: incident.accepted_at },
     { label: 'Arrived on scene', at: incident.arrived_timestamp },
+    { label: 'Report filed · resolved', at: incident.report_filed_at ?? incident.resolved_at },
     { label: 'Closed', at: incident.closed_at },
   ];
 
@@ -117,7 +134,41 @@ export default async function IncidentDetailPage({
             {incident.notes && (
               <div className="sm:col-span-2"><p className="text-xs uppercase text-muted-foreground">Notes</p><p>{incident.notes}</p></div>
             )}
-            <div><p className="text-xs uppercase text-muted-foreground">Responding officer</p><p>{incident.responding_officer ?? '—'}</p></div>
+            <div><p className="text-xs uppercase text-muted-foreground">Dispatched by</p><p>{incident.dispatched_by ?? '—'}</p></div>
+            <div>
+              <p className="text-xs uppercase text-muted-foreground">Assigned to</p>
+              <p>
+                {incident.assigned_to_name ?? (incident.dispatch_time ? 'Sent to all on duty' : '—')}
+                {incident.assigned_at ? (
+                  <span className="text-muted-foreground"> · {formatSaTime(incident.assigned_at)}</span>
+                ) : null}
+              </p>
+            </div>
+            <div className="sm:col-span-2">
+              <p className="text-xs uppercase text-muted-foreground">Responding ({responders.length})</p>
+              {responders.length === 0 ? (
+                <p>—</p>
+              ) : (
+                <ul className="mt-1 flex flex-wrap gap-2">
+                  {responders.map((r) => (
+                    <li
+                      key={r.user_id}
+                      className={`inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-sm ${
+                        r.role === 'lead' ? 'border-accent/50 bg-accent/10' : 'border-border bg-bg-soft'
+                      }`}
+                    >
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                        {r.role === 'lead' ? 'Lead' : 'Backup'}
+                      </span>
+                      <span className="font-semibold">{r.name ?? 'Officer'}</span>
+                      <span className="status-badge" data-status={r.status}>{r.status}</span>
+                      <span className="text-xs text-muted-foreground">{formatSaTime(r.joined_at)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div><p className="text-xs uppercase text-muted-foreground">Unit status</p><p>{incident.unit_status ?? '—'}</p></div>
             <div><p className="text-xs uppercase text-muted-foreground">Unit type</p><p>{incident.unit_type ?? '—'}</p></div>
             {incident.number_of_victims != null && (
               <div><p className="text-xs uppercase text-muted-foreground">Victims</p><p>{incident.number_of_victims}</p></div>
@@ -229,27 +280,94 @@ export default async function IncidentDetailPage({
 
         <Card>
           <CardHeader>
-            <CardTitle>Evidence ({attachments.length})</CardTitle>
-            <CardDescription>Images, audio and documents uploaded from the scene.</CardDescription>
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <CardTitle>Evidence ({attachments.length})</CardTitle>
+                <CardDescription>Photos, voice notes and files captured at the scene.</CardDescription>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg-soft px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+                <Lock className="h-3 w-3" /> Cannot be deleted
+              </span>
+            </div>
           </CardHeader>
-          <CardContent>
-            <ul className="space-y-2 text-sm">
-              {attachments.length === 0 && <li className="text-muted-foreground">No attachments.</li>}
-              {attachments.map((a) => (
-                <li key={a.id} className="flex items-center justify-between rounded-md border border-border/60 bg-bg-soft p-3">
-                  <div>
-                    <p className="font-mono text-xs">{a.storage_path.split('/').pop()}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {a.kind} · {a.uploaded_by_name ?? 'Unknown'} · {formatSaTime(a.created_at)}
-                    </p>
-                  </div>
-                  <span className="rounded bg-muted px-2 py-0.5 text-xs uppercase">{a.kind}</span>
-                </li>
-              ))}
-            </ul>
+          <CardContent className="space-y-4 text-sm">
+            {attachments.length === 0 && <p className="text-muted-foreground">No attachments.</p>}
+
+            {photos.length > 0 && (
+              <div>
+                <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Photos ({photos.length}/10)
+                </p>
+                <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {photos.map((a) => {
+                    const url = media.get(a.storage_path);
+                    return (
+                      <li key={a.id}>
+                        <a
+                          href={url ?? '#'}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`${a.uploaded_by_name ?? 'Unknown'} · ${formatSaTime(a.created_at)}`}
+                          className="block aspect-square overflow-hidden rounded-md border border-border/60 bg-bg-soft"
+                        >
+                          {url ? (
+                            <img src={url} alt={a.caption ?? 'Scene photo'} className="h-full w-full object-cover" loading="lazy" />
+                          ) : (
+                            <span className="flex h-full items-center justify-center text-xs text-muted-foreground">Unavailable</span>
+                          )}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+
+            {voiceNotes.length > 0 && (
+              <div>
+                <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Voice notes ({voiceNotes.length})
+                </p>
+                <ul className="space-y-2">
+                  {voiceNotes.map((a) => {
+                    const url = media.get(a.storage_path);
+                    return (
+                      <li key={a.id} className="rounded-md border border-border/60 bg-bg-soft p-2.5">
+                        {/* biome-ignore lint/a11y/useMediaCaption: field voice notes have no transcript */}
+                        {url ? <audio controls preload="none" src={url} className="h-9 w-full" /> : null}
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {a.uploaded_by_name ?? 'Unknown'} · {formatSaTime(a.created_at)}
+                        </p>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+
+            {otherFiles.length > 0 && (
+              <ul className="space-y-2">
+                {otherFiles.map((a) => (
+                  <li key={a.id} className="flex items-center gap-2 rounded-md border border-border/60 bg-bg-soft p-3">
+                    <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0 flex-1">
+                      <a href={media.get(a.storage_path) ?? '#'} target="_blank" rel="noreferrer" className="block truncate font-mono text-xs hover:underline">
+                        {a.caption ?? a.storage_path.split('/').pop()}
+                      </a>
+                      <p className="text-xs text-muted-foreground">
+                        {a.uploaded_by_name ?? 'Unknown'} · {formatSaTime(a.created_at)}
+                      </p>
+                    </div>
+                    <span className="rounded bg-muted px-2 py-0.5 text-xs uppercase">{a.kind}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      {report ? <PoliceReportCard report={report} /> : null}
 
       {/* Complete life of the incident, newest first */}
       <Card>

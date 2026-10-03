@@ -1,0 +1,243 @@
+import type { IncidentStatus } from '@criticom/db/types';
+
+/**
+ * How a crew works a call, with no dependencies so it can be tested.
+ *
+ * A police call is closed by its case report, not by a status: the lead
+ * goes En Route (responding), On Scene, then files the report — the server
+ * resolves the call when the report lands (migration 0039) and refuses a bare
+ * "Resolved" from the field. Other services keep the full ladder.
+ */
+
+/** Photos per case file; the server enforces the same number. */
+export const MAX_PHOTOS = 10;
+
+type CallLike = {
+  silo: string;
+  dispatched_silos?: readonly string[] | null;
+  report_filed_at?: string | null;
+};
+
+export function isPoliceCall(call: CallLike) {
+  return call.silo === 'MetroPolice' || (call.dispatched_silos ?? []).includes('MetroPolice');
+}
+
+export type NextStep =
+  | { kind: 'status'; status: IncidentStatus; label: string }
+  | { kind: 'report'; label: string }
+  | null;
+
+const POLICE_LADDER: Partial<Record<IncidentStatus, IncidentStatus>> = {
+  Dispatched: 'En Route',
+  'En Route': 'On Scene',
+  Arrived: 'On Scene',
+};
+
+const LADDER: Partial<Record<IncidentStatus, IncidentStatus>> = {
+  Dispatched: 'En Route',
+  'En Route': 'Arrived',
+  Arrived: 'On Scene',
+  'On Scene': 'Transporting',
+  Transporting: 'Resolved',
+};
+
+/** The one action the crew takes next on this call, if any. */
+export function nextStep(call: CallLike, status: IncidentStatus): NextStep {
+  if (status === 'Resolved' || status === 'Closed') return null;
+  if (isPoliceCall(call)) {
+    if (call.report_filed_at) return null;
+    if (status === 'On Scene' || status === 'Transporting') {
+      return { kind: 'report', label: 'File incident report' };
+    }
+    const to = POLICE_LADDER[status];
+    return to ? { kind: 'status', status: to, label: to === 'En Route' ? 'Accept · Mark En Route' : `Mark ${to}` } : null;
+  }
+  const to = LADDER[status];
+  return to ? { kind: 'status', status: to, label: `Mark ${to}` } : null;
+}
+
+/** Statuses before a call has been sent out to anyone. */
+const NOT_SENT: readonly string[] = ['New', 'Pending', 'Pending Dispatch', 'Pending Analysis'];
+
+export type Responder = {
+  user_id: string;
+  name: string | null;
+  role: 'lead' | 'backup';
+  status: IncidentStatus;
+};
+
+export type FieldCall = CallLike & {
+  id: string;
+  status: IncidentStatus;
+  assigned_to?: string | null;
+  assigned_to_name?: string | null;
+  accepted_by?: string | null;
+  responding_officer?: string | null;
+  responders?: readonly Responder[] | null;
+  /** 'Responder-Panic' for an officer's SOS; with created_by, who raised it. */
+  source?: string | null;
+  created_by?: string | null;
+};
+
+/** Who holds the call, from where I stand. */
+export type Assignment =
+  | { kind: 'you' }
+  | { kind: 'other'; name: string }
+  | { kind: 'open' };
+
+export type CallAction =
+  | { kind: 'respond'; asLead: boolean; label: string }
+  | { kind: 'status'; status: IncidentStatus; label: string }
+  | { kind: 'report'; label: string };
+
+export type CallView = {
+  /** My place on the call, if I am responding. */
+  role: 'lead' | 'backup' | null;
+  /** My own status: the call's for the lead, my row's for backup. */
+  myStatus: IncidentStatus | null;
+  assignment: Assignment;
+  lead: Responder | null;
+  backups: Responder[];
+  /** The one thing I can do next, if anything. */
+  action: CallAction | null;
+  /** Why the action cannot be taken right now (shown, button disabled). */
+  blocked: string | null;
+  /** Why there is no action at all, when that is worth saying. */
+  note: string | null;
+  /** My own SOS: I am the one help is being sent to. */
+  ownSos: boolean;
+};
+
+/**
+ * Everything the phone shows about a call for this officer (migration 0042):
+ * the assigned officer, or the first to respond to a send-to-all call, leads
+ * it; anyone else it was sent to may respond as backup. An officer may hold
+ * several calls. `queued` is a status set on this phone that has not reached
+ * the server yet — it counts, so the screen shows what the officer did.
+ */
+export function callView(
+  call: FieldCall,
+  me: { userId: string; silo: string; onDuty: boolean | null },
+  queued: IncidentStatus | null = null,
+): CallView {
+  const responders = call.responders ?? [];
+  const lead: Responder | null = responders.find((r) => r.role === 'lead')
+    ?? (call.accepted_by
+      ? { user_id: call.accepted_by, name: call.responding_officer ?? null, role: 'lead', status: call.status }
+      : null);
+  const backups = responders.filter((r) => r.role === 'backup');
+  const assignedToMe = call.assigned_to === me.userId;
+
+  let mine = responders.find((r) => r.user_id === me.userId)
+    ?? (lead?.user_id === me.userId ? lead : null);
+  if (!mine && queued) {
+    // Responded offline: the server will decide, this is its rule.
+    const asLead = !lead && (!call.assigned_to || assignedToMe);
+    mine = { user_id: me.userId, name: null, role: asLead ? 'lead' : 'backup', status: queued };
+  }
+  const role = mine?.role ?? null;
+  const myStatus: IncidentStatus | null = role === 'lead'
+    ? (queued ?? call.status)
+    : role === 'backup' ? (queued ?? mine?.status ?? null) : null;
+
+  const assignment: Assignment = lead?.user_id === me.userId || (assignedToMe && !lead)
+    ? { kind: 'you' }
+    : lead
+      ? { kind: 'other', name: lead.name ?? 'another officer' }
+      : call.assigned_to
+        ? { kind: 'other', name: call.assigned_to_name ?? 'another officer' }
+        : { kind: 'open' };
+
+  const ownSos = call.source === 'Responder-Panic' && call.created_by === me.userId;
+  const view: CallView = { role, myStatus, assignment, lead, backups, action: null, blocked: null, note: null, ownSos };
+  if (call.status === 'Resolved' || call.status === 'Closed') return view;
+  // The officer in trouble never responds to their own SOS (migration 0044).
+  if (ownSos) {
+    view.note = 'This is your SOS — dispatch is sending help to you.';
+    return view;
+  }
+
+  if (role === 'lead' && myStatus) {
+    const step = nextStep(call, myStatus);
+    view.action = step;
+    return view;
+  }
+  if (role === 'backup') {
+    if (myStatus === 'En Route') view.action = { kind: 'status', status: 'On Scene', label: 'Mark On Scene' };
+    else view.note = 'You are backup on this incident — the lead officer files the report.';
+    return view;
+  }
+
+  const sentToMe = assignedToMe
+    || (!NOT_SENT.includes(call.status) && (call.dispatched_silos ?? []).includes(me.silo));
+  if (!sentToMe) {
+    view.note = 'View only — this incident was not sent to your department.';
+    return view;
+  }
+  const asLead = !lead && (!call.assigned_to || assignedToMe);
+  view.action = { kind: 'respond', asLead, label: 'Responding' };
+  if (me.onDuty === false) view.blocked = 'Go on duty to respond to incidents.';
+  return view;
+}
+
+/** What the officer is doing right now, for the home screen. */
+export type Activity =
+  | { kind: 'idle' }
+  | { kind: 'en_route' | 'on_scene' | 'transporting' | 'reporting'; incidentId: string; incidentNumber: string }
+  /** Dispatch assigned it to me and I have not pressed Responding yet. */
+  | { kind: 'assigned'; incidentId: string; incidentNumber: string; count: number };
+
+/**
+ * No open call is idle. With one, the report being written (screen open, or
+ * filed and still in the outbox) outranks the call's status, which otherwise
+ * maps onto the ladder: accepted is en route, arrived is on scene.
+ */
+export function activityOf(
+  call: { id: string; incident_number: string; status: IncidentStatus | null } | null,
+  reporting: boolean,
+): Activity {
+  if (!call) return { kind: 'idle' };
+  const at = { incidentId: call.id, incidentNumber: call.incident_number };
+  if (reporting) return { kind: 'reporting', ...at };
+  switch (call.status) {
+    case 'Arrived':
+    case 'On Scene':
+      return { kind: 'on_scene', ...at };
+    case 'Transporting':
+      return { kind: 'transporting', ...at };
+    default:
+      return { kind: 'en_route', ...at };
+  }
+}
+
+const ACTIVITY_RANK: Record<Activity['kind'], number> = {
+  reporting: 0, on_scene: 1, transporting: 2, en_route: 3, assigned: 4, idle: 9,
+};
+
+/**
+ * With several incidents, the home screen shows the most pressing: writing a
+ * report, then on scene, transporting, en route. Incidents assigned to me that
+ * I have not responded to yet replace "idle" — never the work in hand.
+ * `awaiting` is newest first; the chip points at the newest.
+ */
+export function pickActivity(
+  calls: ReadonlyArray<{ id: string; incident_number: string; status: IncidentStatus | null }>,
+  reporting: (id: string) => boolean,
+  awaiting: ReadonlyArray<{ id: string; incident_number: string }> = [],
+): Activity {
+  let best: Activity = { kind: 'idle' };
+  for (const call of calls) {
+    const a = activityOf(call, reporting(call.id));
+    if (ACTIVITY_RANK[a.kind] < ACTIVITY_RANK[best.kind]) best = a;
+  }
+  const [next] = awaiting;
+  if (best.kind === 'idle' && next) {
+    return { kind: 'assigned', incidentId: next.id, incidentNumber: next.incident_number, count: awaiting.length };
+  }
+  return best;
+}
+
+/** Photos left to take, counting those still waiting in the outbox. */
+export function photosRemaining(filed: number, queued: number) {
+  return Math.max(0, MAX_PHOTOS - filed - queued);
+}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Ambulance, ArrowLeft, Flame, Loader2, MapPin, Megaphone, Paperclip, Phone,
-  Radio, Shield, Siren, Timer, Waves, Zap,
+  Radio, Shield, Siren, Timer, Waves,
 } from 'lucide-react';
 import {
   checkDuplicateIncident, logIncomingCall, routeIncident, uploadIncidentEvidence,
@@ -51,43 +51,21 @@ const MED_PRIORITIES = [
 export type IntakeTuning = {
   clockWarnSeconds: number;
   clockCriticalSeconds: number;
-  etaSpeedKmh: number;
-  etaRoadFactor: number;
 };
-const DEFAULT_TUNING: IntakeTuning = {
-  clockWarnSeconds: 90, clockCriticalSeconds: 180, etaSpeedKmh: 42, etaRoadFactor: 1.35,
-};
-
-const DEPOT: Record<Department, [number, number]> = {
-  // Approximate departmental control points around the metro.
-  MetroPolice: [-29.8579, 31.0292],
-  MetroFire: [-29.8489, 31.0181],
-  Medical: [-29.8687, 31.0104],
-  EthekwiniDisaster: [-29.7830, 30.9950],
-};
+const DEFAULT_TUNING: IntakeTuning = { clockWarnSeconds: 90, clockCriticalSeconds: 180 };
 
 const pad = (n: number) => String(n).padStart(2, '0');
-const fmtStamp = (d: Date, ms = false) =>
-  `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ` +
-  `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}` +
-  `${ms ? `,${String(d.getMilliseconds()).padStart(3, '0')}` : ''}`;
 
-/** Great-circle distance in km. Good enough for a first-cut ETA. */
-function haversineKm(a: [number, number], b: [number, number]) {
-  const R = 6371;
-  const dLat = ((b[0] - a[0]) * Math.PI) / 180;
-  const dLng = ((b[1] - a[1]) * Math.PI) / 180;
-  const lat1 = (a[0] * Math.PI) / 180;
-  const lat2 = (b[0] * Math.PI) / 180;
-  const h = Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
+// The incident number, call time and creation time are all set by the server
+// when the call is logged (Operations Manual 22.1). The form shows none of
+// them beforehand: a preview number or a browser clock looks authoritative
+// and is not, which is worse than showing nothing. ETAs belong to the Assign
+// screen, measured from real units — not to intake.
 
 export function LogCallForm({
-  defaultSilo, callTaker, canRoute = true, categoryTree = [], tuning = DEFAULT_TUNING,
+  defaultSilo, canRoute = true, categoryTree = [], tuning = DEFAULT_TUNING,
 }: {
   defaultSilo: Silo;
-  callTaker?: string;
   /** False for pure call-takers: they queue for the dispatch desk, never route. */
   canRoute?: boolean;
   categoryTree?: CategoryTree;
@@ -99,25 +77,12 @@ export function LogCallForm({
   const [error, setError] = useState<string | null>(null);
   const [duplicate, setDuplicate] = useState<{ reason: string; incident_number: string } | null>(null);
 
-  /* ── Live SLA timer + generated identifiers ─────────────────────── */
+  /* ── Intake clock: runs from the moment the screen opens ────────── */
   const [elapsed, setElapsed] = useState(0);
-  const [ids, setIds] = useState({ incidentId: '', callTs: '', createdTs: '' });
-  const [execTime, setExecTime] = useState('');
 
   useEffect(() => {
-    const now = new Date();
-    const stamp =
-      `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-` +
-      `${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
-    setIds({
-      incidentId: `INC-${stamp}`,
-      callTs: fmtStamp(now),
-      createdTs: fmtStamp(now),
-    });
-    const t = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - now.getTime()) / 1000));
-      setExecTime(fmtStamp(new Date(), true));
-    }, 1000);
+    const openedAt = Date.now();
+    const t = setInterval(() => setElapsed(Math.floor((Date.now() - openedAt) / 1000)), 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -143,7 +108,9 @@ export function LogCallForm({
   const [region, setRegion] = useState('');
   const [incidentType, setIncidentType] = useState('');
   const [category, setCategory] = useState('');
-  const [severity, setSeverity] = useState<(typeof SEVERITIES)[number]>('Medium');
+  // No default: severity decides whether crews get a toast or a blocking
+  // interrupt, so it is chosen deliberately on every call.
+  const [severity, setSeverity] = useState<(typeof SEVERITIES)[number] | null>(null);
   const [emsNotRequired, setEmsNotRequired] = useState(false);
   const [victims, setVictims] = useState('');
   const [medPriority, setMedPriority] = useState('');
@@ -152,18 +119,13 @@ export function LogCallForm({
 
   /* ── Routing ────────────────────────────────────────────────────── */
   const [targets, setTargets] = useState<Department[]>(lockedSilo ? [initialDept] : []);
-  const [eta, setEta] = useState<string | null>(null);
-  const [etaRouted, setEtaRouted] = useState(true);
-  const [etaBusy, setEtaBusy] = useState(false);
 
   const toggleTarget = (id: Department) => {
     setTargets((cur) => (cur.includes(id) ? cur.filter((s) => s !== id) : [...cur, id]));
-    setEta(null);
   };
   const broadcastAll = () => {
     setTargets(DEPARTMENTS.map((d) => d.id));
     setSeverity('Critical');
-    setEta(null);
     toast.push({
       title: 'Broadcast armed',
       body: 'All four departments will be alerted on dispatch.',
@@ -214,7 +176,6 @@ export function LogCallForm({
   const onPickPoint = useCallback(async ({ lat: la, lng: ln }: { lat: number; lng: number }) => {
     setLat(la);
     setLng(ln);
-    setEta(null);
     try {
       const res = await fetch(`/api/geocode?lat=${la}&lng=${ln}`);
       const data = (await res.json()) as { results?: typeof suggestions };
@@ -265,44 +226,6 @@ export function LogCallForm({
     window.location.href = `tel:${phone.replace(/\s+/g, '')}`;
   };
 
-  const calculateEta = async () => {
-    if (lat === null || lng === null) {
-      setError('Place the scene on the map before calculating an ETA.');
-      return;
-    }
-    if (targets.length === 0) {
-      setError('Select at least one department to calculate an ETA.');
-      return;
-    }
-    setError(null);
-    setEtaBusy(true);
-    try {
-      // Road-routed via OSRM per department; a routing outage degrades to the
-      // tunable straight-line model rather than failing.
-      let anyFallback = false;
-      const legs = await Promise.all(targets.map(async (t) => {
-        const [depotLat, depotLng] = DEPOT[t];
-        try {
-          const res = await fetch(
-            `/api/route?fromLat=${depotLat}&fromLng=${depotLng}&toLat=${lat}&toLng=${lng}`,
-          );
-          const data = (await res.json()) as { routed?: boolean; minutes?: number; km?: number };
-          if (data.routed && data.minutes) {
-            return `${SILO_LABELS[t]} ≈ ${data.minutes} min (${data.km} km)`;
-          }
-        } catch { /* fall through to the straight-line model */ }
-        anyFallback = true;
-        const km = haversineKm(DEPOT[t], [lat, lng]);
-        const minutes = Math.max(2, Math.round(((km * tuning.etaRoadFactor) / tuning.etaSpeedKmh) * 60));
-        return `${SILO_LABELS[t]} ≈ ${minutes} min (${km.toFixed(1)} km)*`;
-      }));
-      setEtaRouted(!anyFallback);
-      setEta(legs.join('  ·  '));
-    } finally {
-      setEtaBusy(false);
-    }
-  };
-
   /* ── Submit ─────────────────────────────────────────────────────── */
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -313,15 +236,21 @@ export function LogCallForm({
     if (!incidentType) return setError('Select an incident code.');
     if (!description.trim()) return setError('Call description is required.');
     if (!address.trim()) return setError('Location address is required.');
+    if (lat === null || lng === null) {
+      return setError('Place the scene on the map — pick an address suggestion or click the map.');
+    }
+    if (!region) return setError('Select the region.');
+    if (!severity) return setError('Select the incident severity.');
 
     // With departments selected (dispatch-desk chairs), the call routes on
     // submit. Without — a pure call-taker's flow — it lands in the pending
-    // queue for the dispatcher to route. The owning silo is the first
-    // department selected, falling back to the call-taker's own silo.
+    // queue for the dispatcher to route, filed under the call-taker's own
+    // department (Operations Manual 22.1 step 10). For the control room that
+    // is Ethekwini, so an unrouted call is visible to the control room and the
+    // dispatch desk only — not to every officer in whichever service the form
+    // happened to default to.
     const routing = canRoute && targets.length > 0;
-    const owner = routing
-      ? targets[0]!
-      : (defaultSilo === 'Ethekwini' ? 'MetroPolice' : defaultSilo) as Department;
+    const owner: Silo = routing ? targets[0]! : defaultSilo;
     const payload: LogIncomingCallInput = {
       silo: owner,
       caller_name: callerName.trim(),
@@ -330,8 +259,8 @@ export function LogCallForm({
       incident_type: incidentType,
       incident_severity: severity,
       location_address: address.trim(),
-      location_lat: lat ?? 0,
-      location_lng: lng ?? 0,
+      location_lat: lat,
+      location_lng: lng,
       suburb: suburb.trim() || null,
       city: city.trim() || null,
       postal_code: postal.trim() || null,
@@ -341,18 +270,16 @@ export function LogCallForm({
         : null,
       medical_type: emsNotRequired ? 'EMS Not Required' : (medPriority || null),
       notes: notes.trim() || null,
+      // Stamped by log_incoming_call in the same transaction (migration 0038);
+      // the call-taker's name is taken from their profile on the server.
+      incident_category: category || null,
+      region,
     };
 
     start(async () => {
       try {
         const sb = getBrowserSupabase();
         const incident = await logIncomingCall(sb, payload);
-
-        await sb.from('incidents').update({
-          call_taken_by: callTaker ?? null,
-          incident_category: category || null,
-          region: region || null,
-        }).eq('id', incident.id);
 
         if (file) {
           await uploadIncidentEvidence(sb, {
@@ -375,28 +302,40 @@ export function LogCallForm({
         }
 
         if (routing) {
-          // Fans out to every selected department and pops an alert on their screens.
-          await routeIncident(sb, {
+          // Goes out to every officer on duty in the selected departments;
+          // the first to respond leads, others may back up (0040, 0042).
+          const routed = await routeIncident(sb, {
             incident_id: incident.id,
             silos: targets,
             notes: notes.trim() || null,
-          });
+          }).then(() => null, (e: Error) => e.message);
 
-          // Realtime already reached every open screen; this reaches the
-          // phones that are locked. Fire-and-forget — a push failure is not
-          // a dispatch failure.
-          void fetch('/api/push/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ incidentId: incident.id, silos: targets }),
-          }).catch(() => {});
+          if (routed) {
+            // The call is logged either way — most often nobody is on duty.
+            // Say so rather than failing the form, which invites a duplicate.
+            toast.push({
+              title: `${incident.incident_number} logged — not dispatched`,
+              body: `${routed} It is in the pending queue.`,
+              tone: 'warning',
+              badge: severity,
+            });
+          } else {
+            // Realtime already reached every open phone; this reaches the
+            // locked ones. Fire-and-forget — a push failure is not a
+            // dispatch failure.
+            void fetch('/api/push/notify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ incidentId: incident.id, silos: targets }),
+            }).catch(() => {});
 
-          toast.push({
-            title: `${incident.incident_number} dispatched`,
-            body: `${targets.map((t) => SILO_LABELS[t]).join(', ')} alerted.`,
-            tone: 'success',
-            badge: severity,
-          });
+            toast.push({
+              title: `${incident.incident_number} dispatched`,
+              body: `Sent to everyone on duty in ${targets.map((t) => SILO_LABELS[t]).join(', ')}.`,
+              tone: 'success',
+              badge: severity,
+            });
+          }
         } else {
           // The intake desk's flow: log it and hand it to the dispatcher.
           toast.push({
@@ -419,7 +358,6 @@ export function LogCallForm({
     'h-11 w-full rounded-lg border border-border bg-bg-soft px-3 text-sm text-fg ' +
     'placeholder:text-muted-foreground/60 transition-colors focus:border-accent focus:outline-none ' +
     'focus:ring-2 focus:ring-accent/25';
-  const readOnlyField = `${field} cursor-not-allowed bg-muted/40 font-mono text-xs text-muted-foreground`;
 
   return (
     <form onSubmit={onSubmit} className="w-full space-y-5 pb-10">
@@ -465,13 +403,13 @@ export function LogCallForm({
 
             {/* Contact citizen */}
             <div>
-              <label className={label}>Contact citizen</label>
+              <label className={label} htmlFor="callerPhone">Contact citizen</label>
               <div className="flex items-center gap-2">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-soft text-severity-low-ink">
                   <Phone className="h-4 w-4" />
                 </span>
                 <input
-                  className={field} placeholder="e.g. 082 123 4567" inputMode="tel"
+                  id="callerPhone" className={field} placeholder="e.g. 082 123 4567" inputMode="tel"
                   value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={checkDup}
                 />
                 <button
@@ -503,20 +441,16 @@ export function LogCallForm({
               </div>
             </div>
 
-            <div>
-              <label className={label} htmlFor="callTs">Call timestamp</label>
-              <input id="callTs" readOnly className={readOnlyField} value={ids.callTs} />
-            </div>
-
             {/* Map */}
             <div>
-              <label className={label}>
+              <label className={label} htmlFor="address">
                 <span className="inline-flex items-center gap-1.5">
                   <MapPin className="h-3 w-3" /> Incident location
                 </span>
               </label>
               <div className="relative">
                 <input
+                  id="address"
                   className={field}
                   placeholder="Start typing an address…"
                   value={address}
@@ -551,16 +485,16 @@ export function LogCallForm({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={label}>Latitude</label>
+                <label className={label} htmlFor="lat">Latitude</label>
                 <input
-                  className={field} type="number" step="any" placeholder="—"
+                  id="lat" className={field} type="number" step="any" placeholder="—"
                   value={lat ?? ''} onChange={(e) => setLat(e.target.value === '' ? null : Number(e.target.value))}
                 />
               </div>
               <div>
-                <label className={label}>Longitude</label>
+                <label className={label} htmlFor="lng">Longitude</label>
                 <input
-                  className={field} type="number" step="any" placeholder="—"
+                  id="lng" className={field} type="number" step="any" placeholder="—"
                   value={lng ?? ''} onChange={(e) => setLng(e.target.value === '' ? null : Number(e.target.value))}
                 />
               </div>
@@ -568,23 +502,23 @@ export function LogCallForm({
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className={label}>Suburb</label>
-                <input className={field} value={suburb} onChange={(e) => setSuburb(e.target.value)} />
+                <label className={label} htmlFor="suburb">Suburb</label>
+                <input id="suburb" className={field} value={suburb} onChange={(e) => setSuburb(e.target.value)} />
               </div>
               <div>
-                <label className={label}>Region</label>
-                <select className={field} value={region} onChange={(e) => setRegion(e.target.value)}>
+                <label className={label} htmlFor="region">Region</label>
+                <select id="region" className={field} value={region} onChange={(e) => setRegion(e.target.value)}>
                   <option value="">Select region…</option>
                   {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
               <div>
-                <label className={label}>City</label>
-                <input className={field} value={city} onChange={(e) => setCity(e.target.value)} />
+                <label className={label} htmlFor="city">City</label>
+                <input id="city" className={field} value={city} onChange={(e) => setCity(e.target.value)} />
               </div>
               <div>
-                <label className={label}>Postal code</label>
-                <input className={field} value={postal} onChange={(e) => setPostal(e.target.value)} />
+                <label className={label} htmlFor="postal">Postal code</label>
+                <input id="postal" className={field} value={postal} onChange={(e) => setPostal(e.target.value)} />
               </div>
             </div>
           </div>
@@ -598,13 +532,8 @@ export function LogCallForm({
 
           <div className="space-y-4 p-5">
             <div>
-              <label className={label}>Incident ID</label>
-              <input readOnly className={readOnlyField} value={ids.incidentId} />
-            </div>
-
-            <div>
-              <label className={label}>Incident type (10-code)</label>
-              <select className={field} value={incidentType} onChange={(e) => onSelectCode(e.target.value)}>
+              <label className={label} htmlFor="incidentType">Incident type (10-code)</label>
+              <select id="incidentType" className={field} value={incidentType} onChange={(e) => onSelectCode(e.target.value)}>
                 <option value="">Select incident code…</option>
                 {codeGroups.map((g) => (
                   <optgroup key={g.id} label={g.name}>
@@ -653,15 +582,15 @@ export function LogCallForm({
 
               <div className={cn('space-y-3', emsNotRequired && 'pointer-events-none opacity-45')}>
                 <div>
-                  <label className={label}>Number of victims</label>
-                  <select className={field} value={victims} onChange={(e) => setVictims(e.target.value)}>
+                  <label className={label} htmlFor="victims">Number of victims</label>
+                  <select id="victims" className={field} value={victims} onChange={(e) => setVictims(e.target.value)}>
                     <option value="">Select count…</option>
                     {VICTIM_COUNTS.map((v) => <option key={v} value={v}>{v}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={label}>Medical severity code</label>
-                  <select className={field} value={medPriority} onChange={(e) => setMedPriority(e.target.value)}>
+                  <label className={label} htmlFor="medPriority">Medical severity code</label>
+                  <select id="medPriority" className={field} value={medPriority} onChange={(e) => setMedPriority(e.target.value)}>
                     <option value="">Select priority…</option>
                     {MED_PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
                   </select>
@@ -669,20 +598,15 @@ export function LogCallForm({
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className={label}>Incident severity</label>
-                <select
-                  className={field} value={severity}
-                  onChange={(e) => setSeverity(e.target.value as (typeof SEVERITIES)[number])}
-                >
-                  {SEVERITIES.map((s) => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={label}>Created at</label>
-                <input readOnly className={readOnlyField} value={ids.createdTs} />
-              </div>
+            <div>
+              <label className={label} htmlFor="severity">Incident severity</label>
+              <select
+                id="severity" className={field} value={severity ?? ''}
+                onChange={(e) => setSeverity(e.target.value as (typeof SEVERITIES)[number])}
+              >
+                <option value="" disabled>Select severity…</option>
+                {SEVERITIES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
             </div>
 
             <div>
@@ -780,37 +704,7 @@ export function LogCallForm({
             </div>
             ) : null}
 
-            <div>
-              <label className={label}>Dispatch execution time</label>
-              <input readOnly className={readOnlyField} value={execTime || ids.createdTs} />
-            </div>
-
-            {eta ? (
-              <p className="flex items-start gap-2 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2.5 text-xs">
-                <Zap className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
-                <span>
-                  <span className="font-semibold">Estimated response:</span> {eta}
-                  <span className="mt-0.5 block text-muted-foreground">
-                    {etaRouted
-                      ? 'Road-routed drive time from departmental control points (OSRM).'
-                      : `* Routing unavailable — straight-line estimate at ${tuning.etaSpeedKmh} km/h with a ${tuning.etaRoadFactor}× road factor.`}
-                  </span>
-                </span>
-              </p>
-            ) : null}
-
-            <div className={cn('grid gap-3', canRoute && 'sm:grid-cols-2')}>
-              {canRoute ? (
-                <button
-                  type="button"
-                  onClick={() => void calculateEta()}
-                  disabled={etaBusy}
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-severity-low text-sm font-bold uppercase tracking-wider transition-opacity hover:opacity-90 disabled:opacity-60"
-                >
-                  {etaBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
-                  {etaBusy ? 'Routing…' : 'Calculate ETA'}
-                </button>
-              ) : null}
+            <div className="grid gap-3">
               <button
                 type="submit"
                 disabled={pending}

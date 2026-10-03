@@ -28,3 +28,7 @@ apps/mobile/dist
 
 # Per-unit render scratch for the manual build.
 docs/wiki/.build
+
+# Local Expo diagnostics and installer
+apps/mobile/.expo-web-check/
+apps/mobile/Expo-Go-*.apk
