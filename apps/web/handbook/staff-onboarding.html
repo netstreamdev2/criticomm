@@ -1,0 +1,1092 @@
+<title>HikTech Staff Invitations</title>
+<!-- handbook:fonts — the app replaces this block with self-hosted fonts (its CSP allows no third-party fonts). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<!-- /handbook:fonts -->
+<style>
+/* Layout: one reading column (~44rem) for the argument, wider exhibit bands (~72rem)
+   where the screens are shown, so the mock-ups read at a realistic size. */
+:root {
+  --bg: #F4F6FB;
+  --surface: #FFFFFF;
+  --ink: #0F1420;
+  --muted: #5A6478;
+  --line: #D6DBE6;
+  --brand: #CD2837;
+  --accent: #2563EB;
+  --ok: #046C4E;   --ok-bg: #E2F3EC;
+  --warn: #8A4504; --warn-bg: #FBEFDC;
+  --crit: #991B1B; --crit-bg: #FBE5E5;
+  --accent-bg: #E6EEFD;
+
+  --font-display: 'Rubik', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+
+  /* The app's own default dark theme — used only inside the screen mock-ups,
+     so they look the same whichever theme this document is read in. */
+  --m-bg: #050510;
+  --m-soft: #0B0B1A;
+  --m-card: #11112A;
+  --m-line: #262648;
+  --m-fg: #FFFFFF;
+  --m-muted: #9CA3AF;
+  --m-primary: #DC3545;
+  --m-accent: #3B82F6;
+  --m-ok: #10B981;
+  --m-warn: #F59E0B;
+  --m-crit: #EF4444;
+  --m-bezel: #1A1A2C;
+
+  /* Printed paper is white whatever the screen theme. */
+  --paper: #FFFFFF;
+  --paper-ink: #14161C;
+  --paper-muted: #5B606B;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #080814; --surface: #10101F; --ink: #EEF0F7; --muted: #9AA3B5; --line: #26263F;
+    --brand: #F25C6E; --accent: #79A6FF;
+    --ok: #4ADE9A; --ok-bg: #0E2A20; --warn: #FBBF24; --warn-bg: #2E2209;
+    --crit: #F98080; --crit-bg: #321216; --accent-bg: #111F3D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080814; --surface: #10101F; --ink: #EEF0F7; --muted: #9AA3B5; --line: #26263F;
+  --brand: #F25C6E; --accent: #79A6FF;
+  --ok: #4ADE9A; --ok-bg: #0E2A20; --warn: #FBBF24; --warn-bg: #2E2209;
+  --crit: #F98080; --crit-bg: #321216; --accent-bg: #111F3D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.page { padding-inline: 16px; padding-block: 2.5rem 4rem; }
+.col { max-width: 44rem; margin-inline: auto; }
+.band { max-width: 72rem; margin-inline: auto; }
+
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.9rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.55rem; font-weight: 600; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; }
+.eyebrow {
+  font-family: var(--font-display); font-size: .75rem; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--brand);
+}
+.lede { font-size: 1.15rem; color: var(--ink); max-width: 40rem; }
+.muted { color: var(--muted); }
+.mono, code { font-family: var(--font-mono); font-size: .86em; }
+code { background: var(--accent-bg); border-radius: 4px; padding: .05rem .3rem; overflow-wrap: anywhere; }
+a { color: var(--accent); }
+
+/* ── Masthead ─────────────────────────────────────── */
+.masthead { display: grid; gap: 1rem; padding-bottom: 2rem; border-bottom: 1px solid var(--line); }
+.meta { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; font-size: .85rem; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+.toc { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .25rem; }
+.toc a {
+  font-size: .82rem; text-decoration: none; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 999px; padding: .2rem .7rem; background: var(--surface);
+}
+.toc a:hover, .toc a:focus-visible { border-color: var(--accent); outline: none; }
+
+section { padding-block: 3rem 0; scroll-margin-top: 1rem; }
+.section-head { display: grid; gap: .6rem; margin-bottom: 1.5rem; }
+.band > .section-head { max-width: 44rem; }
+
+/* ── Journey ─────────────────────────────────────── */
+.journey { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; counter-reset: step;
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr)); }
+.journey li {
+  counter-increment: step; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; padding: 1rem 1rem 1.1rem; display: grid; gap: .35rem; align-content: start;
+}
+.journey li::before {
+  content: counter(step); font-family: var(--font-display); font-weight: 700; font-size: .85rem;
+  width: 1.7rem; height: 1.7rem; border-radius: 50%; display: grid; place-items: center;
+  background: var(--brand); color: #FFFFFF;
+}
+.journey .who { font-size: .8rem; color: var(--muted); }
+.journey li.optional { border-style: dashed; }
+
+/* ── Exhibits ─────────────────────────────────────── */
+.exhibit { display: grid; gap: .6rem; margin-top: 2rem; }
+.exhibit figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .75rem; }
+.exhibit figcaption .tag {
+  font-family: var(--font-display); font-size: .72rem; font-weight: 600; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.exhibit figcaption .where { font-family: var(--font-mono); font-size: .78rem; color: var(--muted); }
+.exhibit .note { font-size: .92rem; color: var(--muted); max-width: 44rem; }
+figure { margin: 0; }
+.example { font-size: .72rem; color: var(--muted); font-style: italic; }
+
+/* ── Mock app screens (app dark theme) ─────────────── */
+.screen {
+  background: var(--m-bg); color: var(--m-fg); font-family: var(--font-display);
+  border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  box-shadow: 0 12px 32px -18px rgba(5, 5, 16, .55);
+  font-size: .88rem; line-height: 1.45;
+}
+.chrome {
+  display: flex; align-items: center; gap: .6rem; padding: .55rem .8rem;
+  background: var(--m-soft); border-bottom: 1px solid var(--m-line);
+}
+.chrome i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--m-line); display: block; }
+.chrome .url {
+  flex: 1; min-width: 0; font-family: var(--font-mono); font-size: .72rem; color: var(--m-muted);
+  background: var(--m-bg); border-radius: 6px; padding: .2rem .6rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.screen-body { padding: 1.25rem; display: grid; gap: 1rem; }
+.m-title { font-size: 1.25rem; font-weight: 700; }
+.m-sub { color: var(--m-muted); font-size: .82rem; }
+.m-card { background: var(--m-card); border: 1px solid var(--m-line); border-radius: 10px; padding: 1rem; display: grid; gap: .8rem; min-width: 0; }
+.m-label { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--m-muted); }
+.m-input {
+  background: var(--m-soft); border: 1px solid var(--m-line); border-radius: 7px;
+  padding: .5rem .7rem; min-height: 2.3rem; display: flex; align-items: center; gap: .5rem; min-width: 0;
+}
+.m-input.focus { border-color: var(--m-accent); box-shadow: 0 0 0 2px rgba(59, 130, 246, .25); }
+.m-input.ok { border-color: var(--m-ok); }
+.m-input .caret { color: var(--m-muted); margin-left: auto; }
+.m-field { display: grid; gap: .35rem; min-width: 0; }
+.m-grid2 { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.m-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  background: var(--m-primary); color: #FFFFFF; font-weight: 600; border-radius: 7px;
+  padding: .55rem 1rem; font-size: .85rem; white-space: nowrap;
+}
+.m-btn.ghost { background: transparent; border: 1px solid var(--m-line); color: var(--m-fg); }
+.m-btn.small { padding: .3rem .65rem; font-size: .75rem; }
+.m-btn.full { width: 100%; }
+.m-chip {
+  display: inline-flex; align-items: center; gap: .3rem; border-radius: 999px; padding: .12rem .55rem;
+  font-size: .72rem; font-weight: 600; white-space: nowrap;
+}
+.m-chip.ok { background: rgba(16, 185, 129, .16); color: var(--m-ok); }
+.m-chip.warn { background: rgba(245, 158, 11, .16); color: var(--m-warn); }
+.m-chip.crit { background: rgba(239, 68, 68, .16); color: var(--m-crit); }
+.m-chip.info { background: rgba(59, 130, 246, .16); color: var(--m-accent); }
+.m-chip.dim { background: rgba(156, 163, 175, .14); color: var(--m-muted); }
+.m-seg { display: flex; flex-wrap: wrap; gap: .3rem; background: var(--m-soft); border: 1px solid var(--m-line); border-radius: 8px; padding: .25rem; }
+.m-seg span { flex: 1; text-align: center; padding: .35rem .5rem; border-radius: 6px; color: var(--m-muted); font-size: .8rem; min-width: 5.5rem; }
+.m-seg span.on { background: var(--m-card); color: var(--m-fg); box-shadow: inset 0 0 0 1px var(--m-line); font-weight: 600; }
+.m-result { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; padding: .6rem .7rem; border-radius: 8px; border: 1px solid var(--m-line); }
+.m-result.on { border-color: var(--m-accent); background: rgba(59, 130, 246, .08); }
+.m-result.off { opacity: .55; }
+.m-result .name { font-weight: 600; }
+.m-result .facts { color: var(--m-muted); font-size: .78rem; }
+.m-result .end { margin-left: auto; }
+.m-tick { display: flex; gap: .55rem; align-items: flex-start; font-size: .82rem; }
+.m-box { width: 1rem; height: 1rem; border-radius: 4px; border: 1.5px solid var(--m-line); flex: 0 0 auto; margin-top: .15rem; display: grid; place-items: center; }
+.m-box.on { background: var(--m-accent); border-color: var(--m-accent); }
+.m-box.on::after { content: ''; width: .45rem; height: .25rem; border-left: 2px solid #FFFFFF; border-bottom: 2px solid #FFFFFF; transform: rotate(-45deg) translateY(-1px); }
+.m-review { border-radius: 8px; padding: .75rem .85rem; background: rgba(59, 130, 246, .1); border: 1px solid rgba(59, 130, 246, .35); font-size: .84rem; }
+.m-warnbox { border-radius: 8px; padding: .7rem .85rem; background: rgba(245, 158, 11, .1); border: 1px solid rgba(245, 158, 11, .35); font-size: .82rem; }
+.m-access { display: flex; flex-wrap: wrap; gap: .35rem; }
+.m-access span { font-size: .72rem; background: var(--m-soft); border: 1px solid var(--m-line); border-radius: 5px; padding: .1rem .45rem; color: var(--m-muted); }
+.m-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.m-link { color: var(--m-accent); font-size: .8rem; }
+
+/* Tables inside mock screens */
+.table-wrap { overflow-x: auto; }
+.m-table { width: 100%; border-collapse: collapse; min-width: 44rem; font-size: .82rem; }
+.m-table th { text-align: left; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--m-muted); font-weight: 600; padding: .55rem .7rem; border-bottom: 1px solid var(--m-line); }
+.m-table td { padding: .65rem .7rem; border-bottom: 1px solid var(--m-line); vertical-align: middle; }
+.m-table td small { display: block; color: var(--m-muted); font-size: .74rem; }
+.m-table tr:last-child td { border-bottom: 0; }
+.m-tabs { display: flex; flex-wrap: wrap; gap: 1.2rem; border-bottom: 1px solid var(--m-line); font-size: .85rem; }
+.m-tabs span { padding-bottom: .5rem; color: var(--m-muted); }
+.m-tabs span.on { color: var(--m-fg); font-weight: 600; box-shadow: inset 0 -2px 0 var(--m-primary); }
+
+/* Import tiles and rollout bars inside mock screens */
+.m-tiles { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); }
+.m-tile { background: var(--m-card); border: 1px solid var(--m-line); border-radius: 9px; padding: .7rem .8rem; display: grid; gap: .1rem; }
+.m-tile b { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.m-tile.ok b { color: var(--m-ok); }
+.m-tile.info b { color: var(--m-accent); }
+.m-tile.warn b { color: var(--m-warn); }
+.m-tile.crit b { color: var(--m-crit); }
+.m-tile span { font-size: .78rem; font-weight: 600; }
+.m-tile small { font-size: .7rem; color: var(--m-muted); }
+.m-file { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .9rem; font-size: .8rem; color: var(--m-muted); }
+.m-file b { color: var(--m-fg); font-weight: 600; }
+.m-file .fp { font-family: var(--font-mono); font-size: .72rem; }
+.m-bar { height: .5rem; background: var(--m-soft); border: 1px solid var(--m-line); border-radius: 999px; overflow: hidden; }
+.m-bar i { display: block; height: 100%; background: var(--m-ok); border-radius: 999px; }
+.m-roll { display: grid; gap: .55rem; }
+.m-roll-row { display: grid; grid-template-columns: minmax(9rem, 1.4fr) minmax(6rem, 2fr) 4.5rem minmax(6rem, auto); gap: .5rem .9rem; align-items: center; font-size: .82rem; }
+.m-roll-row .num { font-variant-numeric: tabular-nums; text-align: right; color: var(--m-muted); }
+.m-roll-row .dept small { display: block; color: var(--m-muted); font-size: .72rem; }
+.m-overall { display: grid; gap: .45rem; }
+.m-overall p { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; font-size: .85rem; }
+.m-overall .m-bar { height: .75rem; }
+
+/* ── Delivery exhibits ─────────────────────────────── */
+.trio { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); align-items: start; }
+
+.mail { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: .88rem; }
+.mail-head { padding: .8rem 1rem; border-bottom: 1px solid var(--line); display: grid; gap: .15rem; font-size: .8rem; }
+.mail-head .subj { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--ink); }
+.mail-brand { background: var(--m-bg); color: #FFFFFF; padding: .7rem 1rem; font-family: var(--font-display); font-weight: 700; letter-spacing: .02em; display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.mail-brand small { font-weight: 400; color: var(--m-muted); }
+.mail-body { padding: 1rem; display: grid; gap: .75rem; }
+.mail-role { border-left: 3px solid var(--brand); padding: .3rem .7rem; background: var(--bg); border-radius: 0 6px 6px 0; }
+.mail-cta { justify-self: start; background: var(--brand); color: #FFFFFF; font-family: var(--font-display); font-weight: 600; border-radius: 7px; padding: .55rem 1.1rem; }
+
+.phone {
+  width: 100%; max-width: 19rem; justify-self: center; background: var(--m-bg); color: var(--m-fg);
+  border: 9px solid var(--m-bezel); border-radius: 30px; overflow: hidden; font-family: var(--font-display);
+  box-shadow: 0 14px 30px -20px rgba(5, 5, 16, .7);
+}
+.phone-top { display: flex; justify-content: space-between; padding: .45rem 1rem .3rem; font-size: .68rem; color: var(--m-muted); }
+.phone-body { padding: .8rem .9rem 1.1rem; display: grid; gap: .8rem; font-size: .84rem; }
+.thread-head { text-align: center; font-size: .75rem; color: var(--m-muted); }
+.bubble { background: #23233A; border-radius: 16px 16px 16px 4px; padding: .7rem .8rem; line-height: 1.45; }
+.bubble .lnk { color: #8FB6FF; text-decoration: underline; word-break: break-all; }
+.stamp { font-size: .66rem; color: var(--m-muted); }
+
+.slip {
+  background: var(--paper); color: var(--paper-ink); border: 2px dashed #8C93A3; border-radius: 4px;
+  padding: 1rem 1.1rem; font-size: .84rem; display: grid; gap: .65rem; position: relative;
+}
+.slip-head { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; font-family: var(--font-display); font-weight: 700; border-bottom: 2px solid var(--paper-ink); padding-bottom: .45rem; }
+.slip-head small { font-weight: 500; color: var(--paper-muted); }
+.slip dl { display: grid; grid-template-columns: auto 1fr; gap: .2rem .8rem; margin: 0; }
+.slip dt { color: var(--paper-muted); }
+.slip dd { margin: 0; font-weight: 600; }
+.code { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 600; letter-spacing: .12em; text-align: center; border: 2px solid var(--paper-ink); border-radius: 6px; padding: .35rem; }
+.slip ol { margin: 0; padding-left: 1.2rem; display: grid; gap: .15rem; }
+.slip .fine { font-size: .72rem; color: var(--paper-muted); }
+
+/* ── Accept flow ───────────────────────────────────── */
+.flow { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr)); align-items: start; }
+.flow figure { display: grid; gap: .55rem; }
+.flow figcaption { font-size: .85rem; }
+.flow figcaption b { font-family: var(--font-display); }
+.flow .phone { max-width: 100%; }
+.m-check { display: grid; gap: .3rem; font-size: .78rem; }
+.m-check span::before { content: '✓  '; color: var(--m-ok); font-weight: 700; }
+.m-dl { display: grid; grid-template-columns: auto 1fr; gap: .25rem .7rem; font-size: .8rem; }
+.m-dl dt { color: var(--m-muted); }
+.m-dl dd { margin: 0; font-weight: 500; }
+
+/* ── Bringing staff across ─────────────────────────── */
+.why { display: grid; gap: .75rem; padding: 1.1rem 1.2rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 2rem; }
+.why ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .45rem; }
+.stages { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.stages > li { display: grid; grid-template-columns: 9.5rem 1fr; gap: 1.25rem; padding-block: 1.25rem; border-top: 1px solid var(--line); }
+.stages > li:first-child { border-top: 0; padding-top: 0; }
+.stages .when { font-family: var(--font-display); font-weight: 600; color: var(--brand); }
+.stages .when small { display: block; font-family: var(--font-body); font-weight: 400; color: var(--muted); font-size: .8rem; }
+.stages .what { display: grid; gap: .55rem; min-width: 0; }
+.stages .what ol { margin: 0; padding-left: 1.2rem; display: grid; gap: .45rem; }
+.data-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.data-table { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 32rem; }
+.data-table th { text-align: left; font-family: var(--font-display); font-weight: 600; font-size: .78rem; letter-spacing: .04em; color: var(--muted); padding: .65rem .9rem; border-bottom: 1px solid var(--line); }
+.data-table td { padding: .6rem .9rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.data-table tr:last-child td { border-bottom: 0; }
+.data-table .flag { color: var(--crit); font-weight: 600; }
+
+/* ── Safety and care grids ─────────────────────────── */
+.safety { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.safety > div { padding: 1rem 1.1rem; border-top: 3px solid var(--brand); background: var(--surface); border-radius: 0 0 8px 8px; display: grid; gap: .35rem; align-content: start; }
+.safety h3 { font-size: 1rem; }
+.safety p { font-size: .92rem; color: var(--muted); }
+.safety.care > div { border-top-color: var(--accent); }
+
+/* ── States ───────────────────────────────────────── */
+.states { display: grid; gap: .9rem; }
+.track { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.state { font-family: var(--font-display); font-size: .85rem; font-weight: 600; border-radius: 999px; padding: .3rem .8rem; border: 1px solid var(--line); background: var(--surface); }
+.state.ok { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
+.state.warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.state.crit { background: var(--crit-bg); color: var(--crit); border-color: transparent; }
+.state.info { background: var(--accent-bg); color: var(--accent); border-color: transparent; }
+.arrow { color: var(--muted); font-size: .9rem; }
+.exits { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.exits p { font-size: .9rem; color: var(--muted); display: flex; gap: .55rem; align-items: baseline; flex-wrap: wrap; }
+
+/* ── Phases, agreements, questions ────────────────── */
+.phases { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.phases li { display: grid; grid-template-columns: 6.5rem 1fr; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--line); }
+.phases li:first-child { border-top: 0; }
+.phases .when { font-family: var(--font-display); font-weight: 600; color: var(--brand); font-size: .95rem; }
+.phases .what { display: grid; gap: .35rem; min-width: 0; }
+.phases ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: .95rem; display: grid; gap: .15rem; }
+
+.decisions { list-style: none; counter-reset: d; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.decisions li { counter-increment: d; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem 1.2rem; display: grid; gap: .5rem; }
+.decisions h3::before { content: counter(d) '. '; color: var(--brand); }
+.rec { display: inline-block; font-family: var(--font-display); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ok); background: var(--ok-bg); border-radius: 4px; padding: .1rem .45rem; margin-right: .4rem; vertical-align: .1em; }
+.rec.open { color: var(--warn); background: var(--warn-bg); }
+.decisions p { font-size: .95rem; }
+.decisions .alt { color: var(--muted); }
+
+/* ── For the build team ───────────────────────────── */
+.dev { display: grid; gap: 1rem; }
+.dev dl { margin: 0; display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.dev dl > div { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem; padding: .85rem 1rem; border-top: 1px solid var(--line); }
+.dev dl > div:first-child { border-top: 0; }
+.dev dt { font-family: var(--font-display); font-weight: 600; font-size: .92rem; }
+.dev dd { margin: 0; font-size: .92rem; display: grid; gap: .35rem; min-width: 0; }
+.dev dd ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .3rem; }
+
+footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
+
+@media (max-width: 40rem) {
+  .phases li, .stages > li, .dev dl > div { grid-template-columns: 1fr; gap: .4rem; }
+  .m-roll-row { grid-template-columns: 1fr 4.5rem; }
+  .m-roll-row .m-bar { grid-column: 1 / -1; grid-row: 2; }
+  .screen-body { padding: 1rem; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="page">
+
+  <header class="masthead col">
+    <p class="eyebrow">eThekwini Municipality · HikTech · Handbook</p>
+    <h1>How staff get their accounts</h1>
+    <p class="lede">Nobody signs themselves up. An administrator invites a person from the staff register, and the invitation fixes their role. The person then proves who they are, chooses their own password and accepts the terms. Until they do, nothing exists that can sign in.</p>
+    <div class="meta">
+      <span><b>Status:</b> agreed design; invitations and the staff-list import built</span>
+      <span><b>Updated:</b> 4 October 2026</span>
+      <span><b>For:</b> eThekwini’s administrators and the HikTech build team</span>
+      <span><b>Builds on:</b> the account safety rules already in place (two SystemAdmins, reasons, approvals, permanent history)</span>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#journey">The journey</a>
+      <a href="#admin">Administrator screens</a>
+      <a href="#delivery">Email, SMS, printed code</a>
+      <a href="#accept">Accepting</a>
+      <a href="#badge">No email address</a>
+      <a href="#across">Bringing staff across</a>
+      <a href="#safety">Safety</a>
+      <a href="#phases">Build order</a>
+      <a href="#agreed">What we agreed</a>
+      <a href="#build-team">For the build team</a>
+    </nav>
+  </header>
+
+  <!-- ── Journey ─────────────────────────────── -->
+  <section id="journey" class="band">
+    <div class="section-head">
+      <h2>The journey, start to finish</h2>
+      <p class="muted">Five steps. The second only happens for the powerful roles.</p>
+    </div>
+    <ol class="journey">
+      <li>
+        <h3>Invite</h3>
+        <p>An administrator picks the person from the staff register and chooses their role.</p>
+        <p class="who">SystemAdmin: any role. Department Admin: department roles in their own department.</p>
+      </li>
+      <li class="optional">
+        <h3>Approve</h3>
+        <p>For SystemAdmin, Admin and SystemController only. A second SystemAdmin approves before anything is sent.</p>
+        <p class="who">Same Approvals page as role changes.</p>
+      </li>
+      <li>
+        <h3>Deliver</h3>
+        <p>By email, by SMS, or as a printed activation code handed over in person.</p>
+        <p class="who">Works once. Expires after 72 hours.</p>
+      </li>
+      <li>
+        <h3>Accept</h3>
+        <p>The person types their badge number, chooses a password and accepts the POPIA notice.</p>
+        <p class="who">The account is created at this moment, not before.</p>
+      </li>
+      <li>
+        <h3>Start work</h3>
+        <p>Desk staff land on their dashboard. Field staff are shown how to get the app and sign in.</p>
+        <p class="who">Their history starts with who invited them, and why.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ── Administrator screens ─────────────────── -->
+  <section id="admin" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Steps 1 and 2</p>
+      <h2>What the administrator sees</h2>
+      <p class="muted">A new <b>Invite someone</b> button on Admin → Users, an <b>Invitations</b> list next to it, and invitations for powerful roles in the existing Approvals page.</p>
+    </div>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">Step 1 · Invite someone</span><span class="where">/admin/invitations/new</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/admin/invitations/new</span></div>
+        <div class="screen-body">
+          <div>
+            <p class="m-title">Invite someone</p>
+            <p class="m-sub">Accounts are created by invitation only. The person chooses their own password; you never see it.</p>
+          </div>
+          <div class="m-grid2">
+            <div class="m-card">
+              <p class="m-label">1 · Who</p>
+              <div class="m-input focus">⌕ <span>dlamini</span></div>
+              <div class="m-result on">
+                <span class="name">Thandeka Dlamini</span>
+                <span class="facts">MP-1042 · Constable · Metro Police · Durban Central</span>
+                <span class="m-chip ok end">No account yet</span>
+              </div>
+              <div class="m-result off">
+                <span class="name">Sipho Dlamini</span>
+                <span class="facts">FF-2201 · Fire &amp; Rescue</span>
+                <span class="m-chip dim end">Has an account</span>
+              </div>
+              <span class="m-link">Not in the staff register? Add them first →</span>
+            </div>
+            <div class="m-card">
+              <p class="m-label">2 · Access</p>
+              <div class="m-grid2" style="gap:.75rem">
+                <div class="m-field"><span class="m-sub">Role</span><div class="m-input">Police <span class="caret">▾</span></div></div>
+                <div class="m-field"><span class="m-sub">Department</span><div class="m-input">Metro Police <span class="caret">▾</span></div></div>
+              </div>
+              <div class="m-field">
+                <span class="m-sub">They will be able to open</span>
+                <div class="m-access"><span>Incidents</span><span>Responder screens</span><span>Start of shift</span><span>Metro Police section</span><span>Duty allocation</span></div>
+              </div>
+            </div>
+            <div class="m-card">
+              <p class="m-label">3 · How they receive it</p>
+              <div class="m-seg"><span class="on">Email</span><span>SMS</span><span>Printed code</span></div>
+              <div class="m-field"><span class="m-sub">Email address</span><div class="m-input">t.dlamini@example.org</div></div>
+              <div class="m-tick"><span class="m-box on"></span><span>I have checked this address with Thandeka, in person or by phone.</span></div>
+            </div>
+            <div class="m-card">
+              <p class="m-label">4 · Why</p>
+              <div class="m-field"><span class="m-sub">Reason (kept on the permanent record)</span><div class="m-input">New appointment, HR memo 2026/140</div></div>
+            </div>
+          </div>
+          <div class="m-review">
+            Invites <b>Thandeka Dlamini (MP-1042)</b> as <b>Police</b> in <b>Metro Police</b>, by email to t.dlamini@example.org.
+            The link works once and expires on <b>Tuesday 6 October 2026 at 14:20</b>.
+          </div>
+          <div class="m-actions"><span class="m-btn">Send invitation</span><span class="m-btn ghost">Cancel</span></div>
+        </div>
+      </div>
+      <p class="note">Choosing Admin, SystemAdmin or SystemController changes the button to <b>Send for approval</b>. Nothing reaches the person until a second SystemAdmin approves. Someone who already has an account can’t be invited again; their role is changed on their account page instead.</p>
+    </figure>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">Step 2 · Approval, for powerful roles only</span><span class="where">/admin/approvals</span><span class="example">Example data</span></figcaption>
+      <div class="screen" style="max-width:40rem">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/admin/approvals</span></div>
+        <div class="screen-body">
+          <div class="m-card">
+            <p style="font-weight:600">Invite Ayanda Mkhize as Admin in Fire &amp; Rescue</p>
+            <p class="m-sub">Requested by Sipho Admin, 12 minutes ago</p>
+            <div class="m-input">“Department administrator for Fire &amp; Rescue, council resolution 2026/88”</div>
+            <div class="m-actions"><span class="m-btn small">Approve and send</span><span class="m-btn ghost small">Reject</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="note">The person who asked can’t approve it, and the approver can’t be the person being invited. While eThekwini has only one SystemAdmin, the SuperAdmin approves.</p>
+    </figure>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">The invitations list</span><span class="where">/admin/invitations</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/admin/invitations</span></div>
+        <div class="screen-body">
+          <div class="m-actions" style="justify-content:space-between">
+            <p class="m-title">Invitations</p>
+            <span class="m-btn">Invite someone</span>
+          </div>
+          <div class="m-tabs"><span class="on">Open (5)</span><span>Accepted</span><span>Closed</span></div>
+          <div class="table-wrap">
+            <table class="m-table">
+              <thead><tr><th>Person</th><th>Role</th><th>Sent by</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Thandeka Dlamini<small>MP-1042</small></td><td>Police<small>Metro Police</small></td><td>Email<small>t.dlamini@example.org</small></td><td><span class="m-chip info">Sent</span><small>expires in 3 days</small></td><td><span class="m-btn ghost small">Resend</span> <span class="m-btn ghost small">Cancel</span></td></tr>
+                <tr><td>Ayanda Mkhize<small>FR-0311</small></td><td>Admin<small>Fire &amp; Rescue</small></td><td>Email<small>a.mkhize@example.org</small></td><td><span class="m-chip warn">Waiting for approval</span><small>asked by Sipho Admin</small></td><td><span class="m-btn ghost small">Withdraw</span></td></tr>
+                <tr><td>Nokuthula Zulu<small>FF-2310</small></td><td>Firefighter<small>Fire &amp; Rescue</small></td><td>SMS<small>082 *** 4417</small></td><td><span class="m-chip info">Opened</span><small>2 hours ago, not finished</small></td><td><span class="m-btn ghost small">Resend</span> <span class="m-btn ghost small">Cancel</span></td></tr>
+                <tr><td>Lwazi Ngcobo<small>EM-3007</small></td><td>Paramedic<small>EMS / Medical</small></td><td>Printed code<small>issued by Sipho Admin</small></td><td><span class="m-chip info">Code issued</span><small>expires in 2 days</small></td><td><span class="m-btn ghost small">New slip</span> <span class="m-btn ghost small">Cancel</span></td></tr>
+                <tr><td>Precious Gumede<small>DM-0120</small></td><td>Disaster<small>Disaster Management</small></td><td>Email<small>p.gumede@example.org</small></td><td><span class="m-chip crit">Reported: not me</span><small>10:42 today</small></td><td><span class="m-btn ghost small">Review</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <p class="note"><b>Resend</b> cancels the old link and sends a new one. A printed code is shown only once, when it is issued; <b>New slip</b> replaces a lost one. <b>Cancel</b> closes the invitation for good. Opened and cancelled invitations stay listed, so there’s always a record of who was invited, by whom and how it ended.</p>
+    </figure>
+  </section>
+
+  <!-- ── Delivery ─────────────────────────────── -->
+  <section id="delivery" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 3</p>
+      <h2>What the person receives</h2>
+      <p class="muted">Three ways in, one rule for all of them: it works once, expires after 72 hours, and is useless without the person’s badge number.</p>
+    </div>
+    <div class="trio">
+      <figure class="exhibit" style="margin-top:0">
+        <figcaption><span class="tag">Email</span><span class="example">Example</span></figcaption>
+        <div class="mail">
+          <div class="mail-head">
+            <span class="subj">You’ve been invited to HikTech</span>
+            <span class="muted">From: HikTech · eThekwini Municipality</span>
+            <span class="muted">To: t.dlamini@example.org</span>
+          </div>
+          <div class="mail-brand">HikTech <small>eThekwini Municipality</small></div>
+          <div class="mail-body">
+            <p>Hello Thandeka,</p>
+            <p>Sipho Admin has invited you to HikTech, eThekwini Municipality’s emergency services platform.</p>
+            <p class="mail-role">Your role: <b>Police</b>, Metro Police</p>
+            <span class="mail-cta">Open your invitation</span>
+            <p class="muted" style="font-size:.82rem">The link works once and expires on Tuesday 6 October 2026 at 14:20. You’ll be asked for your badge number. If you weren’t expecting this, ignore it; it expires on its own.</p>
+          </div>
+        </div>
+      </figure>
+
+      <figure class="exhibit" style="margin-top:0">
+        <figcaption><span class="tag">SMS</span><span class="example">Example</span></figcaption>
+        <div class="phone">
+          <div class="phone-top"><span>14:20</span><span>HikTech</span></div>
+          <div class="phone-body">
+            <p class="thread-head">HikTech</p>
+            <div class="bubble">HikTech: Sipho Admin (eThekwini) invited you as Firefighter, Fire &amp; Rescue. Open within 3 days: <span class="lnk">hiktech.example/i/7KQ4M9XP</span> You’ll need your badge number. Not expecting this? Ignore it.</div>
+            <span class="stamp">Delivered</span>
+          </div>
+        </div>
+        <p class="note">No badge or ID number is ever sent by SMS or email.</p>
+      </figure>
+
+      <figure class="exhibit" style="margin-top:0">
+        <figcaption><span class="tag">Printed activation slip</span><span class="example">Example</span></figcaption>
+        <div class="slip">
+          <div class="slip-head">HikTech account activation <small>eThekwini Municipality</small></div>
+          <dl>
+            <dt>Name</dt><dd>Lwazi Ngcobo</dd>
+            <dt>Badge</dt><dd>EM-3007</dd>
+            <dt>Role</dt><dd>Paramedic, EMS / Medical</dd>
+            <dt>Valid until</dt><dd>Tue 6 Oct 2026, 14:20</dd>
+          </dl>
+          <div class="code" aria-label="Activation code K7Q4 M9XP">K7Q4-M9XP</div>
+          <ol>
+            <li>Open the HikTech app and tap “I have an activation code”.</li>
+            <li>Enter this code and your badge number.</li>
+            <li>Choose your password.</li>
+          </ol>
+          <p class="fine">Works once. Issued by Sipho Admin. Hand only to the person named above. Destroy after use.</p>
+        </div>
+        <p class="note">For staff with neither email nor a phone on record. The administrator hands it over in person.</p>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ── Accepting ─────────────────────────────── -->
+  <section id="accept" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 4</p>
+      <h2>What the person does</h2>
+      <p class="muted">Four short screens. Opening the link changes nothing; only the person’s own button presses do. The same steps run in the app for printed codes.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone">
+          <div class="phone-top"><span>Your invitation</span><span>1 of 4</span></div>
+          <div class="phone-body">
+            <p class="m-title" style="font-size:1.05rem">You’ve been invited</p>
+            <dl class="m-dl">
+              <dt>Organisation</dt><dd>eThekwini Municipality</dd>
+              <dt>Role</dt><dd>Police</dd>
+              <dt>Department</dt><dd>Metro Police</dd>
+              <dt>Invited by</dt><dd>Sipho Admin</dd>
+              <dt>Expires</dt><dd>Tue 6 Oct, 14:20</dd>
+            </dl>
+            <span class="m-btn full">Continue</span>
+            <span class="m-link" style="text-align:center">This isn’t me, report it</span>
+          </div>
+        </div>
+        <figcaption><b>See what you’re accepting.</b> <span class="muted">Opening the link only shows this page; it uses nothing up.</span></figcaption>
+      </figure>
+
+      <figure>
+        <div class="phone">
+          <div class="phone-top"><span>Confirm it’s you</span><span>2 of 4</span></div>
+          <div class="phone-body">
+            <p class="m-title" style="font-size:1.05rem">Type your badge number</p>
+            <div class="m-input ok">MP-1042 <span class="caret" style="color:var(--m-ok)">✓</span></div>
+            <p class="m-sub">It’s on your appointment letter and your ID card. 5 wrong tries lock the invitation.</p>
+            <span class="m-btn full">Next</span>
+          </div>
+        </div>
+        <figcaption><b>Prove who you are.</b> <span class="muted">A stranger who got the link by mistake stops here.</span></figcaption>
+      </figure>
+
+      <figure>
+        <div class="phone">
+          <div class="phone-top"><span>Password</span><span>3 of 4</span></div>
+          <div class="phone-body">
+            <p class="m-title" style="font-size:1.05rem">Choose a password</p>
+            <div class="m-input">••••••••••••••</div>
+            <div class="m-input">••••••••••••••</div>
+            <div class="m-check">
+              <span>At least 12 characters</span>
+              <span>Not your name or badge number</span>
+              <span>Not a known leaked password</span>
+              <span>Both entries match</span>
+            </div>
+            <span class="m-btn full">Next</span>
+          </div>
+        </div>
+        <figcaption><b>Your password, known only to you.</b> <span class="muted">Administrators never set or see it.</span></figcaption>
+      </figure>
+
+      <figure>
+        <div class="phone">
+          <div class="phone-top"><span>Before you start</span><span>4 of 4</span></div>
+          <div class="phone-body">
+            <p class="m-title" style="font-size:1.05rem">Before you start</p>
+            <div class="m-warnbox">HikTech holds personal information about the public and staff. The POPIA notice explains what is kept, why, and for how long.</div>
+            <div class="m-tick"><span class="m-box on"></span><span>I have read the POPIA notice (version 1.0)</span></div>
+            <div class="m-tick"><span class="m-box on"></span><span>I will use HikTech only for official duties and keep my password private</span></div>
+            <span class="m-btn full">Activate my account</span>
+          </div>
+        </div>
+        <figcaption><b>Agree to the terms.</b> <span class="muted">Which version they accepted, and when, is recorded.</span></figcaption>
+      </figure>
+    </div>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">Step 5 · Done</span></figcaption>
+      <div class="trio">
+        <div class="screen">
+          <div class="screen-body">
+            <span class="m-chip ok" style="justify-self:start">Account active</span>
+            <p class="m-title">You’re in, Thandeka</p>
+            <p class="m-sub">Desk and admin staff go straight to their dashboard.</p>
+            <span class="m-btn" style="justify-self:start">Go to my dashboard</span>
+          </div>
+        </div>
+        <div class="screen">
+          <div class="screen-body">
+            <span class="m-chip ok" style="justify-self:start">Account active</span>
+            <p class="m-title">Get the HikTech app</p>
+            <p class="m-sub">Field staff work from the phone app. Sign in with your badge number <b style="color:var(--m-fg)">MP-1042</b> and the password you just chose.</p>
+            <span class="m-btn ghost" style="justify-self:start">Show app download links</span>
+          </div>
+        </div>
+      </div>
+    </figure>
+  </section>
+
+  <!-- ── No email ─────────────────────────────── -->
+  <section id="badge" class="col">
+    <div class="section-head">
+      <h2>Officers without an email address</h2>
+      <p>Not every officer has municipal email, so the badge number does the job an email address does elsewhere. They receive their invitation by SMS or a printed slip, and they <b>sign in with their badge number</b> and password, on the web and in the app. Behind the scenes their account carries an internal sign-in address that never receives mail.</p>
+      <p class="muted">If they forget their password, an administrator issues a fresh activation code from their account page. That is logged like everything else. Staff with email get the usual “forgot password” email instead.</p>
+    </div>
+    <figure class="exhibit" style="margin-top:0">
+      <div class="phone" style="justify-self:start">
+        <div class="phone-top"><span>HikTech</span><span>Sign in</span></div>
+        <div class="phone-body">
+          <div class="m-field"><span class="m-sub">Email or badge number</span><div class="m-input focus">EM-3007</div></div>
+          <div class="m-field"><span class="m-sub">Password</span><div class="m-input">••••••••••••</div></div>
+          <span class="m-btn full">Sign in</span>
+          <span class="m-link" style="text-align:center">I have an activation code</span>
+        </div>
+      </div>
+    </figure>
+  </section>
+
+  <!-- ── Bringing staff across ─────────────────── -->
+  <section id="across" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Before go-live</p>
+      <h2>Bringing eThekwini’s staff across</h2>
+      <p>Staff already exist somewhere: in the current Criticomm system, in HR and payroll, in station lists. We bring the <b>people</b> across, never their passwords or their old access. Everyone activates their new account in the weeks before go-live, so on the day itself they simply sign in.</p>
+    </div>
+
+    <div class="why col" style="margin-inline:0">
+      <h3>Why not copy the old accounts as they are?</h3>
+      <ul>
+        <li>The old system’s passwords sat behind a database password that was found written in its source code. We have to treat them as possibly exposed, and copying them would carry that risk across.</li>
+        <li>Old accounts hold old access. Some of their roles no longer exist, and administrator rights should be appointed deliberately rather than inherited.</li>
+        <li>A fresh activation gives every person three things the old system never asked for: a password only they know, a check against the staff register, and their acceptance of the POPIA notice.</li>
+      </ul>
+    </div>
+
+    <ol class="stages col" style="margin-inline:0">
+      <li>
+        <span class="when">Day zero<small>once</small></span>
+        <div class="what">
+          <p>The HikTech team creates its own platform account. eThekwini nominates its two SystemAdmins in writing, and the HikTech team invites them. The nomination letter is recorded as the reason.</p>
+        </div>
+      </li>
+      <li>
+        <span class="when">Weeks before go-live<small>while the old system is still in use</small></span>
+        <div class="what">
+          <ol>
+            <li><b>Import the staff register.</b> A SystemAdmin uploads one staff list from HR, cross-checked against the current system. It is checked on screen, and nothing is saved until they confirm.</li>
+            <li><b>Review roles.</b> Each person gets a proposed role based on their old one (table below). Department Admins confirm their own department. Administrator roles are never carried over: they are invited fresh, with a second SystemAdmin’s approval.</li>
+            <li><b>Pilot.</b> The control room and one police station activate first, and we fix whatever they find.</li>
+            <li><b>Activate in waves.</b> Department by department. Desk staff by email. Field staff in a short session at shift briefing, with their supervisor present and an SMS or printed slip each. About two minutes per person.</li>
+          </ol>
+        </div>
+      </li>
+      <li>
+        <span class="when">Go-live<small>one night</small></span>
+        <div class="what">
+          <p>The incident history moves across overnight, as set out in the migration runbook. Accounts are already active, so staff simply sign in. The old system stays available, read-only, for 90 days for reference.</p>
+        </div>
+      </li>
+      <li>
+        <span class="when">After go-live<small>every month</small></span>
+        <div class="what">
+          <p>The register stays in step with HR. A fresh staff list shows new joiners to invite, and people who appear to have left, for an administrator to deactivate with a reason. From then on, every new person arrives the same way: by invitation.</p>
+        </div>
+      </li>
+    </ol>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">Import the staff register</span><span class="where">/admin/personnel/import</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/admin/personnel/import</span></div>
+        <div class="screen-body">
+          <div>
+            <p class="m-title">Import staff register</p>
+            <p class="m-sub">Adds people to the staff register. Nobody gets access until they accept an invitation.</p>
+          </div>
+          <div class="m-file">
+            <b>staff-list-2026-10-01.csv</b><span>418 rows</span><span>checked on this computer, not uploaded</span><span class="fp">fingerprint 9f3a…c21e</span>
+          </div>
+          <div class="m-tiles">
+            <div class="m-tile ok"><b>391</b><span>Ready to add</span><small>new to the register</small></div>
+            <div class="m-tile info"><b>12</b><span>Will update</span><small>matched by badge number</small></div>
+            <div class="m-tile"><b>6</b><span>Duplicates merged</span><small>same badge in two old databases</small></div>
+            <div class="m-tile warn"><b>9</b><span>Need attention</span><small>fix or skip below</small></div>
+            <div class="m-tile crit"><b>14</b><span>Not in HR’s list</span><small>not imported; shown for review</small></div>
+          </div>
+          <div class="table-wrap">
+            <table class="m-table">
+              <thead><tr><th>Row</th><th>Person</th><th>Problem</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>57</td><td>Sbu Mthembu<small>FF-2290</small></td><td>No department given</td><td><span class="m-btn ghost small">Choose department</span></td></tr>
+                <tr><td>133</td><td>N. Shabalala<small>MP-1101</small></td><td>Badge MP-1101 already belongs to Anele Buthelezi</td><td><span class="m-btn ghost small">Review</span></td></tr>
+                <tr><td>290</td><td>Lwazi Cele<small>no badge</small></td><td>No badge or force number</td><td><span class="m-btn ghost small">Skip</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="m-field"><span class="m-sub">Reason (kept on the record)</span><div class="m-input">Go-live preparation, HR staff list of 1 October 2026</div></div>
+          <div class="m-actions"><span class="m-btn">Add 391 and update 12</span><span class="m-btn ghost">Cancel</span></div>
+        </div>
+      </div>
+      <p class="note">Rows that need attention are fixed on screen or skipped; they never block the rest. People in the old system but missing from HR’s list are not imported. They are listed so an administrator can check whether they have left.</p>
+    </figure>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">Rollout progress</span><span class="where">/admin/rollout</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/admin/rollout</span></div>
+        <div class="screen-body">
+          <div class="m-overall">
+            <p><span class="m-title">Rollout</span><span><b>214</b> of 403 activated</span></p>
+            <div class="m-bar" role="img" aria-label="53 percent activated"><i style="width:53%"></i></div>
+          </div>
+          <div class="m-roll">
+            <div class="m-roll-row"><span class="dept">Control Room</span><div class="m-bar"><i style="width:95%"></i></div><span class="num">38 / 40</span><span class="m-chip ok">Pilot</span></div>
+            <div class="m-roll-row"><span class="dept">Metro Police<small>Durban Central</small></span><div class="m-bar"><i style="width:91%"></i></div><span class="num">64 / 70</span><span class="m-chip ok">Pilot</span></div>
+            <div class="m-roll-row"><span class="dept">Metro Police<small>Pinetown</small></span><div class="m-bar"><i style="width:50%"></i></div><span class="num">30 / 60</span><span class="m-chip info">Wave 1</span></div>
+            <div class="m-roll-row"><span class="dept">Metro Police<small>Umlazi</small></span><div class="m-bar"><i style="width:45%"></i></div><span class="num">27 / 60</span><span class="m-chip info">Wave 1</span></div>
+            <div class="m-roll-row"><span class="dept">Fire &amp; Rescue<small>all stations</small></span><div class="m-bar"><i style="width:43%"></i></div><span class="num">41 / 96</span><span class="m-chip info">Wave 2</span></div>
+            <div class="m-roll-row"><span class="dept">EMS / Medical</span><div class="m-bar"><i style="width:27%"></i></div><span class="num">14 / 52</span><span class="m-chip warn">Wave 3 · 20 Oct</span></div>
+            <div class="m-roll-row"><span class="dept">Disaster Management</span><div class="m-bar"><i style="width:0%"></i></div><span class="num">0 / 25</span><span class="m-chip dim">Wave 4</span></div>
+          </div>
+          <div class="m-actions"><span class="m-sub">189 not activated yet</span><span class="m-btn ghost small">Open the chase list</span><span class="m-btn ghost small">Resend to everyone who hasn’t opened theirs</span></div>
+        </div>
+      </div>
+      <p class="note">Administrators filter the list by station and share it with the station commander before shift briefing, so nobody reaches go-live without a working account.</p>
+    </figure>
+
+    <div class="col" style="margin-inline:0; margin-top:2.5rem; display:grid; gap:.8rem">
+      <h3>Proposed role for each old role</h3>
+      <p class="muted">A starting point only. Department Admins confirm every person before invitations go out.</p>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>In the current system</th><th>Proposed in HikTech</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td>Police, Officer, Metro</td><td>Police</td><td>Rank stays on their record</td></tr>
+            <tr><td>Security</td><td>Staff</td><td>Department Admin confirms</td></tr>
+            <tr><td>Captain</td><td>Captain</td><td></td></tr>
+            <tr><td>Chief, FireChief</td><td>FireChief</td><td></td></tr>
+            <tr><td>Firefighter, Paramedic, Doctor, Disaster</td><td>Unchanged</td><td></td></tr>
+            <tr><td>Responder</td><td>Their department’s field role</td><td>Police, Firefighter, Paramedic or Disaster</td></tr>
+            <tr><td>Operator, ControlRoom</td><td>ControlRoom</td><td></td></tr>
+            <tr><td>Dispatcher, IncidentLogger, CaseManager, Supervisor, Viewer</td><td>Unchanged</td><td></td></tr>
+            <tr><td>Admin, SystemAdmin, SuperAdmin</td><td class="flag">Not carried over</td><td>Appointed fresh by invitation, approved by a second SystemAdmin</td></tr>
+            <tr><td>Citizen</td><td class="flag">Not carried over</td><td>Members of the public don’t hold accounts</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="margin-top:2.5rem; display:grid; gap:1rem">
+      <h3>Handling the staff list with care</h3>
+      <div class="safety care">
+        <div><h3>Only what’s needed</h3><p>Name, badge or force number, rank, department, station, work email and work cellphone, and optionally their role in the current system, to suggest their new one. No ID numbers, home addresses or salaries.</p></div>
+        <div><h3>Read in the browser</h3><p>The file is checked on the administrator’s own computer. Only the confirmed rows reach HikTech, and the file itself is never stored.</p></div>
+        <div><h3>A record of every import</h3><p>Who imported, when, how many people, the reason, and a fingerprint of the file, so the exact list can be matched later.</p></div>
+        <div><h3>Importing grants nothing</h3><p>It adds people to the register. Only an invitation, accepted by the person themselves, creates an account.</p></div>
+        <div><h3>Safe to repeat</h3><p>An updated list is matched by badge number and updates people in place. It never creates duplicates.</p></div>
+        <div><h3>Leavers are checked, not guessed</h3><p>Anyone missing from HR’s list is shown for review. An administrator decides, and deactivates with a reason.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Safety ─────────────────────────────── -->
+  <section id="safety" class="band">
+    <div class="section-head">
+      <h2>Safety built in</h2>
+      <p class="muted">What protects the municipality, and the person, at each step.</p>
+    </div>
+    <div class="safety">
+      <div><h3>Opening the link changes nothing</h3><p>Outlook’s link scanner opens links before people do. Ours only shows a page; the person’s own button presses do the work, so nothing gets used up by a machine.</p></div>
+      <div><h3>The badge number is the key</h3><p>An invitation sent to the wrong address is useless to whoever receives it, because they don’t know the badge number on the staff record.</p></div>
+      <div><h3>Once, then gone</h3><p>Every link and code works once and expires after 72 hours. Resending cancels the old one. Codes are stored scrambled, never as typed.</p></div>
+      <div><h3>Guessing is stopped</h3><p>Five wrong badge numbers or codes lock the invitation. Only an administrator can send a new one.</p></div>
+      <div><h3>Two people for powerful roles</h3><p>Invitations as SystemAdmin, Admin or SystemController wait for a second SystemAdmin before anything is sent.</p></div>
+      <div><h3>Nobody else knows the password</h3><p>The person sets it themselves. Administrators never set, see or reset it to a known value.</p></div>
+      <div><h3>“This isn’t me”</h3><p>Anyone who gets an invitation by mistake can report it. It closes at once and the administrator is told.</p></div>
+      <div><h3>Every step recorded</h3><p>Invited, approved, sent, opened, accepted, cancelled: each with who and when. The new account’s history starts with who invited them and why.</p></div>
+      <div><h3>POPIA</h3><p>Acceptance of the notice is recorded with its version and the time. Emails and SMS carry no badge, ID or personal numbers.</p></div>
+    </div>
+  </section>
+
+  <!-- ── States ─────────────────────────────── -->
+  <section id="states" class="col">
+    <div class="section-head">
+      <h2>Where an invitation can end up</h2>
+      <p class="muted">The normal path, and every way it can stop. Each stop is final; a new invitation starts fresh.</p>
+    </div>
+    <div class="states">
+      <div class="track" aria-label="Normal path">
+        <span class="state warn">Waiting for approval</span><span class="arrow">→</span>
+        <span class="state info">Sent</span><span class="arrow">→</span>
+        <span class="state info">Opened</span><span class="arrow">→</span>
+        <span class="state ok">Accepted</span>
+      </div>
+      <div class="exits">
+        <p><span class="state">Rejected</span> the second SystemAdmin said no</p>
+        <p><span class="state">Expired</span> not accepted within 72 hours</p>
+        <p><span class="state">Cancelled</span> the administrator withdrew it</p>
+        <p><span class="state crit">Locked</span> 5 wrong badge numbers or codes</p>
+        <p><span class="state crit">Reported: not me</span> the recipient flagged it</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Phases ─────────────────────────────── -->
+  <section id="phases" class="col">
+    <div class="section-head">
+      <h2>What we build, in order</h2>
+    </div>
+    <ol class="phases">
+      <li>
+        <span class="when">Now</span>
+        <div class="what">
+          <h3><span class="rec">Built</span>One person at a time</h3>
+          <ul>
+            <li>Invite someone, the invitations list, approvals for powerful roles</li>
+            <li>Email invitations and printed activation codes</li>
+            <li>The accepting screens: from a link on the web, from a printed code on the web and in the app</li>
+            <li>Sign-in with badge number for staff without email, on the web and in the app</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <span class="when">Next</span>
+        <div class="what">
+          <h3>SMS and password resets</h3>
+          <ul>
+            <li>SMS invitations: the code is ready, and it switches on once the BulkSMS account details are added</li>
+            <li>Forgotten passwords: an email link, or a fresh activation code from an administrator</li>
+            <li>Retire today’s separate SuperAdmin → SystemAdmin invitation, so there is one way in (waits for the SuperAdmin work)</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <span class="when">Before go-live</span>
+        <div class="what">
+          <h3><span class="rec">Built</span>Bringing everyone across</h3>
+          <ul>
+            <li>Staff register import from HR’s list, with the on-screen check, and the template to send HR</li>
+            <li>Role review by department, then invitations by department or station</li>
+            <li>The rollout progress page and chase list</li>
+            <li>Leavers marked with a reason, never deleted</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <span class="when">Later</span>
+        <div class="what">
+          <h3>Paused for now</h3>
+          <ul>
+            <li>Authenticator-app codes at sign-in</li>
+            <li>Quarterly access reviews and automatic lock after 90 days unused</li>
+            <li>“Sign in with Microsoft” for desk staff, if eThekwini ICT agrees</li>
+          </ul>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ── Agreed ─────────────────────────────── -->
+  <section id="agreed" class="col">
+    <div class="section-head">
+      <h2>What we agreed</h2>
+      <p class="muted">Agreed on 3 October 2026. The alternatives are kept so the reasons stay visible.</p>
+    </div>
+    <ol class="decisions">
+      <li>
+        <h3>HikTech sends its own invitation emails</h3>
+        <p><span class="rec">Agreed</span>Through a mail server: eThekwini’s own in production, a test sender until then. Email, SMS and printed codes then all work the same way, links can last 72 hours, and the wording is ours.</p>
+        <p class="alt">Considered: Supabase’s built-in invitation email. Its links last a day at most, and it can’t share codes with SMS and printed slips.</p>
+      </li>
+      <li>
+        <h3>Invitations last 72 hours</h3>
+        <p><span class="rec">Agreed</span>Long enough for shift workers who are off for a weekend, short enough that an unused link doesn’t linger.</p>
+      </li>
+      <li>
+        <h3>The badge number proves it’s them</h3>
+        <p><span class="rec">Agreed</span>It is already on the staff record.</p>
+        <p class="alt">Considered: part of their ID number. That means holding more personal information, which POPIA asks us to avoid.</p>
+      </li>
+      <li>
+        <h3>Staff without email sign in with their badge number</h3>
+        <p><span class="rec">Agreed</span>On the web and in the app.</p>
+      </li>
+      <li>
+        <h3>Administrators issue printed codes</h3>
+        <p><span class="rec">Agreed</span>SystemAdmins, and department Admins for their own department: the same people who can invite.</p>
+      </li>
+    </ol>
+
+    <div class="section-head" style="margin-top:2.5rem">
+      <h3>Still to settle with eThekwini</h3>
+    </div>
+    <ol class="decisions">
+      <li>
+        <h3>Where do staff records live today?</h3>
+        <p><span class="rec open">Open</span>And which one is the authority on who works where? We need one staff list with the seven fields above, from HR, checked against the current system.</p>
+      </li>
+      <li>
+        <h3>Who are the two SystemAdmins?</h3>
+        <p><span class="rec open">Open</span>Nominated in writing by eThekwini. The letter is recorded with their invitation.</p>
+      </li>
+      <li>
+        <h3>Which station pilots, and when is go-live?</h3>
+        <p><span class="rec open">Open</span>We suggest the control room and one Metro Police station first, then the other departments in waves.</p>
+      </li>
+      <li>
+        <h3>Do desk staff use Microsoft 365 accounts?</h3>
+        <p><span class="rec open">Open</span>If eThekwini ICT agrees, desk staff could later sign in with their municipal Microsoft account instead of a separate password, and would lose access the moment ICT disables them.</p>
+      </li>
+      <li>
+        <h3>Which mail server and SMS account?</h3>
+        <p><span class="rec open">Open</span>The mail server that sends invitation emails, and the BulkSMS account for SMS. The old BulkSMS access token was exposed and must be replaced first.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ── For the build team ─────────────────── -->
+  <section id="build-team" class="col">
+    <div class="section-head">
+      <p class="eyebrow">For the build team</p>
+      <h2>Where it lives and what to build</h2>
+      <p class="muted">The rules above are the specification. Every account must come through an invitation and the same rules as a role change.</p>
+    </div>
+    <div class="dev">
+      <dl>
+        <div>
+          <dt>This handbook</dt>
+          <dd>
+            <p><code>apps/web/handbook/staff-onboarding.html</code> is the single source. Edit it there.</p>
+            <p>Administrators read it in the app at <code>/admin/handbook/staff-onboarding</code>. A private shared copy exists for people without an account.</p>
+          </dd>
+        </div>
+        <div>
+          <dt>Rules it builds on</dt>
+          <dd>
+            <p><code>supabase/migrations/0048_account_safety_rules.sql</code>: two SystemAdmins, reasons, approvals, permanent history.</p>
+            <p><code>packages/db/src/roles.ts</code>: <code>rolesAssignableBy</code>, <code>needsSecondApproval</code>, <code>confirmWordFor</code>.</p>
+          </dd>
+        </div>
+        <div>
+          <dt><span class="rec">Built</span>Invitations</dt>
+          <dd>
+            <ul>
+              <li><code>supabase/migrations/0049_account_invitations.sql</code>: table <code>account_invitations</code>. A link or code is stored only as a keyed hash (HMAC-SHA256 with <code>INVITATION_SECRET</code>), with channel, expiry (<code>INVITE_TTL_HOURS</code>, default 72), wrong-attempt count, status, personnel link and the POPIA notice version accepted.</li>
+              <li>Administrators, through their own session:
+                <ul>
+                  <li><code>create_account_invitation</code>, using the same ladder and approval as <code>change_account_role</code>; approval runs through <code>decide_account_request</code></li>
+                  <li><code>issue_invitation_secret</code> (send, resend, new slip: the old link or code stops working), <code>cancel_account_invitation</code>, <code>record_invitation_delivery_failure</code></li>
+                </ul>
+              </li>
+              <li>The invited person, through the server only (service role):
+                <ul>
+                  <li><code>preview_invitation</code>: changes nothing, returns minimal fields only</li>
+                  <li><code>check_invitation_badge</code>: checks the badge number, counts wrong tries, locks at five</li>
+                  <li><code>complete_account_invitation</code>: creates the profile so its history starts with the inviter and reason</li>
+                  <li><code>report_invitation</code>, and <code>rate_limit_hit_key</code> for per-address limits</li>
+                </ul>
+              </li>
+              <li>Shared rules in <code>packages/db/src/onboarding.ts</code>, server code in <code>apps/web/lib/onboarding/</code>, queries in <code>packages/api/src/admin/invitations.ts</code>.</li>
+              <li>Screens: <code>/admin/invitations</code>, <code>/admin/invitations/new</code>, the public <code>/invite/[token]</code>, <code>/activate</code> and <code>/legal/popia</code>; in the app, “I have an activation code” (<code>apps/mobile/app/activate.tsx</code>, through <code>/api/onboarding/check</code> and <code>/api/onboarding/activate</code>).</li>
+              <li>Badge sign-in uses the address <code>{badge}@{organisation}.badge.internal</code>, which never receives mail. The sign-in screens assume eThekwini for now.</li>
+            </ul>
+          </dd>
+        </div>
+        <div>
+          <dt><span class="rec">Built</span>Staff register</dt>
+          <dd>
+            <ul>
+              <li><code>supabase/migrations/0050_staff_register_import.sql</code>: the register gains work email and cellphone, a suggested and a confirmed role for invitation, the last staff list that named each person, and a leaving date with its reason. Table <code>staff_imports</code> keeps every import permanently: who, when, the reason, the file’s name and SHA-256 fingerprint, and the counts.</li>
+              <li>Importing, SystemAdmin only: <code>start_staff_import</code>, <code>import_staff_rows</code> (up to 1,000 rows a call, every row checked again, matched by badge number, a blank cell never erases, an account holder’s department never moves) and <code>finish_staff_import</code>. Importing never creates an account.</li>
+              <li>Role review: <code>set_register_roles</code>, for a SystemAdmin, or a department Admin in their own department. Administrator roles are never set in bulk. Leavers: <code>mark_register_left</code> (cancels open invitations) and <code>restore_register_person</code>.</li>
+              <li>A badge number belongs to one current person: new duplicates are refused, existing ones are listed for cleanup, and a unique index takes over once there are none.</li>
+              <li>The file is read in the browser by <code>apps/web/lib/register/</code> (Excel and CSV, no third-party spreadsheet library) and checked by <code>packages/db/src/register.ts</code>.</li>
+              <li>Screens: <code>/admin/personnel</code> (the register: filters, role review, bulk invitations, leavers), <code>/admin/personnel/import</code>, <code>/admin/personnel/template</code> (the workbook for HR) and <code>/admin/rollout</code>.</li>
+            </ul>
+          </dd>
+        </div>
+        <div>
+          <dt>Settings</dt>
+          <dd>
+            <p><code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_SECURE</code>, <code>SMTP_USER</code>, <code>SMTP_PASS</code>, <code>SMTP_FROM</code> for email. <code>BULKSMS_TOKEN_ID</code>, <code>BULKSMS_TOKEN_SECRET</code> for SMS. <code>INVITATION_SECRET</code>: its own long random value in production; changing it voids every invitation not yet accepted. <code>INVITE_TTL_HOURS</code>, default 72. Server-side only, never in the browser or in git.</p>
+            <p><code>NEXT_PUBLIC_APP_URL</code> (HTTPS) is the address in invitation links; <code>EXPO_PUBLIC_APP_URL</code> is the same address for the app. <code>NEXT_PUBLIC_APP_DOWNLOAD_URL</code>, optional, is shown to field staff once they activate.</p>
+            <p>A development server without a mail server shows the administrator the link to pass on. Production never does.</p>
+          </dd>
+        </div>
+        <div>
+          <dt>Seeding</dt>
+          <dd>
+            <p><code>scripts/seed-all.mjs</code> creates demo accounts with a shared password, for development and demos only. Never run it against production.</p>
+            <p><code>scripts/create-admin.mjs</code> creates the HikTech team’s first SuperAdmin on a new project, once. Every real person arrives by import and invitation.</p>
+          </dd>
+        </div>
+        <div>
+          <dt>Supersedes</dt>
+          <dd><p>§2 of <code>docs/04-SECURITY-MIGRATION.md</code>, which carried the old password hashes across. That plan also stored each old hash in <code>app_metadata</code>, which travels inside every sign-in token.</p></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <footer class="col">
+    HikTech handbook for eThekwini Municipality. Names, badge numbers, addresses and figures on this page are examples. Updated 4 October 2026.
+  </footer>
+</div>

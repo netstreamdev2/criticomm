@@ -46,6 +46,11 @@ const nextConfig = {
   typedRoutes: false,
   // Version/stack disclosure serves an attacker, not an operator.
   poweredByHeader: false,
+  // The handbook pages are read from disk at request time; make sure they ship
+  // with the route that serves them.
+  outputFileTracingIncludes: {
+    '/admin/handbook/\\[slug\\]': ['./handbook/**/*.html'],
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },

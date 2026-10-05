@@ -7,7 +7,7 @@ import { formatSaTime } from '@/lib/utils';
 import { returnFirearmAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Armoury · HikTech' };
+export const metadata = { title: 'Issue register · HikTech' };
 
 export default async function FirearmsPage() {
   const { supabase } = await getSession();
@@ -17,8 +17,11 @@ export default async function FirearmsPage() {
     <div className="space-y-4">
       <header className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Armoury records</h1>
-          <p className="text-muted-foreground">Firearm issue and return register.</p>
+          <h1 className="text-2xl font-bold">Firearm issue register</h1>
+          <p className="text-muted-foreground">
+            Paper-style issue and return authorisations. The firearms themselves, and who holds each, are in the{' '}
+            <Link href="/police/armoury" className="text-primary hover:underline">Armoury</Link>.
+          </p>
         </div>
         <Link href="/police/firearms/new" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold">
           + Issue firearm

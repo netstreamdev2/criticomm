@@ -28,6 +28,45 @@ export class ApiUnavailableError extends Error {
   }
 }
 
+/** A page on the web console (the POPIA notice, say); null when this build has no web address. */
+export function webUrl(path: string): string | null {
+  return HOST ? `${HOST}${path}` : null;
+}
+
+/**
+ * Calls a route that needs no account: activating one with a printed code.
+ * Only what the person typed travels, over HTTPS; the server applies the same
+ * checks, attempt limits and lockout as the web page.
+ */
+export async function callPublicApi<T>(path: string, body: unknown): Promise<T> {
+  if (!HOST) {
+    throw new ApiUnavailableError(
+      'This build has no web address configured, so accounts cannot be activated in the app. '
+      + 'Use the link on the HikTech website, or ask an administrator to set EXPO_PUBLIC_APP_URL.',
+    );
+  }
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), 20_000);
+  try {
+    const res = await fetch(`${HOST}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: abort.signal,
+    });
+    if (!res.ok) {
+      const detail = await res.json().catch(() => null) as { error?: string; message?: string } | null;
+      throw new Error(detail?.message ?? detail?.error ?? `Request failed (${res.status})`);
+    }
+    return await res.json() as T;
+  } catch (e) {
+    if ((e as Error).name === 'AbortError') throw new Error('The server took too long to answer. Check your connection and try again.');
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function callApi<T>(path: string, body: unknown): Promise<T> {
   if (!HOST) {
     throw new ApiUnavailableError(

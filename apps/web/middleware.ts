@@ -5,7 +5,9 @@ import { createServerClient } from '@supabase/ssr';
 import { canAccess } from '@criticom/db/roles';
 import type { Silo, UserRole } from '@criticom/db/types';
 
-const PUBLIC_PATHS = ['/login', '/reset-password', '/share-location'];
+// /invite, /activate and /legal are for people who do not have an account yet;
+// /api/onboarding is the phone app's way into the same steps.
+const PUBLIC_PATHS = ['/login', '/reset-password', '/share-location', '/invite', '/activate', '/legal', '/api/onboarding'];
 const PUBLIC_MARKETING_PATHS = new Set([
   '/why', '/story', '/decisions', '/platform', '/security', '/manual', '/faq',
 ]);
@@ -121,6 +123,21 @@ export async function middleware(request: NextRequest) {
   if (user?.app_metadata?.invitation_pending === true && (!isPublic || pathname === '/login')) {
     if (isApi) return NextResponse.json({ error: 'Account setup is pending.' }, { status: 403 });
     return NextResponse.redirect(new URL('/accept-invite', request.url));
+  }
+
+  // A deactivated account (0048) is turned away with a clear message rather
+  // than an empty console. The database already refuses it everything; this
+  // signs the browser out so it stops trying.
+  if (user?.app_metadata?.deactivated === true) {
+    if (isApi) return NextResponse.json({ error: 'This account has been deactivated.' }, { status: 403 });
+    await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+    if (isPublic) return response;
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.search = '?reason=deactivated';
+    const redirect = NextResponse.redirect(url);
+    for (const cookie of response.cookies.getAll()) redirect.cookies.set(cookie);
+    return redirect;
   }
 
   // Already logged in and on /login → go to dashboard

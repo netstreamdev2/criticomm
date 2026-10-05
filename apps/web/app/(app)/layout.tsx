@@ -4,7 +4,7 @@ import {
   deniedHrefs, featureEnabled, getFeatureMap, getMyTenant, getOperationalSettings, listAccessRules, listOpsLinks,
 } from '@criticom/api';
 import { hiddenHrefs as hiddenFor } from '@/lib/features';
-import type { Silo } from '@criticom/db';
+import type { Silo, UserRole } from '@criticom/db';
 import { OpsCommandBar } from '@/components/ops-command-bar';
 import { getBrandingMap } from '@/lib/branding';
 import { getServerSupabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -16,6 +16,7 @@ import { ToastProvider } from '@/components/toast';
 import { AlertCenter } from '@/components/alert-center';
 import { AssistantDock } from '@/components/assistant-dock';
 import { PanicBanner } from '@/components/panic-banner';
+import { ZoneNotifier } from '@/components/zone-notifier';
 
 // Every page in this group is per-user (cookies + RLS), so none of them should
 // ever be statically prerendered at build time.
@@ -77,7 +78,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // IncidentLogger) and Metro Police officers have curated sidebars. The
   // remaining operational roles use compact top navigation to preserve
   // workspace width.
-  const usesSidebar = ['SystemAdmin', 'SuperAdmin', 'Supervisor', 'Captain', 'Dispatcher', 'IncidentLogger', 'SystemController', 'Police', 'Officer', 'Metro'].includes(role);
+  const usesSidebar = ['SystemAdmin', 'SuperAdmin', 'Supervisor', 'Captain', 'Dispatcher', 'IncidentLogger', 'SystemController', 'Police'].includes(role);
 
   return (
     <ToastProvider>
@@ -122,7 +123,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 for — the blocking pop-up already fired at the moment it
                 mattered; this is the standing reminder afterwards. */}
             <Suspense fallback={null}>
-              <PanicBanner />
+              <PanicBanner userId={user.id} role={role as UserRole} />
             </Suspense>
             {children}
           </main>
@@ -137,6 +138,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             soundEnabled: settings['alerts.sound_enabled'],
             toastSeconds: settings['alerts.toast_seconds'],
           }}
+        />
+        {/* Perimeters shared with this console (consoles only — not the officer app). */}
+        <ZoneNotifier
+          userId={user.id}
+          role={role as UserRole}
+          soundEnabled={settings['alerts.sound_enabled']}
+          toastSeconds={settings['alerts.toast_seconds']}
         />
         {featureEnabled(features, 'web.assistant') ? <AssistantDock fullName={fullName} role={role} silo={silo} /> : null}
       </div>

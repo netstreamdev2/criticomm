@@ -3,6 +3,8 @@ import {
   KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { signInEmailFor } from '@criticom/db';
 import { getSupabase } from '@/lib/supabase';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { HikTechLogo } from '@/components/hiktech-logo';
@@ -15,8 +17,12 @@ const DEPARTMENTS = [
   { label: 'Disaster', colour: '#3b82f6' },
 ];
 
+const DEACTIVATED = 'This account has been deactivated. If you think this is a mistake, speak to your station commander or system administrator.';
+const NO_MATCH = 'That email or badge number and password do not match an account.';
+
 export default function LoginScreen() {
   const styles = useStyles();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
@@ -27,9 +33,20 @@ export default function LoginScreen() {
     if (!email || !password) return;
     setError(null);
     setBusy(true);
-    const { error: err } = await getSupabase().auth.signInWithPassword({ email, password });
-    setBusy(false);
-    if (err) setError(err.message);
+    try {
+      // Staff without email sign in with their badge number (migration 0049).
+      const { error: err } = await getSupabase().auth.signInWithPassword({ email: signInEmailFor(email), password });
+      // A deactivated account is banned from signing in (migration 0048).
+      if (err) {
+        setError(err.code === 'user_banned' || /banned/i.test(err.message) ? DEACTIVATED
+          : err.code === 'invalid_credentials' || /invalid login/i.test(err.message) ? NO_MATCH
+            : err.message);
+      }
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
     // AuthGate redirects on success.
   };
 
@@ -69,14 +86,14 @@ export default function LoginScreen() {
             {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
 
             <Input
-              label="Departmental email"
-              icon="mail-outline"
-              placeholder="name@durban.gov.za"
+              label="Email or badge number"
+              icon="person-outline"
+              placeholder="Email, or a badge number like MP-1042"
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
-              autoComplete="email"
-              textContentType="emailAddress"
+              autoComplete="username"
+              textContentType="username"
               value={email}
               onChangeText={setEmail}
               returnKeyType="next"
@@ -113,6 +130,14 @@ export default function LoginScreen() {
               onPress={() => void signIn()}
               disabled={!email || !password}
             />
+
+            <Text
+              onPress={() => router.push('/activate')}
+              accessibilityRole="link"
+              style={styles.activate}
+            >
+              I have an activation code
+            </Text>
           </View>
 
           <View style={styles.footer}>
@@ -155,6 +180,10 @@ const useStyles = makeStyles(() => StyleSheet.create({
   reveal: {
     position: 'absolute', right: space.md, top: 34,
     color: colors.accent, fontSize: 12, fontWeight: '700',
+  },
+  activate: {
+    color: colors.accent, fontSize: 14, fontWeight: '700',
+    textAlign: 'center', paddingVertical: space.sm,
   },
 
   footer: {

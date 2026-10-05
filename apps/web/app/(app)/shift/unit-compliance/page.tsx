@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import { getUnitCompliance } from '@criticom/api';
+import { canAccess } from '@criticom/db/roles';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession, siloFilter } from '@/lib/session';
@@ -8,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Unit Compliance · HikTech' };
 
 export default async function UnitCompliancePage() {
-  const { supabase, silo } = await getSession();
+  const { supabase, role, silo } = await getSession();
   const { mentalChecks, vehicleChecklists } = await getUnitCompliance(supabase, siloFilter(silo));
 
   const pass = (c: (typeof mentalChecks)[number]) =>
@@ -19,7 +21,12 @@ export default async function UnitCompliancePage() {
     <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">Unit compliance — today</h1>
-        <p className="text-muted-foreground">Start-of-shift readiness and vehicle inspections.</p>
+        <p className="text-muted-foreground">
+          Start-of-shift readiness and vehicle inspections.
+          {canAccess('/shift/today', role, silo) ? (
+            <> Who has which vehicle and firearm is on <Link href="/shift/today" className="text-primary hover:underline">today’s shift</Link>.</>
+          ) : null}
+        </p>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-2">

@@ -5,6 +5,14 @@
  *   supabase gen types typescript --local > packages/db/src/types.generated.ts
  */
 
+/** Live-map zones (0053). */
+export type MapZoneKind =
+  | 'cordon' | 'exclusion' | 'evacuation' | 'hazard' | 'search'
+  | 'road_closure' | 'route' | 'staging' | 'command_post' | 'rendezvous'
+  | 'last_seen' | 'note';
+export type MapZoneShape = 'polygon' | 'circle' | 'line' | 'point';
+export type MapZoneVisibility = 'private' | 'department' | 'departments' | 'incident' | 'everyone';
+
 export type Silo = 'Ethekwini' | 'MetroPolice' | 'MetroFire' | 'Medical' | 'EthekwiniDisaster';
 
 export type UserRole =
@@ -113,6 +121,10 @@ export type Database = {
           total_incidents: number;
           notes: string | null;
           status: string | null;
+          /** Set while the account is deactivated (0048); null when active. */
+          deactivated_at: string | null;
+          deactivated_reason: string | null;
+          deactivated_by: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -212,6 +224,13 @@ export type Database = {
           fuel_level: string | null;
           created_at: string;
           updated_at: string;
+          /** Fleet register (0051). */
+          status_note: string | null;
+          status_changed_at: string | null;
+          status_changed_by_name: string | null;
+          last_inspection_id: string | null;
+          last_inspection_at: string | null;
+          last_inspection_result: 'pass' | 'faults' | 'fail' | null;
         };
         Insert: Partial<Database['public']['Tables']['apparatus']['Row']>;
         Update: Partial<Database['public']['Tables']['apparatus']['Row']>;
@@ -244,6 +263,24 @@ export type Database = {
           updated_at: string;
           service_number: string | null;
           force_number: string | null;
+          /** Staff register (0050): work contact details, from HR's staff list or added by hand. */
+          work_email: string | null;
+          work_cellphone: string | null;
+          /** The role they held in the system they came from, as HR's list gave it (0050). */
+          previous_role: string | null;
+          /** The role they will be invited as; written only by import_staff_rows / set_register_roles (0050). */
+          proposed_role: UserRole | null;
+          role_confirmed_at: string | null;
+          role_confirmed_by: string | null;
+          role_confirmed_by_name: string | null;
+          /** The last staff-list import that named them (0050). */
+          hr_import_id: string | null;
+          hr_seen_at: string | null;
+          /** Marked as left by an administrator, with a reason (0050). */
+          left_at: string | null;
+          left_reason: string | null;
+          left_by: string | null;
+          left_by_name: string | null;
         };
         Insert: Partial<Database['public']['Tables']['personnel']['Row']>;
         Update: Partial<Database['public']['Tables']['personnel']['Row']>;
@@ -674,6 +711,9 @@ export type Database = {
           chamber_status: 'condition_1' | 'condition_3' | 'unloaded' | null;
           condition: 'clean' | 'requires_cleaning' | 'damaged' | null;
           shift_start: boolean;
+          /** A return received by the armourer on the officer's behalf (0051). */
+          received_by: string | null;
+          received_by_name: string | null;
         };
         Insert: Partial<Omit<Database['public']['Tables']['firearm_checklists']['Row'], 'passed'>>;
         Update: Partial<Omit<Database['public']['Tables']['firearm_checklists']['Row'], 'passed'>>;
@@ -697,6 +737,11 @@ export type Database = {
           created_by: string | null;
           created_at: string;
           updated_at: string;
+          /** Armoury register (0051). */
+          station: string | null;
+          status_note: string | null;
+          status_changed_at: string | null;
+          status_changed_by_name: string | null;
         };
         Insert: Partial<Database['public']['Tables']['firearms']['Row']>;
         Update: Partial<Database['public']['Tables']['firearms']['Row']>;
@@ -741,6 +786,166 @@ export type Database = {
         };
         Insert: Partial<Database['public']['Tables']['access_rules']['Row']>;
         Update: Partial<Database['public']['Tables']['access_rules']['Row']>;
+        Relationships: [];
+      };
+      /** Permanent ledger of role, department and activation changes (0048). Read-only. */
+      account_history: {
+        Row: {
+          id: number;
+          tenant_id: string;
+          user_id: string;
+          user_name: string | null;
+          at: string;
+          change: 'baseline' | 'created' | 'role' | 'department' | 'deactivated' | 'reactivated' | 'removed';
+          from_value: string | null;
+          to_value: string | null;
+          reason: string | null;
+          actor_id: string | null;
+          actor_name: string | null;
+          approved_by: string | null;
+          approved_by_name: string | null;
+          request_id: string | null;
+          /** Made with platform tools (SQL editor, service role), not by a signed-in person. */
+          outside_app: boolean;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** The end of every shift, permanently (0051). Written only by functions. */
+      shift_ends: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          user_id: string;
+          user_name: string | null;
+          apparatus_id: string | null;
+          unit_number: string | null;
+          mileage_km: number | null;
+          vehicle_note: string | null;
+          source: 'app' | 'sign_out' | 'firearm_out';
+          ended_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** Every armoury or fleet import, permanently (0051). Written only by functions. */
+      asset_imports: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          kind: 'firearms' | 'vehicles';
+          imported_by: string;
+          imported_by_name: string | null;
+          imported_at: string;
+          file_name: string;
+          file_sha256: string;
+          reason: string;
+          row_count: number;
+          added: number;
+          updated: number;
+          unchanged: number;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** Every import of HR's staff list, permanently (0050). Written only by functions. */
+      staff_imports: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          imported_by: string;
+          imported_by_name: string | null;
+          started_at: string;
+          finished_at: string | null;
+          status: 'in_progress' | 'complete';
+          file_name: string;
+          file_sha256: string;
+          reason: string;
+          departments: Silo[];
+          row_count: number;
+          skipped: number;
+          added: number;
+          updated: number;
+          unchanged: number;
+          not_listed: number | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** Invitations: the only way a person gets an account (0049). Written only by functions. */
+      account_invitations: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          personnel_id: string | null;
+          full_name: string;
+          badge_number: string;
+          role: UserRole;
+          silo: Silo;
+          channel: 'email' | 'sms' | 'code';
+          email: string | null;
+          phone: string | null;
+          login_email: string;
+          reason: string;
+          needs_approval: boolean;
+          status: 'awaiting_approval' | 'ready' | 'sent' | 'opened' | 'accepted' | 'rejected' | 'expired' | 'cancelled' | 'locked' | 'reported';
+          secret_hash: string | null;
+          expires_at: string | null;
+          attempts: number;
+          delivery_error: string | null;
+          send_count: number;
+          invited_by: string;
+          invited_by_name: string | null;
+          approved_by: string | null;
+          approved_by_name: string | null;
+          created_at: string;
+          sent_at: string | null;
+          sent_by_name: string | null;
+          opened_at: string | null;
+          accepted_at: string | null;
+          accepted_user_id: string | null;
+          policy_version: string | null;
+          closed_at: string | null;
+          closed_by: string | null;
+          closed_by_name: string | null;
+          close_note: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** Account changes waiting for a second SystemAdmin (0048). Written only by functions. */
+      account_requests: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          /** The account a change is about; null for an invitation (0049). */
+          user_id: string | null;
+          /** The invitation an 'invite' request is about (0049). */
+          invitation_id: string | null;
+          user_name: string | null;
+          action: 'role' | 'deactivate' | 'reactivate' | 'invite';
+          from_role: UserRole | null;
+          to_role: UserRole | null;
+          from_silo: Silo | null;
+          to_silo: Silo | null;
+          reason: string;
+          status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'expired';
+          requested_by: string;
+          requested_by_name: string | null;
+          requested_at: string;
+          decided_by: string | null;
+          decided_by_name: string | null;
+          decided_at: string | null;
+          decision_note: string | null;
+        };
+        Insert: never;
+        Update: never;
         Relationships: [];
       };
       /** Background rules and their thresholds (migration 0025). */
@@ -1252,7 +1457,10 @@ export type Database = {
           latitude: number;
           longitude: number;
           status: 'Operational' | 'Out of Service' | 'Maintenance Required';
-          last_inspected: string;
+          /** NULL for hydrants imported from the water register and not yet inspected (0052). */
+          last_inspected: string | null;
+          /** Id in the register it was imported from, e.g. EWS:2035224; NULL when entered by hand (0052). */
+          source_ref: string | null;
         };
         Insert: Partial<Database['public']['Tables']['hydrants']['Row']>;
         Update: Partial<Database['public']['Tables']['hydrants']['Row']>;
@@ -1678,6 +1886,76 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['citizen_share_tokens']['Row']>;
         Relationships: [];
       };
+      /** Perimeters and zones drawn on the live map (0053). Written only by save_map_zone / end_map_zone. */
+      map_zones: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          /** The department of the person who set it. */
+          silo: Silo;
+          kind: MapZoneKind;
+          shape: MapZoneShape;
+          /** GeoJSON (WGS84): Polygon, LineString or Point — a circle is its centre. */
+          geometry: { type: string; coordinates: unknown };
+          radius_m: number | null;
+          /** Geodesic, from PostGIS. */
+          area_m2: number | null;
+          length_m: number | null;
+          name: string;
+          reason: string | null;
+          incident_id: string | null;
+          visibility: MapZoneVisibility;
+          shared_silos: Silo[];
+          active_until: string | null;
+          status: 'active' | 'ended';
+          created_by: string | null;
+          created_by_name: string | null;
+          created_by_role: UserRole | null;
+          created_at: string;
+          updated_by: string | null;
+          updated_by_name: string | null;
+          updated_at: string;
+          ended_by: string | null;
+          ended_by_name: string | null;
+          ended_at: string | null;
+          end_reason: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'map_zones_incident_id_fkey';
+            columns: ['incident_id'];
+            isOneToOne: false;
+            referencedRelation: 'incidents';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      map_zone_events: {
+        Row: {
+          id: number;
+          tenant_id: string;
+          zone_id: string;
+          at: string;
+          actor: string | null;
+          actor_name: string | null;
+          actor_role: UserRole | null;
+          action: 'created' | 'edited' | 'ended';
+          details: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'map_zone_events_zone_id_fkey';
+            columns: ['zone_id'];
+            isOneToOne: false;
+            referencedRelation: 'map_zones';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       crime_stats: {
         Row: {
           id: number;
@@ -1923,6 +2201,89 @@ export type Database = {
         Args: { p_key: string };
         Returns: Array<{ rule_key: string; status: string; affected: number; detail: string }>;
       };
+      create_account_invitation: {
+        Args: {
+          p_personnel: string; p_role: UserRole; p_silo: Silo; p_channel: 'email' | 'sms' | 'code';
+          p_email: string | null; p_phone: string | null; p_reason: string;
+        };
+        Returns: { status: 'ready' | 'awaiting_approval'; invitation_id: string; request_id?: string };
+      };
+      issue_invitation_secret: {
+        Args: { p_invitation: string; p_secret_hash: string; p_ttl_hours: number };
+        Returns: {
+          id: string; full_name: string; badge_number: string; role: UserRole; silo: Silo;
+          channel: 'email' | 'sms' | 'code'; email: string | null; phone: string | null; login_email: string;
+          expires_at: string; invited_by_name: string | null; sent_by_name: string | null; organisation: string | null;
+        };
+      };
+      record_invitation_delivery_failure: {
+        Args: { p_invitation: string; p_error: string };
+        Returns: undefined;
+      };
+      cancel_account_invitation: {
+        Args: { p_invitation: string; p_note?: string | null };
+        Returns: { status: 'cancelled' };
+      };
+      preview_invitation: {
+        Args: { p_secret_hash: string };
+        Returns: Record<string, unknown>;
+      };
+      check_invitation_badge: {
+        Args: { p_secret_hash: string; p_badge: string };
+        Returns: Record<string, unknown>;
+      };
+      complete_account_invitation: {
+        Args: { p_secret_hash: string; p_badge: string; p_user: string; p_policy_version: string };
+        Returns: Record<string, unknown>;
+      };
+      report_invitation: {
+        Args: { p_secret_hash: string; p_note?: string | null };
+        Returns: Record<string, unknown>;
+      };
+      rate_limit_hit_key: {
+        Args: { p_key: string; p_limit: number; p_window_seconds: number };
+        Returns: Array<{ allowed: boolean; remaining: number; reset_at: string }>;
+      };
+      start_staff_import: {
+        Args: { p_file_name: string; p_file_sha256: string; p_reason: string; p_departments: Silo[]; p_row_count: number; p_skipped: number };
+        Returns: string;
+      };
+      import_staff_rows: {
+        Args: { p_import: string; p_rows: Array<Record<string, unknown>> };
+        Returns: { added: number; updated: number; unchanged: number };
+      };
+      finish_staff_import: {
+        Args: { p_import: string };
+        Returns: { added: number; updated: number; unchanged: number; skipped: number; not_listed: number };
+      };
+      set_register_roles: {
+        Args: { p_personnel: string[]; p_role: UserRole };
+        Returns: { set: number; skipped: number };
+      };
+      mark_register_left: {
+        Args: { p_personnel: string; p_reason: string };
+        Returns: { status: 'left'; invitations_cancelled: number };
+      };
+      restore_register_person: {
+        Args: { p_personnel: string; p_reason: string };
+        Returns: { status: 'restored' };
+      };
+      change_account_role: {
+        Args: { p_user: string; p_role: UserRole; p_reason: string; p_confirm: string; p_silo?: Silo | null };
+        Returns: { status: 'applied' | 'pending'; request_id?: string };
+      };
+      set_account_active: {
+        Args: { p_user: string; p_active: boolean; p_reason: string; p_confirm: string };
+        Returns: { status: 'applied' | 'pending'; request_id?: string };
+      };
+      decide_account_request: {
+        Args: { p_request: string; p_approve: boolean; p_note?: string | null };
+        Returns: { status: 'approved' | 'rejected' | 'expired'; invitation_id?: string };
+      };
+      cancel_account_request: {
+        Args: { p_request: string };
+        Returns: { status: 'cancelled' };
+      };
       close_case: {
         Args: { p_incident_id: string; p_reason?: string | null };
         Returns: Database['public']['Tables']['incidents']['Row'];
@@ -1956,6 +2317,42 @@ export type Database = {
         Returns: Database['public']['Tables']['personnel']['Row'];
       };
       cleanup_on_logout: { Args: Record<string, never>; Returns: void };
+      set_firearm_status: {
+        Args: { p_firearm: string; p_status: 'Available' | 'Maintenance' | 'Retired'; p_reason: string };
+        Returns: { status: string };
+      };
+      return_shift_firearm: {
+        Args: {
+          p_firearm_id: string; p_rounds_returned: number; p_magazines: number; p_unloaded: boolean;
+          p_checks_ok: boolean; p_condition: 'clean' | 'requires_cleaning' | 'damaged'; p_notes?: string | null;
+        };
+        Returns: { status: 'Available' | 'Maintenance'; short: number };
+      };
+      receive_firearm: {
+        Args: {
+          p_firearm_id: string; p_rounds_returned: number; p_magazines: number; p_checks_ok: boolean;
+          p_condition: 'clean' | 'requires_cleaning' | 'damaged'; p_notes: string;
+        };
+        Returns: { status: 'Available' | 'Maintenance'; short: number };
+      };
+      set_vehicle_status: {
+        Args: { p_apparatus: string; p_status: ApparatusStatus; p_reason: string };
+        Returns: { status: ApparatusStatus };
+      };
+      end_shift: {
+        Args: { p_mileage_km?: number | null; p_vehicle_note?: string | null };
+        Returns: { status: 'ended'; vehicle: string | null; vehicle_status: 'Available' | 'Maintenance' | null };
+      };
+      import_firearms: {
+        Args: { p_rows: Array<Record<string, unknown>>; p_file_name: string; p_file_sha256: string; p_reason: string };
+        Returns: { added: number; updated: number; unchanged: number };
+      };
+      import_vehicles: {
+        Args: { p_rows: Array<Record<string, unknown>>; p_file_name: string; p_file_sha256: string; p_reason: string };
+        Returns: { added: number; updated: number; unchanged: number };
+      };
+      can_manage_armoury: { Args: { p_silo: Silo }; Returns: boolean };
+      can_manage_fleet: { Args: { p_silo: Silo }; Returns: boolean };
       has_completed_shift_start_today: { Args: Record<string, never>; Returns: boolean };
       shift_requires_firearm: { Args: Record<string, never>; Returns: boolean };
       shift_readiness_passed_today: { Args: Record<string, never>; Returns: boolean };
@@ -1995,6 +2392,26 @@ export type Database = {
       assign_incident: {
         Args: { p_incident_id: string; p_user_id: string; p_notes?: string | null };
         Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      save_map_zone: {
+        Args: {
+          p_id: string | null;
+          p_kind: MapZoneKind;
+          p_shape: MapZoneShape;
+          p_geometry: { type: string; coordinates: unknown };
+          p_radius_m: number | null;
+          p_name: string;
+          p_reason: string | null;
+          p_incident_id: string | null;
+          p_visibility: MapZoneVisibility;
+          p_shared_silos: Silo[];
+          p_active_until: string | null;
+        };
+        Returns: Database['public']['Tables']['map_zones']['Row'];
+      };
+      end_map_zone: {
+        Args: { p_id: string; p_reason: string | null };
+        Returns: Database['public']['Tables']['map_zones']['Row'];
       };
     };
   };

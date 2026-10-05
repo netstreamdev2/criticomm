@@ -1,26 +1,14 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { setUserRole, createApparatus, updateApparatus, createDevice, logAudit } from '@criticom/api';
-import { ADMIN_ROLES, type ApparatusStatus, type Silo, type UserRole } from '@criticom/db';
+import { createApparatus, updateApparatus, createDevice, logAudit } from '@criticom/api';
+import { ADMIN_ROLES, type ApparatusStatus, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
 async function requireAdmin() {
   const session = await getSession();
   if (!ADMIN_ROLES.includes(session.role)) throw new Error('Forbidden');
   return session;
-}
-
-export async function setRoleAction(formData: FormData) {
-  const { supabase, fullName } = await requireAdmin();
-  const id = String(formData.get('id'));
-  const role = String(formData.get('role')) as UserRole;
-  await setUserRole(supabase, id, role);
-  await logAudit(supabase, {
-    silo: 'Ethekwini', action_type: 'RoleChanged', entity_type: 'profile', entity_id: id,
-    user_name: fullName, details: `Role → ${role}`,
-  });
-  revalidatePath('/admin');
 }
 
 export async function createApparatusAction(formData: FormData) {

@@ -120,9 +120,9 @@ export const OPERATIONAL_SETTINGS: readonly SettingDef[] = [
   {
     key: 'map.default_basemap',
     label: 'Default basemap',
-    description: 'Tiles the dispatch maps open with.',
+    description: 'Tiles the dispatch maps open with. Dark suits a wall display.',
     category: 'Map & board', type: 'choice', default: 'satellite',
-    options: ['satellite', 'street'] as const,
+    options: ['satellite', 'street', 'dark'] as const,
   },
   {
     key: 'board.feed_items',
@@ -149,7 +149,7 @@ export type OperationalSettings = {
   'dispatch.eta_speed_kmh': number;
   'dispatch.eta_road_factor': number;
   'duty.max_shift_hours': number;
-  'map.default_basemap': 'satellite' | 'street';
+  'map.default_basemap': 'satellite' | 'street' | 'dark';
   'board.feed_items': number;
   'board.volume_days': number;
 };

@@ -207,25 +207,26 @@ itself; the automation engine runs inside it rather than as a separate service t
 
   <h2>3.2 The roles</h2>
   <p>
-    The <code>user_role</code> enum has 26 values; <b>24 are assignable to people</b> from Admin → Users.
-    <code>System</code> is an internal service identity, and <code>Citizen</code> exists only for the public
-    location-share flow, where a member of the public posts GPS against a single-use token and never
-    holds an account.
+    The <code>user_role</code> enum has 26 values; <b>18 are assignable to people</b> from Admin → Users.
+    <code>System</code> is an internal service identity. Seven more — Officer, Metro, Chief, Operator,
+    Responder, Security and Citizen — were retired in migration 0045: Postgres cannot drop an enum value,
+    so they remain in the type, but a CHECK constraint refuses them. Members of the public never hold an
+    account: the location-share flow takes their GPS against a single-use token.
   </p>
   <table class="zebra">
     <thead><tr><th style="width:44mm">Group</th><th>Members</th></tr></thead>
     <tbody>
       <tr><td><code>ADMIN_ROLES</code></td><td>SystemAdmin, SuperAdmin, Admin</td></tr>
       <tr><td><code>ADMIN_CONSOLE_ROLES</code></td><td>Admin tier + SystemController — the operational admin consoles, not account or platform writes</td></tr>
-      <tr><td><code>GLOBAL_ROLES</code></td><td>SystemAdmin, SuperAdmin, Dispatcher, Operator, ControlRoom, IncidentLogger, Viewer, System, SystemController</td></tr>
-      <tr><td><code>SUPERVISORY_ROLES</code></td><td>Admin tier + Supervisor, Captain, Chief, FireChief, System</td></tr>
-      <tr><td><code>CALL_TAKER_ROLES</code></td><td>Admin tier + Operator, ControlRoom, IncidentLogger, System</td></tr>
-      <tr><td><code>DISPATCH_DESK_ROLES</code></td><td>Admin tier + Dispatcher, Operator, ControlRoom, Supervisor, System</td></tr>
-      <tr><td><code>RESPONDER_ROLES</code></td><td>Responder, Police, Officer, Metro, Security, Captain, Firefighter, FireChief, Chief, Paramedic, Doctor, Disaster</td></tr>
-      <tr><td><code>POLICE_ROLES</code></td><td>Captain, Police, Officer, Metro, Security</td></tr>
-      <tr><td><code>FIRE_ROLES</code></td><td>Chief, FireChief, Firefighter</td></tr>
+      <tr><td><code>GLOBAL_ROLES</code></td><td>SystemAdmin, SuperAdmin, Dispatcher, ControlRoom, IncidentLogger, Viewer, System, SystemController</td></tr>
+      <tr><td><code>SUPERVISORY_ROLES</code></td><td>Admin tier + Supervisor, Captain, FireChief, System</td></tr>
+      <tr><td><code>CALL_TAKER_ROLES</code></td><td>Admin tier + ControlRoom, IncidentLogger, System</td></tr>
+      <tr><td><code>DISPATCH_DESK_ROLES</code></td><td>Admin tier + Dispatcher, ControlRoom, Supervisor, System</td></tr>
+      <tr><td><code>RESPONDER_ROLES</code></td><td>Police, Captain, Firefighter, FireChief, Paramedic, Doctor, Disaster</td></tr>
+      <tr><td><code>POLICE_ROLES</code></td><td>Captain, Police</td></tr>
+      <tr><td><code>FIRE_ROLES</code></td><td>FireChief, Firefighter</td></tr>
       <tr><td><code>MEDICAL_ROLES</code></td><td>Paramedic, Doctor</td></tr>
-      <tr><td><code>CASE_MANAGER_ROLES</code></td><td>Admin tier + CaseManager, Dispatcher, Operator, ControlRoom, IncidentLogger, Supervisor, System, Viewer</td></tr>
+      <tr><td><code>CASE_MANAGER_ROLES</code></td><td>Admin tier + CaseManager, Dispatcher, ControlRoom, IncidentLogger, Supervisor, System, Viewer</td></tr>
     </tbody>
   </table>
 

@@ -13,9 +13,180 @@
  *   Performance           → "Supervisor, SystemAdmin, SuperAdmin, System"
  *   Leave/HR              → "Staff, Admin, SuperAdmin, SystemAdmin"
  *   DevAdmin/Super        → "SystemAdmin, SuperAdmin" (+ Admin for sub-areas)
+ *
+ * V4 also used Operator, Officer, Metro, Security, Chief, Responder and
+ * Citizen. Those are retired (migration 0045) and appear in no list below.
  */
 
 import type { Silo, UserRole } from './types.generated';
+
+/**
+ * Roles the platform no longer uses. Postgres cannot drop an enum value, so
+ * they stay in `user_role`, but 0045 moved every holder to a replacement and a
+ * CHECK constraint refuses them. No list or route rule may name them again.
+ *
+ *   Officer, Metro → Police       Chief → FireChief       Operator → ControlRoom
+ *   Responder → the department's field role       Security, Citizen → Staff
+ */
+export const RETIRED_ROLES: readonly UserRole[] = [
+  'Officer', 'Metro', 'Chief', 'Operator', 'Responder', 'Security', 'Citizen',
+];
+
+/**
+ * Every role a person can be given, in the order the admin pickers list them.
+ * `System` is absent: it is the automation account, never a person.
+ */
+export const ASSIGNABLE_ROLES: UserRole[] = [
+  'SuperAdmin', 'SystemAdmin', 'Admin', 'SystemController', 'Supervisor',
+  'Dispatcher', 'ControlRoom', 'IncidentLogger', 'CaseManager', 'Viewer',
+  'Captain', 'Police', 'FireChief', 'Firefighter', 'Paramedic', 'Doctor', 'Disaster',
+  'Staff',
+];
+
+/**
+ * Roles that reach past one department. A department Admin never grants or
+ * removes them. Mirrors `c_tenant_wide` in vet_account_change() (0048).
+ */
+export const TENANT_WIDE_ROLES: UserRole[] = [
+  'SuperAdmin', 'SystemAdmin', 'Admin', 'SystemController', 'System',
+  'Dispatcher', 'ControlRoom', 'IncidentLogger', 'Viewer',
+];
+
+type Account = { id: string; role: UserRole; silo: Silo };
+
+/**
+ * The roles `actor` may give `target` — empty when they may not change it at
+ * all. Mirrors vet_account_change() (0048), which has the final word:
+ * SuperAdmin grants anything; SystemAdmin anything but SuperAdmin; a
+ * department Admin only department roles, inside their own department; and
+ * nobody changes their own.
+ */
+export function rolesAssignableBy(actor: Account, target: Account): UserRole[] {
+  if (actor.id === target.id) return [];
+  if (actor.role === 'SuperAdmin') return ASSIGNABLE_ROLES;
+  if (actor.role === 'SystemAdmin') {
+    return target.role === 'SuperAdmin' ? [] : ASSIGNABLE_ROLES.filter((r) => r !== 'SuperAdmin');
+  }
+  if (actor.role === 'Admin') {
+    if (target.silo !== actor.silo || TENANT_WIDE_ROLES.includes(target.role)) return [];
+    return ASSIGNABLE_ROLES.filter((r) => !TENANT_WIDE_ROLES.includes(r));
+  }
+  return [];
+}
+
+/* ── Account safety rules (0048) ──────────────────────────────────────── */
+
+/** A tenant always keeps at least this many active SystemAdmins. */
+export const MIN_SYSTEM_ADMINS = 2;
+
+/** Roles whose grant, removal or change waits for a second SystemAdmin. */
+export const POWERFUL_ROLES: UserRole[] = ['SuperAdmin', 'SystemAdmin', 'Admin', 'SystemController'];
+
+/**
+ * Whether a change waits for a second SystemAdmin: anything that touches a
+ * powerful role, unless the SuperAdmin makes it. For a deactivation, `from`
+ * and `to` are both the account's role. Mirrors change_account_role() and
+ * set_account_active().
+ */
+export function needsSecondApproval(actor: UserRole, from: UserRole, to: UserRole): boolean {
+  return actor !== 'SuperAdmin' && (POWERFUL_ROLES.includes(from) || POWERFUL_ROLES.includes(to));
+}
+
+/** Compare a typed confirmation the way the database does: trimmed, spaces collapsed, any case. */
+export function normaliseConfirm(text: string | null | undefined): string {
+  return (text ?? '').trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+/**
+ * What an administrator types back to confirm a change to an account: its
+ * badge number (on the profile, else on the linked personnel record), else
+ * its full name. Mirrors account_confirm_word() (0048).
+ */
+export function confirmWordFor(
+  account: { id: string; badge_number: string | null; full_name: string | null },
+  personnelBadge?: string | null,
+): { word: string; kind: 'badge number' | 'full name' | 'account id' } {
+  const badge = account.badge_number?.trim() || personnelBadge?.trim();
+  if (badge) return { word: badge, kind: 'badge number' };
+  const name = account.full_name?.trim();
+  if (name) return { word: name, kind: 'full name' };
+  return { word: account.id, kind: 'account id' };
+}
+
+/**
+ * The parts of the platform a role can open, in words an administrator reads
+ * before confirming a change. Screens every account has (dashboard, leave,
+ * search, profile) are left out: they never change.
+ */
+const AREAS: Array<{ label: string; path: string }> = [
+  { label: 'Log incoming calls', path: '/dispatch/log-call' },
+  { label: 'Dispatch queue', path: '/dispatch/pending' },
+  { label: 'Assign incidents to officers', path: '/dispatch/assign/x' },
+  { label: 'Radio (push-to-talk)', path: '/dispatch/ptt' },
+  { label: 'Incidents', path: '/incidents' },
+  { label: 'Responder screens', path: '/responder' },
+  { label: 'Start of shift', path: '/shift' },
+  { label: 'Readiness review', path: '/shift/readiness-review' },
+  { label: 'Metro Police section', path: '/police' },
+  { label: 'Fire & Rescue section', path: '/fire' },
+  { label: 'EMS / Medical section', path: '/medical' },
+  { label: 'Disaster Management section', path: '/disaster' },
+  { label: 'Command dashboard', path: '/command' },
+  { label: 'Build rosters', path: '/roster' },
+  { label: 'Duty allocation', path: '/roster/allocation' },
+  { label: 'HR centre', path: '/hr' },
+  { label: 'Training records', path: '/training' },
+  { label: 'Performance management', path: '/performance' },
+  { label: 'Analytics', path: '/analytics' },
+  { label: 'Report hub', path: '/report-hub' },
+  { label: 'Case manager', path: '/case-manager' },
+  { label: 'Cameras (CCTV)', path: '/cameras' },
+  { label: 'Reporting lines', path: '/hierarchy' },
+  { label: 'Administration', path: '/admin' },
+];
+
+/** Powers that are not a screen. */
+function powersOf(role: UserRole): string[] {
+  switch (role) {
+    case 'SuperAdmin':
+      return ['Run the platform: organisations, features, access rules, automations', 'Grant and remove SuperAdmin',
+        'Manage every account in the organisation'];
+    case 'SystemAdmin':
+      return ['Manage every account in the organisation', 'Approve other administrators\' account changes'];
+    case 'Admin':
+      return ['Manage accounts in their own department'];
+    default:
+      return [];
+  }
+}
+
+/** Everything a role opens or may do, as an administrator would read it. */
+export function describeAccess(role: UserRole, silo: Silo): string[] {
+  return [...AREAS.filter((a) => canAccess(a.path, role, silo)).map((a) => a.label), ...powersOf(role)];
+}
+
+/** What a change of role (and department) adds and takes away. */
+export function accessChanges(
+  from: { role: UserRole; silo: Silo },
+  to: { role: UserRole; silo: Silo },
+): { gains: string[]; losses: string[] } {
+  const before = describeAccess(from.role, from.silo);
+  const after = describeAccess(to.role, to.silo);
+  return {
+    gains: after.filter((x) => !before.includes(x)),
+    losses: before.filter((x) => !after.includes(x)),
+  };
+}
+
+/**
+ * Whether live operations reach this role: SOS sirens, new-incident and
+ * status toasts, department-wide escalations. The SuperAdmin owns the
+ * platform and does not work the floor, so none of it interrupts them. They
+ * can still open any incident, queue or map; they just are not paged by it.
+ */
+export function receivesLiveOperations(role: UserRole): boolean {
+  return role !== 'SuperAdmin';
+}
 
 export const ADMIN_ROLES: UserRole[] = ['SystemAdmin', 'SuperAdmin', 'Admin'];
 
@@ -30,11 +201,11 @@ export const ADMIN_ROLES: UserRole[] = ['SystemAdmin', 'SuperAdmin', 'Admin'];
 export const ADMIN_CONSOLE_ROLES: UserRole[] = [...ADMIN_ROLES, 'SystemController'];
 
 export const SUPERVISORY_ROLES: UserRole[] = [
-  ...ADMIN_ROLES, 'Supervisor', 'Captain', 'Chief', 'FireChief', 'System',
+  ...ADMIN_ROLES, 'Supervisor', 'Captain', 'FireChief', 'System',
 ];
 
 export const DISPATCH_ROLES: UserRole[] = [
-  ...ADMIN_ROLES, 'Dispatcher', 'Operator', 'ControlRoom', 'IncidentLogger', 'Supervisor', 'System',
+  ...ADMIN_ROLES, 'Dispatcher', 'ControlRoom', 'IncidentLogger', 'Supervisor', 'System',
 ];
 
 /**
@@ -43,40 +214,84 @@ export const DISPATCH_ROLES: UserRole[] = [
  * intake desk and the dispatch desk are different chairs.
  */
 export const CALL_TAKER_ROLES: UserRole[] = [
-  ...ADMIN_ROLES, 'Operator', 'ControlRoom', 'IncidentLogger', 'System',
+  ...ADMIN_ROLES, 'ControlRoom', 'IncidentLogger', 'System',
 ];
 
 /**
  * Who works the DISPATCH desk (queue, assign, KPI, PTT). Deliberately
- * excludes IncidentLogger — the intake desk only logs. Operator and
- * ControlRoom are the flexible chairs that sit on both sides.
+ * excludes IncidentLogger — the intake desk only logs. ControlRoom is the
+ * flexible chair that sits on both sides.
  */
 export const DISPATCH_DESK_ROLES: UserRole[] = [
-  ...ADMIN_ROLES, 'Dispatcher', 'Operator', 'ControlRoom', 'Supervisor', 'System',
+  ...ADMIN_ROLES, 'Dispatcher', 'ControlRoom', 'Supervisor', 'System',
 ];
 
 /** Field roles that respond to incidents and run the start-of-shift workflow. */
 export const RESPONDER_ROLES: UserRole[] = [
-  'Responder', 'Police', 'Officer', 'Metro', 'Security', 'Captain',
-  'Firefighter', 'FireChief', 'Chief', 'Paramedic', 'Doctor', 'Disaster',
+  'Police', 'Captain', 'Firefighter', 'FireChief', 'Paramedic', 'Doctor', 'Disaster',
 ];
 
 /** Roles that can see any silo's routes/data (V4 GLOBAL list + auth.is_global()). */
 export const GLOBAL_ROLES: UserRole[] = [
-  'SystemAdmin', 'SuperAdmin', 'Dispatcher', 'Operator', 'ControlRoom',
+  'SystemAdmin', 'SuperAdmin', 'Dispatcher', 'ControlRoom',
   'IncidentLogger', 'Viewer', 'System', 'SystemController',
 ];
 
-export const POLICE_ROLES: UserRole[] = ['Captain', 'Police', 'Officer', 'Metro', 'Security'];
-export const FIRE_ROLES: UserRole[] = ['Chief', 'FireChief', 'Firefighter'];
+export const POLICE_ROLES: UserRole[] = ['Captain', 'Police'];
+export const FIRE_ROLES: UserRole[] = ['FireChief', 'Firefighter'];
 export const MEDICAL_ROLES: UserRole[] = ['Paramedic', 'Doctor'];
 export const DISASTER_ROLES: UserRole[] = ['Disaster'];
 
 /** CaseManagerController's wide authorize list. */
 export const CASE_MANAGER_ROLES: UserRole[] = [
-  ...ADMIN_ROLES, 'CaseManager', 'Dispatcher', 'Operator', 'ControlRoom',
+  ...ADMIN_ROLES, 'CaseManager', 'Dispatcher', 'ControlRoom',
   'IncidentLogger', 'Supervisor', 'System', 'Viewer',
 ];
+
+/* ── Live-map perimeters and zones (0053) ──────────────────────────────── */
+
+/**
+ * Who may draw a perimeter or zone on the live map: the control room and
+ * dispatch desks, command staff, and each department's commanders. Field
+ * officers (Police, Firefighter, Paramedic, Doctor) see them; they do not
+ * draw. Mirrors the require_role() list in save_map_zone().
+ */
+export const MAP_ZONE_DRAW_ROLES: UserRole[] = [
+  'SuperAdmin', 'SystemAdmin', 'Admin', 'SystemController', 'Supervisor',
+  'Dispatcher', 'ControlRoom', 'IncidentLogger', 'Captain', 'FireChief', 'Disaster',
+];
+
+/** May change or stand down any zone they can see. Mirrors can_manage_map_zone(). */
+export const MAP_ZONE_MANAGE_ROLES: UserRole[] = [
+  'SuperAdmin', 'SystemAdmin', 'Admin', 'SystemController', 'Supervisor', 'ControlRoom', 'Dispatcher',
+];
+
+/** Department commanders: may change or stand down their own department's zones. */
+export const MAP_ZONE_COMMANDER_ROLES: UserRole[] = ['Captain', 'FireChief', 'Disaster'];
+
+export function canDrawMapZones(role: UserRole): boolean {
+  return MAP_ZONE_DRAW_ROLES.includes(role);
+}
+
+/** Whether `me` may change or stand down `zone` — the database has the final word. */
+export function canManageMapZone(
+  zone: { created_by: string | null; silo: Silo },
+  me: { id: string; role: UserRole; silo: Silo },
+): boolean {
+  return zone.created_by === me.id
+    || MAP_ZONE_MANAGE_ROLES.includes(me.role)
+    || (MAP_ZONE_COMMANDER_ROLES.includes(me.role) && zone.silo === me.silo);
+}
+
+/**
+ * Whose console announces a zone shared with them. Field officers are left
+ * out on purpose: perimeters reach the officer app in a later phase, and the
+ * SuperAdmin is not paged by live operations (receivesLiveOperations).
+ */
+export function receivesZoneNotices(role: UserRole): boolean {
+  return receivesLiveOperations(role)
+    && !['Police', 'Firefighter', 'Paramedic', 'Doctor', 'Staff'].includes(role);
+}
 
 type RouteRule = {
   /** Route prefix, longest match wins. */
@@ -107,10 +322,14 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/hierarchy',    roles: [...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'CaseManager', 'Viewer'] },
   { prefix: '/responder',    roles: [...RESPONDER_ROLES, ...ADMIN_ROLES] },
   { prefix: '/shift/readiness-review', roles: [...SUPERVISORY_ROLES, 'SystemController'] },
+  // Today's shift board (0051): who has started, with what kit. Command staff.
+  { prefix: '/shift/today',  roles: [...SUPERVISORY_ROLES, 'SystemController'] },
   { prefix: '/shift',        roles: [...RESPONDER_ROLES, ...ADMIN_ROLES, 'Supervisor'] },
-  { prefix: '/police',       roles: [...POLICE_ROLES, ...ADMIN_ROLES, 'Responder'], silo: 'MetroPolice' },
-  { prefix: '/fire',         roles: [...FIRE_ROLES, ...ADMIN_ROLES, 'Responder'], silo: 'MetroFire' },
-  { prefix: '/medical',      roles: [...MEDICAL_ROLES, ...ADMIN_ROLES, 'Responder'], silo: 'Medical' },
+  // The armoury register (0051) is kept by command staff; officers book out in the app.
+  { prefix: '/police/armoury', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
+  { prefix: '/police',       roles: [...POLICE_ROLES, ...ADMIN_ROLES], silo: 'MetroPolice' },
+  { prefix: '/fire',         roles: [...FIRE_ROLES, ...ADMIN_ROLES], silo: 'MetroFire' },
+  { prefix: '/medical',      roles: [...MEDICAL_ROLES, ...ADMIN_ROLES], silo: 'Medical' },
   { prefix: '/disaster',     roles: [...DISASTER_ROLES, ...DISPATCH_ROLES, 'Viewer'], silo: 'EthekwiniDisaster' },
   // Everyone sees their own schedule; only supervisors build the roster.
   { prefix: '/roster/allocation', roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'Staff', 'CaseManager'] },
@@ -136,6 +355,10 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/performance/reports', roles: [...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'Viewer', 'CaseManager'] },
   { prefix: '/performance',  roles: ['Supervisor', 'SystemAdmin', 'SuperAdmin', 'System', 'Admin'] },
   { prefix: '/analytics',    roles: ['System', 'SystemAdmin', 'SuperAdmin', 'Admin', 'Viewer', 'Supervisor'] },
+  // Deciding account changes is the SystemAdmins' second pair of eyes (0048).
+  { prefix: '/admin/approvals', roles: ['SystemAdmin', 'SuperAdmin'] },
+  // Importing HR's staff list is a SystemAdmin's job (0050); Admins review roles afterwards.
+  { prefix: '/admin/personnel/import', roles: ['SystemAdmin', 'SuperAdmin'] },
   { prefix: '/admin',        roles: ADMIN_ROLES },
   { prefix: '/cameras',      roles: [...DISPATCH_ROLES, 'Viewer'] },
   { prefix: '/notifications' },
@@ -158,7 +381,12 @@ export function canAccess(pathname: string, role: UserRole, silo: Silo): boolean
   if (role === 'SystemController') {
     return !pathname.startsWith('/admin/tenants')
       && !pathname.startsWith('/admin/features')
-      && !pathname.startsWith('/admin/access');
+      && !pathname.startsWith('/admin/access')
+      && !pathname.startsWith('/admin/approvals')
+      && !pathname.startsWith('/admin/invitations')
+      && !pathname.startsWith('/admin/personnel/import')
+      && !pathname.startsWith('/admin/rollout')
+      && !pathname.startsWith('/admin/handbook');
   }
   const rule = ROUTE_RULES
     .filter((r) => pathname === r.prefix || pathname.startsWith(`${r.prefix}/`))

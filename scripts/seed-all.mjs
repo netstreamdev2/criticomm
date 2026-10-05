@@ -47,7 +47,6 @@ const USERS = [
   ['dispatch.metro@criticom.gov.za',  'Dispatcher',     'MetroPolice',       'Nomsa Metro'],
   ['captain.metro@criticom.gov.za',   'Captain',        'MetroPolice',       'Capt. Dube'],
   ['police01.metro@criticom.gov.za',  'Police',         'MetroPolice',       'Const. Khumalo'],
-  ['security.metro@criticom.gov.za',  'Security',       'MetroPolice',       'Guard Nkosi'],
   // Fire
   ['admin.fire@criticom.gov.za',      'Admin',          'MetroFire',         'Pieter Fire'],
   ['dispatch.fire@criticom.gov.za',   'Dispatcher',     'MetroFire',         'Fire Control'],
@@ -148,7 +147,7 @@ async function seedApparatus() {
 async function seedPersonnel(users, apparatus) {
   const rows = [];
   // Link created field users to a personnel record.
-  const field = users.filter((u) => ['Police', 'Firefighter', 'Paramedic', 'Disaster', 'Captain', 'FireChief', 'Doctor', 'Security'].includes(u.role));
+  const field = users.filter((u) => ['Police', 'Firefighter', 'Paramedic', 'Disaster', 'Captain', 'FireChief', 'Doctor'].includes(u.role));
   field.forEach((u, i) => {
     const [first, ...rest] = u.fullName.split(' ');
     const siloVeh = apparatus.filter((a) => a.silo === u.silo);

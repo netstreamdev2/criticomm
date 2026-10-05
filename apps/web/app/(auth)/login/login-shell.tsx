@@ -44,7 +44,7 @@ export function LoginShell({ children }: { children: ReactNode }) {
               <div className="hik-login-lock"><LockKeyhole size={21} strokeWidth={1.8} /></div>
               <p className="hik-login-kicker">SECURE CONSOLE ACCESS</p>
               <h2 id="hik-login-title">Welcome back.</h2>
-              <p className="hik-login-instruction">Use your departmental email and password to sign in.</p>
+              <p className="hik-login-instruction">Sign in with your email address or badge number, and your password.</p>
               {children}
               <div className="hik-login-card-foot"><span /> Authorised personnel only. All access is audited.</div>
             </div>

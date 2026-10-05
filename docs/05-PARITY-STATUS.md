@@ -129,7 +129,8 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 - **Realtime**: global toast on new incidents (silo-scoped; global roles hear everything) + live refresh on the dispatch queue.
 - **States**: skeleton `loading.tsx`, recoverable `error.tsx`, branded 404, active-route highlighting, status badges, focus-visible rings, styled scrollbars, print stylesheet.
 - **Charts**: recharts wrappers (`components/charts.tsx`) on dashboard, KPI and analytics.
-- **Maps**: shared Leaflet component (`components/leaflet-map.tsx`) — OSM tiles, severity-coloured markers.
+- **Maps**: shared Leaflet component (`components/leaflet-map.tsx`) — OSM tiles, severity-coloured markers — for the small single-purpose maps. The dispatch board and `/incidents/map` use the **live operations map** (`components/ops-map/`): incidents and on-duty officers move in place over realtime, SOS beacons always show, and a **Layers** panel switches V4 `_MapCore` overlays on and off (crime zones from `crime_stats`, hydrants, CCTV, OpenWeather rain/cloud/temperature/wind tiles, TomTom traffic and emergency facilities). Choices are remembered per browser; each desk opens with its own defaults (`lib/ops-map/layers.ts`). **Full screen** (or F) makes it a wall display for a control-room TV — HUD with SAST clock and live counts, controls fade when idle, screen kept awake, view follows the incidents; `/incidents/map?wall=1` opens straight into it.
+- **Perimeters & zones** (migration 0053, `components/ops-map/zones/`): command and control-room staff (`MAP_ZONE_DRAW_ROLES`) draw areas, circles, lines and points on the live map — live measurements, radius to the metre, coordinates to six decimals, points snapped onto a call's pin, vertex editing, self-crossing areas refused — then name the type (cordon, exclusion, evacuation, hazard, search, road closure, route, staging, command post, rendezvous, last seen, note), say why, link a call, choose who sees it (only me / my department / chosen departments / everyone on the call / everyone) and an end time. Writes go only through `save_map_zone()` / `end_map_zone()` (PostGIS validation and geodesic measurements, change history in `map_zone_events`, audit log); zones are stood down with a reason, never deleted. Consoles receive shared zones live with who set them and why (`components/zone-notifier.tsx`); the incident page lists a call's zones. **Not sent to officers' phones yet** — nothing is written to `alerts`, which the officer app reads.
 
 ## Controller → route map
 
@@ -146,7 +147,7 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 | SecuritiesController | `/police/security(/new)` — SIRA guard reports + resolve flow | ✅ |
 | CrimeController | `/police/crime-hotspots` (SAPS dataset, ranked) | ✅ (CSV import = ops task) |
 | FirefightersController | `/fire/reports(/new,/[id])` + **PDF download** | ✅ |
-| FireChiefController | `/fire/hydrants` — GIS map + register | ✅ |
+| FireChiefController | `/fire/hydrants` — GIS map + register; hydrants also on the live map. `scripts/load-hydrants.mjs` loads EWS hydrant GeoJSON (needs migration 0052; re-runs update in place, never overwrite fire-service inspections). V4's copy is a partial 1,000-point extract — the full EWS register is still to be obtained | ✅ |
 | PIRController | `/fire/pir`, `/fire/pir/publish/[reportId]` | ✅ |
 | ParamedicsController | `/medical/pcr(/new,/[id],/[id]/edit)` — full PCR | ✅ (signature canvas → mobile phase) |
 | DisasterController | `/disaster` (monitor, map, **wind widget**), `/disaster/dispatch`, `/disaster/post-mortem`, `/disaster/partners` | ✅ |
@@ -170,6 +171,7 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 - `/api/pdf/incident/[id]` — case report PDF (pdf-lib)
 - `/api/pdf/fire-report/[id]` — fire report PDF
 - `/api/wind` — OpenWeatherMap (needs `OPENWEATHER_API_KEY`)
+- `/api/weather/tiles/[layer]/[z]/[x]/[y]` — OpenWeather map tiles for the live map (same key; no `.png` suffix so the middleware still authenticates it)
 - `/api/chat` — Gemini "Criti" assistant (needs `GEMINI_API_KEY`, optional `GEMINI_MODEL`)
 - `/api/geocode` — Nominatim proxy for the dispatch console's address ⇄ coordinate lookup (no key)
 - `/api/push/notify` — Expo push fanout to the departments a call was routed to (service-role read of `push_tokens`)

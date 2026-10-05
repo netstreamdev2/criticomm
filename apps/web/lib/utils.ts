@@ -16,6 +16,19 @@ export function formatSaTime(d: string | Date | null | undefined) {
   return formatter.format(typeof d === 'string' ? new Date(d) : d);
 }
 
+/**
+ * Escape text for an HTML string — map popups and tooltips are bound as HTML,
+ * and incident types, addresses and names are typed in by people.
+ */
+export function escapeHtml(value: unknown) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export function timeAgo(d: string | Date | null | undefined) {
   if (!d) return '—';
   const date = typeof d === 'string' ? new Date(d) : d;

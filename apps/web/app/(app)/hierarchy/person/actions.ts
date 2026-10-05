@@ -5,7 +5,7 @@ import { setReportingLine, clearReportingLine, logAudit } from '@criticom/api';
 import { ADMIN_ROLES, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
-const CAN_EDIT = new Set([...ADMIN_ROLES, 'Supervisor', 'Captain', 'FireChief', 'Chief']);
+const CAN_EDIT = new Set([...ADMIN_ROLES, 'Supervisor', 'Captain', 'FireChief']);
 
 export async function setReportsToAction(formData: FormData) {
   const { supabase, role, fullName } = await getSession();

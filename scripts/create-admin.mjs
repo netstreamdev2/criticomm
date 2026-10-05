@@ -20,6 +20,11 @@ const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!URL || !KEY) { console.error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (source .env).'); process.exit(1); }
 if (!email || !password) { console.error('Usage: node scripts/create-admin.mjs <email> <password> [role] [silo] [fullName]'); process.exit(1); }
+// Retired in 0045 (see RETIRED_ROLES in packages/db/src/roles.ts). Refuse before
+// the auth user exists, or the profile insert fails and leaves it half-made.
+if (['Officer', 'Metro', 'Chief', 'Operator', 'Responder', 'Security', 'Citizen'].includes(role)) {
+  console.error(`"${role}" is a retired role.`); process.exit(1);
+}
 
 const supabase = createClient(URL, KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 

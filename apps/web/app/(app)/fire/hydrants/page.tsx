@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { LeafletMap } from '@/components/leaflet-map';
 import { getSession } from '@/lib/session';
-import { formatSaTime } from '@/lib/utils';
+import { escapeHtml, formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Hydrants · HikTech' };
@@ -36,7 +36,7 @@ export default async function HydrantsPage() {
               lat: h.latitude,
               lng: h.longitude,
               kind: h.status === 'Operational' ? 'hydrant' : 'critical',
-              popupHtml: `<strong>${h.location_name}</strong><br/>${h.status}`,
+              popupHtml: `<strong>${escapeHtml(h.location_name)}</strong><br/>${escapeHtml(h.status)}`,
             }))}
           />
         </CardContent>
@@ -54,7 +54,7 @@ export default async function HydrantsPage() {
                 <Td>{h.location_name}</Td>
                 <Td className="font-mono text-xs">{h.latitude.toFixed(5)}, {h.longitude.toFixed(5)}</Td>
                 <Td><span className={STATUS_COLOR[h.status] ?? ''}>{h.status}</span></Td>
-                <Td className="text-muted-foreground">{formatSaTime(h.last_inspected)}</Td>
+                <Td className="text-muted-foreground">{h.last_inspected ? formatSaTime(h.last_inspected) : 'Not yet inspected'}</Td>
               </Tr>
             ))}
           </SimpleTable>

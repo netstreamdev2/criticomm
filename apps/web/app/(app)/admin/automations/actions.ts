@@ -4,7 +4,6 @@ import { revalidatePath } from 'next/cache';
 import {
   logAudit, runAutomationNow, setAutomationEnabled, updateAutomationConfig, RULE_FIELDS,
 } from '@criticom/api';
-import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
 /**
@@ -16,9 +15,16 @@ import { getSession } from '@/lib/session';
  * needs an answer that names a person and a time.
  */
 
+/**
+ * One set of rules runs for every tenant, so only the platform owner changes
+ * or fires them (0046 enforces the same in the database). Tenant admins see
+ * the page read-only.
+ */
 async function requireAdmin() {
   const session = await getSession();
-  if (!ADMIN_CONSOLE_ROLES.includes(session.role)) throw new Error('Forbidden');
+  if (session.role !== 'SuperAdmin') {
+    throw new Error('Automations run for every municipality — only the SuperAdmin can change them.');
+  }
   return session;
 }
 

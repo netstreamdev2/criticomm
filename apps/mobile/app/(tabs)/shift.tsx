@@ -688,16 +688,19 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
           </View>
           <Title>Vehicle not cleared for duty</Title>
           <Muted>
-            The inspection was filed. One or more essential checks failed — report the defect to your
-            supervisor or fleet control. You cannot go on duty in this vehicle until every essential check is clear.
+            The inspection was filed. One or more essential checks failed, so {vehicle?.unit_number ?? 'the vehicle'} is
+            off the road and your supervisor has been told. Choose another vehicle; this one comes back once fleet
+            control returns it to service.
           </Muted>
           <View style={{ marginTop: space.lg, gap: space.sm }}>
             <Button
-              label="Re-inspect vehicle"
-              icon="refresh"
-              variant="outline"
+              label="Choose another vehicle"
+              icon="car-outline"
               busy={busy}
-              onPress={() => vehicle && void run(() => openInspection(vehicle.id))}
+              onPress={() => void run(async () => {
+                setOfficer((o) => ({ ...o, apparatusId: null }));
+                await openVehicles();
+              })}
             />
           </View>
         </Card>

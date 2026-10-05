@@ -59,9 +59,10 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (loading) return;
-    const inLogin = segments[0] === 'login';
-    if (!session && !inLogin) { router.replace('/login'); return; }
-    if (session && inLogin) { router.replace('/'); return; }
+    // Signed out, a person may sign in or activate an account with a printed code (0049).
+    const signedOutScreen = segments[0] === 'login' || segments[0] === 'activate';
+    if (!session && !signedOutScreen) { router.replace('/login'); return; }
+    if (session && signedOutScreen) { router.replace('/'); return; }
 
   }, [session, loading, segments, router]);
 
@@ -141,6 +142,7 @@ export default function RootLayout() {
             }}
           >
             <Stack.Screen name="login" options={{ headerShown: false }} />
+            <Stack.Screen name="activate" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen
               name="incident/[id]"
@@ -157,6 +159,10 @@ export default function RootLayout() {
             <Stack.Screen
               name="leave"
               options={{ title: 'Leave', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="end-shift"
+              options={{ title: 'End of shift', headerBackTitle: 'Back' }}
             />
             <Stack.Screen
               name="firearm-check"

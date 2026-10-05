@@ -13,7 +13,7 @@ import { formatSaTime } from '@/lib/utils';
 import { buildMembers, keyOf } from '@/lib/org';
 import { setReportsToAction } from './actions';
 
-const CAN_EDIT = new Set([...ADMIN_ROLES, 'Supervisor', 'Captain', 'FireChief', 'Chief']);
+const CAN_EDIT = new Set([...ADMIN_ROLES, 'Supervisor', 'Captain', 'FireChief']);
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Personnel Record · HikTech' };

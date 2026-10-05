@@ -164,6 +164,87 @@ isolation, admin closure, self-service openness, and longest-prefix precedence.
 
 ---
 
+## Second audit — the admin ladder and tenant walls (0046)
+
+Audited against the intended model: **SuperAdmin** owns the platform (all of
+SystemAdmin's powers plus tenants, features, access rules, automations, and
+sole control of the SuperAdmin role); **SystemAdmin** runs one tenant;
+**Admin** runs one department of one tenant; nobody sees another tenant.
+Every fix below is in `0046_access_hierarchy_and_tenant_walls.sql`, and was
+verified by executing the migration against a mock of this schema: 53
+checks, including proof that each hole was open before the migration ran.
+
+### 9. Any user could make themselves SuperAdmin — **CRITICAL**
+
+`profiles_self_update` had no column limits, and `role_in()` trusts
+`profiles.role`. One `update profiles set role = 'SuperAdmin'` from the
+browser gave any signed-in user every database permission in their tenant,
+plus write access to the tenant register. Separately, `profiles_admin_write`
+let Supervisors and department Admins grant any role, SuperAdmin included,
+in any department.
+
+**Fix:** `guard_profile_write()` (BEFORE trigger) decides *which changes* a
+browser session may make; the policies decide *which rows*. Role, department
+and account status change only down the ladder, and never on yourself.
+Duty state, sign-in time, totals, e-mail and tenant are system-written only.
+Trusted writers (SQL editor, service role, DEFINER functions) pass, which
+`current_user` distinguishes. The web mirrors the same rule in
+`rolesAssignableBy()` so the Admin picker offers only grantable roles.
+
+### 10. Two sources of truth for a person's role — **HIGH**
+
+The web and the app read the role from `app_metadata`; the database read it
+from `profiles`; nothing linked them. An Admin's role change never took
+effect, and a demotion never removed access. **Fix:** `profiles` is the
+source, and `sync_profile_to_token()` copies role and department to the
+token on every change. The migration first reconciled existing drift in the
+token's favour, because only the platform can write the token.
+
+### 11. Files had no tenant wall — **HIGH**
+
+Storage paths begin with the department name, which is identical in every
+tenant, so one tenant's officers could list and download another tenant's
+evidence photos. **Fix:** a restrictive storage policy requires the incident
+(or person) named in the path to be visible to the caller under their own
+row security. Another tenant's record is simply not found.
+
+### 12. Smaller gaps — **MEDIUM**
+
+- `current_silo()` fell back to `user_metadata`, which users write themselves.
+- An officer could move their own personnel row to another department, and
+  so receive that department's dispatches.
+- `log_incoming_call()` answered a repeated `client_ref` with a matching
+  incident from any tenant.
+- A SystemAdmin could read every tenant's row in the register.
+- Automations are one platform-wide set, yet any tenant's Admin could retune,
+  disable or fire them for all tenants. Now SuperAdmin only.
+- Suspending a tenant had no effect. `current_tenant()` now resolves a
+  suspended tenant to nothing, closing every wall. The founding tenant cannot
+  be suspended.
+
+**Known limitation:** automation run summaries are counted across all tenants
+and visible to each tenant's admins (numbers only, no records). Fully
+per-tenant automations would need tenant-scoped rules.
+
+## Account safety rules (0048)
+
+Agreed with the product owner for eThekwini, enforced in
+`0048_account_safety_rules.sql`, and verified by executing the migration
+against a mock of this schema (70 checks, including every refusal path).
+
+| Rule | How it is enforced |
+| --- | --- |
+| At least **two active SystemAdmins** per organisation | `keep_two_system_admins` trigger refuses any demotion, deactivation, deletion or move that would leave fewer. It applies to every writer, the SQL editor included, and serialises concurrent removals with an advisory lock. |
+| Every role, department or status change has a **reason** and a **typed confirmation** | Browser sessions can no longer write those columns, create accounts or delete them (`guard_profile_write`). The only doors are `change_account_role()` and `set_account_active()`, which require a 10+ character reason and the account's badge number (or full name) typed back. |
+| **Two people** for powerful roles | Anything touching SystemAdmin, Admin or SystemController waits in `account_requests` for `decide_account_request()`. The requester cannot decide it, nor can the person it is about. With no other SystemAdmin the SuperAdmin decides. While a request is open the account is frozen. Requests expire after 7 days. |
+| **Deactivate, never delete** | `set_account_active()` bans the sign-in, revokes sessions, takes the person off duty and off rosters, and keeps their records. `current_tenant()` and the role helpers ignore a deactivated profile, so it sees nothing from its next query. Anyone leading or assigned an open incident must hand it on first. |
+| **Permanent history** | `account_history` is written by a trigger on every role, department and activation change, recording who made it, why, who approved it and the request. Changes made outside the app are recorded too, flagged as such. Update, delete and truncate are refused. |
+
+Also closed: a signed-in login with **no profile** resolved to the founding
+tenant through `current_tenant()`'s fallback, and could read that tenant's
+department-wide records. One such account existed in the live project.
+`current_tenant()` now requires an active profile in the tenant.
+
 ## Verified sound (no change needed)
 
 - **RLS coverage** — 51 tables; every application table has RLS enabled with
@@ -175,6 +256,18 @@ isolation, admin closure, self-service openness, and longest-prefix precedence.
   (`used_at is null`) and expiry before writing.
 - **Silo isolation** — field roles cannot cross departments; verified by test
   and by an 11-persona × 94-route flow audit.
+- **Tenant walls on tables** (second audit) — every table carrying
+  `tenant_id` has its restrictive policy. 0046 re-checks this in the live
+  database and refuses to finish otherwise. The exceptions are deliberate:
+  shared SAPS crime statistics, rate limits, and automation internals.
+- **DEFINER functions** (second audit) — every function that bypasses row
+  security and touches tenant data either locks the row with a tenant check
+  before acting, keys on the caller's own `auth.uid()`, or runs as a platform
+  job that stamps each row's own tenant. The one exception, `log_incoming_call`,
+  is fixed in 12.
+- **Push route** — recipients are chosen with the service role, but only after
+  the caller has proved they can read the incident, and only within that
+  incident's tenant.
 
 ## Still open — requires the operator
 

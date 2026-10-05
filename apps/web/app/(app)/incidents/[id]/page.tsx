@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 import { FileText, Lock } from 'lucide-react';
 import {
-  getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listIncidentAttachments, listIncidentResponders,
-  signIncidentMedia,
+  getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listIncidentAttachments, listIncidentMapZones,
+  listIncidentResponders, signIncidentMedia,
 } from '@criticom/api';
 import { CASE_MANAGER_ROLES } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { PoliceReportCard } from './report-card';
+import { IncidentZonesCard } from './zones-card';
 import {
   addUpdateAction, closeCaseAction, requestCitizenLocationAction, setStatusAction,
 } from './actions';
@@ -29,13 +30,15 @@ export default async function IncidentDetailPage({
 
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) notFound();
-  const [updates, attachments, audit, report, responders] = await Promise.all([
+  const [updates, attachments, audit, report, responders, zones] = await Promise.all([
     getIncidentUpdates(supabase, id),
     listIncidentAttachments(supabase, id),
     // Console actions log as 'incident', server RPCs as 'incidents' — the id is enough.
     listAuditLogs(supabase, { entityId: id, limit: 200 }).catch(() => []),
     getIncidentReport(supabase, id).catch(() => null),
     listIncidentResponders(supabase, id).catch(() => []),
+    // Empty until migration 0053 is run; the card then simply does not show.
+    listIncidentMapZones(supabase, id).catch(() => null),
   ]);
   const media = await signIncidentMedia(supabase, attachments.map((a) => a.storage_path)).catch(
     () => new Map<string, string>(),
@@ -245,6 +248,16 @@ export default async function IncidentDetailPage({
           </CardContent>
         </Card>
       </div>
+
+      {zones && (
+        <IncidentZonesCard
+          zones={zones}
+          incidentId={incident.id}
+          incidentNumber={incident.incident_number}
+          role={role}
+          isClosed={isClosed}
+        />
+      )}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>

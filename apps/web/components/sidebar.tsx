@@ -56,6 +56,7 @@ const SYSTEM_ADMIN_GROUPS: NavGroup[] = [
       adminLink('/command', 'Command Centre'),
       adminLink('/analytics', 'Analytics'),
       adminLink('/report-hub', 'Reports'),
+      adminLink('/shift/today'),
     ],
   },
   {
@@ -63,6 +64,7 @@ const SYSTEM_ADMIN_GROUPS: NavGroup[] = [
       adminLink('/admin', 'Users & Roles'),
       adminLink('/admin/personnel', 'Personnel'),
       adminLink('/admin/vehicles', 'Fleet'),
+      adminLink('/police/armoury'),
       adminLink('/admin/devices', 'Devices'),
     ],
   },
@@ -88,6 +90,7 @@ const SUPERVISOR_GROUPS: NavGroup[] = [
   },
   {
     id: 'supervisor-team', label: 'Team & Duty', items: [
+      adminLink('/shift/today'),
       adminLink('/roster/allocation', 'Duty Allocation'),
       adminLink('/roster', 'Roster'),
       adminLink('/roster/duty-sheet', 'Duty Sheet'),
@@ -103,6 +106,7 @@ const SUPERVISOR_GROUPS: NavGroup[] = [
       adminLink('/incidents', 'Incidents'),
       adminLink('/incidents/map', 'Live Map'),
       adminLink('/duty-tasks', 'Duty Maintenance'),
+      adminLink('/police/armoury'),
       adminLink('/report-hub', 'Reports'),
     ],
   },
@@ -127,6 +131,7 @@ const CAPTAIN_GROUPS: NavGroup[] = [
     adminLink('/command', 'Command Board'),
   ] },
   { id: 'captain-team', label: 'Team & Duty', items: [
+    adminLink('/shift/today'),
     adminLink('/roster/allocation', 'Duty Allocation'),
     adminLink('/roster', 'Roster'),
     adminLink('/roster/duty-sheet', 'Duty Sheet'),
@@ -136,6 +141,7 @@ const CAPTAIN_GROUPS: NavGroup[] = [
   ] },
   { id: 'captain-operations', label: 'Police Operations', items: [
     adminLink('/police', 'Police Overview'),
+    adminLink('/police/armoury'),
     adminLink('/incidents', 'Incidents'),
     adminLink('/incidents/map', 'Live Map'),
     adminLink('/responder', 'My Incidents'),
@@ -252,6 +258,7 @@ const SYSTEM_CONTROLLER_GROUPS: NavGroup[] = [
     adminLink('/dispatch/kpi', 'Dispatch KPIs'),
   ] },
   { id: 'controller-duty', label: 'Duty & People', items: [
+    adminLink('/shift/today'),
     adminLink('/roster/allocation', 'Duty Allocation'),
     adminLink('/roster', 'Roster'),
     adminLink('/duty-tasks', 'Duty Maintenance'),
@@ -265,6 +272,7 @@ const SYSTEM_CONTROLLER_GROUPS: NavGroup[] = [
   { id: 'controller-systems', label: 'Operational Systems', items: [
     adminLink('/admin/personnel', 'Personnel'),
     adminLink('/admin/vehicles', 'Fleet'),
+    adminLink('/police/armoury'),
     adminLink('/admin/devices', 'Devices'),
     adminLink('/admin/integrations', 'Integrations'),
     adminLink('/admin/status', 'System Status'),
@@ -307,7 +315,7 @@ function NavList({
       : role === 'SystemAdmin' ? SYSTEM_ADMIN_GROUPS
       : role === 'Supervisor' ? SUPERVISOR_GROUPS
       : role === 'Captain' ? CAPTAIN_GROUPS
-      : ['Police', 'Officer', 'Metro'].includes(role) ? POLICE_OFFICER_GROUPS
+      : role === 'Police' ? POLICE_OFFICER_GROUPS
       : role === 'Dispatcher' ? DISPATCHER_GROUPS
       : role === 'IncidentLogger' ? INCIDENT_LOGGER_GROUPS
       : role === 'SystemController' ? SYSTEM_CONTROLLER_GROUPS : NAV_GROUPS;

@@ -1,8 +1,14 @@
-import type { CriticomClient, Database, Silo, UserRole } from '@criticom/db';
+import type { CriticomClient, Database, Silo } from '@criticom/db';
 
 type Tables = Database['public']['Tables'];
 
 // ── Users (DevAdminController.ManageSilo / SuperController) ──────────
+// Roles and activation change only through ./accounts (migration 0048).
+
+export * from './accounts';
+export * from './invitations';
+export * from './register';
+export * from './assets';
 
 export async function listAllProfiles(client: CriticomClient, silo?: Silo) {
   let q = client.from('profiles').select('*').order('full_name');
@@ -21,10 +27,6 @@ export async function updateProfile(
     .from('profiles').update(patch).eq('id', id).select().single();
   if (error) throw error;
   return data;
-}
-
-export async function setUserRole(client: CriticomClient, id: string, role: UserRole) {
-  return updateProfile(client, id, { role });
 }
 
 // ── Vehicles / apparatus ─────────────────────────────────────────────

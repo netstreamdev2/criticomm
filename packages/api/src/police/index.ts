@@ -139,4 +139,31 @@ export async function listCrimeStats(client: CriticomClient, year?: string) {
   if (error) throw error;
   return data ?? [];
 }
+
+/**
+ * The live map's crime-zone layer: one district's police stations for the
+ * latest financial year loaded. The SAPS dataset spells districts in lower
+ * case ("ethekwini"), so the match ignores case.
+ */
+export async function listCrimeZones(client: CriticomClient, district = 'ethekwini') {
+  const latest = await client
+    .from('crime_stats')
+    .select('year')
+    .ilike('district_municipality', district)
+    .order('year', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (latest.error) throw latest.error;
+  if (!latest.data) return { year: null, stations: [] };
+
+  const { data, error } = await client
+    .from('crime_stats')
+    .select('id, station_name, latitude, longitude, murder, carjacking, burglary_residential, robbery_residential, drug_crime, dui')
+    .ilike('district_municipality', district)
+    .eq('year', latest.data.year)
+    .not('latitude', 'is', null)
+    .not('longitude', 'is', null);
+  if (error) throw error;
+  return { year: latest.data.year, stations: data ?? [] };
+}
 export * from './report-types';

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { LeafletMap } from '@/components/leaflet-map';
 import { WindWidget } from './wind-widget';
 import { getSession } from '@/lib/session';
-import { formatSaTime, timeAgo } from '@/lib/utils';
+import { escapeHtml, formatSaTime, timeAgo } from '@/lib/utils';
 import { periodicUpdateAction } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -72,7 +72,7 @@ export default async function DisasterPage() {
                 lat: i.location_lat,
                 lng: i.location_lng,
                 kind: i.incident_severity.toLowerCase(),
-                popupHtml: `<strong>${i.incident_number}</strong><br/>${i.incident_type}<br/><a href="/incidents/${i.id}">Open →</a>`,
+                popupHtml: `<strong>${escapeHtml(i.incident_number)}</strong><br/>${escapeHtml(i.incident_type)}<br/><a href="/incidents/${escapeHtml(i.id)}">Open →</a>`,
               }))}
             />
           </CardContent>

@@ -69,10 +69,9 @@ const INCIDENT_STATUS = [
 const SEVERITY = ['Low', 'Medium', 'High', 'Critical'] as const;
 
 const ROLES = [
-  'SystemAdmin', 'SuperAdmin', 'Admin', 'Supervisor', 'Dispatcher', 'Operator', 'ControlRoom',
-  'IncidentLogger', 'Viewer', 'System', 'Captain', 'Police', 'Officer', 'Metro', 'Security',
-  'Chief', 'FireChief', 'Firefighter', 'Paramedic', 'Doctor', 'Disaster', 'CaseManager',
-  'Citizen', 'Responder', 'Staff',
+  'SuperAdmin', 'SystemAdmin', 'Admin', 'SystemController', 'Supervisor', 'Dispatcher',
+  'ControlRoom', 'IncidentLogger', 'CaseManager', 'Viewer', 'System', 'Captain', 'Police',
+  'FireChief', 'Firefighter', 'Paramedic', 'Doctor', 'Disaster', 'Staff',
 ] as const;
 
 const APPARATUS_STATUS = [
@@ -81,8 +80,8 @@ const APPARATUS_STATUS = [
 
 /* Role bundles, mirroring packages/db/src/roles.ts. */
 const ADMIN = ['SystemAdmin', 'SuperAdmin', 'Admin'] as const;
-const SUPERVISORY = [...ADMIN, 'Supervisor', 'Captain', 'Chief', 'FireChief'] as const;
-const DESK = [...ADMIN, 'Dispatcher', 'Operator', 'ControlRoom', 'Supervisor'] as const;
+const SUPERVISORY = [...ADMIN, 'Supervisor', 'Captain', 'FireChief'] as const;
+const DESK = [...ADMIN, 'Dispatcher', 'ControlRoom', 'Supervisor'] as const;
 
 export const DATASETS: readonly DatasetDef[] = [
   {

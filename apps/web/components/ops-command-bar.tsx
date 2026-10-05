@@ -108,7 +108,7 @@ export function OpsCommandBar({
   const modules = MODULES.filter((m) => canAccess(m.href, r, s));
   const operations = OPERATIONS.filter((o) => canAccess(o.href, r, s));
 
-  if (role === 'SystemController' || role === 'Captain' || ['Police', 'Officer', 'Metro'].includes(role)) {
+  if (role === 'SystemController' || role === 'Captain' || role === 'Police') {
     const shortcutItems = role === 'Captain' ? CAPTAIN_SHORTCUTS
       : role === 'SystemController' ? CONTROLLER_SHORTCUTS : POLICE_OFFICER_SHORTCUTS;
     const shortcuts = shortcutItems.filter((item) =>

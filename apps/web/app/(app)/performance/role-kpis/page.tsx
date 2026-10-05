@@ -7,7 +7,7 @@ import { PerfNav, cycleWindow } from '../perf-nav';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Role KPIs · HikTech' };
 
-const CONTROL_ROOM_ROLES = ['Dispatcher', 'Operator', 'ControlRoom', 'IncidentLogger', 'CaseManager', 'Supervisor'];
+const CONTROL_ROOM_ROLES = ['Dispatcher', 'ControlRoom', 'IncidentLogger', 'CaseManager', 'Supervisor'];
 
 export default async function RoleKpisPage({
   searchParams,

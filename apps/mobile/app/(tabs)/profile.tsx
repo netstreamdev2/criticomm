@@ -3,10 +3,11 @@ import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
-import { cleanupOnLogout, getMyPersonnel, toggleDuty } from '@criticom/api';
+import { getMyPersonnel, getMyShiftKit, toggleDuty } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useNotifications, type PushStatus } from '@/lib/notifications';
+import { useSignOut } from '@/lib/sign-out';
 import { useSync } from '@/lib/sync';
 import { useFeatures } from '@/lib/features';
 import { useOpenCall } from '@/lib/open-call';
@@ -57,7 +58,8 @@ export default function ProfileScreen() {
   const styles = useStyles();
   const router = useRouter();
   const { session, fullName, role, silo } = useAuth();
-  const { pushEnabled, pushStatus, releasePushToken } = useNotifications();
+  const { pushEnabled, pushStatus } = useNotifications();
+  const signOut = useSignOut();
   const { enqueue, pending, failed, online } = useSync();
   const { enabled: featureOn } = useFeatures();
   const dept = useDept();
@@ -160,19 +162,23 @@ export default function ProfileScreen() {
     }
   };
 
-  const signOut = async () => {
-    const sb = getSupabase();
-    // Drop the push registration first: after signOut the session can no longer
-    // satisfy the RLS check on push_tokens, and a row left behind sends this
-    // person's calls to whoever carries the handset next.
-    await releasePushToken().catch(() => {});
-    // V4 AuthController.Logout: free the vehicle + clear duty before ending the session.
-    await cleanupOnLogout(sb).catch(() => {});
-    await sb.auth.signOut();
-  };
-
   const confirmSignOut = async () => {
     if (await stillOnCall('sign out')) return;
+    // A firearm still booked out is handed back before the officer leaves: the
+    // end of shift does that. Signing out anyway tells command (0051).
+    const kit = await getMyShiftKit(getSupabase()).catch(() => null);
+    if (kit?.firearm) {
+      Alert.alert(
+        'Firearm still booked out',
+        `${kit.firearm.make} ${kit.firearm.model} (${kit.firearm.serial_number}) is booked out to you. Hand it back with End shift before you sign out.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'End shift', onPress: () => router.push('/end-shift') },
+          { text: 'Sign out anyway', style: 'destructive', onPress: () => void signOut() },
+        ],
+      );
+      return;
+    }
     const undelivered = pending.length + failed.length;
     // Undelivered work is held against the account that captured it, so it is
     // not lost — but the next person to carry this handset cannot send it, and
@@ -248,6 +254,10 @@ export default function ProfileScreen() {
           </View>
         ) : null}
         {error ? <View style={{ marginTop: space.md }}><Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner></View> : null}
+        <View style={styles.endShift}>
+          <Button label="End shift" icon="moon-outline" variant="subtle" onPress={() => router.push('/end-shift')} />
+          <Muted style={{ marginTop: space.xs }}>Hand back your firearm and vehicle, then go off duty.</Muted>
+        </View>
       </Card>
 
       {/* Alerts */}
@@ -327,7 +337,7 @@ export default function ProfileScreen() {
       {/* Account */}
       <SectionLabel>Account</SectionLabel>
       <Card>
-        <Muted>Signing out frees your vehicle and clears duty status (V4 logout parity).</Muted>
+        <Muted>Signing out frees your vehicle and clears duty status. At the end of a shift, use End shift first so your firearm is handed back.</Muted>
         <View style={{ marginTop: space.md }}>
           <Button label="Sign out" icon="log-out-outline" variant="danger" onPress={() => void confirmSignOut()} />
         </View>
@@ -364,6 +374,10 @@ const useStyles = makeStyles(() => StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border,
   },
   gpsText: { ...type.small, color: colors.low, fontWeight: '600' },
+  endShift: {
+    marginTop: space.md, paddingTop: space.md,
+    borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border,
+  },
 
   version: {
     ...type.small, fontSize: 11, color: colors.muted,

@@ -10,7 +10,7 @@ import type { Silo } from '@criticom/db';
 import { LeafletMap } from '@/components/leaflet-map';
 import { AssignForm } from './assign-form';
 import { getSession } from '@/lib/session';
-import { formatSaTime, timeAgo } from '@/lib/utils';
+import { escapeHtml, formatSaTime, timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Dispatch · HikTech' };
@@ -60,7 +60,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
           lat: o.lat,
           lng: o.lng,
           kind: 'unit',
-          popupHtml: `<strong>${o.name}</strong>${o.unitNumber ? ` · ${o.unitNumber}` : ''}<br/>${o.activeCalls ? `On ${o.activeCalls} incident${o.activeCalls === 1 ? '' : 's'}` : 'Free'}`,
+          popupHtml: `<strong>${escapeHtml(o.name)}</strong>${o.unitNumber ? ` · ${escapeHtml(o.unitNumber)}` : ''}<br/>${o.activeCalls ? `On ${o.activeCalls} incident${o.activeCalls === 1 ? '' : 's'}` : 'Free'}`,
         }]
       : []);
 
@@ -135,7 +135,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
                       lat: incident.location_lat,
                       lng: incident.location_lng,
                       kind: pinKind,
-                      popupHtml: `<strong>${incident.incident_number}</strong><br/>${incident.location_address}`,
+                      popupHtml: `<strong>${escapeHtml(incident.incident_number)}</strong><br/>${escapeHtml(incident.location_address)}`,
                     }, ...unitMarkers]}
                     // With crews on the map, frame them all; otherwise zoom on the scene.
                     center={unitMarkers.length ? undefined : [incident.location_lat, incident.location_lng]}

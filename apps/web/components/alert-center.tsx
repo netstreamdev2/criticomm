@@ -7,10 +7,12 @@ import {
   markAlertRead, subscribeAlerts, subscribeIncidentUpdates, subscribeNewIncidents,
   type Alert,
 } from '@criticom/api';
-import { DISPATCH_DESK_ROLES, GLOBAL_ROLES, type Silo, type UserRole } from '@criticom/db';
+import {
+  canAccess, DISPATCH_DESK_ROLES, GLOBAL_ROLES, receivesLiveOperations, type Silo, type UserRole,
+} from '@criticom/db';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { useToast, type Severity, type ToastTone } from '@/components/toast';
-import { SosAlert } from '@/components/sos-alert';
+import { SosAlert, SosBar } from '@/components/sos-alert';
 import { cn } from '@/lib/utils';
 
 const SILO_LABELS: Record<string, string> = {
@@ -64,7 +66,10 @@ export function AlertCenter({
   const router = useRouter();
   const { push, chime: rawChime, chimeSeverity: rawChimeSeverity } = useToast();
   const [queue, setQueue] = useState<Alert[]>([]);
+  /** SOS alerts folded into the bottom bar: out of the way, still unanswered. */
+  const [minimized, setMinimized] = useState<Alert[]>([]);
   const [acking, setAcking] = useState(false);
+  const canDispatch = canAccess('/dispatch/assign/sos', role as UserRole, silo as Silo);
 
   // Sound is an admin knob — a silent control room stays silent. Stable
   // callbacks, so toggling nothing never re-subscribes the realtime streams.
@@ -83,6 +88,9 @@ export function AlertCenter({
   const isDispatchDesk = DISPATCH_DESK_ROLES.includes(role as UserRole);
   const toastMs = tuning.toastSeconds * 1000;
   const interruptsAt = SEVERITY_RANK[tuning.modalMinSeverity] ?? 2;
+
+  // The SuperAdmin owns the platform and is not paged by day-to-day operations.
+  const onTheFloor = receivesLiveOperations(role as UserRole);
 
   // Global roles hear everything; department staff only their own channel.
   const isGlobal = GLOBAL_ROLES.includes(role as UserRole) || silo === 'Ethekwini';
@@ -140,8 +148,14 @@ export function AlertCenter({
       // A silo-wide alert reaches every session in that silo; a targeted one
       // only its addressee.
       if (alert.target_user_id && alert.target_user_id !== userId) return;
+      // Off the floor (the SuperAdmin): only what is addressed to you
+      // personally, and never an SOS or a department-wide escalation.
+      if (!onTheFloor && (!alert.target_user_id || alert.kind === 'sos')) return;
       showAlert(alert);
     });
+
+    // New calls and status changes are the floor itself.
+    if (!onTheFloor) return () => { offAlerts(); };
 
     const offNew = subscribeNewIncidents(sb, scope, (incident) => {
       // The person who logged it already has their own confirmation.
@@ -202,7 +216,7 @@ export function AlertCenter({
     });
 
     return () => { offAlerts(); offNew(); offUpd(); };
-  }, [scope, userId, push, chime, chimeSeverity, showAlert, isDispatchDesk, toastMs]);
+  }, [scope, userId, push, chime, chimeSeverity, showAlert, isDispatchDesk, toastMs, onTheFloor]);
 
   const current = queue[0];
 
@@ -221,35 +235,63 @@ export function AlertCenter({
     }
   };
 
-  if (!current) return null;
+  /** Clear an SOS wherever it is — on screen or in the bar. */
+  const clearSos = (alert: Alert, href?: string) => {
+    void (async () => {
+      setAcking(true);
+      try {
+        await markAlertRead(getBrowserSupabase(), alert.id, { acknowledged: true });
+      } catch {
+        // Best-effort, as for every alert: never trap the operator.
+      } finally {
+        setAcking(false);
+        setQueue((cur) => cur.filter((a) => a.id !== alert.id));
+        setMinimized((cur) => cur.filter((a) => a.id !== alert.id));
+        // The SOS banner lives in the layout, which navigation keeps; refresh
+        // it so a cleared SOS leaves the banner too.
+        router.refresh();
+        if (href) router.push(href);
+      }
+    })();
+  };
+
+  const minimizeSos = useCallback((alert: Alert) => {
+    setQueue((cur) => cur.filter((a) => a.id !== alert.id));
+    setMinimized((cur) => (cur.some((a) => a.id === alert.id) ? cur : [...cur, alert]));
+  }, []);
+
+  const expandSos = (alert: Alert) => {
+    setMinimized((cur) => cur.filter((a) => a.id !== alert.id));
+    setQueue((cur) => [alert, ...cur.filter((a) => a.id !== alert.id)]);
+  };
+
+  const bar = (
+    <SosBar alerts={minimized} canDispatch={canDispatch} onExpand={expandSos} onAcknowledge={clearSos} />
+  );
+
+  if (!current) return bar;
 
   if (current.kind === 'sos') {
     return (
-      <SosAlert
-        alert={current}
-        waiting={queue.length - 1}
-        acking={acking}
-        onAcknowledge={(href) => {
-          void (async () => {
-            setAcking(true);
-            try {
-              await markAlertRead(getBrowserSupabase(), current.id, { acknowledged: true });
-            } catch {
-              // Best-effort, as for every alert: never trap the operator.
-            } finally {
-              setAcking(false);
-              setQueue((cur) => cur.slice(1));
-              if (href) router.push(href);
-            }
-          })();
-        }}
-      />
+      <>
+        {bar}
+        <SosAlert
+          alert={current}
+          waiting={queue.length - 1}
+          acking={acking}
+          canDispatch={canDispatch}
+          onAcknowledge={(href) => clearSos(current, href)}
+          onMinimize={() => minimizeSos(current)}
+        />
+      </>
     );
   }
 
   const critical = current.severity === 'Critical';
 
   return (
+    <>
+    {bar}
     <div
       role="alertdialog"
       aria-modal="true"
@@ -337,5 +379,6 @@ export function AlertCenter({
         </div>
       </div>
     </div>
+    </>
   );
 }

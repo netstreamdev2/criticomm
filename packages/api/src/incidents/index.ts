@@ -133,18 +133,48 @@ export async function raisePanic(
   return data as Incident;
 }
 
-/** Live officer-emergency incidents — surfaced above everything on the board. */
-export async function listActivePanics(client: CriticomClient, silo?: Silo) {
-  let q = client
+/**
+ * Open SOS incidents this person was alerted to and has not cleared — the
+ * standing reminder above every page. It follows the SOS alerts themselves, so
+ * it reaches exactly whom raise_panic() paged (0047): the officer's department
+ * desk, the central control room and department command. Clearing the alert
+ * (× on the pop-up or on the banner) or closing the incident ends it.
+ */
+export async function listMyOpenSos(client: CriticomClient, userId: string) {
+  const { data: alerts, error } = await client
+    .from('alerts')
+    .select('id, incident_id')
+    .eq('kind', 'sos')
+    .eq('target_user_id', userId)
+    .not('incident_id', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  if (!alerts || alerts.length === 0) return [];
+
+  const { data: reads, error: readErr } = await client
+    .from('alert_reads')
+    .select('alert_id')
+    .eq('user_id', userId)
+    .eq('acknowledged', true)
+    .in('alert_id', alerts.map((a) => a.id));
+  if (readErr) throw readErr;
+  const cleared = new Set((reads ?? []).map((r) => r.alert_id));
+
+  const alertFor = new Map<string, string>();
+  for (const a of alerts) {
+    if (a.incident_id && !cleared.has(a.id) && !alertFor.has(a.incident_id)) alertFor.set(a.incident_id, a.id);
+  }
+  if (alertFor.size === 0) return [];
+
+  const { data: incidents, error: incErr } = await client
     .from('incidents')
     .select('*')
-    .eq('source', 'Responder-Panic')
+    .in('id', [...alertFor.keys()])
     .not('status', 'in', '("Closed","Resolved")')
     .order('incident_created_at', { ascending: false });
-  if (silo) q = q.eq('silo', silo);
-  const { data, error } = await q.limit(20);
-  if (error) throw error;
-  return data ?? [];
+  if (incErr) throw incErr;
+  return (incidents ?? []).map((incident) => ({ incident, alertId: alertFor.get(incident.id)! }));
 }
 
 /** CaseManagerController.CloseCase */

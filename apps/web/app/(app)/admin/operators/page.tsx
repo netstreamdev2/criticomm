@@ -29,7 +29,7 @@ export default async function AdminOperatorsPage() {
           <TextField name="badge_number" label="Badge number" />
           <TextField name="rank" label="Rank" />
           <SelectField name="role" label="Operator role"
-            options={['Dispatcher', 'Operator', 'ControlRoom', 'IncidentLogger', 'Supervisor']} />
+            options={['Dispatcher', 'ControlRoom', 'IncidentLogger', 'Supervisor']} />
           <TextField name="station" label="Station" />
           <TextField name="platoon" label="Platoon" />
           <TextField name="contact_number" label="Contact number" />

@@ -4,11 +4,12 @@ import {
   Radio, Satellite, Smartphone, Timer, Truck, Zap,
 } from 'lucide-react';
 import {
-  getDispatcherKpis, getOperationalSettings, listActiveIncidents, listPendingIncidents,
+  getDispatcherKpis, getOperationalSettings, listActiveIncidents, listOnDutyOfficers, listPendingIncidents,
 } from '@criticom/api';
-import { canAccess, type Database, type Silo, type UserRole } from '@criticom/db';
+import { DEPARTMENT_NAMES, canAccess, type Database, type Silo, type UserRole } from '@criticom/db';
 import { Card, CardContent } from '@/components/ui/card';
-import { LeafletMap, type MapMarker } from '@/components/leaflet-map';
+import { OpsMap } from '@/components/ops-map/ops-map';
+import { availableLayers, defaultLayers } from '@/lib/ops-map/layers';
 import type { getSession } from '@/lib/session';
 import { timeAgo, cn } from '@/lib/utils';
 import { BoardLive } from './board-live';
@@ -39,8 +40,6 @@ const FEED_META: Record<string, { label: string; icon: typeof MapPin; tone: stri
   Closed: { label: 'Incident Closed', icon: CheckCircle2, tone: 'text-muted-foreground', chip: 'bg-muted' },
 };
 const FEED_DEFAULT = { label: 'Incoming Incident', icon: AlertCircle, tone: 'text-severity-medium-ink', chip: 'bg-severity-medium/15' };
-
-const PIN_KIND: Record<string, string> = { Critical: 'critical', High: 'critical', Medium: 'medium', Low: 'low' };
 
 /* ── South African days ─────────────────────────────────────────────── */
 
@@ -95,9 +94,9 @@ function MiniBars({ counts }: { counts: number[] }) {
 /* ── The board ──────────────────────────────────────────────────────── */
 
 export async function DispatchBoard({
-  supabase, sf, role, silo,
+  supabase, sf, role, silo, userId,
 }: {
-  supabase: Supabase; sf: Silo | undefined; role: string; silo: string;
+  supabase: Supabase; sf: Silo | undefined; role: string; silo: string; userId: string;
 }) {
   // Loggers see the board but cannot assign — their button opens the incident.
   const canDispatch = canAccess('/dispatch/pending', role as UserRole, silo as Silo);
@@ -130,10 +129,11 @@ export async function DispatchBoard({
     .select('call_timestamp, arrived_timestamp')
     .gte('arrived_timestamp', todayStart.toISOString());
 
-  const [kpi, active, pending, feedRes, totalRes, recentRes, closedRes, arrivedRes] = await Promise.all([
+  const [kpi, active, pending, officers, feedRes, totalRes, recentRes, closedRes, arrivedRes] = await Promise.all([
     getDispatcherKpis(supabase, sf),
     listActiveIncidents(supabase, sf),
     listPendingIncidents(supabase, sf),
+    listOnDutyOfficers(supabase, sf ? [sf] : undefined).catch(() => []),
     sf ? feedQ.eq('silo', sf) : feedQ,
     sf ? totalQ.eq('silo', sf) : totalQ,
     sf ? recentQ.eq('silo', sf) : recentQ,
@@ -184,18 +184,6 @@ export async function DispatchBoard({
   const avgResponse = avgMinutes(responses);
   // Call → dispatch, from the KPI function (all calls in scope).
   const avgDispatch = Math.round(Number(kpi.avgResponseTime ?? 0));
-
-  const markers: MapMarker[] = live
-    .filter((i) => i.location_lat && i.location_lng)
-    .map((i) => ({
-      id: i.id,
-      lat: i.location_lat,
-      lng: i.location_lng,
-      kind: PIN_KIND[i.incident_severity] ?? 'medium',
-      popupHtml: `<strong>${i.incident_number}</strong><br/>${i.incident_type}<br/>${i.location_address}`,
-      // Hover previews; click opens the incident.
-      href: `/incidents/${i.id}`,
-    }));
 
   return (
     <>
@@ -346,7 +334,7 @@ export async function DispatchBoard({
             </h2>
             <div className="flex items-center gap-2">
               <Link href="/incidents/map" className="text-xs font-bold uppercase tracking-wider text-accent hover:underline">
-                Scan area
+                Open full map
               </Link>
               <span className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                 {sf ?? 'Ethekwini'}
@@ -356,14 +344,18 @@ export async function DispatchBoard({
               </span>
             </div>
           </div>
-          <div className="overflow-hidden rounded-lg border border-border">
-            <LeafletMap
-              markers={markers}
-              height={640}
-              satellite={settings['map.default_basemap'] === 'satellite'}
-              pin
-            />
-          </div>
+          {/* Layers (crime zones, hydrants, weather…) and Full screen for the wall TV sit on the map. */}
+          <OpsMap
+            incidents={live}
+            officers={officers}
+            silo={sf}
+            layers={availableLayers({ cameras: canAccess('/cameras', role as UserRole, silo as Silo) })}
+            defaults={defaultLayers(role as UserRole)}
+            basemap={settings['map.default_basemap']}
+            scopeLabel={sf ? DEPARTMENT_NAMES[sf] : 'All departments'}
+            height={640}
+            me={{ id: userId, role: role as UserRole, silo: silo as Silo }}
+          />
         </CardContent>
       </Card>
 

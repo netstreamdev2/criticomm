@@ -103,19 +103,19 @@ const DESKS = [
   {
     desk: 'The control room',
     hex: '#dc3545',
-    roles: ['IncidentLogger', 'ControlRoom', 'Operator', 'Dispatcher'],
+    roles: ['IncidentLogger', 'ControlRoom', 'Dispatcher'],
     note: 'Intake and dispatch are separate chairs. A logger captures and cannot dispatch; a dispatcher works the queue and cannot capture — the split is pinned by tests, because merging it would be an authorization change disguised as convenience.',
   },
   {
     desk: 'The field',
     hex: '#3b82f6',
-    roles: ['Responder', 'Police', 'Officer', 'Metro', 'Security', 'Firefighter', 'Paramedic', 'Doctor', 'Disaster'],
+    roles: ['Police', 'Firefighter', 'Paramedic', 'Doctor', 'Disaster'],
     note: 'Everyone who attends a scene. They carry the app, run the start-of-shift gate, and write the record from where the work happened.',
   },
   {
     desk: 'Command',
     hex: '#22c55e',
-    roles: ['Supervisor', 'Captain', 'Chief', 'FireChief', 'SystemController'],
+    roles: ['Supervisor', 'Captain', 'FireChief', 'SystemController'],
     note: 'People-readiness, the duty board, approvals and the day’s shape. The controller seat sees every department at once without holding account or tenant keys.',
   },
   {

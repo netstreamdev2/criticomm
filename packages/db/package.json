@@ -11,7 +11,11 @@
     "./server": "./src/server.ts",
     "./types": "./src/types.generated.ts",
     "./roles": "./src/roles.ts",
-    "./schemas": "./src/schemas/index.ts"
+    "./onboarding": "./src/onboarding.ts",
+    "./schemas": "./src/schemas/index.ts",
+    "./register": "./src/register.ts",
+    "./sheet": "./src/sheet.ts",
+    "./assets": "./src/assets.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { AlertTriangle, Clock, MapPin, Radio, Siren, UserRound, Volume2 } from 'lucide-react';
+import { AlertTriangle, Clock, MapPin, Minus, Radio, Siren, UserRound, Volume2, X } from 'lucide-react';
 import { getIncident, type Alert } from '@criticom/api';
 import type { Database } from '@criticom/db';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
@@ -67,6 +67,13 @@ function useSiren(active: boolean) {
     return () => clearInterval(timer);
   }, [active]);
 
+  // Minimising unmounts the dialog: release the audio device with it, so a
+  // shift of SOS alerts never piles up open AudioContexts.
+  useEffect(() => () => {
+    void ctxRef.current?.close().catch(() => {});
+    ctxRef.current = null;
+  }, []);
+
   /** Called on any click in the dialog: lets a blocked siren start. */
   const unlock = () => {
     const ctx = ctxRef.current;
@@ -81,19 +88,27 @@ function useSiren(active: boolean) {
 const hasPoint = (i: Incident | null) => Boolean(i && i.location_lat && i.location_lng);
 
 /**
- * The SOS dialog: an officer pressed the app's SOS button. It blocks the
- * console with a siren until acknowledged, shows where they are, and leads to
- * dispatch — the SOS waits in the pending queue until someone sends it out.
+ * The SOS dialog: an officer pressed the app's SOS button. It takes the screen
+ * with a siren, shows where they are, and leads to dispatch — the SOS waits in
+ * the pending queue until someone sends it out.
+ *
+ * It never traps anyone: × clears it (acknowledged, on the record), and
+ * minimise — or Escape — folds it into a red bar that stays on screen,
+ * silent, until it is reopened or cleared.
  */
 export function SosAlert({
-  alert, waiting, acking, onAcknowledge,
+  alert, waiting, acking, canDispatch, onAcknowledge, onMinimize,
 }: {
   alert: Alert;
   /** Other alerts queued behind this one. */
   waiting: number;
   acking: boolean;
-  /** Acknowledge, then optionally go somewhere. */
+  /** Whether this desk may dispatch; others get "Open incident" only. */
+  canDispatch: boolean;
+  /** Acknowledge (clears it), then optionally go somewhere. */
   onAcknowledge: (href?: string) => void;
+  /** Fold into the SOS bar; the siren stops. */
+  onMinimize: () => void;
 }) {
   const [incident, setIncident] = useState<Incident | null>(null);
   const { blocked, unlock } = useSiren(true);
@@ -102,6 +117,12 @@ export function SosAlert({
     if (!alert.incident_id) return;
     void getIncident(getBrowserSupabase(), alert.incident_id).then(setIncident).catch(() => {});
   }, [alert.incident_id]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onMinimize(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onMinimize]);
 
   const raisedAt = incident?.call_timestamp ?? alert.created_at;
   const lateBy = incident ? new Date(alert.created_at).getTime() - new Date(incident.call_timestamp).getTime() : 0;
@@ -127,6 +148,27 @@ export function SosAlert({
           {incident ? (
             <span className="rounded-md bg-black/25 px-2.5 py-1 font-mono text-sm font-bold">{incident.incident_number}</span>
           ) : null}
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={onMinimize}
+              aria-label="Minimise SOS"
+              title="Minimise (Esc) — stays as a bar, siren off"
+              className="rounded-md p-1.5 hover:bg-black/25"
+            >
+              <Minus className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              disabled={acking}
+              onClick={() => onAcknowledge()}
+              aria-label="Clear SOS"
+              title="Clear — marks it acknowledged"
+              className="rounded-md p-1.5 hover:bg-black/25 disabled:opacity-60"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {blocked ? (
@@ -188,14 +230,16 @@ export function SosAlert({
             </p>
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
               <Radio className="h-3.5 w-3.5" />
-              Waiting in the dispatch queue — send it to officers on duty or assign it.
+              {canDispatch
+                ? 'Waiting in the dispatch queue — send it to officers on duty or assign it.'
+                : 'Waiting in the dispatch queue — the dispatch desk has been alerted.'}
             </p>
             {waiting > 0 ? <p className="text-xs font-semibold">+{waiting} more alert{waiting === 1 ? '' : 's'} waiting</p> : null}
           </div>
         </div>
 
         <div className="flex flex-col gap-2 border-t border-border px-6 py-4 sm:flex-row">
-          {id ? (
+          {id && canDispatch ? (
             <button
               type="button"
               disabled={acking}
@@ -210,7 +254,7 @@ export function SosAlert({
               type="button"
               disabled={acking}
               onClick={() => onAcknowledge(`/incidents/${id}`)}
-              className="h-12 rounded-lg border border-border px-5 text-sm font-semibold hover:bg-muted disabled:opacity-60"
+              className={cn('h-12 rounded-lg border border-border px-5 text-sm font-semibold hover:bg-muted disabled:opacity-60', !canDispatch && 'flex-1')}
             >
               Open incident
             </button>
@@ -225,6 +269,61 @@ export function SosAlert({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Minimised SOS alerts: one red bar each, pinned to the bottom of the screen,
+ * silent. An SOS that has been put aside is still unanswered, so it stays in
+ * sight until someone reopens or clears it.
+ */
+export function SosBar({
+  alerts, canDispatch, onExpand, onAcknowledge,
+}: {
+  alerts: Alert[];
+  canDispatch: boolean;
+  onExpand: (alert: Alert) => void;
+  onAcknowledge: (alert: Alert, href?: string) => void;
+}) {
+  if (alerts.length === 0) return null;
+  return (
+    <div aria-live="polite" className="fixed inset-x-4 bottom-4 z-[85] flex flex-col items-center gap-2 sm:inset-x-auto sm:right-4 sm:items-end">
+      {alerts.map((alert) => (
+        <div
+          key={alert.id}
+          className="flex w-full max-w-md items-center gap-2 rounded-xl border-2 border-severity-critical bg-severity-critical px-3 py-2 shadow-2xl"
+        >
+          <Siren className="h-5 w-5 shrink-0 animate-pulse" />
+          <button
+            type="button"
+            onClick={() => onExpand(alert)}
+            className="min-w-0 flex-1 text-left"
+            title="Show the SOS"
+          >
+            <span className="block text-[10px] font-bold uppercase tracking-[0.2em] opacity-90">SOS · unanswered</span>
+            <span className="block truncate text-sm font-extrabold">{alert.created_by_name ?? alert.title}</span>
+          </button>
+          {canDispatch && alert.incident_id ? (
+            <button
+              type="button"
+              onClick={() => onAcknowledge(alert, `/dispatch/assign/${alert.incident_id}`)}
+              className="shrink-0 rounded-md bg-black/25 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-black/35"
+            >
+              Dispatch
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => onAcknowledge(alert)}
+            aria-label="Clear SOS"
+            title="Clear — marks it acknowledged"
+            className="shrink-0 rounded-md p-1.5 hover:bg-black/25"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

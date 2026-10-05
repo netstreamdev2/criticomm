@@ -30,6 +30,12 @@ export default async function AutomationsPage() {
           Rules that watch the board when nobody is watching it — ageing calls, lapsing
           certifications, duties nobody confirmed. They run in the database on a five-minute tick.
         </p>
+        {role !== 'SuperAdmin' ? (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Read-only: these rules run for every municipality on the platform, so only the
+            SuperAdmin can change or run them.
+          </p>
+        ) : null}
       </header>
 
       {/* Whether the engine is alive comes first. A page full of enabled rules
@@ -93,7 +99,7 @@ export default async function AutomationsPage() {
         <div className="overflow-hidden rounded-xl border border-border bg-bg-card">
           <ul className="divide-y divide-border">
             {rules.map((rule) => (
-              <RuleCard key={rule.key} rule={rule} fields={RULE_FIELDS[rule.key] ?? []} />
+              <RuleCard key={rule.key} rule={rule} fields={RULE_FIELDS[rule.key] ?? []} canEdit={role === 'SuperAdmin'} />
             ))}
           </ul>
         </div>

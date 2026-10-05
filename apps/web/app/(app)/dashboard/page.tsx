@@ -21,7 +21,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Dashboard · HikTech' };
 
 type Persona = 'admin' | 'command' | 'supervisor' | 'responder' | 'casemanager' | 'viewer';
-const SUPERVISOR_ROLES: UserRole[] = ['Supervisor', 'Captain', 'FireChief', 'Chief'];
+const SUPERVISOR_ROLES: UserRole[] = ['Supervisor', 'Captain', 'FireChief'];
 
 function resolvePersona(role: UserRole): Persona {
   if (ADMIN_ROLES.includes(role)) return 'admin';
@@ -157,7 +157,7 @@ export default async function DashboardPage() {
   const persona = resolvePersona(role);
   const sf = siloFilter(silo);
   const first = fullName.split(' ')[0];
-  const usesSidebar = ['SystemAdmin', 'SuperAdmin', 'Supervisor', 'Captain', 'Dispatcher', 'SystemController', 'Police', 'Officer', 'Metro'].includes(role);
+  const usesSidebar = ['SystemAdmin', 'SuperAdmin', 'Supervisor', 'Captain', 'Dispatcher', 'SystemController', 'Police'].includes(role);
 
   // Dispatchers get the V4-style ops board: stats above the fold, feed +
   // critical wait, the live map, throughput. Quick actions follow below.
@@ -165,7 +165,7 @@ export default async function DashboardPage() {
     return (
       <div className="space-y-4">
         {!usesSidebar && <DashboardLogo />}
-        <DispatchBoard supabase={supabase} sf={sf} role={role} silo={silo} />
+        <DispatchBoard supabase={supabase} sf={sf} role={role} silo={silo} userId={userId} />
         <section className="space-y-3 pt-2">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
           <QuickLinks links={LINKS.command} role={role} silo={silo} />

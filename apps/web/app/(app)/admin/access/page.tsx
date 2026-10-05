@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { listAccessRulesForTenant, listTenants } from '@criticom/api';
-import type { UserRole } from '@criticom/db';
+import { ASSIGNABLE_ROLES } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { NAV_GROUPS } from '@/lib/nav';
 import { getSession } from '@/lib/session';
@@ -22,13 +22,8 @@ export const metadata = { title: 'Access Control · HikTech' };
 // two destinations every account needs (a home and a way to sign out).
 const NOT_CONFIGURABLE = ['/dashboard', '/profile', '/admin/access', '/admin/tenants', '/admin/features'];
 
-// SuperAdmin is exempt from rules; Citizen and System never sign in here.
-const DENIABLE_ROLES: UserRole[] = [
-  'SystemAdmin', 'Admin', 'SystemController', 'Supervisor', 'Dispatcher', 'Operator',
-  'ControlRoom', 'IncidentLogger', 'Viewer', 'Captain', 'Police', 'Officer', 'Metro',
-  'Security', 'Chief', 'FireChief', 'Firefighter', 'Paramedic', 'Doctor', 'Disaster',
-  'CaseManager', 'Responder', 'Staff',
-];
+// SuperAdmin is exempt from rules; System never signs in here.
+const DENIABLE_ROLES = ASSIGNABLE_ROLES.filter((r) => r !== 'SuperAdmin');
 
 export default async function AccessControlPage({
   searchParams,

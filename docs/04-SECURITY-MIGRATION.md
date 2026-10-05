@@ -36,6 +36,14 @@ Even after rotation, the historic commits leak the *old* keys. If the V4 repo is
 
 ## 2. Identity migration: ASP.NET Identity → Supabase Auth
 
+> **Superseded on 3 October 2026** by the staff onboarding design ([10-STAFF-ONBOARDING.md](10-STAFF-ONBOARDING.md)). V4 password hashes are **not** carried across, for three reasons:
+>
+> - They sat behind a database password that was exposed in source code (§1), so they must be treated as possibly compromised.
+> - The plan below stored each hash in `app_metadata`, which travels inside every sign-in token.
+> - A fresh activation lets each person set a password only they know, pass the staff-register check, and accept the POPIA notice.
+>
+> People now come across through the staff register import, and accounts through invitations. The claims table below still shows where V4's fields land in the register.
+
 V4 stores PBKDF2-SHA256 password hashes in `AspNetUsers.PasswordHash` (the default Identity v3 format: `\x01\x00\x00\x10\x00\x00\x00...iter…salt…hash`).
 
 ### Strategy: lazy migration on first login (preferred)

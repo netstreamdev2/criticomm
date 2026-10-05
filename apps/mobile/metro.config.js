@@ -21,4 +21,21 @@ config.resolver.nodeModulesPaths = [
 config.resolver.unstable_enablePackageExports = true;
 config.resolver.unstable_conditionNames = ['react-native', 'browser', 'require', 'import'];
 
+// One React for the whole app. This repo has two (web: React 19, app: React
+// 18.3.1), and pnpm's hidden hoisting folder (node_modules/.pnpm/node_modules)
+// holds whichever one its last install picked. Packages that use React without
+// declaring it, expo-router among them, then load the web's React 19 next to
+// the app's 18, and the app dies at start-up with "Objects are not valid as a
+// React child". So React and its subpaths always resolve from this app,
+// whoever asks, and no install can change that.
+const fromThisApp = path.join(projectRoot, 'package.json');
+const upstreamResolve = config.resolver.resolveRequest;
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  const resolve = upstreamResolve ?? context.resolveRequest;
+  if (moduleName === 'react' || moduleName.startsWith('react/')) {
+    return resolve({ ...context, originModulePath: fromThisApp }, moduleName, platform);
+  }
+  return resolve(context, moduleName, platform);
+};
+
 module.exports = config;

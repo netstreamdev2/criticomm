@@ -1,0 +1,194 @@
+<title>HikTech Staff List Request</title>
+<!-- handbook:fonts — the app replaces this block with self-hosted fonts (its CSP allows no third-party fonts). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<!-- /handbook:fonts -->
+<style>
+/* Layout: one reading column (~44rem), like a letter; the column table may scroll on a phone. */
+:root {
+  --bg: #F4F6FB;
+  --surface: #FFFFFF;
+  --ink: #0F1420;
+  --muted: #5A6478;
+  --line: #D6DBE6;
+  --brand: #CD2837;
+  --accent: #2563EB;
+  --ok: #046C4E;   --ok-bg: #E2F3EC;
+  --warn: #8A4504; --warn-bg: #FBEFDC;
+  --crit: #991B1B; --crit-bg: #FBE5E5;
+  --accent-bg: #E6EEFD;
+
+  --font-display: 'Rubik', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #080814; --surface: #10101F; --ink: #EEF0F7; --muted: #9AA3B5; --line: #26263F;
+    --brand: #F25C6E; --accent: #79A6FF;
+    --ok: #4ADE9A; --ok-bg: #0E2A20; --warn: #FBBF24; --warn-bg: #2E2209;
+    --crit: #F98080; --crit-bg: #321216; --accent-bg: #111F3D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080814; --surface: #10101F; --ink: #EEF0F7; --muted: #9AA3B5; --line: #26263F;
+  --brand: #F25C6E; --accent: #79A6FF;
+  --ok: #4ADE9A; --ok-bg: #0E2A20; --warn: #FBBF24; --warn-bg: #2E2209;
+  --crit: #F98080; --crit-bg: #321216; --accent-bg: #111F3D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 1rem; line-height: 1.6; }
+.page { padding-inline: 16px; padding-block: 2.5rem 4rem; }
+.col { max-width: 44rem; margin-inline: auto; }
+
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.4rem; font-weight: 600; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; }
+.eyebrow { font-family: var(--font-display); font-size: .75rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); }
+.lede { font-size: 1.12rem; }
+.muted { color: var(--muted); }
+code, .mono { font-family: var(--font-mono); font-size: .86em; }
+code { background: var(--accent-bg); border-radius: 4px; padding: .05rem .3rem; overflow-wrap: anywhere; }
+a { color: var(--accent); }
+
+.masthead { display: grid; gap: 1rem; padding-bottom: 2rem; border-bottom: 1px solid var(--line); }
+.meta { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; font-size: .85rem; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+
+section { padding-block: 2.5rem 0; display: grid; gap: 1rem; }
+section > ul, section > ol { margin: 0; padding-left: 1.2rem; display: grid; gap: .45rem; }
+
+/* Columns: the same table HR sees on the template's Instructions sheet. */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 34rem; }
+th { text-align: left; font-family: var(--font-display); font-weight: 600; font-size: .78rem; letter-spacing: .04em; color: var(--muted); padding: .65rem .9rem; border-bottom: 1px solid var(--line); }
+td { padding: .6rem .9rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.req { display: inline-block; white-space: nowrap; font-family: var(--font-display); font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-radius: 4px; padding: .05rem .4rem; }
+.req.yes { color: var(--ok); background: var(--ok-bg); }
+.req.opt { color: var(--muted); background: var(--bg); border: 1px solid var(--line); }
+.example { font-family: var(--font-mono); font-size: .8rem; color: var(--muted); white-space: nowrap; }
+
+.out { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); padding: 1rem 1.1rem; border-radius: 10px; background: var(--crit-bg); color: var(--crit); }
+.out li { list-style: none; font-weight: 500; }
+.out li::before { content: '✕  '; font-weight: 700; }
+.out ul { display: contents; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: .9rem; counter-reset: step; }
+.steps li { counter-increment: step; display: grid; grid-template-columns: 2rem 1fr; gap: .75rem; align-items: start; }
+.steps li::before { content: counter(step); font-family: var(--font-display); font-weight: 700; font-size: .85rem; width: 1.8rem; height: 1.8rem; border-radius: 50%; display: grid; place-items: center; background: var(--brand); color: #FFFFFF; }
+.steps li > div { display: grid; gap: .2rem; min-width: 0; }
+
+.note { padding: .9rem 1.1rem; border-left: 3px solid var(--warn); background: var(--warn-bg); border-radius: 0 8px 8px 0; font-size: .95rem; }
+
+footer { margin-top: 3rem; padding-top: 1.25rem; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
+</style>
+
+<div class="page">
+  <header class="masthead col">
+    <p class="eyebrow">eThekwini Municipality · HikTech · For HR</p>
+    <h1>The staff list we need</h1>
+    <p class="lede">To give every member of the emergency services their own HikTech account, we need one up-to-date list of the people who will use it. This page explains what goes in the list, what stays out of it, and what happens once you send it.</p>
+    <div class="meta">
+      <span><b>For:</b> eThekwini HR, with the department administrators</span>
+      <span><b>Comes with:</b> <span class="mono">HikTech staff list template.xlsx</span></span>
+      <span><b>Updated:</b> 4 October 2026</span>
+    </div>
+  </header>
+
+  <section class="col">
+    <h2>Who to include</h2>
+    <p>One row for each person who works in the emergency services and will use HikTech, at a desk or in the field:</p>
+    <ul>
+      <li>the control room: call takers, dispatchers and their supervisors</li>
+      <li>Metro Police, Fire &amp; Rescue, EMS / Medical and Disaster Management, every rank</li>
+      <li>current staff only: people who have left should not be on the list</li>
+    </ul>
+    <p class="muted">Being on the list gives nobody access to anything. Each person later receives their own invitation and activates their own account.</p>
+  </section>
+
+  <section class="col">
+    <h2>What goes in each column</h2>
+    <p>Fill in the <b>Staff</b> sheet of the template, keeping its headings in the first row. The examples below are made up.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Column</th><th>Needed</th><th>What to put in it</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>First names</td><td><span class="req yes">Yes</span></td><td>As on the HR record.</td><td class="example">Thandeka</td></tr>
+          <tr><td>Surname</td><td><span class="req yes">Yes</span></td><td>As on the HR record.</td><td class="example">Dlamini</td></tr>
+          <tr><td>Badge number</td><td><span class="req yes">Yes</span></td><td>Or force number, exactly as on their appointment letter or ID card. They type it to prove who they are, so it has to match.</td><td class="example">MP-1042</td></tr>
+          <tr><td>Rank</td><td><span class="req yes">Yes</span></td><td>Their rank or post.</td><td class="example">Constable</td></tr>
+          <tr><td>Department</td><td><span class="req yes">Yes</span></td><td>Metro Police, Fire &amp; Rescue, EMS / Medical, Disaster Management or Control Room. The template offers these in a drop-down.</td><td class="example">Metro Police</td></tr>
+          <tr><td>Station</td><td><span class="req opt">If known</span></td><td>Where they report for duty.</td><td class="example">Durban Central</td></tr>
+          <tr><td>Work email</td><td><span class="req opt">If known</span></td><td>Their municipal email. Their invitation goes here, and they sign in with it.</td><td class="example">t.dlamini@durban.gov.za</td></tr>
+          <tr><td>Work cellphone</td><td><span class="req opt">If known</span></td><td>Used for an SMS invitation when there is no email.</td><td class="example">082 123 4567</td></tr>
+          <tr><td>Role in current system</td><td><span class="req opt">If known</span></td><td>Their role in today’s Criticomm system, if the department can tell you. It only suggests their new role; administrators confirm every one.</td><td class="example">Officer</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">Someone with neither a work email nor a work cellphone still goes on the list: their administrator hands them a printed activation slip.</p>
+  </section>
+
+  <section class="col">
+    <h2>Please leave out</h2>
+    <div class="out">
+      <ul>
+        <li>ID numbers</li>
+        <li>Dates of birth</li>
+        <li>Home addresses</li>
+        <li>Personal email addresses</li>
+        <li>Salaries and pay details</li>
+        <li>Medical or disciplinary records</li>
+      </ul>
+    </div>
+    <p>HikTech does not need any of these, and the Protection of Personal Information Act asks us to hold no more than the purpose needs. If your export has other columns, you can leave them in: the import ignores every column it does not recognise. Those columns never leave the administrator’s computer and are never stored.</p>
+  </section>
+
+  <section class="col">
+    <h2>Why each item is needed</h2>
+    <ul>
+      <li><b>Name and badge number</b> identify the person, and the badge number is how they prove it is them when they activate their account.</li>
+      <li><b>Rank, department and station</b> decide which screens they see and which incidents reach them.</li>
+      <li><b>Work email or cellphone</b> carries their invitation. Without either, a printed slip does.</li>
+      <li><b>Role in the current system</b> saves administrators setting each role from scratch.</li>
+    </ul>
+    <p class="muted">The list is held in HikTech’s staff register. Administrators manage it. Colleagues who coordinate emergency response, such as dispatchers and supervisors, can see names, ranks, stations and work contact details, so they can reach the people on duty. It is used for accounts and for running the service, nothing else.</p>
+  </section>
+
+  <section class="col">
+    <h2>Getting it right first time</h2>
+    <ul>
+      <li>Each badge number belongs to one person. Two people with the same badge number cannot both be imported.</li>
+      <li>Keep the template’s headings as they are, in the first row. An export from another system works too, as long as its columns carry these headings or common ones such as “First name”, “Surname”, “Force number”, “Dept” or “Cell number”.</li>
+      <li>Save it as an Excel workbook (<span class="mono">.xlsx</span>) or CSV. Older <span class="mono">.xls</span> files need saving again as <span class="mono">.xlsx</span>.</li>
+      <li>One file for everyone is easiest, but a department or a station at a time works too.</li>
+    </ul>
+  </section>
+
+  <section class="col">
+    <h2>What happens next</h2>
+    <ol class="steps">
+      <li><div><h3>The administrator checks it on screen</h3><p class="muted">The file is read on their own computer and nothing is saved until they confirm. Any row with a problem, such as a missing badge number, is shown to them, and may come back to you to correct.</p></div></li>
+      <li><div><h3>Administrators confirm roles</h3><p class="muted">An administrator, usually the department’s own, confirms the role each person will have. Administrator rights are never taken from the list; they are given individually and approved by a second person.</p></div></li>
+      <li><div><h3>Each person activates their own account</h3><p class="muted">They receive an invitation by email, SMS or printed slip, type their badge number, choose their own password and accept the privacy notice. Nobody else ever sees or sets their password.</p></div></li>
+      <li><div><h3>Every month, a fresh list</h3><p class="muted">An updated list keeps the register in step. New people are invited. People no longer on the list are shown to the administrators to review before anything changes; nobody is removed automatically.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="col">
+    <h2>Sending it back</h2>
+    <p>Return the file to the HikTech administrator who sent you this request, through the municipality’s usual secure channel rather than personal email. If your policy needs a password on the file, send the password separately; the administrator removes it before importing.</p>
+    <p class="note">Questions about a column, or about someone who does not fit neatly, are best asked before sending. The administrator who sent the request can answer them.</p>
+  </section>
+
+  <footer class="col">
+    HikTech handbook for eThekwini Municipality. Names, badge numbers and addresses on this page are examples. Updated 4 October 2026.
+  </footer>
+</div>

@@ -23,6 +23,9 @@ const config: Config = {
         muted: { DEFAULT: v('--c-muted'), foreground: v('--c-muted-fg') },
         // Foreground / body text — themeable so light themes are readable.
         fg: { DEFAULT: v('--c-fg') },
+        // Positive states (active, approved, done): the theme's green, in its
+        // `-ink` shade so it stays legible as text on light themes too.
+        success: { DEFAULT: v('--c-low-ink') },
         severity: {
           // `-ink` variants are the same hue tuned to stay legible as *text*
           // on a tinted wash of themselves. Identical to the base colour in

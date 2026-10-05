@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import { Inbox } from 'lucide-react';
 
 /**
@@ -43,8 +44,8 @@ export function SimpleTable({
   );
 }
 
-export function Tr({ children }: { children: React.ReactNode }) {
-  return <tr className="transition-colors hover:bg-muted/40">{children}</tr>;
+export function Tr({ children, className }: { children: React.ReactNode; className?: string }) {
+  return <tr className={cn('transition-colors hover:bg-muted/40', className)}>{children}</tr>;
 }
 
 export function Td({ children, className }: { children?: React.ReactNode; className?: string }) {

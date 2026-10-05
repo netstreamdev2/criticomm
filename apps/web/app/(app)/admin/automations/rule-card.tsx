@@ -19,10 +19,12 @@ import { cn } from '@/lib/utils';
  * escalations that never arrived.
  */
 export function RuleCard({
-  rule, fields,
+  rule, fields, canEdit,
 }: {
   rule: AutomationRule;
   fields: RuleField[];
+  /** Only the SuperAdmin changes or fires rules — they run for every tenant. */
+  canEdit: boolean;
 }) {
   const router = useRouter();
   const toast = useToast();
@@ -122,7 +124,7 @@ export function RuleCard({
           <button
             type="button"
             onClick={runNow}
-            disabled={pending}
+            disabled={pending || !canEdit}
             className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm font-medium hover:bg-bg-soft disabled:opacity-50"
           >
             {pending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
@@ -131,7 +133,7 @@ export function RuleCard({
           <button
             type="button"
             onClick={toggle}
-            disabled={pending}
+            disabled={pending || !canEdit}
             className={cn(
               'inline-flex h-9 items-center rounded-md px-3 text-sm font-semibold disabled:opacity-50',
               rule.enabled
@@ -158,6 +160,7 @@ export function RuleCard({
                 max={field.kind === 'int' ? field.max : undefined}
                 value={draft[field.key] ?? ''}
                 onChange={(e) => setDraft((cur) => ({ ...cur, [field.key]: e.target.value }))}
+                disabled={!canEdit}
                 className="h-9 w-24 rounded-md border border-border bg-bg-soft px-2 text-sm tabular-nums"
               />
               {field.unit ? (
@@ -182,6 +185,7 @@ export function RuleCard({
               max={10080}
               value={interval}
               onChange={(e) => setInterval(e.target.value)}
+              disabled={!canEdit}
               className="h-9 w-24 rounded-md border border-border bg-bg-soft px-2 text-sm tabular-nums"
             />
             <span className="text-sm text-muted-foreground">minutes</span>
@@ -211,7 +215,7 @@ export function RuleCard({
         <button
           type="button"
           onClick={save}
-          disabled={pending || !dirty}
+          disabled={pending || !dirty || !canEdit}
           className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-40"
         >
           {pending ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}

@@ -4,7 +4,7 @@ import {
   CalendarClock, Bell, Briefcase, GraduationCap, Gauge, FolderClosed, Map, Bot,
   RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network, PlugZap, Activity,
   ToggleRight, Building2, LayoutGrid, Wrench, Timer, Mail, Receipt, Scale, Landmark,
-  ScrollText, FileWarning, Grid3x3, Crosshair,
+  ScrollText, FileWarning, Grid3x3, Crosshair, Warehouse, ClipboardList,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -56,6 +56,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/responder', label: 'My Incidents', icon: Radio, keywords: 'assigned jobs my unit' },
       { href: '/shift/mental-check', label: 'Start of Shift', icon: ClipboardCheck, keywords: 'readiness vehicle check on duty' },
       { href: '/shift/unit-compliance', label: 'Unit Compliance', icon: Gauge, keywords: 'checks today' },
+      { href: '/shift/today', label: 'Today’s Shift', icon: ClipboardList, keywords: 'who is on duty firearms vehicles booked out end of shift board' },
       { href: '/shift/readiness-review', label: 'Readiness Review', icon: ClipboardCheck, keywords: 'officer mental check answers audit history' },
       { href: '/performance/mine', label: 'My Performance', icon: Target, keywords: 'kpi appraisal score' },
     ],
@@ -65,6 +66,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Departments',
     items: [
       { href: '/police', label: 'Police Operations', icon: ShieldAlert, keywords: 'metro reports firearms armoury security' },
+      { href: '/police/armoury', label: 'Armoury', icon: Warehouse, keywords: 'firearms guns weapons register serial booked out import' },
       { href: '/police/fines', label: 'Fines', icon: Receipt, keywords: 'enforcement traffic bylaw ticket offender fn' },
       { href: '/police/charges', label: 'Charges', icon: Scale, keywords: 'enforcement criminal accused court ch' },
       { href: '/police/transactions', label: 'Charge Transactions', icon: Landmark, keywords: 'enforcement bail payment court fee ledger money' },
@@ -142,7 +144,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   command: 'Command', 'duty-tasks': 'Duty Maintenance', attendance: 'Time & Attendance',
   mail: 'Mail', fines: 'Fines', charges: 'Charges', transactions: 'Charge Transactions',
   warrants: 'Warrants', summons: 'Summons', 'firearm-checks': 'Firearm Checks', sections: 'Sections',
-  firearms: 'Armoury', security: 'Security Reports', 'crime-hotspots': 'Crime Hotspots',
+  firearms: 'Issue Register', armoury: 'Armoury', today: 'Today’s Shift', template: 'Template', security: 'Security Reports', 'crime-hotspots': 'Crime Hotspots',
   hydrants: 'Hydrants', pir: 'Public Reports', publish: 'Publish', pcr: 'Patient Care Reports',
   restock: 'Restock', 'post-mortem': 'Post-Mortem', partners: 'Mutual Aid',
   roster: 'Roster', allocation: 'Duty Allocation', 'duty-sheet': 'Duty Sheet', leave: 'Leave', training: 'Training',
@@ -153,6 +155,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   admin: 'Administration', config: 'Configuration', personnel: 'Personnel', access: 'Access Control',
   operators: 'Operators', vehicles: 'Fleet', devices: 'Devices', integrations: 'Integrations',
   operations: 'Operations Settings', footage: 'CCTV Footage',
+  invitations: 'Invitations', approvals: 'Approvals', handbook: 'Handbook', users: 'Users',
+  import: 'Import', rollout: 'Rollout',
   profile: 'Profile', 'my-hr': 'My HR', notifications: 'Notifications', dashboard: 'Dashboard',
   new: 'New',
 };

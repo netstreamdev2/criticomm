@@ -53,7 +53,8 @@ export default async function ReadinessReviewPage({
       <header>
         <h1 className="text-2xl font-bold">Readiness review</h1>
         <p className="text-muted-foreground">
-          Submitted officer declarations, including failed checks and retakes. Records are shown newest first.
+          Submitted officer declarations, including failed checks and retakes. Records are shown newest first. For
+          who is working now, with which vehicle and firearm, see <Link href="/shift/today" className="text-primary hover:underline">today’s shift</Link>.
         </p>
       </header>
 

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { listMetroReports, listFirearmAuthorizations } from '@criticom/api';
+import { listMetroReports } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
@@ -12,11 +12,11 @@ const WIZARDS = ['Arrest', 'Accident', 'Vehicle', 'Firearm', 'Incident', 'Tow', 
 
 export default async function PolicePage() {
   const { supabase } = await getSession();
-  const [reports, firearms] = await Promise.all([
+  // Firearms booked out to officers now: the armoury register the app books against.
+  const [reports, bookedOut] = await Promise.all([
     listMetroReports(supabase),
-    listFirearmAuthorizations(supabase),
+    supabase.from('firearms').select('id', { count: 'exact', head: true }).eq('status', 'Issued'),
   ]);
-  const outstanding = firearms.filter((f) => !f.date_received);
 
   return (
     <div className="space-y-6">
@@ -31,14 +31,15 @@ export default async function PolicePage() {
           <p className="mt-2 text-3xl font-bold">{reports.length}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Firearms out</p>
-          <p className="mt-2 text-3xl font-bold text-severity-medium-ink">{outstanding.length}</p>
+          <p className="text-xs uppercase text-muted-foreground">Firearms booked out</p>
+          <Link href="/police/armoury?status=Issued" className="mt-2 block text-3xl font-bold text-severity-medium-ink hover:underline">{bookedOut.count ?? 0}</Link>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">Quick links</p>
           <div className="mt-2 flex flex-wrap gap-2 text-sm">
             <Link className="text-accent hover:underline" href="/police/reports">Records</Link>
-            <Link className="text-accent hover:underline" href="/police/firearms">Armoury</Link>
+            <Link className="text-accent hover:underline" href="/police/armoury">Armoury</Link>
+            <Link className="text-accent hover:underline" href="/police/firearms">Issue register</Link>
             <Link className="text-accent hover:underline" href="/police/security">Security</Link>
             <Link className="text-accent hover:underline" href="/police/crime-hotspots">Hotspots</Link>
           </div>
