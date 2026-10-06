@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getUnitCompliance } from '@criticom/api';
 import { canAccess } from '@criticom/db/roles';
+import { FIRE_EQUIPMENT } from '@criticom/db/fire-shift';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession, siloFilter } from '@/lib/session';
@@ -66,6 +67,8 @@ export default async function UnitCompliancePage() {
                   !c.equipment_stocked && 'equipment',
                   !c.comms_working && 'comms',
                   !c.brakes_responsive && 'brakes',
+                  ...(c.silo === 'MetroFire' ? FIRE_EQUIPMENT.map(([key, label]) =>
+                    c[key] !== true && `${label}${c[key] == null ? ' (not checked)' : ''}`) : []),
                 ].filter(Boolean).join(', ');
                 return (
                   <Tr key={c.id}>

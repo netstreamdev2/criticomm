@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  BarChart3, Camera, ChevronDown, ChevronUp, ExternalLink, Film, FolderClosed,
+  BarChart3, Cctv, ChevronDown, ChevronUp, ExternalLink, Film, FolderClosed,
   Landmark, ListChecks, Map as MapIcon, Network, PhoneCall, Radio, RadioTower,
-  Siren, Truck,
+  Siren, Truck, Video,
 } from 'lucide-react';
 import { canAccess, type Silo, type UserRole } from '@criticom/db';
 import type { OpsLink } from '@criticom/api';
@@ -25,8 +25,9 @@ const MODULES: Array<{
 }> = [
   { href: '/dispatch/log-call', label: 'Dispatch', icon: Siren, tone: 'text-severity-medium-ink' },
   { href: '/dispatch/pending', label: 'Incoming', icon: PhoneCall, tone: 'text-severity-medium-ink' },
-  { href: '/cameras', label: 'Surveillance', icon: Camera, tone: 'text-severity-medium-ink' },
-  { href: '/cameras/footage', label: 'CCTV Footage', icon: Film, tone: 'text-accent' },
+  { href: '/cameras', label: 'Body Cams', icon: Video, tone: 'text-severity-medium-ink' },
+  { href: '/cameras/footage', label: 'Body Cam Footage', icon: Film, tone: 'text-accent' },
+  { href: '/sanral', label: 'SANRAL Cameras', icon: Cctv, tone: 'text-accent' },
   { href: '/responder', label: 'Responder', icon: Truck, tone: 'text-severity-critical-ink' },
   { href: '/dispatch/kpi', label: 'KPI', icon: BarChart3, tone: 'text-accent' },
 ];
@@ -45,8 +46,9 @@ const CONTROLLER_SHORTCUTS = [
   { href: '/command', label: 'Command', icon: Radio },
   { href: '/dispatch/pending', label: 'Dispatch', icon: ListChecks },
   { href: '/incidents/map', label: 'Live Map', icon: MapIcon },
-  { href: '/cameras', label: 'Surveillance', icon: Camera },
-  { href: '/cameras/footage', label: 'CCTV Footage', icon: Film },
+  { href: '/cameras', label: 'Body Cams', icon: Video },
+  { href: '/cameras/footage', label: 'Body Cam Footage', icon: Film },
+  { href: '/sanral', label: 'SANRAL Cameras', icon: Cctv },
   { href: '/dispatch/ptt', label: 'PTT Radio', icon: RadioTower },
   { href: '/dispatch/kpi', label: 'KPIs', icon: BarChart3 },
 ];
@@ -55,6 +57,7 @@ const CAPTAIN_SHORTCUTS = [
   { href: '/dashboard', label: 'Overview', icon: Radio },
   { href: '/roster/allocation', label: 'Duty Board', icon: ListChecks },
   { href: '/incidents/map', label: 'Live Map', icon: MapIcon },
+  { href: '/cameras', label: 'Body Cams', icon: Video },
   { href: '/police', label: 'Police Ops', icon: Siren },
   { href: '/responder', label: 'My Incidents', icon: Truck },
   { href: '/shift/mental-check', label: 'Start Shift', icon: RadioTower },

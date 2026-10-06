@@ -26,3 +26,6 @@ export function fleetRolesFor(role: UserRole, silo: Silo) {
     departments: global ? ALL_SILOS : [silo],
   };
 }
+
+/** The same for the bodycam register (can_manage_bodycams, 0054: the armoury's keepers). */
+export const bodycamRolesFor = armouryRolesFor;

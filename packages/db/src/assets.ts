@@ -59,6 +59,26 @@ export const VEHICLE_COLUMNS: SheetColumn<VehicleField>[] = [
     help: 'The date on the licence disc.', aliases: ['disc expiry', 'licence expiry', 'license expiry', 'license disc expiry', 'licence disc'] },
 ];
 
+export type BodycamField = 'serial_number' | 'model' | 'sim_number' | 'hik_camera_code' | 'department' | 'station' | 'notes';
+
+export const BODYCAM_COLUMNS: SheetColumn<BodycamField>[] = [
+  { field: 'serial_number', header: 'Serial number', required: true, example: 'BC-0001',
+    help: 'As printed on the bodycam.', aliases: ['serial', 'serial no', 'serial nr', 'sn', 'device serial', 'camera serial'] },
+  { field: 'model', header: 'Model', required: false, example: 'DS-MCW407',
+    help: 'The Hikvision model, e.g. DS-MCW407.', aliases: ['model no', 'model number', 'device model'] },
+  { field: 'sim_number', header: 'SIM number', required: false, example: '0821234567',
+    help: 'The number of the data SIM in the bodycam.', aliases: ['sim', 'sim no', 'msisdn', 'cell number', 'data number'] },
+  { field: 'hik_camera_code', header: 'Hikvision camera code', required: false, example: '',
+    help: 'The camera’s code on the Hikvision platform (cameraIndexCode). Leave blank until the platform is connected.',
+    aliases: ['camera code', 'camera index code', 'cameraindexcode', 'index code', 'hik code', 'channel code'] },
+  { field: 'department', header: 'Department', required: true, example: 'Metro Police',
+    help: 'The department whose bodycams these are, usually Metro Police.', aliases: ['dept', 'service'] },
+  { field: 'station', header: 'Station', required: false, example: 'Durban Central',
+    help: 'Where it is kept and charged.', aliases: ['location', 'base', 'dock', 'charging station'] },
+  { field: 'notes', header: 'Notes', required: false, example: '',
+    help: 'Anything the keeper should know.', aliases: ['remarks', 'comments'] },
+];
+
 export const FIREARM_TYPES = ['Sidearm', 'Rifle', 'Shotgun', 'Less-lethal', 'Other'] as const;
 export type FirearmType = (typeof FIREARM_TYPES)[number];
 
@@ -97,6 +117,16 @@ export function vehicleTypeFrom(value: unknown): string {
     other: 'Other',
   };
   return map[v] ?? tidy(value);
+}
+
+/**
+ * A Hikvision camera code as the platform hands it out (letters, digits, - and
+ * _, up to 64). Blank is null; anything else is not a code.
+ */
+export function hikCameraCodeFrom(value: unknown): { code: string | null; ok: boolean } {
+  const v = tidy(value);
+  if (!v) return { code: null, ok: true };
+  return /^[A-Za-z0-9_-]{1,64}$/.test(v) ? { code: v, ok: true } : { code: null, ok: false };
 }
 
 /** A number plate in one form: capitals, single spaces. */
@@ -252,7 +282,7 @@ function sameText(a: string | null | undefined, b: string | null | undefined): b
  * "ND 123 456" is plate ND 123-456: keep the register's spelling, so a file
  * typed differently changes nothing.
  */
-const MATCHED_BY_KEY = new Set(['serial_number', 'unit_number', 'license_plate']);
+const MATCHED_BY_KEY = new Set(['serial_number', 'unit_number', 'license_plate', 'sim_number']);
 
 function keepRegisterSpelling<T, E>(entry: E, item: T): T {
   const out = { ...item } as Record<string, unknown>;
@@ -439,5 +469,85 @@ export function checkVehicleList(raws: SheetRow<VehicleField>[], register: Vehic
       .filter((r) => r.outcome === 'add' || r.outcome === 'update' || r.outcome === 'unchanged')
       .map((r) => ({ ...r.item, line: r.line }));
   }
+  return result;
+}
+
+// ── Bodycams ────────────────────────────────────────────────────────────
+
+export type BodycamItem = {
+  serial_number: string; model: string | null; sim_number: string | null; hik_camera_code: string | null;
+  silo: Silo | null; station: string | null; notes: string | null;
+};
+
+/** A bodycam already on the register, as the check needs it. */
+export type BodycamEntry = {
+  id: string; serial_number: string; model: string | null; sim_number: string | null; hik_camera_code: string | null;
+  silo: Silo; station: string | null; notes: string | null; status: string;
+};
+
+const BODYCAM_KIND: Kind<BodycamItem, BodycamEntry, BodycamField> = {
+  clean(raw, fix) {
+    const issues: AssetIssue[] = [];
+    const serial = tidy(raw.serial_number);
+    const dept = departmentOf(raw.department, fix);
+    const hik = hikCameraCodeFrom(raw.hik_camera_code);
+    if (!matchKey(serial)) issues.push({ code: 'no-serial', message: 'No serial number', fixes: ['skip'] });
+    if (!hik.ok && !fix.dropValue) {
+      issues.push({ code: 'bad-code', message: `Hikvision camera code “${tidy(raw.hik_camera_code)}” is not a code`, fixes: ['drop-value', 'skip'] });
+    }
+    if (dept.issue) issues.push(dept.issue);
+    return {
+      item: {
+        serial_number: serial, model: tidy(raw.model).toUpperCase() || null, sim_number: tidy(raw.sim_number) || null,
+        hik_camera_code: hik.code, silo: dept.silo, station: tidyLabel(raw.station) || null, notes: tidy(raw.notes) || null,
+      },
+      issues,
+    };
+  },
+  key: (i) => matchKey(i.serial_number),
+  entryKey: (e) => matchKey(e.serial_number),
+  label: (i) => `${i.serial_number || '(no serial)'}${i.model ? ` · ${i.model}` : ''}`,
+  conflict: (e, i) => (i.hik_camera_code && e.hik_camera_code && e.hik_camera_code !== i.hik_camera_code
+    ? `Serial ${e.serial_number} is on the register with Hikvision code ${e.hik_camera_code}`
+    : null),
+  changes: (e, i) => [
+    ...diff('Model', e.model, i.model), ...diff('SIM number', e.sim_number, i.sim_number),
+    ...diff('Hikvision camera code', e.hik_camera_code, i.hik_camera_code),
+    ...diff('Department', DEPARTMENT_NAMES[e.silo], i.silo ? DEPARTMENT_NAMES[i.silo] : null),
+    ...diff('Station', e.station, i.station), ...diff('Notes', e.notes, i.notes),
+  ],
+  notes: (e) => (e.status === 'Booked out' ? ['Booked out right now: its details update, its custody does not.'] : []),
+  same: (a, b) => sameText(a.model, b.model) && matchKey(a.sim_number ?? '') === matchKey(b.sim_number ?? '')
+    && a.hik_camera_code === b.hik_camera_code && a.silo === b.silo && sameText(a.station, b.station),
+};
+
+export function checkBodycamList(raws: SheetRow<BodycamField>[], register: BodycamEntry[], fixes: Record<number, AssetFix> = {}) {
+  const result = checkAssets(BODYCAM_KIND, raws, register, fixes);
+  // One Hikvision code belongs to one bodycam: on the register, and in the file.
+  const owners = new Map<string, string>();
+  for (const e of register) if (e.hik_camera_code) owners.set(e.hik_camera_code, matchKey(e.serial_number));
+  const inFile = new Map<string, CheckedAsset<BodycamItem>[]>();
+  for (const r of result.rows) {
+    if (r.outcome === 'skipped' || r.outcome === 'merged' || !r.item.hik_camera_code) continue;
+    const owner = owners.get(r.item.hik_camera_code);
+    if (owner && owner !== matchKey(r.item.serial_number)) {
+      r.outcome = 'attention';
+      r.issues.push({ code: 'code-elsewhere', message: `Hikvision code ${r.item.hik_camera_code} is already on another bodycam`, fixes: ['skip'] });
+    }
+    inFile.set(r.item.hik_camera_code, [...(inFile.get(r.item.hik_camera_code) ?? []), r]);
+  }
+  for (const [code, group] of inFile) {
+    if (new Set(group.map((r) => matchKey(r.item.serial_number))).size < 2) continue;
+    for (const r of group) {
+      r.outcome = 'attention';
+      r.issues.push({ code: 'code-in-file', message: `Hikvision code ${code} is on more than one row`, fixes: ['skip'] });
+    }
+  }
+  const counts = { add: 0, update: 0, unchanged: 0, merged: 0, attention: 0, skipped: 0 };
+  for (const r of result.rows) counts[r.outcome]++;
+  result.counts = counts;
+  result.toImport = result.rows
+    .filter((r) => r.outcome === 'add' || r.outcome === 'update' || r.outcome === 'unchanged')
+    .map((r) => ({ ...r.item, line: r.line }));
   return result;
 }

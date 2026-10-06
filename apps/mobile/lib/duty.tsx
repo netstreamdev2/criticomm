@@ -61,6 +61,12 @@ export function DutyProvider({ children }: { children: React.ReactNode }) {
     try {
       const cleared = await hasCompletedShiftStartToday(getSupabase());
       setShiftStarted(cleared);
+      // A successful sign-on must update the dashboard even if the realtime
+      // socket is reconnecting. Failed reads preserve the last known values.
+      await Promise.all([
+        getMyPersonnel(getSupabase(), session.user.id).then((me) => setOnDuty(Boolean(me?.is_on_duty))).catch(() => {}),
+        countOnDuty(getSupabase(), silo).then(setTeamOnDuty).catch(() => {}),
+      ]);
       return cleared;
     } catch {
       // The server is the authority for today's clearance. A network error
@@ -70,7 +76,7 @@ export function DutyProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setChecking(false);
     }
-  }, [session]);
+  }, [session, silo]);
 
   useEffect(() => { void refresh(); }, [refresh]);
 

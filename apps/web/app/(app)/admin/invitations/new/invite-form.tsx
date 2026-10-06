@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, MessageSquare, Printer, Search, ShieldCheck, X } from 'lucide-react';
+import { Eye, EyeOff, KeyRound, Mail, MessageSquare, Printer, Search, ShieldCheck, TriangleAlert, X } from 'lucide-react';
 import {
-  DEPARTMENT_NAMES, describeAccess, inviteChannelFor, needsSecondApproval, type Silo, type UserRole,
+  DEPARTMENT_NAMES, describeAccess, inviteChannelFor, needsSecondApproval, passwordChecklist, type Silo, type UserRole,
 } from '@criticom/db';
 import type { InvitationChannel, StaffForInvite } from '@criticom/api';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ import { formatDeadline } from '@/lib/onboarding/messages';
 import type { ActivationSlip as Slip } from '@/lib/onboarding/server';
 import { cn } from '@/lib/utils';
 import { MIN_REASON } from '../../users/confirm-fields';
-import { createInvitationAction, searchStaffAction } from '../actions';
+import { createAccountDirectlyAction, createInvitationAction, searchStaffAction } from '../actions';
 import { ActivationSlip, DevLink } from '../slip';
 
 const ROLE_GROUPS: Array<{ label: string; roles: UserRole[] }> = [
@@ -107,6 +107,9 @@ export function InviteForm({
   const [email, setEmail] = useState(initialPerson?.work_email ?? '');
   const [phone, setPhone] = useState(initialPerson?.work_cellphone ?? '');
   const [checked, setChecked] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [reason, setReason] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [slip, setSlip] = useState<Slip | null>(null);
@@ -153,9 +156,18 @@ export function InviteForm({
   const approval = role !== '' && needsSecondApproval(actorRole, role, role);
   const access = role ? describeAccess(role, silo) : [];
   const usual = role ? USUAL_DEPARTMENT[role] : undefined;
-  const contactOk = channel === 'email' ? EMAIL_PATTERN.test(email.trim()) : channel === 'sms' ? phoneOk(phone) : true;
+  const direct = channel === 'direct';
+  // A powerful role needs a second SystemAdmin, which a direct account cannot wait for.
+  const directBlocked = direct && approval;
+  const emailOk = EMAIL_PATTERN.test(email.trim()) && !/\.internal$/i.test(email.trim());
+  const rules = direct
+    ? [...passwordChecklist(password, { name: fullName, badge: person?.badge_number }),
+      { rule: 'Both passwords match', ok: password.length > 0 && password === confirmPassword }]
+    : [];
+  const contactOk = channel === 'email' || direct ? emailOk : channel === 'sms' ? phoneOk(phone) : true;
   const reasonLength = reason.trim().length;
-  const ready = !!person && role !== '' && contactOk && (channel === 'code' || checked) && reasonLength >= MIN_REASON;
+  const ready = !!person && role !== '' && contactOk && (channel === 'code' || checked) && reasonLength >= MIN_REASON
+    && !directBlocked && rules.every((r) => r.ok);
   const deadline = now ? formatDeadline(new Date(now + ttlHours * 3_600_000).toISOString()) : null;
 
   const done = () => {
@@ -168,6 +180,25 @@ export function InviteForm({
   const submit = () => {
     if (!person || !role) return;
     setError(null);
+    if (channel === 'direct') {
+      start(async () => {
+        const res = await createAccountDirectlyAction({
+          personnelId: person.id, role, silo, email: email.trim(), password, confirmPassword,
+          reason: reason.trim(), handOverAgreed: checked,
+        });
+        if (!res.ok) { setError(res.message); return; }
+        setPassword('');
+        setConfirmPassword('');
+        toast.push({
+          title: `Account created for ${first}`,
+          body: `Active now as ${res.role}. They sign in with ${res.loginEmail} on the web or the phone app.`,
+          tone: 'success', duration: 8000,
+        });
+        router.push('/admin/invitations?view=accepted');
+        router.refresh();
+      });
+      return;
+    }
     start(async () => {
       const res = await createInvitationAction({
         personnelId: person.id, role, silo, channel, email: email.trim(), phone: phone.trim(), reason: reason.trim(),
@@ -217,6 +248,10 @@ export function InviteForm({
     },
     { id: 'sms', label: 'SMS', icon: MessageSquare, enabled: delivery.sms, note: delivery.sms ? null : 'Not set up yet' },
     { id: 'code', label: 'Printed code', icon: Printer, enabled: true, note: 'For staff without email or a phone' },
+    // Migration 0055: only the top administrators, and the database checks it again.
+    ...(actorRole === 'SystemAdmin' || actorRole === 'SuperAdmin'
+      ? [{ id: 'direct' as const, label: 'Set a password', icon: KeyRound, enabled: true, note: 'Active at once · less safe' }]
+      : []),
   ];
 
   return (
@@ -355,8 +390,8 @@ export function InviteForm({
         ) : null}
       </Step>
 
-      <Step n={3} title="How they receive it">
-        <fieldset className="grid gap-2 sm:grid-cols-3">
+      <Step n={3} title={direct ? 'Sign-in and password' : 'How they receive it'}>
+        <fieldset className={cn('grid gap-2', channels.length > 3 ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3')}>
           <legend className="sr-only">How they receive it</legend>
           {channels.map((c) => {
             const Icon = c.icon;
@@ -412,10 +447,63 @@ export function InviteForm({
           </p>
         ) : null}
 
+        {direct ? (
+          <div className="space-y-4">
+            <p className="flex items-start gap-2 rounded-lg border border-severity-medium/40 bg-severity-medium/10 px-3 py-2.5 text-sm">
+              <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-severity-medium-ink" aria-hidden />
+              <span>
+                The account is active as soon as you create it. You will know {first === 'them' ? 'their' : `${first}’s`} password,
+                and they do not confirm their badge number or accept the POPIA notice. Use an invitation where you can.
+              </span>
+            </p>
+            {directBlocked ? (
+              <p role="alert" className="rounded-lg border border-severity-critical/40 bg-severity-critical/10 px-3 py-2.5 text-sm text-severity-critical-ink">
+                {role} needs a second SystemAdmin’s approval, so it cannot be created with a password. Choose email, SMS or a printed code.
+              </p>
+            ) : null}
+            <div>
+              <Label htmlFor="direct-email">Email address (their sign-in)</Label>
+              <Input id="direct-email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setChecked(false); }}
+                placeholder="name@example.org" autoComplete="off" spellCheck={false} className="mt-1.5"
+                aria-invalid={email.length > 0 && !contactOk} />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="direct-password">Password</Label>
+                <div className="relative mt-1.5">
+                  <Input id="direct-password" type={showPassword ? 'text' : 'password'} value={password}
+                    onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" className="pr-10" />
+                  <button type="button" onClick={() => setShowPassword((s) => !s)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-fg"
+                    aria-label={showPassword ? 'Hide passwords' : 'Show passwords'}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="direct-confirm">Confirm password</Label>
+                <Input id="direct-confirm" type={showPassword ? 'text' : 'password'} value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" className="mt-1.5"
+                  aria-invalid={confirmPassword.length > 0 && password !== confirmPassword} />
+              </div>
+            </div>
+            <ul className="space-y-1 text-xs" aria-label="Password rules">
+              {rules.map((r) => (
+                <li key={r.rule} className={r.ok ? 'text-success' : 'text-muted-foreground'}>{r.ok ? '✓' : '○'} {r.rule}</li>
+              ))}
+              <li className="text-muted-foreground">○ Not found in a known data breach (checked when you create it)</li>
+            </ul>
+          </div>
+        ) : null}
+
         {channel !== 'code' ? (
           <label className="flex items-start gap-2.5 text-sm">
             <input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[rgb(var(--c-primary))]" />
-            <span>I have checked this {channel === 'email' ? 'address' : 'number'} with {first}, in person or by phone.</span>
+            <span>
+              {direct
+                ? `I have checked this address with ${first}, and I will give them the password myself, in person or by phone.`
+                : `I have checked this ${channel === 'email' ? 'address' : 'number'} with ${first}, in person or by phone.`}
+            </span>
           </label>
         ) : null}
       </Step>
@@ -433,6 +521,17 @@ export function InviteForm({
 
       {person && role ? (
         <div className="rounded-xl border border-primary/40 bg-primary/5 px-5 py-4 text-sm" aria-live="polite">
+          {direct ? (
+            <>
+              <p>
+                Creates an account for <b>{fullName}</b> ({person.badge_number}) as <b>{role}</b> in <b>{DEPARTMENT_NAMES[silo]}</b>,
+                signing in with <b>{email.trim() || '…'}</b>.
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                Active at once on the web and the phone app. Nothing is emailed: give them the password yourself.
+              </p>
+            </>
+          ) : (<>
           <p>
             Invites <b>{fullName}</b> ({person.badge_number}) as <b>{role}</b> in <b>{DEPARTMENT_NAMES[silo]}</b>,{' '}
             {channel === 'email' ? <>by email to <b>{email.trim() || '…'}</b>.</>
@@ -447,6 +546,7 @@ export function InviteForm({
                 : `The ${channel === 'code' ? 'code' : 'link'} works once and expires after ${ttlHours} hours.`}
             {channel === 'email' && delivery.emailIsLinkOnly && !approval ? ' Email is not set up here, so you will be shown the link to pass on.' : ''}
           </p>
+          </>)}
         </div>
       ) : null}
 
@@ -458,7 +558,7 @@ export function InviteForm({
 
       <div className="flex flex-wrap gap-2">
         <Button type="button" onClick={submit} disabled={!ready || pending}>
-          {pending ? 'Working…' : approval ? 'Send for approval' : channel === 'code' ? 'Create slip' : 'Send invitation'}
+          {pending ? 'Working…' : direct ? 'Create account' : approval ? 'Send for approval' : channel === 'code' ? 'Create slip' : 'Send invitation'}
         </Button>
         <Button asChild variant="ghost"><Link href="/admin/invitations">Cancel</Link></Button>
       </div>

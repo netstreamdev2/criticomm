@@ -4,7 +4,7 @@
   <h1>Task Procedures</h1>
   <div class="bar"></div>
   <p>Every task on the console, in full. Each one names the screen, who may do it, what it writes to the database, and what happens afterwards.</p>
-  <div class="chaps"><div><b>22</b> &nbsp;Intake and dispatch</div><div><b>23</b> &nbsp;Working an incident</div><div><b>24</b> &nbsp;Start of shift</div><div><b>25</b> &nbsp;Departmental reports</div><div><b>26</b> &nbsp;People</div><div><b>27</b> &nbsp;Reporting and analysis</div><div><b>28</b> &nbsp;Surveillance and external systems</div></div>
+  <div class="chaps"><div><b>22</b> &nbsp;Intake and dispatch</div><div><b>23</b> &nbsp;Working an incident</div><div><b>24</b> &nbsp;Start of shift</div><div><b>25</b> &nbsp;Departmental reports</div><div><b>26</b> &nbsp;People</div><div><b>27</b> &nbsp;Reporting and analysis</div><div><b>28</b> &nbsp;Body cams, cameras and external systems</div></div>
 </div>
 
 <div class="part" id="c22">
@@ -681,39 +681,55 @@
 </div>
 
 <div class="part" id="c28">
-  <div class="part-head"><div class="cnum">Chapter 28</div><h1>Surveillance and External Systems</h1></div>
+  <div class="part-head"><div class="cnum">Chapter 28</div><h1>Body Cams, Cameras and External Systems</h1></div>
 
-  <h2>28.1 The camera wall</h2>
+  <h2>28.1 Watching a bodycam live</h2>
   <div class="proc">
     <div class="h">
-      <div class="t">View cameras</div>
-      <div class="m"><b>Screen</b> /cameras &nbsp;·&nbsp; <b>Endpoint</b> /api/cctv/cameras</div>
+      <div class="t">Watch an officer's bodycam</div>
+      <div class="m"><b>Screen</b> /cameras (Body Cams), the live map, or the incident &nbsp;·&nbsp; <b>Endpoint</b> /api/bodycams/view &nbsp;·&nbsp; <b>Audited</b></div>
     </div>
     <div class="b">
       <ol>
-        <li>Open <b>Cameras</b>. The registry served is SANRAL today, or the live HikCentral estate once that integration is enabled.</li>
-        <li>Select a camera for live preview.</li>
+        <li>Open <b>Body Cams</b> and choose the officer, or click an officer's red dot on the live map. From an incident, use <b>Watch live</b>.</li>
+        <li>Say why: officer safety, SOS, supervising, investigation, or other with a note. From an incident, the incident is the reason.</li>
+        <li>Watch up to four at once. After ten minutes the feed asks <b>Still watching?</b> and stops a minute later if nobody answers.</li>
+      </ol>
+      <div class="after"><b>On the record</b> Every view is recorded with your name, the bodycam, the officer and the reason, and is in the audit log. The officer's phone shows that the control room is viewing their camera, never who.</div>
+    </div>
+  </div>
+
+  <h2>28.2 Body cam footage</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">Find and play recorded footage</div>
+      <div class="m"><b>Screen</b> /cameras/footage (Body Cam Footage) &nbsp;·&nbsp; <b>Endpoint</b> /api/bodycams/view &nbsp;·&nbsp; <b>Audited</b></div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>Body Cam Footage</b>, or <b>Footage for this incident</b> on an incident.</li>
+        <li>Choose the window and, if you like, the officer. The bookings show who had which bodycam, and when.</li>
+        <li>Choose a booking, say why, and play it. Windows are capped at 24 hours.</li>
+      </ol>
+      <div class="after"><b>Chain of custody</b> Every playback is recorded with your name and reason. Footage retrieval is evidence handling, and who requested what has to be answerable later.</div>
+    </div>
+  </div>
+
+  <h2>28.3 SANRAL freeway cameras</h2>
+  <div class="proc">
+    <div class="h">
+      <div class="t">View the freeway cameras</div>
+      <div class="m"><b>Screen</b> /sanral (SANRAL Cameras) &nbsp;·&nbsp; <b>Endpoint</b> /api/cctv/cameras</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>Open <b>SANRAL Cameras</b>. Each camera opens its feed page; the registry is imported from i-traffic.</li>
+        <li>The same cameras, and live traffic, are layers on the live map.</li>
       </ol>
     </div>
   </div>
 
-  <h2>28.2 Retrieving footage</h2>
-  <div class="proc">
-    <div class="h">
-      <div class="t">Retrieve recorded footage</div>
-      <div class="m"><b>Screen</b> /cameras/footage &nbsp;·&nbsp; <b>Endpoint</b> /api/cctv/stream &nbsp;·&nbsp; <b>Audited</b></div>
-    </div>
-    <div class="b">
-      <ol>
-        <li>Open <b>Cameras → Footage</b>.</li>
-        <li>Choose the camera and a time window — capped at 24 hours per request.</li>
-        <li>Request the playback URL.</li>
-      </ol>
-      <div class="after"><b>Chain of custody</b> Every grant is written to the audit log with your name. Footage retrieval is evidence handling, and who requested what has to be answerable later.</div>
-    </div>
-  </div>
-
-  <h2>28.3 Radio (PTT)</h2>
+  <h2>28.4 Radio (PTT)</h2>
   <div class="proc">
     <div class="h">
       <div class="t">Send text to a radio</div>

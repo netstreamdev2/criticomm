@@ -1,4 +1,5 @@
 import { FormSection, TextField, TextAreaField, SelectField, CheckField } from '@/components/fields';
+import { getMyBodycam } from '@criticom/api';
 import { getSession } from '@/lib/session';
 import { createMetroReportAction } from '../../actions';
 
@@ -11,7 +12,9 @@ export default async function NewMetroReportPage({
 }: {
   searchParams: Promise<{ type?: string }>;
 }) {
-  const { fullName } = await getSession();
+  const { fullName, supabase } = await getSession();
+  // Booked a bodycam out this shift (0054)? Then it was on; the officer can still untick it.
+  const bodycamOn = Boolean(await getMyBodycam(supabase));
   const { type } = await searchParams;
   const category = WIZARDS.includes(type ?? '') ? type! : 'Incident';
   const showVehicle = ['Accident', 'Vehicle', 'Tow'].includes(category);
@@ -41,7 +44,7 @@ export default async function NewMetroReportPage({
           <TextField name="officer_name" label="Officer name" defaultValue={fullName} required />
           <TextField name="badge_number" label="Badge number" />
           <TextField name="partner_name" label="Partner name" />
-          <CheckField name="bodycam_active" label="Bodycam active" defaultChecked />
+          <CheckField name="bodycam_active" label="Bodycam active" defaultChecked={bodycamOn} />
           <SelectField name="use_of_force" label="Use of force"
             options={['None', 'Verbal', 'Physical restraint', 'Non-lethal weapon', 'Firearm discharged']} />
         </FormSection>

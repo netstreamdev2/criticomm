@@ -1,16 +1,21 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FileText, Lock } from 'lucide-react';
 import {
-  getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listIncidentAttachments, listIncidentMapZones,
-  listIncidentResponders, signIncidentMedia,
+  featureEnabled, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listBookedOutBodycams,
+  listIncidentAttachments, listIncidentMapZones, listIncidentResponders, searchBodycamBookings, signIncidentMedia,
+  type IncidentResponder,
 } from '@criticom/api';
-import { CASE_MANAGER_ROLES } from '@criticom/db';
+import { CASE_MANAGER_ROLES, canAccess, canWatchBodycam, type Database, type Silo, type UserRole } from '@criticom/db';
+import { windowFor } from '@criticom/db/bodycams';
+import { getFeatures } from '@/lib/features';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { PoliceReportCard } from './report-card';
 import { IncidentZonesCard } from './zones-card';
+import { IncidentBodycamsCard, type IncidentBodycamPerson } from './bodycams-card';
 import {
   addUpdateAction, closeCaseAction, requestCitizenLocationAction, setStatusAction,
 } from './actions';
@@ -26,7 +31,7 @@ export default async function IncidentDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { supabase, role } = await getSession();
+  const { supabase, role, silo } = await getSession();
 
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) notFound();
@@ -49,6 +54,7 @@ export default async function IncidentDetailPage({
 
   const isClosed = incident.status === 'Closed' || incident.status === 'Resolved';
   const canClose = CASE_MANAGER_ROLES.includes(role);
+  const bodycams = await incidentBodycams(supabase, incident, responders, role, silo);
 
   // Lifecycle milestones (ReportsController.IncidentLifecycle)
   const lifecycle = [
@@ -176,7 +182,18 @@ export default async function IncidentDetailPage({
             {incident.number_of_victims != null && (
               <div><p className="text-xs uppercase text-muted-foreground">Victims</p><p>{incident.number_of_victims}</p></div>
             )}
-            <div><p className="text-xs uppercase text-muted-foreground">Coordinates</p><p className="font-mono">{incident.location_lat.toFixed(5)}, {incident.location_lng.toFixed(5)}</p></div>
+            <div>
+              <p className="text-xs uppercase text-muted-foreground">Coordinates</p>
+              <p className="font-mono">{incident.location_lat.toFixed(5)}, {incident.location_lng.toFixed(5)}</p>
+              {canAccess('/sanral', role, silo) && (
+                <Link
+                  href={`/sanral?lat=${incident.location_lat}&lng=${incident.location_lng}`}
+                  className="text-xs text-accent hover:underline"
+                >
+                  SANRAL freeway cameras nearby
+                </Link>
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -256,6 +273,14 @@ export default async function IncidentDetailPage({
           incidentNumber={incident.incident_number}
           role={role}
           isClosed={isClosed}
+        />
+      )}
+
+      {bodycams && (
+        <IncidentBodycamsCard
+          incident={{ id: incident.id, number: incident.incident_number }}
+          isClosed={isClosed}
+          {...bodycams}
         />
       )}
 
@@ -421,4 +446,51 @@ export default async function IncidentDetailPage({
       </Card>
     </div>
   );
+}
+
+/**
+ * The officers on an incident and their bodycams (0054), for those who may
+ * watch or pull footage. Null hides the card: no access, the feature is
+ * switched off, or 0054 has not been run.
+ */
+async function incidentBodycams(
+  supabase: Awaited<ReturnType<typeof getSession>>['supabase'],
+  incident: Database['public']['Tables']['incidents']['Row'],
+  responders: IncidentResponder[],
+  role: UserRole,
+  silo: Silo,
+) {
+  if (!featureEnabled(await getFeatures(), 'web.cameras')) return null;
+  const canWatch = canAccess('/cameras', role, silo);
+  const canFootage = canAccess('/cameras/footage', role, silo);
+  if (!canWatch && !canFootage) return null;
+
+  const people = new Map<string, IncidentBodycamPerson>();
+  for (const r of responders) {
+    people.set(r.user_id, { userId: r.user_id, name: r.name ?? 'An officer', role: r.role, bodycam: null });
+  }
+  if (incident.assigned_to && !people.has(incident.assigned_to)) {
+    people.set(incident.assigned_to, {
+      userId: incident.assigned_to, name: incident.assigned_to_name ?? 'The assigned officer', role: 'assigned', bodycam: null,
+    });
+  }
+  const ids = [...people.keys()];
+  const span = windowFor(incident.incident_created_at, incident.closed_at ?? incident.resolved_at ?? null);
+  const [live, bookings] = await Promise.all([
+    canWatch ? listBookedOutBodycams(supabase, { userIds: ids }).catch(() => null) : Promise.resolve([]),
+    canFootage ? searchBodycamBookings(supabase, { from: span.from, to: span.to, userIds: ids }).catch(() => null) : Promise.resolve([]),
+  ]);
+  if (live === null || bookings === null) return null;
+  for (const { bodycam } of live) {
+    const person = bodycam.booked_to ? people.get(bodycam.booked_to) : undefined;
+    if (person && canWatchBodycam({ role, silo }, bodycam.silo, 'live')) {
+      person.bodycam = { bodycamId: bodycam.id, serial: bodycam.serial_number, since: bodycam.booked_at };
+    }
+  }
+  return {
+    people: [...people.values()],
+    canWatch,
+    canFootage,
+    footageCount: bookings.filter((b) => canWatchBodycam({ role, silo }, b.silo, 'footage')).length,
+  };
 }

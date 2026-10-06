@@ -108,6 +108,25 @@ export async function middleware(request: NextRequest) {
     user = null;
   }
 
+  // The officer app has no cookies: it sends its Supabase access token as a
+  // bearer (apps/mobile/lib/api-host.ts). Auth verifies the token, so the same
+  // role, silo and deactivation checks below apply to it. APIs only.
+  const bearer = isApi ? request.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1]?.trim() : undefined;
+  if (!user && bearer) {
+    try {
+      ({ data: { user } } = await supabase.auth.getUser(bearer));
+    } catch {
+      user = null;
+    }
+  }
+
+  // Weather tiles load as plain images inside the app's map, which cannot
+  // send a bearer. They carry a short-lived signed pass instead, which the
+  // route itself checks (app/api/weather/pass).
+  if (!user && pathname.startsWith('/api/weather/tiles/') && request.nextUrl.searchParams.has('pass')) {
+    return response;
+  }
+
   // Unauthenticated → 401 for APIs, bounce to login for pages.
   if (!user && !isPublic) {
     if (isApi) {

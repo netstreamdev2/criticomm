@@ -12,6 +12,7 @@ import { homeModules } from '@/lib/modules';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Card } from '@/components/ui';
 import { PoliceHome } from '@/components/police-home';
+import { FireHome } from '@/components/fire-home';
 import { HomeHeader } from '@/components/home-header';
 
 /**
@@ -30,6 +31,7 @@ import { HomeHeader } from '@/components/home-header';
  */
 export default function HomeScreen() {
   const { silo } = useAuth();
+  if (silo === 'MetroFire') return <FireHome />;
   return silo === 'MetroPolice' || silo === 'Ethekwini' ? <PoliceHome /> : <ModuleHome />;
 }
 

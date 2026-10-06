@@ -4,7 +4,7 @@ import {
   CalendarClock, Bell, Briefcase, GraduationCap, Gauge, FolderClosed, Map, Bot,
   RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network, PlugZap, Activity,
   ToggleRight, Building2, LayoutGrid, Wrench, Timer, Mail, Receipt, Scale, Landmark,
-  ScrollText, FileWarning, Grid3x3, Crosshair, Warehouse, ClipboardList,
+  ScrollText, FileWarning, Grid3x3, Crosshair, Warehouse, ClipboardList, Video, Film, Cctv,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -67,6 +67,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/police', label: 'Police Operations', icon: ShieldAlert, keywords: 'metro reports firearms armoury security' },
       { href: '/police/armoury', label: 'Armoury', icon: Warehouse, keywords: 'firearms guns weapons register serial booked out import' },
+      { href: '/police/bodycams', label: 'Bodycam Register', icon: Video, keywords: 'bodycam body worn camera register serial sim booked out import hikvision' },
       { href: '/police/fines', label: 'Fines', icon: Receipt, keywords: 'enforcement traffic bylaw ticket offender fn' },
       { href: '/police/charges', label: 'Charges', icon: Scale, keywords: 'enforcement criminal accused court ch' },
       { href: '/police/transactions', label: 'Charge Transactions', icon: Landmark, keywords: 'enforcement bail payment court fee ledger money' },
@@ -101,8 +102,9 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Insights & Tools',
     items: [
       { href: '/analytics', label: 'Analytics', icon: BarChart3, keywords: 'trends statistics charts' },
-      { href: '/cameras', label: 'Surveillance', icon: Camera, keywords: 'cctv cameras matrix sanral hikvision wall traffic' },
-      { href: '/cameras/footage', label: 'CCTV Footage', icon: Camera, keywords: 'playback recorded video evidence hikvision' },
+      { href: '/cameras', label: 'Body Cams', icon: Video, keywords: 'bodycam body worn camera live video officer feed hikvision' },
+      { href: '/cameras/footage', label: 'Body Cam Footage', icon: Film, keywords: 'bodycam recorded video evidence playback footage hikvision' },
+      { href: '/sanral', label: 'SANRAL Cameras', icon: Cctv, keywords: 'cctv freeway cameras matrix sanral i-traffic wall traffic surveillance' },
       { href: '/assistant', label: 'Criti Assistant', icon: Bot, keywords: 'ai chat help' },
     ],
   },
@@ -151,10 +153,10 @@ const SEGMENT_LABELS: Record<string, string> = {
   hr: 'HR Command Centre', departments: 'Departments',
   performance: 'Performance', mine: 'My Performance', operational: 'Operational KPIs',
   'role-kpis': 'Role KPIs', rollup: 'KPI Rollup', plans: 'Appraisal Plans', kpis: 'KPI Config',
-  analytics: 'Analytics', cameras: 'Surveillance', assistant: 'Assistant',
+  analytics: 'Analytics', cameras: 'Body Cams', assistant: 'Assistant', sanral: 'SANRAL Cameras', bodycams: 'Bodycam Register',
   admin: 'Administration', config: 'Configuration', personnel: 'Personnel', access: 'Access Control',
   operators: 'Operators', vehicles: 'Fleet', devices: 'Devices', integrations: 'Integrations',
-  operations: 'Operations Settings', footage: 'CCTV Footage',
+  operations: 'Operations Settings', footage: 'Body Cam Footage',
   invitations: 'Invitations', approvals: 'Approvals', handbook: 'Handbook', users: 'Users',
   import: 'Import', rollout: 'Rollout',
   profile: 'Profile', 'my-hr': 'My HR', notifications: 'Notifications', dashboard: 'Dashboard',

@@ -46,6 +46,7 @@ const SUPER_ADMIN_GROUPS: NavGroup[] = [
       adminLink('/admin/departments', 'Department Branding'),
     ],
   },
+  { id: 'platform-monitoring', label: 'Monitoring', items: [adminLink('/cameras'), adminLink('/cameras/footage')] },
   { id: 'account', label: 'Account', items: [adminLink('/profile', 'My Profile')] },
 ];
 
@@ -57,6 +58,8 @@ const SYSTEM_ADMIN_GROUPS: NavGroup[] = [
       adminLink('/analytics', 'Analytics'),
       adminLink('/report-hub', 'Reports'),
       adminLink('/shift/today'),
+      adminLink('/cameras'),
+      adminLink('/cameras/footage'),
     ],
   },
   {
@@ -65,6 +68,7 @@ const SYSTEM_ADMIN_GROUPS: NavGroup[] = [
       adminLink('/admin/personnel', 'Personnel'),
       adminLink('/admin/vehicles', 'Fleet'),
       adminLink('/police/armoury'),
+      adminLink('/police/bodycams'),
       adminLink('/admin/devices', 'Devices'),
     ],
   },
@@ -105,8 +109,10 @@ const SUPERVISOR_GROUPS: NavGroup[] = [
       adminLink('/dispatch/pending', 'Pending Dispatch'),
       adminLink('/incidents', 'Incidents'),
       adminLink('/incidents/map', 'Live Map'),
+      adminLink('/cameras'),
       adminLink('/duty-tasks', 'Duty Maintenance'),
       adminLink('/police/armoury'),
+      adminLink('/police/bodycams'),
       adminLink('/report-hub', 'Reports'),
     ],
   },
@@ -142,8 +148,10 @@ const CAPTAIN_GROUPS: NavGroup[] = [
   { id: 'captain-operations', label: 'Police Operations', items: [
     adminLink('/police', 'Police Overview'),
     adminLink('/police/armoury'),
+    adminLink('/police/bodycams'),
     adminLink('/incidents', 'Incidents'),
     adminLink('/incidents/map', 'Live Map'),
+    adminLink('/cameras'),
     adminLink('/responder', 'My Incidents'),
     adminLink('/duty-tasks', 'Duty Maintenance'),
   ] },
@@ -193,6 +201,7 @@ const DISPATCHER_GROUPS: NavGroup[] = [
       adminLink('/dispatch/pending', 'Pending Queue'),
       adminLink('/incidents', 'Incidents'),
       adminLink('/incidents/map', 'Live Map'),
+      adminLink('/cameras'),
       adminLink('/dispatch/ptt', 'PTT Radio'),
     ],
   },
@@ -201,6 +210,8 @@ const DISPATCHER_GROUPS: NavGroup[] = [
       adminLink('/roster/allocation', 'Duty Board'),
       adminLink('/dispatch/kpi', 'Dispatch KPIs'),
       adminLink('/report-hub', 'Reports'),
+      adminLink('/cameras/footage'),
+      adminLink('/sanral'),
     ],
   },
   {
@@ -225,8 +236,7 @@ const INCIDENT_LOGGER_GROUPS: NavGroup[] = [
     adminLink('/case-manager', 'Case Manager'),
   ] },
   { id: 'logger-monitoring', label: 'Monitoring', items: [
-    adminLink('/cameras', 'Surveillance'),
-    adminLink('/cameras/footage', 'CCTV Footage'),
+    adminLink('/sanral'),
   ] },
   { id: 'logger-reports', label: 'Reports', items: [
     adminLink('/report-hub', 'Report Hub'),
@@ -252,8 +262,9 @@ const SYSTEM_CONTROLLER_GROUPS: NavGroup[] = [
     adminLink('/incidents/map', 'Live Map'),
   ] },
   { id: 'controller-monitoring', label: 'Monitoring', items: [
-    adminLink('/cameras', 'Surveillance'),
-    adminLink('/cameras/footage', 'CCTV Footage'),
+    adminLink('/cameras'),
+    adminLink('/cameras/footage'),
+    adminLink('/sanral'),
     adminLink('/dispatch/ptt', 'PTT Radio'),
     adminLink('/dispatch/kpi', 'Dispatch KPIs'),
   ] },

@@ -66,6 +66,19 @@ test('CSV quotes commas and quotes, one row per item', () => {
   assert.equal(csv.split('\r\n').filter((r) => r.endsWith(',OK') || r.endsWith(',FAULT') || r.endsWith(',NIL')).length, 67);
 });
 
+test('the bodycam goes on the record, or the reason there was none', () => {
+  const withCam = {
+    ...record,
+    bodycam: { serial_number: 'BC-0001', battery_ok: true, recording_ok: true, mounted_ok: true, issue_notes: null, booked_at: '2026-10-01T08:05:00Z' },
+  } as unknown as typeof record;
+  assert.match(buildReportCsv({ record: withCam, officerName: 'x' }), /Bodycam,Serial number,BC-0001/);
+  assert.ok(buildReportHtml({ record: withCam, officialName: 'D', shortName: 'D', logoUrl: null, officerName: 'x' }).includes('S/N BC-0001'));
+  const without = { ...record, noBodycam: { reason: 'None left at the <station>', created_at: '2026-10-01T08:05:00Z' } } as unknown as typeof record;
+  assert.match(buildReportCsv({ record: without, officerName: 'x' }), /Bodycam,Reason,None left at the <station>/);
+  assert.ok(buildReportHtml({ record: without, officialName: 'D', shortName: 'D', logoUrl: null, officerName: 'x' }).includes('None left at the &lt;station&gt;'));
+  assert.ok(!buildReportCsv({ record, officerName: 'x' }).includes('Bodycam'), 'nothing when the step does not apply');
+});
+
 test('HTML escapes officer-entered text', () => {
   const html = buildReportHtml({ record, officialName: 'Durban Metropolitan Police Service', shortName: 'DMPS', logoUrl: null, officerName: 'x' });
   assert.ok(html.includes('Const &lt;Wayne&gt;'));

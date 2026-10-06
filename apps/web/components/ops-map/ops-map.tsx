@@ -34,12 +34,13 @@ import {
   Crosshair, Layers, Maximize2, Minimize2, Shapes, Siren, Wind, X,
 } from 'lucide-react';
 import {
-  listCameras, listCrimeZones, listHydrants, type LiveMapZone, type OnDutyOfficer,
+  listBodycamHolders, listCameras, listCrimeZones, listHydrants, subscribeBodycams, type LiveMapZone, type OnDutyOfficer,
 } from '@criticom/api';
 import {
-  DEPARTMENT_NAMES, canDrawMapZones,
+  DEPARTMENT_NAMES, canDrawMapZones, canWatchBodycam,
   type Database, type MapZoneKind, type MapZoneShape, type Silo, type UserRole,
 } from '@criticom/db';
+import { BodycamViewer, type BodycamTarget, type ViewReason } from '@/components/bodycam/bodycam-viewer';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { useLiveIncidents } from '@/lib/live-incidents';
 import { useOnDutyOfficers } from '@/lib/on-duty';
@@ -157,12 +158,18 @@ export type OpsMapProps = {
   focusZoneId?: string | null;
   /** Link new drawings to this call (/incidents/map?incident=…). */
   drawForIncidentId?: string | null;
+  /**
+   * Bodycams (0054): mark officers wearing one, and let this viewer open the
+   * live feed from the officer's marker. Set when the Body Cams screen is open
+   * to them; each bodycam is still checked against their department.
+   */
+  bodycams?: boolean;
 };
 
 export function OpsMap({
   incidents: initialIncidents, officers: initialOfficers, silo, layers: available, defaults,
   basemap: defaultBasemap, scopeLabel, height = 560, startInWall = false,
-  me, focusZoneId = null, drawForIncidentId = null,
+  me, focusZoneId = null, drawForIncidentId = null, bodycams = false,
 }: OpsMapProps) {
   const router = useRouter();
   const routerRef = useRef(router);
@@ -442,6 +449,49 @@ export function OpsMap({
     }
   }, [ready, incidents, freshIds, focus]);
 
+  /* ── Bodycams (0054): who is wearing one, and the feed being watched ── */
+
+  const [camHolders, setCamHolders] = useState<ReadonlyMap<string, { bodycamId: string; serial: string; silo: Silo }>>(() => new Map());
+  const viewerRole = me.role;
+  const viewerSilo = me.silo;
+  useEffect(() => {
+    if (!bodycams) return;
+    let sb: ReturnType<typeof getBrowserSupabase>;
+    try {
+      sb = getBrowserSupabase();
+    } catch {
+      return;
+    }
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const load = () => {
+      void listBodycamHolders(sb)
+        .then((rows) => {
+          if (!alive) return;
+          setCamHolders(new Map(rows
+            .filter((r) => canWatchBodycam({ role: viewerRole, silo: viewerSilo }, r.silo, 'live'))
+            .map((r) => [r.userId, { bodycamId: r.bodycamId, serial: r.serial, silo: r.silo }])));
+        })
+        .catch(() => { /* before 0054 is run there are no bodycams to mark */ });
+    };
+    load();
+    const off = subscribeBodycams(sb, () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(load, 800);
+    });
+    return () => {
+      alive = false;
+      off();
+      if (timer) clearTimeout(timer);
+    };
+  }, [bodycams, viewerRole, viewerSilo]);
+  const camHoldersRef = useRef(camHolders);
+  camHoldersRef.current = camHolders;
+
+  /** The officer whose bodycam is open in the left-hand panel. */
+  const [watching, setWatching] = useState<BodycamTarget | null>(null);
+  const [lastReason, setLastReason] = useState<ViewReason | null>(null);
+
   /* ── Officers ─────────────────────────────────────────────────────── */
 
   // Staleness changes with time alone, so re-check it every minute.
@@ -462,27 +512,36 @@ export function OpsMap({
       seen.add(o.userId);
       const busy = Boolean(o.busyWith);
       const stale = isStale(o.seenAt, now);
-      const key = `${busy}|${stale}`;
-      const tip = M.unitTooltip(o, stale);
+      const cam = camHolders.get(o.userId) ?? null;
+      const key = `${busy}|${stale}|${Boolean(cam)}`;
+      const tip = M.unitTooltip(o, stale, cam?.serial);
       const entry = unitMarkers.current.get(o.userId);
       if (!entry) {
-        const marker = L.marker([o.lat!, o.lng!], { icon: M.unitIcon(L, busy, stale), keyboard: false, zIndexOffset: -100 });
+        const marker = L.marker([o.lat!, o.lng!], { icon: M.unitIcon(L, busy, stale, Boolean(cam)), keyboard: false, zIndexOffset: -100 });
         marker.bindTooltip(tip, { direction: 'top', opacity: 0.97 });
-        const at: [number, number] = [o.lat!, o.lng!];
+        const { userId, name } = o;
         marker.on('click', () => {
+          const at = marker.getLatLng();
           const d = drawer.current;
           if (d) {
-            if (d.placing) d.place({ lat: at[0], lng: at[1] });
+            if (d.placing) d.place({ lat: at.lat, lng: at.lng });
             return;
           }
-          if (wallRef.current) focus(...at);
+          if (wallRef.current) focus(at.lat, at.lng);
+          // Wearing a bodycam this viewer may watch: open it in the panel.
+          const worn = camHoldersRef.current.get(userId);
+          if (worn) {
+            setSheet(null);
+            setSelectedZoneId(null);
+            setWatching({ bodycamId: worn.bodycamId, serial: worn.serial, officer: name || null });
+          }
         });
         g.addLayer(marker);
         unitMarkers.current.set(o.userId, { marker, key });
       } else {
         entry.marker.setLatLng([o.lat!, o.lng!]);
         if (entry.key !== key) {
-          entry.marker.setIcon(M.unitIcon(L, busy, stale));
+          entry.marker.setIcon(M.unitIcon(L, busy, stale, Boolean(cam)));
           entry.key = key;
         }
         entry.marker.setTooltipContent(tip);
@@ -493,7 +552,7 @@ export function OpsMap({
       g.removeLayer(entry.marker);
       unitMarkers.current.delete(id);
     }
-  }, [ready, officers, minute, focus]);
+  }, [ready, officers, minute, focus, camHolders]);
 
   /* ── Reference layers, fetched the first time they are switched on ── */
 
@@ -832,6 +891,11 @@ export function OpsMap({
     });
   }, [ready, zones, selectedZoneId, editingZoneId]);
 
+  // One panel on the left at a time: opening layers, a zone or a drawing closes the feed.
+  useEffect(() => {
+    if (editing || selectedZoneId || sheet) setWatching(null);
+  }, [editing, selectedZoneId, sheet]);
+
   /* ── Wall display ─────────────────────────────────────────────────── */
 
   const enterWall = useCallback(() => {
@@ -945,7 +1009,7 @@ export function OpsMap({
       )}
       style={wall ? undefined : { height }}
       data-wall={wall}
-      data-idle={wall && idle && !sheet && !selectedZoneId && !editing}
+      data-idle={wall && idle && !sheet && !selectedZoneId && !editing && !watching}
     >
       <div ref={el} className="absolute inset-0" role="region" aria-label="Live operations map" />
 
@@ -1046,7 +1110,7 @@ export function OpsMap({
         />
       )}
 
-      {/* One panel on the left at a time: the drawing's form, a zone's card, the zones, or the layers. */}
+      {/* One panel on the left at a time: the drawing's form, a zone's card, a bodycam, the zones, or the layers. */}
       {editing ? (
         drawSnap?.phase === 'editing' && (
           <ZoneEditor
@@ -1076,6 +1140,17 @@ export function OpsMap({
             setSelectedZoneId(null);
             reloadZones();
           }}
+        />
+      ) : watching ? (
+        <BodycamViewer
+          key={watching.bodycamId}
+          target={watching}
+          kind="live"
+          tone="map"
+          defaultReason={lastReason}
+          onReason={setLastReason}
+          onClose={() => setWatching(null)}
+          className="ops-map-chrome absolute left-3 top-16 z-[7] w-[26rem] max-w-[calc(100%-1.5rem)] shadow-2xl"
         />
       ) : sheet === 'zones' ? (
         <ZonesList
@@ -1135,7 +1210,7 @@ export function OpsMap({
         </div>
       )}
 
-      <Legend isOn={isOn} wall={wall} unplaced={summary.unplaced} crimeYear={crimeYear} />
+      <Legend isOn={isOn} wall={wall} unplaced={summary.unplaced} crimeYear={crimeYear} bodycams={camHolders.size > 0} />
 
       {wall && !nativeFs && (
         <p className="ops-map-chrome ops-glass pointer-events-none absolute bottom-3 left-1/2 z-[5] -translate-x-1/2 rounded-md px-3 py-1 text-xs text-slate-300">
@@ -1283,8 +1358,8 @@ function LayerPanel({
   );
 }
 
-function Legend({ isOn, wall, unplaced, crimeYear }: {
-  isOn: (id: LayerId) => boolean; wall: boolean; unplaced: number; crimeYear: string | null;
+function Legend({ isOn, wall, unplaced, crimeYear, bodycams }: {
+  isOn: (id: LayerId) => boolean; wall: boolean; unplaced: number; crimeYear: string | null; bodycams: boolean;
 }) {
   const dot = (colour: string, label: string, ring?: string) => (
     <span key={label} className="inline-flex items-center gap-1.5">
@@ -1301,6 +1376,7 @@ function Legend({ isOn, wall, unplaced, crimeYear }: {
       {isOn('incidents') && (['Critical', 'High', 'Medium', 'Low'] as const).map((s) => dot(SEVERITY_COLOUR[s]!, s))}
       {isOn('units') && dot('#a78bfa', 'Officer free')}
       {isOn('units') && dot('#a78bfa', 'Officer on a call', '#f59e0b')}
+      {isOn('units') && bodycams && dot('#ef4444', 'Bodycam on: click the officer to watch')}
       {isOn('crime') && (
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-8 rounded-full" style={{ background: 'linear-gradient(90deg,#facc15,#f97316,#dc2626)' }} />
@@ -1309,7 +1385,7 @@ function Legend({ isOn, wall, unplaced, crimeYear }: {
       )}
       {isOn('hydrants') && dot(HYDRANT_COLOUR.Operational!, 'Hydrant')}
       {isOn('hydrants') && dot(HYDRANT_COLOUR['Out of Service']!, 'Hydrant out of service')}
-      {isOn('cameras') && dot('#2dd4bf', 'CCTV')}
+      {isOn('cameras') && dot('#2dd4bf', 'SANRAL camera')}
       {isOn('traffic') && dot('#fb923c', 'Traffic')}
       {unplaced > 0 && isOn('incidents') && (
         <span className="text-amber-300">{unplaced} call{unplaced === 1 ? '' : 's'} without a map position</span>

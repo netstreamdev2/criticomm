@@ -6,7 +6,7 @@ import {
   AlertCircle, Check, ChevronDown, KeyRound, Loader2, PlugZap, Save, X,
 } from 'lucide-react';
 import type { IntegrationSetting } from '@criticom/api';
-import { setIntegrationEnabledAction, saveIntegrationConfigAction } from './actions';
+import { setBodycamTestVideoAction, setIntegrationEnabledAction, saveIntegrationConfigAction } from './actions';
 import { useToast } from '@/components/toast';
 import { cn } from '@/lib/utils';
 
@@ -79,6 +79,26 @@ export function IntegrationCard({
         return;
       }
       toast.push({ title: 'Configuration saved', tone: 'success', duration: 4000 });
+      router.refresh();
+    });
+  };
+
+  // Bodycams (0054): the sample video stands in until the platform is connected.
+  const testVideo = integration.key === 'hikvision'
+    ? (integration.config as Record<string, unknown> | null)?.stream_source === 'test'
+    : null;
+  const toggleTestVideo = () => {
+    start(async () => {
+      const res = await setBodycamTestVideoAction(!testVideo);
+      if (res?.error) {
+        toast.push({ title: 'Test video not changed', body: res.error, tone: 'warning' });
+        return;
+      }
+      toast.push({
+        title: testVideo ? 'Test video switched off' : 'Test video switched on',
+        body: testVideo ? 'Bodycam feeds now come from the Hikvision platform.' : 'Every bodycam feed now shows a sample video, marked as a test.',
+        tone: 'success',
+      });
       router.refresh();
     });
   };
@@ -203,6 +223,22 @@ export function IntegrationCard({
           {testing ? <Loader2 className="h-3 w-3 animate-spin" /> : <PlugZap className="h-3 w-3" />}
           {testing ? 'Testing…' : 'Test connection'}
         </button>
+
+        {testVideo !== null ? (
+          <button
+            type="button"
+            onClick={toggleTestVideo}
+            disabled={pending}
+            aria-pressed={testVideo}
+            title="Plays a public sample video in every bodycam feed, marked as a test, until the platform is connected."
+            className={cn(
+              'inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-semibold disabled:opacity-60',
+              testVideo ? 'border-severity-medium/50 bg-severity-medium/10 text-severity-medium-ink' : 'border-border hover:bg-muted',
+            )}
+          >
+            Bodycam test video: {testVideo ? 'on' : 'off'}
+          </button>
+        ) : null}
 
         <button
           type="button"

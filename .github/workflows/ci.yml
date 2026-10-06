@@ -139,3 +139,11 @@ jobs:
         env:
           SUPABASE_DB_URL: postgres://postgres:postgres@localhost:5432/criticom_ci
         run: node scripts/apply-migration.mjs $(ls supabase/migrations/*.sql | sort)
+
+      - name: Verify Fire shift gates and Police regression
+        env:
+          PGPASSWORD: postgres
+          FIRE_TEST_DB_URL: postgres://postgres:postgres@localhost:5432/criticomm_fire_test
+        run: |
+          createdb -h localhost -U postgres criticomm_fire_test
+          node scripts/test-fire-shift.mjs

@@ -521,8 +521,8 @@ is when the responder acted — not when the network came back.</figcaption>
       <tr><td>Zoiper</td><td>Softphone dial-out.</td></tr>
       <tr><td rowspan="2"><b>Notifications</b></td><td>Expo Push</td><td>Responder app notifications.</td></tr>
       <tr><td>BulkSMS</td><td>Citizen SMS and GPS requests.</td></tr>
-      <tr><td rowspan="2"><b>Surveillance</b></td><td>SANRAL CCTV Matrix</td><td>The current freeway camera wall.</td></tr>
-      <tr><td>Hikvision HikCentral</td><td>The incoming CCTV platform.</td></tr>
+      <tr><td rowspan="2"><b>Surveillance</b></td><td>SANRAL CCTV Matrix</td><td>The freeway camera wall (SANRAL Cameras).</td></tr>
+      <tr><td>Hikvision HCM Lite</td><td>Bodycam live video and footage.</td></tr>
       <tr><td rowspan="5"><b>External feeds</b></td><td>TomTom</td><td>Traffic incidents and points of interest.</td></tr>
       <tr><td>FlightRadar24</td><td>Aircraft positions and tracks.</td></tr>
       <tr><td>AIS / Kpler</td><td>Vessel positions, Durban harbour.</td></tr>
@@ -545,11 +545,13 @@ is when the responder acted — not when the network came back.</figcaption>
     </div>
   </div>
 
-  <h2>38.3 The CCTV cut-over</h2>
+  <h2>38.3 Connecting the bodycams</h2>
   <p>
-    <code>/api/cctv/cameras</code> serves the SANRAL registry until Hikvision is enabled with an app key,
-    secret and base URL — then the same endpoint serves the live HikCentral estate. The cut-over is a
-    toggle in Admin, not a deployment. Roll back the same way.
+    Bodycam feeds play a sample video while <b>Bodycam test video</b> is on in the Hikvision row. To
+    connect the platform: set <code>HIKVISION_APP_KEY</code> and <code>HIKVISION_APP_SECRET</code>, put
+    the platform's address in <code>base_url</code>, add each bodycam's camera code on the bodycam
+    register, list the streaming host in <code>BODYCAM_STREAM_ORIGINS</code> and redeploy, then enable
+    the integration, run the probe and switch the test video off. The SANRAL camera wall is unaffected.
   </p>
 </div>
 

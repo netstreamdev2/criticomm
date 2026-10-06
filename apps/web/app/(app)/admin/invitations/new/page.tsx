@@ -33,7 +33,9 @@ export default async function NewInvitationPage({ searchParams }: { searchParams
         </Link>
         <h1 className="text-2xl font-bold">Invite someone</h1>
         <p className="text-muted-foreground">
-          Accounts are created by invitation only. The person chooses their own password; you never see it.
+          {role === 'SystemAdmin' || role === 'SuperAdmin'
+            ? 'By invitation the person chooses their own password and you never see it. You can also set a password and create the account at once, which is less safe.'
+            : 'Accounts are created by invitation only. The person chooses their own password; you never see it.'}
         </p>
       </header>
       <InviteForm

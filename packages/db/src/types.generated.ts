@@ -13,6 +13,10 @@ export type MapZoneKind =
 export type MapZoneShape = 'polygon' | 'circle' | 'line' | 'point';
 export type MapZoneVisibility = 'private' | 'department' | 'departments' | 'incident' | 'everyone';
 
+/** Bodycams (0054). */
+export type BodycamStatus = 'Available' | 'Booked out' | 'In repair' | 'Lost' | 'Retired';
+export type BodycamViewReason = 'incident' | 'officer_safety' | 'sos' | 'supervision' | 'investigation' | 'other';
+
 export type Silo = 'Ethekwini' | 'MetroPolice' | 'MetroFire' | 'Medical' | 'EthekwiniDisaster';
 
 export type UserRole =
@@ -836,7 +840,7 @@ export type Database = {
         Row: {
           id: string;
           tenant_id: string;
-          kind: 'firearms' | 'vehicles';
+          kind: 'firearms' | 'vehicles' | 'bodycams';
           imported_by: string;
           imported_by_name: string | null;
           imported_at: string;
@@ -847,6 +851,111 @@ export type Database = {
           added: number;
           updated: number;
           unchanged: number;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** The bodycam register (0054). Status and custody change only through functions. */
+      bodycams: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          serial_number: string;
+          model: string | null;
+          sim_number: string | null;
+          /** The camera's index code on the Hikvision platform (cameraIndexCode). */
+          hik_camera_code: string | null;
+          station: string | null;
+          status: BodycamStatus;
+          booked_to: string | null;
+          booked_at: string | null;
+          notes: string | null;
+          status_note: string | null;
+          status_changed_at: string | null;
+          status_changed_by_name: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Omit<Database['public']['Tables']['bodycams']['Row'], 'status' | 'booked_to' | 'booked_at'>>
+          & { serial_number: string };
+        Update: Partial<Omit<Database['public']['Tables']['bodycams']['Row'], 'status' | 'booked_to' | 'booked_at'>>;
+        Relationships: [];
+      };
+      /** Every time a bodycam went out with an officer (0054). Written only by functions. */
+      bodycam_bookings: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          bodycam_id: string;
+          serial_number: string;
+          user_id: string;
+          user_name: string | null;
+          booked_at: string;
+          battery_ok: boolean;
+          recording_ok: boolean;
+          mounted_ok: boolean;
+          issue_notes: string | null;
+          returned_at: string | null;
+          returned_by: string | null;
+          returned_by_name: string | null;
+          return_condition: 'ok' | 'damaged' | 'lost' | null;
+          return_notes: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'bodycam_bookings_bodycam_id_fkey';
+            columns: ['bodycam_id'];
+            isOneToOne: false;
+            referencedRelation: 'bodycams';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      /** "No bodycam today", with the reason (0054). Written via declare_shift_no_bodycam(). */
+      shift_no_bodycam_declarations: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          user_id: string;
+          user_name: string | null;
+          reason: string;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** Every view of a bodycam, live or recorded, with its reason (0054). Written only by functions. */
+      bodycam_views: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          bodycam_id: string;
+          serial_number: string;
+          officer_id: string | null;
+          officer_name: string | null;
+          kind: 'live' | 'footage';
+          footage_from: string | null;
+          footage_to: string | null;
+          incident_id: string | null;
+          incident_number: string | null;
+          reason_code: BodycamViewReason;
+          reason_note: string | null;
+          viewer_id: string;
+          viewer_name: string | null;
+          viewer_role: UserRole | null;
+          started_at: string;
+          last_seen_at: string;
+          ended_at: string | null;
+          end_reason: 'closed' | 'timeout' | 'stopped' | 'failed' | null;
         };
         Insert: never;
         Update: never;
@@ -887,7 +996,7 @@ export type Database = {
           badge_number: string;
           role: UserRole;
           silo: Silo;
-          channel: 'email' | 'sms' | 'code';
+          channel: 'email' | 'sms' | 'code' | 'direct';
           email: string | null;
           phone: string | null;
           login_email: string;
@@ -1143,7 +1252,14 @@ export type Database = {
           comms_working: boolean;
           brakes_responsive: boolean;
           /** DMPS 187(c) sheet (migration 0037). Null on pre-0037 rows. */
-          form_version: '187c' | null;
+          form_version: '187c' | 'fire-v1' | null;
+          /** Fire appliance checks (0056). Null means not inspected on historical records. */
+          scba_checked: boolean | null;
+          water_tank_full: boolean | null;
+          pump_operational: boolean | null;
+          hoses_and_nozzles_stocked: boolean | null;
+          ladders_secured: boolean | null;
+          turnout_gear_complete: boolean | null;
           inspection_ref: string | null;
           ndm_number: string | null;
           mileage_km: number | null;
@@ -2236,6 +2352,19 @@ export type Database = {
         Args: { p_secret_hash: string; p_badge: string; p_user: string; p_policy_version: string };
         Returns: Record<string, unknown>;
       };
+      /** Migration 0055: a SystemAdmin or the SuperAdmin creates an account with a password. */
+      create_direct_account: {
+        Args: { p_personnel: string; p_role: UserRole; p_silo: Silo; p_email: string; p_reason: string };
+        Returns: { invitation_id: string; login_email: string; full_name: string; badge_number: string };
+      };
+      complete_direct_account: {
+        Args: { p_invitation: string; p_user: string };
+        Returns: Record<string, unknown>;
+      };
+      abandon_direct_account: {
+        Args: { p_invitation: string; p_note: string };
+        Returns: undefined;
+      };
       report_invitation: {
         Args: { p_secret_hash: string; p_note?: string | null };
         Returns: Record<string, unknown>;
@@ -2412,6 +2541,66 @@ export type Database = {
       end_map_zone: {
         Args: { p_id: string; p_reason: string | null };
         Returns: Database['public']['Tables']['map_zones']['Row'];
+      };
+      can_manage_bodycams: { Args: { p_silo: Silo }; Returns: boolean };
+      can_watch_bodycam: { Args: { p_silo: Silo; p_kind: 'live' | 'footage' }; Returns: boolean };
+      start_bodycam_view: {
+        Args: {
+          p_bodycam_id: string;
+          p_kind: 'live' | 'footage';
+          p_incident_id: string | null;
+          p_reason_code: BodycamViewReason | null;
+          p_reason_note: string | null;
+          p_from?: string | null;
+          p_to?: string | null;
+        };
+        Returns: {
+          view_id: string; kind: 'live' | 'footage'; serial_number: string;
+          hik_camera_code: string | null; officer_name: string | null;
+        };
+      };
+      touch_bodycam_view: {
+        Args: { p_view_id: string };
+        Returns: { active: boolean; reason?: 'closed' | 'timeout' | 'stopped' | 'failed' };
+      };
+      end_bodycam_view: {
+        Args: { p_view_id: string; p_reason?: 'closed' | 'timeout' | 'failed' };
+        Returns: { ended: boolean };
+      };
+      bodycam_watch_status: {
+        Args: Record<string, never>;
+        Returns: { serial_number: string | null; watching: boolean; since: string | null };
+      };
+      shift_requires_bodycam: { Args: Record<string, never>; Returns: boolean };
+      shift_bodycam_resolved_today: { Args: Record<string, never>; Returns: boolean };
+      book_out_bodycam: {
+        Args: {
+          p_bodycam_id: string; p_battery_ok: boolean; p_recording_ok: boolean; p_mounted_ok: boolean;
+          p_notes?: string | null;
+        };
+        Returns:
+          | { booked: true; booking_id: string; serial_number: string }
+          | { booked: false; status: 'In repair'; serial_number: string; failed: string };
+      };
+      declare_shift_no_bodycam: {
+        Args: { p_reason: string };
+        Returns: Database['public']['Tables']['shift_no_bodycam_declarations']['Row'];
+      };
+      return_bodycam: {
+        Args: { p_bodycam_id: string; p_condition: 'ok' | 'damaged' | 'lost'; p_notes?: string | null };
+        Returns: { status: 'Available' | 'In repair' | 'Lost' };
+      };
+      receive_bodycam: {
+        Args: { p_bodycam_id: string; p_condition: 'ok' | 'damaged' | 'lost'; p_notes: string };
+        Returns: { status: 'Available' | 'In repair' | 'Lost' };
+      };
+      set_bodycam_status: {
+        Args: { p_bodycam_id: string; p_status: Exclude<BodycamStatus, 'Booked out'>; p_reason: string };
+        Returns: { status: BodycamStatus };
+      };
+      import_bodycams: {
+        Args: { p_rows: Array<Record<string, unknown>>; p_file_name: string; p_file_sha256: string; p_reason: string };
+        Returns: { added: number; updated: number; unchanged: number };
       };
     };
   };

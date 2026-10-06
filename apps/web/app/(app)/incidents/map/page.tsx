@@ -1,6 +1,7 @@
-import { getOperationalSettings, listActiveIncidents, listOnDutyOfficers } from '@criticom/api';
+import { featureEnabled, getOperationalSettings, listActiveIncidents, listOnDutyOfficers } from '@criticom/api';
 import { DEPARTMENT_NAMES, canAccess, canDrawMapZones } from '@criticom/db';
 import { OpsMap } from '@/components/ops-map/ops-map';
+import { getFeatures } from '@/lib/features';
 import { availableLayers, defaultLayers } from '@/lib/ops-map/layers';
 import { getSession, siloFilter } from '@/lib/session';
 
@@ -42,7 +43,7 @@ export default async function LiveMapPage({
         incidents={incidents}
         officers={officers}
         silo={sf}
-        layers={availableLayers({ cameras: canAccess('/cameras', role, silo) })}
+        layers={availableLayers({ cameras: canAccess('/sanral', role, silo) })}
         defaults={defaultLayers(role)}
         basemap={settings['map.default_basemap']}
         scopeLabel={sf ? DEPARTMENT_NAMES[sf] : 'All departments'}
@@ -51,6 +52,7 @@ export default async function LiveMapPage({
         me={{ id: userId, role, silo }}
         focusZoneId={zone ?? null}
         drawForIncidentId={incident ?? null}
+        bodycams={canAccess('/cameras', role, silo) && featureEnabled(await getFeatures(), 'web.cameras')}
       />
     </div>
   );

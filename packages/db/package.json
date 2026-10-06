@@ -15,7 +15,10 @@
     "./schemas": "./src/schemas/index.ts",
     "./register": "./src/register.ts",
     "./sheet": "./src/sheet.ts",
-    "./assets": "./src/assets.ts"
+    "./assets": "./src/assets.ts",
+    "./bodycams": "./src/bodycams.ts",
+    "./map-layers": "./src/map-layers.ts",
+    "./fire-shift": "./src/fire-shift.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

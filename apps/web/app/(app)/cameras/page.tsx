@@ -1,73 +1,82 @@
 import Link from 'next/link';
+import { ClipboardList, Film } from 'lucide-react';
+import { listBookedOutBodycams, type LiveBodycam } from '@criticom/api';
+import { canAccess, canWatchBodycam } from '@criticom/db/roles';
 import { requireFeaturePage } from '@/lib/features';
-import { Film } from 'lucide-react';
-import { listCameras } from '@criticom/api';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { SimpleTable, Tr, Td } from '@/components/simple-table';
+import { hikConfig, hikCredentials } from '@/lib/hikvision';
+import { invitationErrorMessage } from '@/lib/onboarding/errors';
 import { getSession } from '@/lib/session';
-import { ImportCamerasButton } from './import-button';
-import { LiveWall } from './live-wall';
-import { TrafficPanel } from './traffic-panel';
+import { BodycamWall, type WallBodycam } from './bodycam-wall';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Surveillance · HikTech' };
+export const metadata = { title: 'Body Cams · HikTech' };
 
-export default async function CamerasPage() {
+/**
+ * Body Cams (migration 0054): every bodycam out with an officer that this
+ * person may watch, and up to four live feeds side by side. Each feed asks
+ * why it is being opened and goes on the record.
+ */
+export default async function BodyCamsPage() {
   await requireFeaturePage('web.cameras');
-  const { supabase } = await getSession();
-  const cameras = await listCameras(supabase);
+  const { supabase, role, silo } = await getSession();
+
+  let cams: LiveBodycam[] = [];
+  let loadError: string | null = null;
+  try {
+    cams = (await listBookedOutBodycams(supabase)).filter((c) => canWatchBodycam({ role, silo }, c.bodycam.silo, 'live'));
+  } catch (e) {
+    loadError = invitationErrorMessage(e, 'The bodycams could not be loaded.');
+  }
+
+  const cfg = await hikConfig(supabase);
+  const connected = cfg.enabled && Boolean(hikCredentials()) && Boolean(cfg.baseUrl);
+  const wall: WallBodycam[] = cams.map(({ bodycam: b, holder }) => ({
+    bodycamId: b.id, serial: b.serial_number, model: b.model, station: b.station, bookedAt: b.booked_at,
+    hasCode: Boolean(b.hik_camera_code),
+    officer: holder ? { name: holder.name, badge: holder.badge, station: holder.station, onDuty: holder.onDuty } : null,
+  }));
 
   return (
     <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Surveillance</h1>
-          <p className="text-muted-foreground">
-            SANRAL matrix today, Hikvision next — the wall switches over the moment the
-            integration is enabled, no redeploy.
+          <h1 className="text-2xl font-bold">Body Cams</h1>
+          <p className="max-w-2xl text-muted-foreground">
+            Bodycams out with officers right now. Watch up to four at once; each one asks why, and the officer’s
+            phone shows that the control room is viewing their camera.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/cameras/footage"
-            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
-          >
-            <Film className="h-4 w-4" /> CCTV footage
-          </Link>
-          <ImportCamerasButton />
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          {canAccess('/cameras/footage', role, silo) ? (
+            <Link href="/cameras/footage" className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 font-semibold hover:bg-muted">
+              <Film className="h-4 w-4" /> Body cam footage
+            </Link>
+          ) : null}
+          {canAccess('/police/bodycams', role, silo) ? (
+            <Link href="/police/bodycams" className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 font-semibold hover:bg-muted">
+              <ClipboardList className="h-4 w-4" /> Bodycam register
+            </Link>
+          ) : null}
         </div>
       </header>
 
-      <LiveWall />
+      {cfg.streamSource === 'test' ? (
+        <p className="rounded-lg border border-severity-medium/50 bg-severity-medium/10 px-4 py-3 text-sm">
+          <b>Test video is on.</b> Every feed shows a sample video, not the bodycam. Switch it off under Admin → Integrations →
+          Hikvision once the platform is connected.
+        </p>
+      ) : !connected ? (
+        <p className="rounded-lg border border-severity-medium/50 bg-severity-medium/10 px-4 py-3 text-sm">
+          <b>The Hikvision platform is not connected yet</b>, so feeds cannot play. An administrator can switch on the test video
+          under Admin → Integrations → Hikvision to demonstrate.
+        </p>
+      ) : null}
 
-      <TrafficPanel />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{cameras.length} cameras</CardTitle>
-          <CardDescription>Imported from the i-traffic feed.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <SimpleTable headers={['ID', 'Name', 'Roadway', 'Direction', 'Coordinates', 'Feed']} empty="No cameras imported — run the i-traffic import.">
-            {cameras.map((c) => (
-              <Tr key={c.id}>
-                <Td className="font-mono text-xs">{c.id}</Td>
-                <Td>{c.name ?? '—'}</Td>
-                <Td>{c.roadway_name ?? '—'}</Td>
-                <Td>{c.direction_of_travel ?? '—'}</Td>
-                <Td className="font-mono text-xs">
-                  {c.latitude != null && c.longitude != null ? `${c.latitude.toFixed(4)}, ${c.longitude.toFixed(4)}` : '—'}
-                </Td>
-                <Td>
-                  {c.url && !c.blocked ? (
-                    <a href={c.url} target="_blank" rel="noreferrer" className="text-accent hover:underline">Open</a>
-                  ) : '—'}
-                </Td>
-              </Tr>
-            ))}
-          </SimpleTable>
-        </CardContent>
-      </Card>
+      {loadError ? (
+        <p role="alert" className="rounded-lg border border-severity-critical/40 bg-severity-critical/10 px-4 py-3 text-sm text-severity-critical-ink">{loadError}</p>
+      ) : (
+        <BodycamWall cams={wall} testVideo={cfg.streamSource === 'test'} />
+      )}
     </div>
   );
 }

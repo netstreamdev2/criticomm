@@ -67,6 +67,19 @@ export async function callPublicApi<T>(path: string, body: unknown): Promise<T> 
   }
 }
 
+/** A signed-in read from the web API (weather, say); the same bearer rules as callApi. */
+export async function getApi<T>(path: string): Promise<T> {
+  if (!HOST) throw new ApiUnavailableError('This build has no web address configured.');
+  const { data: { session } } = await getSupabase().auth.getSession();
+  if (!session) throw new ApiUnavailableError('Your session has expired — sign in again.');
+  const res = await fetch(`${HOST}${path}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => null) as { error?: string } | null;
+    throw new Error(detail?.error ?? `Request failed (${res.status})`);
+  }
+  return res.json() as Promise<T>;
+}
+
 export async function callApi<T>(path: string, body: unknown): Promise<T> {
   if (!HOST) {
     throw new ApiUnavailableError(

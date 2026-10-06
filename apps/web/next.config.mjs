@@ -9,7 +9,19 @@
  *    which is a separate piece of work.
  *  - connect-src covers Supabase (REST + realtime websockets) and the
  *    key-free upstreams the dispatch console proxies through.
+ *  - Bodycam video (0054) is fetched by the browser straight from the
+ *    streaming host: the public sample stream, plus whatever hosts the
+ *    Hikvision platform streams from, listed in BODYCAM_STREAM_ORIGINS
+ *    (space- or comma-separated, e.g. "https://hcm.durban.gov.za:1443").
+ *    hls.js plays through blob: media and a blob: worker.
+ *  - frame-src allows only SANRAL's i-traffic map (the SANRAL CCTV matrix,
+ *    ported from V4); it runs sandboxed in its own origin.
  */
+const STREAM_ORIGINS = [
+  'https://test-streams.mux.dev',
+  ...(process.env.BODYCAM_STREAM_ORIGINS ?? '').split(/[\s,]+/).filter(Boolean),
+].join(' ');
+
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
@@ -17,7 +29,10 @@ const CSP = [
   // Map tiles (Esri/OSM), department crests and avatars from Supabase storage.
   "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://server.arcgisonline.com https://*.tile.openstreetmap.org https://*.arcgisonline.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in https://photon.komoot.io https://nominatim.openstreetmap.org https://router.project-osrm.org",
+  `media-src 'self' blob: ${STREAM_ORIGINS}`,
+  "worker-src 'self' blob:",
+  "frame-src 'self' https://www.i-traffic.co.za",
+  `connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in https://photon.komoot.io https://nominatim.openstreetmap.org https://router.project-osrm.org ${STREAM_ORIGINS}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

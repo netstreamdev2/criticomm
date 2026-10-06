@@ -163,7 +163,7 @@ const PROBES: Record<string, Probe> = {
     const xml = await res.text();
     const count = (xml.match(/<Camera>/g) ?? []).length;
     return count > 0
-      ? { ok: true, message: `Feed authenticated — ${count} cameras available. Import them from Surveillance.` }
+      ? { ok: true, message: `Feed authenticated — ${count} cameras available. Import them from SANRAL Cameras.` }
       : { ok: false, message: 'Feed answered but returned no cameras — the key may be invalid.' };
   },
 
@@ -194,13 +194,13 @@ const PROBES: Record<string, Probe> = {
     const supabase = await getServerSupabase();
     const cfg = await hikConfig(supabase);
     if (!cfg.baseUrl) {
-      return { ok: false, message: 'base_url is empty — set it in this integration\'s parameters (e.g. https://hikcentral.durban.gov.za).' };
+      return { ok: false, message: 'base_url is empty — set it in this integration\'s parameters (e.g. https://hcm.durban.gov.za:1443).' };
     }
     try {
       const page = await hikListCameras({ ...cfg, pageSize: 10 }, 1);
       return {
         ok: true,
-        message: `Authenticated with HikCentral — ${page.total} camera${page.total === 1 ? '' : 's'} in the estate.`,
+        message: `Authenticated with the Hikvision platform — ${page.total} camera${page.total === 1 ? '' : 's'} (bodycams included).${cfg.streamSource === 'test' ? ' The test video is still switched on.' : ''}`,
       };
     } catch (e) {
       return { ok: false, message: (e as Error).message };

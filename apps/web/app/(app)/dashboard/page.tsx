@@ -3,10 +3,10 @@ import { redirect } from 'next/navigation';
 import {
   getDispatcherKpis, listActiveIncidents, listPendingIncidents, listClosedIncidents,
   getMyPersonnel, listMyAssignedIncidents, hasCompletedShiftStartToday, getMyPerformance,
-  listPersonnel, getUnitCompliance, listAllProfiles, listApparatus, listDevices,
+  listPersonnel, getUnitCompliance, listAllProfiles, listApparatus, listDevices, listBookedOutBodycams,
 } from '@criticom/api';
 import {
-  ADMIN_ROLES, DISPATCH_ROLES, RESPONDER_ROLES, type Silo, type UserRole,
+  ADMIN_ROLES, DISPATCH_ROLES, RESPONDER_ROLES, canWatchBodycam, type Silo, type UserRole,
 } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
@@ -215,13 +215,16 @@ async function CaptainDashboard({
 }) {
   const sf = siloFilter(silo);
   const me = await getMyPersonnel(supabase, userId).catch(() => null);
-  const [personnel, active, compliance, mine] = await Promise.all([
+  const [personnel, active, compliance, mine, cams] = await Promise.all([
     listPersonnel(supabase, sf),
     listActiveIncidents(supabase, sf),
     getUnitCompliance(supabase, sf).catch(() => ({ mentalChecks: [], vehicleChecklists: [] })),
     listMyAssignedIncidents(supabase, me?.assigned_apparatus_id ?? null).catch(() => []),
+    // Bodycams (0054): none until that migration is run.
+    listBookedOutBodycams(supabase).catch(() => []),
   ]);
   const onDuty = personnel.filter((person) => person.is_on_duty).length;
+  const camsOn = cams.filter((c) => c.holder?.onDuty && canWatchBodycam({ role: 'Captain', silo }, c.bodycam.silo, 'live')).length;
 
   return (
     <div className="space-y-5">
@@ -240,16 +243,18 @@ async function CaptainDashboard({
         </div>
       </section>
 
-      <section aria-label="Team status" className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <section aria-label="Team status" className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
         <Tile label="Team members" value={personnel.length} />
         <Tile label="On duty now" value={onDuty} accent="text-severity-low-ink" />
         <Tile label="Readiness checks today" value={compliance.mentalChecks.length} accent="text-accent" />
         <Tile label="Active police incidents" value={active.length} accent="text-severity-medium-ink" />
+        <Tile label="Team bodycams on" value={camsOn} accent="text-severity-critical-ink" />
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { href: '/responder', label: 'My incidents', detail: `${mine.length} assigned to your unit` },
+          { href: '/cameras', label: 'Body cams', detail: `${camsOn} on duty wearing one now` },
           { href: '/police', label: 'Police operations', detail: 'Department tools and reports' },
           { href: '/roster/mine', label: 'My schedule', detail: 'Your upcoming duty' },
         ].map((item) => (

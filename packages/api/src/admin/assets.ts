@@ -142,7 +142,7 @@ export async function importVehicles(
   return data as { added: number; updated: number; unchanged: number };
 }
 
-export async function listAssetImports(client: CriticomClient, kind: 'firearms' | 'vehicles', limit = 5): Promise<AssetImport[]> {
+export async function listAssetImports(client: CriticomClient, kind: AssetImport['kind'], limit = 5): Promise<AssetImport[]> {
   const { data, error } = await client.from('asset_imports').select('*').eq('kind', kind).order('imported_at', { ascending: false }).limit(limit);
   if (error) throw error;
   return data ?? [];
@@ -190,6 +190,9 @@ export type ShiftBoardInput = {
   firearmsOut: Array<{ id: string; serial_number: string; make: string; model: string; issued_to: string | null; issued_at: string | null }>;
   ends: Array<{ user_id: string; ended_at: string; source: 'app' | 'sign_out' | 'firearm_out'; unit_number: string | null }>;
   vehicles: Array<{ id: string; unit_number: string; name: string; status: ApparatusStatus; status_note: string | null; station_number: string | null; silo: Silo }>;
+  /** Bodycams out with someone (0054); absent before that migration runs. */
+  bodycamsOut?: Array<{ id: string; serial_number: string; booked_to: string | null; booked_at: string | null }>;
+  noBodycam?: Array<{ user_id: string; reason: string; created_at: string }>;
 };
 
 export type ShiftBoardRow = {
@@ -198,14 +201,20 @@ export type ShiftBoardRow = {
   vehicle: { unit: string; result: 'pass' | 'faults' | 'fail' | null } | null;
   firearm: { serial: string; label: string; since: string | null } | null;
   noFirearm: string | null | undefined;
+  bodycam: { serial: string; since: string | null } | null;
+  /** The reason given for no bodycam today, when one was. */
+  noBodycam: string | undefined;
   onDuty: boolean; dutySince: string | null;
   ended: { at: string; source: 'app' | 'sign_out' | 'firearm_out' } | null;
-  flags: Array<'firearm-out-after-end' | 'firearm-overdue' | 'failed-readiness' | 'vehicle-failed'>;
+  flags: Array<'firearm-out-after-end' | 'firearm-overdue' | 'bodycam-out-after-end' | 'bodycam-overdue' | 'failed-readiness' | 'vehicle-failed'>;
 };
 
 export type ShiftBoard = {
   rows: ShiftBoardRow[];
-  totals: { started: number; onDuty: number; ended: number; firearmsOut: number; overdue: number; vehiclesInUse: number; offRoad: number };
+  totals: {
+    started: number; onDuty: number; ended: number; firearmsOut: number; overdue: number; bodycamsOut: number;
+    vehiclesInUse: number; offRoad: number;
+  };
   offRoad: ShiftBoardInput['vehicles'];
 };
 
@@ -217,8 +226,8 @@ const latestBy = <T extends { user_id: string }>(items: T[], at: (t: T) => strin
 
 /**
  * Who is working today, with what: readiness, vehicle and inspection, firearm,
- * duty, and whether the shift has ended. Anyone holding kit is on the board,
- * whatever day they took it.
+ * bodycam, duty, and whether the shift has ended. Anyone holding kit is on
+ * the board, whatever day they took it.
  */
 export function buildShiftBoard(input: ShiftBoardInput): ShiftBoard {
   const overdueBefore = firearmOverdueBefore(input.now).toISOString();
@@ -227,6 +236,9 @@ export function buildShiftBoard(input: ShiftBoardInput): ShiftBoard {
   const noFirearm = latestBy(input.noFirearm, (n) => n.created_at);
   const ends = latestBy(input.ends, (e) => e.ended_at);
   const firearms = new Map(input.firearmsOut.filter((f) => f.issued_to).map((f) => [f.issued_to!, f]));
+  const bodycamsOut = input.bodycamsOut ?? [];
+  const bodycams = new Map(bodycamsOut.filter((c) => c.booked_to).map((c) => [c.booked_to!, c]));
+  const noBodycam = latestBy(input.noBodycam ?? [], (n) => n.created_at);
   const vehicles = new Map(input.vehicles.map((v) => [v.id, v]));
 
   const rows: ShiftBoardRow[] = [];
@@ -235,8 +247,10 @@ export function buildShiftBoard(input: ShiftBoardInput): ShiftBoard {
     const r = readiness.get(p.user_id);
     const insp = inspections.get(p.user_id);
     const fa = firearms.get(p.user_id);
+    const cam = bodycams.get(p.user_id);
     const end = ends.get(p.user_id);
-    const active = r || insp || fa || end || p.is_on_duty || p.assigned_apparatus_id || noFirearm.has(p.user_id);
+    const active = r || insp || fa || cam || end || p.is_on_duty || p.assigned_apparatus_id
+      || noFirearm.has(p.user_id) || noBodycam.has(p.user_id);
     if (!active) continue;
     const vehicleId = p.assigned_apparatus_id ?? insp?.apparatus_id ?? null;
     const v = vehicleId ? vehicles.get(vehicleId) : undefined;
@@ -245,6 +259,8 @@ export function buildShiftBoard(input: ShiftBoardInput): ShiftBoard {
     const endedNow = end && (!r || end.ended_at > r.timestamp) && !p.is_on_duty ? end : null;
     if (fa && endedNow) flags.push('firearm-out-after-end');
     if (fa && fa.issued_at && fa.issued_at < overdueBefore) flags.push('firearm-overdue');
+    if (cam && endedNow) flags.push('bodycam-out-after-end');
+    if (cam && cam.booked_at && cam.booked_at < overdueBefore) flags.push('bodycam-overdue');
     if (r && !r.passed) flags.push('failed-readiness');
     if (insp && !insp.passed) flags.push('vehicle-failed');
     rows.push({
@@ -253,6 +269,8 @@ export function buildShiftBoard(input: ShiftBoardInput): ShiftBoard {
       vehicle: v ? { unit: v.unit_number, result: insp && insp.apparatus_id === v.id ? (insp.passed ? (insp.items_fault > 0 ? 'faults' : 'pass') : 'fail') : null } : null,
       firearm: fa ? { serial: fa.serial_number, label: `${fa.make} ${fa.model}`, since: fa.issued_at } : null,
       noFirearm: noFirearm.get(p.user_id) ? (noFirearm.get(p.user_id)!.reason ?? null) : undefined,
+      bodycam: cam ? { serial: cam.serial_number, since: cam.booked_at } : null,
+      noBodycam: noBodycam.get(p.user_id)?.reason,
       onDuty: p.is_on_duty, dutySince: p.duty_started_at,
       ended: endedNow ? { at: endedNow.ended_at, source: endedNow.source } : null,
       flags,
@@ -269,6 +287,7 @@ export function buildShiftBoard(input: ShiftBoardInput): ShiftBoard {
       ended: rows.filter((r) => r.ended).length,
       firearmsOut: input.firearmsOut.length,
       overdue: input.firearmsOut.filter((f) => f.issued_at && f.issued_at < overdueBefore).length,
+      bodycamsOut: bodycamsOut.length,
       vehiclesInUse: input.vehicles.filter((v) => v.status === 'In Use').length,
       offRoad: offRoad.length,
     },
@@ -293,6 +312,13 @@ export async function getShiftBoard(client: CriticomClient, opts: { silo?: Silo;
     selectAll<Tables['shift_ends']['Row']>((from, to) => client.from('shift_ends').select('*').gte('ended_at', since).order('id').range(from, to)),
     selectAll<ApparatusRow>((from, to) => bySilo(client.from('apparatus').select('*')).order('id').range(from, to)),
   ]);
+  // Bodycams arrive with 0054; until it is run the board simply has none.
+  const [bodycamsOut, noBodycam] = await Promise.all([
+    selectAll<Tables['bodycams']['Row']>((from, to) => client.from('bodycams').select('*').eq('status', 'Booked out').order('id').range(from, to))
+      .catch(() => []),
+    selectAll<Tables['shift_no_bodycam_declarations']['Row']>((from, to) => client.from('shift_no_bodycam_declarations').select('*')
+      .gte('created_at', since).order('id').range(from, to)).catch(() => []),
+  ]);
   return buildShiftBoard({
     dayStart,
     now,
@@ -303,11 +329,16 @@ export async function getShiftBoard(client: CriticomClient, opts: { silo?: Silo;
     })),
     inspections: inspections.map((v) => ({
       user_id: v.user_id, apparatus_id: v.apparatus_id, checked_at: v.checked_at, items_fault: v.items_fault ?? 0,
-      passed: !!(v.lights_functional && v.tires_condition_ok && v.equipment_stocked && v.comms_working && v.brakes_responsive),
+      passed: !!(v.lights_functional && v.tires_condition_ok && v.equipment_stocked && v.comms_working && v.brakes_responsive
+        && (v.silo !== 'MetroFire' || (v.form_version === 'fire-v1' && v.declaration_accepted
+          && v.scba_checked && v.water_tank_full && v.pump_operational
+          && v.hoses_and_nozzles_stocked && v.ladders_secured && v.turnout_gear_complete))),
     })),
     noFirearm: noFirearm.map((n) => ({ user_id: n.user_id, reason: n.reason, created_at: n.created_at })),
     firearmsOut: firearmsOut.map((f) => ({ id: f.id, serial_number: f.serial_number, make: f.make, model: f.model, issued_to: f.issued_to, issued_at: f.issued_at })),
     ends: ends.map((e) => ({ user_id: e.user_id, ended_at: e.ended_at, source: e.source, unit_number: e.unit_number })),
     vehicles: vehicles.map((v) => ({ id: v.id, unit_number: v.unit_number, name: v.name, status: v.status, status_note: v.status_note, station_number: v.station_number, silo: v.silo })),
+    bodycamsOut: bodycamsOut.map((c) => ({ id: c.id, serial_number: c.serial_number, booked_to: c.booked_to, booked_at: c.booked_at })),
+    noBodycam: noBodycam.map((n) => ({ user_id: n.user_id, reason: n.reason, created_at: n.created_at })),
   });
 }

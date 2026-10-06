@@ -1,4 +1,8 @@
 import type { MapZoneKind, MapZoneShape, MapZoneVisibility, Silo } from '@criticom/db';
+import { ZONE_KINDS, zoneKind, type ZoneKindDef } from '@criticom/db/map-layers';
+
+// The zone types and their colours are shared with the officer app.
+export { ZONE_KINDS, zoneKind, type ZoneKindDef } from '@criticom/db/map-layers';
 
 /**
  * Perimeters and zones on the live map: their types, who they are shared
@@ -11,36 +15,6 @@ import type { MapZoneKind, MapZoneShape, MapZoneVisibility, Silo } from '@critic
 export type LatLng = { lat: number; lng: number };
 
 /* ── Zone types ─────────────────────────────────────────────────────── */
-
-export type ZoneKindDef = {
-  key: MapZoneKind;
-  label: string;
-  colour: string;
-  /** Shapes this type can be drawn as, the usual one first. */
-  shapes: readonly MapZoneShape[];
-  /** Two letters on a point marker. */
-  mark: string;
-  hint: string;
-};
-
-export const ZONE_KINDS: readonly ZoneKindDef[] = [
-  { key: 'cordon', label: 'Cordon', colour: '#ef4444', shapes: ['polygon', 'circle'], mark: 'C', hint: 'Hold the line and keep the public out.' },
-  { key: 'exclusion', label: 'Exclusion zone', colour: '#be123c', shapes: ['polygon', 'circle'], mark: 'X', hint: 'No entry without clearance — crews included.' },
-  { key: 'evacuation', label: 'Evacuation area', colour: '#f59e0b', shapes: ['polygon', 'circle'], mark: 'E', hint: 'Everyone inside must leave.' },
-  { key: 'hazard', label: 'Hazard area', colour: '#a855f7', shapes: ['polygon', 'circle'], mark: 'H', hint: 'Fire, flood, gas, chemical or structural danger.' },
-  { key: 'search', label: 'Search area', colour: '#3b82f6', shapes: ['polygon', 'circle'], mark: 'S', hint: 'Ground being searched.' },
-  { key: 'road_closure', label: 'Road closure', colour: '#facc15', shapes: ['line', 'polygon'], mark: 'RC', hint: 'A road or stretch closed to traffic.' },
-  { key: 'route', label: 'Route', colour: '#22c55e', shapes: ['line'], mark: 'R', hint: 'Access, escape or escort route.' },
-  { key: 'staging', label: 'Staging area', colour: '#14b8a6', shapes: ['point', 'polygon', 'circle'], mark: 'SA', hint: 'Where arriving units wait.' },
-  { key: 'command_post', label: 'Command post', colour: '#e2e8f0', shapes: ['point'], mark: 'CP', hint: 'Where incident command sits.' },
-  { key: 'rendezvous', label: 'Rendezvous point', colour: '#38bdf8', shapes: ['point'], mark: 'RV', hint: 'Where crews meet before going in.' },
-  { key: 'last_seen', label: 'Last seen', colour: '#ec4899', shapes: ['point', 'circle'], mark: 'LS', hint: 'Last known position of a person or vehicle.' },
-  { key: 'note', label: 'Map note', colour: '#94a3b8', shapes: ['polygon', 'circle', 'line', 'point'], mark: 'i', hint: 'Anything else worth marking.' },
-];
-
-export function zoneKind(key: string): ZoneKindDef {
-  return ZONE_KINDS.find((k) => k.key === key) ?? ZONE_KINDS[ZONE_KINDS.length - 1]!;
-}
 
 export function kindsForShape(shape: MapZoneShape): ZoneKindDef[] {
   return ZONE_KINDS.filter((k) => k.shapes.includes(shape));

@@ -33,8 +33,8 @@ export const FEATURES: FeatureDef[] = [
     defaultEnabled: true,
   },
   {
-    key: 'web.cameras', surface: 'web', label: 'CCTV cameras',
-    description: 'Off: the camera wall and footage retrieval are hidden and their APIs refuse.',
+    key: 'web.cameras', surface: 'web', label: 'Body cams and cameras',
+    description: 'Off: Body Cams, Body Cam Footage and the SANRAL camera wall are hidden and their APIs refuse. Officers still book bodycams out and back.',
     defaultEnabled: true,
   },
   {

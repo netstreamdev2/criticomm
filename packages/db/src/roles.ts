@@ -140,7 +140,10 @@ const AREAS: Array<{ label: string; path: string }> = [
   { label: 'Analytics', path: '/analytics' },
   { label: 'Report hub', path: '/report-hub' },
   { label: 'Case manager', path: '/case-manager' },
-  { label: 'Cameras (CCTV)', path: '/cameras' },
+  { label: 'Body cams (live)', path: '/cameras' },
+  { label: 'Body cam footage', path: '/cameras/footage' },
+  { label: 'SANRAL freeway cameras', path: '/sanral' },
+  { label: 'Bodycam register', path: '/police/bodycams' },
   { label: 'Reporting lines', path: '/hierarchy' },
   { label: 'Administration', path: '/admin' },
 ];
@@ -293,6 +296,34 @@ export function receivesZoneNotices(role: UserRole): boolean {
     && !['Police', 'Firefighter', 'Paramedic', 'Doctor', 'Staff'].includes(role);
 }
 
+/* ── Bodycams (0054) ───────────────────────────────────────────────────── */
+
+/**
+ * Who may watch a bodycam live: the control room, dispatch and command tier,
+ * and a department's supervisors and captains. Mirrors can_watch_bodycam().
+ */
+export const BODYCAM_LIVE_ROLES: UserRole[] = [
+  'SuperAdmin', 'SystemAdmin', 'SystemController', 'ControlRoom', 'Dispatcher', 'Supervisor', 'Captain',
+];
+
+/** Who may pull recorded footage: the same, and case managers. */
+export const BODYCAM_FOOTAGE_ROLES: UserRole[] = [...BODYCAM_LIVE_ROLES, 'CaseManager'];
+
+/** These watch their own department's bodycams only. */
+const BODYCAM_DEPARTMENT_ROLES: UserRole[] = ['Supervisor', 'Captain', 'CaseManager'];
+
+/** Whether `me` may watch (or pull footage from) a bodycam of `camSilo` — the database has the final word. */
+export function canWatchBodycam(
+  me: { role: UserRole; silo: Silo },
+  camSilo: Silo,
+  kind: 'live' | 'footage',
+): boolean {
+  const roles = kind === 'live' ? BODYCAM_LIVE_ROLES : BODYCAM_FOOTAGE_ROLES;
+  if (!roles.includes(me.role)) return false;
+  if (!BODYCAM_DEPARTMENT_ROLES.includes(me.role)) return true;
+  return camSilo === me.silo || (me.silo === 'Ethekwini' && camSilo === 'MetroPolice');
+}
+
 type RouteRule = {
   /** Route prefix, longest match wins. */
   prefix: string;
@@ -327,6 +358,8 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/shift',        roles: [...RESPONDER_ROLES, ...ADMIN_ROLES, 'Supervisor'] },
   // The armoury register (0051) is kept by command staff; officers book out in the app.
   { prefix: '/police/armoury', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
+  // So is the bodycam register (0054).
+  { prefix: '/police/bodycams', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
   { prefix: '/police',       roles: [...POLICE_ROLES, ...ADMIN_ROLES], silo: 'MetroPolice' },
   { prefix: '/fire',         roles: [...FIRE_ROLES, ...ADMIN_ROLES], silo: 'MetroFire' },
   { prefix: '/medical',      roles: [...MEDICAL_ROLES, ...ADMIN_ROLES], silo: 'Medical' },
@@ -360,7 +393,12 @@ export const ROUTE_RULES: RouteRule[] = [
   // Importing HR's staff list is a SystemAdmin's job (0050); Admins review roles afterwards.
   { prefix: '/admin/personnel/import', roles: ['SystemAdmin', 'SuperAdmin'] },
   { prefix: '/admin',        roles: ADMIN_ROLES },
-  { prefix: '/cameras',      roles: [...DISPATCH_ROLES, 'Viewer'] },
+  // Body cams (0054): watching live is narrower than the old camera wall;
+  // recorded footage adds case managers. The database checks each view again.
+  { prefix: '/cameras/footage', roles: BODYCAM_FOOTAGE_ROLES },
+  { prefix: '/cameras',      roles: BODYCAM_LIVE_ROLES },
+  // The SANRAL freeway camera wall keeps the camera wall's old rule.
+  { prefix: '/sanral',       roles: [...DISPATCH_ROLES, 'Viewer'] },
   { prefix: '/notifications' },
   { prefix: '/profile' },
   { prefix: '/dashboard' },

@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { logAudit, updateIntegration } from '@criticom/api';
+import { getIntegration, logAudit, updateIntegration } from '@criticom/api';
 import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
@@ -50,5 +50,29 @@ export async function saveIntegrationConfigAction(formData: FormData) {
   }).catch(() => {});
 
   revalidatePath('/admin/integrations');
+  return { ok: true };
+}
+
+/**
+ * Bodycams (0054): play the sample video instead of asking the Hikvision
+ * platform, for demonstrations before it is connected. Only this one setting
+ * changes; every other parameter is kept.
+ */
+export async function setBodycamTestVideoAction(on: boolean) {
+  const { supabase, fullName } = await requireAdmin();
+  try {
+    const row = await getIntegration(supabase, 'hikvision');
+    if (!row) return { error: 'The Hikvision integration is not in the catalogue.' };
+    const config = { ...((row.config ?? {}) as Record<string, unknown>), stream_source: on ? 'test' : 'hikvision' };
+    await updateIntegration(supabase, 'hikvision', { config, updatedBy: fullName });
+  } catch (e) {
+    return { error: (e as Error).message || 'The setting could not be saved.' };
+  }
+  await logAudit(supabase, {
+    silo: 'Ethekwini', action_type: 'IntegrationConfigured', entity_type: 'integration',
+    user_name: fullName, details: `hikvision bodycam test video ${on ? 'switched on' : 'switched off'}`,
+  }).catch(() => {});
+  revalidatePath('/admin/integrations');
+  revalidatePath('/cameras');
   return { ok: true };
 }

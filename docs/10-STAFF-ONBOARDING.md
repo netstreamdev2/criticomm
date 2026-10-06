@@ -1,6 +1,6 @@
 # 10 — Staff onboarding: accounts by invitation
 
-**Status:** agreed design (3 October 2026). Built: invitations (migration `0049`) and the staff-register import with role review, bulk invitations, leavers and the rollout page (migration `0050`, run it after `0049`).
+**Status:** agreed design (3 October 2026). Built: invitations (migration `0049`) and the staff-register import with role review, bulk invitations, leavers and the rollout page (migration `0050`, run it after `0049`). Added 6 October 2026 at eThekwini's request: accounts created directly with a password by a SystemAdmin or the SuperAdmin (migration `0055`).
 
 The full design, with mock-ups of every screen, is one HTML handbook page:
 
@@ -54,6 +54,22 @@ Without a mail server, a development server shows the administrator the invitati
 **Tests:** `packages/db/src/onboarding.test.ts`, `packages/db/src/roles.test.ts`, `packages/api/src/admin/invitations.test.ts`, `apps/web/lib/onboarding/onboarding.test.ts`. The migration was also run against a Postgres (PGlite) copy of the schema, covering tenant walls, the ladder, approvals, lockout and the full accept path.
 
 **Not yet:** password resets. Retiring the separate SuperAdmin → SystemAdmin invitation (`/auth/invite`, `/accept-invite`), which waits for the SuperAdmin work.
+
+## Built: accounts created directly (0055)
+
+eThekwini asked for a fourth way in beside email, SMS and a printed code. A SystemAdmin or the SuperAdmin sets the password, and the account is active at once on the web and in the app. It is less safe than an invitation: the administrator knows the password, and the person never confirms their badge number or accepts the POPIA notice. So it is fenced in:
+
+- **Who:** SystemAdmin and SuperAdmin only. A department Admin does not see the option, and the database refuses them anyway.
+- **What:** the same register, ladder and reason rules as an invitation. The person must be on the staff register with a badge number and no account, and have a real email address (their sign-in). A role that needs a second SystemAdmin (SystemAdmin, Admin, SystemController) cannot be made this way except by the SuperAdmin; send an invitation instead.
+- **Password:** typed twice. The same rules as a person's own: 12+ characters, not their name or badge, not in a known breach.
+- **Record:** an `account_invitations` row with channel `direct`, status `accepted` and no POPIA version, plus the account-history entry "Created directly: <reason>" naming the administrator. It is listed under Invitations → Accepted as "Password set by admin".
+- **How it runs:** `create_direct_account()` (administrator's session) checks everything and opens a ten-minute record. The server creates the sign-in. `complete_direct_account()` (service role) makes the profile and links the register. If a step fails, the sign-in is deleted and `abandon_direct_account()` cancels the record. A record left open by a crash is cancelled the next time someone tries.
+
+**Where:** `/admin/invitations/new` → *Set a password* · `supabase/migrations/0055_direct_account_creation.sql` · `createAccountDirectly` in `apps/web/lib/onboarding/server.ts` · `createAccountDirectlyAction` in `apps/web/app/(app)/admin/invitations/actions.ts`.
+
+**Tests:** run against PGlite with migrations 0001–0055 (31 checks: who may, the ladder, validation, service-only steps, abandon and retry, stale sweep, ordinary invitations unaffected).
+
+**Not yet:** a person cannot change a password an administrator set, because password change and reset are not built (see 0049 "Not yet"). Until they are, the administrator who set the password is the only way to change it.
 
 ## Built: the staff register and HR's staff list (0050)
 

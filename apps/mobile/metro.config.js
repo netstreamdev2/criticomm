@@ -32,7 +32,10 @@ const fromThisApp = path.join(projectRoot, 'package.json');
 const upstreamResolve = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   const resolve = upstreamResolve ?? context.resolveRequest;
-  if (moduleName === 'react' || moduleName.startsWith('react/')) {
+  // react-native-web also imports react-dom from the hoisted folder. Pair its
+  // renderer with this app's React 18, not the console's React DOM 19.
+  if (moduleName === 'react' || moduleName.startsWith('react/')
+    || moduleName === 'react-dom' || moduleName.startsWith('react-dom/')) {
     return resolve({ ...context, originModulePath: fromThisApp }, moduleName, platform);
   }
   return resolve(context, moduleName, platform);

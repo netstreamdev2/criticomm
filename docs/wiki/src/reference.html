@@ -126,7 +126,8 @@
       <tr><td><b>People</b></td><td class="mono">/hr · /leave · /training · /roster · /roster/allocation · /roster/duty-sheet · /roster/mine · /hierarchy · /hierarchy/person</td></tr>
       <tr><td><b>Performance</b></td><td class="mono">/performance · /kpis · /mine · /operational · /plans · /plans/[id] · /reports · /role-kpis · /rollup</td></tr>
       <tr><td><b>Reporting</b></td><td class="mono">/reports · /reports/builder · /report-hub · /analytics · /case-manager · /case-manager/audit</td></tr>
-      <tr><td><b>Surveillance</b></td><td class="mono">/cameras · /cameras/footage</td></tr>
+      <tr><td><b>Body cams</b></td><td class="mono">/cameras · /cameras/footage · /police/bodycams</td></tr>
+      <tr><td><b>SANRAL cameras</b></td><td class="mono">/sanral</td></tr>
       <tr><td><b>Admin</b></td><td class="mono">/admin · /config · /departments · /devices · /integrations · /operations · /operators · /personnel · /status · /vehicles · /automations</td></tr>
       <tr><td><b>Public</b></td><td class="mono">/login · /share-location/[token]</td></tr>
     </tbody>
@@ -142,7 +143,8 @@
       <tr><td class="mono">/api/wind</td><td>OpenWeather proxy.</td></tr>
       <tr><td class="mono">/api/external/{traffic,pois,flights,flight-tracks,vessels}</td><td>Metered upstream proxies. 90/min.</td></tr>
       <tr><td class="mono">/api/cameras/import</td><td>i-Traffic camera registry import.</td></tr>
-      <tr><td class="mono">/api/cctv/cameras</td><td>Camera registry — SANRAL or HikCentral.</td></tr>
+      <tr><td class="mono">/api/cctv/cameras</td><td>The SANRAL freeway camera registry.</td></tr>
+      <tr><td class="mono">/api/bodycams/view</td><td>Open, keep and close a bodycam view; returns the stream address once the database has allowed it.</td></tr>
       <tr><td class="mono">/api/cctv/stream</td><td>Signed preview and playback URLs. Audited, 60/min.</td></tr>
       <tr><td class="mono">/api/pdf/incident/[id]</td><td>Case-report PDF with embedded photographs. 20/min.</td></tr>
       <tr><td class="mono">/api/pdf/fire-report/[id]</td><td>Fire report PDF. 20/min.</td></tr>

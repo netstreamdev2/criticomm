@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  getIncident, listIncidentAttachments, POLICE_REPORT_TYPES, reportTypeFor, splitReportAnswers,
+  getIncident, getMyBodycam, listIncidentAttachments, POLICE_REPORT_TYPES, reportTypeFor, splitReportAnswers,
   validateReportAnswers, type PoliceReportType, type ReportField,
 } from '@criticom/api';
 import type { Database } from '@criticom/db/types';
@@ -66,7 +66,13 @@ export default function IncidentReportScreen() {
     try { saved = draft ? JSON.parse(draft) : {}; } catch { saved = {}; }
     const auto = inc ? reportTypeFor(inc) : null;
     setReportType(POLICE_REPORT_TYPES.find((t) => t.id === saved.type) ?? auto);
-    setAnswers(saved.answers ?? {});
+    const initial = { ...(saved.answers ?? {}) };
+    // A bodycam booked out this shift (0054) was on; the officer can still change it.
+    if (!('bodycam_active' in initial)) {
+      const cam = await getMyBodycam(sb).catch(() => null);
+      initial.bodycam_active = cam ? 'Yes' : 'No';
+    }
+    setAnswers(initial);
     draftLoaded.current = true;
     setLoading(false);
   }, [id]);

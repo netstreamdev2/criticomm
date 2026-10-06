@@ -26,7 +26,7 @@ export async function getFeatures(): Promise<FeatureMap> {
  */
 const FEATURE_ROUTES: Record<string, string[]> = {
   'web.assistant': ['/assistant'],
-  'web.cameras': ['/cameras', '/cameras/footage'],
+  'web.cameras': ['/cameras', '/cameras/footage', '/sanral'],
   'web.ptt': ['/dispatch/ptt'],
   'web.reports_builder': ['/reports/builder'],
   'web.search': ['/search'],

@@ -2,6 +2,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useSta
 import { ActivityIndicator, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import type { MapPin } from '@/lib/map-pins';
+import type { CrimeCircle, ZoneShape } from '@/lib/police-overlays';
 import { colors, space, type, makeStyles, useTheme } from '@/lib/theme';
 
 /**
@@ -26,6 +27,7 @@ import { colors, space, type, makeStyles, useTheme } from '@/lib/theme';
 const CENTRE = { lat: -29.8587, lng: 31.0218, zoom: 12 };
 
 const HTML = `<!doctype html><html><head>
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -89,6 +91,13 @@ const HTML = `<!doctype html><html><head>
   .card .st { color: var(--ink); font-weight: 800; font-size: 10px; letter-spacing: .5px; }
   .card .holder { margin-top: 6px; color: var(--muted); font-size: 11px; }
   .card .holder.me { color: var(--num); font-weight: 700; }
+  .card .kick { font-size: 9px; font-weight: 900; letter-spacing: .8px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .card .kick i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .card .big { font-size: 20px; font-weight: 900; margin-top: 4px; color: var(--ink); }
+  .card .line { color: var(--ink-dim); margin-top: 3px; }
+  .zmark { display: flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 4px;
+    box-sizing: border-box; border-radius: 6px; border: 2px solid #fff; color: #fff; font: 900 10px/1 sans-serif;
+    box-shadow: 0 2px 6px var(--pin-shadow); }
   .card .open { margin-top: 9px; padding: 8px 0; text-align: center; border-radius: 8px;
     background: var(--accent); color: #fff; font-weight: 800; }
 </style>
@@ -96,7 +105,8 @@ const HTML = `<!doctype html><html><head>
   function send(o) { window.ReactNativeWebView && window.ReactNativeWebView.postMessage(JSON.stringify(o)); }
   // Leaflet comes from a CDN; with no signal it never arrives.
   if (typeof L === 'undefined') { send({ t: 'error' }); } else {
-    var map = L.map('map', { zoomControl: true, attributionControl: true })
+    // The full-screen Live Map hides the +/- buttons (pinch to zoom); its own controls sit there.
+    var map = L.map('map', { zoomControl: window.__zoomButtons !== false, attributionControl: true })
       .setView([${CENTRE.lat}, ${CENTRE.lng}], ${CENTRE.zoom});
     var esri = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
     // Dark: satellite imagery with Esri's road and place-name layers on top,
@@ -245,7 +255,69 @@ const HTML = `<!doctype html><html><head>
     }
     function centreMe() { if (me) map.setView(me.getLatLng(), 15); }
 
-    window.__map = { setPins: setPins, fitAll: fitAll, focusPin: focusPin, setMe: setMe, centreMe: centreMe, setTheme: setTheme };
+    /* ── Police overlays: rain under everything, then crime zones, then perimeters; pins stay on top. ── */
+    map.createPane('rain').style.zIndex = 250;
+    map.createPane('crime').style.zIndex = 380;
+    map.createPane('zones').style.zIndex = 390;
+    var crimeGroup = L.layerGroup().addTo(map), zoneGroup = L.layerGroup().addTo(map), rain = null, rainUrl = null;
+
+    function ovCard(kicker, colour, title, big, lines) {
+      var c = el('div', 'card');
+      var k = el('div', 'kick');
+      var dot = el('i'); dot.style.background = safeColor(colour);
+      k.appendChild(dot); k.appendChild(document.createTextNode(kicker));
+      c.appendChild(k);
+      c.appendChild(el('div', 'type', title));
+      if (big) c.appendChild(el('div', 'big', big));
+      lines.forEach(function (l) { if (l) c.appendChild(el('div', 'line', l)); });
+      L.DomEvent.disableClickPropagation(c);
+      return c;
+    }
+    function showCard(latlng, content) {
+      L.popup({ closeButton: false, autoPan: true, autoPanPadding: [24, 70], className: 'inc', offset: [0, -4] })
+        .setLatLng(latlng).setContent(content).openOn(map);
+    }
+    function setCrime(list) {
+      crimeGroup.clearLayers();
+      list.forEach(function (z) {
+        var col = safeColor(z.colour);
+        var c = L.circle([z.lat, z.lng], { radius: z.radius, pane: 'crime', color: col, weight: 1.2, opacity: 0.7,
+          fillColor: col, fillOpacity: 0.16 + 0.22 * Math.max(0, 1 - (z.rank - 1) / Math.max(1, z.of)) });
+        c.on('click', function (e) {
+          showCard(e.latlng, ovCard('CRIME ZONE · SAPS', col, z.station, z.countText,
+            ['Cases of ' + z.category + (z.year ? ', ' + z.year : ''), 'Ranked ' + z.rank + ' of ' + z.of + ' stations in eThekwini']));
+        });
+        crimeGroup.addLayer(c);
+      });
+    }
+    function setZones(list) {
+      zoneGroup.clearLayers();
+      list.forEach(function (z) {
+        var col = safeColor(z.colour), layer;
+        var area = { pane: 'zones', color: col, weight: 2.5, opacity: 0.95, fillColor: col, fillOpacity: 0.14, dashArray: '6 5' };
+        if (z.shape === 'polygon') layer = L.polygon(z.points, area);
+        else if (z.shape === 'circle') layer = L.circle(z.points[0], Object.assign({ radius: z.radius || 50 }, area));
+        else if (z.shape === 'line') layer = L.polyline(z.points, { pane: 'zones', color: col, weight: 5, opacity: 0.9 });
+        else {
+          var m = el('div', 'zmark', z.mark); m.style.background = col;
+          layer = L.marker(z.points[0], { pane: 'zones', icon: L.divIcon({ className: 'pin-wrap', html: m.outerHTML, iconSize: [26, 22], iconAnchor: [13, 11] }) });
+        }
+        layer.on('click', function (e) {
+          showCard(e.latlng || layer.getLatLng(), ovCard(String(z.kind).toUpperCase(), col, z.name, null,
+            [z.reason, z.incident ? 'Incident ' + z.incident : null, 'Set by ' + z.setBy]));
+        });
+        zoneGroup.addLayer(layer);
+      });
+    }
+    function setRain(url) {
+      if (url === rainUrl) return;
+      if (rain) { map.removeLayer(rain); rain = null; }
+      rainUrl = url;
+      if (url) rain = L.tileLayer(url, { pane: 'rain', opacity: 0.75, maxZoom: 19, maxNativeZoom: 12 }).addTo(map);
+    }
+
+    window.__map = { setPins: setPins, fitAll: fitAll, focusPin: focusPin, setMe: setMe, centreMe: centreMe, setTheme: setTheme,
+      setCrime: setCrime, setZones: setZones, setRain: setRain };
     send({ t: 'ready' });
   }
 </script></body></html>`;
@@ -272,8 +344,14 @@ export const IncidentMap = forwardRef<IncidentMapHandle, {
   onSelect?: (id: string | null) => void;
   /** My position, drawn as a blue dot. */
   me?: { lat: number; lng: number } | null;
+  /** Police overlays (Live Map only): crime zones, perimeters, rain radar tiles. */
+  crime?: CrimeCircle[];
+  zones?: ZoneShape[];
+  rainUrl?: string | null;
+  /** Leaflet's +/- buttons; off on the full-screen map, which has its own controls there. */
+  zoomButtons?: boolean;
   style?: StyleProp<ViewStyle>;
-}>(function IncidentMap({ pins, onOpen, onSelect, me, style }, ref) {
+}>(function IncidentMap({ pins, onOpen, onSelect, me, crime, zones, rainUrl, zoomButtons = true, style }, ref) {
   const styles = useStyles();
   const { mode } = useTheme();
   // The theme the page is first drawn in; later switches go through setTheme.
@@ -289,6 +367,9 @@ export const IncidentMap = forwardRef<IncidentMapHandle, {
   useEffect(() => { if (ready) run(`window.__map.setPins(${js(pins)});`); }, [ready, pins, run]);
   // Map tiles, cards and controls follow the app's light/dark toggle.
   useEffect(() => { if (ready) run(`window.__map.setTheme(${js(mode)});`); }, [ready, mode, run]);
+  useEffect(() => { if (ready && crime) run(`window.__map.setCrime(${js(crime)});`); }, [ready, crime, run]);
+  useEffect(() => { if (ready && zones) run(`window.__map.setZones(${js(zones)});`); }, [ready, zones, run]);
+  useEffect(() => { if (ready && rainUrl !== undefined) run(`window.__map.setRain(${js(rainUrl)});`); }, [ready, rainUrl, run]);
   useEffect(() => {
     if (ready && me) run(`window.__map.setMe(${Number(me.lat)}, ${Number(me.lng)});`);
   }, [ready, me, run]);
@@ -313,7 +394,7 @@ export const IncidentMap = forwardRef<IncidentMapHandle, {
       <WebView
         ref={web}
         source={{ html: HTML }}
-        injectedJavaScriptBeforeContentLoaded={`window.__theme = ${js(initialMode)}; true;`}
+        injectedJavaScriptBeforeContentLoaded={`window.__theme = ${js(initialMode)}; window.__zoomButtons = ${zoomButtons ? 'true' : 'false'}; true;`}
         originWhitelist={['*']}
         style={styles.web}
         onMessage={onMessage}

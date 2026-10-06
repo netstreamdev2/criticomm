@@ -78,6 +78,43 @@ test('the shift board: who is working today, with what, and what needs a look', 
   assert.deepEqual(row('overdue')?.flags, ['firearm-overdue'], 'a firearm out longer than a shift shows even without a shift today');
   assert.deepEqual(row('nightshift')?.flags, [], 'booked out 11 hours ago, before midnight SA time, is still within the shift');
   assert.deepEqual(board.rows.slice(0, 4).map((r) => r.flags.length > 0), [true, true, true, true], 'what needs a look comes first');
-  assert.deepEqual(board.totals, { started: 4, onDuty: 2, ended: 2, firearmsOut: 4, overdue: 1, vehiclesInUse: 1, offRoad: 2 });
+  assert.deepEqual(board.totals, { started: 4, onDuty: 2, ended: 2, firearmsOut: 4, overdue: 1, bodycamsOut: 0, vehiclesInUse: 1, offRoad: 2 });
   assert.deepEqual(board.offRoad.map((v) => v.unit_number), ['MP-02', 'MP-03']);
+});
+
+test('the shift board: bodycams out, none today, and not handed back', () => {
+  const board = buildShiftBoard({
+    dayStart: new Date('2026-10-03T22:00:00Z'),
+    now: new Date('2026-10-04T15:00:00Z'),
+    people: [
+      person('wearing', { is_on_duty: true, duty_started_at: '2026-10-04T05:30:00Z' }),
+      person('without', { is_on_duty: true, duty_started_at: '2026-10-04T05:30:00Z' }),
+      person('kept'),
+      person('forgot'),
+    ],
+    readiness: [
+      { user_id: 'wearing', timestamp: '2026-10-04T05:00:00Z', passed: true },
+      { user_id: 'without', timestamp: '2026-10-04T05:00:00Z', passed: true },
+      { user_id: 'kept', timestamp: '2026-10-04T05:00:00Z', passed: true },
+    ],
+    inspections: [],
+    noFirearm: [],
+    firearmsOut: [],
+    ends: [{ user_id: 'kept', ended_at: '2026-10-04T14:00:00Z', source: 'sign_out', unit_number: null }],
+    vehicles: [],
+    bodycamsOut: [
+      { id: 'c1', serial_number: 'BC-0001', booked_to: 'wearing', booked_at: '2026-10-04T05:20:00Z' },
+      { id: 'c2', serial_number: 'BC-0002', booked_to: 'kept', booked_at: '2026-10-04T05:20:00Z' },
+      { id: 'c3', serial_number: 'BC-0003', booked_to: 'forgot', booked_at: '2026-10-03T05:00:00Z' },
+    ],
+    noBodycam: [{ user_id: 'without', reason: 'None left at the station', created_at: '2026-10-04T05:25:00Z' }],
+  });
+  const row = (id: string) => board.rows.find((r) => r.userId === id);
+  assert.deepEqual(row('wearing')?.bodycam, { serial: 'BC-0001', since: '2026-10-04T05:20:00Z' });
+  assert.deepEqual(row('wearing')?.flags, []);
+  assert.equal(row('without')?.noBodycam, 'None left at the station', 'supervisors see who went out without one, and why');
+  assert.equal(row('wearing')?.noBodycam, undefined);
+  assert.deepEqual(row('kept')?.flags, ['bodycam-out-after-end']);
+  assert.deepEqual(row('forgot')?.flags, ['bodycam-overdue'], 'a bodycam out longer than a shift shows even without a shift today');
+  assert.equal(board.totals.bodycamsOut, 3);
 });

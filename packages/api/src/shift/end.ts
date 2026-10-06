@@ -1,16 +1,20 @@
 import type { CriticomClient, Database } from '@criticom/db';
 
 /**
- * The end of a shift (migration 0051), from the officer's side: what they
- * are holding, handing the firearm back, and ending the shift.
+ * The end of a shift (migrations 0051 and 0054), from the officer's side:
+ * what they are holding, handing the firearm and bodycam back, and ending
+ * the shift.
  */
 
 type FirearmRow = Database['public']['Tables']['firearms']['Row'];
 type ApparatusRow = Database['public']['Tables']['apparatus']['Row'];
+type BodycamRow = Database['public']['Tables']['bodycams']['Row'];
 
 export type MyShiftKit = {
   /** The firearm booked out to them, with what was issued with it. */
   firearm: (FirearmRow & { rounds_issued: number | null; magazines: number | null; issued_on: string | null }) | null;
+  /** The bodycam booked out to them (0054). */
+  bodycam: BodycamRow | null;
   vehicle: Pick<ApparatusRow, 'id' | 'unit_number' | 'name' | 'mileage' | 'status'> | null;
   onDuty: boolean;
 };
@@ -18,9 +22,10 @@ export type MyShiftKit = {
 export async function getMyShiftKit(client: CriticomClient): Promise<MyShiftKit> {
   const { data: { user } } = await client.auth.getUser();
   if (!user) throw new Error('Sign in first.');
-  const [firearmRes, meRes] = await Promise.all([
+  const [firearmRes, meRes, bodycamRes] = await Promise.all([
     client.from('firearms').select('*').eq('status', 'Issued').eq('issued_to', user.id).limit(1).maybeSingle(),
     client.from('personnel').select('assigned_apparatus_id, is_on_duty').eq('user_id', user.id).limit(1).maybeSingle(),
+    client.from('bodycams').select('*').eq('status', 'Booked out').eq('booked_to', user.id).limit(1).maybeSingle(),
   ]);
   if (firearmRes.error) throw firearmRes.error;
   if (meRes.error) throw meRes.error;
@@ -43,7 +48,9 @@ export async function getMyShiftKit(client: CriticomClient): Promise<MyShiftKit>
     const { data } = await client.from('apparatus').select('id, unit_number, name, mileage, status').eq('id', vehicleId).maybeSingle();
     vehicle = data ?? null;
   }
-  return { firearm, vehicle, onDuty: !!meRes.data?.is_on_duty };
+  // Before 0054 is run there is no bodycam table: nothing to hand back.
+  const bodycam = bodycamRes.error ? null : ((bodycamRes.data as BodycamRow | null) ?? null);
+  return { firearm, bodycam, vehicle, onDuty: !!meRes.data?.is_on_duty };
 }
 
 export type FirearmReturnInput = {

@@ -1,6 +1,8 @@
 import type { CriticomClient, Database, Silo } from '@criticom/db';
 import type { MentalCheckInput, VehicleChecklistInput } from '@criticom/db/schemas';
 
+export * from './fire';
+
 /** ShiftController.HasCompletedShiftStartTodayAsync */
 export async function hasCompletedShiftStartToday(client: CriticomClient) {
   const { data, error } = await client.rpc('has_completed_shift_start_today');
@@ -127,6 +129,8 @@ type FirearmChecklistRow = Database['public']['Tables']['firearm_checklists']['R
 type MentalCheckRow = Database['public']['Tables']['mental_checks']['Row'];
 type ApparatusRow = Database['public']['Tables']['apparatus']['Row'];
 type NoFirearmRow = Database['public']['Tables']['shift_no_firearm_declarations']['Row'];
+type BodycamBookingRow = Database['public']['Tables']['bodycam_bookings']['Row'];
+type NoBodycamRow = Database['public']['Tables']['shift_no_bodycam_declarations']['Row'];
 
 export type InspectionItemStatus = 'ok' | 'fault' | 'nil';
 export type ShiftType = NonNullable<VehicleChecklistRow['shift_type']>;
@@ -142,16 +146,25 @@ function saTodayStartIso() {
   return new Date(`${saDate}T00:00:00+02:00`).toISOString();
 }
 
+/** A database function that does not exist yet: its migration has not been run. */
+const notInstalled = (error: { code?: string } | null) => error?.code === 'PGRST202';
+
 /** Which gate steps the server already counts as passed today. */
 export async function getShiftGateProgress(client: CriticomClient) {
-  const [readiness, vehicle, firearm, requiresFirearm] = await Promise.all([
+  const [readiness, vehicle, firearm, requiresFirearm, bodycam, requiresBodycam] = await Promise.all([
     client.rpc('shift_readiness_passed_today'),
     client.rpc('shift_vehicle_passed_today'),
     client.rpc('shift_firearm_resolved_today'),
     client.rpc('shift_requires_firearm'),
+    client.rpc('shift_bodycam_resolved_today'),
+    client.rpc('shift_requires_bodycam'),
   ]);
   for (const res of [readiness, vehicle, firearm, requiresFirearm]) {
     if (res.error) throw res.error;
+  }
+  // Bodycams arrive with 0054: until it is run there is no bodycam step.
+  for (const res of [bodycam, requiresBodycam]) {
+    if (res.error && !notInstalled(res.error)) throw res.error;
   }
   return {
     readiness: Boolean(readiness.data),
@@ -160,6 +173,10 @@ export async function getShiftGateProgress(client: CriticomClient) {
     firearm: Boolean(firearm.data),
     /** Police services book out a firearm (or declare none) as the last step. */
     requiresFirearm: Boolean(requiresFirearm.data),
+    /** A bodycam was booked out, or the officer said why there is none. */
+    bodycam: Boolean(bodycam.data),
+    /** Police services book out a bodycam (or say why not) after the firearm. */
+    requiresBodycam: !requiresBodycam.error && Boolean(requiresBodycam.data),
   };
 }
 
@@ -298,6 +315,10 @@ export type ShiftStartRecord = {
   firearm: FirearmChecklistRow | null;
   /** Set when the officer ticked "No firearm" instead of booking one out. */
   noFirearm: NoFirearmRow | null;
+  /** Today's bodycam book-out (0054), still out with them. */
+  bodycam: BodycamBookingRow | null;
+  /** Set when the officer said why they have no bodycam today. */
+  noBodycam: NoBodycamRow | null;
 };
 
 /** Today's start-of-shift record for the signed-in officer — what the PDF/CSV export holds. */
@@ -306,7 +327,7 @@ export async function getTodayShiftStartRecord(client: CriticomClient): Promise<
   if (!user) throw new Error('You must be signed in to view your shift record.');
   const since = saTodayStartIso();
 
-  const [mc, vc, fc, nf] = await Promise.all([
+  const [mc, vc, fc, nf, bc, nb] = await Promise.all([
     client.from('mental_checks').select('*')
       .eq('user_id', user.id).gte('timestamp', since)
       .order('timestamp', { ascending: false }).limit(1).maybeSingle(),
@@ -320,6 +341,13 @@ export async function getTodayShiftStartRecord(client: CriticomClient): Promise<
     client.from('shift_no_firearm_declarations').select('*')
       .eq('user_id', user.id).gte('created_at', since)
       .order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    // A book-out that failed its check never went out, so it is not today's bodycam.
+    client.from('bodycam_bookings').select('*')
+      .eq('user_id', user.id).gte('booked_at', since).is('returned_at', null)
+      .order('booked_at', { ascending: false }).limit(1).maybeSingle(),
+    client.from('shift_no_bodycam_declarations').select('*')
+      .eq('user_id', user.id).gte('created_at', since)
+      .order('created_at', { ascending: false }).limit(1).maybeSingle(),
   ]);
   if (mc.error) throw mc.error;
   if (vc.error) throw vc.error;
@@ -330,6 +358,9 @@ export async function getTodayShiftStartRecord(client: CriticomClient): Promise<
     inspection: vc.data as ShiftStartRecord['inspection'],
     firearm: fc.data as FirearmChecklistRow | null,
     noFirearm: nf.data as NoFirearmRow | null,
+    // Before 0054 is run these tables do not exist: no bodycam on the record.
+    bodycam: bc.error ? null : (bc.data as BodycamBookingRow | null),
+    noBodycam: nb.error ? null : (nb.data as NoBodycamRow | null),
   };
 }
 

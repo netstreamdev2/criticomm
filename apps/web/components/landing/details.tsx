@@ -171,7 +171,7 @@ export function Desks() {
 const INTEGRATIONS = [
   { cat: 'Comms', hex: '#dc3545', items: [['RealPTT', 'Push-to-talk radio bridge — text straight to a channel']] },
   { cat: 'Notifications', hex: '#f59e0b', items: [['Expo Push', 'Assignments and alerts to locked handsets'], ['BulkSMS', 'Citizen SMS and one-time GPS requests']] },
-  { cat: 'Surveillance', hex: '#a855f7', items: [['SANRAL CCTV', 'Freeway camera matrix'], ['Hikvision HikCentral', 'Municipal camera platform and footage retrieval']] },
+  { cat: 'Surveillance', hex: '#a855f7', items: [['SANRAL CCTV', 'Freeway camera matrix'], ['Hikvision bodycams', 'Live officer video and recorded footage']] },
   { cat: 'External feeds', hex: '#3b82f6', items: [['TomTom', 'Live traffic incidents'], ['i-Traffic', 'Incident CSV import']] },
   { cat: 'AI', hex: '#22c55e', items: [['Groq', 'Primary provider for the Criti assistant'], ['Google Gemini', 'Fallback provider']] },
 ];

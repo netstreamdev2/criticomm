@@ -27,10 +27,12 @@ const TONE: Record<StatusTone, string> = {
   dim: 'bg-muted text-muted-foreground',
 };
 
-const CHANNEL: Record<Invitation['channel'], string> = { email: 'Email', sms: 'SMS', code: 'Printed code' };
+const CHANNEL: Record<Invitation['channel'], string> = {
+  email: 'Email', sms: 'SMS', code: 'Printed code', direct: 'Password set by admin',
+};
 
 function deliveryLine(inv: Invitation) {
-  if (inv.channel === 'email') return inv.email ?? '';
+  if (inv.channel === 'email' || inv.channel === 'direct') return inv.email ?? '';
   if (inv.channel === 'sms') return inv.phone ?? '';
   return inv.sent_at ? `issued by ${inv.sent_by_name ?? 'an administrator'}` : 'not printed yet';
 }

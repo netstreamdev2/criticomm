@@ -11,6 +11,7 @@ import { SyncProvider } from '@/lib/sync';
 import { FeaturesProvider } from '@/lib/features';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { PanicButton } from '@/components/panic-button';
+import { BodycamWatchNotice } from '@/components/bodycam-watch';
 import { SyncTray } from '@/components/sync-tray';
 import { colors, space, type, makeStyles, useTheme, loadThemeMode } from '@/lib/theme';
 import { HikTechLogo } from '@/components/hiktech-logo';
@@ -182,7 +183,8 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="live-map"
-              options={{ title: 'Live Map', headerBackTitle: 'Back' }}
+              // Full screen: the map draws its own back button under the status bar.
+              options={{ title: 'Live Map', headerShown: false }}
             />
           </Stack>
 
@@ -191,6 +193,7 @@ export default function RootLayout() {
           <AssignmentAlert />
           <PanicButton />
           <SyncTray />
+          <BodycamWatchNotice />
         </NotificationsProvider>
         </SyncProvider>
         </FeaturesProvider>

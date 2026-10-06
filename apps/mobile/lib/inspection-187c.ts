@@ -221,9 +221,10 @@ function labelFor(list: readonly (readonly [string, string])[], key: string | nu
   return list.find(([k]) => k === key)?.[1] ?? key ?? '—';
 }
 
-/** The printable start-of-shift record: readiness, 187(c) sheet, firearm loadout. */
+/** The printable start-of-shift record: readiness, 187(c) sheet, firearm loadout, bodycam. */
 export function buildReportHtml({ record, officialName, shortName, logoUrl, officerName }: ReportContext) {
   const { readiness, inspection, firearm, noFirearm } = record;
+  const { bodycam = null, noBodycam = null } = record;
   const items = (inspection?.items ?? {}) as ItemMap;
   const counts = countItems(items);
   const passed = Boolean(inspection && ESSENTIALS.every(([k]) => inspection[k]) && inspection.declaration_accepted);
@@ -267,6 +268,23 @@ export function buildReportHtml({ record, officialName, shortName, logoUrl, offi
       <tr><td>Firearm</td><td class="st nil">NONE DRAWN</td></tr>
       <tr><td>Reason</td><td>${esc(noFirearm.reason ?? '—')}</td></tr>
       <tr><td>Declared</td><td>${esc(saShortDate(noFirearm.created_at))} ${esc(saTime(noFirearm.created_at))}</td></tr>
+    </table>` : '';
+
+  const bodycamBlock = bodycam ? `
+    <h2>Bodycam</h2>
+    <table class="kv">
+      <tr><td>Bodycam</td><td>S/N ${esc(bodycam.serial_number)}</td></tr>
+      <tr><td>Battery charged</td><td class="st ${bodycam.battery_ok ? 'ok' : 'fault'}">${bodycam.battery_ok ? 'YES' : 'NO'}</td></tr>
+      <tr><td>Test recording plays back</td><td class="st ${bodycam.recording_ok ? 'ok' : 'fault'}">${bodycam.recording_ok ? 'YES' : 'NO'}</td></tr>
+      <tr><td>Mounted, lens clean</td><td class="st ${bodycam.mounted_ok ? 'ok' : 'fault'}">${bodycam.mounted_ok ? 'YES' : 'NO'}</td></tr>
+      <tr><td>Notes</td><td>${esc(bodycam.issue_notes ?? '—')}</td></tr>
+      <tr><td>Booked out</td><td>${esc(saShortDate(bodycam.booked_at))} ${esc(saTime(bodycam.booked_at))}</td></tr>
+    </table>` : noBodycam ? `
+    <h2>Bodycam</h2>
+    <table class="kv">
+      <tr><td>Bodycam</td><td class="st nil">NONE</td></tr>
+      <tr><td>Reason</td><td>${esc(noBodycam.reason)}</td></tr>
+      <tr><td>Declared</td><td>${esc(saShortDate(noBodycam.created_at))} ${esc(saTime(noBodycam.created_at))}</td></tr>
     </table>` : '';
 
   const signature = inspection?.signature_svg
@@ -356,6 +374,7 @@ export function buildReportHtml({ record, officialName, shortName, logoUrl, offi
   <div class="cols">${sectionTables}</div>
 
   ${firearmBlock}
+  ${bodycamBlock}
 
   <h2>Sign off</h2>
   <table class="kv">
@@ -378,6 +397,7 @@ function csvCell(value: unknown) {
 /** One row per fact: section, item, value — opens cleanly in Excel. */
 export function buildReportCsv({ record, officerName }: Pick<ReportContext, 'record' | 'officerName'>) {
   const { readiness, inspection, firearm, noFirearm } = record;
+  const { bodycam = null, noBodycam = null } = record;
   const items = (inspection?.items ?? {}) as ItemMap;
   const rows: unknown[][] = [['Section', 'Item', 'Value']];
   const unit = inspection?.apparatus;
@@ -431,6 +451,20 @@ export function buildReportCsv({ record, officerName }: Pick<ReportContext, 'rec
     rows.push(
       ['Firearm', 'Firearm', 'None drawn'],
       ['Firearm', 'Reason', noFirearm.reason ?? ''],
+    );
+  }
+  if (bodycam) {
+    rows.push(
+      ['Bodycam', 'Serial number', bodycam.serial_number],
+      ['Bodycam', 'Battery charged', bodycam.battery_ok ? 'Yes' : 'No'],
+      ['Bodycam', 'Test recording plays back', bodycam.recording_ok ? 'Yes' : 'No'],
+      ['Bodycam', 'Mounted, lens clean', bodycam.mounted_ok ? 'Yes' : 'No'],
+      ['Bodycam', 'Notes', bodycam.issue_notes ?? ''],
+    );
+  } else if (noBodycam) {
+    rows.push(
+      ['Bodycam', 'Bodycam', 'None'],
+      ['Bodycam', 'Reason', noBodycam.reason],
     );
   }
   return rows.map((r) => r.map(csvCell).join(',')).join('\r\n');

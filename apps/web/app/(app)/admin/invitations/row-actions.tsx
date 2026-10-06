@@ -20,7 +20,7 @@ export function InvitationRowActions({
 }: {
   id: string;
   firstName: string;
-  channel: 'email' | 'sms' | 'code';
+  channel: 'email' | 'sms' | 'code' | 'direct';
   send: boolean;
   sendLabel: string;
   /** Nothing has gone out yet, so sending replaces nothing. */

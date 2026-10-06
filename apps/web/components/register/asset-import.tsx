@@ -4,22 +4,24 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Download, FileSpreadsheet, Lock, RotateCcw } from 'lucide-react';
 import {
-  checkFirearmList, checkVehicleList, FIREARM_COLUMNS, FIREARM_TYPES, VEHICLE_COLUMNS,
-  type AssetFix, type AssetListCheck, type CheckedAsset, type FirearmEntry, type FirearmItem, type FirearmType,
-  type VehicleEntry, type VehicleItem,
+  BODYCAM_COLUMNS, checkBodycamList, checkFirearmList, checkVehicleList, FIREARM_COLUMNS, FIREARM_TYPES, VEHICLE_COLUMNS,
+  type AssetFix, type AssetListCheck, type BodycamEntry, type BodycamItem, type CheckedAsset, type FirearmEntry,
+  type FirearmItem, type FirearmType, type VehicleEntry, type VehicleItem,
 } from '@criticom/db/assets';
 import { DEPARTMENT_NAMES } from '@criticom/db/onboarding';
 import { findSheetHeaderRow, sheetRowsFromTable, type SheetColumn, type SheetRow } from '@criticom/db/sheet';
 import type { Silo } from '@criticom/db/types';
 import { armourySnapshotAction, importFirearmsAction } from '@/app/(app)/police/armoury/actions';
 import { fleetSnapshotAction, importVehiclesAction } from '@/app/(app)/admin/vehicles/actions';
+import { bodycamSnapshotAction, importBodycamsAction } from '@/app/(app)/police/bodycams/actions';
 import { readSpreadsheet, type StaffFile } from '@/lib/register/file';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-type AnyItem = FirearmItem | VehicleItem;
+type AnyItem = FirearmItem | VehicleItem | BodycamItem;
+type AssetKind = 'firearms' | 'vehicles' | 'bodycams';
 type Done = { added: number; updated: number; unchanged: number };
 type Result<T> = ({ ok: true } & T) | { ok: false; error: string };
 
@@ -34,9 +36,11 @@ type KindConfig = {
   check: (rows: SheetRow<string>[], register: unknown[], fixes: Record<number, AssetFix>) => AssetListCheck<AnyItem>;
   run: (rows: Array<AnyItem & { line: number }>, meta: { fileName: string; fileSha256: string; reason: string }) => Promise<Result<Done>>;
   reasonHint: string;
+  /** What an import never touches. */
+  untouched: string;
 };
 
-const KINDS: Record<'firearms' | 'vehicles', KindConfig> = {
+const KINDS: Record<AssetKind, KindConfig> = {
   firearms: {
     noun: 'firearm', what: 'armoury', columns: FIREARM_COLUMNS as SheetColumn<string>[], sheetName: /firearm|armou?ry|weapon/i,
     template: '/police/armoury/template', back: { href: '/police/armoury', label: 'Armoury' },
@@ -44,6 +48,7 @@ const KINDS: Record<'firearms' | 'vehicles', KindConfig> = {
     check: (rows, register, fixes) => checkFirearmList(rows as never, register as FirearmEntry[], fixes),
     run: (rows, meta) => importFirearmsAction(rows as Array<FirearmItem & { line: number }>, meta),
     reasonHint: 'e.g. Armoury stocktake, October 2026',
+    untouched: 'who holds a firearm never changes by import',
   },
   vehicles: {
     noun: 'vehicle', what: 'fleet', columns: VEHICLE_COLUMNS as SheetColumn<string>[], sheetName: /vehicle|fleet|transport/i,
@@ -52,6 +57,16 @@ const KINDS: Record<'firearms' | 'vehicles', KindConfig> = {
     check: (rows, register, fixes) => checkVehicleList(rows as never, register as VehicleEntry[], fixes),
     run: (rows, meta) => importVehiclesAction(rows as Array<VehicleItem & { line: number }>, meta),
     reasonHint: 'e.g. Fleet register from Transport, October 2026',
+    untouched: 'whether a vehicle is on the road never changes by import',
+  },
+  bodycams: {
+    noun: 'bodycam', what: 'bodycam', columns: BODYCAM_COLUMNS as SheetColumn<string>[], sheetName: /body ?cam|camera|bwc/i,
+    template: '/police/bodycams/template', back: { href: '/police/bodycams', label: 'Bodycams' },
+    snapshot: bodycamSnapshotAction,
+    check: (rows, register, fixes) => checkBodycamList(rows as never, register as BodycamEntry[], fixes),
+    run: (rows, meta) => importBodycamsAction(rows as Array<BodycamItem & { line: number }>, meta),
+    reasonHint: 'e.g. Bodycams delivered by Hikvision, October 2026',
+    untouched: 'who has a bodycam and its status never change by import',
   },
 };
 
@@ -59,11 +74,11 @@ const SILOS: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster
 const LIST_LIMIT = 200;
 
 /**
- * Importing the armoury or the fleet from a spreadsheet. The file is read and
+ * Importing the armoury, the fleet or the bodycams from a spreadsheet. The file is read and
  * checked in this browser; nothing is sent until the administrator confirms,
  * and the database checks every row again.
  */
-export function AssetImportWizard({ kind }: { kind: 'firearms' | 'vehicles' }) {
+export function AssetImportWizard({ kind }: { kind: AssetKind }) {
   const k = KINDS[kind];
   const [register, setRegister] = useState<unknown[] | null>(null);
   const [registerError, setRegisterError] = useState<string | null>(null);
@@ -188,7 +203,7 @@ export function AssetImportWizard({ kind }: { kind: 'firearms' | 'vehicles' }) {
               <div className="overflow-x-auto rounded-xl border border-border bg-bg-card">
                 <table className="w-full min-w-[44rem] text-sm">
                   <thead><tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <th className="px-3 py-2">Row</th><th className="px-3 py-2">{k.noun === 'firearm' ? 'Firearm' : 'Vehicle'}</th><th className="px-3 py-2">Problem</th><th className="px-3 py-2">Fix</th>
+                    <th className="px-3 py-2">Row</th><th className="px-3 py-2">{k.noun[0]!.toUpperCase() + k.noun.slice(1)}</th><th className="px-3 py-2">Problem</th><th className="px-3 py-2">Fix</th>
                   </tr></thead>
                   <tbody>
                     {check.rows.filter((r) => r.outcome === 'attention' || r.outcome === 'skipped').slice(0, 500).map((r) => (
@@ -230,7 +245,7 @@ export function AssetImportWizard({ kind }: { kind: 'firearms' | 'vehicles' }) {
               </div>
               <p className="text-sm text-muted-foreground">
                 {check.counts.attention ? `${check.counts.attention} ${check.counts.attention === 1 ? 'row needs' : 'rows need'} attention and will not be imported unless fixed. ` : ''}
-                Details are updated; who holds a firearm and whether a vehicle is on the road never change by import.
+                Details are updated; {k.untouched}.
               </p>
               <Button onClick={runImport} disabled={reason.trim().length < 10 || check.toImport.length === 0}>
                 {check.counts.add || check.counts.update ? `Add ${check.counts.add} and update ${check.counts.update}` : `Confirm ${check.counts.unchanged} unchanged`}

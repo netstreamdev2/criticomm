@@ -4,10 +4,10 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  assignVehicle, cleanupOnLogout, getLastShiftFirearm, getLastVehicleInspection, getShiftGateProgress,
-  getShiftInspectionFolder, getTodayShiftStartRecord, issueShiftFirearm, listAvailableVehicles,
-  listShiftFirearms, submitMentalCheck, submitVehicleInspection187c, toggleDuty, declareShiftNoFirearm,
-  type ShiftFirearm, type ShiftStartRecord,
+  assignVehicle, bookOutBodycam, cleanupOnLogout, declareShiftNoBodycam, getLastShiftFirearm, getLastVehicleInspection,
+  getShiftGateProgress, getShiftInspectionFolder, getTodayShiftStartRecord, issueShiftFirearm, listAvailableVehicles,
+  listShiftBodycams, listShiftFirearms, submitMentalCheck, submitVehicleInspection187c, toggleDuty, declareShiftNoFirearm,
+  type BodycamRow, type ShiftFirearm, type ShiftStartRecord,
 } from '@criticom/api';
 import type { Database } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
@@ -28,6 +28,8 @@ import {
 } from '@/components/shift-inspection';
 import { ReportPreview } from '@/components/shift-report';
 import { FirearmSheet, emptyFirearm, firearmFormError, type FirearmForm } from '@/components/shift-firearm';
+import { BODYCAM_CHECKS, BodycamSheet, bodycamFormError, emptyBodycam, type BodycamForm } from '@/components/shift-bodycam';
+import { FireShift } from '@/components/fire-shift';
 
 type Vehicle = Database['public']['Tables']['apparatus']['Row'];
 type VehicleChecklist = Database['public']['Tables']['vehicle_checklists']['Row'];
@@ -37,7 +39,8 @@ type FirearmChecklist = Database['public']['Tables']['firearm_checklists']['Row'
  * Start of shift — the V4 flow, step for step:
  *
  *   intro → readiness → select unit → 187(c) inspection (8 tabs) → report
- *   → submitted → firearm & loadout (police) → complete (export) → dashboard
+ *   → submitted → firearm & loadout (police) → bodycam (police, 0054)
+ *   → complete (export) → dashboard
  *
  * Every step is saved to the server as it is finished, so a reload resumes at
  * the first step the server does not yet count as passed. The duty gate is
@@ -46,15 +49,15 @@ type FirearmChecklist = Database['public']['Tables']['firearm_checklists']['Row'
  */
 type Step =
   | 'intro' | 'mental' | 'failed' | 'vehicle' | 'inspection' | 'report' | 'vehicle_failed'
-  | 'submitted' | 'firearm' | 'firearm_failed' | 'complete';
+  | 'submitted' | 'firearm' | 'firearm_failed' | 'bodycam' | 'bodycam_failed' | 'complete';
 
 const STEP_INDEX: Record<Step, number> = {
   intro: 0, mental: 0, failed: 0, vehicle: 1, inspection: 2, report: 2, vehicle_failed: 2,
-  submitted: 3, firearm: 3, firearm_failed: 3, complete: 4,
+  submitted: 3, firearm: 3, firearm_failed: 3, bodycam: 3, bodycam_failed: 3, complete: 4,
 };
 
 /** Steps whose errors belong next to the action button, not at the top. */
-const FORM_STEPS: Step[] = ['mental', 'inspection', 'report', 'firearm'];
+const FORM_STEPS: Step[] = ['mental', 'inspection', 'report', 'firearm', 'bodycam'];
 
 function errorText(e: unknown) {
   return (e as { message?: string })?.message ?? String(e);
@@ -68,6 +71,11 @@ function saTodayStartIso() {
 }
 
 export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
+  const { silo } = useAuth();
+  return silo === 'MetroFire' ? <FireShift gated={gated} /> : <StandardShiftScreen gated={gated} />;
+}
+
+function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
   const styles = useStyles();
   const { session, silo, fullName } = useAuth();
   const dept = useDept();
@@ -86,6 +94,7 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
 
   const [officer, setOfficer] = useState({ name: fullName, onDuty: false, apparatusId: null as string | null });
   const [requiresFirearm, setRequiresFirearm] = useState(silo === 'MetroPolice' || silo === 'Ethekwini');
+  const [requiresBodycam, setRequiresBodycam] = useState(silo === 'MetroPolice' || silo === 'Ethekwini');
 
   // Readiness
   const [mental, setMental] = useState<Record<string, boolean | undefined>>({});
@@ -108,11 +117,17 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
   const [lastLoadout, setLastLoadout] = useState<FirearmChecklist | null>(null);
   const [failedFirearm, setFailedFirearm] = useState<FirearmChecklist | null>(null);
 
+  // Bodycam (0054)
+  const [bodycams, setBodycams] = useState<BodycamRow[]>([]);
+  const [bodycamForm, setBodycamForm] = useState<BodycamForm>(emptyBodycam);
+  const [failedBodycam, setFailedBodycam] = useState<{ serial: string; failed: string } | null>(null);
+
   // Filed record, for export
   const [record, setRecord] = useState<ShiftStartRecord | null>(null);
 
   const patchForm = useCallback((p: Partial<InspectionForm>) => setForm((f) => ({ ...f, ...p })), []);
   const patchFirearm = useCallback((p: Partial<FirearmForm>) => setFirearmForm((f) => ({ ...f, ...p })), []);
+  const patchBodycam = useCallback((p: Partial<BodycamForm>) => setBodycamForm((f) => ({ ...f, ...p })), []);
   const scrollTop = () => scroller.current?.scrollTo({ y: 0, animated: false });
 
   const go = (next: Step) => {
@@ -159,9 +174,23 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
     go('firearm');
   };
 
+  const openBodycam = async () => {
+    const list = await listShiftBodycams(getSupabase());
+    setBodycams(list);
+    const mine = list.find((c) => c.status === 'Booked out' && c.booked_to === userId);
+    setBodycamForm({ ...emptyBodycam(), bodycamId: mine?.id ?? null });
+    go('bodycam');
+  };
+
   const openComplete = async () => {
     setRecord(await getTodayShiftStartRecord(getSupabase()));
     go('complete');
+  };
+
+  /** After the firearm: the bodycam step where it applies, then the record. */
+  const afterFirearm = async () => {
+    if (requiresBodycam) await openBodycam();
+    else await openComplete();
   };
 
   const init = useCallback(async () => {
@@ -180,8 +209,11 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
       const name = o ? `${o.rank} ${o.first_name} ${o.last_name}`.trim() : '';
       setOfficer({ name: name || fullName, onDuty: Boolean(o?.is_on_duty), apparatusId: o?.assigned_apparatus_id ?? null });
       setRequiresFirearm(gate.requiresFirearm);
+      setRequiresBodycam(gate.requiresBodycam);
+      const firearmDone = !gate.requiresFirearm || gate.firearm;
+      const bodycamDone = !gate.requiresBodycam || gate.bodycam;
 
-      if (gate.readiness && gate.vehicle && (!gate.requiresFirearm || gate.firearm)) {
+      if (gate.readiness && gate.vehicle && firearmDone && bodycamDone) {
         await openComplete();
         return;
       }
@@ -193,7 +225,11 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
         setStep(today ? 'failed' : 'intro');
         return;
       }
-      if (gate.vehicle) { await openFirearm(); return; }
+      if (gate.vehicle) {
+        if (!firearmDone) await openFirearm();
+        else await openBodycam();
+        return;
+      }
       if (o?.assigned_apparatus_id) { await openInspection(o.assigned_apparatus_id); return; }
       await openVehicles();
     } catch (e) {
@@ -331,6 +367,7 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
       if (!essentialsPassed) { go('vehicle_failed'); return; }
       setRecord(await getTodayShiftStartRecord(sb));
       if (requiresFirearm) go('submitted');
+      else if (requiresBodycam) await openBodycam();
       else go('complete');
     });
   };
@@ -345,7 +382,7 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
     if (f.noFirearm) {
       void run(async () => {
         await declareShiftNoFirearm(getSupabase(), f.noFirearmReason.trim() || null);
-        await openComplete();
+        await afterFirearm();
       });
       return;
     }
@@ -372,13 +409,56 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
         go('firearm_failed');
         return;
       }
-      await openComplete();
+      await afterFirearm();
     });
 
     if (!allChecks || f.condition === 'damaged') {
       Alert.alert(
         'This firearm will not be issued',
         'A failed safety check or damage sends the firearm to the armourer. You will need to select another one.',
+        [{ text: 'Cancel', style: 'cancel' }, { text: 'Submit anyway', style: 'destructive', onPress: send }],
+      );
+    } else {
+      send();
+    }
+  };
+
+  /* ── Bodycam ──────────────────────────────────────────────────────── */
+
+  const submitBodycam = () => {
+    const err = bodycamFormError(bodycamForm);
+    if (err) { setInvalid(true); setError(err); return; }
+    const f = bodycamForm;
+
+    if (f.none) {
+      void run(async () => {
+        await declareShiftNoBodycam(getSupabase(), f.noneReason.trim());
+        await openComplete();
+      });
+      return;
+    }
+
+    const allChecks = BODYCAM_CHECKS.every(([k]) => f.checks[k]);
+    const send = () => void run(async () => {
+      const res = await bookOutBodycam(getSupabase(), {
+        bodycamId: f.bodycamId as string,
+        batteryOk: Boolean(f.checks.battery),
+        recordingOk: Boolean(f.checks.recording),
+        mountedOk: Boolean(f.checks.mounted),
+        notes: f.notes.trim() || null,
+      });
+      if (!res.booked) {
+        setFailedBodycam({ serial: res.serial_number, failed: res.failed });
+        go('bodycam_failed');
+        return;
+      }
+      await openComplete();
+    });
+
+    if (!allChecks) {
+      Alert.alert(
+        'This bodycam will not be issued',
+        'A failed check sends the bodycam for repair. You will need to choose another one, or say why you have none.',
         [{ text: 'Cancel', style: 'cancel' }, { text: 'Submit anyway', style: 'destructive', onPress: send }],
       );
     } else {
@@ -445,9 +525,15 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
     );
   }
 
-  const wizardSteps = requiresFirearm
-    ? ['Readiness', 'Unit', 'Inspection', 'Firearm']
-    : ['Readiness', 'Unit', 'Inspection'];
+  // The last stage holds the firearm and the bodycam, where each applies.
+  const kitStep = requiresFirearm && requiresBodycam ? 'Loadout' : requiresFirearm ? 'Firearm' : requiresBodycam ? 'Bodycam' : null;
+  const wizardSteps = kitStep ? ['Readiness', 'Unit', 'Inspection', kitStep] : ['Readiness', 'Unit', 'Inspection'];
+  const filedParts = [
+    'readiness assessment', 'vehicle inspection',
+    record?.firearm ? 'firearm book-out' : record?.noFirearm ? 'no-firearm declaration' : null,
+    record?.bodycam ? 'bodycam book-out' : record?.noBodycam ? 'no-bodycam reason' : null,
+  ].filter(Boolean) as string[];
+  const filedList = `${filedParts.slice(0, -1).join(', ')} and ${filedParts[filedParts.length - 1]}`;
   const errorBanner = error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null;
   const errorBelow = FORM_STEPS.includes(step);
   const record187 = record?.inspection ?? null;
@@ -758,6 +844,34 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
         </Card>
       ) : null}
 
+      {step === 'bodycam' ? (
+        <BodycamSheet
+          bodycams={bodycams}
+          form={bodycamForm}
+          patch={patchBodycam}
+          invalid={invalid}
+          onSubmit={submitBodycam}
+          busy={busy}
+          userId={userId}
+        />
+      ) : null}
+
+      {step === 'bodycam_failed' ? (
+        <Card accent={colors.critical}>
+          <View style={[styles.doneIcon, { backgroundColor: colors.criticalSoft }]}>
+            <Ionicons name="videocam-off-outline" size={26} color={colors.critical} />
+          </View>
+          <Title>Bodycam sent for repair</Title>
+          <Muted>
+            {failedBodycam ? `Bodycam ${failedBodycam.serial} failed its check (${failedBodycam.failed}) ` : 'The bodycam failed its check '}
+            and your supervisor has been told. Choose another one, or tick No bodycam today, to complete your start of shift.
+          </Muted>
+          <View style={{ marginTop: space.lg }}>
+            <Button label="Back to bodycams" icon="refresh" variant="outline" busy={busy} onPress={() => void run(openBodycam)} />
+          </View>
+        </Card>
+      ) : null}
+
       {step === 'complete' ? (
         <Sheet>
           <CrestHeader dept={dept} subtitle="Start of shift record" />
@@ -765,9 +879,8 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
             <View style={styles.bigCheck}><Ionicons name="shield-checkmark" size={36} color="#fff" /></View>
             <Text style={styles.doneTitle}>Shift Start Complete</Text>
             <Text style={styles.doneSub}>
-              Your readiness assessment, vehicle inspection
-              {record?.firearm ? ' and firearm book-out are' : record?.noFirearm ? ' and no-firearm declaration are' : ' are'} signed
-              and filed for today. Export a copy for your records, then continue to your dashboard.
+              Your {filedList} are signed and filed for today. Export a copy for your records, then continue to your
+              dashboard.
             </Text>
             <SummaryBox record={record} officerName={officer.name} />
             <View style={styles.doneActions}>
@@ -817,6 +930,11 @@ function SummaryBox({ record, officerName }: { record: ShiftStartRecord | null; 
         <SummaryLine parts={[['Firearm', `${f.make_model ?? ''} · ${f.serial_number}`], ['Rounds', String(f.rounds_issued)]]} />
       ) : record?.noFirearm ? (
         <SummaryLine parts={[['Firearm', `None drawn${record.noFirearm.reason ? ` — ${record.noFirearm.reason}` : ''}`]]} />
+      ) : null}
+      {record?.bodycam ? (
+        <SummaryLine parts={[['Bodycam', record.bodycam.serial_number]]} />
+      ) : record?.noBodycam ? (
+        <SummaryLine parts={[['Bodycam', `None — ${record.noBodycam.reason}`]]} />
       ) : null}
     </View>
   );

@@ -2,11 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 import {
-  cancelInvitation, createInvitation, getRegisterPeople, searchStaffForInvite, type InvitationChannel, type StaffForInvite,
+  cancelInvitation, createInvitation, getRegisterPeople, searchStaffForInvite, type InviteChannel, type StaffForInvite,
 } from '@criticom/api';
 import { inviteChannelFor, type Silo, type UserRole } from '@criticom/db';
 import { invitationErrorMessage } from '@/lib/onboarding/errors';
-import { deliverInvitation, deliveryOptions, type DeliveryOutcome } from '@/lib/onboarding/server';
+import {
+  createAccountDirectly, deliverInvitation, deliveryOptions, type DeliveryOutcome, type DirectAccount,
+} from '@/lib/onboarding/server';
 import { getSession } from '@/lib/session';
 
 /**
@@ -41,7 +43,7 @@ export async function searchStaffAction(
 }
 
 export async function createInvitationAction(input: {
-  personnelId: string; role: UserRole; silo: Silo; channel: InvitationChannel;
+  personnelId: string; role: UserRole; silo: Silo; channel: InviteChannel;
   email: string; phone: string; reason: string; checkedWithPerson: boolean;
 }): Promise<InviteResult> {
   const { supabase } = await getSession();
@@ -69,6 +71,35 @@ export async function createInvitationAction(input: {
     return { ok: true, outcome };
   } catch (e) {
     return { ok: false, error: messageOf(e) };
+  }
+}
+
+/**
+ * The fourth way in (migration 0055): a SystemAdmin or the SuperAdmin sets the
+ * password and the account is active at once. The database refuses anyone
+ * else, and any role that needs a second SystemAdmin.
+ */
+export async function createAccountDirectlyAction(input: {
+  personnelId: string; role: UserRole; silo: Silo; email: string;
+  password: string; confirmPassword: string; reason: string; handOverAgreed: boolean;
+}): Promise<DirectAccount> {
+  const { supabase, role } = await getSession();
+  if (role !== 'SystemAdmin' && role !== 'SuperAdmin') {
+    return { ok: false, message: 'Only a SystemAdmin or the SuperAdmin can create an account directly.' };
+  }
+  if (String(input.password) !== String(input.confirmPassword)) return { ok: false, message: 'The two passwords do not match.' };
+  if (!input.handOverAgreed) return { ok: false, message: 'Confirm you will give the password to the person yourself.' };
+  try {
+    const result = await createAccountDirectly(supabase, {
+      personnelId: String(input.personnelId), role: input.role, silo: input.silo,
+      email: String(input.email).trim(), password: String(input.password), reason: String(input.reason).trim(),
+    });
+    refresh();
+    revalidatePath('/admin/personnel');
+    revalidatePath('/admin/rollout');
+    return result;
+  } catch (e) {
+    return { ok: false, message: messageOf(e) };
   }
 }
 

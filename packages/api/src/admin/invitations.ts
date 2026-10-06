@@ -12,6 +12,8 @@ type Tables = Database['public']['Tables'];
 export type Invitation = Omit<Tables['account_invitations']['Row'], 'secret_hash'>;
 export type InvitationStatus = Invitation['status'];
 export type InvitationChannel = Invitation['channel'];
+/** The channels an invitation is sent by; 'direct' (0055) is never sent. */
+export type InviteChannel = Exclude<InvitationChannel, 'direct'>;
 
 /** Every column but the secret's hash, which no screen needs. */
 const INVITATION_COLUMNS = [
@@ -29,7 +31,7 @@ export const OPEN_INVITATION_STATUSES: InvitationStatus[] = ['awaiting_approval'
 export async function createInvitation(
   client: CriticomClient,
   args: {
-    personnelId: string; role: UserRole; silo: Silo; channel: InvitationChannel;
+    personnelId: string; role: UserRole; silo: Silo; channel: InviteChannel;
     email?: string | null; phone?: string | null; reason: string;
   },
 ) {
@@ -198,6 +200,33 @@ export async function completeAccountInvitation(
   return data as { ok: true; full_name: string; role: UserRole; silo: Silo; login_email: string; sign_in: 'email' | 'badge' };
 }
 
+// ── Created directly (migration 0055) ─────────────────────────────────
+
+/** Open a ten-minute 'direct' invitation, as the administrator. Only a SystemAdmin or the SuperAdmin may. */
+export async function createDirectAccount(
+  client: CriticomClient,
+  args: { personnelId: string; role: UserRole; silo: Silo; email: string; reason: string },
+) {
+  const { data, error } = await client.rpc('create_direct_account', {
+    p_personnel: args.personnelId, p_role: args.role, p_silo: args.silo, p_email: args.email, p_reason: args.reason,
+  });
+  if (error) throw error;
+  return data as { invitation_id: string; login_email: string; full_name: string; badge_number: string };
+}
+
+/** Make the profile for a sign-in the server just created. Service role. */
+export async function completeDirectAccount(service: CriticomClient, invitationId: string, userId: string) {
+  const { data, error } = await service.rpc('complete_direct_account', { p_invitation: invitationId, p_user: userId });
+  if (error) throw error;
+  return data as { ok: true; full_name: string; role: UserRole; silo: Silo; login_email: string };
+}
+
+/** Close a direct creation whose sign-in could not be made. Service role. */
+export async function abandonDirectAccount(service: CriticomClient, invitationId: string, note: string) {
+  const { error } = await service.rpc('abandon_direct_account', { p_invitation: invitationId, p_note: note });
+  if (error) throw error;
+}
+
 export async function reportInvitation(service: CriticomClient, secretHash: string, note?: string | null) {
   const { data, error } = await service.rpc('report_invitation', { p_secret_hash: secretHash, p_note: note ?? null });
   if (error) throw error;
@@ -265,7 +294,8 @@ export function describeInvitation(
 /** What an administrator can still do with an invitation. */
 export function invitationActions(status: InvitationStatus, channel: InvitationChannel) {
   return {
-    send: ['ready', 'sent', 'opened', 'expired', 'locked'].includes(status),
+    // A direct account (0055) is never sent: it is made at once or cancelled.
+    send: channel !== 'direct' && ['ready', 'sent', 'opened', 'expired', 'locked'].includes(status),
     sendLabel: status === 'ready'
       ? (channel === 'code' ? 'Print slip' : 'Send')
       : (channel === 'code' ? 'New slip' : 'Resend'),

@@ -45,8 +45,8 @@ const PURPOSE: Record<string, string> = {
   itraffic: 'Bulk import of externally-reported road incidents from CSV.',
   openweather: 'Wind speed and direction feeding the fire spread model.',
   leaflet_esri: 'Satellite basemap used by the dispatch console and GIS views.',
-  sanral: 'The current freeway camera wall. The registry behind Surveillance until Hikvision goes live.',
-  hikvision: 'The incoming CCTV platform. Enabling it switches the camera wall to the live HikCentral estate and unlocks recorded-footage retrieval — no redeploy.',
+  sanral: 'The freeway camera wall on SANRAL Cameras, and the camera layer on the live map.',
+  hikvision: 'The bodycam platform (HCM Lite). Serves bodycam live video and recorded footage to Body Cams, the live map and incidents. Until it is connected, switch on the test video to demonstrate with a sample stream.',
 };
 
 export default async function IntegrationsPage() {

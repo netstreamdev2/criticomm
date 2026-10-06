@@ -1,7 +1,8 @@
 import 'server-only';
 import { headers } from 'next/headers';
 import {
-  checkInvitationBadge, completeAccountInvitation, getInvitation, hitKeyedRateLimit, issueInvitationSecret,
+  abandonDirectAccount, checkInvitationBadge, completeAccountInvitation, completeDirectAccount, createDirectAccount,
+  getInvitation, hitKeyedRateLimit, issueInvitationSecret,
   previewInvitation, recordInvitationDeliveryFailure, reportInvitation,
   type InvitationPreview, type InvitationState, type IssuedInvitation,
 } from '@criticom/api';
@@ -73,6 +74,7 @@ export function deliveryOptions() {
 export async function deliverInvitation(supabase: CriticomClient, invitationId: string): Promise<DeliveryOutcome> {
   const current = await getInvitation(supabase, invitationId);
   if (!current) return { status: 'failed', error: 'No such invitation in your organisation.' };
+  if (current.channel === 'direct') return { status: 'failed', error: 'This account is created directly, not sent.' };
   if (current.channel === 'sms' && !smsConfigured()) {
     return { status: 'failed', error: 'SMS is not set up on this server yet. Cancel this invitation and use email or a printed code.' };
   }
@@ -289,6 +291,61 @@ export async function activateAccount(args: {
   } catch (e) {
     await service.auth.admin.deleteUser(data.user.id).catch(() => {});
     return { ok: false, message: (e as { message?: string }).message ?? stateMessage('error') };
+  }
+}
+
+export type DirectAccount =
+  | { ok: true; fullName: string; loginEmail: string; role: UserRole; silo: Silo }
+  | { ok: false; message: string };
+
+/**
+ * Create an account with a password the administrator chose (migration 0055).
+ * The database checks the administrator and opens a short-lived record with
+ * their own session; the sign-in is then made here and the profile by the
+ * database. Any failure after the record opens closes it again and removes
+ * the sign-in, so nothing is left half-made.
+ */
+export async function createAccountDirectly(
+  supabase: CriticomClient,
+  args: { personnelId: string; role: UserRole; silo: Silo; email: string; password: string; reason: string },
+): Promise<DirectAccount> {
+  const opened = await createDirectAccount(supabase, {
+    personnelId: args.personnelId, role: args.role, silo: args.silo, email: args.email, reason: args.reason,
+  });
+  const service = getServiceSupabase();
+  const abandon = (note: string) => abandonDirectAccount(service, opened.invitation_id, note).catch(() => {});
+
+  if (!passwordAcceptable(args.password, { name: opened.full_name, badge: opened.badge_number })) {
+    await abandon('password did not meet the rules');
+    return { ok: false, message: 'The password does not meet the rules shown. Choose another.' };
+  }
+  if (await isLeakedPassword(args.password)) {
+    await abandon('password found in a data breach');
+    return { ok: false, message: 'This password has appeared in a data breach elsewhere, so it is not safe. Choose a different one.' };
+  }
+
+  const { data, error } = await service.auth.admin.createUser({
+    email: opened.login_email,
+    password: args.password,
+    email_confirm: true,
+    user_metadata: { full_name: opened.full_name },
+  });
+  if (error || !data.user) {
+    const msg = error?.message ?? 'no account returned';
+    await abandon(msg);
+    if (/already|registered|exists/i.test(msg)) return { ok: false, message: `An account already uses ${opened.login_email}.` };
+    if (/password/i.test(msg)) return { ok: false, message: `Choose a different password: ${msg}` };
+    return { ok: false, message: `The sign-in could not be created: ${msg}` };
+  }
+
+  try {
+    const done = await completeDirectAccount(service, opened.invitation_id, data.user.id);
+    return { ok: true, fullName: done.full_name, loginEmail: done.login_email, role: done.role, silo: done.silo };
+  } catch (e) {
+    await service.auth.admin.deleteUser(data.user.id).catch(() => {});
+    const message = (e as { message?: string }).message ?? 'unknown error';
+    await abandon(message);
+    return { ok: false, message };
   }
 }
 

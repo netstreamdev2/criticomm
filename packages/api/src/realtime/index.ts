@@ -159,3 +159,17 @@ export function subscribeMyNotifications(
     void client.removeChannel(channel);
   };
 }
+
+/**
+ * Bodycams booked out, handed back or sent for repair (0054). Realtime
+ * respects RLS, so each console hears only the register it may read.
+ */
+export function subscribeBodycams(client: CriticomClient, onChange: () => void) {
+  const channel = client
+    .channel(uniqueTopic('bodycams'))
+    .on('postgres_changes' as never, { event: '*', schema: 'public', table: 'bodycams' }, () => onChange())
+    .subscribe();
+  return () => {
+    void client.removeChannel(channel);
+  };
+}

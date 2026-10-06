@@ -7,6 +7,12 @@
 export function invitationErrorMessage(e: unknown, fallback = 'That did not work. Try again.'): string {
   const err = e as { code?: string; message?: string } | null;
   if (err?.code === 'PGRST202' || err?.code === 'PGRST205' || err?.code === '42703') {
+    if (/direct_account/i.test(err.message ?? '')) {
+      return 'Creating accounts with a password is not set up in this database yet: run migration 0055_direct_account_creation.sql in Supabase, then try again.';
+    }
+    if (/bodycam/i.test(err.message ?? '')) {
+      return 'Bodycams are not set up in this database yet: run migration 0054_bodycams.sql in Supabase, then try again.';
+    }
     if (/asset_import|shift_end|end_shift|firearm_status|receive_firearm|return_shift_firearm|vehicle_status|import_firearms|import_vehicles|status_note|last_inspection|firearms\.station|can_manage_(armoury|fleet)/i.test(err.message ?? '')) {
       return 'The armoury and fleet are not set up in this database yet: run migration 0051_armoury_fleet_end_of_shift.sql in Supabase, then try again.';
     }

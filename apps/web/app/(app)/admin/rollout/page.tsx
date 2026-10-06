@@ -46,11 +46,12 @@ export default async function RolloutPage() {
   const toConfirm = current.filter((p) => ['suggested', 'no-role'].includes(registerStatus(p).key)).length;
 
   const chase: ChasePerson[] = people
-    .filter((p) => !p.left_at && !p.user_id && p.invitation && p.invitation.status !== 'awaiting_approval')
+    .filter((p) => !p.left_at && !p.user_id && p.invitation && p.invitation.status !== 'awaiting_approval'
+      && p.invitation.channel !== 'direct')
     .map((p) => ({
       id: p.id, name: `${p.first_name} ${p.last_name}`, badge: p.badge_number, silo: p.silo,
       station: p.station?.trim() || 'No station', invitationId: p.invitation!.id,
-      status: p.invitation!.status as ChasePerson['status'], channel: p.invitation!.channel,
+      status: p.invitation!.status as ChasePerson['status'], channel: p.invitation!.channel as ChasePerson['channel'],
       failed: !!p.invitation!.delivery_error,
     }))
     .sort((a, b) => a.silo.localeCompare(b.silo) || a.station.localeCompare(b.station) || a.name.localeCompare(b.name));

@@ -4,11 +4,12 @@ import {
   Radio, Satellite, Smartphone, Timer, Truck, Zap,
 } from 'lucide-react';
 import {
-  getDispatcherKpis, getOperationalSettings, listActiveIncidents, listOnDutyOfficers, listPendingIncidents,
+  featureEnabled, getDispatcherKpis, getOperationalSettings, listActiveIncidents, listOnDutyOfficers, listPendingIncidents,
 } from '@criticom/api';
 import { DEPARTMENT_NAMES, canAccess, type Database, type Silo, type UserRole } from '@criticom/db';
 import { Card, CardContent } from '@/components/ui/card';
 import { OpsMap } from '@/components/ops-map/ops-map';
+import { getFeatures } from '@/lib/features';
 import { availableLayers, defaultLayers } from '@/lib/ops-map/layers';
 import type { getSession } from '@/lib/session';
 import { timeAgo, cn } from '@/lib/utils';
@@ -349,12 +350,13 @@ export async function DispatchBoard({
             incidents={live}
             officers={officers}
             silo={sf}
-            layers={availableLayers({ cameras: canAccess('/cameras', role as UserRole, silo as Silo) })}
+            layers={availableLayers({ cameras: canAccess('/sanral', role as UserRole, silo as Silo) })}
             defaults={defaultLayers(role as UserRole)}
             basemap={settings['map.default_basemap']}
             scopeLabel={sf ? DEPARTMENT_NAMES[sf] : 'All departments'}
             height={640}
             me={{ id: userId, role: role as UserRole, silo: silo as Silo }}
+            bodycams={canAccess('/cameras', role as UserRole, silo as Silo) && featureEnabled(await getFeatures(), 'web.cameras')}
           />
         </CardContent>
       </Card>

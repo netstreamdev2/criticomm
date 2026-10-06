@@ -310,6 +310,11 @@ input[type='datetime-local']::-webkit-calendar-picker-indicator {
 }
 .ops-unit[data-busy='true'] { box-shadow: 0 0 0 3px #f59e0b, 0 1px 6px rgba(0, 0, 0, 0.6); }
 .ops-unit[data-stale='true'] { opacity: 0.45; }
+/* Wearing a bodycam (0054): a small red dot, like a camera's recording light. */
+.ops-unit[data-cam='true']::after {
+  content: ''; position: absolute; top: -5px; right: -5px; width: 8px; height: 8px;
+  border-radius: 9999px; background: #ef4444; border: 1.5px solid #fff;
+}
 
 /* Hospitals, police and fire stations from the TomTom feed. */
 .ops-poi {

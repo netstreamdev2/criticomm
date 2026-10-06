@@ -1,9 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
+import { CRIME_KINDS, compass, heatColour } from '@criticom/db/map-layers';
+import { BottomSheet } from '@/components/bottom-sheet';
 import { IncidentMap, type IncidentMapHandle } from '@/components/incident-map';
+import { useAuth } from '@/lib/auth';
+import {
+  useCrimeCircles, useLiveZoneShapes, useOverlayChoice, useRainTiles, useWeatherNow, weatherLine,
+  type OverlayId, type WeatherNow,
+} from '@/lib/police-overlays';
 import { useMapPins } from '@/lib/use-map-pins';
 import { colors, radius, severityColor, space, makeStyles } from '@/lib/theme';
 
@@ -11,16 +19,40 @@ const SEVERITIES = ['Critical', 'High', 'Medium', 'Low'] as const;
 type Severity = (typeof SEVERITIES)[number];
 type Scope = 'All' | 'Mine';
 
+/** Short names for the crime categories, to fit a chip. */
+const CRIME_CHIP: Record<string, string> = {
+  all: 'All', murder: 'Murder', carjacking: 'Carjacking', burglary_residential: 'Burglary',
+  robbery_residential: 'Robbery', drug_crime: 'Drugs', dui: 'DUI',
+};
+
+function weatherIcon(w: WeatherNow | null): keyof typeof Ionicons.glyphMap {
+  const d = (w?.description ?? '').toLowerCase();
+  if (d.includes('thunder')) return 'thunderstorm-outline';
+  if (d.includes('rain') || d.includes('drizzle') || d.includes('shower')) return 'rainy-outline';
+  if (d.includes('clear')) return 'sunny-outline';
+  if (d.includes('few') || d.includes('scattered')) return 'partly-sunny-outline';
+  return 'cloudy-outline';
+}
+
+const sentence = (s: string | null | undefined) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
 
 /**
  * Live Map — every live dispatch as a pin, full screen, updated in real time.
  * Filter by severity or to my incidents; tap a pin to expand it, tap the card
  * to open the incident. A newly dispatched incident drops in and is offered
  * in a banner; my position shows as a blue dot once location is allowed.
+ *
+ * Police also get the console's overlays in a lighter form: SAPS crime zones,
+ * the perimeters command has shared with them, rain radar, and the weather
+ * now. Layers opens the switches; the choice is remembered on the phone.
  */
 export default function LiveMapScreen() {
   const styles = useStyles();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const { silo } = useAuth();
+  // Police overlays for now; other departments keep the plain incident map.
+  const police = silo === 'MetroPolice';
   const map = useRef<IncidentMapHandle>(null);
   const { pins, unlocated, freshIds } = useMapPins();
   const [scope, setScope] = useState<Scope>('All');
@@ -28,6 +60,15 @@ export default function LiveMapScreen() {
   const [me, setMe] = useState<{ lat: number; lng: number } | null>(null);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const watcher = useRef<Location.LocationSubscription | null>(null);
+
+  const [layersOpen, setLayersOpen] = useState(false);
+  const { choice, toggle, setCrimeKind } = useOverlayChoice();
+  const isOn = (id: OverlayId) => police && choice.on.includes(id);
+  const crime = useCrimeCircles(isOn('crime'), choice.crimeKind);
+  const zones = useLiveZoneShapes(isOn('zones'));
+  const rain = useRainTiles(isOn('rain'));
+  const weather = useWeatherNow();
+  const weatherNow = weatherLine(weather);
 
   const shown = useMemo(() => pins.filter((p) =>
     (scope === 'All' || p.mine)
@@ -88,11 +129,39 @@ export default function LiveMapScreen() {
         pins={shown}
         me={me}
         onOpen={(id) => router.push(`/incident/${id}`)}
+        crime={police ? crime.circles : undefined}
+        zones={police ? zones : undefined}
+        rainUrl={police ? rain.url : undefined}
+        zoomButtons={false}
         style={StyleSheet.absoluteFill}
       />
 
-      {/* ── Filters ── */}
-      <View style={styles.top} pointerEvents="box-none">
+      <View style={[styles.top, { top: insets.top + space.sm }]} pointerEvents="box-none">
+        {/* ── Back, what this is, the weather ── */}
+        <View style={styles.bar} pointerEvents="box-none">
+          <Pressable onPress={() => router.back()} style={styles.round} accessibilityRole="button" accessibilityLabel="Back">
+            <Ionicons name="chevron-back" size={20} color={colors.text} />
+          </Pressable>
+          <View style={styles.titlePill}>
+            <View style={styles.liveDot} />
+            <Text style={styles.titleText}>LIVE MAP</Text>
+            <Text style={styles.titleCount}>{shown.length}</Text>
+          </View>
+          <View style={{ flex: 1 }} />
+          {weatherNow ? (
+            <Pressable
+              onPress={() => (police ? setLayersOpen(true) : undefined)}
+              style={styles.chipBox}
+              accessibilityRole={police ? 'button' : 'text'}
+              accessibilityLabel={`Weather now: ${sentence(weather?.description)}, ${weatherNow}`}
+            >
+              <Ionicons name={weatherIcon(weather)} size={16} color={colors.text} />
+              <Text style={styles.weatherText}>{weatherNow}</Text>
+            </Pressable>
+          ) : null}
+        </View>
+
+        {/* ── Filters ── */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>
           <View style={styles.scope}>
             {(['All', 'Mine'] as const).map((s) => (
@@ -156,7 +225,17 @@ export default function LiveMapScreen() {
       </View>
 
       {/* ── Map controls ── */}
-      <View style={styles.controls}>
+      <View style={[styles.controls, { top: insets.top + 112 }]}>
+        {police ? (
+          <Pressable
+            onPress={() => setLayersOpen(true)}
+            style={[styles.ctrl, choice.on.length > 0 && styles.ctrlOn]}
+            accessibilityRole="button"
+            accessibilityLabel="Map layers"
+          >
+            <Ionicons name="layers-outline" size={20} color={choice.on.length > 0 ? colors.accent : colors.text} />
+          </Pressable>
+        ) : null}
         <Pressable onPress={() => map.current?.fitAll()} style={styles.ctrl} accessibilityRole="button" accessibilityLabel="Show all incidents">
           <Ionicons name="scan-outline" size={20} color={colors.text} />
         </Pressable>
@@ -166,13 +245,7 @@ export default function LiveMapScreen() {
       </View>
 
       {/* ── Legend ── */}
-      <View style={styles.legend} pointerEvents="none">
-        <View style={styles.legendHead}>
-          <View style={styles.liveDot} />
-          <Text style={styles.legendTitle}>
-            LIVE · {shown.length} incident{shown.length === 1 ? '' : 's'}
-          </Text>
-        </View>
+      <View style={[styles.legend, { bottom: insets.bottom + space.lg }]} pointerEvents="none">
         <View style={styles.legendRow}>
           {SEVERITIES.map((s) => (
             <View key={s} style={styles.legendItem}>
@@ -189,20 +262,159 @@ export default function LiveMapScreen() {
             <Text style={styles.legendText}>Mine</Text>
           </View>
         </View>
+        {isOn('crime') && crime.circles.length > 0 ? (
+          <View style={styles.scaleRow}>
+            <Text style={styles.legendText}>Crime</Text>
+            <View style={styles.scale}>
+              {[0, 0.25, 0.5, 0.75, 1].map((s) => <View key={s} style={[styles.scaleStep, { backgroundColor: heatColour(s) }]} />)}
+            </View>
+            <Text style={styles.legendText}>more cases{crime.year ? ` · ${crime.year}` : ''}</Text>
+          </View>
+        ) : null}
+        {isOn('zones') && zones.length > 0 ? (
+          <Text style={styles.legendText}>
+            {zones.length} perimeter{zones.length === 1 ? '' : 's'} or zone{zones.length === 1 ? '' : 's'} in force · tap one for details
+          </Text>
+        ) : null}
         {unlocated > 0 ? (
           <Text style={styles.unlocated}>
             {unlocated} incident{unlocated === 1 ? ' has' : 's have'} no location from dispatch and {unlocated === 1 ? 'is' : 'are'} not pinned.
           </Text>
         ) : null}
       </View>
+
+      {/* ── Layers and weather (police) ── */}
+      {police ? (
+        <BottomSheet
+          visible={layersOpen}
+          onClose={() => setLayersOpen(false)}
+          header={(
+            <View style={styles.sheetHead}>
+              <Text style={styles.sheetTitle}>Map layers</Text>
+              <Text style={styles.sheetSub}>Shown with live incidents. Remembered on this phone.</Text>
+            </View>
+          )}
+        >
+          <View style={styles.sheetBody}>
+            {weather?.configured && !weather.error ? (
+              <View style={styles.wxCard}>
+                <Ionicons name={weatherIcon(weather)} size={30} color={colors.accent} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.wxTemp}>
+                    {weather.tempC != null ? `${Math.round(weather.tempC)}°C` : '—'}
+                    <Text style={styles.wxDesc}>  {sentence(weather.description)}</Text>
+                  </Text>
+                  <Text style={styles.wxMeta}>
+                    {[
+                      weather.windSpeedMs != null ? `Wind ${compass(weather.windDeg)} ${Math.round(weather.windSpeedMs * 3.6)} km/h` : null,
+                      weather.windGustMs != null ? `gusts ${Math.round(weather.windGustMs * 3.6)}` : null,
+                      weather.humidity != null ? `humidity ${weather.humidity}%` : null,
+                    ].filter(Boolean).join(' · ')}
+                  </Text>
+                  <Text style={styles.wxSource}>Durban now · OpenWeather</Text>
+                </View>
+              </View>
+            ) : null}
+
+            <LayerRow
+              icon="flame-outline"
+              tint="#f97316"
+              title="Crime zones"
+              hint={crime.error ?? `SAPS station statistics${crime.year ? `, ${crime.year}` : ''}. Bigger and redder means more cases.`}
+              on={isOn('crime')}
+              onToggle={() => toggle('crime')}
+            />
+            {isOn('crime') ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.kinds}>
+                {CRIME_KINDS.map((k) => {
+                  const on = choice.crimeKind === k.key;
+                  return (
+                    <Pressable
+                      key={k.key}
+                      onPress={() => setCrimeKind(k.key)}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: on }}
+                      accessibilityLabel={k.label}
+                      style={[styles.kind, on && styles.kindOn]}
+                    >
+                      <Text style={[styles.kindText, on && { color: '#fff' }]}>{CRIME_CHIP[k.key] ?? k.label}</Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            ) : null}
+
+            <LayerRow
+              icon="git-commit-outline"
+              tint="#ef4444"
+              title="Perimeters & zones"
+              hint={isOn('zones')
+                ? (zones.length ? `${zones.length} in force: cordons, closures and points set by command.` : 'None in force for you right now.')
+                : 'Cordons, road closures and points set by command.'}
+              on={isOn('zones')}
+              onToggle={() => toggle('zones')}
+            />
+
+            <LayerRow
+              icon="rainy-outline"
+              tint="#38bdf8"
+              title="Rain radar"
+              hint={rain.unavailable ? 'Weather is not set up on the server yet.' : 'Where it is raining now (OpenWeather).'}
+              on={isOn('rain')}
+              onToggle={() => toggle('rain')}
+            />
+          </View>
+        </BottomSheet>
+      ) : null}
     </View>
+  );
+}
+
+function LayerRow({ icon, tint, title, hint, on, onToggle }: {
+  icon: keyof typeof Ionicons.glyphMap; tint: string; title: string; hint: string; on: boolean; onToggle: () => void;
+}) {
+  const styles = useStyles();
+  return (
+    <Pressable
+      onPress={onToggle}
+      style={styles.layerRow}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: on }}
+      accessibilityLabel={title}
+    >
+      <View style={[styles.layerIcon, { backgroundColor: `${tint}22` }]}>
+        <Ionicons name={icon} size={18} color={tint} />
+      </View>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={styles.layerTitle}>{title}</Text>
+        <Text style={styles.layerHint}>{hint}</Text>
+      </View>
+      <Switch value={on} onValueChange={onToggle} trackColor={{ true: colors.accent, false: colors.panelBorder }} thumbColor="#fff" />
+    </Pressable>
   );
 }
 
 const useStyles = makeStyles(() => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
 
-  top: { position: 'absolute', top: space.sm, left: 0, right: 0, gap: space.sm },
+  top: { position: 'absolute', left: 0, right: 0, gap: space.sm },
+  bar: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.md },
+  round: {
+    width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.panel, borderWidth: 1, borderColor: colors.panelBorder,
+  },
+  titlePill: {
+    flexDirection: 'row', alignItems: 'center', gap: 7, height: 40, paddingHorizontal: 14,
+    borderRadius: radius.pill, backgroundColor: colors.panel, borderWidth: 1, borderColor: colors.panelBorder,
+  },
+  titleText: { color: colors.text, fontSize: 12, fontWeight: '900', letterSpacing: 1.2 },
+  titleCount: { color: colors.muted, fontSize: 12, fontWeight: '800' },
+  chipBox: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, height: 40, paddingHorizontal: 12,
+    borderRadius: radius.pill, backgroundColor: colors.panel, borderWidth: 1, borderColor: colors.panelBorder,
+  },
+  weatherText: { color: colors.text, fontSize: 12, fontWeight: '800' },
+
   filters: { gap: 6, paddingHorizontal: space.md, alignItems: 'center' },
   scope: {
     flexDirection: 'row', borderRadius: radius.pill, padding: 2, backgroundColor: colors.panel,
@@ -228,25 +440,54 @@ const useStyles = makeStyles(() => StyleSheet.create({
   bannerTitle: { color: colors.text, fontSize: 13, fontWeight: '800', marginTop: 1 },
   bannerAction: { color: colors.accent, fontSize: 12, fontWeight: '800' },
 
-  controls: { position: 'absolute', right: space.md, top: 110, gap: space.sm },
+  controls: { position: 'absolute', right: space.md, gap: space.sm },
   ctrl: {
     width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center',
     backgroundColor: colors.panel, borderWidth: 1, borderColor: colors.panelBorder,
   },
+  ctrlOn: { borderColor: colors.accent },
 
   legend: {
-    position: 'absolute', left: space.md, right: space.md, bottom: space.lg,
+    position: 'absolute', left: space.md, right: space.md, gap: 6,
     paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.md, backgroundColor: colors.panel,
     borderWidth: 1, borderColor: colors.panelBorder,
   },
-  legendHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
   liveDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#22c55e' },
-  legendTitle: { color: colors.text, fontSize: 11, fontWeight: '900', letterSpacing: 0.8 },
   legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   legendText: { color: colors.textDim, fontSize: 11 },
   mineRing: { width: 10, height: 10, borderRadius: 5, borderWidth: 2, borderColor: '#60a5fa' },
-  unlocated: { color: colors.medium, fontSize: 10, marginTop: 6 },
+  unlocated: { color: colors.medium, fontSize: 10 },
   sosTag: { backgroundColor: '#ef4444', borderRadius: 3, paddingHorizontal: 3, paddingVertical: 1 },
   sosTagText: { color: '#fff', fontSize: 8, fontWeight: '900' },
+  scaleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  scale: { flexDirection: 'row', borderRadius: 3, overflow: 'hidden' },
+  scaleStep: { width: 14, height: 6 },
+
+  sheetHead: { paddingHorizontal: space.lg, paddingBottom: space.sm },
+  sheetTitle: { color: colors.text, fontSize: 17, fontWeight: '800' },
+  sheetSub: { color: colors.muted, fontSize: 12, marginTop: 2 },
+  sheetBody: { paddingHorizontal: space.lg, paddingBottom: space['2xl'], gap: space.sm },
+  wxCard: {
+    flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md, marginBottom: space.xs,
+    borderRadius: radius.lg, backgroundColor: colors.panel, borderWidth: 1, borderColor: colors.panelBorder,
+  },
+  wxTemp: { color: colors.text, fontSize: 22, fontWeight: '900' },
+  wxDesc: { color: colors.textDim, fontSize: 14, fontWeight: '600' },
+  wxMeta: { color: colors.textDim, fontSize: 12, marginTop: 2 },
+  wxSource: { color: colors.muted, fontSize: 10, marginTop: 4 },
+  layerRow: {
+    flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md,
+    borderRadius: radius.lg, backgroundColor: colors.panel, borderWidth: 1, borderColor: colors.panelBorder,
+  },
+  layerIcon: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  layerTitle: { color: colors.text, fontSize: 15, fontWeight: '700' },
+  layerHint: { color: colors.muted, fontSize: 12, marginTop: 2 },
+  kinds: { gap: 6, paddingVertical: 2, paddingLeft: 48 },
+  kind: {
+    height: 30, paddingHorizontal: 12, borderRadius: radius.pill, justifyContent: 'center',
+    borderWidth: 1, borderColor: colors.panelBorder, backgroundColor: colors.panel,
+  },
+  kindOn: { backgroundColor: '#f97316', borderColor: '#f97316' },
+  kindText: { color: colors.textDim, fontSize: 12, fontWeight: '700' },
 }));

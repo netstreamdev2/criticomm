@@ -64,17 +64,18 @@ export function sosTooltip(i: Incident) {
   </div>`;
 }
 
-export function unitIcon(L: L, busy: boolean, stale: boolean) {
+export function unitIcon(L: L, busy: boolean, stale: boolean, cam = false) {
   return L.divIcon({
     className: 'ops-unit-wrap',
-    html: `<span class="ops-unit" data-busy="${busy}" data-stale="${stale}"></span>`,
+    html: `<span class="ops-unit" data-busy="${busy}" data-stale="${stale}" data-cam="${cam}"></span>`,
     iconSize: [18, 18],
     iconAnchor: [9, 9],
     tooltipAnchor: [0, -10],
   });
 }
 
-export function unitTooltip(o: OnDutyOfficer, stale: boolean) {
+/** `cam` is the bodycam serial, shown only to people who may watch it. */
+export function unitTooltip(o: OnDutyOfficer, stale: boolean, cam?: string | null) {
   const unit = [o.unitNumber && `Unit ${o.unitNumber}`, o.station].filter(Boolean).join(' · ');
   const work = o.busyWith
     ? `On ${e(o.busyWith.number)}${o.activeCalls > 1 ? ` (+${o.activeCalls - 1} more)` : ''}`
@@ -83,6 +84,7 @@ export function unitTooltip(o: OnDutyOfficer, stale: boolean) {
     <div class="ops-tip-title">${e(o.name || 'Officer')}${o.badge ? ` · ${e(o.badge)}` : ''}</div>
     ${unit ? `<div>${e(unit)}</div>` : ''}
     <div>${work}</div>
+    ${cam ? `<div style="color:#f87171">● Bodycam ${e(cam)} · click to watch</div>` : ''}
     <div class="ops-tip-muted">${stale ? 'No GPS for a while · ' : ''}position ${e(timeAgo(o.seenAt))}</div>
   </div>`;
 }

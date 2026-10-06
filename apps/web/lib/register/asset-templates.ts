@@ -1,11 +1,11 @@
-import { FIREARM_COLUMNS, FIREARM_TYPES, VEHICLE_COLUMNS, VEHICLE_TYPES } from '@criticom/db/assets';
+import { BODYCAM_COLUMNS, FIREARM_COLUMNS, FIREARM_TYPES, VEHICLE_COLUMNS, VEHICLE_TYPES } from '@criticom/db/assets';
 import { DEPARTMENT_NAMES } from '@criticom/db/onboarding';
 import type { SheetColumn } from '@criticom/db/sheet';
 import type { Silo } from '@criticom/db/types';
 import { type WriteSheet, writeXlsx, XLSX_STYLE } from './xlsx.ts';
 
 /**
- * The armoury and fleet templates: one sheet to fill in (drop-downs where the
+ * The armoury, fleet and bodycam templates: one sheet to fill in (drop-downs where the
  * values are fixed, serials and plates kept as text) and one of instructions.
  */
 
@@ -57,6 +57,7 @@ function buildTemplate<F extends string>(spec: {
 
 export const FIREARMS_TEMPLATE_NAME = 'HikTech armoury template.xlsx';
 export const VEHICLES_TEMPLATE_NAME = 'HikTech fleet template.xlsx';
+export const BODYCAMS_TEMPLATE_NAME = 'HikTech bodycam template.xlsx';
 
 export function buildFirearmsTemplate(): Uint8Array {
   return buildTemplate({
@@ -85,5 +86,21 @@ export function buildVehiclesTemplate(): Uint8Array {
     lists: { type: VEHICLE_TYPES, department: DEPARTMENTS.map((d) => DEPARTMENT_NAMES[d]) },
     text: ['unit_number', 'license_plate', 'vin', 'year'],
     widths: { name: 22, type: 18, department: 20, vin: 22, disc_expiry: 20 },
+  });
+}
+
+export function buildBodycamsTemplate(): Uint8Array {
+  return buildTemplate({
+    sheet: 'Bodycams',
+    title: 'HikTech bodycam register',
+    intro: [
+      'One row per bodycam. Officers book one out in the app at the start of a shift and hand it back at the end.',
+      'Bodycams already on the register are matched by serial number and updated; who has one right now never changes.',
+      'The Hikvision camera code links the bodycam to its live video. Leave it blank until the platform is connected.',
+    ],
+    columns: BODYCAM_COLUMNS,
+    lists: { department: DEPARTMENTS.map((d) => DEPARTMENT_NAMES[d]) },
+    text: ['serial_number', 'sim_number', 'hik_camera_code'],
+    widths: { serial_number: 20, hik_camera_code: 36, notes: 36, department: 20 },
   });
 }

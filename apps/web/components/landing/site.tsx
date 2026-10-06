@@ -146,7 +146,7 @@ const MODULE_GROUPS = [
     label: 'Command & insight',
     hex: '#22c55e',
     items: ['Command dashboard', 'Report builder', 'Analytics', 'Global search',
-      'CCTV surveillance', 'Case manager', 'Criti assistant'],
+      'Body cams and CCTV', 'Case manager', 'Criti assistant'],
   },
   {
     label: 'Administration',

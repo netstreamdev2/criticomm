@@ -130,7 +130,8 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 - **States**: skeleton `loading.tsx`, recoverable `error.tsx`, branded 404, active-route highlighting, status badges, focus-visible rings, styled scrollbars, print stylesheet.
 - **Charts**: recharts wrappers (`components/charts.tsx`) on dashboard, KPI and analytics.
 - **Maps**: shared Leaflet component (`components/leaflet-map.tsx`) — OSM tiles, severity-coloured markers — for the small single-purpose maps. The dispatch board and `/incidents/map` use the **live operations map** (`components/ops-map/`): incidents and on-duty officers move in place over realtime, SOS beacons always show, and a **Layers** panel switches V4 `_MapCore` overlays on and off (crime zones from `crime_stats`, hydrants, CCTV, OpenWeather rain/cloud/temperature/wind tiles, TomTom traffic and emergency facilities). Choices are remembered per browser; each desk opens with its own defaults (`lib/ops-map/layers.ts`). **Full screen** (or F) makes it a wall display for a control-room TV — HUD with SAST clock and live counts, controls fade when idle, screen kept awake, view follows the incidents; `/incidents/map?wall=1` opens straight into it.
-- **Perimeters & zones** (migration 0053, `components/ops-map/zones/`): command and control-room staff (`MAP_ZONE_DRAW_ROLES`) draw areas, circles, lines and points on the live map — live measurements, radius to the metre, coordinates to six decimals, points snapped onto a call's pin, vertex editing, self-crossing areas refused — then name the type (cordon, exclusion, evacuation, hazard, search, road closure, route, staging, command post, rendezvous, last seen, note), say why, link a call, choose who sees it (only me / my department / chosen departments / everyone on the call / everyone) and an end time. Writes go only through `save_map_zone()` / `end_map_zone()` (PostGIS validation and geodesic measurements, change history in `map_zone_events`, audit log); zones are stood down with a reason, never deleted. Consoles receive shared zones live with who set them and why (`components/zone-notifier.tsx`); the incident page lists a call's zones. **Not sent to officers' phones yet** — nothing is written to `alerts`, which the officer app reads.
+- **Perimeters & zones** (migration 0053, `components/ops-map/zones/`): command and control-room staff (`MAP_ZONE_DRAW_ROLES`) draw areas, circles, lines and points on the live map — live measurements, radius to the metre, coordinates to six decimals, points snapped onto a call's pin, vertex editing, self-crossing areas refused — then name the type (cordon, exclusion, evacuation, hazard, search, road closure, route, staging, command post, rendezvous, last seen, note), say why, link a call, choose who sees it (only me / my department / chosen departments / everyone on the call / everyone) and an end time. Writes go only through `save_map_zone()` / `end_map_zone()` (PostGIS validation and geodesic measurements, change history in `map_zone_events`, audit log); zones are stood down with a reason, never deleted. Consoles receive shared zones live with who set them and why (`components/zone-notifier.tsx`); the incident page lists a call's zones. Police officers now **see** shared zones on the app's Live Map (below), but nothing is pushed to them: nothing is written to `alerts`.
+- **Officer app Live Map, police overlays** (6 Oct 2026, `apps/mobile/app/live-map.tsx`, `lib/police-overlays.ts`): full screen with a floating back button, a weather chip, and a Layers sheet for Metro Police only. It offers SAPS crime zones (the same maths as the console, now in `@criticom/db/map-layers`, with a category picker), the perimeters and zones shared with the officer (RLS, kept live by Realtime), and rain radar. The choice is remembered on the phone. Each overlay opens a small card when tapped. Other departments keep the plain incident map.
 
 ## Controller → route map
 
@@ -171,7 +172,8 @@ Every proxy degrades gracefully (clear "not configured" response) when its key i
 - `/api/pdf/incident/[id]` — case report PDF (pdf-lib)
 - `/api/pdf/fire-report/[id]` — fire report PDF
 - `/api/wind` — OpenWeatherMap (needs `OPENWEATHER_API_KEY`)
-- `/api/weather/tiles/[layer]/[z]/[x]/[y]` — OpenWeather map tiles for the live map (same key; no `.png` suffix so the middleware still authenticates it)
+- `/api/weather/tiles/[layer]/[z]/[x]/[y]` — OpenWeather map tiles for the live map (same key; no `.png` suffix so the middleware still authenticates it). The officer app's map loads tiles as plain images, which cannot carry a sign-in. It adds a two-hour signed `?pass=` from `/api/weather/pass` (`lib/weather-pass.ts`; key `WEATHER_PASS_SECRET`, falling back to the service role key), which the route checks.
+- Middleware: `/api/*` also accepts the officer app's Supabase access token as `Authorization: Bearer`, verified by Supabase Auth. The same role, silo and deactivation checks then apply. Before this, every bearer call from the app (the assistant included) was refused with 401 at the edge.
 - `/api/chat` — Gemini "Criti" assistant (needs `GEMINI_API_KEY`, optional `GEMINI_MODEL`)
 - `/api/geocode` — Nominatim proxy for the dispatch console's address ⇄ coordinate lookup (no key)
 - `/api/push/notify` — Expo push fanout to the departments a call was routed to (service-role read of `push_tokens`)
@@ -216,16 +218,22 @@ Every page carries the V4-style command bar under the topbar: an external-resour
 (E-NATIS, CAS, PERSAL, FIREARM, FINES, TRACE, FORENSICS, CONSTELLATIONS, REAL PTT, FLIGHTRADAR,
 MARINETRAFFIC, REPORTS) driven by `OpsLink` config records — admins repoint or add systems from
 Admin → Configuration, placeholders render dimmed until their endpoint is issued — plus an internal
-module tier (Dispatch, Incoming, Surveillance, CCTV Footage, Responder, KPI, Operations dropdown)
+module tier (Dispatch, Incoming, Body Cams, Body Cam Footage, SANRAL Cameras, Responder, KPI, Operations dropdown)
 filtered per role by the shared route matrix. Collapsible per user.
 
-CCTV: the room runs on the SANRAL matrix today and moves to Hikvision next. Both live in the
-integration catalogue; `/api/cctv/cameras` serves the SANRAL registry until the Hikvision
-integration is enabled with `HIKVISION_APP_KEY`/`HIKVISION_APP_SECRET` and a `base_url`, at which
-point the same endpoint serves the live HikCentral estate — the cut-over is a toggle, not a deploy.
-`/api/cctv/stream` brokers AK/SK-signed live-preview and recorded-playback URLs (server-side
-signing only; every grant audit-logged for chain of custody); `/cameras/footage` is the retrieval
-console with a 24-hour window cap.
+Cameras (2026-10-05, migration 0054): the SANRAL freeway wall moved to `/sanral` and `/api/cctv/cameras`
+serves only its registry. The Hikvision platform (HCM Lite) now serves the bodycams: Body Cams
+(`/cameras`), Body Cam Footage (`/cameras/footage`), the live map and the incident page, through
+`/api/bodycams/view`, which opens a view only after `start_bodycam_view()` has allowed and recorded it.
+`/api/cctv/stream` is gone. See docs/12-BODYCAMS.md.
+
+SANRAL CCTV matrix (2026-10-06): V4's `Dispatch/CCTV` view framed i-traffic's own
+`/Map/EmbeddedMap` with a province picker; clicking a camera shows its latest snapshot (SANRAL
+publishes stills, not video). Ported to the top of `/sanral` (`itraffic-map.tsx`): no API key
+needed, areas eThekwini (default)/KZN/GP/WC/EC/All, layer chips, full screen, and `?lat=&lng=`
+centres it, which the incident page links to ("SANRAL freeway cameras nearby"). CSP `frame-src`
+allows only `https://www.i-traffic.co.za`, sandboxed. The registry wall, table and live-map
+camera layer still need `ITRAFFIC_API_KEY`; they are hidden while the registry is empty.
 
 ## Operational tuning (V5 addition)
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { endShift, getMyShiftKit, returnShiftFirearm, roundsShort, type MyShiftKit } from '@criticom/api';
+import { endShift, getMyShiftKit, returnBodycam, returnShiftFirearm, roundsShort, type MyShiftKit } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useDuty } from '@/lib/duty';
 import { useOpenCall } from '@/lib/open-call';
@@ -13,13 +13,17 @@ import {
 } from '@/components/ui';
 
 /**
- * The end of a shift (migration 0051), in the order it happens at the
- * station: hand the firearm back (rounds counted, unloaded, condition), then
- * the vehicle (mileage, anything wrong with it), then end. The server will not
- * end a shift while a firearm is still booked out to the officer.
+ * The end of a shift (migrations 0051 and 0054), in the order it happens at
+ * the station: hand the firearm back (rounds counted, unloaded, condition),
+ * then the bodycam, then the vehicle (mileage, anything wrong with it), then
+ * end. The server will not end a shift while a firearm or bodycam is still
+ * booked out to the officer.
  */
 
-type Step = 'loading' | 'firearm' | 'vehicle' | 'confirm' | 'done';
+type Step = 'loading' | 'firearm' | 'bodycam' | 'vehicle' | 'confirm' | 'done';
+type CamCondition = 'In order' | 'Damaged' | 'Lost';
+const CAM_CONDITIONS: readonly CamCondition[] = ['In order', 'Damaged', 'Lost'];
+const CAM_CONDITION_VALUE = { 'In order': 'ok', Damaged: 'damaged', Lost: 'lost' } as const;
 type Condition = 'Clean' | 'Needs cleaning' | 'Damaged';
 const CONDITIONS: readonly Condition[] = ['Clean', 'Needs cleaning', 'Damaged'];
 const CONDITION_VALUE = { Clean: 'clean', 'Needs cleaning': 'requires_cleaning', Damaged: 'damaged' } as const;
@@ -59,6 +63,11 @@ export default function EndShiftScreen() {
   const [firearmNotes, setFirearmNotes] = useState('');
   const [returned, setReturned] = useState<{ serial: string; status: string; short: number } | null>(null);
 
+  // Bodycam
+  const [camCondition, setCamCondition] = useState<CamCondition | null>(null);
+  const [camNotes, setCamNotes] = useState('');
+  const [camReturned, setCamReturned] = useState<{ serial: string; status: string } | null>(null);
+
   // Vehicle
   const [mileage, setMileage] = useState('');
   const [fault, setFault] = useState(false);
@@ -73,7 +82,7 @@ export default function EndShiftScreen() {
       const k = await getMyShiftKit(getSupabase());
       setKit(k);
       setMags(k.firearm?.magazines != null ? String(k.firearm.magazines) : '');
-      setStep(k.firearm ? 'firearm' : k.vehicle ? 'vehicle' : 'confirm');
+      setStep(k.firearm ? 'firearm' : k.bodycam ? 'bodycam' : k.vehicle ? 'vehicle' : 'confirm');
     } catch (e) {
       setError(errorText(e));
       setStep('confirm');
@@ -116,13 +125,40 @@ export default function EndShiftScreen() {
         condition: CONDITION_VALUE[condition], notes: firearmNotes.trim() || null,
       });
       setReturned({ serial: firearm.serial_number, status: res.status, short: res.short });
-      go(kit?.vehicle ? 'vehicle' : 'confirm');
+      go(kit?.bodycam ? 'bodycam' : kit?.vehicle ? 'vehicle' : 'confirm');
     });
     if (short > 0) {
       Alert.alert(
         `${short} ${short === 1 ? 'round' : 'rounds'} short`,
         'Your supervisor is told straight away, with your note. Hand the firearm back now?',
         [{ text: 'Count again', style: 'cancel' }, { text: 'Hand it back', style: 'destructive', onPress: send }],
+      );
+      return;
+    }
+    send();
+  };
+
+  /* ── Bodycam ──────────────────────────────────────────────────────── */
+
+  const bodycam = kit?.bodycam ?? null;
+  const camNeedsNotes = camCondition !== null && camCondition !== 'In order';
+
+  const submitBodycam = () => {
+    if (!bodycam) return;
+    if (!camCondition) { setError('Choose the bodycam’s condition.'); return; }
+    if (camNeedsNotes && camNotes.trim().length < 5) { setError('Say what happened to the bodycam.'); return; }
+    const send = () => void run(async () => {
+      const res = await returnBodycam(getSupabase(), {
+        bodycamId: bodycam.id, condition: CAM_CONDITION_VALUE[camCondition], notes: camNotes.trim() || null,
+      });
+      setCamReturned({ serial: bodycam.serial_number, status: res.status });
+      go(kit?.vehicle ? 'vehicle' : 'confirm');
+    });
+    if (camCondition === 'Lost') {
+      Alert.alert(
+        'Report the bodycam lost?',
+        'Your supervisor is told straight away, with your note.',
+        [{ text: 'Cancel', style: 'cancel' }, { text: 'Report lost', style: 'destructive', onPress: send }],
       );
       return;
     }
@@ -162,8 +198,11 @@ export default function EndShiftScreen() {
 
   /* ── Render ──────────────────────────────────────────────────────── */
 
-  const steps = [firearm ? 'Firearm' : null, vehicle ? 'Vehicle' : null, 'End'].filter(Boolean) as string[];
-  const current = step === 'firearm' ? 0 : step === 'vehicle' ? (firearm ? 1 : 0) : steps.length - (step === 'done' ? 0 : 1);
+  const steps = [firearm ? 'Firearm' : null, bodycam ? 'Bodycam' : null, vehicle ? 'Vehicle' : null, 'End'].filter(Boolean) as string[];
+  const stepName = { firearm: 'Firearm', bodycam: 'Bodycam', vehicle: 'Vehicle' } as const;
+  const current = step === 'firearm' || step === 'bodycam' || step === 'vehicle'
+    ? Math.max(0, steps.indexOf(stepName[step]))
+    : steps.length - (step === 'done' ? 0 : 1);
 
   if (step === 'loading') {
     return <View style={styles.center}><ActivityIndicator color={colors.accent} /></View>;
@@ -218,9 +257,40 @@ export default function EndShiftScreen() {
         </>
       ) : null}
 
-      {step === 'vehicle' && vehicle ? (
+      {step === 'bodycam' && bodycam ? (
         <>
           {returned ? <Returned returned={returned} /> : null}
+          <Card accent={colors.medium}>
+            <Title>Hand back your bodycam</Title>
+            <Muted>Put it on its dock to charge and upload today’s footage.</Muted>
+            <View style={{ marginTop: space.md }}>
+              <KeyValue label="Bodycam" value={bodycam.serial_number} />
+              <KeyValue label="Booked out" value={saTime(bodycam.booked_at)} />
+            </View>
+          </Card>
+          <SectionLabel>Condition</SectionLabel>
+          <Card>
+            <Segmented options={CAM_CONDITIONS} value={camCondition} onChange={setCamCondition} />
+            {camCondition === 'Damaged' ? (
+              <Muted style={{ marginTop: space.sm, color: colors.medium }}>It goes for repair and your supervisor is told.</Muted>
+            ) : camCondition === 'Lost' ? (
+              <Muted style={{ marginTop: space.sm, color: colors.critical }}>Your supervisor is told straight away.</Muted>
+            ) : null}
+            <View style={{ marginTop: space.md }}>
+              <Input label={camNeedsNotes ? 'What happened (required)' : 'Notes'} value={camNotes} onChangeText={setCamNotes} multiline maxLength={500}
+                placeholder={camCondition === 'Lost' ? 'e.g. Lost during a foot chase on Smith Street, CAS 45/10/2026' : 'Anything the keeper should know'}
+                style={{ minHeight: 72, textAlignVertical: 'top' }} />
+            </View>
+          </Card>
+          {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
+          <Button label="Hand back bodycam" icon="videocam-outline" size="lg" busy={busy} onPress={submitBodycam} />
+        </>
+      ) : null}
+
+      {step === 'vehicle' && vehicle ? (
+        <>
+          {returned && !bodycam ? <Returned returned={returned} /> : null}
+          {camReturned ? <CamReturned returned={camReturned} /> : null}
           <Card accent={colors.accent}>
             <Title>Hand back {vehicle.unit_number}</Title>
             <Muted>{vehicle.name}. Read the odometer before you leave the vehicle.</Muted>
@@ -242,7 +312,8 @@ export default function EndShiftScreen() {
 
       {step === 'confirm' ? (
         <>
-          {returned && !vehicle ? <Returned returned={returned} /> : null}
+          {returned && !vehicle && !bodycam ? <Returned returned={returned} /> : null}
+          {camReturned && !vehicle ? <CamReturned returned={camReturned} /> : null}
           <Card accent={colors.low}>
             <Title>End your shift</Title>
             <Muted>
@@ -267,6 +338,7 @@ export default function EndShiftScreen() {
           <Muted style={{ textAlign: 'center' }}>
             You are off duty.
             {returned ? ` Firearm ${returned.serial} handed back.` : ''}
+            {camReturned ? ` Bodycam ${camReturned.serial} handed back.` : ''}
             {ended?.vehicle ? ` ${ended.vehicle} ${ended.vehicleStatus === 'Maintenance' ? 'is booked for maintenance' : 'is back in the pool'}.` : ''}
             {' '}Go well.
           </Muted>
@@ -286,6 +358,15 @@ function Returned({ returned }: { returned: { serial: string; status: string; sh
       {`Firearm ${returned.serial} handed back.`}
       {returned.status === 'Maintenance' ? ' It goes to the armourer.' : ''}
       {returned.short > 0 ? ` ${returned.short} rounds short: your supervisor has been told.` : ''}
+    </Banner>
+  );
+}
+
+function CamReturned({ returned }: { returned: { serial: string; status: string } }) {
+  return (
+    <Banner tone={returned.status === 'Available' ? 'success' : 'info'}>
+      {`Bodycam ${returned.serial} handed back.`}
+      {returned.status === 'In repair' ? ' It goes for repair.' : returned.status === 'Lost' ? ' Reported lost: your supervisor has been told.' : ''}
     </Banner>
   );
 }

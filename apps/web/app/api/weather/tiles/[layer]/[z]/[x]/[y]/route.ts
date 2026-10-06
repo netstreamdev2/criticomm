@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import { isWeatherLayer, OWM_TILE_LAYER } from '@/lib/ops-map/layers';
+import { weatherPassKey, weatherPassValid } from '@/lib/weather-pass';
 
 /**
  * OpenWeather map tiles for the live map's weather layers (rain, cloud,
  * temperature, wind). V4 put the key in the page; here it stays server-side.
  *
  * Authentication is the middleware's: it runs getUser() on every /api path
- * and answers 401 without a session. The URL deliberately has no ".png" —
+ * and answers 401 without a session. The officer app's map cannot send its
+ * sign-in with an image, so it adds a signed `?pass=` (app/api/weather/pass);
+ * the middleware lets such requests through and this route checks the pass. The URL deliberately has no ".png" —
  * the middleware matcher skips static extensions, which would let tiles out
  * unauthenticated. No per-user rate limit either: a single pan asks for
  * dozens of tiles, and the data cache below collapses repeats across users.
@@ -27,9 +30,13 @@ function png(body: ArrayBuffer | Buffer, maxAge: number) {
 }
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ layer: string; z: string; x: string; y: string }> },
 ) {
+  const pass = new URL(req.url).searchParams.get('pass');
+  if (pass !== null && !weatherPassValid(pass, weatherPassKey())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const { layer, z, x, y } = await params;
   if (!isWeatherLayer(layer)) return NextResponse.json({ error: 'Unknown layer' }, { status: 404 });
 
