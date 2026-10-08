@@ -152,6 +152,22 @@ test('every op kind describes itself for the sync tray', () => {
   assert.match(describe(STATUS), /On Scene/);
 });
 
+const FINE: OutboxOp = {
+  kind: 'issue_fine', noticeType: 'AARTO 01', label: 'ND123456 · B Dlamini',
+  notice: { notice_type: 'AARTO 01', vehicle_reg: 'ND123456' },
+  charges: [{ offence_id: null, description: 'Driver not wearing a seatbelt', amount: 500 }],
+};
+
+test('a served fine sends after a live incident, ahead of photos, and is never collapsed', () => {
+  const photo = entry(PHOTO, { occurredAt: '2026-08-04T09:00:00.000Z' });
+  const fine = entry(FINE, { occurredAt: '2026-08-04T10:00:00.000Z' });
+  const status = entry(STATUS, { occurredAt: '2026-08-04T11:00:00.000Z' });
+  const order = [photo, fine, status].sort(comparePriority).map((e) => e.op.kind);
+  assert.deepEqual(order, ['incident_status', 'issue_fine', 'evidence']);
+  assert.equal(dedupeKeyOf(FINE), null);
+  assert.equal(describe(FINE), 'Fine · AARTO 01 · ND123456 · B Dlamini');
+});
+
 test('a long note is truncated rather than overflowing the tray', () => {
   const long = describe({
     kind: 'incident_note', incidentId: 'i1', silo: 'MetroPolice',

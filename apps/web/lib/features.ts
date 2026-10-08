@@ -34,7 +34,7 @@ const FEATURE_ROUTES: Record<string, string[]> = {
   'web.duty_maintenance': ['/duty-tasks'],
   'web.time_attendance': ['/attendance'],
   'web.enforcement': [
-    '/police/fines', '/police/charges', '/police/transactions',
+    '/police/fines', '/police/fines/offences', '/police/fines/payments', '/police/fines/account', '/police/charges', '/police/transactions',
     '/police/warrants', '/police/summons',
   ],
   'web.mail': ['/mail'],

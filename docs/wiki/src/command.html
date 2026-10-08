@@ -347,42 +347,70 @@
   </div>
 
   <h2>50.2 Fines</h2>
+  <p>
+    Since 1 July 2026 eThekwini is under AARTO: a road traffic offence is served in person on an
+    <b>AARTO 01</b> infringement notice (50% discount if paid within 32 days). By-law offences stay
+    Criminal Procedure Act matters: a <b>Section 56</b> notice when the offender is present, or a
+    <b>Section 341</b> notice left on an unattended vehicle. Each charge gets its own FN- number. A
+    served notice is a legal record: it is never edited or deleted, only cancelled with a reason.
+    Full detail: <code>docs/14-FINES.md</code>.
+  </p>
   <div class="proc">
     <div class="h">
-      <div class="t">Issue a fine</div>
-      <div class="m"><b>Screen</b> /police/fines &nbsp;·&nbsp; <b>Who</b> Police roles, Supervisor, admin tier, SystemController &nbsp;·&nbsp; <b>Writes</b> fines, audit_logs</div>
+      <div class="t">Issue a fine at the roadside</div>
+      <div class="m"><b>Screen</b> app → Home → Fines → Issue a fine &nbsp;·&nbsp; <b>Who</b> Police, Captain, Supervisor &nbsp;·&nbsp; <b>Writes</b> fines (through issue_fines), audit_logs</div>
     </div>
     <div class="b">
       <ol>
-        <li><b>Offender name</b> and <b>ID number</b>.</li>
-        <li><b>Vehicle registration</b> where the offence involves one — it is stored uppercase.</li>
-        <li><b>Offence code</b> and <b>description</b>.</li>
-        <li><b>Amount</b> and <b>due date</b>.</li>
-        <li><b>Location</b> and any <b>notes</b>.</li>
-        <li>Issue fine.</li>
+        <li><b>Notice</b>: AARTO 01, Section 56 or Section 341. Optionally the book number and the incident it belongs to.</li>
+        <li><b>Infringer</b>: surname, names, identification. A South African ID number is checked and fills in the date of birth and gender.</li>
+        <li><b>Vehicle</b>: registration, disc, type, make, model, colour.</li>
+        <li><b>Offence</b>: from the charge book (up to three charges), where it happened (Use my location), the court and date for Section 56, and the notes page.</li>
+        <li><b>Sign</b>: check the amount and pay-by date, tick that the notice was explained, sign, and have the infringer sign (or record a refusal). Issue fine.</li>
       </ol>
-      <div class="after"><b>Afterwards</b> The fine exists as <code>FN-NNNN</code> at <i>Unpaid</i>, stamped with your name and the moment, on the audit trail.</div>
+      <div class="after"><b>Afterwards</b> The slip opens: print it or share it as a PDF. With no signal it is a provisional slip (<code>P-…</code>); the notice sends itself when the phone finds signal and gets its FN- numbers.</div>
     </div>
   </div>
 
   <div class="proc">
     <div class="h">
-      <div class="t">Record a payment against a fine</div>
-      <div class="m"><b>Screen</b> /police/fines &nbsp;·&nbsp; <b>Writes</b> charge_transactions, audit_logs</div>
+      <div class="t">Capture a notice from a paper book</div>
+      <div class="m"><b>Screen</b> /police/fines/new &nbsp;·&nbsp; <b>Who</b> Police, Captain, Supervisor &nbsp;·&nbsp; <b>Writes</b> fines (through issue_fines), audit_logs</div>
     </div>
     <div class="b">
       <ol>
-        <li>Find the fine. The <b>Paid</b> column shows what the ledger already holds against it.</li>
-        <li>The payment box is pre-filled with the outstanding balance. Adjust it for a part payment.</li>
-        <li>Choose the <b>method</b> and record.</li>
-        <li>Set the fine's <b>status</b> to match — <i>Partially Paid</i> or <i>Paid</i>.</li>
+        <li>Copy the notice exactly as written, with its <b>printed notice number</b> and when it was served.</li>
+        <li>Capture notice. The signatures stay on the paper.</li>
       </ol>
-      <div class="after">
-        <b>The ledger is the truth, the status is a label.</b> Payments accumulate as transactions;
-        the status field is set by a person. They are kept separate on purpose — an automatic status
-        would hide a mismatch between what was banked and what was recorded, which is the one thing a
-        financial trail must never do.
-      </div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Record a payment, a representation or a cancellation</div>
+      <div class="m"><b>Screen</b> /police/fines → open the fine &nbsp;·&nbsp; <b>Who</b> Captain, Supervisor, Admin, SystemAdmin &nbsp;·&nbsp; <b>Writes</b> charge_transactions, fines status, audit_logs</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li><b>Record money</b>: payment, refund or adjustment, with the receipt reference. The ledger sets <i>Partially Paid</i> or <i>Paid</i> itself; an AARTO fine paid at the discount within 32 days is paid in full.</li>
+        <li><b>Representation</b>: mark <i>Disputed</i> when one is lodged; set back to <i>Unpaid</i> if it fails.</li>
+        <li><b>Cancel</b>: for a notice issued in error, with the reason (at least 10 characters). Refund any money first. It stays on the register, marked cancelled.</li>
+      </ol>
+      <div class="after"><b>The ledger is never edited.</b> A mistake is put right with a refund or an adjustment, so what was banked and what was recorded can always be compared.</div>
+    </div>
+  </div>
+
+  <div class="proc">
+    <div class="h">
+      <div class="t">Keep the charge book</div>
+      <div class="m"><b>Screen</b> /police/fines/offences &nbsp;·&nbsp; <b>Who</b> Admin (Metro Police), SystemAdmin &nbsp;·&nbsp; <b>Writes</b> fine_offences</div>
+    </div>
+    <div class="b">
+      <ol>
+        <li>For each offence enter the code (AARTO Schedule 3 or by-law section), legal reference, penalty and demerit points.</li>
+        <li>Tick <b>Verified</b>. Changing a verified code or amount takes the tick off until it is checked again.</li>
+      </ol>
+      <div class="after">When an offence has an amount, the notice charges that amount and the officer cannot change it.</div>
     </div>
   </div>
 
@@ -692,6 +720,7 @@
       <tr><td class="mono">web.sections</td><td>The sections register. Codes already stamped on records still display.</td></tr>
       <tr><td class="mono">web.assistant · web.cameras · web.ptt · web.search · web.reports_builder</td><td>As documented in Chapter 35.</td></tr>
       <tr><td class="mono">mobile.firearm_check</td><td>The armoury checklist leaves the phone. Console review remains.</td></tr>
+      <tr><td class="mono">mobile.fines</td><td>Officers cannot issue fines from the app and the Fines card leaves the home screen. Notices already queued still send; the console register is unaffected.</td></tr>
       <tr><td class="mono">mobile.panic · assistant · leave · nearby · voice_notes · alerts_inbox</td><td>As documented in Chapter 35.</td></tr>
     </tbody>
   </table>

@@ -87,8 +87,9 @@
       <tr><td class="mono">clockAction</td><td class="mono">/attendance</td><td class="mono">kind, note</td></tr>
       <tr><td class="mono">sendMailAction</td><td class="mono">/mail</td><td class="mono">to_user, to_name, subject, body</td></tr>
       <tr><td class="mono">markReadAction</td><td class="mono">/mail</td><td class="mono">id</td></tr>
-      <tr><td class="mono">issueFineAction</td><td class="mono">/police/fines</td><td class="mono">offender_name, offender_id_number, vehicle_reg, offence_code, offence_description, amount, location, due_date, notes</td></tr>
-      <tr><td class="mono">setFineStatusAction</td><td class="mono">/police/fines</td><td class="mono">id, status</td></tr>
+      <tr><td class="mono">captureFineAction</td><td class="mono">/police/fines/new</td><td class="mono">notice type and number, served time, infringer, vehicle, place, 1–3 charges, court (Section 56)</td></tr>
+      <tr><td class="mono">cancelFineAction · setFineStatusAction · setFineNoticeNumberAction · recordFinePaymentAction</td><td class="mono">/police/fines/[id]</td><td class="mono">id, reason · status (Disputed / Unpaid), note · number · type, amount, method, reference</td></tr>
+      <tr><td class="mono">saveFineOffenceAction</td><td class="mono">/police/fines/offences</td><td class="mono">regime, code, description, legal ref, penalty, demerit points, in use, verified</td></tr>
       <tr><td class="mono">openChargeAction</td><td class="mono">/police/charges</td><td class="mono">accused_name, accused_id_number, charge_code, description, statute, severity, court_name, court_date, case_ref, notes</td></tr>
       <tr><td class="mono">setChargeStatusAction</td><td class="mono">/police/charges/[id]</td><td class="mono">id, status, court_name, court_date</td></tr>
       <tr><td class="mono">recordTransactionAction</td><td class="mono">/police/transactions</td><td class="mono">charge_id, fine_id, tx_type, amount, method, reference, note</td></tr>

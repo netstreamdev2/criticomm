@@ -12,7 +12,7 @@ import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { useSync } from '@/lib/sync';
 import { useFeature } from '@/lib/features';
-import { callView, type CallView } from '@/lib/response';
+import { callView, type CallView, reportPathFor } from '@/lib/response';
 import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { Banner, EmptyState, Segmented } from '@/components/ui';
 import { IncidentSheet } from '@/components/incident-sheet';
@@ -221,12 +221,12 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
 
   const selected = rows.find((r) => r.call.id === selectedId) ?? null;
 
-  const act = async (row: Row) => {
-    const action = row.view.action;
+  const act = async (row: Row, which: 'action' | 'secondary' = 'action') => {
+    const action = which === 'secondary' ? row.view.secondary : row.view.action;
     if (!action || row.view.blocked) return;
     if (action.kind === 'report') {
       setSelectedId(null);
-      router.push(`/report/${row.call.id}`);
+      router.push(reportPathFor(row.call.id, silo) as never);
       return;
     }
     setBusyId(row.call.id);
@@ -411,6 +411,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
           if (params.open) router.setParams({ open: undefined });
         }}
         onAction={() => { if (selected) void act(selected); }}
+        onSecondary={() => { if (selected) void act(selected, 'secondary'); }}
         onOpenFull={() => {
           const id = selectedId;
           setSelectedId(null);

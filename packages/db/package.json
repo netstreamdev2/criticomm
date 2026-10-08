@@ -18,7 +18,11 @@
     "./assets": "./src/assets.ts",
     "./bodycams": "./src/bodycams.ts",
     "./map-layers": "./src/map-layers.ts",
-    "./fire-shift": "./src/fire-shift.ts"
+    "./fire-shift": "./src/fire-shift.ts",
+    "./ems-shift": "./src/ems-shift.ts",
+    "./fines": "./src/fines.ts",
+    "./fine-slip": "./src/fine-slip.ts",
+    "./fire-report": "./src/fire-report.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -4,6 +4,7 @@ import type { IncidentStatus, Silo } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession, siloFilter } from '@/lib/session';
+import { IncidentLive } from '@/components/incident-live';
 import { timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -31,6 +32,8 @@ export default async function IncidentsPage({
 
   return (
     <div className="space-y-4">
+      {/* Status changes from the field re-render the list. */}
+      <IncidentLive />
       <header>
         <h1 className="text-2xl font-bold">All incidents</h1>
         <p className="text-muted-foreground">Every logged call across your visible silos.</p>

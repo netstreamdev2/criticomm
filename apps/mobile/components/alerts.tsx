@@ -8,6 +8,7 @@ import { markAlertRead, subscribeIncidentUpdates } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useNotifications } from '@/lib/notifications';
+import { navigateToIncident } from '@/lib/navigate';
 import { colors, radius, severityColor, space, type, makeStyles } from '@/lib/theme';
 import { Button } from '@/components/ui';
 
@@ -135,6 +136,16 @@ export function AssignmentAlert() {
     else router.push({ pathname: '/(tabs)/incidents', params: { open: current.incident_id } });
   };
 
+  /** Acknowledge, and hand the scene to the phone's map app (the incident if it has no location). */
+  const navigate = () => {
+    const incidentId = current.incident_id;
+    acknowledge(false);
+    if (!incidentId) return;
+    void navigateToIncident(incidentId).then((ok) => {
+      if (!ok) router.push({ pathname: '/(tabs)/incidents', params: { open: incidentId } });
+    });
+  };
+
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => acknowledge(false)}>
       <View style={styles.scrim}>
@@ -194,6 +205,9 @@ export function AssignmentAlert() {
                   size="lg"
                   onPress={() => acknowledge(true)}
                 />
+              ) : null}
+              {current.incident_id && current.kind !== 'sos' ? (
+                <Button label="Navigate" icon="navigate" variant="outline" size="lg" onPress={navigate} />
               ) : null}
               <Button
                 label={open ? 'Dismiss' : 'Acknowledge'}

@@ -4,7 +4,7 @@ import {
   CalendarClock, Bell, Briefcase, GraduationCap, Gauge, FolderClosed, Map, Bot,
   RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network, PlugZap, Activity,
   ToggleRight, Building2, LayoutGrid, Wrench, Timer, Mail, Receipt, Scale, Landmark,
-  ScrollText, FileWarning, Grid3x3, Crosshair, Warehouse, ClipboardList, Video, Film, Cctv,
+  ScrollText, FileWarning, Grid3x3, Crosshair, Warehouse, ClipboardList, Video, Film, Cctv, BookOpen,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -68,7 +68,10 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/police', label: 'Police Operations', icon: ShieldAlert, keywords: 'metro reports firearms armoury security' },
       { href: '/police/armoury', label: 'Armoury', icon: Warehouse, keywords: 'firearms guns weapons register serial booked out import' },
       { href: '/police/bodycams', label: 'Bodycam Register', icon: Video, keywords: 'bodycam body worn camera register serial sim booked out import hikvision' },
-      { href: '/police/fines', label: 'Fines', icon: Receipt, keywords: 'enforcement traffic bylaw ticket offender fn' },
+      { href: '/police/fines', label: 'Fines', icon: Receipt, keywords: 'enforcement traffic bylaw ticket offender fn aarto section 56 341 notice infringement' },
+      { href: '/police/fines/account', label: 'Fines Account', icon: IdCard, keywords: 'fines account statement owing id number registration vehicle payments history' },
+      { href: '/police/fines/payments', label: 'Fine Payments', icon: Landmark, keywords: 'fines payments import receipts bank cashier file reconcile' },
+      { href: '/police/fines/offences', label: 'Charge Book', icon: BookOpen, keywords: 'fines offences charge codes penalty amounts aarto schedule 3 bylaw demerit' },
       { href: '/police/charges', label: 'Charges', icon: Scale, keywords: 'enforcement criminal accused court ch' },
       { href: '/police/transactions', label: 'Charge Transactions', icon: Landmark, keywords: 'enforcement bail payment court fee ledger money' },
       { href: '/police/warrants', label: 'Warrants', icon: FileWarning, keywords: 'enforcement arrest search execute wa' },

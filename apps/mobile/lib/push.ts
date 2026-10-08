@@ -62,6 +62,25 @@ export const PUSH_CHANNELS = {
   alerts: 'alerts',
 } as const;
 
+/**
+ * The buttons under an incident notification: Open, Navigate and Acknowledge,
+ * the same three as the alert on screen. Push messages from the server and
+ * local notifications both carry this category.
+ */
+export const INCIDENT_CATEGORY = 'incident';
+
+async function ensureCategories(N: NotificationsModule): Promise<void> {
+  try {
+    await N.setNotificationCategoryAsync(INCIDENT_CATEGORY, [
+      { identifier: 'open', buttonTitle: 'Open', options: { opensAppToForeground: true } },
+      { identifier: 'navigate', buttonTitle: 'Navigate', options: { opensAppToForeground: true } },
+      { identifier: 'acknowledge', buttonTitle: 'Acknowledge', options: { opensAppToForeground: false } },
+    ]);
+  } catch (e) {
+    console.warn('[criticom] notification buttons unavailable', e);
+  }
+}
+
 async function ensureChannels(N: NotificationsModule): Promise<void> {
   if (Platform.OS !== 'android') return;
   try {
@@ -146,6 +165,7 @@ export async function registerForPush(): Promise<PushRegistration> {
 
   try {
     await ensureChannels(N);
+    await ensureCategories(N);
     installForegroundHandler();
 
     const existing = await N.getPermissionsAsync();
@@ -189,14 +209,19 @@ export type PushPayload = {
   incidentId?: string;
   alertId?: string;
   severity?: string;
+  /** Which button was tapped; undefined for the notification itself. */
+  action?: 'open' | 'navigate' | 'acknowledge';
 };
 
-function payloadOf(data: unknown): PushPayload {
+function payloadOf(data: unknown, actionIdentifier?: string): PushPayload {
   const d = (data ?? {}) as Record<string, unknown>;
+  const action = actionIdentifier === 'open' || actionIdentifier === 'navigate' || actionIdentifier === 'acknowledge'
+    ? actionIdentifier : undefined;
   return {
     incidentId: typeof d.incidentId === 'string' ? d.incidentId : undefined,
     alertId: typeof d.alertId === 'string' ? d.alertId : undefined,
     severity: typeof d.severity === 'string' ? d.severity : undefined,
+    action,
   };
 }
 
@@ -215,13 +240,13 @@ export function onNotificationTap(handler: (payload: PushPayload) => void): () =
 
   try {
     sub = N.addNotificationResponseReceivedListener((response) => {
-      handler(payloadOf(response.notification.request.content.data));
+      handler(payloadOf(response.notification.request.content.data, response.actionIdentifier));
     });
 
     void N.getLastNotificationResponseAsync()
       .then((response) => {
         if (disposed || !response) return;
-        handler(payloadOf(response.notification.request.content.data));
+        handler(payloadOf(response.notification.request.content.data, response.actionIdentifier));
       })
       .catch(() => { /* cold-start replay is best effort */ });
   } catch (e) {
@@ -258,6 +283,8 @@ export async function presentLocal(args: {
         sound: 'default',
         priority: N.AndroidNotificationPriority.MAX,
         data: (args.data ?? {}) as Record<string, unknown>,
+        // An incident notification carries the Open / Navigate / Acknowledge buttons.
+        ...(args.data?.incidentId ? { categoryIdentifier: INCIDENT_CATEGORY } : {}),
       },
       trigger: null,
     });

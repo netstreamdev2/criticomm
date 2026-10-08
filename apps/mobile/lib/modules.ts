@@ -79,6 +79,16 @@ export const MODULES: AppModule[] = [
     tone: 'medium',
   },
   {
+    key: 'fines',
+    title: 'Fines',
+    blurb: 'Issue an AARTO 01 or by-law notice at the roadside and print the slip — works with no signal.',
+    icon: 'receipt-outline',
+    href: '/fines',
+    feature: 'mobile.fines',
+    silo: 'MetroPolice',
+    tone: 'primary',
+  },
+  {
     key: 'assistant',
     title: 'Criti',
     blurb: 'Ask about your incidents, your crew, your shift — scoped to what you can already see.',

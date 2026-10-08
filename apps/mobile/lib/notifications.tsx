@@ -3,7 +3,8 @@ import {
 } from 'react';
 import { AppState, Platform, Vibration } from 'react-native';
 import Constants from 'expo-constants';
-import { registerPushToken, subscribeAlerts, unregisterPushToken, type Alert } from '@criticom/api';
+import { markAlertRead, registerPushToken, subscribeAlerts, unregisterPushToken, type Alert } from '@criticom/api';
+import { navigateToIncident } from '@/lib/navigate';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import {
@@ -245,7 +246,20 @@ export function useNotificationRouting(onOpenIncident: (incidentId: string) => v
   useEffect(() => {
     const off = onNotificationTap((payload: PushPayload) => {
       void clearBadge();
-      if (payload.incidentId) onOpenIncident(payload.incidentId);
+      // Acknowledge: recorded without opening anything.
+      if (payload.action === 'acknowledge') {
+        if (payload.alertId) void markAlertRead(getSupabase(), payload.alertId, { acknowledged: true }).catch(() => {});
+        return;
+      }
+      if (!payload.incidentId) return;
+      const incidentId = payload.incidentId;
+      // Navigate: straight to the phone's map app; the incident if it has no location.
+      if (payload.action === 'navigate') {
+        if (payload.alertId) void markAlertRead(getSupabase(), payload.alertId, { acknowledged: true }).catch(() => {});
+        void navigateToIncident(incidentId).then((ok) => { if (!ok) onOpenIncident(incidentId); });
+        return;
+      }
+      onOpenIncident(incidentId);
     });
     return off;
   }, [onOpenIncident]);

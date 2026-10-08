@@ -89,6 +89,11 @@ export const FEATURES: FeatureDef[] = [
     defaultEnabled: true,
   },
   {
+    key: 'mobile.fines', surface: 'mobile', label: 'Fines on the phone',
+    description: 'Off: officers cannot issue fines from the app and the Fines card leaves the home screen. Notices already queued still send; the console register is unaffected.',
+    defaultEnabled: true,
+  },
+  {
     key: 'mobile.panic', surface: 'mobile', label: 'Officer-down (SOS)',
     description: 'Off: the SOS button is removed from every screen. Only turn this off for a tenant that has its own duress system.',
     defaultEnabled: true,

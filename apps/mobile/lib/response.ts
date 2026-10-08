@@ -6,7 +6,9 @@ import type { IncidentStatus } from '@criticom/db/types';
  * A police call is closed by its case report, not by a status: the lead
  * goes En Route (responding), On Scene, then files the report — the server
  * resolves the call when the report lands (migration 0039) and refuses a bare
- * "Resolved" from the field. Other services keep the full ladder.
+ * "Resolved" from the field. A firefighter works the same way with the fire
+ * report (migration 0059), and may mark Transporting on the way. Other
+ * services keep the full ladder.
  */
 
 /** Photos per case file; the server enforces the same number. */
@@ -27,6 +29,22 @@ export type NextStep =
   | { kind: 'report'; label: string }
   | null;
 
+/** A firefighter works a call with the fire report, whatever department owns it. */
+export function isFireResponder(silo: string | null | undefined) {
+  return silo === 'MetroFire';
+}
+
+/** Where the lead files the report that closes the call. */
+export function reportPathFor(incidentId: string, meSilo: string | null | undefined) {
+  return isFireResponder(meSilo) ? `/fire-report/${incidentId}` : `/report/${incidentId}`;
+}
+
+const FIRE_LADDER: Partial<Record<IncidentStatus, IncidentStatus>> = {
+  Dispatched: 'En Route',
+  'En Route': 'On Scene',
+  Arrived: 'On Scene',
+};
+
 const POLICE_LADDER: Partial<Record<IncidentStatus, IncidentStatus>> = {
   Dispatched: 'En Route',
   'En Route': 'On Scene',
@@ -42,8 +60,14 @@ const LADDER: Partial<Record<IncidentStatus, IncidentStatus>> = {
 };
 
 /** The one action the crew takes next on this call, if any. */
-export function nextStep(call: CallLike, status: IncidentStatus): NextStep {
+export function nextStep(call: CallLike, status: IncidentStatus, meSilo?: string): NextStep {
   if (status === 'Resolved' || status === 'Closed') return null;
+  if (isFireResponder(meSilo)) {
+    if (call.report_filed_at) return null;
+    if (status === 'On Scene' || status === 'Transporting') return { kind: 'report', label: 'File fire report' };
+    const to = FIRE_LADDER[status];
+    return to ? { kind: 'status', status: to, label: to === 'En Route' ? 'Accept · Mark En Route' : 'Mark On Scene' } : null;
+  }
   if (isPoliceCall(call)) {
     if (call.report_filed_at) return null;
     if (status === 'On Scene' || status === 'Transporting') {
@@ -54,6 +78,15 @@ export function nextStep(call: CallLike, status: IncidentStatus): NextStep {
   }
   const to = LADDER[status];
   return to ? { kind: 'status', status: to, label: `Mark ${to}` } : null;
+}
+
+/**
+ * The optional step beside the main one: a firefighter on scene may mark
+ * Transporting (casualties to hospital, the appliance moving) before filing.
+ */
+export function secondaryStep(call: CallLike, status: IncidentStatus, meSilo?: string): NextStep {
+  if (!isFireResponder(meSilo) || call.report_filed_at) return null;
+  return status === 'On Scene' ? { kind: 'status', status: 'Transporting', label: 'Mark Transporting' } : null;
 }
 
 /** Statuses before a call has been sent out to anyone. */
@@ -100,6 +133,8 @@ export type CallView = {
   backups: Responder[];
   /** The one thing I can do next, if anything. */
   action: CallAction | null;
+  /** An optional step beside it (a firefighter on scene: Mark Transporting). */
+  secondary: CallAction | null;
   /** Why the action cannot be taken right now (shown, button disabled). */
   blocked: string | null;
   /** Why there is no action at all, when that is worth saying. */
@@ -149,7 +184,7 @@ export function callView(
         : { kind: 'open' };
 
   const ownSos = call.source === 'Responder-Panic' && call.created_by === me.userId;
-  const view: CallView = { role, myStatus, assignment, lead, backups, action: null, blocked: null, note: null, ownSos };
+  const view: CallView = { role, myStatus, assignment, lead, backups, action: null, secondary: null, blocked: null, note: null, ownSos };
   if (call.status === 'Resolved' || call.status === 'Closed') return view;
   // The officer in trouble never responds to their own SOS (migration 0044).
   if (ownSos) {
@@ -158,13 +193,15 @@ export function callView(
   }
 
   if (role === 'lead' && myStatus) {
-    const step = nextStep(call, myStatus);
-    view.action = step;
+    view.action = nextStep(call, myStatus, me.silo);
+    view.secondary = secondaryStep(call, myStatus, me.silo);
     return view;
   }
   if (role === 'backup') {
     if (myStatus === 'En Route') view.action = { kind: 'status', status: 'On Scene', label: 'Mark On Scene' };
-    else view.note = 'You are backup on this incident — the lead officer files the report.';
+    else view.note = isFireResponder(me.silo)
+      ? 'You are backup on this incident — the lead firefighter files the fire report.'
+      : 'You are backup on this incident — the lead officer files the report.';
     return view;
   }
 

@@ -2,6 +2,7 @@ import type { CriticomClient, Database, Silo } from '@criticom/db';
 import type { MentalCheckInput, VehicleChecklistInput } from '@criticom/db/schemas';
 
 export * from './fire';
+export * from './ems';
 
 /** ShiftController.HasCompletedShiftStartTodayAsync */
 export async function hasCompletedShiftStartToday(client: CriticomClient) {

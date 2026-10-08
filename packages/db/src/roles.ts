@@ -324,6 +324,37 @@ export function canWatchBodycam(
   return camSilo === me.silo || (me.silo === 'Ethekwini' && camSilo === 'MetroPolice');
 }
 
+/* ── Fines (0057) ──────────────────────────────────────────────────── */
+
+/** Who serves notices: Metro Police officers, supervisors and captains. Mirrors can_issue_fines(). */
+export const FINE_ISSUER_ROLES: UserRole[] = ['Police', 'Captain', 'Supervisor'];
+
+/** Who sees every fine and runs the register (cancel, representations, payments). Mirrors can_view_all_fines(). */
+export const FINE_COMMAND_ROLES: UserRole[] = [
+  'Captain', 'Supervisor', 'Admin', 'SystemAdmin', 'SuperAdmin', 'SystemController',
+];
+
+/** These see their own department's fines; the rest see the tenant's. */
+const FINE_DEPARTMENT_ROLES: UserRole[] = ['Captain', 'Supervisor', 'Admin'];
+
+const policeSide = (silo: Silo) => silo === 'MetroPolice' || silo === 'Ethekwini';
+
+export function canIssueFines(me: { role: UserRole; silo: Silo }): boolean {
+  return FINE_ISSUER_ROLES.includes(me.role) && policeSide(me.silo);
+}
+
+/** Whether `me` sees every Metro Police fine (not just their own). The database has the final word. */
+export function canViewAllFines(me: { role: UserRole; silo: Silo }): boolean {
+  if (!FINE_COMMAND_ROLES.includes(me.role)) return false;
+  return !FINE_DEPARTMENT_ROLES.includes(me.role) || policeSide(me.silo);
+}
+
+/** Who keeps the charge book (codes, amounts, verification). Mirrors can_manage_fine_offences(). */
+export function canManageFineOffences(me: { role: UserRole; silo: Silo }): boolean {
+  if (['SystemAdmin', 'SuperAdmin', 'SystemController'].includes(me.role)) return true;
+  return me.role === 'Admin' && policeSide(me.silo);
+}
+
 type RouteRule = {
   /** Route prefix, longest match wins. */
   prefix: string;
@@ -360,6 +391,13 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/police/armoury', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
   // So is the bodycam register (0054).
   { prefix: '/police/bodycams', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
+  // Fines (0057): officers see their own, command staff the register; the
+  // charge book is read by command staff and kept by the admin tier.
+  { prefix: '/police/fines/offences', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
+  // A person's account and the payments import (0058): command staff.
+  { prefix: '/police/fines/account', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
+  { prefix: '/police/fines/payments', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
+  { prefix: '/police/fines', roles: [...FINE_ISSUER_ROLES, ...ADMIN_ROLES], silo: 'MetroPolice' },
   { prefix: '/police',       roles: [...POLICE_ROLES, ...ADMIN_ROLES], silo: 'MetroPolice' },
   { prefix: '/fire',         roles: [...FIRE_ROLES, ...ADMIN_ROLES], silo: 'MetroFire' },
   { prefix: '/medical',      roles: [...MEDICAL_ROLES, ...ADMIN_ROLES], silo: 'Medical' },

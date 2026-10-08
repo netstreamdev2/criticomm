@@ -2,16 +2,25 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { colors, makeStyles, radius, space, useTheme } from '@/lib/theme';
 
-export const FIRE_ORANGE = '#f97316';
-export const FIRE_PHOTO = require('../assets/fire-rescue.jpg');
+/**
+ * Fire looks like every other department: the same backdrop, colours and
+ * elements as the Police app, with Fire's own content. Only the words and
+ * icons say Fire & Rescue.
+ */
 
-/** The original MVC firefighter photograph, bundled for offline use. */
+/** The home backdrop the Police app uses: earth at night in dark mode, plain in light. */
 export function FireBackdrop() {
   const { isDark } = useTheme();
+  if (!isDark) return null;
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Image source={FIRE_PHOTO} resizeMode="cover" style={[StyleSheet.absoluteFillObject, { width: '100%', height: '100%', opacity: isDark ? 0.3 : 0.09 }]} />
-      <View style={[StyleSheet.absoluteFillObject, { backgroundColor: isDark ? 'rgba(9,12,19,0.58)' : 'rgba(255,250,245,0.68)' }]} />
+      <Image
+        source={require('../assets/shift-earth-network-portrait.png')}
+        resizeMode="cover"
+        style={StyleSheet.absoluteFillObject}
+        accessibilityIgnoresInvertColors
+      />
+      <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(5,5,16,0.55)' }]} />
     </View>
   );
 }
@@ -60,9 +69,9 @@ export function FireCheck({ label, hint, value, onChange, disabled, invalid }: {
 }
 
 const useStyles = makeStyles(() => StyleSheet.create({
-  button: { minHeight: 54, padding: space.md, borderRadius: radius.md, backgroundColor: '#c2410c', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
-  secondary: { backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: colors.borderStrong },
-  buttonText: { fontSize: 15, fontWeight: '800', textAlign: 'center', flexShrink: 1 },
+  button: { minHeight: 52, paddingHorizontal: space.lg, paddingVertical: space.md, borderRadius: radius.md, backgroundColor: colors.accent, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  secondary: { backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: colors.border },
+  buttonText: { fontSize: 15, fontWeight: '700', textAlign: 'center', flexShrink: 1 },
   check: { paddingVertical: space.md, borderBottomWidth: 1, borderColor: colors.border, gap: 6 },
   label: { color: colors.text, fontSize: 15, lineHeight: 22, fontWeight: '700' },
   hint: { color: colors.textDim, fontSize: 12, lineHeight: 18 },

@@ -5,7 +5,7 @@ import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import * as FileSystem from 'expo-file-system';
 import {
-  addIncidentUpdate, fileIncidentReport, raisePanic, toggleDuty, updateResponderStatus,
+  addIncidentUpdate, fileFireReport, fileIncidentReport, issueFines, raisePanic, toggleDuty, updateResponderStatus,
   uploadIncidentEvidence,
 } from '@criticom/api';
 import type { CriticomClient, IncidentStatus } from '@criticom/db';
@@ -217,6 +217,35 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
       created_at: entry.occurredAt,
     });
     if (error && error.code !== '23505') throw error;
+  },
+
+  /**
+   * Idempotent through the entry id, which issue_fines() (0057) takes as the
+   * notice's client reference: replaying a notice that already landed returns
+   * the fines on file instead of numbering it twice. The served time is when
+   * the officer pressed Issue, not when the phone found signal. A refusal
+   * (P0001: an invalid ID number, a missing signature) is permanent and is
+   * parked in the sync tray with the reason.
+   */
+  /**
+   * Idempotent on the server: file_fire_report() (0059) returns the report
+   * already filed when the incident is closed by an earlier delivery.
+   */
+  fire_report: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'fire_report' }>;
+    await fileFireReport(client, { incidentId: op.incidentId, fields: op.fields });
+  },
+
+  issue_fine: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'issue_fine' }>;
+    await issueFines(client, {
+      notice: op.notice,
+      charges: op.charges.map((c) => ({
+        offence_id: c.offence_id ?? null, description: c.description, amount: c.amount, code: c.code ?? undefined,
+      })),
+      clientRef: asUuid(entry.id),
+      occurredAt: entry.occurredAt,
+    });
   },
 };
 

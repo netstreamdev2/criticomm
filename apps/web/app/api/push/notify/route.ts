@@ -35,6 +35,8 @@ type PushMessage = {
   sound: 'default';
   priority: 'high';
   channelId: string;
+  /** The phone's Open / Navigate / Acknowledge buttons (apps/mobile/lib/push.ts). */
+  categoryId: string;
   data: Record<string, unknown>;
 };
 
@@ -117,6 +119,7 @@ export async function POST(req: Request) {
     sound: 'default',
     priority: 'high',
     channelId: 'dispatch',
+    categoryId: 'incident',
     data: { incidentId, severity: incident.incident_severity },
   }));
 

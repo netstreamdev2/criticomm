@@ -332,7 +332,10 @@ export async function getShiftBoard(client: CriticomClient, opts: { silo?: Silo;
       passed: !!(v.lights_functional && v.tires_condition_ok && v.equipment_stocked && v.comms_working && v.brakes_responsive
         && (v.silo !== 'MetroFire' || (v.form_version === 'fire-v1' && v.declaration_accepted
           && v.scba_checked && v.water_tank_full && v.pump_operational
-          && v.hoses_and_nozzles_stocked && v.ladders_secured && v.turnout_gear_complete))),
+          && v.hoses_and_nozzles_stocked && v.ladders_secured && v.turnout_gear_complete))
+        && (v.silo !== 'Medical' || (v.form_version === 'ems-v1' && v.declaration_accepted && v.requires_cleaning === false
+          && v.oxygen_full && v.aed_battery_ok && v.suction_functional && v.bvm_masks_ok
+          && v.jump_bag_stocked && v.iv_fluids_stocked && v.drug_box_sealed && v.gloves_ppe_stocked))),
     })),
     noFirearm: noFirearm.map((n) => ({ user_id: n.user_id, reason: n.reason, created_at: n.created_at })),
     firearmsOut: firearmsOut.map((f) => ({ id: f.id, serial_number: f.serial_number, make: f.make, model: f.model, issued_to: f.issued_to, issued_at: f.issued_at })),

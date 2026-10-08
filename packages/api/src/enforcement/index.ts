@@ -1,4 +1,4 @@
-import type { CriticomClient, Database } from '@criticom/db';
+import type { CriticomClient, Database, OwingCheck } from '@criticom/db';
 
 /**
  * The enforcement suite (migration 0033): fines, charges, the transactions
@@ -6,8 +6,8 @@ import type { CriticomClient, Database } from '@criticom/db';
  * paperwork with per-tenant document numbers (FN-/CH-/WA-/SM-) that never
  * reset, because a fine number gets quoted in court months later.
  *
- * Who may write is RLS's decision (police roles within their silo, plus the
- * global tier); nothing here re-implements it.
+ * Fines are served through issue_fines() (0057); for the rest, who may write
+ * is RLS's decision. Nothing here re-implements either.
  */
 
 export type Fine = Database['public']['Tables']['fines']['Row'];
@@ -41,68 +41,250 @@ export async function listFirearmChecklists(
   return data ?? [];
 }
 
-/* ── Fines ────────────────────────────────────────────────────────────── */
+/* ── Fines (0057) ─────────────────────────────────────────────────────── */
+// Served through issue_fines() and changed only through cancel_fine(),
+// set_fine_status() and the payment ledger: a fine is a legal document. RLS
+// shows an officer their own fines and command staff the whole register.
 
-export async function listFines(
-  client: CriticomClient,
-  args: { status?: Fine['status']; limit?: number } = {},
-): Promise<Fine[]> {
-  let q = client.from('fines').select('*').order('issued_at', { ascending: false }).limit(args.limit ?? 200);
+export type FineOffence = Database['public']['Tables']['fine_offences']['Row'];
+
+export type FineFilters = {
+  status?: Fine['status'];
+  noticeType?: Fine['notice_type'];
+  /** Only this officer's fines (the phone, "mine" on the console). */
+  issuedBy?: string;
+  /** Inclusive dates, YYYY-MM-DD, by the day the notice was served. */
+  from?: string;
+  to?: string;
+  /** A fine or notice number, registration, ID number or name. */
+  search?: string;
+  /** Exactly this ID number or registration: one person's or one vehicle's account. */
+  idNumber?: string;
+  vehicleReg?: string;
+  /** Open and past the pay-by date (0058). */
+  overdue?: boolean;
+  limit?: number;
+};
+
+/** Characters that would change a PostgREST or() filter, stripped from a search. */
+const cleanSearch = (q: string) => q.replace(/[,()*%\\:]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+
+export async function listFines(client: CriticomClient, args: FineFilters = {}): Promise<Fine[]> {
+  let q = client.from('fines').select('*').order('issued_at', { ascending: false }).limit(args.limit ?? 500);
   if (args.status) q = q.eq('status', args.status);
+  if (args.noticeType) q = q.eq('notice_type', args.noticeType);
+  if (args.issuedBy) q = q.eq('issued_by', args.issuedBy);
+  // Days are South African days: every notice is served in Durban.
+  if (args.from) q = q.gte('issued_at', `${args.from}T00:00:00+02:00`);
+  if (args.to) q = q.lte('issued_at', `${args.to}T23:59:59.999+02:00`);
+  if (args.idNumber) q = q.eq('offender_id_number', args.idNumber.replace(/s/g, '').toUpperCase());
+  if (args.vehicleReg) q = q.eq('vehicle_reg', args.vehicleReg.toUpperCase().replace(/[^A-Z0-9]/g, ''));
+  if (args.overdue) {
+    // South African today: the pay-by date is a Durban date.
+    const today = new Date(Date.now() + 2 * 3600_000).toISOString().slice(0, 10);
+    q = q.in('status', ['Unpaid', 'Partially Paid']).lt('due_date', today);
+  }
+  const term = args.search ? cleanSearch(args.search) : '';
+  if (term) {
+    const reg = term.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const like = `%${term}%`;
+    q = q.or([
+      `fine_number.ilike.${like}`, `notice_number.ilike.${like}`, `offender_name.ilike.${like}`,
+      `offender_id_number.ilike.${like}`, `offence_description.ilike.${like}`, `issued_by_name.ilike.${like}`,
+      ...(reg ? [`vehicle_reg.ilike.%${reg}%`] : []),
+    ].join(','));
+  }
   const { data, error } = await q;
   if (error) throw error;
   return data ?? [];
 }
 
-export async function issueFine(
-  client: CriticomClient,
-  args: {
-    offenderName: string;
-    offenderIdNumber?: string;
-    vehicleReg?: string;
-    offenceCode?: string;
-    offenceDescription: string;
-    amount: number;
-    location?: string;
-    dueDate?: string;
-    incidentId?: string;
-    issuedBy?: string;
-    issuedByName?: string;
-    notes?: string;
-  },
-): Promise<Fine> {
-  if (!args.offenderName.trim()) throw new Error('The offender name is required.');
-  if (!args.offenceDescription.trim()) throw new Error('The offence description is required.');
-  if (!Number.isFinite(args.amount) || args.amount < 0) throw new Error('The amount must be zero or more.');
-  const fineNumber = await nextNumber(client, 'FN');
-  const { data, error } = await client
-    .from('fines')
-    .insert({
-      fine_number: fineNumber,
-      offender_name: args.offenderName.trim(),
-      offender_id_number: args.offenderIdNumber?.trim() || null,
-      vehicle_reg: args.vehicleReg?.trim().toUpperCase() || null,
-      offence_code: args.offenceCode?.trim() || null,
-      offence_description: args.offenceDescription.trim(),
-      amount: args.amount,
-      location: args.location?.trim() || null,
-      due_date: args.dueDate || null,
-      incident_id: args.incidentId || null,
-      issued_by: args.issuedBy || null,
-      issued_by_name: args.issuedByName || null,
-      notes: args.notes?.trim() || null,
-    })
-    .select()
-    .single();
+export async function getFine(client: CriticomClient, id: string): Promise<Fine | null> {
+  const { data, error } = await client.from('fines').select('*').eq('id', id).maybeSingle();
   if (error) throw error;
   return data;
 }
 
+/** Every charge served on the same notice as `fine` (itself included), in order. */
+export async function listNoticeCharges(client: CriticomClient, fine: Fine): Promise<Fine[]> {
+  if (!fine.group_ref) return [fine];
+  const { data, error } = await client
+    .from('fines').select('*').eq('group_ref', fine.group_ref).order('charge_seq');
+  if (error) throw error;
+  return data?.length ? data : [fine];
+}
+
+/** The charges the phone filed under one client reference, once delivered. */
+export async function listFinesByRef(client: CriticomClient, clientRef: string): Promise<Fine[]> {
+  const { data, error } = await client
+    .from('fines').select('*').eq('group_ref', clientRef).order('charge_seq');
+  if (error) throw error;
+  return data ?? [];
+}
+
+export type FineChargeInput = {
+  offence_id?: string | null;
+  description?: string;
+  amount?: number | null;
+  code?: string;
+  notice_number?: string;
+};
+
+/**
+ * Serve a notice: one to three charges, each its own FN- number. Idempotent
+ * on `clientRef`, so the phone's outbox can retry it safely after a dead zone.
+ */
+export async function issueFines(
+  client: CriticomClient,
+  args: {
+    notice: Record<string, unknown>;
+    charges: FineChargeInput[];
+    clientRef: string;
+    occurredAt?: string;
+  },
+): Promise<Fine[]> {
+  const { data, error } = await client.rpc('issue_fines', {
+    p_notice: args.notice,
+    p_charges: args.charges,
+    p_client_ref: args.clientRef,
+    p_occurred_at: args.occurredAt ?? new Date().toISOString(),
+  });
+  if (error) throw error;
+  return (data ?? []) as Fine[];
+}
+
+export async function cancelFine(client: CriticomClient, args: { id: string; reason: string }): Promise<void> {
+  const { error } = await client.rpc('cancel_fine', { p_id: args.id, p_reason: args.reason });
+  if (error) throw error;
+}
+
+/** Representation lodged (Disputed) or decided against the infringer (Unpaid). */
 export async function setFineStatus(
   client: CriticomClient,
-  args: { id: string; status: Fine['status'] },
+  args: { id: string; status: 'Disputed' | 'Unpaid'; note?: string },
 ): Promise<void> {
-  const { error } = await client.from('fines').update({ status: args.status }).eq('id', args.id);
+  const { error } = await client.rpc('set_fine_status', { p_id: args.id, p_status: args.status, p_note: args.note ?? null });
+  if (error) throw error;
+}
+
+export async function setFineNoticeNumber(client: CriticomClient, args: { id: string; number: string }): Promise<void> {
+  const { error } = await client.rpc('set_fine_notice_number', { p_id: args.id, p_number: args.number });
+  if (error) throw error;
+}
+
+/** Rand paid against each fine (payments and adjustments, less refunds). */
+export async function paidByFine(client: CriticomClient, fineIds: string[]): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  // Chunked: a long register would otherwise overflow the URL.
+  for (let i = 0; i < fineIds.length; i += 150) {
+    const { data, error } = await client
+      .from('charge_transactions').select('fine_id, tx_type, amount').in('fine_id', fineIds.slice(i, i + 150));
+    if (error) throw error;
+    for (const t of data ?? []) {
+      if (!t.fine_id) continue;
+      const sign = t.tx_type === 'Refund' ? -1 : t.tx_type === 'Payment' || t.tx_type === 'Adjustment' ? 1 : 0;
+      out.set(t.fine_id, (out.get(t.fine_id) ?? 0) + sign * Number(t.amount));
+    }
+  }
+  return out;
+}
+
+/** Every ledger entry against these fines, newest first (chunked for long accounts). */
+export async function listFineTransactions(client: CriticomClient, fineIds: string[]): Promise<ChargeTransaction[]> {
+  const out: ChargeTransaction[] = [];
+  for (let i = 0; i < fineIds.length; i += 150) {
+    const { data, error } = await client
+      .from('charge_transactions').select('*').in('fine_id', fineIds.slice(i, i + 150));
+    if (error) throw error;
+    out.push(...(data ?? []));
+  }
+  return out.sort((a, b) => (b.paid_on ?? b.recorded_at).localeCompare(a.paid_on ?? a.recorded_at));
+}
+
+/**
+ * What a person (ID number) or vehicle (registration) owes on the register —
+ * a summary for the roadside, every look-up audited (0058).
+ */
+export async function checkFinesOwing(
+  client: CriticomClient,
+  args: { idNumber?: string; vehicleReg?: string },
+): Promise<OwingCheck> {
+  const { data, error } = await client.rpc('check_fines_owing', {
+    p_id_number: args.idNumber?.trim() || null,
+    p_vehicle_reg: args.vehicleReg?.trim() || null,
+  });
+  if (error) throw error;
+  return data as unknown as OwingCheck;
+}
+
+export type PaymentImportResult = {
+  recorded: number;
+  total: number;
+  rows: Array<{
+    line: number | null; reference: string | null; receipt: string | null; amount: number | null;
+    outcome: string; fine_id: string | null; fine_number: string | null; status: Fine['status'] | null;
+  }>;
+};
+
+/** Record payments from a file; a receipt already on a fine is skipped, so a file can be re-run (0058). */
+export async function importFinePayments(
+  client: CriticomClient,
+  args: { rows: Array<{ line: number; reference: string; amount: number; paid_on: string; receipt: string; method: string; note?: string }>; fileName?: string; fileSha256?: string },
+): Promise<PaymentImportResult> {
+  const { data, error } = await client.rpc('import_fine_payments', {
+    p_rows: args.rows,
+    p_file_name: args.fileName ?? null,
+    p_file_sha256: args.fileSha256 ?? null,
+  });
+  if (error) throw error;
+  return data as unknown as PaymentImportResult;
+}
+
+/* ── The charge book ──────────────────────────────────────────────────── */
+
+export async function listFineOffences(
+  client: CriticomClient,
+  args: { activeOnly?: boolean } = {},
+): Promise<FineOffence[]> {
+  let q = client.from('fine_offences').select('*').order('regime').order('description');
+  if (args.activeOnly) q = q.eq('active', true);
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function saveFineOffence(
+  client: CriticomClient,
+  args: {
+    id?: string;
+    regime: FineOffence['regime'];
+    code?: string | null;
+    description: string;
+    legalRef?: string | null;
+    penaltyAmount?: number | null;
+    demeritPoints?: number;
+    active?: boolean;
+    verified?: boolean;
+  },
+): Promise<void> {
+  if (args.description.trim().length < 3) throw new Error('Describe the offence.');
+  if (args.penaltyAmount !== null && args.penaltyAmount !== undefined
+    && (!Number.isFinite(args.penaltyAmount) || args.penaltyAmount < 0)) {
+    throw new Error('The penalty must be zero or more.');
+  }
+  const row = {
+    regime: args.regime,
+    code: args.code?.trim().toUpperCase() || null,
+    description: args.description.trim(),
+    legal_ref: args.legalRef?.trim() || null,
+    penalty_amount: args.penaltyAmount ?? null,
+    demerit_points: Math.max(0, Math.min(6, Math.round(args.demeritPoints ?? 0))),
+    active: args.active ?? true,
+    verified: args.verified ?? false,
+  };
+  const { error } = args.id
+    ? await client.from('fine_offences').update(row).eq('id', args.id)
+    : await client.from('fine_offences').insert(row);
   if (error) throw error;
 }
 
@@ -211,6 +393,8 @@ export async function recordTransaction(
     recordedBy?: string;
     recordedName?: string;
     note?: string;
+    /** The date on the receipt (fine payments, 0058); today when absent. */
+    paidOn?: string;
   },
 ): Promise<void> {
   if (!args.chargeId && !args.fineId) {
@@ -227,6 +411,7 @@ export async function recordTransaction(
     recorded_by: args.recordedBy || null,
     recorded_name: args.recordedName || null,
     note: args.note?.trim() || null,
+    ...(args.paidOn ? { paid_on: args.paidOn } : {}),
   });
   if (error) throw error;
 }

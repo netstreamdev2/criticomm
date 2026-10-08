@@ -19,11 +19,18 @@ overlays, and appliance crew membership are not expanded here.
 
 ## What the firefighter sees
 
-- A Fire & Rescue home with the original MVC `fire1.jpg` photograph bundled as
-  `apps/mobile/assets/fire-rescue.jpg`, ember accents, and light/dark support.
+- A Fire & Rescue home that looks like the Police home: the same earth-at-night
+  backdrop in dark mode (plain in light mode), panels, blue accent and
+  Real-Time Incident Map card. It carries Fire's own content: the station,
+  the crew on duty, the connection status, the assigned appliance, and
+  schedule and shift-record shortcuts. Fire has no fines.
+  (Changed 2026-10-07, look only: the `fire-rescue.jpg` photograph and orange
+  accents were removed. See "One look, every department" in
+  `07-ENGINEERING-STANDARDS.md`.)
 - The existing shared home header, incident totals, My Incidents, My Performance,
-  and incident map, plus their assigned appliance, duty/connectivity status,
-  department on-duty count, schedule and shift-record shortcuts.
+  and incident map.
+- The start of shift uses the shared step indicator, cards and buttons on a
+  plain background, like the Police start of shift.
 - Five stages: welcome → six readiness questions → available Fire appliance →
   fuel and 11 checks → review, declaration and finger signature.
 - A saved record with server reference, inspector, appliance, fuel and SAST filing
@@ -34,6 +41,45 @@ brakes, SCBA, water tank, pump, hoses/nozzles, ladders and turnout gear/PPE.
 Every answer starts blank. A No answer is retained; it cannot be converted into
 a pass by ticking the declaration. Low fuel is recorded and highlighted without
 inventing a new fuel threshold that V4 did not have.
+
+## The incident flow (migration 0059, 2026-10-07)
+
+Run `supabase/migrations/0059_fire_incident_flow.sql` after 0058.
+
+**On the phone (firefighter):**
+1. The alert arrives with **Acknowledge & open**, **Navigate** (the phone's map app with directions) and Acknowledge. The notification has the same three buttons. This applies to Police too.
+2. **Accept · Mark En Route**, then **Mark On Scene**.
+3. On scene, the main button is **File fire report**, with **Mark Transporting** beside it for when the appliance or a casualty is moving. A Fire incident is never closed with a bare "Resolved". The server refuses it from the field, as it does for Police.
+4. The **fire report** (`/fire-report/[id]`) uses our UI with the sections of the V4 FirefighterReport:
+   - Incident details, and a Response timeline auto-synced from the incident.
+   - Narrative, Conditions, Actions & rescue, Support operations.
+   - Origin & cause, Property & damage, Casualties, Debrief, Photos.
+
+   The draft is kept on the phone, and filing works offline through the outbox.
+
+   Required: incident type, a summary of at least 20 characters, a cause (default "Under investigation"), details for any injuries or fatalities, and either photos on the incident or a reason there are none.
+5. `file_fire_report()` then does the rest in one transaction:
+   - checks that the firefighter leads the incident and is on scene;
+   - files the report on `firefighter_reports`, as `FR-<incident number>`;
+   - works out the dispatch, arrival and time-on-scene figures from the incident's own timestamps;
+   - resolves the incident and writes the timeline and audit trail;
+   - tells dispatch and command.
+
+   A retry from the outbox returns the report already filed.
+
+**On the console (dispatch, command, case managers):**
+- The **incident page** updates live as the crew moves. A strip shows Dispatched → En Route → On Scene → Transporting → Resolved with the times, and Transporting is in the history. Once the incident resolves, the **fire report** shows on the same page.
+- **Fire & Rescue** (`/fire`) shows live counts (waiting, en route, on scene, transporting, reports filed today) and the live Fire incidents with each crew's status. Its recent reports link to their incidents.
+- **All incidents** (`/incidents`) refreshes itself too.
+
+**Who reads a fire report:**
+- Fire and the tenant-wide tier, as before.
+- Now also everyone who worked the incident, and case managers.
+- A report filed against an incident is permanent. Only a supervisor's review stamp may be added afterwards.
+
+**Not covered:** on a call shared with Police, the lead files their own department's report and closes the incident. A firefighter there as backup does not file a separate fire report.
+
+**Verified:** 21 database checks on 0059, unit tests for the report spec (`packages/db/src/fire-report.test.ts`) and the Fire ladder (`apps/mobile/lib/response.test.ts`), and typecheck and lint on web, mobile and the packages. Not yet seen on a phone against the real database.
 
 ## Records and enforcement
 

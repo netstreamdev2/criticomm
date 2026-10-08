@@ -162,3 +162,38 @@ test('my own SOS: no Responding, just the reassurance', () => {
   // Anyone else it was sent to can respond as usual.
   assert.equal(callView({ ...sos, created_by: 'someone-else' }, me).action?.kind, 'respond');
 });
+
+/* ── Fire (0059): closed by the fire report, Transporting on the way ──── */
+
+import { reportPathFor, secondaryStep } from './response.ts';
+
+test('a firefighter accepts, arrives, may mark Transporting, and closes with the fire report', () => {
+  const fire = { silo: 'MetroFire' };
+  assert.deepEqual(nextStep(fire, 'Dispatched', 'MetroFire'), { kind: 'status', status: 'En Route', label: 'Accept · Mark En Route' });
+  assert.deepEqual(nextStep(fire, 'En Route', 'MetroFire'), { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.deepEqual(nextStep(fire, 'On Scene', 'MetroFire'), { kind: 'report', label: 'File fire report' });
+  assert.deepEqual(nextStep(fire, 'Transporting', 'MetroFire'), { kind: 'report', label: 'File fire report' });
+  assert.deepEqual(secondaryStep(fire, 'On Scene', 'MetroFire'), { kind: 'status', status: 'Transporting', label: 'Mark Transporting' });
+  assert.equal(secondaryStep(fire, 'Transporting', 'MetroFire'), null, 'transporting once is enough');
+  assert.equal(nextStep({ ...fire, report_filed_at: '2026-10-07T10:00:00Z' }, 'On Scene', 'MetroFire'), null);
+  assert.equal(nextStep(fire, 'Resolved', 'MetroFire'), null);
+  for (const s of ['Dispatched', 'En Route', 'On Scene', 'Transporting'] as const) {
+    const step = nextStep(fire, s, 'MetroFire');
+    assert.ok(!(step?.kind === 'status' && step.status === 'Resolved'), `no bare Resolved from ${s}`);
+  }
+});
+
+test('the police ladder has no Transporting step and is unchanged for police', () => {
+  assert.equal(secondaryStep({ silo: 'MetroPolice' }, 'On Scene', 'MetroPolice'), null);
+  assert.equal(nextStep({ silo: 'MetroPolice' }, 'On Scene', 'MetroPolice')?.label, 'File incident report');
+});
+
+test('the lead files the report for their own department', () => {
+  assert.equal(reportPathFor('i1', 'MetroFire'), '/fire-report/i1');
+  assert.equal(reportPathFor('i1', 'MetroPolice'), '/report/i1');
+  // A firefighter leading a call routed to both departments files the fire report.
+  const both = { id: 'i1', silo: 'Ethekwini', dispatched_silos: ['MetroPolice', 'MetroFire'], status: 'On Scene' as const, accepted_by: 'f1' };
+  const view = callView(both, { userId: 'f1', silo: 'MetroFire', onDuty: true });
+  assert.equal(view.action?.label, 'File fire report');
+  assert.equal(view.secondary?.label, 'Mark Transporting');
+});

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FileText, Lock } from 'lucide-react';
 import {
-  featureEnabled, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listBookedOutBodycams,
+  featureEnabled, getFireReportForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listBookedOutBodycams,
   listIncidentAttachments, listIncidentMapZones, listIncidentResponders, searchBodycamBookings, signIncidentMedia,
   type IncidentResponder,
 } from '@criticom/api';
@@ -14,6 +14,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { PoliceReportCard } from './report-card';
+import { FireReportCard } from './fire-report-card';
+import { IncidentLive } from '@/components/incident-live';
 import { IncidentZonesCard } from './zones-card';
 import { IncidentBodycamsCard, type IncidentBodycamPerson } from './bodycams-card';
 import {
@@ -35,7 +37,7 @@ export default async function IncidentDetailPage({
 
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) notFound();
-  const [updates, attachments, audit, report, responders, zones] = await Promise.all([
+  const [updates, attachments, audit, report, responders, zones, fireReport] = await Promise.all([
     getIncidentUpdates(supabase, id),
     listIncidentAttachments(supabase, id),
     // Console actions log as 'incident', server RPCs as 'incidents' — the id is enough.
@@ -44,6 +46,8 @@ export default async function IncidentDetailPage({
     listIncidentResponders(supabase, id).catch(() => []),
     // Empty until migration 0053 is run; the card then simply does not show.
     listIncidentMapZones(supabase, id).catch(() => null),
+    // The firefighter's report (0059); none for other departments.
+    getFireReportForIncident(supabase, id).catch(() => null),
   ]);
   const media = await signIncidentMedia(supabase, attachments.map((a) => a.storage_path)).catch(
     () => new Map<string, string>(),
@@ -56,6 +60,23 @@ export default async function IncidentDetailPage({
   const canClose = CASE_MANAGER_ROLES.includes(role);
   const bodycams = await incidentBodycams(supabase, incident, responders, role, silo);
 
+  // Transporting has no column of its own: the crew's status note records it.
+  const transportingAt = updates
+    .filter((u) => /^\[STATUS\] Transporting/.test(u.message ?? ''))
+    .map((u) => u.timestamp)
+    .sort()[0] ?? null;
+  const resolvedAt = incident.report_filed_at ?? incident.resolved_at;
+
+  // Where the crew is, as the desk follows it live.
+  const ladder = [
+    { label: 'Dispatched', at: incident.dispatch_time },
+    { label: 'En Route', at: incident.accepted_at },
+    { label: 'On Scene', at: incident.arrived_timestamp },
+    { label: 'Transporting', at: transportingAt, optional: true },
+    { label: incident.report_filed_at ? 'Report filed · Resolved' : 'Resolved', at: resolvedAt },
+  ];
+  const reached = ladder.filter((step) => step.at).length;
+
   // Lifecycle milestones (ReportsController.IncidentLifecycle)
   const lifecycle = [
     { label: 'Call received', at: incident.call_timestamp },
@@ -64,6 +85,7 @@ export default async function IncidentDetailPage({
     { label: 'Assigned', at: incident.assigned_at },
     { label: 'Lead responding · en route', at: incident.accepted_at },
     { label: 'Arrived on scene', at: incident.arrived_timestamp },
+    { label: 'Transporting', at: transportingAt },
     { label: 'Report filed · resolved', at: incident.report_filed_at ?? incident.resolved_at },
     { label: 'Closed', at: incident.closed_at },
   ];
@@ -114,6 +136,36 @@ export default async function IncidentDetailPage({
           <span className="status-badge" data-status={incident.status}>{incident.status}</span>
         </div>
       </header>
+
+      {/* Live: a crew's En Route, On Scene, Transporting and report re-render this page. */}
+      <IncidentLive incidentId={incident.id} />
+      <Card>
+        <CardContent className="p-4">
+          <ol className="grid grid-cols-2 gap-2 sm:grid-cols-5" aria-label="Where the crew is">
+            {ladder.map((step, i) => {
+              const done = Boolean(step.at);
+              const skipped = !done && step.optional && Boolean(resolvedAt);
+              const current = done && ladder.slice(i + 1).every((later) => !later.at);
+              return (
+                <li
+                  key={step.label}
+                  className={`rounded-lg border p-3 ${current ? 'border-accent bg-accent/10' : done ? 'border-severity-low/40 bg-severity-low/5' : 'border-border bg-bg-soft'}`}
+                >
+                  <p className={`text-[11px] font-bold uppercase tracking-wider ${done ? 'text-fg' : 'text-muted-foreground'}`}>
+                    {done ? '✓ ' : ''}{step.label}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {done ? formatSaTime(step.at as string) : skipped ? 'Not needed' : current ? '' : step.optional ? 'If needed' : 'Waiting'}
+                  </p>
+                </li>
+              );
+            })}
+          </ol>
+          <p className="mt-2 text-xs text-muted-foreground">
+            {reached === 0 ? 'Not dispatched yet.' : 'Updates by itself as the crew moves — no need to reload.'}
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -406,6 +458,7 @@ export default async function IncidentDetailPage({
       </div>
 
       {report ? <PoliceReportCard report={report} /> : null}
+      {fireReport ? <FireReportCard report={fireReport} /> : null}
 
       {/* Complete life of the incident, newest first */}
       <Card>

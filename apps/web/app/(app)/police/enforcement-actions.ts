@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import {
-  issueFine, issueSummons, issueWarrant, logAudit, openCharge, recordTransaction,
-  setChargeStatus, setFineStatus, setSummonsStatus, setWarrantStatus,
+  issueSummons, issueWarrant, logAudit, openCharge, recordTransaction,
+  setChargeStatus, setSummonsStatus, setWarrantStatus,
 } from '@criticom/api';
 import { getSession } from '@/lib/session';
 
@@ -13,43 +13,8 @@ const S = (fd: FormData, k: string) => {
 };
 const N = (fd: FormData, k: string) => Number(fd.get(k) ?? 0);
 
-/* ── Fines ────────────────────────────────────────────────────────────── */
-
-export async function issueFineAction(formData: FormData) {
-  const { supabase, userId, fullName } = await getSession();
-  const fine = await issueFine(supabase, {
-    offenderName: S(formData, 'offender_name') ?? '',
-    offenderIdNumber: S(formData, 'offender_id_number'),
-    vehicleReg: S(formData, 'vehicle_reg'),
-    offenceCode: S(formData, 'offence_code'),
-    offenceDescription: S(formData, 'offence_description') ?? '',
-    amount: N(formData, 'amount'),
-    location: S(formData, 'location'),
-    dueDate: S(formData, 'due_date'),
-    issuedBy: userId,
-    issuedByName: fullName,
-    notes: S(formData, 'notes'),
-  });
-  await logAudit(supabase, {
-    silo: 'MetroPolice', action_type: 'FineIssued', entity_type: 'fine',
-    entity_id: fine.id, user_name: fullName,
-    details: `${fine.fine_number} ${fine.offender_name} R${fine.amount}`,
-  }).catch(() => {});
-  revalidatePath('/police/fines');
-}
-
-export async function setFineStatusAction(formData: FormData) {
-  const { supabase, fullName } = await getSession();
-  const id = String(formData.get('id'));
-  const status = String(formData.get('status')) as
-    'Unpaid' | 'Partially Paid' | 'Paid' | 'Disputed' | 'Cancelled';
-  await setFineStatus(supabase, { id, status });
-  await logAudit(supabase, {
-    silo: 'MetroPolice', action_type: 'FineStatusChanged', entity_type: 'fine',
-    entity_id: id, user_name: fullName, details: status,
-  }).catch(() => {});
-  revalidatePath('/police/fines');
-}
+/* Fines moved to ./fines/actions.ts (migration 0057): they are served
+   through issue_fines() and changed only through checked functions. */
 
 /* ── Charges ──────────────────────────────────────────────────────────── */
 

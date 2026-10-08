@@ -154,6 +154,10 @@ export default function RootLayout() {
               options={{ title: 'Incident Report', headerBackTitle: 'Back' }}
             />
             <Stack.Screen
+              name="fire-report/[id]"
+              options={{ title: 'Fire Report', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
               name="assistant"
               options={{ title: 'Criti', headerBackTitle: 'Back' }}
             />
@@ -168,6 +172,22 @@ export default function RootLayout() {
             <Stack.Screen
               name="firearm-check"
               options={{ title: 'Firearm Check', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="fines/index"
+              options={{ title: 'My fines', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="fines/new"
+              options={{ title: 'Issue a fine', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="fines/check"
+              options={{ title: 'Check what is owed', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="fines/[id]"
+              options={{ title: 'Fine', headerBackTitle: 'Back' }}
             />
             <Stack.Screen
               name="alerts"

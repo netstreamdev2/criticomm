@@ -46,6 +46,8 @@ export default function IncidentReportScreen() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [evidence, setEvidence] = useState({ photos: 0, voice: 0 });
   const [problems, setProblems] = useState<string[]>([]);
+  // Set once File is pressed: from then on missing answers glow red until fixed.
+  const [tried, setTried] = useState(false);
   const [busy, setBusy] = useState(false);
   const draftLoaded = useRef(false);
 
@@ -103,8 +105,29 @@ export default function IncidentReportScreen() {
   }, [pending, id, incident]);
   const alreadyQueued = pending.some((e) => e.op.kind === 'incident_report' && e.op.incidentId === id);
 
+  /** The fields validateReportAnswers() objects to, to mark them in red. */
+  const invalid = useMemo(() => {
+    const out = new Set<string>();
+    if (!tried || !reportType) return out;
+    for (const section of reportType.sections) {
+      for (const f of section.fields) {
+        const v = (answers[f.key] ?? '').trim();
+        if ((f.required && !v) || (f.kind === 'number' && v && !/^\d+(\.\d+)?$/.test(v))) out.add(f.key);
+      }
+    }
+    const narrative = (answers.officer_narrative ?? '').trim();
+    if (narrative && narrative.length < 20) out.add('officer_narrative');
+    return out;
+  }, [tried, reportType, answers]);
+
+  // Once fixed, a problem leaves the list by itself.
+  useEffect(() => {
+    if (tried && reportType) setProblems(validateReportAnswers(reportType, answers));
+  }, [tried, reportType, answers]);
+
   const file = () => {
     if (!incident || !reportType) return;
+    setTried(true);
     const found = validateReportAnswers(reportType, answers);
     setProblems(found);
     if (found.length) return;
@@ -248,17 +271,24 @@ export default function IncidentReportScreen() {
           <View key={section.title}>
             <SectionLabel>{section.title}</SectionLabel>
             <Card>
-              {section.fields.map((field, i) => (
-                <View key={field.key} style={i > 0 ? { marginTop: space.md } : undefined}>
-                  <Field field={field} value={answers[field.key] ?? ''} onChange={(v) => set(field.key, v)} />
-                </View>
-              ))}
+              {section.fields.map((field, i) => {
+                // A missing or wrong answer after File was pressed glows red until it is fixed.
+                const bad = invalid.has(field.key);
+                return (
+                  <View key={field.key} style={[i > 0 ? { marginTop: space.md } : undefined, bad && styles.fieldBad]}>
+                    {bad ? <Text style={styles.badHint}>Required — fill this in</Text> : null}
+                    <Field field={field} value={answers[field.key] ?? ''} onChange={(v) => set(field.key, v)} />
+                  </View>
+                );
+              })}
             </Card>
           </View>
         ))}
 
         {problems.length > 0 ? (
-          <Banner tone="error" onDismiss={() => setProblems([])}>{problems.join('\n')}</Banner>
+          <Banner tone="error" onDismiss={() => setProblems([])}>
+            {`${problems.length === 1 ? 'One thing is' : `${problems.length} things are`} missing — marked in red above:\n• ${problems.join('\n• ')}`}
+          </Banner>
         ) : null}
 
         <Button
@@ -351,4 +381,11 @@ const useStyles = makeStyles(() => StyleSheet.create({
   chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
   chipText: { fontSize: 13, fontWeight: '600', color: colors.textDim },
   multiline: { minHeight: 110, textAlignVertical: 'top', paddingTop: 12 },
+  // The red glow on a missing answer.
+  fieldBad: {
+    padding: space.sm, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.critical,
+    backgroundColor: colors.criticalSoft,
+    shadowColor: colors.critical, shadowOpacity: 0.7, shadowRadius: 10, shadowOffset: { width: 0, height: 0 }, elevation: 6,
+  },
+  badHint: { color: colors.critical, fontSize: 11, fontWeight: '800', marginBottom: 4 },
 }));

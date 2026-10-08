@@ -17,6 +17,9 @@ export type MapZoneVisibility = 'private' | 'department' | 'departments' | 'inci
 export type BodycamStatus = 'Available' | 'Booked out' | 'In repair' | 'Lost' | 'Retired';
 export type BodycamViewReason = 'incident' | 'officer_safety' | 'sos' | 'supervision' | 'investigation' | 'other';
 
+/** The notice a fine is served on (migration 0057). */
+export type FineNoticeType = 'AARTO 01' | 'Section 56' | 'Section 341';
+
 export type Silo = 'Ethekwini' | 'MetroPolice' | 'MetroFire' | 'Medical' | 'EthekwiniDisaster';
 
 export type UserRole =
@@ -570,9 +573,83 @@ export type Database = {
           due_date: string | null;
           status: 'Unpaid' | 'Partially Paid' | 'Paid' | 'Disputed' | 'Cancelled';
           notes: string | null;
+          /** AARTO 01 / CPA notice fields (migration 0057). */
+          notice_type: FineNoticeType;
+          notice_number: string | null;
+          group_ref: string | null;
+          charge_seq: number;
+          captured_from: 'device' | 'paper';
+          offender_surname: string | null;
+          offender_first_names: string | null;
+          offender_initials: string | null;
+          offender_id_type: 'RSA ID' | 'Passport' | 'Driving licence' | 'Foreign ID' | null;
+          offender_id_country: string | null;
+          offender_dob: string | null;
+          offender_gender: 'Male' | 'Female' | null;
+          offender_licence_code: string | null;
+          offender_prdp_code: string | null;
+          offender_phone: string | null;
+          offender_email: string | null;
+          offender_address: string | null;
+          vehicle_licence_disc: string | null;
+          vehicle_type: string | null;
+          vehicle_make: string | null;
+          vehicle_model: string | null;
+          vehicle_colour: string | null;
+          province: string | null;
+          city: string | null;
+          suburb: string | null;
+          street_a: string | null;
+          street_b: string | null;
+          direction: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          offence_at: string | null;
+          offence_id: string | null;
+          legal_ref: string | null;
+          amount_source: 'catalogue' | 'officer';
+          discount_amount: number;
+          demerit_points: number;
+          court_name: string | null;
+          court_date: string | null;
+          issuing_authority: string | null;
+          magisterial_district: string | null;
+          officer_infrastructure_no: string | null;
+          officer_signature: string | null;
+          infringer_signature: string | null;
+          infringer_refused: boolean;
+          observations: Record<string, unknown>;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          cancelled_by_name: string | null;
+          cancel_reason: string | null;
+          recorded_at: string;
         };
         Insert: Partial<Database['public']['Tables']['fines']['Row']>;
         Update: Partial<Database['public']['Tables']['fines']['Row']>;
+        Relationships: [];
+      };
+      /** The charge book: offences, codes and penalties (migration 0057). */
+      fine_offences: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          regime: 'AARTO' | 'By-law';
+          code: string | null;
+          description: string;
+          legal_ref: string | null;
+          penalty_amount: number | null;
+          demerit_points: number;
+          active: boolean;
+          verified: boolean;
+          verified_by: string | null;
+          verified_by_name: string | null;
+          verified_at: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['fine_offences']['Row']>;
+        Update: Partial<Database['public']['Tables']['fine_offences']['Row']>;
         Relationships: [];
       };
       /** Enforcement: criminal charges (migration 0033). */
@@ -618,6 +695,8 @@ export type Database = {
           recorded_name: string | null;
           recorded_at: string;
           note: string | null;
+          /** The date on the receipt (migration 0058); fine payments only. */
+          paid_on: string | null;
         };
         Insert: Partial<Database['public']['Tables']['charge_transactions']['Row']>;
         Update: Partial<Database['public']['Tables']['charge_transactions']['Row']>;
@@ -1252,7 +1331,7 @@ export type Database = {
           comms_working: boolean;
           brakes_responsive: boolean;
           /** DMPS 187(c) sheet (migration 0037). Null on pre-0037 rows. */
-          form_version: '187c' | 'fire-v1' | null;
+          form_version: '187c' | 'fire-v1' | 'ems-v1' | null;
           /** Fire appliance checks (0056). Null means not inspected on historical records. */
           scba_checked: boolean | null;
           water_tank_full: boolean | null;
@@ -1260,6 +1339,16 @@ export type Database = {
           hoses_and_nozzles_stocked: boolean | null;
           ladders_secured: boolean | null;
           turnout_gear_complete: boolean | null;
+          /** EMS inventory check and sanitisation (0060). Null on every other record. */
+          oxygen_full: boolean | null;
+          aed_battery_ok: boolean | null;
+          suction_functional: boolean | null;
+          bvm_masks_ok: boolean | null;
+          jump_bag_stocked: boolean | null;
+          iv_fluids_stocked: boolean | null;
+          drug_box_sealed: boolean | null;
+          gloves_ppe_stocked: boolean | null;
+          requires_cleaning: boolean | null;
           inspection_ref: string | null;
           ndm_number: string | null;
           mileage_km: number | null;
@@ -2289,6 +2378,45 @@ export type Database = {
         Args: { p_silo: Silo };
         Returns: string;
       };
+      /** Serve a notice: one to three charges, idempotent on p_client_ref (migration 0057). */
+      issue_fines: {
+        Args: { p_notice: Record<string, unknown>; p_charges: Array<Record<string, unknown>>; p_client_ref: string; p_occurred_at?: string };
+        Returns: Array<Database['public']['Tables']['fines']['Row']>;
+      };
+      /** What a person or vehicle owes, as a summary (migration 0058). */
+      check_fines_owing: {
+        Args: { p_id_number?: string | null; p_vehicle_reg?: string | null };
+        Returns: Record<string, unknown>;
+      };
+      /** Record payments from a file; a receipt already on a fine is skipped (migration 0058). */
+      import_fine_payments: {
+        Args: { p_rows: Array<Record<string, unknown>>; p_file_name?: string | null; p_file_sha256?: string | null };
+        Returns: Record<string, unknown>;
+      };
+      cancel_fine: {
+        Args: { p_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      set_fine_status: {
+        Args: { p_id: string; p_status: 'Disputed' | 'Unpaid'; p_note?: string | null };
+        Returns: undefined;
+      };
+      set_fine_notice_number: {
+        Args: { p_id: string; p_number: string };
+        Returns: undefined;
+      };
+      is_valid_rsa_id: {
+        Args: { p_id: string };
+        Returns: boolean;
+      };
+      can_view_all_fines: {
+        Args: { p_silo: Silo };
+        Returns: boolean;
+      };
+      can_manage_fine_offences: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
       /** Per-tenant document numbering: DM-/FN-/CH-/WA-/SM- (migration 0033). */
       next_doc_number: {
         Args: { p_prefix: string };
@@ -2416,6 +2544,11 @@ export type Database = {
       close_case: {
         Args: { p_incident_id: string; p_reason?: string | null };
         Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      /** The firefighter files the fire report; the incident resolves (migration 0059). */
+      file_fire_report: {
+        Args: { p_incident_id: string; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['firefighter_reports']['Row'];
       };
       file_incident_report: {
         Args: {

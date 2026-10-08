@@ -13,7 +13,8 @@ import type { Database, IncidentStatus } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
-import { callView, isPoliceCall, MAX_PHOTOS, photosRemaining } from '@/lib/response';
+import { callView, isPoliceCall, MAX_PHOTOS, photosRemaining, reportPathFor } from '@/lib/response';
+import { openDirections } from '@/lib/navigate';
 import { useSync } from '@/lib/sync';
 import { useFeature } from '@/lib/features';
 import { retainAttachment } from '@/lib/outbox';
@@ -116,11 +117,12 @@ export default function IncidentDetailScreen() {
     }
   };
 
-  const advance = async () => {
+  const advance = async (which: 'action' | 'secondary' = 'action') => {
     if (!incident || !session) return;
-    const action = callView(incident, { userId: session.user.id, silo, onDuty }, queued.status).action;
+    const current = callView(incident, { userId: session.user.id, silo, onDuty }, queued.status);
+    const action = which === 'secondary' ? current.secondary : current.action;
     if (!action) return;
-    if (action.kind === 'report') { router.push(`/report/${incident.id}`); return; }
+    if (action.kind === 'report') { router.push(reportPathFor(incident.id, silo) as never); return; }
     setBusy('status');
     try {
       if (action.kind === 'respond' && onDuty === false) {
@@ -234,15 +236,7 @@ export default function IncidentDetailScreen() {
   /** Hands the scene coordinates (or address) to the phone's map app. */
   const navigateToScene = () => {
     if (!incident) return;
-    const { location_lat: lat, location_lng: lng, location_address: address } = incident;
-    const query = lat && lng ? `${lat},${lng}` : address;
-    if (!query) { notify('No location recorded for this incident.'); return; }
-    const url = Platform.select({
-      ios: `maps://?daddr=${encodeURIComponent(query)}`,
-      default: `geo:0,0?q=${encodeURIComponent(query)}`,
-    });
-    void Linking.openURL(url).catch(() =>
-      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`));
+    if (!openDirections(incident)) notify('No location recorded for this incident.');
   };
 
   const callCaller = () => {
@@ -363,7 +357,7 @@ export default function IncidentDetailScreen() {
               </Text>
             ) : null}
             <Button
-              label={action.kind === 'report' ? 'File incident report' : action.kind === 'respond' ? 'Responding' : action.label}
+              label={action.kind === 'respond' ? 'Responding' : action.label}
               icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'car-sport' : 'arrow-forward-circle'}
               variant={action.kind === 'report' ? 'success' : 'primary'}
               size="lg"
@@ -371,6 +365,18 @@ export default function IncidentDetailScreen() {
               disabled={Boolean(view.blocked)}
               onPress={() => void advance()}
             />
+            {view.secondary ? (
+              <View style={{ marginTop: space.sm }}>
+                <Button
+                  label={view.secondary.label}
+                  icon="medkit-outline"
+                  variant="outline"
+                  busy={busy === 'status'}
+                  disabled={Boolean(view.blocked)}
+                  onPress={() => void advance('secondary')}
+                />
+              </View>
+            ) : null}
           </View>
         ) : view.note && !closed ? (
           <Text style={styles.viewOnly}>{view.note}</Text>

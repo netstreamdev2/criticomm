@@ -45,6 +45,13 @@ export type OutboxOp =
       details: Record<string, string>;
     }
   | {
+      /** The fire report that closes a Fire incident (migration 0059). */
+      kind: 'fire_report';
+      incidentId: string;
+      incidentNumber: string;
+      fields: Record<string, string>;
+    }
+  | {
       kind: 'panic';
       silo: Silo;
       lat: number | null;
@@ -77,6 +84,28 @@ export type OutboxOp =
       roundsReturned?: number;
       defects?: string;
       userName: string;
+    }
+  | {
+      /**
+       * A notice served at the roadside (migration 0057): one to three
+       * charges. The entry id is the server's client reference, so a retry
+       * never files the notice twice.
+       */
+      kind: 'issue_fine';
+      notice: Record<string, unknown>;
+      /** Description, amount and code ride along for the provisional slip;
+       *  the server takes them from the charge book when it has them. */
+      charges: Array<{
+        offence_id?: string | null;
+        description: string;
+        amount: number | null;
+        code?: string | null;
+        legal_ref?: string | null;
+        demerit?: number;
+      }>;
+      noticeType: 'AARTO 01' | 'Section 56' | 'Section 341';
+      /** "ND123456 · B Dlamini" — for the sync tray. */
+      label: string;
     };
 
 export type OutboxStatus = 'queued' | 'failed';
@@ -127,12 +156,16 @@ export function describe(op: OutboxOp): string {
       return `${op.mediaKind === 'audio' ? 'Voice note' : 'Photo'} · ${op.filename}`;
     case 'incident_report':
       return `Case report · ${op.incidentNumber}`;
+    case 'fire_report':
+      return `Fire report · ${op.incidentNumber}`;
     case 'panic':
       return 'EMERGENCY — officer needs assistance';
     case 'duty_location':
       return 'Position update';
     case 'firearm_check':
       return `Firearm ${op.checkKind.toLowerCase()} · ${op.serialNumber}`;
+    case 'issue_fine':
+      return `Fine · ${op.noticeType} · ${op.label}`;
   }
 }
 
@@ -149,11 +182,15 @@ const PRIORITY: Record<OutboxOp['kind'], number> = {
   // After the status it depends on (the server wants the officer On Scene),
   // ahead of photos: the report is what tells command the call is closed.
   incident_report: 2,
+  fire_report: 2,
   duty_location: 2,
   incident_note: 3,
   // Armoury paperwork matters, but never ahead of anything an active incident
   // is waiting on — only the attachments queue behind it.
   firearm_check: 4,
+  // A served notice is paperwork too: after anything a live incident is
+  // waiting on, ahead of photos.
+  issue_fine: 4,
   evidence: 5,
 };
 

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getUnitCompliance } from '@criticom/api';
 import { canAccess } from '@criticom/db/roles';
 import { FIRE_EQUIPMENT } from '@criticom/db/fire-shift';
+import { EMS_STOCK } from '@criticom/db/ems-shift';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession, siloFilter } from '@/lib/session';
@@ -69,6 +70,10 @@ export default async function UnitCompliancePage() {
                   !c.brakes_responsive && 'brakes',
                   ...(c.silo === 'MetroFire' ? FIRE_EQUIPMENT.map(([key, label]) =>
                     c[key] !== true && `${label}${c[key] == null ? ' (not checked)' : ''}`) : []),
+                  ...(c.silo === 'Medical' ? [
+                    ...EMS_STOCK.map(([key, label]) => c[key] !== true && `${label}${c[key] == null ? ' (not checked)' : ' short'}`),
+                    c.requires_cleaning !== false && (c.requires_cleaning ? 'requires cleaning' : 'cleaning (not asked)'),
+                  ] : []),
                 ].filter(Boolean).join(', ');
                 return (
                   <Tr key={c.id}>

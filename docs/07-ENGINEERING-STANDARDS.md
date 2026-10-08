@@ -131,3 +131,38 @@ because of this; `outbox.ts` re-exports it so no call site had to change.
 - Comments explain **why**, not what. A comment restating the code is noise; a
   comment recording the constraint that produced the code is the most valuable
   thing in the file.
+
+## One look, every department
+
+The phone app and the console look the same for every department: Police,
+Fire & Rescue, EMS and Disaster Management. What differs is the information,
+the content and the context, never the look.
+
+- **The same:** the theme colours (`apps/mobile/lib/theme.ts`, the web
+  themes), the blue accent, the backdrop (earth at night on the home screen in
+  dark mode, plain in light mode and on forms), the panels and cards, the
+  buttons, the step indicator, the KPI strip, the map card, the header and the
+  tab bar. Build with the shared components (`components/ui.tsx`,
+  `home-header`, `home-kpis`, `my-incidents`, `my-performance`, `incident-map`)
+  before writing a new one.
+- **Different:** what each department works with, and only that. Police have
+  fines, firearms and bodycams; Fire has appliances and fire equipment checks;
+  EMS has ambulances, stock checks and (next) patients and hospitals. A
+  department's screens show its own modules and leave out the rest: Fire has
+  **no** fines.
+- **No department photographs or department colours.** A department is told
+  apart by its words and icons (a flame for Fire, a pulse for EMS, a shield for Police), not by
+  a photo backdrop or its own accent colour. Status colours (green, amber, red)
+  mean the same in every department.
+- **A new department app** starts from the Police home and start-of-shift
+  screens, swaps in its own content, and changes nothing about how they look.
+
+Fire was brought into line on 2026-10-07: its photograph and orange accent
+were removed, and it now uses the Police backdrop, panels, buttons, step
+indicator and map card. Its behaviour did not change.
+
+EMS followed on 2026-10-07 (`docs/14-EMS-APP.md`). Fire and EMS share one home,
+`components/service-home.tsx`; each passes only its words and icons. Paramedics
+use phones **and tablets**, so screens are built to stretch: content is centred
+with a maximum width, and lists of questions or items go into two columns from
+700 px wide (`useWindowDimensions`). Nothing is scaled up; it is laid out again.

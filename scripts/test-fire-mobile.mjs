@@ -151,7 +151,7 @@ try {
   await flow.page.getByRole('button', { name: 'Go on duty & open dashboard' }).click();
   await flow.page.getByText('Your checks are complete.', { exact: true }).waitFor({ state: 'detached' });
   await visible(flow.page, 'On duty'); await visible(flow.page, 'FIRE-LAD-01');
-  await visible(flow.page, 'Ready for the call.'); await flow.screenshot('06-fire-dashboard'); await noOverflow(flow.page);
+  await visible(flow.page, 'FIRE & RESCUE'); await flow.screenshot('06-fire-dashboard'); await noOverflow(flow.page);
   assert.equal(flow.writes.filter(w => w === 'toggle_duty').length, 1);
   assert.deepEqual(flow.errors, []);
   passed++; console.log('PASS Fire welcome → validation → readiness → appliance → all 11 checks → real signature → duty → dashboard');
@@ -197,7 +197,7 @@ try {
   await defect.context.close(); passed++; console.log('PASS signed defects block duty and remove the failed appliance from selection');
 
   const tablet = await openApp({ clearance: true, light: true, width: 1024 });
-  await visible(tablet.page, 'Ready for the call.'); await visible(tablet.page, 'FIRE-LAD-01');
+  await visible(tablet.page, 'FIRE & RESCUE'); await visible(tablet.page, 'FIRE-LAD-01');
   await noOverflow(tablet.page); await tablet.screenshot('10-fire-tablet-light');
   assert.deepEqual(tablet.errors, []);
   await tablet.context.close(); passed++; console.log('PASS light-mode Fire dashboard fits a tablet viewport');
@@ -209,7 +209,7 @@ try {
 
   const police = await openApp({ silo: 'MetroPolice', clearance: true });
   await visible(police.page, 'Real-Time\nIncident Map');
-  assert.equal(await police.page.getByText('Ready for the call.', { exact: true }).count(), 0);
+  assert.equal(await police.page.getByText('FIRE & RESCUE', { exact: true }).count(), 0);
   await police.screenshot('07-police-unchanged');
   assert.deepEqual(police.errors, []);
   await police.context.close(); passed++; console.log('PASS Police retains its original dashboard');

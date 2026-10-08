@@ -7,6 +7,9 @@
 export function invitationErrorMessage(e: unknown, fallback = 'That did not work. Try again.'): string {
   const err = e as { code?: string; message?: string } | null;
   if (err?.code === 'PGRST202' || err?.code === 'PGRST205' || err?.code === '42703') {
+    if (/issue_fines|cancel_fine|set_fine_|fine_offences|notice_type|group_ref/i.test(err.message ?? '')) {
+      return 'Fines are not set up in this database yet: run migration 0057_fines_aarto.sql in Supabase, then try again.';
+    }
     if (/direct_account/i.test(err.message ?? '')) {
       return 'Creating accounts with a password is not set up in this database yet: run migration 0055_direct_account_creation.sql in Supabase, then try again.';
     }

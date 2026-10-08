@@ -1,7 +1,8 @@
-import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { FieldIncident } from '@criticom/api';
 import type { CallView } from '@/lib/response';
+import { openDirections } from '@/lib/navigate';
 import { colors, radius, severityColor, severityTint, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { BottomSheet } from '@/components/bottom-sheet';
 import { Button, SeverityPill, StatusBadge } from '@/components/ui';
@@ -33,7 +34,7 @@ function assignmentLine(v: CallView, dispatchedBy: string | null) {
  * responding — and the one thing this officer can do next.
  */
 export function IncidentSheet({
-  incident, view, status, queued, km, busy, onClose, onAction, onOpenFull,
+  incident, view, status, queued, km, busy, onClose, onAction, onSecondary, onOpenFull,
 }: {
   incident: FieldIncident | null;
   view: CallView | null;
@@ -44,6 +45,8 @@ export function IncidentSheet({
   busy: boolean;
   onClose: () => void;
   onAction: () => void;
+  /** The optional step beside the main one (a firefighter on scene: Mark Transporting). */
+  onSecondary?: () => void;
   onOpenFull: () => void;
 }) {
   const styles = useStyles();
@@ -53,22 +56,12 @@ export function IncidentSheet({
   const who = assignmentLine(view, incident.dispatched_by);
   const responders = [...(view.lead ? [view.lead] : []), ...view.backups];
 
-  const navigate = () => {
-    const { location_lat: lat, location_lng: lng, location_address: address } = incident;
-    const query = lat && lng ? `${lat},${lng}` : address;
-    if (!query) return;
-    const url = Platform.select({
-      ios: `maps://?daddr=${encodeURIComponent(query)}`,
-      default: `geo:0,0?q=${encodeURIComponent(query)}`,
-    });
-    void Linking.openURL(url).catch(() =>
-      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`));
-  };
+  const navigate = () => { openDirections(incident); };
+
 
   const action = view.action;
   const actionLabel = !action ? null
-    : action.kind === 'report' ? 'File incident report'
-      : action.kind === 'respond' ? 'Responding'
+    : action.kind === 'respond' ? 'Responding'
         : action.label;
 
   return (
@@ -111,6 +104,18 @@ export function IncidentSheet({
                 disabled={Boolean(view.blocked)}
                 onPress={onAction}
               />
+              {view.secondary && onSecondary ? (
+                <View style={{ marginTop: space.sm }}>
+                  <Button
+                    label={view.secondary.label}
+                    icon="medkit-outline"
+                    variant="outline"
+                    busy={busy}
+                    disabled={Boolean(view.blocked)}
+                    onPress={onSecondary}
+                  />
+                </View>
+              ) : null}
               {action.kind === 'respond' ? (
                 <Text style={styles.respondHint}>
                   {action.asLead ? 'You will lead this incident.' : 'You will join as backup.'} Dispatch is told at once.

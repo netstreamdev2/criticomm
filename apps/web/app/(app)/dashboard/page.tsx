@@ -6,12 +6,15 @@ import {
   listPersonnel, getUnitCompliance, listAllProfiles, listApparatus, listDevices, listBookedOutBodycams,
 } from '@criticom/api';
 import {
-  ADMIN_ROLES, DISPATCH_ROLES, RESPONDER_ROLES, canWatchBodycam, type Silo, type UserRole,
+  ADMIN_ROLES, DISPATCH_ROLES, RESPONDER_ROLES, canViewAllFines, canWatchBodycam, type Silo, type UserRole,
 } from '@criticom/db';
+import { featureEnabled } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { HourlyAreaChart, SeverityDonut } from '@/components/charts';
 import { QuickLinks } from '@/components/quick-links';
+import { FinesPanel } from '@/components/fines-panel';
+import { getFeatures } from '@/lib/features';
 import { DispatchBoard } from './dispatch-board';
 import { BoardLive } from './board-live';
 import { getSession, siloFilter } from '@/lib/session';
@@ -148,11 +151,17 @@ function ActiveIncidentsPanel({ rows }: { rows: Awaited<ReturnType<typeof listAc
   );
 }
 
-export default async function DashboardPage() {
+type SearchParams = Record<string, string | string[] | undefined>;
+
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const { supabase, silo, role, fullName, userId } = await getSession();
   if (role === 'SystemController') redirect('/command');
+  const params = await searchParams;
+  // Fines (0057): for those who see the whole register, when enforcement is on.
+  const showFines = canViewAllFines({ role, silo })
+    && featureEnabled(await getFeatures().catch(() => ({})), 'web.enforcement');
   if (role === 'Captain') {
-    return <CaptainDashboard supabase={supabase} silo={silo} fullName={fullName} userId={userId} />;
+    return <CaptainDashboard supabase={supabase} silo={silo} fullName={fullName} userId={userId} params={params} showFines={showFines} />;
   }
   const persona = resolvePersona(role);
   const sf = siloFilter(silo);
@@ -203,15 +212,16 @@ export default async function DashboardPage() {
         <ResponderBody supabase={supabase} userId={userId} silo={silo} fullName={fullName} />
       )}
       {persona === 'casemanager' && <CaseManagerBody supabase={supabase} sf={sf} />}
+      {showFines && <FinesPanel supabase={supabase} params={params} userId={userId} />}
     </div>
   );
 }
 
 async function CaptainDashboard({
-  supabase, silo, fullName, userId,
+  supabase, silo, fullName, userId, params, showFines,
 }: {
   supabase: Awaited<ReturnType<typeof getSession>>['supabase'];
-  silo: Silo; fullName: string; userId: string;
+  silo: Silo; fullName: string; userId: string; params: SearchParams; showFines: boolean;
 }) {
   const sf = siloFilter(silo);
   const me = await getMyPersonnel(supabase, userId).catch(() => null);
@@ -256,6 +266,7 @@ async function CaptainDashboard({
           { href: '/responder', label: 'My incidents', detail: `${mine.length} assigned to your unit` },
           { href: '/cameras', label: 'Body cams', detail: `${camsOn} on duty wearing one now` },
           { href: '/police', label: 'Police operations', detail: 'Department tools and reports' },
+          ...(showFines ? [{ href: '/police/fines', label: 'Fines register', detail: 'Every notice your officers served' }] : []),
           { href: '/roster/mine', label: 'My schedule', detail: 'Your upcoming duty' },
         ].map((item) => (
           <Link key={item.href} href={item.href} className="group rounded-xl border border-border bg-bg-card p-4 transition-colors hover:border-accent/50 hover:bg-accent/5">
@@ -264,6 +275,8 @@ async function CaptainDashboard({
           </Link>
         ))}
       </section>
+
+      {showFines && <FinesPanel supabase={supabase} params={params} userId={userId} />}
 
       <ActiveIncidentsPanel rows={active} />
     </div>

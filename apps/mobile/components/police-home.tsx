@@ -12,6 +12,7 @@ import { IncidentMap } from '@/components/incident-map';
 import { useMapPins } from '@/lib/use-map-pins';
 import { MyIncidents } from '@/components/my-incidents';
 import { MyPerformance } from '@/components/my-performance';
+import { FinesCard } from '@/components/fines-card';
 
 type Overview = Awaited<ReturnType<typeof getIncidentOverview>>;
 
@@ -21,8 +22,8 @@ const CYAN = '#22d3ee';
 /**
  * Police Home — the V4 police dashboard on a phone: the time, the officer and
  * their duty status over the earth-at-night backdrop, the at-a-glance figures
- * (live, closed today, mine, on duty) and the real-time incident map. Nothing
- * else; the rest of the app is one tab away.
+ * (live, closed today, mine, on duty), fines (issue one, this month's figures)
+ * and the real-time incident map. The rest of the app is one tab away.
  */
 export function PoliceHome() {
   const styles = useStyles();
@@ -79,6 +80,7 @@ export function PoliceHome() {
         <HomeKpis live={overview?.live} closedToday={overview?.closedToday} />
         <MyIncidents />
         <MyPerformance />
+        <FinesCard />
 
         {/* ── Real-time incident map ──────────────────────────────── */}
         <View style={styles.mapCard}>

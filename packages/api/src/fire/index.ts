@@ -1,6 +1,6 @@
 import type { CriticomClient, Database } from '@criticom/db';
 
-type FirefighterReport = Database['public']['Tables']['firefighter_reports']['Row'];
+export type FirefighterReport = Database['public']['Tables']['firefighter_reports']['Row'];
 type FirefighterReportInsert = Database['public']['Tables']['firefighter_reports']['Insert'];
 type PirInsert = Database['public']['Tables']['public_incident_reports']['Insert'];
 
@@ -35,6 +35,30 @@ export async function createFirefighterReport(
     .insert(input)
     .select()
     .single();
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * File the fire incident report from the field (migration 0059). The server
+ * checks the firefighter leads the incident and is on scene, files the report,
+ * resolves the incident and tells dispatch. Replaying it returns the report
+ * already filed, so the phone's outbox can retry it safely.
+ */
+export async function fileFireReport(
+  client: CriticomClient,
+  args: { incidentId: string; fields: Record<string, string> },
+): Promise<FirefighterReport> {
+  const { data, error } = await client.rpc('file_fire_report', { p_incident_id: args.incidentId, p_fields: args.fields });
+  if (error) throw error;
+  return data as FirefighterReport;
+}
+
+/** The fire report filed against an incident, if any. */
+export async function getFireReportForIncident(client: CriticomClient, incidentId: string): Promise<FirefighterReport | null> {
+  const { data, error } = await client
+    .from('firefighter_reports').select('*').eq('incident_id', incidentId)
+    .order('report_submission_date').limit(1).maybeSingle();
   if (error) throw error;
   return data;
 }

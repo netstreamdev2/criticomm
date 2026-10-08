@@ -30,6 +30,7 @@ import { ReportPreview } from '@/components/shift-report';
 import { FirearmSheet, emptyFirearm, firearmFormError, type FirearmForm } from '@/components/shift-firearm';
 import { BODYCAM_CHECKS, BodycamSheet, bodycamFormError, emptyBodycam, type BodycamForm } from '@/components/shift-bodycam';
 import { FireShift } from '@/components/fire-shift';
+import { EmsShift } from '@/components/ems-shift';
 
 type Vehicle = Database['public']['Tables']['apparatus']['Row'];
 type VehicleChecklist = Database['public']['Tables']['vehicle_checklists']['Row'];
@@ -72,7 +73,9 @@ function saTodayStartIso() {
 
 export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
   const { silo } = useAuth();
-  return silo === 'MetroFire' ? <FireShift gated={gated} /> : <StandardShiftScreen gated={gated} />;
+  if (silo === 'MetroFire') return <FireShift gated={gated} />;
+  if (silo === 'Medical') return <EmsShift gated={gated} />;
+  return <StandardShiftScreen gated={gated} />;
 }
 
 function StandardShiftScreen({ gated = false }: { gated?: boolean }) {

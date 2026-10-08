@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,10 +11,10 @@ import { useDuty } from '@/lib/duty';
 import { getSupabase } from '@/lib/supabase';
 import { READINESS_ITEMS } from '@/lib/inspection-187c';
 import { colors, makeStyles, radius, space } from '@/lib/theme';
-import { Banner, Input, KeyValue } from './ui';
+import { Banner, Input, KeyValue, Stepper } from './ui';
 import { HikTechLogo } from './hiktech-logo';
 import { SignaturePad } from './signature-pad';
-import { FireBackdrop, FireButton, FireCheck, FIRE_ORANGE, FIRE_PHOTO } from './fire-ui';
+import { FireButton, FireCheck } from './fire-ui';
 
 const STEPS = ['Welcome', 'Readiness', 'Appliance', 'Checks', 'Sign on'];
 const STEP_NUMBER: Record<FireShiftStep, number> = { intro: 0, readiness: 1, stood_down: 1, appliance: 2, checks: 3, sign: 4, appliance_failed: 3, complete: 4 };
@@ -162,7 +162,6 @@ export function FireShift({ gated = false }: { gated?: boolean }) {
 
   return (
     <View style={styles.screen}>
-      <FireBackdrop />
       <ScrollView ref={scroll} scrollEnabled={!drawing} keyboardShouldPersistTaps="handled"
         contentContainerStyle={[styles.container, gated && { paddingTop: insets.top + space.lg }, { paddingBottom: Math.max(insets.bottom, 16) + 32 }]}>
         <View style={styles.topbar}>
@@ -170,24 +169,21 @@ export function FireShift({ gated = false }: { gated?: boolean }) {
           {gated ? <Pressable accessibilityRole="button" onPress={signOut} disabled={busy} hitSlop={8} style={styles.headerAction}><Text style={styles.headerActionText}>Sign out</Text><Ionicons name="log-out-outline" size={16} color={colors.textDim} /></Pressable>
             : <Pressable accessibilityRole="button" onPress={() => router.replace('/')} hitSlop={8} style={styles.headerAction}><Ionicons name="arrow-back" size={16} color={colors.textDim} /><Text style={styles.headerActionText}>Dashboard</Text></Pressable>}
         </View>
-        <View style={styles.identity}><Ionicons name="flame" size={18} color={FIRE_ORANGE} /><Text style={styles.identityText}>METRO FIRE & RESCUE</Text></View>
-        {step && step !== 'intro' ? <View style={styles.progress} accessibilityLabel={`Step ${index + 1} of 5: ${STEPS[index]}`}>
-          {STEPS.map((label, n) => <View key={label} style={styles.progressItem}>
-            <View style={[styles.progressTrack, n <= index && { backgroundColor: FIRE_ORANGE }]} />
-            <Text style={[styles.progressText, n === index && { color: colors.text }]}>{label}</Text>
-          </View>)}
+        <View style={styles.identity}><Ionicons name="flame" size={18} color={colors.accent} /><Text style={styles.identityText}>METRO FIRE & RESCUE</Text></View>
+        {step && step !== 'intro' ? <View style={styles.progress} accessible accessibilityLabel={`Step ${index + 1} of 5: ${STEPS[index]}`}>
+          <Stepper steps={STEPS} current={index} />
         </View> : null}
 
         {!step ? <View style={styles.panel}>
-          {error ? <><Banner tone="error">{error}</Banner><FireButton label="Retry shift status" onPress={() => void run(load)} busy={busy} icon="refresh" /></> : <><ActivityIndicator color={FIRE_ORANGE} /><Text style={styles.body}>Checking your Fire shift…</Text></>}
+          {error ? <><Banner tone="error">{error}</Banner><FireButton label="Retry shift status" onPress={() => void run(load)} busy={busy} icon="refresh" /></> : <><ActivityIndicator color={colors.accent} /><Text style={styles.body}>Checking your Fire shift…</Text></>}
         </View> : null}
 
         {step === 'intro' ? <View style={styles.panel}>
-          <View style={styles.introPhoto}><Image source={FIRE_PHOTO} resizeMode="cover" style={[StyleSheet.absoluteFillObject, { width: '100%', height: '100%' }]} /><View style={styles.photoShade} /><View style={styles.photoCaption}><Ionicons name="flame" size={24} color="#fdba74" /><Text style={styles.photoText}>Your crew. Your appliance. Ready.</Text></View></View>
+          <View style={styles.introIcon}><Ionicons name="flame" size={34} color={colors.accent} /></View>
           <Text style={styles.eyebrow}>STEP 1 OF 5 · START OF SHIFT</Text>
           <Text style={styles.title}>Ready to respond.</Text>
           <Text style={styles.body}>Begin your shift with a readiness assessment, sign onto an appliance, and check your fire equipment.</Text>
-          <View style={styles.introList}>{[['person-outline', 'Personal readiness'], ['bus-outline', 'Appliance & equipment'], ['create-outline', 'Confirm & sign on']].map(([icon, label]) => <View key={label} style={styles.introItem}><Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={20} color={FIRE_ORANGE} /><Text style={styles.introLabel}>{label}</Text></View>)}</View>
+          <View style={styles.introList}>{[['person-outline', 'Personal readiness'], ['bus-outline', 'Appliance & equipment'], ['create-outline', 'Confirm & sign on']].map(([icon, label]) => <View key={label} style={styles.introItem}><Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={20} color={colors.accent} /><Text style={styles.introLabel}>{label}</Text></View>)}</View>
           <Text style={styles.caption}>You go on duty once your checks are complete.</Text>
           <FireButton label="Begin shift checks" onPress={() => go('readiness')} icon="play-circle-outline" />
         </View> : null}
@@ -209,7 +205,7 @@ export function FireShift({ gated = false }: { gated?: boolean }) {
         {step === 'appliance' ? <View style={styles.panel}>
           <Text style={styles.eyebrow}>STEP 3 OF 5 · YOUR UNIT</Text><Text style={styles.title}>Select appliance</Text><Text style={styles.body}>Choose the available Fire & Rescue appliance you are signing onto.</Text>
           {appliances.length === 0 ? <View style={styles.empty}><Ionicons name="bus-outline" size={34} color={colors.muted} /><Text style={styles.body}>No appliances are available. Ask your station officer to release or register an appliance.</Text></View> : appliances.map((a) => <Pressable key={a.id} disabled={busy} accessibilityRole="radio" accessibilityLabel={`${a.unit_number} — ${a.name}`} accessibilityState={{ checked: picked === a.id }} aria-checked={picked === a.id} onPress={() => setPicked(a.id)} style={[styles.unit, picked === a.id && styles.selectedUnit]}>
-            <View style={styles.unitIcon}><Ionicons name="bus-outline" size={28} color={FIRE_ORANGE} /></View><View style={{ flex: 1 }}><Text style={styles.unitNumber}>{a.unit_number}</Text><Text style={styles.unitName}>{a.name}</Text><Text style={styles.caption}>{[a.type, a.license_plate, a.station_number].filter(Boolean).join(' · ')}</Text></View><Ionicons name={picked === a.id ? 'checkmark-circle' : 'ellipse-outline'} size={23} color={picked === a.id ? FIRE_ORANGE : colors.muted} />
+            <View style={styles.unitIcon}><Ionicons name="bus-outline" size={28} color={colors.accent} /></View><View style={{ flex: 1 }}><Text style={styles.unitNumber}>{a.unit_number}</Text><Text style={styles.unitName}>{a.name}</Text><Text style={styles.caption}>{[a.type, a.license_plate, a.station_number].filter(Boolean).join(' · ')}</Text></View><Ionicons name={picked === a.id ? 'checkmark-circle' : 'ellipse-outline'} size={23} color={picked === a.id ? colors.accent : colors.muted} />
           </Pressable>)}
           <FireButton label="Confirm appliance" onPress={confirmAppliance} disabled={!picked} busy={busy} />
           <FireButton label="Refresh available appliances" secondary icon="refresh" onPress={() => void run(load)} busy={busy} />
@@ -219,11 +215,11 @@ export function FireShift({ gated = false }: { gated?: boolean }) {
           <Text style={styles.eyebrow}>STEP 4 OF 5 · {state?.appliance?.unit_number}</Text><Text style={styles.title}>Appliance & equipment</Text><Text style={styles.body}>{state?.appliance?.name} · {completed} of 11 checks answered</Text>
           {restored ? <Text style={styles.caption}>Your saved draft has been restored. Verify every answer before signing.</Text> : null}
           <Text style={styles.sectionTitle}>Fuel level</Text>
-          <View style={styles.fuelRow}>{FIRE_FUEL_LEVELS.map((level) => <Pressable key={level} accessibilityRole="radio" accessibilityLabel={`Fuel ${level}`} accessibilityState={{ checked: fuel === level }} aria-checked={fuel === level} disabled={busy} onPress={() => setFuel(level)} style={[styles.fuel, fuel === level && styles.selectedUnit]}><Ionicons name="speedometer-outline" size={17} color={fuel === level ? FIRE_ORANGE : colors.muted} /><Text style={styles.unitName}>{level}</Text></Pressable>)}</View>
+          <View style={styles.fuelRow}>{FIRE_FUEL_LEVELS.map((level) => <Pressable key={level} accessibilityRole="radio" accessibilityLabel={`Fuel ${level}`} accessibilityState={{ checked: fuel === level }} aria-checked={fuel === level} disabled={busy} onPress={() => setFuel(level)} style={[styles.fuel, fuel === level && styles.selectedUnit]}><Ionicons name="speedometer-outline" size={17} color={fuel === level ? colors.accent : colors.muted} /><Text style={styles.unitName}>{level}</Text></Pressable>)}</View>
           {fuel === '1/4' ? <Text style={styles.warning}>Low fuel recorded. Arrange refuelling with your station officer.</Text> : null}
           <Text style={styles.sectionTitle}>Essential checks</Text>
           {FIRE_ESSENTIALS.map(([key, label]) => <FireCheck key={key} label={label} value={answers[key]} onChange={(value) => setAnswers((a) => ({ ...a, [key]: value }))} disabled={busy} invalid={invalid} />)}
-          <View style={styles.equipmentTitle}><Ionicons name="flame" size={22} color={FIRE_ORANGE} /><Text style={styles.sectionTitle}>Fire equipment</Text></View>
+          <View style={styles.equipmentTitle}><Ionicons name="flame" size={22} color={colors.accent} /><Text style={styles.sectionTitle}>Fire equipment</Text></View>
           {FIRE_EQUIPMENT.map(([key, label, hint]) => <FireCheck key={key} label={label} hint={hint} value={answers[key]} onChange={(value) => setAnswers((a) => ({ ...a, [key]: value }))} disabled={busy} invalid={invalid} />)}
           <Input label={failed.length ? 'Fault details — required' : 'Inspection notes'} accessibilityLabel="Inspection notes" multiline maxLength={4000} value={notes} onChangeText={setNotes} editable={!busy} placeholder="Describe any defects or equipment concerns" />
           {failed.length ? <Text style={styles.warning}>A failed check prevents sign-on. Filing this inspection will take the appliance out of service and notify command.</Text> : null}
@@ -237,7 +233,7 @@ export function FireShift({ gated = false }: { gated?: boolean }) {
           {failed.length ? <View style={styles.failureBox}><Text style={styles.warning}>Appliance will not be cleared</Text>{failed.map((label) => <Text key={label} style={styles.body}>• {label}</Text>)}</View> : <Text style={styles.success}>All appliance and equipment checks passed.</Text>}
           {notes.trim() ? <Text style={styles.body}>{notes.trim()}</Text> : null}
           <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: declared }} aria-checked={declared} disabled={busy} onPress={() => setDeclared((d) => !d)} style={styles.declaration}>
-            <Ionicons name={declared ? 'checkbox' : 'square-outline'} size={25} color={declared ? FIRE_ORANGE : colors.muted} /><Text style={styles.declarationText}>I personally completed these checks and confirm that the answers and any defects recorded are accurate.</Text>
+            <Ionicons name={declared ? 'checkbox' : 'square-outline'} size={25} color={declared ? colors.accent : colors.muted} /><Text style={styles.declarationText}>I personally completed these checks and confirm that the answers and any defects recorded are accurate.</Text>
           </Pressable>
           <SignaturePad onChange={setSignature} onDrawingChange={setDrawing} disabled={busy} />
           <FireButton label={failed.length ? 'Sign & report defects' : 'Sign & file shift checks'} icon="create-outline" onPress={fileInspection} busy={busy} />
@@ -275,16 +271,10 @@ const useStyles = makeStyles(() => StyleSheet.create({
   headerActionText: { color: colors.textDim, fontWeight: '600', fontSize: 12 },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 18 },
   identityText: { fontSize: 11, fontWeight: '800', letterSpacing: 1.8, color: colors.text },
-  progress: { flexDirection: 'row', gap: 6, marginBottom: 22 },
-  progressItem: { flex: 1 },
-  progressTrack: { height: 3, backgroundColor: colors.borderStrong, borderRadius: 2 },
-  progressText: { color: colors.muted, fontSize: 10, fontWeight: '700', marginTop: 7 },
-  panel: { backgroundColor: colors.panel, borderRadius: radius.xl, borderWidth: 1, borderColor: colors.panelBorder, padding: space.lg, gap: 14, marginBottom: space.lg, overflow: 'hidden' },
-  introPhoto: { height: 220, margin: -space.lg, marginBottom: 10, overflow: 'hidden' },
-  photoShade: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(9,12,19,0.25)' },
-  photoCaption: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(9,12,19,0.78)' },
-  photoText: { fontSize: 13, fontWeight: '700', color: '#fff', flex: 1 },
-  eyebrow: { color: FIRE_ORANGE, fontSize: 10, fontWeight: '800', letterSpacing: 1.5 },
+  progress: { marginBottom: space.md },
+  panel: { backgroundColor: colors.bgCard, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.panelBorder, padding: space.lg, gap: 14, marginBottom: space.lg, overflow: 'hidden' },
+  introIcon: { width: 64, height: 64, borderRadius: 32, backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center' },
+  eyebrow: { color: colors.accent, fontSize: 10, fontWeight: '800', letterSpacing: 1.5 },
   title: { color: colors.text, fontSize: 28, lineHeight: 34, fontWeight: '800', letterSpacing: -0.6 },
   body: { color: colors.textDim, fontSize: 14, lineHeight: 22 },
   caption: { color: colors.muted, fontSize: 12, lineHeight: 18 },
@@ -293,7 +283,7 @@ const useStyles = makeStyles(() => StyleSheet.create({
   introLabel: { color: colors.text, fontSize: 15, fontWeight: '600' },
   empty: { alignItems: 'center', padding: 20, gap: 10, borderRadius: radius.md, borderStyle: 'dashed', borderWidth: 1, borderColor: colors.borderStrong },
   unit: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: radius.lg, backgroundColor: colors.bgElevated },
-  selectedUnit: { borderColor: FIRE_ORANGE, backgroundColor: '#f9731618' },
+  selectedUnit: { borderColor: colors.accent, backgroundColor: colors.accentSoft },
   unitIcon: { width: 45, height: 48, alignItems: 'center', justifyContent: 'center' },
   unitNumber: { color: colors.text, fontSize: 17, fontWeight: '800', marginBottom: 3 },
   unitName: { color: colors.textDim, fontSize: 13, lineHeight: 20 },
@@ -303,7 +293,7 @@ const useStyles = makeStyles(() => StyleSheet.create({
   fuel: { flex: 1, alignItems: 'center', paddingVertical: 12, gap: 5, borderRadius: radius.md, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.bgElevated },
   warning: { color: colors.high, fontSize: 13, lineHeight: 21, fontWeight: '600' },
   success: { color: colors.low, fontSize: 13, lineHeight: 21, fontWeight: '600' },
-  failureBox: { padding: 14, borderWidth: 1, borderColor: '#f9731655', backgroundColor: '#f9731610', borderRadius: radius.md, gap: 6 },
+  failureBox: { padding: 14, borderWidth: 1, borderColor: `${colors.critical}55`, backgroundColor: colors.criticalSoft, borderRadius: radius.md, gap: 6 },
   declaration: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 10 },
   declarationText: { flex: 1, color: colors.textDim, fontSize: 13, lineHeight: 21 },
   completeIcon: { width: 68, height: 68, borderRadius: 34, backgroundColor: colors.lowSoft, justifyContent: 'center', alignItems: 'center' },

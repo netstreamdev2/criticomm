@@ -47,6 +47,12 @@ const SUPER_ADMIN_GROUPS: NavGroup[] = [
     ],
   },
   { id: 'platform-monitoring', label: 'Monitoring', items: [adminLink('/cameras'), adminLink('/cameras/footage')] },
+  { id: 'platform-fines', label: 'Fines', items: [
+    adminLink('/police/fines', 'Fines Register'),
+    adminLink('/police/fines/payments', 'Import Payments'),
+    adminLink('/police/fines/account', 'Account Look-up'),
+    adminLink('/police/fines/offences', 'Charge Book'),
+  ] },
   { id: 'account', label: 'Account', items: [adminLink('/profile', 'My Profile')] },
 ];
 
@@ -72,6 +78,12 @@ const SYSTEM_ADMIN_GROUPS: NavGroup[] = [
       adminLink('/admin/devices', 'Devices'),
     ],
   },
+  { id: 'organisation-fines', label: 'Fines', items: [
+    adminLink('/police/fines', 'Fines Register'),
+    adminLink('/police/fines/payments', 'Import Payments'),
+    adminLink('/police/fines/account', 'Account Look-up'),
+    adminLink('/police/fines/offences', 'Charge Book'),
+  ] },
   {
     id: 'organisation-settings', label: 'Organisation Settings', items: [
       adminLink('/admin/config', 'Configuration'),
@@ -116,6 +128,12 @@ const SUPERVISOR_GROUPS: NavGroup[] = [
       adminLink('/report-hub', 'Reports'),
     ],
   },
+  { id: 'supervisor-fines', label: 'Fines', items: [
+    adminLink('/police/fines', 'Fines Register'),
+    adminLink('/police/fines/payments', 'Import Payments'),
+    adminLink('/police/fines/account', 'Account Look-up'),
+    adminLink('/police/fines/offences', 'Charge Book'),
+  ] },
   {
     id: 'supervisor-performance', label: 'Performance', items: [
       { href: '/performance/operational', label: 'Operational KPIs', icon: BarChart3 },
@@ -154,6 +172,12 @@ const CAPTAIN_GROUPS: NavGroup[] = [
     adminLink('/cameras'),
     adminLink('/responder', 'My Incidents'),
     adminLink('/duty-tasks', 'Duty Maintenance'),
+  ] },
+  { id: 'captain-fines', label: 'Fines', items: [
+    adminLink('/police/fines', 'Fines Register'),
+    adminLink('/police/fines/payments', 'Import Payments'),
+    adminLink('/police/fines/account', 'Account Look-up'),
+    adminLink('/police/fines/offences', 'Charge Book'),
   ] },
   { id: 'captain-account', label: 'My Work', items: [
     adminLink('/roster/mine', 'My Schedule'),
@@ -275,6 +299,12 @@ const SYSTEM_CONTROLLER_GROUPS: NavGroup[] = [
     adminLink('/duty-tasks', 'Duty Maintenance'),
     adminLink('/attendance', 'Attendance'),
     adminLink('/leave', 'Leave'),
+  ] },
+  { id: 'controller-fines', label: 'Fines', items: [
+    adminLink('/police/fines', 'Fines Register'),
+    adminLink('/police/fines/payments', 'Import Payments'),
+    adminLink('/police/fines/account', 'Account Look-up'),
+    adminLink('/police/fines/offences', 'Charge Book'),
   ] },
   { id: 'controller-reports', label: 'Reports', items: [
     adminLink('/report-hub', 'Report Hub'),
