@@ -76,6 +76,11 @@ test('roles are suggested from the old system, never administrator rights', () =
   assert.equal(suggestRole('SystemAdmin', 'Ethekwini').role, null);
   assert.match(suggestRole('SystemAdmin', 'Ethekwini').note ?? '', /not carried over/);
   assert.equal(suggestRole('Citizen', null).role, null);
+  // Never another department's field role.
+  assert.equal(suggestRole('Captain', 'EthekwiniDisaster').role, null);
+  assert.equal(suggestRole('Captain', 'EthekwiniDisaster').note, 'A Captain works in Metro Police. Choose a Disaster Management role.');
+  assert.equal(suggestRole('Firefighter', 'MetroFire').role, 'Firefighter');
+  assert.equal(suggestRole('Supervisor', 'EthekwiniDisaster').role, 'Supervisor');
   assert.equal(suggestRole('', 'MetroPolice').role, null);
 });
 

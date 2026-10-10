@@ -7,7 +7,7 @@ import {
 import { assignIncident, routeIncident, type OnDutyOfficer } from '@criticom/api';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { useOnDutyOfficers } from '@/lib/on-duty';
-import type { IncidentSeverity, Silo } from '@criticom/db';
+import { DEPARTMENT_NAMES, type IncidentSeverity, type Silo } from '@criticom/db';
 import { useToast } from '@/components/toast';
 import { cn, timeAgo } from '@/lib/utils';
 import { OfficerPicker, type RankedOfficer } from './officer-picker';
@@ -26,10 +26,10 @@ const DEPARTMENTS: Array<{
 ];
 
 const SILO_LABELS: Record<Department, string> = {
-  MetroPolice: 'Metro Police',
-  MetroFire: 'Fire & Rescue',
-  Medical: 'EMS / Medical',
-  EthekwiniDisaster: 'Disaster Mgmt',
+  MetroPolice: DEPARTMENT_NAMES.MetroPolice,
+  MetroFire: DEPARTMENT_NAMES.MetroFire,
+  Medical: DEPARTMENT_NAMES.Medical,
+  EthekwiniDisaster: DEPARTMENT_NAMES.EthekwiniDisaster,
 };
 const deptLabel = (s: string) => SILO_LABELS[s as Department] ?? s;
 
@@ -56,7 +56,7 @@ function distanceKm(a: [number, number], b: [number, number]) {
  */
 export function AssignForm({
   incidentId, incidentNumber, silo, dispatchedSilos, severity, scene, officers: initialOfficers, eta, locked,
-  awaiting, assignedTo, sosRaiser,
+  awaiting, assignedTo, sosRaiser, allowedSilos,
 }: {
   incidentId: string;
   incidentNumber: string;
@@ -77,24 +77,31 @@ export function AssignForm({
   assignedTo: { userId: string; name: string; at: string | null } | null;
   /** For an officer's SOS: the officer in trouble, who is never sent their own SOS. */
   sosRaiser?: string | null;
+  /**
+   * The departments this desk dispatches: a department's dispatch desk sends
+   * its own crews only (0068); the control room sends any.
+   */
+  allowedSilos?: Department[];
 }) {
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const live = useOnDutyOfficers(initialOfficers, FIELD_SILOS);
+  const allowed = useMemo<Department[]>(() => allowedSilos ?? DEPARTMENTS.map((d) => d.id), [allowedSilos]);
+  const departments = DEPARTMENTS.filter((d) => allowed.includes(d.id));
   const officers = useMemo(
-    () => (sosRaiser ? live.filter((o) => o.userId !== sosRaiser) : live),
-    [live, sosRaiser],
+    () => live.filter((o) => allowed.includes(o.silo as Department) && o.userId !== sosRaiser),
+    [live, sosRaiser, allowed],
   );
 
   const [mode, setMode] = useState<Mode>(assignedTo ? 'assign' : 'all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   // Start from where the call is already routed, else the owning department.
-  const initialTargets: Department[] = dispatchedSilos.length
+  const initialTargets: Department[] = (dispatchedSilos.length
     ? dispatchedSilos.filter((s): s is Department => s !== 'Ethekwini')
-    : silo === 'Ethekwini' ? [] : [silo as Department];
+    : silo === 'Ethekwini' ? [] : [silo as Department]).filter((d) => allowed.includes(d));
   const [targets, setTargets] = useState<Department[]>(initialTargets);
 
   const perDept = useMemo(() => {
@@ -256,7 +263,7 @@ export function AssignForm({
             {mode === 'all' ? 'Target departments' : 'Departments (filter)'}
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {DEPARTMENTS.map((d) => {
+            {departments.map((d) => {
               const active = targets.includes(d.id);
               const Icon = d.icon;
               const count = perDept.get(d.id) ?? 0;
@@ -292,7 +299,7 @@ export function AssignForm({
             </span>
             {mode === 'assign' ? 'Officer to assign' : 'On duty now'}
             <span className="ml-auto font-normal normal-case tracking-normal">
-              {onDuty} on duty · {free} free · nearest first
+              {onDuty} on duty · {free} available · nearest first
             </span>
           </p>
 

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { getDepartmentBranding, fallbackBranding, type DepartmentBranding } from '@criticom/api';
 import type { Silo } from '@criticom/db/types';
 import { getSupabase } from './supabase';
@@ -9,7 +9,9 @@ import { useAuth } from './auth';
  * the app looks like the service the crew actually works for.
  *
  * Falls back to the built-in identity instantly, then swaps in whatever
- * Admin → Departments has configured. Branding never blocks a screen.
+ * Admin → Departments has configured. Branding never blocks a screen, and it
+ * is always the signed-in department's: a row loaded for another account is
+ * never shown.
  */
 
 export type DeptIdentity = DepartmentBranding & { logoUrl: string | null };
@@ -21,11 +23,11 @@ const Ctx = createContext<DeptIdentity>({
 
 export function BrandingProvider({ children }: { children: React.ReactNode }) {
   const { silo, session } = useAuth();
-  const [dept, setDept] = useState<DeptIdentity>({ ...fallbackBranding(silo), logoUrl: null });
+  const [loaded, setLoaded] = useState<DeptIdentity | null>(null);
+  const builtIn = useMemo<DeptIdentity>(() => ({ ...fallbackBranding(silo), logoUrl: null }), [silo]);
 
   useEffect(() => {
-    // Show the built-in identity for this silo immediately.
-    setDept({ ...fallbackBranding(silo), logoUrl: null });
+    setLoaded(null);
     if (!session) return;
 
     let live = true;
@@ -36,14 +38,15 @@ export function BrandingProvider({ children }: { children: React.ReactNode }) {
         const logoUrl = row.logo_path
           ? sb.storage.from('department-logos').getPublicUrl(row.logo_path).data.publicUrl || null
           : null;
-        if (live) setDept({ ...row, logoUrl });
+        if (live) setLoaded({ ...row, logoUrl });
       } catch {
-        /* keep the fallback */
+        /* keep the built-in identity */
       }
     })();
     return () => { live = false; };
   }, [silo, session]);
 
+  const dept = loaded && loaded.silo === silo ? loaded : builtIn;
   return <Ctx.Provider value={dept}>{children}</Ctx.Provider>;
 }
 

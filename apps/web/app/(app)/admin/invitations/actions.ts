@@ -2,9 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import {
-  cancelInvitation, createInvitation, getRegisterPeople, searchStaffForInvite, type InviteChannel, type StaffForInvite,
+  cancelInvitation, createInvitation, getRegisterPeople, getStaffForInvite, searchStaffForInvite, type InviteChannel,
+  type StaffForInvite,
 } from '@criticom/api';
-import { inviteChannelFor, type Silo, type UserRole } from '@criticom/db';
+import {
+  DEPARTMENT_NAMES, inviteChannelFor, roleDepartmentProblem, type CriticomClient, type Silo, type UserRole,
+} from '@criticom/db';
 import { invitationErrorMessage } from '@/lib/onboarding/errors';
 import {
   createAccountDirectly, deliverInvitation, deliveryOptions, type DeliveryOutcome, type DirectAccount,
@@ -23,6 +26,20 @@ export type InviteResult =
   | { ok: false; error: string };
 
 const messageOf = (e: unknown) => invitationErrorMessage(e);
+
+/**
+ * Why this account cannot be made, or null: the role must fit the department,
+ * and the department must be the one the staff register says (0067 refuses
+ * both too). A wrong department is put right in Personnel, not here.
+ */
+async function accessProblem(client: CriticomClient, personnelId: string, role: UserRole, silo: Silo): Promise<string | null> {
+  const person = await getStaffForInvite(client, String(personnelId)).catch(() => null);
+  if (person && person.silo !== silo) {
+    const name = `${person.first_name} ${person.last_name}`.trim();
+    return `${name} is in ${DEPARTMENT_NAMES[person.silo]} in the staff register. Change their department in Personnel first, then invite them.`;
+  }
+  return roleDepartmentProblem(role, silo);
+}
 
 function refresh() {
   revalidatePath('/admin/invitations');
@@ -47,6 +64,8 @@ export async function createInvitationAction(input: {
   email: string; phone: string; reason: string; checkedWithPerson: boolean;
 }): Promise<InviteResult> {
   const { supabase } = await getSession();
+  const mismatch = await accessProblem(supabase, input.personnelId, input.role, input.silo);
+  if (mismatch) return { ok: false, error: mismatch };
   if (input.channel !== 'code' && !input.checkedWithPerson) {
     return { ok: false, error: 'Confirm you have checked the address or number with the person.' };
   }
@@ -87,6 +106,8 @@ export async function createAccountDirectlyAction(input: {
   if (role !== 'SystemAdmin' && role !== 'SuperAdmin') {
     return { ok: false, message: 'Only a SystemAdmin or the SuperAdmin can create an account directly.' };
   }
+  const mismatch = await accessProblem(supabase, input.personnelId, input.role, input.silo);
+  if (mismatch) return { ok: false, message: mismatch };
   if (String(input.password) !== String(input.confirmPassword)) return { ok: false, message: 'The two passwords do not match.' };
   if (!input.handOverAgreed) return { ok: false, message: 'Confirm you will give the password to the person yourself.' };
   try {
@@ -169,6 +190,8 @@ export async function inviteFromRegisterAction(
     if (p.left_at) { skip('Has left'); continue; }
     if (p.user_id) { skip('Already has an account'); continue; }
     if (!p.proposed_role || !p.role_confirmed_at) { skip('Role not confirmed'); continue; }
+    const mismatch = roleDepartmentProblem(p.proposed_role, p.silo);
+    if (mismatch) { skip(mismatch); continue; }
     const channel = inviteChannelFor(p, available);
     try {
       const created = await createInvitation(supabase, {

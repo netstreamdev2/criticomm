@@ -6,7 +6,7 @@ import {
   type AccountHistoryEntry,
 } from '@criticom/api';
 import {
-  confirmWordFor, needsSecondApproval, rolesAssignableBy, type Silo,
+  confirmWordFor, departmentName, needsSecondApproval, roleName, rolesAssignableBy, type Silo,
 } from '@criticom/db';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
@@ -79,7 +79,7 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
           </span>
         </div>
         <p className="text-muted-foreground">
-          {profile.role} · {profile.silo}
+          {roleName(profile.role)} · {departmentName(profile.silo)}
           {confirm.kind === 'badge number' ? ` · Badge ${confirm.word}` : ''}
           {profile.email ? ` · ${profile.email}` : ''}
         </p>

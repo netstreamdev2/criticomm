@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Check, Mail, Phone, Search, TriangleAlert } from 'lucide-react';
 import { registerStatus, type RegisterPerson } from '@criticom/api';
-import { DEPARTMENT_NAMES, inviteChannelFor, type Silo, type UserRole } from '@criticom/db';
+import { DEPARTMENT_NAMES, inviteChannelFor, roleFitsDepartment, roleName, type Silo, type UserRole } from '@criticom/db';
 import { inviteFromRegisterAction } from '@/app/(app)/admin/invitations/actions';
 import { BulkRunDialog, type BulkItem } from '@/components/register/bulk-run';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/toast';
 import { cn } from '@/lib/utils';
-import { markLeftAction, restoreAction, setRolesAction } from './actions';
+import { markLeftAction, moveDepartmentAction, restoreAction, setRolesAction } from './actions';
 
 export type StatusFilter =
   | 'current' | 'to-confirm' | 'no-role' | 'ready' | 'invited' | 'active' | 'not-listed' | 'shared-badge' | 'left' | 'all';
@@ -49,7 +49,7 @@ const fullName = (p: RegisterPerson) => `${p.first_name} ${p.last_name}`.trim();
  * and mark leavers, all with the rules of migration 0050 behind them.
  */
 export function RegisterTable({
-  people, canManage, roleOptions, delivery, latestImport, sharedBadgeIds, initialFilter,
+  people, canManage, canMove = false, roleOptions, delivery, latestImport, sharedBadgeIds, initialFilter, initialQuery = '',
 }: {
   people: RegisterPerson[];
   canManage: boolean;
@@ -58,11 +58,15 @@ export function RegisterTable({
   latestImport: { id: string; departments: Silo[] } | null;
   sharedBadgeIds: string[];
   initialFilter: StatusFilter;
+  /** SystemAdmin and SuperAdmin put a wrong department right (0067). */
+  canMove?: boolean;
+  /** Opened from a link that names someone, e.g. the invite page. */
+  initialQuery?: string;
 }) {
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState(initialQuery);
   const [silo, setSilo] = useState<Silo | 'all'>('all');
   const [station, setStation] = useState('all');
   const [filter, setFilter] = useState<StatusFilter>(initialFilter);
@@ -71,6 +75,7 @@ export function RegisterTable({
   const [bulkRole, setBulkRole] = useState<UserRole | ''>('');
   const [inviting, setInviting] = useState<BulkItem[] | null>(null);
   const [leaving, setLeaving] = useState<{ person: RegisterPerson; mode: 'leave' | 'restore' } | null>(null);
+  const [moving, setMoving] = useState<RegisterPerson | null>(null);
 
   const shared = useMemo(() => new Set(sharedBadgeIds), [sharedBadgeIds]);
   const silos = useMemo(() => [...new Set(people.map((p) => p.silo))].sort(), [people]);
@@ -108,19 +113,26 @@ export function RegisterTable({
   const shown = visible.slice(page * PAGE, page * PAGE + PAGE);
   const chosen = people.filter((p) => selected.has(p.id));
   const invitable = chosen.filter((p) => registerStatus(p).key === 'ready');
+  // A field role belongs to one department: only roles that fit every chosen
+  // person's department are offered (role_fits_department, 0067).
+  const chosenDepartments = [...new Set(chosen.map((p) => p.silo))];
+  const bulkOptions = roleOptions.filter((r) => chosenDepartments.every((d) => roleFitsDepartment(r, d)));
+  const mixedDepartments = chosenDepartments.length > 1;
+  // A role chosen before the selection changed may no longer fit it.
+  const roleToSet = bulkRole && bulkOptions.includes(bulkRole) ? bulkRole : '';
   const allShownSelected = shown.length > 0 && shown.every((p) => selected.has(p.id));
 
   const toggle = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const resetPaging = () => { setPage(0); };
 
   const applyRole = () => {
-    if (!bulkRole) return;
+    if (!roleToSet) return;
     const ids = chosen.map((p) => p.id);
     start(async () => {
-      const res = await setRolesAction(ids, bulkRole);
+      const res = await setRolesAction(ids, roleToSet);
       if (!res.ok) { toast.push({ title: 'Roles not set', body: res.error, tone: 'critical' }); return; }
       toast.push({
-        title: `${bulkRole} confirmed for ${res.set} ${res.set === 1 ? 'person' : 'people'}`,
+        title: `${roleName(roleToSet)} confirmed for ${res.set} ${res.set === 1 ? 'person' : 'people'}`,
         body: res.skipped ? `${res.skipped} skipped: they have an account or have left.` : undefined,
         tone: 'success',
       });
@@ -133,7 +145,7 @@ export function RegisterTable({
     const channel = inviteChannelFor(p, delivery);
     return {
       key: p.id, name: fullName(p),
-      detail: `${p.proposed_role} · ${channel === 'email' ? `email ${p.work_email}` : channel === 'sms' ? `SMS ${p.work_cellphone}` : 'printed code'}`,
+      detail: `${roleName(p.proposed_role)} · ${channel === 'email' ? `email ${p.work_email}` : channel === 'sms' ? `SMS ${p.work_cellphone}` : 'printed code'}`,
     };
   }));
 
@@ -235,10 +247,10 @@ export function RegisterTable({
                     ) : p.proposed_role ? (
                       p.role_confirmed_at ? (
                         <span className="inline-flex items-center gap-1" title={`Confirmed by ${p.role_confirmed_by_name ?? 'an administrator'}`}>
-                          {p.proposed_role} <Check className="h-3.5 w-3.5 text-success" aria-label="confirmed" />
+                          {roleName(p.proposed_role)} <Check className="h-3.5 w-3.5 text-success" aria-label="confirmed" />
                         </span>
                       ) : (
-                        <span className="text-severity-medium-ink" title={p.previous_role ? `Suggested from “${p.previous_role}”` : 'Suggested'}>{p.proposed_role}?</span>
+                        <span className="text-severity-medium-ink" title={p.previous_role ? `Suggested from “${p.previous_role}”` : 'Suggested'}>{roleName(p.proposed_role)}?</span>
                       )
                     ) : <span className="text-muted-foreground">—</span>}
                   </td>
@@ -249,6 +261,9 @@ export function RegisterTable({
                   <td className="whitespace-nowrap px-3 py-2 text-right">
                     {canInvite ? (
                       <Link href={`/admin/invitations/new?person=${p.id}`} className="text-sm font-semibold text-primary hover:underline">Invite</Link>
+                    ) : null}
+                    {canMove && !p.left_at && !p.user_id ? (
+                      <button type="button" className="ml-3 text-sm text-muted-foreground hover:text-fg" onClick={() => setMoving(p)}>Change department</button>
                     ) : null}
                     {canManage && !p.left_at && !(p.user_id && p.account?.active !== false) ? (
                       <button type="button" className="ml-3 text-sm text-muted-foreground hover:text-fg" onClick={() => setLeaving({ person: p, mode: 'leave' })}>Mark as left</button>
@@ -271,11 +286,14 @@ export function RegisterTable({
         <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-2 rounded-xl border border-primary/40 bg-bg-card px-4 py-3 shadow-xl">
           <span className="text-sm font-semibold">{selected.size} selected</span>
           <span className="mx-1 h-5 w-px bg-border" aria-hidden />
-          <select value={bulkRole} onChange={(e) => setBulkRole(e.target.value as UserRole)} className={selectClass} aria-label="Role to confirm">
+          <select value={roleToSet} onChange={(e) => setBulkRole(e.target.value as UserRole)} className={selectClass} aria-label="Role to confirm">
             <option value="">Set role for invitation…</option>
-            {roleOptions.map((r) => <option key={r} value={r}>{r}</option>)}
+            {bulkOptions.map((r) => <option key={r} value={r}>{roleName(r)}</option>)}
           </select>
-          <Button size="sm" variant="outline" disabled={!bulkRole || pending} onClick={applyRole}>{pending ? 'Working…' : 'Confirm role'}</Button>
+          {mixedDepartments ? (
+            <span className="text-xs text-muted-foreground">Field roles: choose people from one department.</span>
+          ) : null}
+          <Button size="sm" variant="outline" disabled={!roleToSet || pending} onClick={applyRole}>{pending ? 'Working…' : 'Confirm role'}</Button>
           <span className="mx-1 h-5 w-px bg-border" aria-hidden />
           <Button size="sm" disabled={invitable.length === 0} onClick={openInvite}
             title={invitable.length < selected.size ? 'Only people with a confirmed role and no account or open invitation can be invited' : undefined}>
@@ -306,6 +324,58 @@ export function RegisterTable({
       ) : null}
 
       {leaving ? <LeaveDialog person={leaving.person} mode={leaving.mode} onClose={() => setLeaving(null)} /> : null}
+      {moving ? <MoveDialog person={moving} onClose={() => setMoving(null)} /> : null}
+    </div>
+  );
+}
+
+const ALL_DEPARTMENTS: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster', 'Ethekwini'];
+
+/** Move someone without an account to the department they work in, with a reason for the record. */
+function MoveDialog({ person, onClose }: { person: RegisterPerson; onClose: () => void }) {
+  const router = useRouter();
+  const toast = useToast();
+  const [silo, setSilo] = useState<Silo | ''>('');
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const name = fullName(person);
+
+  const submit = () => {
+    if (!silo) return;
+    setError(null);
+    start(async () => {
+      const res = await moveDepartmentAction(person.id, silo, reason.trim());
+      if (!res.ok) { setError(res.error); return; }
+      toast.push({
+        title: `${name} is now in ${DEPARTMENT_NAMES[silo]}`,
+        body: res.invitationsCancelled ? 'Their open invitation was cancelled. Confirm their role there, then invite them.' : 'Confirm their role there, then invite them.',
+        tone: 'success',
+      });
+      onClose();
+      router.refresh();
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-start justify-center bg-black/60 p-4 pt-[15vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="move-title">
+      <div className="w-full max-w-md space-y-3 rounded-xl border border-border bg-bg-card p-5 shadow-2xl">
+        <h2 id="move-title" className="text-lg font-semibold">Change {name}’s department</h2>
+        <p className="text-sm text-muted-foreground">
+          Now in {DEPARTMENT_NAMES[person.silo]}. Their role for invitation is cleared, and any open invitation is cancelled.
+        </p>
+        <select value={silo} onChange={(e) => setSilo(e.target.value as Silo)} aria-label="New department" className={`${selectClass} w-full`}>
+          <option value="" disabled>Choose the department</option>
+          {ALL_DEPARTMENTS.filter((s) => s !== person.silo).map((s) => <option key={s} value={s}>{DEPARTMENT_NAMES[s]}</option>)}
+        </select>
+        <Input value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} aria-label="Reason"
+          placeholder="e.g. Works in Metro Police, per HR staff list 2026/10" />
+        {error ? <p role="alert" className="text-sm text-severity-critical-ink">{error}</p> : null}
+        <div className="flex gap-2">
+          <Button onClick={submit} disabled={!silo || reason.trim().length < 10 || pending}>{pending ? 'Working…' : 'Change department'}</Button>
+          <Button variant="ghost" onClick={onClose} disabled={pending}>Cancel</Button>
+        </div>
+      </div>
     </div>
   );
 }

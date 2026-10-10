@@ -156,7 +156,7 @@ export default function FireReportScreen() {
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
       Alert.alert(
         'Fire report filed',
-        `${incident.incident_number} is resolved and on record. Dispatch and command are told the moment it reaches the server — straight away with signal, automatically once you have it.`,
+        `${incident.incident_number} is resolved and on record.`,
       );
       router.replace('/(tabs)/incidents');
     } catch (e) {

@@ -7,6 +7,8 @@ import {
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useDept } from '@/lib/branding';
+import { roleName } from '@criticom/db';
+import { wordsFor } from '@/lib/department';
 import { DeptHeader } from '@/components/dept-badge';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Card, EmptyState, Muted, SectionLabel, Title } from '@/components/ui';
@@ -41,6 +43,8 @@ type Allocated = {
 export default function ScheduleScreen() {
   const styles = useStyles();
   const { session, silo, fullName, role } = useAuth();
+  // The rostered vehicle in this department's own icon (car, appliance, ambulance).
+  const unitIcon = wordsFor(silo).unitIcon;
   const dept = useDept();
   const [schedule, setSchedule] = useState<MySchedule | null>(null);
   const [allocations, setAllocations] = useState<Allocated[]>([]);
@@ -117,7 +121,7 @@ export default function ScheduleScreen() {
         <DeptHeader dept={dept} />
         <View style={styles.identity}>
           <Text style={styles.name}>{fullName}</Text>
-          <Muted>{role}</Muted>
+          <Muted>{roleName(role)}</Muted>
         </View>
       </Card>
 
@@ -138,7 +142,7 @@ export default function ScheduleScreen() {
               </Muted>
               <View style={styles.chips}>
                 {(a.duty_posts?.call_sign ?? a.call_sign) ? <Chip icon="id-card-outline" text={(a.duty_posts?.call_sign ?? a.call_sign)!} /> : null}
-                {(a.duty_posts?.vehicle ?? a.vehicle) ? <Chip icon="car-sport-outline" text={(a.duty_posts?.vehicle ?? a.vehicle)!} /> : null}
+                {(a.duty_posts?.vehicle ?? a.vehicle) ? <Chip icon={unitIcon} text={(a.duty_posts?.vehicle ?? a.vehicle)!} /> : null}
                 {(a.duty_posts?.sector ?? a.sector) ? <Chip icon="map-outline" text={(a.duty_posts?.sector ?? a.sector)!} /> : null}
               </View>
               {a.special_instructions ? (
@@ -178,7 +182,7 @@ export default function ScheduleScreen() {
           </Muted>
           <View style={styles.chips}>
             {schedule.onDutyNow.callSign ? <Chip icon="id-card-outline" text={schedule.onDutyNow.callSign} /> : null}
-            {schedule.onDutyNow.vehicle ? <Chip icon="car-sport-outline" text={schedule.onDutyNow.vehicle} /> : null}
+            {schedule.onDutyNow.vehicle ? <Chip icon={unitIcon} text={schedule.onDutyNow.vehicle} /> : null}
             {schedule.onDutyNow.sector ? <Chip icon="map-outline" text={schedule.onDutyNow.sector} /> : null}
           </View>
           {schedule.onDutyNow.specialInstructions ? (
@@ -220,7 +224,7 @@ export default function ScheduleScreen() {
               {d.callSign || d.vehicle ? (
                 <View style={styles.chips}>
                   {d.callSign ? <Chip icon="id-card-outline" text={d.callSign} /> : null}
-                  {d.vehicle ? <Chip icon="car-sport-outline" text={d.vehicle} /> : null}
+                  {d.vehicle ? <Chip icon={unitIcon} text={d.vehicle} /> : null}
                 </View>
               ) : null}
             </View>

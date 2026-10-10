@@ -201,7 +201,7 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
                     <>
                       <Field label={fine.offender_id_type ?? 'Identification'}><span className="font-mono">{fine.offender_id_number}</span></Field>
                       <Field label="Date of birth">{fine.offender_dob}</Field>
-                      <Field label="Gender">{fine.offender_gender}</Field>
+                      <Field label="Sex">{fine.offender_gender}</Field>
                       <Field label="Licence code">{[fine.offender_licence_code, fine.offender_prdp_code ? `PrDP ${fine.offender_prdp_code}` : null].filter(Boolean).join(' · ')}</Field>
                       <Field label="Cell">{fine.offender_phone}</Field>
                       <Field label="Address">{fine.offender_address}</Field>

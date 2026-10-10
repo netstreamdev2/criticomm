@@ -2,77 +2,91 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { createMetroReport, createFirearmAuthorization, returnFirearm, logAudit } from '@criticom/api';
+import {
+  composeReportType, createMetroReport, createFirearmAuthorization, formIdsOf, logAudit, returnFirearm,
+  splitReportAnswers, validateReportAnswers,
+} from '@criticom/api';
 import { getSession } from '@/lib/session';
 
 const S = (fd: FormData, k: string) => {
   const v = String(fd.get(k) ?? '').trim();
   return v === '' ? null : v;
 };
-const B = (fd: FormData, k: string) => fd.get(k) === 'on';
 const N = (fd: FormData, k: string) => {
   const v = Number(fd.get(k));
   return Number.isFinite(v) ? v : 0;
 };
 
-export async function createMetroReportAction(formData: FormData) {
-  const { supabase, fullName } = await getSession();
+export type ConsoleReportInput = {
+  forms: string[];
+  header: {
+    case_number: string; date_of_offense: string; time_of_offense: string;
+    location: string; station: string; officer_name: string; badge_number: string;
+  };
+  answers: Record<string, string>;
+};
 
-  // Itemised offenses (up to 5 rows from the wizard)
-  const offenses: Array<{ offense_type: string; fine_amount: number }> = [];
-  for (let i = 0; i < 5; i++) {
-    const type = S(formData, `offense_type_${i}`);
-    if (type) offenses.push({ offense_type: type, fine_amount: N(formData, `offense_fine_${i}`) });
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+const CLOCK = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/**
+ * A police report filed from the console on the DMPS forms: the same forms,
+ * shared blocks and storage as an officer's report on a call, without the call.
+ */
+export async function fileConsoleReportAction(input: ConsoleReportInput): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
+  const { supabase, fullName, userId } = await getSession();
+  const forms = formIdsOf(input.forms.join('+'));
+  if (forms.length === 0) return { ok: false, error: 'Choose at least one form.' };
+  const type = composeReportType(forms);
+  const h = input.header;
+  const location = h.location.trim();
+  const problems = [
+    ...(!location ? ['Location is required.'] : []),
+    ...(!DAY.test(h.date_of_offense) ? ['Date of offence must be a date.'] : []),
+    ...(h.time_of_offense && !CLOCK.test(h.time_of_offense) ? ['Time of offence must be HH:MM.'] : []),
+    ...validateReportAnswers(type, input.answers),
+  ];
+  if (problems.length) return { ok: false, error: problems.join(' ') };
+
+  const { fields, details } = splitReportAnswers(type, input.answers);
+  const yes = (k: string) => fields[k] === 'Yes' || fields[k] === 'true';
+  try {
+    const report = await createMetroReport(supabase, {
+      silo: 'MetroPolice',
+      case_number: h.case_number.trim() || `MP-${Date.now()}`,
+      incident_category: type.label,
+      report_type: type.id,
+      details,
+      date_of_offense: h.date_of_offense,
+      time_of_offense: h.time_of_offense || null,
+      location,
+      station: h.station.trim() || null,
+      officer_name: h.officer_name.trim() || fullName,
+      badge_number: h.badge_number.trim() || null,
+      partner_name: fields.partner_name ?? null,
+      bodycam_active: fields.bodycam_active ?? null,
+      use_of_force: fields.use_of_force ?? null,
+      arrest_made: fields.arrest_made ?? 'No',
+      charges: fields.charges ?? null,
+      evidence_weapons: yes('evidence_weapons'),
+      evidence_drugs: yes('evidence_drugs'),
+      evidence_property: yes('evidence_property'),
+      evidence_log: fields.evidence_log ?? null,
+      officer_narrative: fields.officer_narrative ?? null,
+      vehicle_impounded: 'No',
+      filed_by: userId,
+      filed_at: new Date().toISOString(),
+    });
+    await logAudit(supabase, {
+      silo: 'MetroPolice', action_type: 'MetroReportCreated', entity_type: 'metro_report',
+      entity_id: report.id, user_name: fullName, details: type.label,
+    });
+    revalidatePath('/police/reports');
+    revalidatePath('/police');
+    return { ok: true, id: report.id };
+  } catch (e) {
+    return { ok: false, error: (e as { message?: string })?.message ?? 'The report was not filed.' };
   }
-
-  const report = await createMetroReport(supabase, {
-    case_number: S(formData, 'case_number') ?? `MP-${Date.now()}`,
-    incident_category: S(formData, 'incident_category'),
-    date_of_offense: S(formData, 'date_of_offense') ?? new Date().toISOString().slice(0, 10),
-    time_of_offense: S(formData, 'time_of_offense'),
-    location: S(formData, 'location'),
-    station: S(formData, 'station'),
-    officer_name: S(formData, 'officer_name') ?? fullName,
-    badge_number: S(formData, 'badge_number'),
-    partner_name: S(formData, 'partner_name'),
-    officer_narrative: S(formData, 'officer_narrative'),
-    ticket_number: S(formData, 'ticket_number'),
-    offender_name: S(formData, 'offender_name'),
-    offender_id: S(formData, 'offender_id'),
-    vehicle_make: S(formData, 'vehicle_make'),
-    license_plate: S(formData, 'license_plate'),
-    vin_number: S(formData, 'vin_number'),
-    reg_number: S(formData, 'reg_number'),
-    fine_amount: N(formData, 'fine_amount'),
-    vehicle_impounded: B(formData, 'vehicle_impounded') ? 'Yes' : 'No',
-    impound_lot: S(formData, 'impound_lot'),
-    arrest_made: B(formData, 'arrest_made') ? 'Yes' : 'No',
-    suspect_name: S(formData, 'suspect_name'),
-    suspect_description: S(formData, 'suspect_description'),
-    charges: S(formData, 'charges'),
-    victim_name: S(formData, 'victim_name'),
-    victim_contact: S(formData, 'victim_contact'),
-    victim_id: S(formData, 'victim_id'),
-    victim_injuries: S(formData, 'victim_injuries'),
-    evidence_weapons: B(formData, 'evidence_weapons'),
-    evidence_drugs: B(formData, 'evidence_drugs'),
-    evidence_property: B(formData, 'evidence_property'),
-    evidence_log: S(formData, 'evidence_log'),
-    contraband_seized: S(formData, 'contraband_seized'),
-    contraband_details: S(formData, 'contraband_details'),
-    ammunition_rounds: N(formData, 'ammunition_rounds'),
-    bodycam_active: B(formData, 'bodycam_active') ? 'Yes' : 'No',
-    use_of_force: S(formData, 'use_of_force'),
-    weapon_type: S(formData, 'weapon_type'),
-    weapon_size: S(formData, 'weapon_size'),
-  }, offenses);
-
-  await logAudit(supabase, {
-    silo: 'MetroPolice', action_type: 'MetroReportCreated', entity_type: 'metro_report',
-    entity_id: report.id, user_name: fullName, details: report.incident_category ?? undefined,
-  });
-  revalidatePath('/police/reports');
-  redirect(`/police/reports/${report.id}`);
 }
 
 export async function createFirearmAction(formData: FormData) {

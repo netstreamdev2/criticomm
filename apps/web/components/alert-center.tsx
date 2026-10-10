@@ -96,6 +96,17 @@ export function AlertCenter({
   const isGlobal = GLOBAL_ROLES.includes(role as UserRole) || silo === 'Ethekwini';
   const scope: Silo | 'all' = isGlobal ? 'all' : (silo as Silo);
 
+  // A department's dispatch desk hears only the calls sent to it (0068). The
+  // database already withholds the rest; this holds even if one slips through.
+  const deskSilo: Silo | null = ['Dispatcher', 'ControlRoom', 'IncidentLogger'].includes(role) && silo !== 'Ethekwini'
+    ? (silo as Silo) : null;
+  const forThisDesk = useCallback((incident: { silo: Silo; tagged_silos?: Silo[] | null; dispatched_silos?: Silo[] | null; created_by?: string | null }) =>
+    !deskSilo
+    || incident.silo === deskSilo
+    || (incident.tagged_silos ?? []).includes(deskSilo)
+    || (incident.dispatched_silos ?? []).includes(deskSilo)
+    || incident.created_by === userId, [deskSilo, userId]);
+
   // Status changes fire in bursts as a crew works a call; only the last one per
   // incident is worth a toast.
   const lastStatus = useRef(new Map<string, string>());
@@ -160,6 +171,7 @@ export function AlertCenter({
     const offNew = subscribeNewIncidents(sb, scope, (incident) => {
       // The person who logged it already has their own confirmation.
       if (incident.created_by && incident.created_by === userId) return;
+      if (!forThisDesk(incident)) return;
 
       // An officer's SOS raises its own blocking alert; a second card for the
       // same emergency would only compete with it.
@@ -203,6 +215,7 @@ export function AlertCenter({
     });
 
     const offUpd = subscribeIncidentUpdates(sb, scope, (incident) => {
+      if (!forThisDesk(incident)) return;
       if (lastStatus.current.get(incident.id) === incident.status) return;
       lastStatus.current.set(incident.id, incident.status);
       push({
@@ -216,7 +229,7 @@ export function AlertCenter({
     });
 
     return () => { offAlerts(); offNew(); offUpd(); };
-  }, [scope, userId, push, chime, chimeSeverity, showAlert, isDispatchDesk, toastMs, onTheFloor]);
+  }, [scope, userId, push, chime, chimeSeverity, showAlert, isDispatchDesk, toastMs, onTheFloor, forThisDesk]);
 
   const current = queue[0];
 

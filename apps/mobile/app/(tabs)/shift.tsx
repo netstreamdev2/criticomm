@@ -4,8 +4,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  assignVehicle, bookOutBodycam, cleanupOnLogout, declareShiftNoBodycam, getLastShiftFirearm, getLastVehicleInspection,
-  getShiftGateProgress, getShiftInspectionFolder, getTodayShiftStartRecord, issueShiftFirearm, listAvailableVehicles,
+  assignVehicle, bookOutBodycam, cleanupOnLogout, declareShiftNoBodycam, declareShiftNoVehicle, getLastShiftFirearm, getLastVehicleInspection,
+  getShiftGateProgress, getShiftInspectionFolder, getTodayShiftStartRecord, issueShiftFirearm, listShiftVehicles,
   listShiftBodycams, listShiftFirearms, submitMentalCheck, submitVehicleInspection187c, toggleDuty, declareShiftNoFirearm,
   type BodycamRow, type ShiftFirearm, type ShiftStartRecord,
 } from '@criticom/api';
@@ -31,6 +31,8 @@ import { FirearmSheet, emptyFirearm, firearmFormError, type FirearmForm } from '
 import { BODYCAM_CHECKS, BodycamSheet, bodycamFormError, emptyBodycam, type BodycamForm } from '@/components/shift-bodycam';
 import { FireShift } from '@/components/fire-shift';
 import { EmsShift } from '@/components/ems-shift';
+import { DisasterShift } from '@/components/disaster-shift';
+import { ShiftDocuments } from '@/components/shift-documents';
 
 type Vehicle = Database['public']['Tables']['apparatus']['Row'];
 type VehicleChecklist = Database['public']['Tables']['vehicle_checklists']['Row'];
@@ -75,6 +77,7 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
   const { silo } = useAuth();
   if (silo === 'MetroFire') return <FireShift gated={gated} />;
   if (silo === 'Medical') return <EmsShift gated={gated} />;
+  if (silo === 'EthekwiniDisaster') return <DisasterShift gated={gated} />;
   return <StandardShiftScreen gated={gated} />;
 }
 
@@ -105,6 +108,8 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
 
   // Unit
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [takenVehicles, setTakenVehicles] = useState<Vehicle[]>([]);
+  const [noVehicleReason, setNoVehicleReason] = useState('');
   const [picked, setPicked] = useState<string | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
 
@@ -144,7 +149,9 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
 
   const openVehicles = async () => {
     const sb = getSupabase();
-    setVehicles(await listAvailableVehicles(sb, silo === 'Ethekwini' ? 'MetroPolice' : silo));
+    const fleet = await listShiftVehicles(sb, silo === 'Ethekwini' ? 'MetroPolice' : silo);
+    setVehicles(fleet.available);
+    setTakenVehicles(fleet.taken);
     setPicked(null);
     go('vehicle');
   };
@@ -291,6 +298,17 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
       await assignVehicle(getSupabase(), picked);
       setOfficer((o) => ({ ...o, apparatusId: picked }));
       await openInspection(picked);
+    });
+  };
+
+  /** Every vehicle is taken: say so on the record and go on to the kit. */
+  const continueWithoutVehicle = () => {
+    void run(async () => {
+      await declareShiftNoVehicle(getSupabase(), noVehicleReason.trim() || null);
+      setRecord(await getTodayShiftStartRecord(getSupabase()));
+      if (requiresFirearm) await openFirearm();
+      else if (requiresBodycam) await openBodycam();
+      else await openComplete();
     });
   };
 
@@ -532,7 +550,8 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
   const kitStep = requiresFirearm && requiresBodycam ? 'Loadout' : requiresFirearm ? 'Firearm' : requiresBodycam ? 'Bodycam' : null;
   const wizardSteps = kitStep ? ['Readiness', 'Unit', 'Inspection', kitStep] : ['Readiness', 'Unit', 'Inspection'];
   const filedParts = [
-    'readiness assessment', 'vehicle inspection',
+    'readiness assessment',
+    record?.noVehicle && !record.inspection ? 'no-vehicle declaration' : 'vehicle inspection',
     record?.firearm ? 'firearm book-out' : record?.noFirearm ? 'no-firearm declaration' : null,
     record?.bodycam ? 'bodycam book-out' : record?.noBodycam ? 'no-bodycam reason' : null,
   ].filter(Boolean) as string[];
@@ -688,8 +707,21 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
           </Muted>
           {vehicles.length === 0 ? (
             <View style={styles.noVehicles}>
-              <Ionicons name="car-outline" size={22} color={colors.muted} />
-              <Muted>No vehicles available — contact fleet control.</Muted>
+              <Ionicons name="car-outline" size={26} color={colors.muted} />
+              <Text style={styles.noVehiclesTitle}>No available cars</Text>
+              <Muted style={{ textAlign: 'center' }}>
+                {takenVehicles.length
+                  ? `All ${takenVehicles.length} ${takenVehicles.length === 1 ? 'vehicle is' : 'vehicles are'} taken. You can continue your shift without one.`
+                  : 'No vehicles are on the fleet register. You can continue your shift without one.'}
+              </Muted>
+              <View style={{ alignSelf: 'stretch', paddingHorizontal: space.md, marginTop: space.sm }}>
+                <Input
+                  label="Note (optional)"
+                  placeholder="e.g. On foot patrol, sharing with a partner"
+                  value={noVehicleReason}
+                  onChangeText={setNoVehicleReason}
+                />
+              </View>
             </View>
           ) : (
             <View style={styles.unitGrid}>
@@ -721,15 +753,47 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
               })}
             </View>
           )}
-          <Button
-            label="Confirm Assignment"
-            icon="checkmark-circle-outline"
-            variant="success"
-            size="lg"
-            busy={busy}
-            disabled={!picked}
-            onPress={confirmVehicle}
-          />
+          {vehicles.length === 0 ? (
+            <Button
+              label="Continue without a vehicle"
+              icon="arrow-forward-circle-outline"
+              size="lg"
+              busy={busy}
+              onPress={continueWithoutVehicle}
+            />
+          ) : (
+            <Button
+              label="Confirm Assignment"
+              icon="checkmark-circle-outline"
+              variant="success"
+              size="lg"
+              busy={busy}
+              disabled={!picked}
+              onPress={confirmVehicle}
+            />
+          )}
+          {takenVehicles.length ? (
+            <View style={{ marginTop: space.xl }}>
+              <Text style={styles.takenHeading}>Taken ({takenVehicles.length})</Text>
+              <View style={styles.unitGrid}>
+                {takenVehicles.map((v) => (
+                  <View
+                    key={v.id}
+                    accessible
+                    accessibilityLabel={`${v.unit_number} ${v.name}, taken`}
+                    accessibilityState={{ disabled: true }}
+                    style={[styles.unitCard, styles.unitCardTaken]}
+                  >
+                    <View style={styles.takenBadge}><Text style={styles.takenBadgeText}>TAKEN</Text></View>
+                    <Ionicons name="shield-half" size={30} color={colors.muted} />
+                    <Text style={[styles.unitNumber, { color: colors.muted }]}>{v.unit_number}</Text>
+                    <Text style={styles.unitName} numberOfLines={1}>{v.name}</Text>
+                    {v.license_plate ? <Text style={styles.unitPlate}>{v.license_plate}</Text> : null}
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
         </Card>
       ) : null}
 
@@ -886,6 +950,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
               dashboard.
             </Text>
             <SummaryBox record={record} officerName={officer.name} />
+            <ShiftDocuments initial={record?.documents ?? null} />
             <View style={styles.doneActions}>
               <PaperButton label="Export PDF" icon="document-outline" tone="teal" busy={exporting === 'pdf'} disabled={!record187} onPress={() => void doExport('pdf')} style={styles.halfBtn} />
               <PaperButton label="Export CSV" icon="grid-outline" tone="outline" busy={exporting === 'csv'} disabled={!record187} onPress={() => void doExport('csv')} style={styles.halfBtn} />
@@ -920,15 +985,25 @@ function SummaryBox({ record, officerName }: { record: ShiftStartRecord | null; 
   const styles = useStyles();
   const v = record?.inspection;
   const f = record?.firearm;
-  if (!v) return null;
-  const faults = countItems((v.items ?? {}) as Parameters<typeof countItems>[0]).fault;
-  const shift = SHIFT_TYPES.find(([k]) => k === v.shift_type)?.[0] ?? '—';
+  const nv = record?.noVehicle;
+  if (!v && !nv) return null;
+  const faults = v ? countItems((v.items ?? {}) as Parameters<typeof countItems>[0]).fault : 0;
+  const shift = v ? SHIFT_TYPES.find(([k]) => k === v.shift_type)?.[0] ?? '—' : '—';
   return (
     <View style={styles.summary}>
-      <SummaryLine parts={[['NDM', v.ndm_number ?? '—'], ['Mileage', v.mileage_km != null ? String(v.mileage_km) : '—'], ['Shift', shift]]} />
-      <SummaryLine parts={[['Date', saShortDate(v.checked_at)], ['Unit', v.apparatus?.unit_number ?? '—']]} />
-      <SummaryLine parts={[['Inspector', v.inspector_name ?? officerName], ['Faults', String(faults)]]} faults={faults} />
-      <SummaryLine parts={[['Ref', v.inspection_ref ?? '—']]} />
+      {v ? (
+        <>
+          <SummaryLine parts={[['NDM', v.ndm_number ?? '—'], ['Mileage', v.mileage_km != null ? String(v.mileage_km) : '—'], ['Shift', shift]]} />
+          <SummaryLine parts={[['Date', saShortDate(v.checked_at)], ['Unit', v.apparatus?.unit_number ?? '—']]} />
+          <SummaryLine parts={[['Inspector', v.inspector_name ?? officerName], ['Faults', String(faults)]]} faults={faults} />
+          <SummaryLine parts={[['Ref', v.inspection_ref ?? '—']]} />
+        </>
+      ) : nv ? (
+        <>
+          <SummaryLine parts={[['Date', saShortDate(nv.created_at)], ['Officer', nv.user_name ?? officerName]]} />
+          <SummaryLine parts={[['Vehicle', `None available${nv.reason ? ` — ${nv.reason}` : ''}`]]} />
+        </>
+      ) : null}
       {f ? (
         <SummaryLine parts={[['Firearm', `${f.make_model ?? ''} · ${f.serial_number}`], ['Rounds', String(f.rounds_issued)]]} />
       ) : record?.noFirearm ? (
@@ -1016,9 +1091,17 @@ const useStyles = makeStyles(() => StyleSheet.create({
   unitType: { backgroundColor: '#1e88e5', borderRadius: 4, paddingHorizontal: 8, paddingVertical: 2, marginTop: 4 },
   unitTypeText: { color: '#fff', fontWeight: '800', fontSize: 10, letterSpacing: 0.5 },
   noVehicles: {
-    alignItems: 'center', gap: space.sm, paddingVertical: space.xl, marginVertical: space.lg,
+    alignItems: 'center', gap: space.sm, paddingVertical: space.xl, paddingHorizontal: space.md, marginVertical: space.lg,
     borderWidth: 1, borderStyle: 'dashed', borderColor: colors.border, borderRadius: radius.md,
   },
+  noVehiclesTitle: { color: colors.text, fontWeight: '800', fontSize: 18 },
+  takenHeading: { color: colors.muted, fontWeight: '800', fontSize: 13, letterSpacing: 1, textTransform: 'uppercase' },
+  unitCardTaken: { opacity: 0.6, borderStyle: 'dashed' },
+  takenBadge: {
+    position: 'absolute', top: 8, right: 8, backgroundColor: colors.critical,
+    borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2,
+  },
+  takenBadgeText: { color: '#fff', fontWeight: '800', fontSize: 10, letterSpacing: 0.5 },
 
   doneBody: { padding: space.lg, alignItems: 'center' },
   bigCheck: {

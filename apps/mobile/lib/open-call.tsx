@@ -74,7 +74,9 @@ export function useOpenCall() {
 
   const reportQueued = useMemo(() => {
     const ids = new Set<string>();
-    for (const e of pending) if (e.op.kind === 'incident_report') ids.add(e.op.incidentId);
+    for (const e of pending) {
+      if (e.op.kind === 'incident_report' || e.op.kind === 'fire_report' || e.op.kind === 'pcr' || e.op.kind === 'post_mortem') ids.add(e.op.incidentId);
+    }
     return ids;
   }, [pending]);
 

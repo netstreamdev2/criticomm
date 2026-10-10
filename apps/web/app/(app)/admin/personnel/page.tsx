@@ -24,9 +24,9 @@ const FILTERS: StatusFilter[] = ['current', 'to-confirm', 'no-role', 'ready', 'i
  * roles are confirmed here before invitations go out in bulk; leavers are
  * marked, never deleted.
  */
-export default async function AdminPersonnelPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+export default async function AdminPersonnelPage({ searchParams }: { searchParams: Promise<{ status?: string; q?: string }> }) {
   const { supabase, role, silo } = await getSession();
-  const { status } = await searchParams;
+  const { status, q } = await searchParams;
   const canManage = ADMIN_ROLES.includes(role);
   const canImport = role === 'SystemAdmin' || role === 'SuperAdmin';
   const departments = role === 'Admin' ? [silo] : ALL_SILOS;
@@ -131,6 +131,8 @@ export default async function AdminPersonnelPage({ searchParams }: { searchParam
             latestImport={latest?.status === 'complete' ? { id: latest.id, departments: latest.departments } : null}
             sharedBadgeIds={shared.flat().map((p) => p.id)}
             initialFilter={initialFilter}
+            canMove={role === 'SystemAdmin' || role === 'SuperAdmin'}
+            initialQuery={(q ?? '').slice(0, 80)}
           />
         </>
       )}

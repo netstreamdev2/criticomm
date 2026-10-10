@@ -18,7 +18,7 @@ export default async function AdminOperatorsPage() {
       <header>
         <h1 className="text-2xl font-bold">Control-room operators</h1>
         <p className="text-muted-foreground">
-          Dispatcher/operator profile records with auto-generated NATO call signs (SystemProfile parity).
+          Dispatcher and operator profiles, with NATO call signs.
         </p>
       </header>
 

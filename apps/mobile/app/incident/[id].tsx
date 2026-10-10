@@ -7,17 +7,19 @@ import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  getFieldIncident, getIncidentUpdates, listIncidentAttachments, subscribeIncidentTimeline, type FieldIncident,
+  getFieldIncident, getIncidentUpdates, listIncidentAttachments, noteText, subscribeIncidentTimeline, type FieldIncident,
 } from '@criticom/api';
 import type { Database, IncidentStatus } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { callView, isPoliceCall, MAX_PHOTOS, photosRemaining, reportPathFor } from '@/lib/response';
+import { departmentOf, personTitle, wordsFor } from '@/lib/department';
 import { openDirections } from '@/lib/navigate';
 import { useSync } from '@/lib/sync';
 import { useFeature } from '@/lib/features';
 import { retainAttachment } from '@/lib/outbox';
+import { confirmAccept } from '@/lib/accept';
 import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import {
   Banner, Button, Card, EmptyState, Input, KeyValue, Muted, SectionLabel,
@@ -26,8 +28,11 @@ import {
 
 type Update = Database['public']['Tables']['incident_updates']['Row'];
 
-/** Strips the zero-width outbox replay marker before anything is displayed. */
-const clean = (message: string) => message.replace(/​[\w-]+$/, '');
+/** A recording's length as a clock: 0:07, 1:42. */
+const clockOf = (ms: number) => {
+  const s = Math.floor(Math.max(ms, 0) / 1000);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
 
 export default function IncidentDetailScreen() {
   const styles = useStyles();
@@ -36,6 +41,8 @@ export default function IncidentDetailScreen() {
   const { session, silo } = useAuth();
   const { onDuty } = useDuty();
   const { enqueue, pending } = useSync();
+  const words = wordsFor(silo);
+  const police = departmentOf(silo) === 'police';
   const [photosFiled, setPhotosFiled] = useState(0);
   const voiceOn = useFeature('mobile.voice_notes');
   const [incident, setIncident] = useState<FieldIncident | null>(null);
@@ -46,7 +53,8 @@ export default function IncidentDetailScreen() {
   const [messageTone, setMessageTone] = useState<'error' | 'success'>('error');
   const [loading, setLoading] = useState(true);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [recordingSince, setRecordingSince] = useState<number | null>(null);
+  // How long the recorder says it has recorded, updated twice a second.
+  const [recordedMs, setRecordedMs] = useState(0);
   const recordingRef = useRef<Audio.Recording | null>(null);
 
   const load = useCallback(async () => {
@@ -123,12 +131,13 @@ export default function IncidentDetailScreen() {
     const action = which === 'secondary' ? current.secondary : current.action;
     if (!action) return;
     if (action.kind === 'report') { router.push(reportPathFor(incident.id, silo) as never); return; }
+    if (action.kind === 'respond' && onDuty === false) {
+      notify('You are off duty. Go on duty to respond to incidents.');
+      return;
+    }
+    if (action.kind === 'respond' && !(await confirmAccept(incident.incident_number))) return;
     setBusy('status');
     try {
-      if (action.kind === 'respond' && onDuty === false) {
-        notify('You are off duty. Go on duty to respond to incidents.');
-        return;
-      }
       // Queued, not sent; the server decides lead or backup and tells dispatch.
       await enqueue({
         kind: 'incident_status',
@@ -147,7 +156,7 @@ export default function IncidentDetailScreen() {
     if (!incident) return;
     setMessage(null);
     if (photosRemaining(photosFiled, queued.photos) === 0) {
-      notify(`This case file already holds ${MAX_PHOTOS} photos — the maximum.`);
+      notify(`This ${words.file} already holds ${MAX_PHOTOS} photos — the maximum.`);
       return;
     }
     if (source === 'camera') {
@@ -163,7 +172,7 @@ export default function IncidentDetailScreen() {
     setBusy('upload');
     try {
       const asset = result.assets[0];
-      const filename = asset.fileName ?? `evidence-${Date.now()}.jpg`;
+      const filename = asset.fileName ?? `photo-${Date.now()}.jpg`;
       // Copy out of the OS cache before queueing: a photo of a scene that has
       // since been cleared cannot be retaken.
       const localUri = await retainAttachment(asset.uri, filename);
@@ -176,7 +185,7 @@ export default function IncidentDetailScreen() {
         mimeType: asset.mimeType ?? 'image/jpeg',
         mediaKind: 'image',
       });
-      notify('Photo saved to the case file.', 'success');
+      notify(`Photo saved to the ${words.file}.`, 'success');
     } catch (e) {
       notify((e as Error).message);
     } finally {
@@ -189,13 +198,19 @@ export default function IncidentDetailScreen() {
     try {
       const { granted } = await Audio.requestPermissionsAsync();
       if (!granted) { notify('Microphone permission denied.'); return; }
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true, playsInSilentModeIOS: true, shouldDuckAndroid: true, staysActiveInBackground: false,
+      });
+      setRecordedMs(0);
+      // The recorder reports its own length every half second: that drives
+      // the clock on screen, and is the length filed with the note.
       const { recording: rec } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY,
+        (status) => { if (status.isRecording) setRecordedMs(status.durationMillis); },
+        500,
       );
       recordingRef.current = rec;
       setRecording(rec);
-      setRecordingSince(Date.now());
     } catch (e) {
       notify(`Could not start recording: ${(e as Error).message}`);
     }
@@ -206,15 +221,23 @@ export default function IncidentDetailScreen() {
     if (!rec || !incident) return;
     setBusy('upload');
     try {
-      await rec.stopAndUnloadAsync();
+      const final = await rec.stopAndUnloadAsync().catch(() => null);
       await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
       const uri = rec.getURI();
+      const ms = Math.max(final?.durationMillis ?? 0, recordedMs);
       recordingRef.current = null;
       setRecording(null);
-      setRecordingSince(null);
+      setRecordedMs(0);
       if (!uri) { notify('The recording produced no audio.'); return; }
+      // A note under a second is a tap, not a recording: filing it would put
+      // an empty clip on a case file that can never be deleted.
+      if (ms < 1000) { notify('Nothing was recorded. Hold Record voice note, speak, then tap to stop.'); return; }
 
-      const filename = `voice-note-${Date.now()}.${Platform.OS === 'ios' ? 'm4a' : 'm4a'}`;
+      // Phones record AAC in an MP4 container (.m4a), whose type is audio/mp4;
+      // "audio/m4a" is not a real type and browsers refuse to play it. The web
+      // build records with the browser's own recorder, which makes WebM.
+      const web = Platform.OS === 'web';
+      const filename = `voice-note-${Date.now()}.${web ? 'webm' : 'm4a'}`;
       const localUri = await retainAttachment(uri, filename);
       await enqueue({
         kind: 'evidence',
@@ -222,10 +245,12 @@ export default function IncidentDetailScreen() {
         silo: incident.silo,
         localUri,
         filename,
-        mimeType: 'audio/m4a',
+        mimeType: web ? 'audio/webm' : 'audio/mp4',
         mediaKind: 'audio',
+        // The length goes on the record with the note.
+        caption: `Voice note · ${clockOf(ms)}`,
       });
-      notify('Voice note saved to the case file.', 'success');
+      notify(`Voice note (${clockOf(ms)}) saved to the ${words.file}.`, 'success');
     } catch (e) {
       notify((e as Error).message);
     } finally {
@@ -236,6 +261,7 @@ export default function IncidentDetailScreen() {
   /** Hands the scene coordinates (or address) to the phone's map app. */
   const navigateToScene = () => {
     if (!incident) return;
+    if (incident.location_lat || incident.location_lng) { router.push(`/route/${incident.id}`); return; }
     if (!openDirections(incident)) notify('No location recorded for this incident.');
   };
 
@@ -259,7 +285,7 @@ export default function IncidentDetailScreen() {
         <EmptyState
           icon="alert-circle-outline"
           title="Incident not available"
-          body="It may have been closed, reassigned, or you no longer have access to this silo."
+          body="It may have been closed or reassigned, or it is not for your department."
         />
       </View>
     );
@@ -329,13 +355,13 @@ export default function IncidentDetailScreen() {
           {view.lead ? (
             <KeyValue
               label="Lead"
-              value={`${view.lead.user_id === session?.user.id ? 'You' : (view.lead.name ?? 'Officer')} · ${view.lead.status}`}
+              value={`${view.lead.user_id === session?.user.id ? 'You' : (view.lead.name ?? personTitle(silo))} · ${view.lead.status}`}
             />
           ) : null}
           {view.backups.length ? (
             <KeyValue
               label="Backup"
-              value={view.backups.map((b) => `${b.user_id === session?.user.id ? 'You' : (b.name ?? 'Officer')} (${b.status})`).join(', ')}
+              value={view.backups.map((b) => `${b.user_id === session?.user.id ? 'You' : (b.name ?? personTitle(silo))} (${b.status})`).join(', ')}
             />
           ) : null}
         </View>
@@ -357,8 +383,8 @@ export default function IncidentDetailScreen() {
               </Text>
             ) : null}
             <Button
-              label={action.kind === 'respond' ? 'Responding' : action.label}
-              icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'car-sport' : 'arrow-forward-circle'}
+              label={action.kind === 'respond' ? 'Accept' : action.label}
+              icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'checkmark-circle' : 'arrow-forward-circle'}
               variant={action.kind === 'report' ? 'success' : 'primary'}
               size="lg"
               busy={busy === 'status'}
@@ -392,14 +418,14 @@ export default function IncidentDetailScreen() {
         </View>
       </Card>
 
-      {/* Evidence — captured while the call is worked; permanent once filed. */}
-      <SectionLabel>Scene evidence</SectionLabel>
+      {/* Photos and voice notes — captured while the call is worked; permanent once filed. */}
+      <SectionLabel>{police ? 'Scene evidence' : 'Scene photos'}</SectionLabel>
       {canCapture ? (
       <Card accent={recording ? colors.critical : undefined}>
         <Muted>
-          Photos and voice notes are stored on the phone first and filed into the case
-          the moment there is signal — capture them whether or not you have coverage.
-          Filed evidence cannot be deleted.
+          Photos and voice notes are stored on the phone first and filed into the {words.file} the
+          moment there is signal — capture them whether or not you have coverage. Filed {words.media} cannot
+          be deleted.
         </Muted>
 
         <Text style={styles.photoCount}>
@@ -415,11 +441,6 @@ export default function IncidentDetailScreen() {
           </View>
         </View>
 
-        {/* Video evidence is planned; the control is shown so crews know it is coming. */}
-        <View style={{ marginTop: space.sm }}>
-          <Button label="Video · coming soon" icon="videocam-outline" variant="outline" disabled />
-        </View>
-
         {voiceOn ? (
           <View style={{ marginTop: space.sm }}>
             {recording ? (
@@ -431,7 +452,7 @@ export default function IncidentDetailScreen() {
               >
                 <View style={styles.recordingDot} />
                 <Text style={styles.recordingText}>
-                  Recording{recordingSince ? ` · ${Math.floor((Date.now() - recordingSince) / 1000)}s` : ''} — tap to stop
+                  Recording · {clockOf(recordedMs)} — tap to stop
                 </Text>
                 <Ionicons name="stop-circle" size={20} color={colors.critical} />
               </Pressable>
@@ -457,8 +478,8 @@ export default function IncidentDetailScreen() {
         <Card>
           <Muted>
             {closed
-              ? `The case file is closed. ${photosFiled} photo${photosFiled === 1 ? '' : 's'} on record.`
-              : 'Evidence is captured by the crew working this incident.'}
+              ? `The ${words.file} is closed. ${photosFiled} photo${photosFiled === 1 ? '' : 's'} on record.`
+              : police ? 'Evidence is captured by the crew working this incident.' : 'Photos are taken by the crew working this incident.'}
           </Muted>
         </Card>
       )}
@@ -502,7 +523,7 @@ export default function IncidentDetailScreen() {
                 {i < updates.length - 1 ? <View style={styles.timelineLine} /> : null}
               </View>
               <View style={styles.timelineBody}>
-                <Text style={styles.updateText}>{clean(u.message)}</Text>
+                <Text style={styles.updateText}>{noteText(u.message)}</Text>
                 <Text style={styles.updateMeta}>
                   {u.created_by_name ?? 'System'} · {timeAgo(u.timestamp)}
                 </Text>

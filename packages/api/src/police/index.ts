@@ -1,4 +1,5 @@
 import type { CriticomClient, Database } from '@criticom/db';
+import { cleanSearch } from '../cases/stage';
 
 type MetroReport = Database['public']['Tables']['metro_reports']['Row'];
 type MetroReportInsert = Database['public']['Tables']['metro_reports']['Insert'];
@@ -11,6 +12,49 @@ export async function listMetroReports(client: CriticomClient): Promise<MetroRep
     .from('metro_reports')
     .select('*')
     .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
+ * Police records, filtered. Incident reports are the ones an officer filed on
+ * a dispatched call (they carry the incident); police reports are filed from
+ * the console without one.
+ */
+export type PoliceReportFilters = {
+  kind: 'incident' | 'police';
+  q?: string | null;
+  /** A DMPS form id ("arrest", "tow"…): reports that include it. */
+  form?: string | null;
+  /** YYYY-MM-DD, on the day of the offence. */
+  from?: string | null;
+  to?: string | null;
+  officer?: string | null;
+  arrest?: 'Yes' | 'No' | null;
+};
+
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+const FORM_ID = /^[a-z]+$/;
+
+export async function listPoliceReports(client: CriticomClient, f: PoliceReportFilters): Promise<MetroReport[]> {
+  let query = client.from('metro_reports').select('*');
+  query = f.kind === 'incident' ? query.not('incident_id', 'is', null) : query.is('incident_id', null);
+  const q = cleanSearch(f.q);
+  if (q) {
+    query = query.or(['case_number', 'incident_category', 'officer_name', 'location', 'suspect_name', 'offender_name', 'charges']
+      .map((c) => `${c}.ilike.*${q}*`).join(','));
+  }
+  // report_type is "arrest+tow": match the form id as a whole part.
+  if (f.form && FORM_ID.test(f.form)) {
+    query = query.or(`report_type.eq.${f.form},report_type.like.${f.form}+*,report_type.like.*+${f.form},report_type.like.*+${f.form}+*`);
+  }
+  if (f.from && DAY.test(f.from)) query = query.gte('date_of_offense', f.from);
+  if (f.to && DAY.test(f.to)) query = query.lte('date_of_offense', f.to);
+  const officer = cleanSearch(f.officer);
+  if (officer) query = query.ilike('officer_name', `%${officer}%`);
+  if (f.arrest === 'Yes') query = query.eq('arrest_made', 'Yes');
+  else if (f.arrest === 'No') query = query.or('arrest_made.is.null,arrest_made.neq.Yes');
+  const { data, error } = await query.order('created_at', { ascending: false }).limit(500);
   if (error) throw error;
   return data ?? [];
 }

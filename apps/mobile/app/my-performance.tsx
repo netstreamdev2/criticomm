@@ -51,7 +51,7 @@ export default function MyPerformanceScreen() {
 
   const tiles = [
     { label: 'Attended', value: String(s.attended), sub: 'lead + backup', icon: 'shield-checkmark' as const, tone: BLUE },
-    { label: 'Led', value: String(s.led), sub: 'as lead officer', icon: 'star' as const, tone: CYAN },
+    { label: 'Led', value: String(s.led), sub: 'as lead', icon: 'star' as const, tone: CYAN },
     { label: 'Backup', value: String(s.backup), sub: 'joined others', icon: 'people' as const, tone: PURPLE },
     { label: 'Reports filed', value: String(s.reportsFiled), sub: 'as lead', icon: 'document-text' as const, tone: GREEN },
     { label: 'To scene', value: formatMinutes(s.avgToScene), sub: 'avg, responding → arrived', icon: 'speedometer' as const, tone: AMBER },

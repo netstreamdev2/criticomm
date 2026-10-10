@@ -6,7 +6,7 @@ import { headers } from 'next/headers';
 import {
   addIncidentUpdate, closeCase, logAudit, updateResponderStatus,
 } from '@criticom/api';
-import type { IncidentStatus, Silo } from '@criticom/db';
+import { STATUS_OVERRIDE_ROLES, STATUS_OVERRIDE_STEPS, type IncidentStatus, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 import { sendSms } from '@/lib/sms';
 
@@ -24,18 +24,39 @@ export async function addUpdateAction(formData: FormData) {
   revalidatePath(`/incidents/${incidentId}`);
 }
 
-export async function setStatusAction(formData: FormData) {
-  const { supabase, fullName } = await getSession();
+/** What a console form shows after it runs: the refusal in words, or nothing. */
+export type FormState = { error?: string; done?: string } | null;
+
+/** A database refusal as the person reads it: the reason, then what to do. */
+function refusal(e: unknown): string {
+  const err = e as { message?: string; hint?: string | null };
+  return [err.message ?? String(e), err.hint].filter(Boolean).join(' ');
+}
+
+/**
+ * The desk correcting a crew's status (the officer radioed it in). Only the
+ * steps a crew takes: Resolved comes from the report and Closed from
+ * close_case(), and the database refuses both here.
+ */
+export async function setStatusAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { supabase, role, fullName } = await getSession();
   const incidentId = String(formData.get('incident_id'));
   const status = String(formData.get('status')) as IncidentStatus;
   const silo = String(formData.get('silo')) as Silo;
-  await updateResponderStatus(supabase, { incident_id: incidentId, status });
-  await logAudit(supabase, {
-    silo, action_type: 'StatusChange', entity_type: 'incident', entity_id: incidentId,
-    user_name: fullName, details: `Status → ${status}`,
-  });
+  if (!STATUS_OVERRIDE_ROLES.includes(role) || !(STATUS_OVERRIDE_STEPS as readonly string[]).includes(status)) {
+    return { error: 'The crew sets this from the HikTech app.' };
+  }
+  try {
+    await updateResponderStatus(supabase, { incident_id: incidentId, status });
+    await logAudit(supabase, {
+      silo, action_type: 'StatusChange', entity_type: 'incident', entity_id: incidentId,
+      user_name: fullName, details: `Status → ${status} (set from the console)`,
+    });
+  } catch (e) {
+    return { error: refusal(e) };
+  }
   revalidatePath(`/incidents/${incidentId}`);
-  revalidatePath('/responder');
+  return { done: `Marked ${status}.` };
 }
 
 /**
@@ -75,16 +96,22 @@ export async function requestCitizenLocationAction(formData: FormData) {
   revalidatePath(`/incidents/${incidentId}`);
 }
 
-export async function closeCaseAction(formData: FormData) {
-  const { supabase, fullName } = await getSession();
+/**
+ * Close the case (0061): after review when it is Resolved, or as a
+ * cancellation with a reason while it is live. close_case() decides, records
+ * who, how and why on the case and in the audit trail, and tells everyone on
+ * the call, so nothing more is written here.
+ */
+export async function closeCaseAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await getSession();
   const incidentId = String(formData.get('incident_id'));
-  const silo = String(formData.get('silo')) as Silo;
   const reason = String(formData.get('reason') ?? '').trim() || undefined;
-  await closeCase(supabase, { incident_id: incidentId, reason });
-  await logAudit(supabase, {
-    silo, action_type: 'CaseClosed', entity_type: 'incident', entity_id: incidentId,
-    user_name: fullName, details: reason ?? 'Closed without reason',
-  });
+  try {
+    await closeCase(supabase, { incident_id: incidentId, reason });
+  } catch (e) {
+    return { error: refusal(e) };
+  }
   revalidatePath(`/incidents/${incidentId}`);
-  revalidatePath('/case-manager');
+  revalidatePath('/case-manager', 'layout');
+  return { done: 'Case closed.' };
 }

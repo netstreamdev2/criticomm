@@ -5,7 +5,7 @@ import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import * as FileSystem from 'expo-file-system';
 import {
-  addIncidentUpdate, fileFireReport, fileIncidentReport, issueFines, raisePanic, toggleDuty, updateResponderStatus,
+  addIncidentUpdate, fileFireReport, fileIncidentReport, filePcr, filePostMortem, issueFines, raisePanic, toggleDuty, updateResponderStatus,
   uploadIncidentEvidence,
 } from '@criticom/api';
 import type { CriticomClient, IncidentStatus } from '@criticom/db';
@@ -155,7 +155,8 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
     await addIncidentUpdate(client, {
       incident_id: op.incidentId,
       silo: op.silo,
-      message: `${op.mediaKind === 'audio' ? '🎙️ Voice note' : '📷 Evidence photo'} captured ${
+      // A voice note's caption carries its length ("Voice note · 0:42").
+      message: `${op.mediaKind === 'audio' ? `🎙️ ${op.caption ?? 'Voice note'}` : '📷 Scene photo'} captured ${
         new Date(entry.occurredAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })
       } (${op.filename})​${entry.id}`,
     }).catch(() => {
@@ -234,6 +235,18 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
   fire_report: async (client, entry) => {
     const op = entry.op as Extract<OutboxOp, { kind: 'fire_report' }>;
     await fileFireReport(client, { incidentId: op.incidentId, fields: op.fields });
+  },
+
+  /** Idempotent on the server: file_pcr() (0063) returns the report already filed. */
+  pcr: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'pcr' }>;
+    await filePcr(client, { incidentId: op.incidentId, fields: op.fields });
+  },
+
+  /** Idempotent on the server: file_post_mortem() (0065) returns the report already filed. */
+  post_mortem: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'post_mortem' }>;
+    await filePostMortem(client, { incidentId: op.incidentId, fields: op.fields });
   },
 
   issue_fine: async (client, entry) => {

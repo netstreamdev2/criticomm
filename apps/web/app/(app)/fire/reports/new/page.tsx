@@ -18,7 +18,7 @@ export default async function NewFireReportPage() {
       <header>
         <h1 className="text-2xl font-bold">Fire incident report</h1>
         <p className="text-muted-foreground">
-          Full V4 FirefighterReport — every section from observations to sign-off.
+          Every section, from observations to sign-off.
         </p>
       </header>
 

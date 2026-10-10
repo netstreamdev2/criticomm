@@ -22,7 +22,10 @@
     "./ems-shift": "./src/ems-shift.ts",
     "./fines": "./src/fines.ts",
     "./fine-slip": "./src/fine-slip.ts",
-    "./fire-report": "./src/fire-report.ts"
+    "./fire-report": "./src/fire-report.ts",
+    "./pcr": "./src/pcr.ts",
+    "./post-mortem": "./src/post-mortem.ts",
+    "./desks": "./src/desks.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

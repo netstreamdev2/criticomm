@@ -21,7 +21,7 @@ export default async function PartnersPage({
       <header>
         <h1 className="text-2xl font-bold">Mutual-aid partner directory</h1>
         <p className="text-muted-foreground">
-          The V4 hardcoded 41-partner list, now a maintainable table.
+          The partner organisations the disaster desk works with.
         </p>
       </header>
 

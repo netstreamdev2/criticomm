@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/lib/auth';
+import { personTitle, wordsFor } from '@/lib/department';
 import { useDuty } from '@/lib/duty';
 import { useOpenCall, useReportingFor } from '@/lib/open-call';
 import { pickActivity, type Activity } from '@/lib/response';
@@ -10,10 +11,10 @@ import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 
 const GREEN = '#22c55e';
 
-/** Read at render time, so the tones follow the light/dark theme. */
-const ACTIVITY = (): Record<Activity['kind'], { label: string; icon: keyof typeof Ionicons.glyphMap; tone: string }> => ({
+/** Read at render time, so the tones follow the light/dark theme; on the way in the department's own vehicle. */
+const ACTIVITY = (silo: string): Record<Activity['kind'], { label: string; icon: keyof typeof Ionicons.glyphMap; tone: string }> => ({
   idle: { label: 'Idle', icon: 'pause-circle-outline', tone: colors.idle },
-  en_route: { label: 'En route', icon: 'car-sport', tone: colors.accent },
+  en_route: { label: 'En route', icon: wordsFor(silo).movingIcon, tone: colors.accent },
   on_scene: { label: 'On scene', icon: 'location', tone: colors.critical },
   transporting: { label: 'Transporting', icon: 'medkit', tone: colors.purple },
   reporting: { label: 'Filing report', icon: 'document-text', tone: colors.cyan },
@@ -49,7 +50,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 export function HomeHeader() {
   const styles = useStyles();
   const router = useRouter();
-  const { fullName } = useAuth();
+  const { fullName, silo } = useAuth();
   const { shiftStarted, onDuty } = useDuty();
   const now = useClock();
   const { calls, reportQueued, awaiting } = useOpenCall();
@@ -57,7 +58,7 @@ export function HomeHeader() {
   // Several incidents: show the most pressing (report > on scene > en route);
   // one assigned and not yet responded to shows instead of idle.
   const activity = pickActivity(calls, (id) => reportQueued.has(id) || reportingFor === id, awaiting);
-  const act = ACTIVITY()[activity.kind];
+  const act = ACTIVITY(silo)[activity.kind];
   const actLabel = activity.kind === 'assigned' && activity.count > 1
     ? `${activity.count} assigned to you`
     : act.label;
@@ -72,7 +73,7 @@ export function HomeHeader() {
     router.push(`/incident/${activity.incidentId}`);
   };
 
-  const name = (fullName || '').split('@')[0]?.trim() || 'Officer';
+  const name = (fullName || '').split('@')[0]?.trim() || personTitle(silo);
   const live = onDuty === true;
   const dutyLabel = shiftStarted === false && !live ? 'SHIFT NOT STARTED' : live ? 'ON DUTY' : 'OFF DUTY';
 

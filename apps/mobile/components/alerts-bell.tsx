@@ -25,14 +25,16 @@ export function AlertsBell({ count }: { count: number }) {
   );
 }
 
-/** Header search, left of the bell. Icon only for now — search is not wired yet. */
+/** Header search, left of the bell: opens Incidents with the search box ready. */
 export function HeaderSearch() {
   const styles = useStyles();
+  const router = useRouter();
   return (
     <Pressable
+      onPress={() => router.push({ pathname: '/(tabs)/incidents', params: { search: String(Date.now()) } })}
       hitSlop={10}
       accessibilityRole="button"
-      accessibilityLabel="Search"
+      accessibilityLabel="Search incidents"
       style={({ pressed }) => [styles.search, pressed && { opacity: 0.7 }]}
     >
       <Ionicons name="search-outline" size={22} color={colors.text} />

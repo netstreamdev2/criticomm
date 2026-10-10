@@ -88,11 +88,21 @@ export async function listCameras(client: CriticomClient) {
 
 export async function listAuditLogs(
   client: CriticomClient,
-  opts: { silo?: Silo; entityType?: string; entityId?: string; limit?: number } = {},
+  opts: {
+    silo?: Silo; entityType?: string; entityId?: string; limit?: number;
+    /** Several entities at once (one case number can name more than one incident). */
+    entityIds?: string[];
+    /** Several entity types at once: incidents audit as both 'incident' (console) and 'incidents' (database functions). */
+    entityTypes?: string[];
+    actionType?: string;
+  } = {},
 ) {
   let q = client.from('audit_logs').select('*').order('timestamp', { ascending: false });
   if (opts.silo) q = q.eq('silo', opts.silo);
   if (opts.entityType) q = q.eq('entity_type', opts.entityType);
+  if (opts.entityTypes?.length) q = q.in('entity_type', opts.entityTypes);
+  if (opts.entityIds?.length) q = q.in('entity_id', opts.entityIds);
+  if (opts.actionType) q = q.eq('action_type', opts.actionType);
   if (opts.entityId) q = q.eq('entity_id', opts.entityId);
   const { data, error } = await q.limit(opts.limit ?? 200);
   if (error) throw error;

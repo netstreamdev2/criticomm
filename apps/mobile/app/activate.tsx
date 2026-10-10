@@ -160,7 +160,7 @@ export default function ActivateScreen() {
               <Input
                 label="Badge number"
                 icon="id-card-outline"
-                placeholder="e.g. MP-1042"
+                placeholder="Your badge number"
                 value={badge}
                 onChangeText={(t) => { setBadge(t); setError(null); }}
                 autoCapitalize="characters"

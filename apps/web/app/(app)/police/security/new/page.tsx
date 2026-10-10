@@ -18,7 +18,7 @@ export default async function NewSecurityReportPage() {
     <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">Security guard incident report</h1>
-        <p className="text-muted-foreground">V4 SecuritiesController parity — SIRA-compliant register entry.</p>
+        <p className="text-muted-foreground">SIRA-compliant register entry.</p>
       </header>
 
       <form action={createSecurityReportAction} className="space-y-4">

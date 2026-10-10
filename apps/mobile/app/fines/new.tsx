@@ -572,7 +572,7 @@ export default function IssueFineScreen() {
                   }}
                   icon="id-card-outline"
                   hint={d.idType === 'RSA ID' && d.idNumber.length === 13
-                    ? (isValidRsaId(d.idNumber) ? '✓ Valid ID — date of birth and gender filled in.' : '✕ Not a valid ID number. Check each digit.')
+                    ? (isValidRsaId(d.idNumber) ? '✓ Valid ID — date of birth and sex filled in.' : '✕ Not a valid ID number. Check each digit.')
                     : undefined}
                 />
               </Field>
@@ -586,7 +586,7 @@ export default function IssueFineScreen() {
                 </View>
               </View>
               <View style={{ marginTop: space.md }}>
-                <Label>Gender</Label>
+                <Label>Sex</Label>
                 <Chips options={['Male', 'Female'] as const} value={d.gender} onChange={(v) => set('gender', v)} clearable />
               </View>
             </Card>

@@ -24,7 +24,8 @@ export const statusEnum = z.enum([
 export const logIncomingCallSchema = z.object({
   silo: siloEnum,
   caller_name: z.string().min(1, 'Caller name is required').max(100),
-  caller_number: z.string().min(1, 'Caller number is required').max(15),
+  /** E.164: + then the country code and number, 8 to 15 digits (0062). */
+  caller_number: z.string().regex(/^\+[1-9]\d{7,14}$/, 'Enter the caller number with its country code, e.g. +27 82 123 4567'),
   call_description: z.string().min(1, 'Description is required').max(500),
   incident_type: z.string().min(1).max(100),
   incident_severity: severityEnum,
@@ -37,13 +38,19 @@ export const logIncomingCallSchema = z.object({
   fire_incident_type: z.string().optional().nullable(),
   medical_type: z.string().optional().nullable(),
   disaster_type: z.string().optional().nullable(),
-  is_caller_patient: z.boolean().optional().nullable(),
+  is_caller_patient: z.boolean({ required_error: 'Say whether the caller is the patient', invalid_type_error: 'Say whether the caller is the patient' }),
   patient_name: z.string().optional().nullable(),
   number_of_victims: z.number().int().nonnegative().optional().nullable(),
   notes: z.string().optional().nullable(),
   /** The category group the 10-code belongs to. */
   incident_category: z.string().optional().nullable(),
   region: z.string().optional().nullable(),
+  /**
+   * The dispatch desks this call goes to (0068): only those departments'
+   * dispatchers receive it. At least one, never the control room itself.
+   */
+  tagged_silos: z.array(siloEnum.exclude(['Ethekwini']))
+    .min(1, 'Choose the department this call is for: Police, Fire & Rescue, EMS or Disaster Management'),
 });
 
 export type LogIncomingCallInput = z.infer<typeof logIncomingCallSchema>;

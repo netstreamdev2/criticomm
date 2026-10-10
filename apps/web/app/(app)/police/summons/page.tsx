@@ -58,7 +58,7 @@ export default async function SummonsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Register</CardTitle>
-          <CardDescription>Serving stamps the moment and the server.</CardDescription>
+          <CardDescription>Serving records when it was served.</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable

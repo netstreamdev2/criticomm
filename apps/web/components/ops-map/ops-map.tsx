@@ -60,6 +60,7 @@ import { drawZones, zoneBounds } from './zones/render';
 import { ZoneCard } from './zones/zone-card';
 import { ZoneEditor, type EditorIncident, type ZoneFormInit } from './zones/zone-editor';
 import { DrawToolbar, PlacingBar, ZonesList } from './zones/zone-tools';
+import { DispatchMapModal } from '@/components/dispatch-map-modal';
 
 type L = typeof Leaflet;
 type Incident = Database['public']['Tables']['incidents']['Row'];
@@ -164,12 +165,18 @@ export type OpsMapProps = {
    * to them; each bodycam is still checked against their department.
    */
   bodycams?: boolean;
+  /**
+   * On the dispatch console a click on a call opens the live dispatch map
+   * (officers, road routes, minutes away) instead of the incident page.
+   * canAssign lets the dispatcher assign from it.
+   */
+  liveRoutes?: { canAssign: boolean } | null;
 };
 
 export function OpsMap({
   incidents: initialIncidents, officers: initialOfficers, silo, layers: available, defaults,
   basemap: defaultBasemap, scopeLabel, height = 560, startInWall = false,
-  me, focusZoneId = null, drawForIncidentId = null, bodycams = false,
+  me, focusZoneId = null, drawForIncidentId = null, bodycams = false, liveRoutes = null,
 }: OpsMapProps) {
   const router = useRouter();
   const routerRef = useRef(router);
@@ -178,6 +185,11 @@ export function OpsMap({
   const incidents = useLiveIncidents(initialIncidents, silo);
   const silos = useMemo(() => (silo ? [silo] : undefined), [silo]);
   const officers = useOnDutyOfficers(initialOfficers, silos);
+  /** The call whose live dispatch map is open. */
+  const [routingId, setRoutingId] = useState<string | null>(null);
+  const routing = routingId ? incidents.find((i) => i.id === routingId) ?? null : null;
+  const liveRoutesRef = useRef(liveRoutes);
+  liveRoutesRef.current = liveRoutes;
 
   /* ── What is switched on (remembered per browser) ─────────────────── */
 
@@ -428,6 +440,7 @@ export function OpsMap({
             return;
           }
           if (wallRef.current) focus(lat, lng);
+          else if (liveRoutesRef.current) setRoutingId(id);
           else routerRef.current.push(`/incidents/${id}`);
         });
         (sos ? gSos : gInc).addLayer(marker);
@@ -1217,6 +1230,19 @@ export function OpsMap({
           F11 for edge-to-edge · Esc to leave
         </p>
       )}
+
+      {routing && liveRoutes ? (
+        <DispatchMapModal
+          incident={{
+            id: routing.id, number: routing.incident_number, type: routing.incident_type,
+            severity: routing.incident_severity, address: routing.location_address,
+            lat: routing.location_lat, lng: routing.location_lng,
+          }}
+          initialOfficers={officers}
+          canAssign={liveRoutes.canAssign}
+          onClose={() => setRoutingId(null)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -1374,7 +1400,7 @@ function Legend({ isOn, wall, unplaced, crimeYear, bodycams }: {
     )}>
       {dot('#dc2626', 'SOS', '#fca5a5')}
       {isOn('incidents') && (['Critical', 'High', 'Medium', 'Low'] as const).map((s) => dot(SEVERITY_COLOUR[s]!, s))}
-      {isOn('units') && dot('#a78bfa', 'Officer free')}
+      {isOn('units') && dot('#a78bfa', 'Officer available')}
       {isOn('units') && dot('#a78bfa', 'Officer on a call', '#f59e0b')}
       {isOn('units') && bodycams && dot('#ef4444', 'Bodycam on: click the officer to watch')}
       {isOn('crime') && (

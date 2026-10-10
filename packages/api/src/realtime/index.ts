@@ -1,4 +1,6 @@
 import type { CriticomClient, Silo, Database } from '@criticom/db';
+import { noteText } from '../incidents/note';
+import { subscribeSignedIn } from './join';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 type IncidentUpdate = Database['public']['Tables']['incident_updates']['Row'];
@@ -27,8 +29,8 @@ export function subscribeNewIncidents(
       'postgres_changes' as never,
       { event: 'INSERT', schema: 'public', table: 'incidents', filter },
       (payload: { new: Incident }) => onInsert(payload.new),
-    )
-    .subscribe();
+    );
+  subscribeSignedIn(client, channel);
   return () => {
     void client.removeChannel(channel);
   };
@@ -47,8 +49,8 @@ export function subscribeIncidentUpdates(
       'postgres_changes' as never,
       { event: 'UPDATE', schema: 'public', table: 'incidents', filter },
       (payload: { new: Incident }) => onUpdate(payload.new),
-    )
-    .subscribe();
+    );
+  subscribeSignedIn(client, channel);
   return () => {
     void client.removeChannel(channel);
   };
@@ -70,9 +72,10 @@ export function subscribeIncidentTimeline(
         table: 'incident_updates',
         filter: `incident_id=eq.${incidentId}`,
       },
-      (payload: { new: IncidentUpdate }) => onAppend(payload.new),
-    )
-    .subscribe();
+      // Without the phone's outbox marker, as getIncidentUpdates reads them.
+      (payload: { new: IncidentUpdate }) => onAppend({ ...payload.new, message: noteText(payload.new.message) }),
+    );
+  subscribeSignedIn(client, channel);
   return () => {
     void client.removeChannel(channel);
   };
@@ -109,8 +112,8 @@ export function subscribePersonnel(
         id: payload.new?.id ?? payload.old?.id ?? null,
         isOnDuty: payload.new?.is_on_duty ?? null,
       }),
-    )
-    .subscribe();
+    );
+  subscribeSignedIn(client, channel);
   return () => {
     void client.removeChannel(channel);
   };
@@ -153,8 +156,8 @@ export function subscribeMyNotifications(
     .channel(`notifications:${userId}`)
     .on('broadcast' as never, { event: 'notification' }, ({ payload }: { payload: never }) =>
       onReceive(payload),
-    )
-    .subscribe();
+    );
+  subscribeSignedIn(client, channel);
   return () => {
     void client.removeChannel(channel);
   };
@@ -167,8 +170,8 @@ export function subscribeMyNotifications(
 export function subscribeBodycams(client: CriticomClient, onChange: () => void) {
   const channel = client
     .channel(uniqueTopic('bodycams'))
-    .on('postgres_changes' as never, { event: '*', schema: 'public', table: 'bodycams' }, () => onChange())
-    .subscribe();
+    .on('postgres_changes' as never, { event: '*', schema: 'public', table: 'bodycams' }, () => onChange());
+  subscribeSignedIn(client, channel);
   return () => {
     void client.removeChannel(channel);
   };

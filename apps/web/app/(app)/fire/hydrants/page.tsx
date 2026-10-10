@@ -23,7 +23,7 @@ export default async function HydrantsPage() {
       <header>
         <h1 className="text-2xl font-bold">Hydrant register</h1>
         <p className="text-muted-foreground">
-          GIS view + register — V4 FireChiefController.GISMap parity.
+          Hydrant map and register.
         </p>
       </header>
 

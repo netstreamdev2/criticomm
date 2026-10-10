@@ -7,6 +7,7 @@ const EMS: ServiceHomeContent = {
   unitIcon: 'medkit-outline',
   noUnit: 'No ambulance assigned',
   unitA11y: 'View your EMS shift, ambulance and stock checks',
+  showTeamOnDuty: false,
 };
 
 /** The paramedic home: the same layout as Police and Fire, with EMS content. */

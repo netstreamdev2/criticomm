@@ -1,5 +1,6 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getMetroReport } from '@criticom/api';
+import { getMetroReport, getReportType, reportReadout } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
@@ -27,6 +28,13 @@ export default async function MetroReportDetailPage({
   const r = await getMetroReport(supabase, id).catch(() => null);
   if (!r) notFound();
 
+  // The DMPS forms' answers, section by section (the shared blocks are in the card above).
+  const SHARED = new Set(['Response', 'Outcome', 'Evidence']);
+  const readout = r.report_type
+    ? reportReadout(getReportType(r.report_type), r as unknown as Record<string, unknown> & { details?: Record<string, unknown> | null })
+    : null;
+  const formSections = readout?.sections.filter((s) => !SHARED.has(s.title)) ?? [];
+
   const offenses = (r as { offenses?: Array<{ id: string; offense_type: string; fine_amount: number }> }).offenses ?? [];
 
   return (
@@ -35,9 +43,12 @@ export default async function MetroReportDetailPage({
         <div>
           <h1 className="font-mono text-2xl font-bold">{r.case_number}</h1>
           <p className="text-muted-foreground">
-            {r.incident_category} · {r.date_of_offense} {r.time_of_offense ?? ''} · filed {formatSaTime(r.created_at)}
+            {r.report_type ? getReportType(r.report_type).label : r.incident_category} · {r.date_of_offense} {r.time_of_offense ?? ''} · filed {formatSaTime(r.created_at)}
           </p>
         </div>
+        {r.incident_id ? (
+          <Link href={`/incidents/${r.incident_id}`} className="text-sm text-accent hover:underline">Open the incident</Link>
+        ) : null}
       </header>
 
       <Card>
@@ -71,6 +82,23 @@ export default async function MetroReportDetailPage({
           />
         </CardContent>
       </Card>
+
+      {formSections.map((s) => (
+        <Card key={s.title}>
+          <CardHeader><CardTitle>{s.title}</CardTitle></CardHeader>
+          <CardContent className="grid gap-4 sm:grid-cols-3">
+            {s.items.map((i, n) => <Item key={`${i.label}-${n}`} label={i.label} value={i.value} />)}
+          </CardContent>
+        </Card>
+      ))}
+      {readout?.extra.length ? (
+        <Card>
+          <CardHeader><CardTitle>Other answers</CardTitle></CardHeader>
+          <CardContent className="grid gap-4 sm:grid-cols-3">
+            {readout.extra.map((i, n) => <Item key={`${i.label}-${n}`} label={i.label} value={i.value} />)}
+          </CardContent>
+        </Card>
+      ) : null}
 
       {offenses.length > 0 && (
         <Card>

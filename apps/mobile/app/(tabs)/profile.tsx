@@ -13,6 +13,8 @@ import { useFeatures } from '@/lib/features';
 import { useOpenCall } from '@/lib/open-call';
 import { useDuty } from '@/lib/duty';
 import { useDept } from '@/lib/branding';
+import { roleName } from '@criticom/db';
+import { departmentOf, wordsFor } from '@/lib/department';
 import { DeptBadge } from '@/components/dept-badge';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/components/ui';
@@ -63,6 +65,8 @@ export default function ProfileScreen() {
   const { enqueue, pending, failed, online } = useSync();
   const { enabled: featureOn } = useFeatures();
   const dept = useDept();
+  const words = wordsFor(silo);
+  const police = departmentOf(silo) === 'police';
   const { refresh: refreshOpenCall } = useOpenCall();
   const [onDuty, setOnDuty] = useState(false);
   const [unit, setUnit] = useState<string | null>(null);
@@ -140,7 +144,7 @@ export default function ProfileScreen() {
     if (!open) return false;
     Alert.alert(
       `You are on ${open.incident_number}`,
-      `File its incident report before you ${action}.`,
+      `File its ${words.report} before you ${action}.`,
       [
         { text: 'OK', style: 'cancel' },
         { text: 'Open incident', onPress: () => router.push(`/incident/${open.id}`) },
@@ -165,8 +169,9 @@ export default function ProfileScreen() {
   const confirmSignOut = async () => {
     if (await stillOnCall('sign out')) return;
     // A firearm still booked out is handed back before the officer leaves: the
-    // end of shift does that. Signing out anyway tells command (0051).
-    const kit = await getMyShiftKit(getSupabase()).catch(() => null);
+    // end of shift does that. Signing out anyway tells command (0051). Only
+    // police draw firearms.
+    const kit = police ? await getMyShiftKit(getSupabase()).catch(() => null) : null;
     if (kit?.firearm) {
       Alert.alert(
         'Firearm still booked out',
@@ -194,7 +199,7 @@ export default function ProfileScreen() {
 
     Alert.alert(
       'Sign out?',
-      `Your vehicle will be released and your duty status cleared.${warning}`,
+      `${words.unit ? `Your ${words.unit} will be released and your duty status cleared.` : 'Your duty status will be cleared.'}${warning}`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Sign out', style: 'destructive', onPress: () => void signOut() },
@@ -213,7 +218,7 @@ export default function ProfileScreen() {
           </View>
           <View style={{ flex: 1 }}>
             <Title>{fullName}</Title>
-            <Muted>{role} · {dept.short_name}</Muted>
+            <Muted>{roleName(role)}</Muted>
           </View>
           <DeptBadge dept={dept} size={40} />
         </View>
@@ -256,7 +261,10 @@ export default function ProfileScreen() {
         {error ? <View style={{ marginTop: space.md }}><Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner></View> : null}
         <View style={styles.endShift}>
           <Button label="End shift" icon="moon-outline" variant="subtle" onPress={() => router.push('/end-shift')} />
-          <Muted style={{ marginTop: space.xs }}>Hand back your firearm and vehicle, then go off duty.</Muted>
+          <Muted style={{ marginTop: space.xs }}>
+            {police ? 'Hand back your firearm and vehicle, then go off duty.'
+              : words.unit ? `Hand back your ${words.unit}, then go off duty.` : 'End your shift and go off duty.'}
+          </Muted>
         </View>
       </Card>
 
@@ -306,7 +314,7 @@ export default function ProfileScreen() {
             : pending.length > 0
               ? 'Updates you captured are stored on this phone and send themselves as soon as there is signal.'
               : online
-                ? 'Status changes, notes and evidence are reaching the server as you capture them.'
+                ? `Status changes, notes and ${words.media} are reaching the server as you capture them.`
                 : 'Anything you capture is stored on this phone and sends itself when signal returns.'}
         </Muted>
       </Card>
@@ -337,13 +345,19 @@ export default function ProfileScreen() {
       {/* Account */}
       <SectionLabel>Account</SectionLabel>
       <Card>
-        <Muted>Signing out frees your vehicle and clears duty status. At the end of a shift, use End shift first so your firearm is handed back.</Muted>
+        <Muted>
+          {police
+            ? 'Signing out frees your vehicle and clears duty status. At the end of a shift, use End shift first so your firearm is handed back.'
+            : words.unit
+              ? `Signing out frees your ${words.unit} and clears duty status. At the end of a shift, use End shift first.`
+              : 'Signing out clears your duty status. At the end of a shift, use End shift first.'}
+        </Muted>
         <View style={{ marginTop: space.md }}>
           <Button label="Sign out" icon="log-out-outline" variant="danger" onPress={() => void confirmSignOut()} />
         </View>
       </Card>
 
-      <Text style={styles.version}>HikTech Responder · eThekwini Emergency Services</Text>
+      <Text style={styles.version}>HikTech Responder · {dept.official_name}</Text>
     </ScrollView>
   );
 }

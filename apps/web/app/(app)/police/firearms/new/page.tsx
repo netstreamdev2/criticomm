@@ -14,7 +14,7 @@ export default async function NewFirearmPage() {
     <div className="space-y-4">
       <header>
         <h1 className="text-2xl font-bold">Firearm authorization</h1>
-        <p className="text-muted-foreground">Issue register entry — V4 FirearmChecklist parity.</p>
+        <p className="text-muted-foreground">Add a firearm to the issue register.</p>
       </header>
 
       <form action={createFirearmAction} className="space-y-4">

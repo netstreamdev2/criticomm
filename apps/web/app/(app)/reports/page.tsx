@@ -17,11 +17,13 @@ export default async function ReportsPage({
   const { supabase, silo } = await getSession();
   const params = await searchParams;
 
-  const closed = await listAllIncidents(supabase, {
+  // Asked for by status, so the archive is not the closed slice of the latest 300 calls.
+  const archive = await listAllIncidents(supabase, {
     silo: siloFilter(silo) as Silo | undefined,
+    statuses: ['Closed', 'Resolved'],
     search: params.q,
+    limit: 500,
   });
-  const archive = closed.filter((i) => i.status === 'Closed' || i.status === 'Resolved');
 
   return (
     <div className="space-y-4">

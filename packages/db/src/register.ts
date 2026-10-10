@@ -9,7 +9,7 @@
  */
 
 import type { Silo, UserRole } from './types.generated';
-import { DEPARTMENT_NAMES, normaliseBadge, rolesInvitableBy } from './onboarding.ts';
+import { DEPARTMENT_NAMES, normaliseBadge, roleDepartmentProblem, rolesInvitableBy } from './onboarding.ts';
 import { POWERFUL_ROLES } from './roles.ts';
 import { normaliseHeader } from './sheet.ts';
 
@@ -281,6 +281,9 @@ export function suggestRole(previousRole: unknown, silo: Silo | null): { role: U
   };
   if (r in same) {
     const role = same[r]!;
+    // A field role is only ever suggested in its own department.
+    const mismatch = silo ? roleDepartmentProblem(role, silo) : null;
+    if (mismatch) return { role: null, note: mismatch };
     return { role, note: r === 'security' ? 'Security becomes Staff: confirm with the department.' : null };
   }
   if (r === 'responder') {

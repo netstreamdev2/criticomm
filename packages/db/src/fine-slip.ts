@@ -243,7 +243,7 @@ export function buildFineSlipHtml(s: SlipData): string {
         ${row('Name', s.infringer.name)}
         ${info.personPresent ? row(s.infringer.idType ?? 'Identification', s.infringer.idNumber) : ''}
         ${info.personPresent ? row('Date of birth', s.infringer.dob ? day(s.infringer.dob) : null) : ''}
-        ${info.personPresent ? row('Gender', s.infringer.gender) : ''}
+        ${info.personPresent ? row('Sex', s.infringer.gender) : ''}
         ${isAarto ? row('Licence code', [s.infringer.licenceCode, s.infringer.prdp ? `PrDP ${s.infringer.prdp}` : null].filter(Boolean).join(' · ')) : ''}
         ${info.personPresent ? row('Address', s.infringer.address) : ''}
         ${info.personPresent ? row('Phone', s.infringer.phone) : ''}

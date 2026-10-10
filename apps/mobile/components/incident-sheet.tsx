@@ -1,7 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { FieldIncident } from '@criticom/api';
 import type { CallView } from '@/lib/response';
+import { useAuth } from '@/lib/auth';
+import { personTitle } from '@/lib/department';
 import { openDirections } from '@/lib/navigate';
 import { colors, radius, severityColor, severityTint, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { BottomSheet } from '@/components/bottom-sheet';
@@ -50,18 +53,25 @@ export function IncidentSheet({
   onOpenFull: () => void;
 }) {
   const styles = useStyles();
+  const router = useRouter();
+  const { silo } = useAuth();
   if (!incident || !view) return <BottomSheet visible={false} onClose={onClose}>{null}</BottomSheet>;
 
   const sev = severityColor(incident.incident_severity);
   const who = assignmentLine(view, incident.dispatched_by);
   const responders = [...(view.lead ? [view.lead] : []), ...view.backups];
 
-  const navigate = () => { openDirections(incident); };
+  // The route map in the app; with no pin, the phone's maps search the address.
+  const navigate = () => {
+    if (!incident.location_lat && !incident.location_lng) { openDirections(incident); return; }
+    onClose();
+    router.push(`/route/${incident.id}`);
+  };
 
 
   const action = view.action;
   const actionLabel = !action ? null
-    : action.kind === 'respond' ? 'Responding'
+    : action.kind === 'respond' ? 'Accept'
         : action.label;
 
   return (
@@ -97,7 +107,7 @@ export function IncidentSheet({
             <View>
               <Button
                 label={actionLabel}
-                icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'car-sport' : 'arrow-forward-circle'}
+                icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'checkmark-circle' : 'arrow-forward-circle'}
                 variant={action.kind === 'report' ? 'success' : 'primary'}
                 size="lg"
                 busy={busy}
@@ -183,7 +193,7 @@ export function IncidentSheet({
                 {r.role === 'lead' ? 'LEAD' : 'BACKUP'}
               </Text>
             </View>
-            <Text style={styles.responderName} numberOfLines={1}>{r.name ?? 'Officer'}</Text>
+            <Text style={styles.responderName} numberOfLines={1}>{r.name ?? personTitle(silo)}</Text>
             <StatusBadge status={r.status} />
           </View>
         ))}

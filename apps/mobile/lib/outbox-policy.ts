@@ -1,4 +1,5 @@
 import type { Silo } from '@criticom/db/types';
+import { wordsFor } from './department.ts';
 
 /**
  * The outbox's rules, with no dependencies.
@@ -47,6 +48,20 @@ export type OutboxOp =
   | {
       /** The fire report that closes a Fire incident (migration 0059). */
       kind: 'fire_report';
+      incidentId: string;
+      incidentNumber: string;
+      fields: Record<string, string>;
+    }
+  | {
+      /** The patient care report that closes an EMS call (migration 0063). */
+      kind: 'pcr';
+      incidentId: string;
+      incidentNumber: string;
+      fields: Record<string, string>;
+    }
+  | {
+      /** The post-mortem that closes a Disaster incident (migration 0065). */
+      kind: 'post_mortem';
       incidentId: string;
       incidentNumber: string;
       fields: Record<string, string>;
@@ -155,11 +170,15 @@ export function describe(op: OutboxOp): string {
     case 'evidence':
       return `${op.mediaKind === 'audio' ? 'Voice note' : 'Photo'} · ${op.filename}`;
     case 'incident_report':
-      return `Case report · ${op.incidentNumber}`;
+      return `Incident report · ${op.incidentNumber}`;
     case 'fire_report':
       return `Fire report · ${op.incidentNumber}`;
+    case 'pcr':
+      return `Patient report · ${op.incidentNumber}`;
+    case 'post_mortem':
+      return `Post-mortem · ${op.incidentNumber}`;
     case 'panic':
-      return 'EMERGENCY — officer needs assistance';
+      return `EMERGENCY — ${wordsFor(op.silo).person} needs assistance`;
     case 'duty_location':
       return 'Position update';
     case 'firearm_check':
@@ -183,6 +202,8 @@ const PRIORITY: Record<OutboxOp['kind'], number> = {
   // ahead of photos: the report is what tells command the call is closed.
   incident_report: 2,
   fire_report: 2,
+  pcr: 2,
+  post_mortem: 2,
   duty_location: 2,
   incident_note: 3,
   // Armoury paperwork matters, but never ahead of anything an active incident

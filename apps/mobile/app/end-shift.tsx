@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { endShift, getMyShiftKit, returnBodycam, returnShiftFirearm, roundsShort, type MyShiftKit } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/auth';
+import { wordsFor } from '@/lib/department';
 import { useDuty } from '@/lib/duty';
 import { useOpenCall } from '@/lib/open-call';
 import { useSignOut } from '@/lib/sign-out';
@@ -47,6 +49,11 @@ export default function EndShiftScreen() {
   const { refresh: refreshDuty } = useDuty();
   const { refresh: refreshOpenCall } = useOpenCall();
   const signOut = useSignOut();
+  const { silo } = useAuth();
+  const words = wordsFor(silo);
+  // What this department calls the vehicle it signs onto.
+  const unitWord = words.unit ?? 'vehicle';
+  const UnitWord = unitWord.charAt(0).toUpperCase() + unitWord.slice(1);
   const scroller = useRef<ScrollView>(null);
 
   const [step, setStep] = useState<Step>('loading');
@@ -187,7 +194,7 @@ export default function EndShiftScreen() {
   const finish = () => void run(async () => {
     const open = await refreshOpenCall();
     if (open) {
-      setError(`You are still on ${open.incident_number}. File its incident report before you end your shift.`);
+      setError(`You are still on ${open.incident_number}. File its ${words.report} before you end your shift.`);
       return;
     }
     const res = await endShift(getSupabase(), { mileageKm: vehicle ? km : null, vehicleNote: fault ? faultNote.trim() : null });
@@ -198,8 +205,8 @@ export default function EndShiftScreen() {
 
   /* ── Render ──────────────────────────────────────────────────────── */
 
-  const steps = [firearm ? 'Firearm' : null, bodycam ? 'Bodycam' : null, vehicle ? 'Vehicle' : null, 'End'].filter(Boolean) as string[];
-  const stepName = { firearm: 'Firearm', bodycam: 'Bodycam', vehicle: 'Vehicle' } as const;
+  const steps = [firearm ? 'Firearm' : null, bodycam ? 'Bodycam' : null, vehicle ? UnitWord : null, 'End'].filter(Boolean) as string[];
+  const stepName = { firearm: 'Firearm', bodycam: 'Bodycam', vehicle: UnitWord } as const;
   const current = step === 'firearm' || step === 'bodycam' || step === 'vehicle'
     ? Math.max(0, steps.indexOf(stepName[step]))
     : steps.length - (step === 'done' ? 0 : 1);
@@ -293,15 +300,15 @@ export default function EndShiftScreen() {
           {camReturned ? <CamReturned returned={camReturned} /> : null}
           <Card accent={colors.accent}>
             <Title>Hand back {vehicle.unit_number}</Title>
-            <Muted>{vehicle.name}. Read the odometer before you leave the vehicle.</Muted>
+            <Muted>{vehicle.name}. Read the odometer before you leave the {unitWord}.</Muted>
             <View style={{ marginTop: space.md, gap: space.md }}>
               <Input label="Odometer (km)" keyboardType="number-pad" value={mileage} onChangeText={(t) => setMileage(digits(t))} maxLength={7}
                 hint={vehicle.mileage ? `Last reading ${vehicle.mileage} km.` : undefined} />
-              <CheckRow label="Something is wrong with the vehicle" checked={fault} onToggle={() => setFault((v) => !v)} />
+              <CheckRow label={`Something is wrong with the ${unitWord}`} checked={fault} onToggle={() => setFault((v) => !v)} />
               {fault ? (
                 <Input label="What is wrong" value={faultNote} onChangeText={setFaultNote} multiline maxLength={500}
                   placeholder="e.g. Left indicator out; brakes pulling right" style={{ minHeight: 72, textAlignVertical: 'top' }}
-                  hint="The vehicle goes for maintenance and your supervisor is told." />
+                  hint={`The ${unitWord} goes for maintenance and your supervisor is told.`} />
               ) : null}
             </View>
           </Card>

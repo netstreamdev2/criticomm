@@ -1,53 +1,86 @@
 import Link from 'next/link';
+import { Search } from 'lucide-react';
 import { listPcrs } from '@criticom/api';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { CARE_LEVELS, HOSPITALS } from '@criticom/db/pcr';
+import { Card, CardContent } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Patient Care Reports · HikTech' };
+export const metadata = { title: 'Clinical Archive · HikTech' };
 
-export default async function PcrListPage() {
-  const { supabase } = await getSession();
-  const pcrs = await listPcrs(supabase);
+type Params = { q?: string; care?: string; hospital?: string; from?: string; to?: string };
+const field = 'h-9 rounded-md border border-border bg-bg-soft px-2.5 text-sm';
+
+export default async function PcrListPage({ searchParams }: { searchParams: Promise<Params> }) {
+  const { supabase, role } = await getSession();
+  const params = await searchParams;
+  const pcrs = await listPcrs(supabase, params);
+  const filtered = Boolean(params.q || params.care || params.hospital || params.from || params.to);
 
   return (
-    <div className="space-y-4">
-      <header className="flex items-end justify-between">
+    <div className="space-y-3">
+      <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Patient care reports</h1>
-          <p className="text-muted-foreground">PCRs remain editable until the incident is closed.</p>
+          <h1 className="text-2xl font-bold">Clinical Archive</h1>
+          <p className="text-muted-foreground">Patient care reports, newest first.</p>
         </div>
-        <Link href="/medical/pcr/new" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold">
-          + New PCR
-        </Link>
+        {role === 'Doctor' ? null : (
+          <Link href="/medical/pcr/new" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold">
+            + New Manual Entry
+          </Link>
+        )}
       </header>
 
+      <form method="get" className="flex flex-wrap items-end gap-2 rounded-lg border border-border bg-bg-card px-3 py-2.5">
+        <div className="relative min-w-[220px] flex-1">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+          <input name="q" defaultValue={params.q} placeholder="Search patient, incident ref, complaint, crew" aria-label="Search reports" className={`${field} w-full pl-8`} />
+        </div>
+        <select name="care" defaultValue={params.care ?? ''} aria-label="Care level" className={field}>
+          <option value="">All care levels</option>
+          {CARE_LEVELS.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select name="hospital" defaultValue={params.hospital ?? ''} aria-label="Destination" className={field}>
+          <option value="">All destinations</option>
+          {HOSPITALS.map((h) => <option key={h} value={h}>{h}</option>)}
+        </select>
+        <label className="flex flex-col text-xs text-muted-foreground">
+          From
+          <input type="date" name="from" defaultValue={params.from} className={field} />
+        </label>
+        <label className="flex flex-col text-xs text-muted-foreground">
+          To
+          <input type="date" name="to" defaultValue={params.to} className={field} />
+        </label>
+        <button type="submit" className="h-9 rounded-md bg-accent px-4 text-sm font-semibold">Apply</button>
+        {filtered ? <Link href="/medical/pcr" className="self-center text-sm text-accent hover:underline">Clear</Link> : null}
+      </form>
+
       <Card>
-        <CardHeader>
-          <CardTitle>{pcrs.length} reports</CardTitle>
-          <CardDescription>Patient identifiers stay inside the Medical silo (RLS-enforced).</CardDescription>
-        </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
-            headers={['Patient', 'Age', 'Complaint', 'MOI', 'Destination', 'Care', 'Created', '']}
-            empty="No PCRs filed."
+            headers={['Incident Ref', 'Patient Name', 'Arrival Time', 'Destination', 'Care Level', 'Paramedic(s)', '']}
+            empty={filtered ? 'No reports match these filters.' : 'No clinical records found in the archive.'}
           >
             {pcrs.map((p) => (
               <Tr key={p.id}>
-                <Td>{p.patient_name ?? 'Unknown'}</Td>
-                <Td>{p.age ?? '—'}</Td>
-                <Td className="max-w-[200px] truncate">{p.chief_complaint ?? '—'}</Td>
-                <Td>{p.mechanism_of_injury ?? '—'}</Td>
-                <Td>{p.destination_hospital ?? '—'}</Td>
-                <Td>{p.level_of_care ?? '—'}</Td>
-                <Td className="text-muted-foreground">{formatSaTime(p.created_at)}</Td>
-                <Td className="whitespace-nowrap">
-                  <Link href={`/medical/pcr/${p.id}`} className="text-accent hover:underline">Open</Link>
-                  <span className="mx-1 text-muted-foreground">·</span>
-                  <Link href={`/medical/pcr/${p.id}/edit`} className="text-accent hover:underline">Edit</Link>
+                <Td className="font-mono text-xs">
+                  {p.incident_id
+                    ? <Link href={`/incidents/${p.incident_id}`} className="text-accent hover:underline">{p.report_number ?? 'Incident'}</Link>
+                    : 'Manual entry'}
                 </Td>
+                <Td className="font-semibold">{p.patient_name || 'Unknown Patient'}</Td>
+                <Td className="text-xs">{p.time_of_arrival ? formatSaTime(p.time_of_arrival) : 'Time Not Logged'}</Td>
+                <Td>{p.destination_hospital ?? <span className="text-xs text-muted-foreground">Not Transported</span>}</Td>
+                <Td>
+                  <span className={p.level_of_care === 'ALS' ? 'font-semibold text-severity-critical-ink' : p.level_of_care === 'ILS' ? 'font-semibold text-severity-medium-ink' : 'font-semibold text-severity-low-ink'}>
+                    {p.level_of_care ?? '—'}
+                  </span>
+                </Td>
+                <Td className="text-xs">{p.paramedic_names ?? '—'}</Td>
+                <Td><Link href={`/medical/pcr/${p.id}`} className="text-accent hover:underline">Open</Link></Td>
               </Tr>
             ))}
           </SimpleTable>

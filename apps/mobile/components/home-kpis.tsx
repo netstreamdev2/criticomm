@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { countAssignedToMeToday } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { wordsFor } from '@/lib/department';
 import { useOpenCall } from '@/lib/open-call';
 import { colors, radius, space, makeStyles, useTheme } from '@/lib/theme';
 
@@ -26,7 +27,7 @@ type Kpi = {
 export function HomeKpis({ live, closedToday }: { live?: number; closedToday?: number }) {
   const styles = useStyles();
   const { isDark } = useTheme();
-  const { session } = useAuth();
+  const { session, silo } = useAuth();
   const { calls, awaiting } = useOpenCall();
   const [assignedToday, setAssignedToday] = useState<number | null>(null);
 
@@ -43,7 +44,7 @@ export function HomeKpis({ live, closedToday }: { live?: number; closedToday?: n
   const kpis: Kpi[] = [
     { key: 'live', label: 'Live', detail: 'Open right now', value: live, icon: 'pulse', tone: '#ef4444' },
     { key: 'closed', label: 'Closed today', detail: 'Since midnight', value: closedToday, icon: 'checkmark-done', tone: '#22c55e' },
-    { key: 'mine', label: 'Mine', detail: 'Incidents you are responding to', value: calls.length, icon: 'car-sport', tone: '#3b82f6' },
+    { key: 'mine', label: 'Mine', detail: 'Incidents you are responding to', value: calls.length, icon: wordsFor(silo).movingIcon, tone: '#3b82f6' },
     {
       key: 'assigned', label: 'Assigned today',
       detail: awaiting.length ? `${awaiting.length} still waiting for your response` : 'Assigned to you since midnight',

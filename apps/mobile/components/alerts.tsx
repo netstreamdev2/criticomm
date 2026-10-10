@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
-  Animated, Modal, Pressable, StyleSheet, Text, View,
+  Alert, Animated, Modal, Pressable, StyleSheet, Text, View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,17 +8,16 @@ import { markAlertRead, subscribeIncidentUpdates } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useNotifications } from '@/lib/notifications';
-import { navigateToIncident } from '@/lib/navigate';
+import { useSync } from '@/lib/sync';
+import { useDuty } from '@/lib/duty';
+import { confirmAccept } from '@/lib/accept';
+import { departmentName } from '@criticom/db';
+import { personTitle } from '@/lib/department';
 import { colors, radius, severityColor, space, type, makeStyles } from '@/lib/theme';
 import { Button } from '@/components/ui';
 
-const SILO_LABELS: Record<string, string> = {
-  Ethekwini: 'Control Room',
-  MetroPolice: 'Metro Police',
-  MetroFire: 'Fire & Rescue',
-  Medical: 'EMS / Medical',
-  EthekwiniDisaster: 'Disaster Mgmt',
-};
+/** "INC-POL-0042" from a title such as "INC-POL-0042 · 10-57 Robbery", when it carries one. */
+const incidentNumberOf = (title: string) => /\b[A-Z]{2,5}(?:-[A-Z0-9]+)+\b/.exec(title)?.[0] ?? null;
 
 /**
  * Corner banners for routine alerts. Sit below the header so they never cover
@@ -88,11 +87,25 @@ export function AssignmentAlert() {
   const { session } = useAuth();
   const router = useRouter();
   const pulse = useRef(new Animated.Value(0)).current;
+  const { enqueue } = useSync();
+  const { onDuty } = useDuty();
+  const [accepting, setAccepting] = useState(false);
   const current = assignments[0];
   const open = current?.kind === 'dispatch';
   // A colleague's SOS: raised (to command, kind 'sos') or dispatched to me
   // (the server leads the title with "SOS", migration 0043).
   const sos = current?.kind === 'sos' || Boolean(current?.title.startsWith('SOS'));
+  // Whose SOS it is: the SOS incident is logged under the department of the
+  // person who pressed it, so the heading names them (a paramedic, a firefighter).
+  const [sosSilo, setSosSilo] = useState<{ incidentId: string; silo: string } | null>(null);
+  const sosIncident = sos ? current?.incident_id ?? null : null;
+  useEffect(() => {
+    if (!sosIncident) return;
+    let live = true;
+    void getSupabase().from('incidents').select('silo').eq('id', sosIncident).maybeSingle()
+      .then(({ data }) => { if (live && data?.silo) setSosSilo({ incidentId: sosIncident, silo: data.silo }); });
+    return () => { live = false; };
+  }, [sosIncident]);
 
   // An open call another officer has already taken is no longer this
   // officer's to answer: take it off their screen.
@@ -136,14 +149,34 @@ export function AssignmentAlert() {
     else router.push({ pathname: '/(tabs)/incidents', params: { open: current.incident_id } });
   };
 
-  /** Acknowledge, and hand the scene to the phone's map app (the incident if it has no location). */
+  /**
+   * Accept: asked once, then the officer is en route and dispatch sees it.
+   * Queued like every status, so a dead zone does not lose it.
+   */
+  const accept = async () => {
+    const incidentId = current.incident_id;
+    if (!incidentId) return;
+    if (onDuty === false) {
+      Alert.alert('You are off duty', 'Go on duty to accept incidents.');
+      return;
+    }
+    if (!(await confirmAccept(incidentNumberOf(current.title)))) return;
+    setAccepting(true);
+    try {
+      await enqueue({ kind: 'incident_status', incidentId, status: 'En Route', incidentNumber: incidentNumberOf(current.title) ?? undefined });
+      acknowledge(true);
+    } catch (e) {
+      Alert.alert('Not accepted', (e as Error).message);
+    } finally {
+      setAccepting(false);
+    }
+  };
+
+  /** Acknowledge, and show the way to the scene on the in-app route map. */
   const navigate = () => {
     const incidentId = current.incident_id;
     acknowledge(false);
-    if (!incidentId) return;
-    void navigateToIncident(incidentId).then((ok) => {
-      if (!ok) router.push({ pathname: '/(tabs)/incidents', params: { open: incidentId } });
-    });
+    if (incidentId) router.push(`/route/${incidentId}`);
   };
 
   return (
@@ -156,10 +189,12 @@ export function AssignmentAlert() {
             </Animated.View>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardKicker}>
-                {current.severity.toUpperCase()} · {SILO_LABELS[current.silo] ?? current.silo}
+                {current.severity.toUpperCase()} · {departmentName(current.silo)}
               </Text>
               <Text style={styles.cardHeading}>
-                {sos ? 'OFFICER SOS' : open ? 'New incident' : 'Incident assigned'}
+                {sos
+                  ? (sosSilo && sosSilo.incidentId === current.incident_id ? `${personTitle(sosSilo.silo).toUpperCase()} SOS` : 'SOS')
+                  : open ? 'New incident' : 'Incident assigned'}
               </Text>
             </View>
           </View>
@@ -198,22 +233,20 @@ export function AssignmentAlert() {
             ) : null}
 
             <View style={{ gap: space.sm, marginTop: space.xl }}>
-              {current.incident_id ? (
-                <Button
-                  label={open ? 'View incident' : 'Acknowledge & open'}
-                  icon="arrow-forward-circle"
-                  size="lg"
-                  onPress={() => acknowledge(true)}
-                />
-              ) : null}
               {current.incident_id && current.kind !== 'sos' ? (
-                <Button label="Navigate" icon="navigate" variant="outline" size="lg" onPress={navigate} />
-              ) : null}
-              <Button
-                label={open ? 'Dismiss' : 'Acknowledge'}
-                variant="outline"
-                onPress={() => acknowledge(false)}
-              />
+                <>
+                  <Button label="Accept incident" icon="checkmark-circle" size="lg" busy={accepting} onPress={() => void accept()} />
+                  <Button label="Acknowledge" icon="eye-outline" variant="outline" size="lg" onPress={() => acknowledge(true)} />
+                  <Button label="Navigate" icon="navigate" variant="outline" size="lg" onPress={navigate} />
+                </>
+              ) : (
+                <>
+                  {current.incident_id ? (
+                    <Button label="View incident" icon="arrow-forward-circle" size="lg" onPress={() => acknowledge(true)} />
+                  ) : null}
+                  <Button label="Acknowledge" variant="outline" onPress={() => acknowledge(false)} />
+                </>
+              )}
             </View>
           </View>
         </View>

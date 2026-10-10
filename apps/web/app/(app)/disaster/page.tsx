@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { listDisasterLogs, listReliefStocks, listPostMortems, listActiveIncidents } from '@criticom/api';
+import { listDisasterLogs, listOpenDisasterIncidents, listReliefStocks, listPostMortems } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { LeafletMap } from '@/components/leaflet-map';
 import { WindWidget } from './wind-widget';
@@ -16,11 +16,22 @@ export default async function DisasterPage() {
   const { supabase } = await getSession();
   const [logs, stocks, postMortems, activeIncidents] = await Promise.all([
     listDisasterLogs(supabase),
-    listReliefStocks(supabase),
+    listReliefStocks(supabase).catch(() => []),
     listPostMortems(supabase),
-    listActiveIncidents(supabase, 'EthekwiniDisaster').catch(() => []),
+    listOpenDisasterIncidents(supabase).catch(() => []),
   ]);
   const lowStock = stocks.filter((s) => s.quantity < 10);
+  // V4's dashboard figures.
+  const displaced = postMortems.reduce((n, p) => n + (p.displaced_people ?? 0), 0);
+  const openIds = new Map(activeIncidents.map((i) => [i.id, i]));
+  const waits = logs
+    .map((l) => ({ l, i: l.incident_id ? openIds.get(l.incident_id) : undefined }))
+    .filter((x) => x.i?.call_timestamp)
+    .map((x) => (new Date(x.l.dispatch_timestamp).getTime() - new Date(x.i!.call_timestamp).getTime()) / 60_000)
+    .filter((m) => m >= 0);
+  const avgResponse = waits.length ? `${Math.round((waits.reduce((a, b) => a + b, 0) / waits.length) * 10) / 10}m` : 'N/A';
+  const resourcesDispatched = logs.filter((l) => l.resource_type).length;
+  const liveLogs = logs.filter((l) => !l.incident_id || openIds.has(l.incident_id));
 
   return (
     <div className="space-y-6">
@@ -39,24 +50,22 @@ export default async function DisasterPage() {
         </div>
       </header>
 
-      <section className="grid gap-3 sm:grid-cols-4">
-        <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Active deployments</p>
-          <p className="mt-2 text-3xl font-bold">{logs.length}</p>
-        </CardContent></Card>
-        <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Relief stock lines</p>
-          <p className="mt-2 text-3xl font-bold">{stocks.length}</p>
-        </CardContent></Card>
-        <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Low stock items</p>
-          <p className="mt-2 text-3xl font-bold text-severity-medium-ink">{lowStock.length}</p>
-        </CardContent></Card>
-        <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Post-mortems filed</p>
-          <p className="mt-2 text-3xl font-bold">{postMortems.length}</p>
-        </CardContent></Card>
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: 'Active incidents', value: activeIncidents.length, tone: 'text-severity-critical-ink' },
+          { label: 'Displaced people', value: displaced, tone: 'text-severity-medium-ink' },
+          { label: 'Avg response', value: avgResponse, tone: 'text-accent' },
+          { label: 'Resources dispatched', value: resourcesDispatched, tone: '' },
+        ].map((t) => (
+          <Card key={t.label}><CardContent className="p-4">
+            <p className="text-xs uppercase text-muted-foreground">{t.label}</p>
+            <p className={`mt-2 text-3xl font-bold ${t.tone}`}>{t.value}</p>
+          </CardContent></Card>
+        ))}
       </section>
+      {lowStock.length ? (
+        <p className="text-sm text-severity-medium-ink">{lowStock.length} relief stock item{lowStock.length === 1 ? '' : 's'} running low.</p>
+      ) : null}
 
       <section className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -82,12 +91,12 @@ export default async function DisasterPage() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Deployment monitor</h2>
-        {logs.length === 0 && (
+        {liveLogs.length === 0 && (
           <Card><CardContent className="p-8 text-center text-muted-foreground">
             No active disaster deployments.
           </CardContent></Card>
         )}
-        {logs.map((log) => {
+        {liveLogs.map((log) => {
           const updates = (Array.isArray(log.updates) ? log.updates : []) as TimelineEntry[];
           return (
             <Card key={log.id}>

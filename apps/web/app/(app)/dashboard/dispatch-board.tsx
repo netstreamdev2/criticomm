@@ -12,7 +12,9 @@ import { OpsMap } from '@/components/ops-map/ops-map';
 import { getFeatures } from '@/lib/features';
 import { availableLayers, defaultLayers } from '@/lib/ops-map/layers';
 import type { getSession } from '@/lib/session';
-import { timeAgo, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+import { DispatchMapButton } from '@/components/dispatch-map-button';
+import { chatTime } from '@/lib/when';
 import { BoardLive } from './board-live';
 
 type Supabase = Awaited<ReturnType<typeof getSession>>['supabase'];
@@ -101,17 +103,19 @@ export async function DispatchBoard({
 }) {
   // Loggers see the board but cannot assign — their button opens the incident.
   const canDispatch = canAccess('/dispatch/pending', role as UserRole, silo as Silo);
+  const canAssign = canAccess('/dispatch/assign/x', role as UserRole, silo as Silo);
   // Admin-tuned knobs (Admin → Operations Settings) shape the whole board.
   const settings = await getOperationalSettings(supabase);
   const volumeDays = settings['board.volume_days'];
 
-  const today = saDay(new Date());
+  const now = new Date();
+  const today = saDay(now);
   const todayStart = saMidnight(today);
   const tenDaysAgo = new Date(todayStart.getTime() - (volumeDays - 1) * 86_400_000);
 
   const feedQ = supabase
     .from('incidents')
-    .select('id, incident_number, incident_type, incident_severity, status, location_address, updated_at')
+    .select('id, incident_number, incident_type, incident_severity, status, location_address, location_lat, location_lng, updated_at')
     .order('updated_at', { ascending: false })
     .limit(settings['board.feed_items']);
   const totalQ = supabase.from('incidents').select('id', { count: 'exact', head: true });
@@ -259,10 +263,10 @@ export async function DispatchBoard({
                 const meta = FEED_META[i.status] ?? FEED_DEFAULT;
                 const Icon = meta.icon;
                 return (
-                  <li key={`${i.id}-${i.updated_at}`}>
+                  <li key={`${i.id}-${i.updated_at}`} className="flex items-center gap-1 rounded-lg transition-colors hover:bg-muted/50">
                     <Link
                       href={`/incidents/${i.id}`}
-                      className="flex items-start gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-muted/50"
+                      className="flex min-w-0 flex-1 items-start gap-3 px-2 py-2.5"
                     >
                       <span className={cn('mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg', meta.chip, meta.tone)}>
                         <Icon className="h-4 w-4" />
@@ -270,13 +274,27 @@ export async function DispatchBoard({
                       <span className="min-w-0 flex-1">
                         <span className="flex items-baseline justify-between gap-3">
                           <span className="truncate text-sm font-bold">{meta.label}</span>
-                          <span className="shrink-0 text-xs text-muted-foreground">{timeAgo(i.updated_at)}</span>
+                          <span className="shrink-0 text-xs text-muted-foreground">{chatTime(i.updated_at, now)}</span>
                         </span>
                         <span className="mt-0.5 block truncate text-xs text-muted-foreground">
                           {shortCode(i.incident_type)} at {i.location_address}
                         </span>
                       </span>
                     </Link>
+                    {i.location_lat && i.location_lng && i.status !== 'Resolved' && i.status !== 'Closed' ? (
+                      <DispatchMapButton
+                        incident={{
+                          id: i.id, number: i.incident_number, type: i.incident_type, severity: i.incident_severity,
+                          address: i.location_address, lat: i.location_lat, lng: i.location_lng,
+                        }}
+                        officers={officers}
+                        canAssign={canAssign}
+                        title="Officers, routes and minutes away"
+                        className="mr-1 shrink-0 rounded-md p-2 text-accent hover:bg-accent/15"
+                      >
+                        <MapPin className="h-4 w-4" aria-label="Live map" />
+                      </DispatchMapButton>
+                    ) : null}
                   </li>
                 );
               }) : (
@@ -308,6 +326,20 @@ export async function DispatchBoard({
             >
               <Zap className="h-4 w-4" /> {canDispatch ? 'Dispatch now' : 'Open incident'}
             </Link>
+            {critical.location_lat && critical.location_lng ? (
+              <DispatchMapButton
+                incident={{
+                  id: critical.id, number: critical.incident_number, type: critical.incident_type,
+                  severity: critical.incident_severity, address: critical.location_address,
+                  lat: critical.location_lat, lng: critical.location_lng,
+                }}
+                officers={officers}
+                canAssign={canAssign}
+                className="mt-3 inline-flex h-9 items-center gap-2 rounded-full border border-white/60 px-5 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10"
+              >
+                <MapPin className="h-3.5 w-3.5" /> Nearest units &amp; routes
+              </DispatchMapButton>
+            ) : null}
             <Link
               href={`/incidents/${critical.id}`}
               className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-white/85 hover:text-white"
@@ -357,6 +389,7 @@ export async function DispatchBoard({
             height={640}
             me={{ id: userId, role: role as UserRole, silo: silo as Silo }}
             bodycams={canAccess('/cameras', role as UserRole, silo as Silo) && featureEnabled(await getFeatures(), 'web.cameras')}
+            liveRoutes={{ canAssign }}
           />
         </CardContent>
       </Card>

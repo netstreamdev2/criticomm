@@ -29,6 +29,10 @@ export type ServiceHomeContent = {
   unitIcon: IconName;
   noUnit: string;
   unitA11y: string;
+  /** Show how many of the team are on duty (EMS does not). */
+  showTeamOnDuty?: boolean;
+  /** No vehicle in this department (Disaster): the card shows the shift instead. */
+  noVehicle?: boolean;
 };
 
 /**
@@ -93,10 +97,12 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
             <Ionicons name={content.icon} size={14} color={colors.accent} />
             <Text style={styles.stationEyebrow}>{content.eyebrow}</Text>
             <View style={{ flex: 1 }} />
-            <View style={styles.chip}>
-              <Ionicons name="people" size={12} color={colors.textDim} />
-              <Text style={styles.chipText}>{teamOnDuty ?? '—'} on duty</Text>
-            </View>
+            {content.showTeamOnDuty === false ? null : (
+              <View style={styles.chip}>
+                <Ionicons name="people" size={12} color={colors.textDim} />
+                <Text style={styles.chipText}>{teamOnDuty ?? '—'} on duty</Text>
+              </View>
+            )}
             <View style={styles.chip}>
               <Ionicons name={online ? 'cloud-done-outline' : 'cloud-offline-outline'} size={12} color={failed.length ? colors.critical : colors.textDim} />
               <Text style={[styles.chipText, failed.length ? { color: colors.critical } : null]}>
@@ -111,8 +117,14 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
           <View style={styles.applianceIcon}><Ionicons name={content.unitIcon} size={24} color={colors.accent} /></View>
           <View style={{ flex: 1 }}>
             <Text style={styles.smallLabel}>{content.unitLabel}</Text>
-            <Text style={styles.applianceTitle}>{person?.apparatus?.unit_number ?? content.noUnit}</Text>
-            <Text style={styles.sub}>{person?.apparatus?.name ?? 'Complete your start-of-shift checks'}</Text>
+            <Text style={styles.applianceTitle}>
+              {content.noVehicle ? (onDuty ? 'On duty' : content.noUnit) : (person?.apparatus?.unit_number ?? content.noUnit)}
+            </Text>
+            <Text style={styles.sub}>
+              {content.noVehicle
+                ? (onDuty ? 'Readiness checked today' : 'Complete your start-of-shift checks')
+                : (person?.apparatus?.name ?? 'Complete your start-of-shift checks')}
+            </Text>
           </View>
           <View style={styles.dutyChip}><View style={[styles.dot, { backgroundColor: onDuty ? colors.low : colors.medium }]} /><Text style={styles.sub}>{onDuty === null ? 'Checking' : onDuty ? 'On duty' : 'Off duty'}</Text></View>
           <Ionicons name="chevron-forward" size={16} color={colors.muted} />

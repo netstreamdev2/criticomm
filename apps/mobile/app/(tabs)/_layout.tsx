@@ -50,10 +50,13 @@ export default function TabsLayout() {
   useTheme();
   const unread = useUnreadAlerts();
   const alertsOn = useFeature('mobile.alerts_inbox');
+  const { role } = useAuth();
+  // The receiving doctor's app is the handovers list alone.
+  const doctor = role === 'Doctor';
 
   return (
     <Tabs
-      tabBar={(props) => <CurvedTabBar {...props} />}
+      tabBar={(props) => (doctor ? null : <CurvedTabBar {...props} />)}
       screenOptions={{
         headerStyle: {
           backgroundColor: colors.bgSoft,
@@ -68,7 +71,7 @@ export default function TabsLayout() {
         headerRight: () => (
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <ThemeToggle />
-            <HeaderSearch />
+            {doctor ? null : <HeaderSearch />}
             {alertsOn ? <AlertsBell count={unread} /> : <View style={{ width: 12 }} />}
           </View>
         ),

@@ -139,7 +139,7 @@ test('our template reads back as an empty staff list with every heading', async 
   const parsed = staffRowsFromTable(staff);
   assert.ok(parsed.ok && parsed.rows.length === 0);
   const xml = new TextDecoder().decode(await (await readZip(bytes)).get('xl/worksheets/sheet1.xml')!());
-  assert.match(xml, /<dataValidation type="list"[^>]*sqref="E2:E20000"><formula1>"Metro Police,Fire &amp; Rescue,EMS \/ Medical,Disaster Management,Control Room"<\/formula1>/);
+  assert.match(xml, /<dataValidation type="list"[^>]*sqref="E2:E20000"><formula1>"Metro Police,Fire &amp; Rescue,EMS,Disaster Management,Control Room"<\/formula1>/);
   assert.match(xml, /<col min="3" max="3" width="18" customWidth="1" style="2"\/>/, 'badge numbers are text');
   const instructions = (await sheets[1]!.read()).map((r) => r.join(' ')).join('\n');
   assert.match(instructions, /do not add ID numbers/);

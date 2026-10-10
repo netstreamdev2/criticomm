@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, KeyRound, Mail, MessageSquare, Printer, Search, ShieldCheck, TriangleAlert, X } from 'lucide-react';
 import {
-  DEPARTMENT_NAMES, describeAccess, inviteChannelFor, needsSecondApproval, passwordChecklist, type Silo, type UserRole,
+  DEPARTMENT_NAMES, describeAccess, inviteChannelFor, needsSecondApproval, passwordChecklist, roleFitsDepartment, roleName,
+  rolesForDepartment, type Silo, type UserRole,
 } from '@criticom/db';
 import type { InvitationChannel, StaffForInvite } from '@criticom/api';
 import { Button } from '@/components/ui/button';
@@ -25,12 +26,6 @@ const ROLE_GROUPS: Array<{ label: string; roles: UserRole[] }> = [
   { label: 'Control room and desk', roles: ['Dispatcher', 'ControlRoom', 'IncidentLogger', 'Supervisor', 'CaseManager', 'Viewer', 'Staff'] },
   { label: 'Administration', roles: ['Admin', 'SystemController', 'SystemAdmin', 'SuperAdmin'] },
 ];
-
-/** Where each field role normally sits, for a gentle hint when the department chosen differs. */
-const USUAL_DEPARTMENT: Partial<Record<UserRole, Silo>> = {
-  Police: 'MetroPolice', Captain: 'MetroPolice', Firefighter: 'MetroFire', FireChief: 'MetroFire',
-  Paramedic: 'Medical', Doctor: 'Medical', Disaster: 'EthekwiniDisaster',
-};
 
 const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const phoneOk = (phone: string) => {
@@ -94,13 +89,11 @@ export function InviteForm({
   const [searching, setSearching] = useState(false);
   const latest = useRef(0);
 
-  /** A role someone confirmed in the staff register, if this administrator may give it. */
+  /** A role someone confirmed in the staff register, if this administrator may give it in their department. */
   const confirmedRole = (p: StaffForInvite | null): UserRole | '' =>
-    p?.proposed_role && p.role_confirmed_at && roles.includes(p.proposed_role) ? p.proposed_role : '';
+    p?.proposed_role && p.role_confirmed_at && roles.includes(p.proposed_role) && roleFitsDepartment(p.proposed_role, p.silo)
+      ? p.proposed_role : '';
   const [role, setRole] = useState<UserRole | ''>(confirmedRole(initialPerson));
-  const [silo, setSilo] = useState<Silo>(
-    initialPerson && departments.includes(initialPerson.silo) ? initialPerson.silo : departments[0]!,
-  );
   const [channel, setChannel] = useState<InvitationChannel>(
     initialPerson ? inviteChannelFor(initialPerson, delivery) : delivery.email ? 'email' : 'code',
   );
@@ -137,7 +130,6 @@ export function InviteForm({
     setPerson(p);
     setQuery('');
     setResults(null);
-    if (departments.includes(p.silo)) setSilo(p.silo);
     // Start from the staff register: their work contact details and confirmed role.
     setEmail(p.work_email ?? '');
     setPhone(p.work_cellphone ?? '');
@@ -146,16 +138,18 @@ export function InviteForm({
     setChecked(false);
   };
 
-  // A department Admin is offered their own department's field roles only;
-  // the rules would allow a Firefighter in Metro Police, but it is never meant.
-  const offered = actorRole === 'Admin'
-    ? roles.filter((r) => !USUAL_DEPARTMENT[r] || departments.includes(USUAL_DEPARTMENT[r]!))
-    : roles;
+  // The account is for the department the staff register says, never another
+  // (0067): a wrong department is put right in Personnel first. Field roles
+  // belong to one department, so Disaster Management offers the Disaster
+  // role, never a Captain or a Firefighter.
+  const silo: Silo | null = person?.silo ?? null;
+  const outside = !!person && !departments.includes(person.silo);
+  const offered = silo && !outside ? rolesForDepartment(roles, silo) : [];
+  const canMovePeople = actorRole === 'SystemAdmin' || actorRole === 'SuperAdmin';
   const first = person ? person.first_name.trim().split(/\s+/)[0] : 'them';
   const fullName = person ? `${person.first_name} ${person.last_name}`.trim() : '';
   const approval = role !== '' && needsSecondApproval(actorRole, role, role);
-  const access = role ? describeAccess(role, silo) : [];
-  const usual = role ? USUAL_DEPARTMENT[role] : undefined;
+  const access = role && silo ? describeAccess(role, silo) : [];
   const direct = channel === 'direct';
   // A powerful role needs a second SystemAdmin, which a direct account cannot wait for.
   const directBlocked = direct && approval;
@@ -166,7 +160,7 @@ export function InviteForm({
     : [];
   const contactOk = channel === 'email' || direct ? emailOk : channel === 'sms' ? phoneOk(phone) : true;
   const reasonLength = reason.trim().length;
-  const ready = !!person && role !== '' && contactOk && (channel === 'code' || checked) && reasonLength >= MIN_REASON
+  const ready = !!person && !outside && role !== '' && contactOk && (channel === 'code' || checked) && reasonLength >= MIN_REASON
     && !directBlocked && rules.every((r) => r.ok);
   const deadline = now ? formatDeadline(new Date(now + ttlHours * 3_600_000).toISOString()) : null;
 
@@ -183,7 +177,7 @@ export function InviteForm({
     if (channel === 'direct') {
       start(async () => {
         const res = await createAccountDirectlyAction({
-          personnelId: person.id, role, silo, email: email.trim(), password, confirmPassword,
+          personnelId: person.id, role, silo: person.silo, email: email.trim(), password, confirmPassword,
           reason: reason.trim(), handOverAgreed: checked,
         });
         if (!res.ok) { setError(res.message); return; }
@@ -191,7 +185,7 @@ export function InviteForm({
         setConfirmPassword('');
         toast.push({
           title: `Account created for ${first}`,
-          body: `Active now as ${res.role}. They sign in with ${res.loginEmail} on the web or the phone app.`,
+          body: `Active now as ${roleName(res.role)}. They sign in with ${res.loginEmail} on the web or the phone app.`,
           tone: 'success', duration: 8000,
         });
         router.push('/admin/invitations?view=accepted');
@@ -201,7 +195,7 @@ export function InviteForm({
     }
     start(async () => {
       const res = await createInvitationAction({
-        personnelId: person.id, role, silo, channel, email: email.trim(), phone: phone.trim(), reason: reason.trim(),
+        personnelId: person.id, role, silo: person.silo, channel, email: email.trim(), phone: phone.trim(), reason: reason.trim(),
         checkedWithPerson: checked,
       });
       if (!res.ok) { setError(res.error); return; }
@@ -330,40 +324,44 @@ export function InviteForm({
       <Step n={2} title="Access">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
+            <Label htmlFor="silo">Department</Label>
+            <p id="silo" className="mt-1.5 flex h-10 items-center rounded-md border border-dashed border-border px-3 text-sm">
+              {person ? DEPARTMENT_NAMES[person.silo] : <span className="text-muted-foreground">Choose the person first</span>}
+            </p>
+            {person ? (
+              <p className="mt-1 text-xs text-muted-foreground">
+                From the staff register.{' '}
+                {canMovePeople ? (
+                  <Link href={`/admin/personnel?q=${encodeURIComponent(person.badge_number)}`} className="font-semibold text-primary hover:underline">
+                    Wrong department? Change it in Personnel
+                  </Link>
+                ) : 'Wrong department? Ask a system administrator to change it in Personnel.'}
+              </p>
+            ) : null}
+          </div>
+          <div>
             <Label htmlFor="role">Role</Label>
-            <select id="role" value={role} onChange={(e) => setRole(e.target.value as UserRole)} className={selectClass}>
-              <option value="" disabled>Choose a role</option>
+            <select id="role" value={role} onChange={(e) => setRole(e.target.value as UserRole)} disabled={!person || outside} className={selectClass}>
+              <option value="" disabled>{person ? 'Choose a role' : 'Choose the person first'}</option>
               {ROLE_GROUPS.map((g) => {
                 const inGroup = g.roles.filter((r) => offered.includes(r));
                 return inGroup.length ? (
                   <optgroup key={g.label} label={g.label}>
-                    {inGroup.map((r) => <option key={r} value={r}>{r}</option>)}
+                    {inGroup.map((r) => <option key={r} value={r}>{roleName(r)}</option>)}
                   </optgroup>
                 ) : null;
               })}
             </select>
           </div>
-          <div>
-            <Label htmlFor="silo">Department</Label>
-            {departments.length > 1 ? (
-              <select id="silo" value={silo} onChange={(e) => setSilo(e.target.value as Silo)} className={selectClass}>
-                {departments.map((s) => <option key={s} value={s}>{DEPARTMENT_NAMES[s]}</option>)}
-              </select>
-            ) : (
-              <p id="silo" className="mt-1.5 flex h-10 items-center rounded-md border border-dashed border-border px-3 text-sm text-muted-foreground">
-                {DEPARTMENT_NAMES[silo]}
-              </p>
-            )}
-          </div>
         </div>
 
-        {person && person.silo !== silo ? (
-          <p className="text-xs text-muted-foreground">The staff register lists {first} in {DEPARTMENT_NAMES[person.silo]}.</p>
-        ) : null}
-        {usual && usual !== silo && departments.includes(usual) ? (
-          <p className="text-xs text-severity-medium-ink">
-            {role} usually sits in {DEPARTMENT_NAMES[usual]}.{' '}
-            <button type="button" className="font-semibold underline" onClick={() => setSilo(usual)}>Use {DEPARTMENT_NAMES[usual]}</button>
+        {outside && person ? (
+          <p role="alert" className="flex items-start gap-2 rounded-lg border border-severity-critical/40 bg-severity-critical/10 px-3 py-2.5 text-sm text-severity-critical-ink">
+            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+            <span>
+              {first} is in {DEPARTMENT_NAMES[person.silo]} in the staff register, and you invite into {departments.map((d) => DEPARTMENT_NAMES[d]).join(', ')} only.
+              {' '}A system administrator can change their department in Personnel.
+            </span>
           </p>
         ) : null}
 
@@ -384,7 +382,7 @@ export function InviteForm({
           <p className="flex items-start gap-2 rounded-lg border border-severity-medium/40 bg-severity-medium/10 px-3 py-2.5 text-sm">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-severity-medium-ink" aria-hidden />
             <span>
-              <b>{role}</b> is a powerful role, so a second SystemAdmin must approve this invitation. Nothing reaches {first} until they do.
+              <b>{roleName(role)}</b> is a powerful role, so a second SystemAdmin must approve this invitation. Nothing reaches {first} until they do.
             </span>
           </p>
         ) : null}
@@ -458,7 +456,7 @@ export function InviteForm({
             </p>
             {directBlocked ? (
               <p role="alert" className="rounded-lg border border-severity-critical/40 bg-severity-critical/10 px-3 py-2.5 text-sm text-severity-critical-ink">
-                {role} needs a second SystemAdmin’s approval, so it cannot be created with a password. Choose email, SMS or a printed code.
+                {roleName(role)} needs a second SystemAdmin’s approval, so it cannot be created with a password. Choose email, SMS or a printed code.
               </p>
             ) : null}
             <div>
@@ -524,7 +522,7 @@ export function InviteForm({
           {direct ? (
             <>
               <p>
-                Creates an account for <b>{fullName}</b> ({person.badge_number}) as <b>{role}</b> in <b>{DEPARTMENT_NAMES[silo]}</b>,
+                Creates an account for <b>{fullName}</b> ({person.badge_number}) as <b>{roleName(role)}</b> in <b>{DEPARTMENT_NAMES[person.silo]}</b>,
                 signing in with <b>{email.trim() || '…'}</b>.
               </p>
               <p className="mt-1 text-muted-foreground">
@@ -533,7 +531,7 @@ export function InviteForm({
             </>
           ) : (<>
           <p>
-            Invites <b>{fullName}</b> ({person.badge_number}) as <b>{role}</b> in <b>{DEPARTMENT_NAMES[silo]}</b>,{' '}
+            Invites <b>{fullName}</b> ({person.badge_number}) as <b>{roleName(role)}</b> in <b>{DEPARTMENT_NAMES[person.silo]}</b>,{' '}
             {channel === 'email' ? <>by email to <b>{email.trim() || '…'}</b>.</>
               : channel === 'sms' ? <>by SMS to <b>{phone.trim() || '…'}</b>.</>
                 : <>with a printed activation code.</>}

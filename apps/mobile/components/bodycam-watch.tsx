@@ -3,6 +3,7 @@ import { AppState, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getBodycamWatchStatus } from '@criticom/api';
 import { useAuth } from '@/lib/auth';
+import { departmentOf } from '@/lib/department';
 import { getSupabase } from '@/lib/supabase';
 import { makeStyles } from '@/lib/theme';
 
@@ -13,16 +14,18 @@ const WITHOUT_CAMERA_MS = 60_000;
 /**
  * Tells the officer when the control room is viewing their bodycam live
  * (migration 0054) — never who. It sits above every screen and never takes
- * a tap, so it cannot get in the way of the work.
+ * a tap, so it cannot get in the way of the work. Bodycams are police kit:
+ * other departments never ask.
  */
 export function BodycamWatchNotice() {
   const styles = useStyles();
-  const { session } = useAuth();
+  const { session, silo } = useAuth();
   const insets = useSafeAreaInsets();
   const [watching, setWatching] = useState(false);
+  const police = departmentOf(silo) === 'police';
 
   useEffect(() => {
-    if (!session) {
+    if (!session || !police) {
       setWatching(false);
       return;
     }
@@ -50,7 +53,7 @@ export function BodycamWatchNotice() {
       if (timer) clearTimeout(timer);
       sub.remove();
     };
-  }, [session]);
+  }, [session, police]);
 
   if (!watching) return null;
   return (

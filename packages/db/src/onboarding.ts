@@ -6,7 +6,7 @@
  */
 
 import type { Silo, UserRole } from './types.generated';
-import { ASSIGNABLE_ROLES, TENANT_WIDE_ROLES } from './roles.ts';
+import { ASSIGNABLE_ROLES, FIELD_ROLE_DEPARTMENT, TENANT_WIDE_ROLES, roleFitsDepartment } from './roles.ts';
 
 /** The organisation this deployment signs people into. One tenant for now: eThekwini. */
 export const DEFAULT_TENANT_SLUG = 'ethekwini';
@@ -16,9 +16,59 @@ export const DEPARTMENT_NAMES: Record<Silo, string> = {
   Ethekwini: 'Control Room',
   MetroPolice: 'Metro Police',
   MetroFire: 'Fire & Rescue',
-  Medical: 'EMS / Medical',
+  Medical: 'EMS',
   EthekwiniDisaster: 'Disaster Management',
 };
+
+/** A department as people say it; never the system's code ("EthekwiniDisaster"). */
+export function departmentName(silo: string | null | undefined): string {
+  return (silo && DEPARTMENT_NAMES[silo as Silo]) || 'Emergency Services';
+}
+
+/** Roles as people say them, not as the system stores them ("FireChief"). */
+export const ROLE_NAMES: Record<UserRole, string> = {
+  SuperAdmin: 'Platform Administrator',
+  SystemAdmin: 'System Administrator',
+  Admin: 'Administrator',
+  SystemController: 'System Controller',
+  Supervisor: 'Supervisor',
+  Dispatcher: 'Dispatcher',
+  Operator: 'Operator',
+  ControlRoom: 'Control Room Operator',
+  IncidentLogger: 'Call Taker',
+  CaseManager: 'Case Manager',
+  Viewer: 'Viewer',
+  System: 'System',
+  Captain: 'Captain',
+  Police: 'Police Officer',
+  Officer: 'Officer',
+  Metro: 'Metro Police Officer',
+  Security: 'Security Officer',
+  Chief: 'Chief',
+  FireChief: 'Fire Chief',
+  Firefighter: 'Firefighter',
+  Paramedic: 'Paramedic',
+  Doctor: 'Doctor',
+  Disaster: 'Disaster Management Officer',
+  Citizen: 'Citizen',
+  Responder: 'Responder',
+  Staff: 'Staff',
+};
+
+export function roleName(role: string | null | undefined): string {
+  return (role && ROLE_NAMES[role as UserRole]) || role || '';
+}
+
+/**
+ * Why `role` cannot be held in `silo`, in plain words, or null when it can:
+ * "A Firefighter works in Fire & Rescue. Choose a Disaster Management role."
+ * Mirrors role_fits_department() (migration 0067).
+ */
+export function roleDepartmentProblem(role: UserRole, silo: Silo): string | null {
+  if (roleFitsDepartment(role, silo)) return null;
+  const home = FIELD_ROLE_DEPARTMENT[role] as Silo;
+  return `A ${roleName(role)} works in ${DEPARTMENT_NAMES[home]}. Choose a ${DEPARTMENT_NAMES[silo]} role.`;
+}
 
 /** Wrong badge numbers or codes before an invitation locks. */
 export const INVITATION_ATTEMPTS = 5;

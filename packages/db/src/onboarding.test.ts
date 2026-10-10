@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   badgeSignInEmail, departmentsInvitableBy, formatActivationCode, isBadgeSignInEmail, maskEmail, maskPhone,
-  normaliseActivationCode, normaliseBadge, passwordAcceptable, passwordChecklist, rolesInvitableBy, signInEmailFor,
+  normaliseActivationCode, normaliseBadge, passwordAcceptable, passwordChecklist, roleDepartmentProblem, rolesInvitableBy, signInEmailFor,
 } from './onboarding.ts';
 import { TENANT_WIDE_ROLES } from './roles.ts';
 
@@ -35,6 +35,9 @@ test('who may invite whom', () => {
   for (const wide of TENANT_WIDE_ROLES) assert.ok(!rolesInvitableBy('Admin').includes(wide), wide);
   assert.ok(rolesInvitableBy('Admin').includes('Police'));
   assert.deepEqual(rolesInvitableBy('Supervisor'), []);
+  assert.equal(roleDepartmentProblem('Firefighter', 'EthekwiniDisaster'), 'A Firefighter works in Fire & Rescue. Choose a Disaster Management role.');
+  assert.equal(roleDepartmentProblem('Disaster', 'EthekwiniDisaster'), null);
+  assert.equal(roleDepartmentProblem('Dispatcher', 'EthekwiniDisaster'), null);
   assert.deepEqual(departmentsInvitableBy({ role: 'Admin', silo: 'MetroFire' }), ['MetroFire']);
   assert.equal(departmentsInvitableBy({ role: 'SystemAdmin', silo: 'Ethekwini' }).length, 5);
 });

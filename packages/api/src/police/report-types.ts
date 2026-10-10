@@ -1,17 +1,33 @@
 /**
- * Context-aware police case reports (migration 0039, `file_incident_report`).
+ * Police case reports (migration 0039, `file_incident_report`).
  *
- * The incident's 10-code / type picks the report: a hijacking asks about the
- * vehicle and tracker, a robbery about what was taken, a crash about the road.
- * Every report shares the response, people, evidence and narrative blocks.
+ * Every report opens with the case report (response, outcome, evidence and
+ * the officer's narrative) and adds the DMPS forms the call needs: an arrest
+ * is a 12A, a crash a CR1, a tow a 211A, and so on (./report-forms.ts). The
+ * officer can add or remove forms; the call type suggests the first.
  *
  * Fields marked `column` land in their own `metro_reports` column (the server
- * whitelists exactly these keys); the rest are the type's own answers and are
- * kept, labelled, in `metro_reports.details`. The mobile form and the web
- * report card both read this one definition so they can never disagree.
+ * whitelists exactly these keys); everything else is kept, labelled, in
+ * `metro_reports.details`. A form's field is stored under the form's id
+ * ("arrest_off_rank"), and a repeated row under its number as well
+ * ("accident_drivers_2_surname"), so forms never overwrite one another. The
+ * report's `report_type` lists the forms filed ("arrest+tow"). The phone's
+ * form, the console's form, the case file and the PDF all read this one
+ * definition, so they can never disagree.
  */
+import { EVIDENCE, LEGACY_REPORT_TYPES, NARRATIVE, OUTCOME, RESPONSE } from './report-types-legacy.ts';
+import { POLICE_REPORT_FORMS, type PoliceReportForm } from './report-forms.ts';
 
-export type ReportFieldKind = 'text' | 'multiline' | 'yesno' | 'choice' | 'number';
+export { POLICE_REPORT_FORMS, type PoliceReportForm } from './report-forms.ts';
+
+export type ReportFieldKind =
+  | 'text' | 'multiline' | 'yesno' | 'choice' | 'number'
+  /** Several of the options at once, stored "; "-separated. */
+  | 'multi'
+  /** YYYY-MM-DD and HH:MM. */
+  | 'date' | 'time'
+  /** An inspection item: OK, Fault or NIL. */
+  | 'check';
 
 export type ReportField = {
   key: string;
@@ -24,333 +40,158 @@ export type ReportField = {
   column?: boolean;
 };
 
-export type ReportSection = { title: string; fields: readonly ReportField[] };
+export type ReportSection = {
+  title: string;
+  fields: readonly ReportField[];
+  /** A section filled in once per person, vehicle or firearm; `key` names its rows. */
+  key?: string;
+  repeat?: { noun: string; min: number; max: number; letters?: boolean };
+};
 
 export type PoliceReportType = {
   id: string;
   label: string;
-  /** One line telling the officer why this form was chosen. */
+  /** One line telling the officer what the report covers. */
   summary: string;
-  /** Matched against the incident type, category and description. */
+  /** Matched against the incident type, category and description (retired types). */
   match: RegExp;
   sections: readonly ReportSection[];
+  /** The DMPS forms in this report. */
+  forms?: readonly PoliceReportForm[];
 };
 
-const col = (f: Omit<ReportField, 'column'>): ReportField => ({ ...f, column: true });
+const FORMS_BY_ID = new Map(POLICE_REPORT_FORMS.map((f) => [f.id, f]));
+const LEGACY_BY_ID = new Map(LEGACY_REPORT_TYPES.map((t) => [t.id, t]));
 
-/* ── Shared blocks ────────────────────────────────────────────────────────── */
-
-const RESPONSE: ReportSection = {
-  title: 'Response',
-  fields: [
-    col({ key: 'partner_name', label: 'Partner / crew member', kind: 'text' }),
-    col({ key: 'bodycam_active', label: 'Body camera active', kind: 'yesno' }),
-    col({
-      key: 'use_of_force', label: 'Use of force', kind: 'choice',
-      options: ['None', 'Verbal commands', 'Physical restraint', 'Taser', 'Firearm drawn', 'Firearm discharged'],
-    }),
-  ],
-};
-
-const OUTCOME: ReportSection = {
-  title: 'Outcome',
-  fields: [
-    col({ key: 'arrest_made', label: 'Arrest made', kind: 'yesno' }),
-    col({ key: 'charges', label: 'Charges / offences', kind: 'text', placeholder: 'e.g. Robbery with aggravating circumstances' }),
-  ],
-};
-
-const SUSPECT: ReportSection = {
-  title: 'Suspect',
-  fields: [
-    col({ key: 'suspect_name', label: 'Suspect name (if known)', kind: 'text' }),
-    col({ key: 'suspect_description', label: 'Suspect description', kind: 'multiline', placeholder: 'Gender, build, clothing, direction of flight…' }),
-  ],
-};
-
-const VICTIM: ReportSection = {
-  title: 'Victim / complainant',
-  fields: [
-    col({ key: 'victim_name', label: 'Name', kind: 'text' }),
-    col({ key: 'victim_id', label: 'ID number', kind: 'text' }),
-    col({ key: 'victim_contact', label: 'Contact number', kind: 'text' }),
-    col({ key: 'victim_injuries', label: 'Injuries', kind: 'text', placeholder: 'None / describe' }),
-  ],
-};
-
-const VEHICLE: ReportSection = {
-  title: 'Vehicle',
-  fields: [
-    col({ key: 'vehicle_make', label: 'Make & model', kind: 'text' }),
-    { key: 'vehicle_colour', label: 'Colour', kind: 'text' },
-    col({ key: 'license_plate', label: 'Registration plate', kind: 'text' }),
-    col({ key: 'vin_number', label: 'VIN', kind: 'text' }),
-  ],
-};
-
-const WEAPON: ReportSection = {
-  title: 'Weapon',
-  fields: [
-    col({
-      key: 'weapon_type', label: 'Weapon used', kind: 'choice',
-      options: ['None seen', 'Handgun', 'Rifle / shotgun', 'Knife', 'Blunt object', 'Other'],
-    }),
-    col({ key: 'weapon_size', label: 'Calibre / description', kind: 'text' }),
-  ],
-};
-
-const EVIDENCE: ReportSection = {
-  title: 'Evidence',
-  fields: [
-    col({ key: 'evidence_weapons', label: 'Weapons booked as evidence', kind: 'yesno' }),
-    col({ key: 'evidence_drugs', label: 'Drugs booked as evidence', kind: 'yesno' }),
-    col({ key: 'evidence_property', label: 'Property booked as evidence', kind: 'yesno' }),
-    col({ key: 'evidence_log', label: 'Evidence log / SAP13 reference', kind: 'text' }),
-  ],
-};
-
-const NARRATIVE: ReportSection = {
-  title: 'Narrative',
-  fields: [
-    col({
-      key: 'officer_narrative', label: 'Officer narrative', kind: 'multiline', required: true,
-      placeholder: 'What you found on arrival, what was done, and how the scene was left (min. 20 characters).',
-    }),
-  ],
-};
-
-const wrap = (...specific: ReportSection[]): ReportSection[] => [RESPONSE, ...specific, OUTCOME, EVIDENCE, NARRATIVE];
-
-/* ── Report types, most specific first ────────────────────────────────────── */
-
-export const POLICE_REPORT_TYPES: readonly PoliceReportType[] = [
-  {
-    id: 'vehicle_crime',
-    label: 'Hijacking / vehicle theft',
-    summary: 'Vehicle, tracker and modus operandi for circulation.',
-    match: /hijack|car ?jack|stolen vehicle|vehicle theft|car theft|theft of (motor )?vehicle/i,
-    sections: wrap(
-      VEHICLE,
-      {
-        title: 'Hijacking / theft',
-        fields: [
-          {
-            key: 'modus_operandi', label: 'Modus operandi', kind: 'choice',
-            options: ['Hijacked at gunpoint', 'Hijacked at knife point', 'Stolen while parked', 'Keys / remote taken', 'Other'],
-          },
-          { key: 'tracking_company', label: 'Tracking company (if fitted)', kind: 'text' },
-          { key: 'vehicle_recovered', label: 'Vehicle recovered', kind: 'yesno' },
-          { key: 'circulated', label: 'Circulated on the stolen vehicle list', kind: 'yesno' },
-        ],
-      },
-      WEAPON, SUSPECT, VICTIM,
-    ),
-  },
-  {
-    id: 'robbery',
-    label: 'Robbery',
-    summary: 'What was taken, from where, and how the suspects left.',
-    match: /robbery|hold ?up|mugg|cash.in.transit|cit heist/i,
-    sections: wrap(
-      {
-        title: 'Robbery',
-        fields: [
-          {
-            key: 'premises_type', label: 'Robbed from', kind: 'choice',
-            options: ['Person on the street', 'Business', 'Residence', 'Cash-in-transit', 'Vehicle occupant'],
-          },
-          { key: 'property_taken', label: 'Property taken', kind: 'multiline' },
-          { key: 'estimated_value', label: 'Estimated value (R)', kind: 'number' },
-          { key: 'suspect_count', label: 'Number of suspects', kind: 'number' },
-          { key: 'getaway', label: 'Getaway vehicle / direction', kind: 'text' },
-        ],
-      },
-      WEAPON, SUSPECT, VICTIM,
-    ),
-  },
-  {
-    id: 'assault',
-    label: 'Assault / violent crime',
-    summary: 'Nature of the assault, injuries and protection orders.',
-    match: /assault|gbh|domestic|stab|shooting|violence|fight/i,
-    sections: wrap(
-      {
-        title: 'Assault',
-        fields: [
-          {
-            key: 'assault_type', label: 'Type', kind: 'choice',
-            options: ['Common assault', 'Assault GBH', 'Domestic violence', 'Sexual assault', 'Stabbing', 'Shooting'],
-          },
-          { key: 'relationship', label: 'Relationship between victim and suspect', kind: 'text' },
-          { key: 'medical_attention', label: 'Victim taken for medical attention', kind: 'yesno' },
-          { key: 'protection_order', label: 'Protection order in place', kind: 'yesno' },
-        ],
-      },
-      WEAPON, SUSPECT, VICTIM,
-    ),
-  },
-  {
-    id: 'burglary_theft',
-    label: 'Burglary / theft',
-    summary: 'Point of entry and property stolen.',
-    match: /burglar|break.?in|housebreak|theft|shoplift|stolen/i,
-    sections: wrap(
-      {
-        title: 'Burglary / theft',
-        fields: [
-          {
-            key: 'premises_type', label: 'Premises', kind: 'choice',
-            options: ['Residence', 'Business', 'School', 'Vehicle', 'Other'],
-          },
-          { key: 'point_of_entry', label: 'Point of entry', kind: 'text', placeholder: 'e.g. Forced rear door' },
-          { key: 'property_taken', label: 'Property taken', kind: 'multiline' },
-          { key: 'estimated_value', label: 'Estimated value (R)', kind: 'number' },
-          { key: 'alarm_triggered', label: 'Alarm triggered', kind: 'yesno' },
-        ],
-      },
-      SUSPECT, VICTIM,
-    ),
-  },
-  {
-    id: 'accident',
-    label: 'Motor vehicle accident',
-    summary: 'Vehicles, casualties and road conditions.',
-    match: /accident|collision|mva|crash|hit.and.run|pedestrian|overturn/i,
-    sections: wrap(
-      {
-        title: 'Collision',
-        fields: [
-          { key: 'vehicles_involved', label: 'Vehicles involved', kind: 'number' },
-          { key: 'injured', label: 'Injured', kind: 'number' },
-          { key: 'fatalities', label: 'Fatalities', kind: 'number' },
-          {
-            key: 'road_conditions', label: 'Road conditions', kind: 'choice',
-            options: ['Dry', 'Wet', 'Poor visibility', 'Road works', 'Poor lighting'],
-          },
-          { key: 'ems_on_scene', label: 'EMS on scene', kind: 'yesno' },
-          { key: 'breathalysed', label: 'Driver breathalysed', kind: 'yesno' },
-        ],
-      },
-      VEHICLE,
-      {
-        title: 'Driver',
-        fields: [
-          col({ key: 'offender_name', label: 'Driver name', kind: 'text' }),
-          col({ key: 'offender_id', label: 'Driver ID / licence number', kind: 'text' }),
-        ],
-      },
-      VICTIM,
-    ),
-  },
-  {
-    id: 'traffic',
-    label: 'Traffic offence',
-    summary: 'Offender, ticket and impoundment.',
-    match: /traffic|speed|reckless|negligent driv|drunk driv|dui|drink.driv|roadblock|parking|unlicensed|unroadworthy/i,
-    sections: wrap(
-      {
-        title: 'Offence',
-        fields: [
-          {
-            key: 'offence', label: 'Offence', kind: 'choice',
-            options: ['Speeding', 'Reckless / negligent driving', 'Driving under the influence', 'Unlicensed driver', 'Unroadworthy vehicle', 'Parking', 'Other'],
-          },
-          col({ key: 'offender_name', label: 'Offender name', kind: 'text' }),
-          col({ key: 'offender_id', label: 'Offender ID / licence number', kind: 'text' }),
-          col({ key: 'ticket_number', label: 'Ticket / notice number', kind: 'text' }),
-          col({ key: 'fine_amount', label: 'Fine amount (R)', kind: 'number' }),
-        ],
-      },
-      VEHICLE,
-      {
-        title: 'Impoundment',
-        fields: [
-          col({ key: 'vehicle_impounded', label: 'Vehicle impounded', kind: 'yesno' }),
-          col({ key: 'impound_lot', label: 'Impound lot', kind: 'text' }),
-        ],
-      },
-    ),
-  },
-  {
-    id: 'public_order',
-    label: 'Public order / protest',
-    summary: 'Crowd, damage and how the scene was managed.',
-    match: /protest|riot|unrest|crowd|march|strike|disturb|noise|gathering|blockade/i,
-    sections: wrap({
-      title: 'Public order',
-      fields: [
-        { key: 'crowd_size', label: 'Estimated crowd size', kind: 'number' },
-        { key: 'organiser', label: 'Organiser / group', kind: 'text' },
-        { key: 'roads_blocked', label: 'Roads blocked', kind: 'text' },
-        { key: 'property_damage', label: 'Damage to property', kind: 'yesno' },
-        {
-          key: 'dispersal', label: 'Dispersal used', kind: 'choice',
-          options: ['None — dispersed peacefully', 'Negotiation', 'Rubber rounds', 'Water cannon', 'Stun grenades'],
-        },
-      ],
-    }),
-  },
-  {
-    id: 'firearm_drugs',
-    label: 'Firearm / drugs / contraband',
-    summary: 'What was seized and how it was booked.',
-    match: /firearm|gun|shots fired|ammunition|drug|narcotic|dagga|contraband|illicit/i,
-    sections: wrap(
-      WEAPON,
-      {
-        title: 'Seizure',
-        fields: [
-          col({ key: 'ammunition_rounds', label: 'Rounds of ammunition seized', kind: 'number' }),
-          col({ key: 'contraband_seized', label: 'Contraband seized', kind: 'yesno' }),
-          col({ key: 'contraband_details', label: 'Contraband details', kind: 'multiline', placeholder: 'Type, quantity, packaging…' }),
-        ],
-      },
-      SUSPECT,
-    ),
-  },
-  {
-    id: 'general',
-    label: 'General incident',
-    summary: 'Standard case report.',
-    match: /.*/,
-    sections: wrap(SUSPECT, VICTIM),
-  },
-];
-
-const BY_ID = new Map(POLICE_REPORT_TYPES.map((t) => [t.id, t]));
-
-/** The report a call needs, judged from what the call-taker recorded. */
-export function reportTypeFor(incident: {
-  incident_type?: string | null;
-  incident_category?: string | null;
-  call_description?: string | null;
-}): PoliceReportType {
-  // The type and category say what the call *is*; the description only breaks ties.
-  const primary = `${incident.incident_type ?? ''} ${incident.incident_category ?? ''}`;
-  const fallback = incident.call_description ?? '';
-  return (
-    POLICE_REPORT_TYPES.find((t) => t.id !== 'general' && t.match.test(primary))
-    ?? POLICE_REPORT_TYPES.find((t) => t.id !== 'general' && t.match.test(fallback))
-    ?? BY_ID.get('general')!
-  );
-}
-
-export function getReportType(id: string | null | undefined): PoliceReportType {
-  return (id && BY_ID.get(id)) || BY_ID.get('general')!;
+/** "arrest+tow" (or "arrest tow", as a URL reads it) → the forms, in the department's order; unknown ids are dropped. */
+export function formIdsOf(reportType: string | null | undefined): string[] {
+  const wanted = new Set((reportType ?? '').split(/[+\s,]+/).filter(Boolean));
+  return POLICE_REPORT_FORMS.filter((f) => wanted.has(f.id)).map((f) => f.id);
 }
 
 /**
- * Split the officer's answers into the whitelisted columns and the type's own
- * details, dropping blanks. Answers are sent as strings, as the server parses.
+ * The report for a set of forms: the case report around each form's
+ * sections, its field keys prefixed with the form id.
+ */
+export function composeReportType(formIds: readonly string[]): PoliceReportType {
+  const forms = POLICE_REPORT_FORMS.filter((f) => formIds.includes(f.id));
+  const formSections: ReportSection[] = forms.flatMap((form) => form.sections.map((s) => ({
+    ...s,
+    title: `${form.code} · ${s.title}`,
+    key: s.key ? `${form.id}_${s.key}` : undefined,
+    fields: s.fields.map((f) => ({ ...f, key: `${form.id}_${f.key}`, column: false })),
+  })));
+  return {
+    id: forms.length ? forms.map((f) => f.id).join('+') : 'case',
+    label: forms.length ? forms.map((f) => f.label).join(' · ') : 'Case report',
+    summary: forms.length ? forms.map((f) => `${f.code} ${f.label}`).join(', ') : 'The case report, with no DMPS form.',
+    match: /$^/,
+    sections: [RESPONSE, ...formSections, OUTCOME, EVIDENCE, NARRATIVE],
+    forms,
+  };
+}
+
+/**
+ * The forms a call suggests, from what the call-taker recorded: a theft or an
+ * assault is an arrest, a crash or a traffic offence a crash report, and so
+ * on. Anything else starts as an incident report. The officer changes them.
+ */
+export function suggestFormsFor(incident: {
+  incident_type?: string | null;
+  incident_category?: string | null;
+  call_description?: string | null;
+}): string[] {
+  const primary = `${incident.incident_type ?? ''} ${incident.incident_category ?? ''}`.toLowerCase();
+  const all = `${primary} ${incident.call_description ?? ''}`.toLowerCase();
+  const has = (re: RegExp, text = primary) => re.test(text);
+  if (has(/\b(dog|k9|canine)\b/, all)) return ['dog'];
+  if (has(/shot|shoot|firearm|gun|discharg/)) return ['firearm'];
+  if (has(/\btow|abandon|impound/)) return ['tow'];
+  if (has(/accident|mva|crash|collision|traffic|dui|drunk driv|reckless|hit and run/)) return ['accident'];
+  if (has(/theft|steal|stolen|robbery|burglar|break-?in|assault|gbh|hijack|rape|murder|arrest|drug|warrant|domestic/)) return ['arrest'];
+  if (has(/inspection|roadworth/)) return ['vehicle'];
+  return ['incident'];
+}
+
+/** The report a call starts with. */
+export function reportTypeFor(incident: Parameters<typeof suggestFormsFor>[0]): PoliceReportType {
+  return composeReportType(suggestFormsFor(incident));
+}
+
+/**
+ * The report a filed `report_type` names: the forms it lists, or one of the
+ * retired types for reports filed before the DMPS forms.
+ */
+export function getReportType(id: string | null | undefined): PoliceReportType {
+  const legacy = id ? LEGACY_BY_ID.get(id) : undefined;
+  if (legacy) return legacy;
+  return composeReportType(formIdsOf(id));
+}
+
+export function getReportForm(id: string): PoliceReportForm | undefined {
+  return FORMS_BY_ID.get(id);
+}
+
+/* ── Repeated sections ────────────────────────────────────────────────────── */
+
+/** Where a repeated section keeps how many rows it has, in the answers. */
+export const rowsKey = (section: ReportSection) => `rows_${section.key ?? section.title}`;
+
+/** A row's field key: "accident_drivers" row 2, field "accident_surname" → "accident_drivers_2_surname". */
+export function rowFieldKey(section: ReportSection, row: number, field: ReportField) {
+  const local = section.key ? field.key.replace(new RegExp(`^${section.key.split('_')[0]}_`), '') : field.key;
+  return `${section.key}_${row}_${local}`;
+}
+
+/** "Vehicle A", "Vehicle B"… or "Member 1", "Member 2"… */
+export function rowLabel(section: ReportSection, row: number) {
+  const r = section.repeat;
+  if (!r) return section.title;
+  return `${r.noun} ${r.letters ? 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[row - 1] ?? row : row}`;
+}
+
+/** How many rows a repeated section shows: what was saved, never fewer than its minimum. */
+export function rowCount(section: ReportSection, answers: Record<string, unknown>) {
+  const r = section.repeat;
+  if (!r) return 1;
+  const saved = Number(answers[rowsKey(section)] ?? 0);
+  let highest = 0;
+  for (let n = 1; n <= r.max; n++) {
+    if (section.fields.some((f) => {
+      const v = answers[rowFieldKey(section, n, f)];
+      return v !== undefined && v !== null && v !== '';
+    })) highest = n;
+  }
+  return Math.min(r.max, Math.max(r.min, Number.isFinite(saved) ? saved : 0, highest));
+}
+
+/** Every field of a section as the form shows it: once, or once per row. */
+export function sectionFields(section: ReportSection, answers: Record<string, unknown>): Array<{ key: string; field: ReportField; row: number | null }> {
+  if (!section.repeat) return section.fields.map((field) => ({ key: field.key, field, row: null }));
+  const out: Array<{ key: string; field: ReportField; row: number | null }> = [];
+  for (let n = 1; n <= rowCount(section, answers); n++) {
+    for (const field of section.fields) out.push({ key: rowFieldKey(section, n, field), field, row: n });
+  }
+  return out;
+}
+
+/* ── Answers ──────────────────────────────────────────────────────────────── */
+
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/**
+ * Split the officer's answers into the whitelisted columns and the details,
+ * dropping blanks. Answers are sent as strings, as the server parses.
  */
 export function splitReportAnswers(type: PoliceReportType, answers: Record<string, string>) {
   const fields: Record<string, string> = {};
   const details: Record<string, string> = {};
   for (const section of type.sections) {
-    for (const f of section.fields) {
-      const v = (answers[f.key] ?? '').trim();
+    for (const { key, field } of sectionFields(section, answers)) {
+      const v = (answers[key] ?? '').trim();
       if (!v) continue;
-      (f.column ? fields : details)[f.key] = v;
+      (field.column ? fields : details)[key] = v;
     }
   }
   return { fields, details };
@@ -360,10 +201,15 @@ export function splitReportAnswers(type: PoliceReportType, answers: Record<strin
 export function validateReportAnswers(type: PoliceReportType, answers: Record<string, string>) {
   const problems: string[] = [];
   for (const section of type.sections) {
-    for (const f of section.fields) {
-      const v = (answers[f.key] ?? '').trim();
-      if (f.required && !v) problems.push(`${f.label} is required.`);
-      if (f.kind === 'number' && v && !/^\d+(\.\d+)?$/.test(v)) problems.push(`${f.label} must be a number.`);
+    for (const { key, field, row } of sectionFields(section, answers)) {
+      const v = (answers[key] ?? '').trim();
+      const name = row ? `${rowLabel(section, row)}: ${field.label}` : field.label;
+      // A repeated row's fields are never required: a row may be left out.
+      if (field.required && !row && !v) problems.push(`${name} is required.`);
+      if (!v) continue;
+      if (field.kind === 'number' && !/^\d+(\.\d+)?$/.test(v)) problems.push(`${name} must be a number.`);
+      if (field.kind === 'date' && !DATE.test(v)) problems.push(`${name} must be a date (YYYY-MM-DD).`);
+      if (field.kind === 'time' && !TIME.test(v)) problems.push(`${name} must be a time (HH:MM).`);
     }
   }
   const narrative = (answers.officer_narrative ?? '').trim();
@@ -371,19 +217,74 @@ export function validateReportAnswers(type: PoliceReportType, answers: Record<st
   return problems;
 }
 
-/** Labelled type-specific answers for display (web report card, PDF). */
+/** Labelled answers kept in `details`, for display (web report card, PDF). */
 export function describeReportDetails(type: PoliceReportType, details: Record<string, unknown> | null | undefined) {
   const out: Array<{ label: string; value: string }> = [];
   if (!details) return out;
   const seen = new Set<string>();
   for (const section of type.sections) {
-    for (const f of section.fields) {
-      if (f.column || seen.has(f.key)) continue;
-      seen.add(f.key);
-      const v = details[f.key];
+    for (const { key, field, row } of sectionFields(section, details)) {
+      if (field.column || seen.has(key)) continue;
+      seen.add(key);
+      const v = details[key];
       if (v === undefined || v === null || v === '') continue;
-      out.push({ label: f.label, value: String(v) });
+      out.push({ label: row ? `${rowLabel(section, row)} · ${field.label}` : field.label, value: String(v) });
     }
   }
   return out;
+}
+
+/** "accident_drivers_2_surname" → "Accident drivers 2 surname". */
+function humanise(key: string) {
+  const s = key.replace(/_/g, ' ').trim();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/** An answer worth showing: blanks, "No" defaults and zero counts are noise. */
+function shownAnswer(v: unknown): string | null {
+  if (v === null || v === undefined || v === '' || v === false || v === 0) return null;
+  return v === true ? 'Yes' : String(v);
+}
+
+/**
+ * A filed report as it is read back, section by section (a repeated section
+ * once per row): every answered field from its columns or its details, then
+ * any answers from a form version that no longer lists them (they still
+ * belong on record). The narrative is left to the caller, which shows it on
+ * its own. Used by the case file and the case PDF, so the screen and the
+ * paper say the same.
+ */
+export function reportReadout(
+  type: PoliceReportType,
+  report: Record<string, unknown> & { details?: Record<string, unknown> | null },
+): { sections: Array<{ title: string; items: Array<{ label: string; value: string }> }>; extra: Array<{ label: string; value: string }> } {
+  const details = report.details ?? {};
+  const sections = type.sections
+    .filter((s) => s.title !== 'Narrative')
+    .flatMap((s) => {
+      if (!s.repeat) {
+        return [{
+          title: s.title,
+          items: s.fields.flatMap((f) => {
+            const v = shownAnswer(f.column ? report[f.key] : details[f.key]);
+            return v ? [{ label: f.label, value: v }] : [];
+          }),
+        }];
+      }
+      return Array.from({ length: rowCount(s, details) }, (_, i) => i + 1).map((n) => ({
+        title: `${s.title} — ${rowLabel(s, n)}`,
+        items: s.fields.flatMap((f) => {
+          const v = shownAnswer(details[rowFieldKey(s, n, f)]);
+          return v ? [{ label: f.label, value: v }] : [];
+        }),
+      }));
+    })
+    .filter((s) => s.items.length > 0);
+  // Answers no field of this report covers (a form version that has since
+  // changed) still belong on record, under a readable name.
+  const covered = new Set(type.sections.flatMap((s) => sectionFields(s, details).map((f) => f.key)));
+  const extra = Object.entries(details)
+    .filter(([k, v]) => !covered.has(k) && !k.startsWith('rows_') && shownAnswer(v))
+    .map(([k, v]) => ({ label: humanise(k), value: String(v) }));
+  return { sections, extra };
 }

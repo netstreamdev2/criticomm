@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import {
-  getDispatcherKpis, listActiveIncidents, listPendingIncidents, listClosedIncidents,
-  getMyPersonnel, listMyAssignedIncidents, hasCompletedShiftStartToday, getMyPerformance,
-  listPersonnel, getUnitCompliance, listAllProfiles, listApparatus, listDevices, listBookedOutBodycams,
+  getDispatcherKpis, listActiveIncidents, listPendingIncidents,
+  getMyPersonnel, listMyCalls, hasCompletedShiftStartToday, getMyPerformance,
+  listPersonnel, getUnitCompliance, listAllProfiles, listApparatus, listDevices, listBookedOutBodycams, listPcrs,
 } from '@criticom/api';
 import {
   ADMIN_ROLES, DISPATCH_ROLES, RESPONDER_ROLES, canViewAllFines, canWatchBodycam, type Silo, type UserRole,
@@ -18,18 +18,18 @@ import { getFeatures } from '@/lib/features';
 import { DispatchBoard } from './dispatch-board';
 import { BoardLive } from './board-live';
 import { getSession, siloFilter } from '@/lib/session';
+import { hasSidebar, isDisasterDesk, isEmsAdmin, isFireCommand } from '@/lib/nav';
 import { timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Dashboard · HikTech' };
 
-type Persona = 'admin' | 'command' | 'supervisor' | 'responder' | 'casemanager' | 'viewer';
+type Persona = 'admin' | 'command' | 'supervisor' | 'responder' | 'viewer';
 const SUPERVISOR_ROLES: UserRole[] = ['Supervisor', 'Captain', 'FireChief'];
 
 function resolvePersona(role: UserRole): Persona {
   if (ADMIN_ROLES.includes(role)) return 'admin';
   if (SUPERVISOR_ROLES.includes(role)) return 'supervisor';
-  if (role === 'CaseManager') return 'casemanager';
   if (RESPONDER_ROLES.includes(role)) return 'responder';
   if (DISPATCH_ROLES.includes(role) || role === 'System') return 'command';
   return 'viewer';
@@ -53,7 +53,7 @@ const LINKS: Record<Persona, QuickLink[]> = {
     { href: '/incidents', label: 'All Incidents', desc: 'Search the full log', icon: 'MapPinned' },
     { href: '/report-hub', label: 'Report Hub', desc: 'Filtered reporting + export', icon: 'Filter' },
     { href: '/dispatch/ptt', label: 'PTT Radio', desc: 'Text-to-radio + audio log', icon: 'RadioTower' },
-    { href: '/case-manager', label: 'Case Manager', desc: 'Review & close cases', icon: 'FolderClosed' },
+    { href: '/case-manager', label: 'Case Management', desc: 'Review reports, close cases', icon: 'FolderClosed' },
   ],
   responder: [
     { href: '/responder', label: 'My Incidents', desc: 'Jobs assigned to my unit', icon: 'Radio', tone: 'bg-accent/15 text-accent' },
@@ -73,14 +73,6 @@ const LINKS: Record<Persona, QuickLink[]> = {
     { href: '/leave', label: 'Leave Approvals', desc: 'Approve / reject requests', icon: 'Briefcase' },
     { href: '/hierarchy', label: 'Dept Hierarchy', desc: 'Chain of command', icon: 'Network' },
     { href: '/training', label: 'Training', desc: 'Records & certifications', icon: 'GraduationCap' },
-  ],
-  casemanager: [
-    { href: '/case-manager', label: 'Case Manager', desc: 'Open cases to close', icon: 'FolderClosed', tone: 'bg-accent/15 text-accent' },
-    { href: '/incidents', label: 'All Incidents', desc: 'Search the full log', icon: 'MapPinned' },
-    { href: '/reports', label: 'Reports Archive', desc: 'Closed & resolved', icon: 'FileText' },
-    { href: '/report-hub', label: 'Report Hub', desc: 'Filtered reporting + export', icon: 'Filter' },
-    { href: '/hierarchy', label: 'Dept Hierarchy', desc: 'Chain of command', icon: 'Network' },
-    { href: '/case-manager/audit', label: 'Audit Trail', desc: 'Every state change', icon: 'Activity' },
   ],
   admin: [
     { href: '/admin', label: 'Administration', desc: 'Users & roles', icon: 'Users', tone: 'bg-primary/15 text-primary' },
@@ -102,7 +94,7 @@ const LINKS: Record<Persona, QuickLink[]> = {
 
 const PERSONA_TITLE: Record<Persona, string> = {
   admin: 'System Administration', command: 'Command Centre', supervisor: 'Supervisor Console',
-  responder: 'Responder Portal', casemanager: 'Case Management', viewer: 'Operations Overview',
+  responder: 'Responder Portal', viewer: 'Operations Overview',
 };
 
 function DashboardLogo() {
@@ -156,6 +148,13 @@ type SearchParams = Record<string, string | string[] | undefined>;
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const { supabase, silo, role, fullName, userId } = await getSession();
   if (role === 'SystemController') redirect('/command');
+  // The case manager's dashboard is Case Management (0061); one place, not two.
+  if (role === 'CaseManager') redirect('/case-manager');
+  // The receiving doctor's console is the handovers list.
+  if (role === 'Doctor') redirect('/medical/handovers');
+  // As V4: fire command opens on the fire board, the disaster desk on its dashboard.
+  if (isFireCommand(role, silo)) redirect('/fire');
+  if (isDisasterDesk(role, silo)) redirect('/disaster');
   const params = await searchParams;
   // Fines (0057): for those who see the whole register, when enforcement is on.
   const showFines = canViewAllFines({ role, silo })
@@ -163,10 +162,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   if (role === 'Captain') {
     return <CaptainDashboard supabase={supabase} silo={silo} fullName={fullName} userId={userId} params={params} showFines={showFines} />;
   }
+  if (isEmsAdmin(role, silo)) return <EmsAdminDashboard supabase={supabase} fullName={fullName} />;
   const persona = resolvePersona(role);
   const sf = siloFilter(silo);
   const first = fullName.split(' ')[0];
-  const usesSidebar = ['SystemAdmin', 'SuperAdmin', 'Supervisor', 'Captain', 'Dispatcher', 'SystemController', 'Police'].includes(role);
+  const usesSidebar = hasSidebar(role, silo);
 
   // Dispatchers get the V4-style ops board: stats above the fold, feed +
   // critical wait, the live map, throughput. Quick actions follow below.
@@ -211,7 +211,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       {persona === 'responder' && (
         <ResponderBody supabase={supabase} userId={userId} silo={silo} fullName={fullName} />
       )}
-      {persona === 'casemanager' && <CaseManagerBody supabase={supabase} sf={sf} />}
       {showFines && <FinesPanel supabase={supabase} params={params} userId={userId} />}
     </div>
   );
@@ -229,7 +228,7 @@ async function CaptainDashboard({
     listPersonnel(supabase, sf),
     listActiveIncidents(supabase, sf),
     getUnitCompliance(supabase, sf).catch(() => ({ mentalChecks: [], vehicleChecklists: [] })),
-    listMyAssignedIncidents(supabase, me?.assigned_apparatus_id ?? null).catch(() => []),
+    listMyCalls(supabase, userId).catch(() => []),
     // Bodycams (0054): none until that migration is run.
     listBookedOutBodycams(supabase).catch(() => []),
   ]);
@@ -277,6 +276,73 @@ async function CaptainDashboard({
       </section>
 
       {showFines && <FinesPanel supabase={supabase} params={params} userId={userId} />}
+
+      <ActiveIncidentsPanel rows={active} />
+    </div>
+  );
+}
+
+// ── EMS administrator ────────────────────────────────────────────────
+async function EmsAdminDashboard({
+  supabase, fullName,
+}: {
+  supabase: Awaited<ReturnType<typeof getSession>>['supabase']; fullName: string;
+}) {
+  const [personnel, ambulances, active, compliance, pcrs] = await Promise.all([
+    listPersonnel(supabase, 'Medical').catch(() => []),
+    listApparatus(supabase, 'Medical').catch(() => []),
+    listActiveIncidents(supabase, 'Medical').catch(() => []),
+    getUnitCompliance(supabase, 'Medical').catch(() => ({ mentalChecks: [], vehicleChecklists: [] })),
+    listPcrs(supabase).catch(() => []),
+  ]);
+  const onDuty = personnel.filter((p) => p.is_on_duty).length;
+  const fleet = ambulances.filter((a) => a.status !== 'Decommissioned');
+  const inService = fleet.filter((a) => ['Available', 'In Use', 'En Route', 'On Scene'].includes(a.status)).length;
+  const offRoad = fleet.filter((a) => a.status === 'Out of Service' || a.status === 'Maintenance').length;
+  const live = active.filter((i) => !['New', 'Pending', 'Pending Dispatch', 'Pending Analysis'].includes(i.status));
+  const saDay = (d: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Johannesburg' }).format(d);
+  const today = saDay(new Date());
+  const filedToday = pcrs.filter((p) => saDay(new Date(p.filed_at ?? p.created_at)) === today).length;
+
+  return (
+    <div className="space-y-5">
+      <BoardLive />
+      <section className="relative overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/20 via-bg-card to-bg-soft p-5 shadow-[0_12px_40px_-30px_var(--accent)] sm:p-7">
+        <div aria-hidden className="pointer-events-none absolute -right-10 -top-20 h-56 w-56 rounded-full bg-accent/10 blur-3xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-5">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent">Emergency Medical Services · Administration</p>
+            <h1 className="mt-2 text-2xl font-bold text-fg sm:text-3xl">EMS at a glance</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{fullName} · Crews, ambulances, live calls and patient reports.</p>
+          </div>
+          <Link href="/medical" className="inline-flex min-h-10 items-center rounded-lg bg-accent px-4 text-sm font-bold text-bg shadow-sm transition-opacity hover:opacity-90">
+            Open EMS operations →
+          </Link>
+        </div>
+      </section>
+
+      <section aria-label="EMS status" className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+        <Tile label="Crew on duty" value={onDuty} accent="text-severity-low-ink" />
+        <Tile label="Readiness checks today" value={compliance.mentalChecks.length} accent="text-accent" />
+        <Tile label="Ambulances in service" value={`${inService}/${fleet.length}`} />
+        <Tile label="Ambulances off road" value={offRoad} accent="text-severity-high-ink" />
+        <Tile label="Live EMS calls" value={live.length} accent="text-severity-medium-ink" />
+        <Tile label="Patient reports today" value={filedToday} />
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { href: '/medical/pcr', label: 'Clinical Archive', detail: `${pcrs.length} patient care reports` },
+          { href: '/shift/today', label: 'Today’s shift', detail: 'Crews, ambulances and checks' },
+          { href: '/admin/vehicles', label: 'Ambulances', detail: `${offRoad} off road` },
+          { href: '/roster/allocation', label: 'Duty allocation', detail: 'Crews on each post' },
+        ].map((item) => (
+          <Link key={item.href} href={item.href} className="group rounded-xl border border-border bg-bg-card p-4 transition-colors hover:border-accent/50 hover:bg-accent/5">
+            <span className="block text-sm font-bold text-fg group-hover:text-accent">{item.label} →</span>
+            <span className="mt-1 block text-xs text-muted-foreground">{item.detail}</span>
+          </Link>
+        ))}
+      </section>
 
       <ActiveIncidentsPanel rows={active} />
     </div>
@@ -377,7 +443,7 @@ async function ResponderBody({
 
   const me = await getMyPersonnel(supabase, userId).catch(() => null);
   const [mine, shiftDone, perf] = await Promise.all([
-    listMyAssignedIncidents(supabase, me?.assigned_apparatus_id ?? null),
+    listMyCalls(supabase, userId).catch(() => []),
     hasCompletedShiftStartToday(supabase).catch(() => false),
     getMyPerformance(supabase, {
       from: cycleStart.toISOString().slice(0, 10),
@@ -396,7 +462,7 @@ async function ResponderBody({
 
       {perf && (
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Tile label="Assigned to me" value={mine.length} accent="text-accent" />
+          <Tile label="My open calls" value={mine.length} accent="text-accent" />
           <Tile label="Attended (cycle)" value={perf.asResponder.total} />
           <Tile label="Closed" value={perf.asResponder.closed} accent="text-severity-low-ink" />
           <Tile label="Appraisal /5" value={perf.finalAverage ?? perf.midYearAverage ?? '—'} accent="text-severity-medium-ink" />
@@ -411,7 +477,7 @@ async function ResponderBody({
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Incident', 'Type', 'Severity', 'Status', 'Location', '']} empty="No incidents assigned to your unit.">
+          <SimpleTable headers={['Incident', 'Type', 'Severity', 'Status', 'Location', '']} empty="No open calls. Calls sent to you appear here and in the HikTech app.">
             {mine.map((i) => (
               <Tr key={i.id}>
                 <Td className="font-mono">{i.incident_number}</Td>
@@ -429,48 +495,3 @@ async function ResponderBody({
   );
 }
 
-// ── Case manager body ────────────────────────────────────────────────
-async function CaseManagerBody({
-  supabase, sf,
-}: {
-  supabase: Awaited<ReturnType<typeof getSession>>['supabase']; sf: Silo | undefined;
-}) {
-  const [active, closed] = await Promise.all([
-    listActiveIncidents(supabase, sf),
-    listClosedIncidents(supabase, sf),
-  ]);
-  const today = new Date().toISOString().slice(0, 10);
-  const closedToday = closed.filter((i) => i.closed_at?.startsWith(today)).length;
-
-  return (
-    <>
-      <section className="grid grid-cols-3 gap-3">
-        <Tile label="Open cases" value={active.length} accent="text-severity-medium-ink" />
-        <Tile label="Closed today" value={closedToday} accent="text-severity-low-ink" />
-        <Tile label="Closed total" value={closed.length} />
-      </section>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Open cases ({active.length})</CardTitle>
-          <CardDescription>Review and close — click through for the full lifecycle.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <SimpleTable headers={['Incident', 'Silo', 'Type', 'Severity', 'Status', 'Age', '']} empty="No open cases.">
-            {active.slice(0, 12).map((i) => (
-              <Tr key={i.id}>
-                <Td className="font-mono">{i.incident_number}</Td>
-                <Td>{i.silo}</Td>
-                <Td>{i.incident_type}</Td>
-                <Td><span className="severity-pill" data-sev={i.incident_severity}>{i.incident_severity}</span></Td>
-                <Td>{i.status}</Td>
-                <Td className="text-muted-foreground">{timeAgo(i.incident_created_at)}</Td>
-                <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">Review</Link></Td>
-              </Tr>
-            ))}
-          </SimpleTable>
-        </CardContent>
-      </Card>
-    </>
-  );
-}

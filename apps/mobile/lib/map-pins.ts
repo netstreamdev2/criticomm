@@ -1,5 +1,6 @@
 import type { IncidentStatus } from '@criticom/db/types';
 import { callView, type FieldCall } from './response.ts';
+import { wordsFor } from './department.ts';
 
 /**
  * What the live map draws for each incident: a pin at the coordinates the
@@ -25,8 +26,10 @@ export type MapPin = {
   holder: string;
   /** Arrived since the map opened — drops in with a ripple. */
   fresh: boolean;
-  /** An officer's SOS (source Responder-Panic): its own pin and tag. */
+  /** A responder's SOS (source Responder-Panic): its own pin and tag. */
   sos: boolean;
+  /** The SOS card's heading: whose emergency it is ("SOS · PARAMEDIC EMERGENCY"). */
+  sosLabel: string | null;
 };
 
 export type PinSource = FieldCall & {
@@ -81,6 +84,8 @@ export function toPins(
       holder,
       fresh: opts.fresh?.has(i.id) ?? false,
       sos: i.source === 'Responder-Panic',
+      // The SOS incident is logged under the department of whoever pressed it.
+      sosLabel: i.source === 'Responder-Panic' ? `SOS · ${wordsFor(i.silo).person.toUpperCase()} EMERGENCY` : null,
     });
   }
   return pins;

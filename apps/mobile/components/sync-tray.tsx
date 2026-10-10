@@ -4,6 +4,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSync } from '@/lib/sync';
+import { useAuth } from '@/lib/auth';
+import { wordsFor } from '@/lib/department';
 import { colors, radius, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { Button } from '@/components/ui';
 import { CENTRE_RISE, useTabBarHeight } from '@/components/tab-bar';
@@ -24,6 +26,7 @@ export function SyncTray() {
   const styles = useStyles();
   const tabBar = useTabBarHeight();
   const { pending, failed, online, syncing, retryAll, discard, describeOp } = useSync();
+  const { silo } = useAuth();
   const [open, setOpen] = useState(false);
 
   const total = pending.length + failed.length;
@@ -44,7 +47,7 @@ export function SyncTray() {
   const confirmDiscard = (id: string, what: string) => {
     Alert.alert(
       'Discard this update?',
-      `"${what}" will be deleted and never reaches the case file. Only do this if you are certain it is no longer needed.`,
+      `"${what}" will be deleted and never reaches the ${wordsFor(silo).file}. Only do this if you are certain it is no longer needed.`,
       [
         { text: 'Keep it', style: 'cancel' },
         { text: 'Discard', style: 'destructive', onPress: () => void discard(id) },

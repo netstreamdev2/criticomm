@@ -1,17 +1,27 @@
 import type { CriticomClient, Database, Silo, IncidentStatus } from '@criticom/db';
+import { cleanSearch } from '../cases/stage';
+import { noteText } from './note';
+
+export { noteText } from './note';
 import type {
   LogIncomingCallInput,
   DispatchUnitInput,
   UpdateResponderStatusInput,
 } from '@criticom/db/schemas';
+import { logIncomingCallSchema } from '@criticom/db/schemas';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 
 /** ControlRoomController.LogNew + IncidentWorkflowService.LogIncomingCallAsync */
 export async function logIncomingCall(
   client: CriticomClient,
-  input: LogIncomingCallInput,
+  raw: LogIncomingCallInput,
 ): Promise<Incident> {
+  // Checked here as well as in the database, so a bad call is refused with a
+  // plain reason before it leaves the console.
+  const parsed = logIncomingCallSchema.safeParse(raw);
+  if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'The call details are incomplete');
+  const input = parsed.data;
   const { data, error } = await client.rpc('log_incoming_call', {
     p_silo: input.silo,
     p_caller_name: input.caller_name,
@@ -34,9 +44,36 @@ export async function logIncomingCall(
     p_notes: input.notes ?? null,
     p_incident_category: input.incident_category ?? null,
     p_region: input.region ?? null,
+    p_tagged_silos: [...new Set(input.tagged_silos)],
   });
   if (error) throw error;
   return data as Incident;
+}
+
+/**
+ * Send a call to other departments' dispatch desks (0068): they are tagged,
+ * their dispatchers are told, and the timeline records who did it. Tags are
+ * only ever added.
+ */
+export async function tagIncidentDepartments(
+  client: CriticomClient,
+  args: { incident_id: string; silos: Silo[]; note?: string | null },
+) {
+  const { data, error } = await client.rpc('tag_incident_departments', {
+    p_incident: args.incident_id,
+    p_silos: args.silos,
+    p_note: args.note ?? null,
+  });
+  if (error) throw error;
+  return data as Incident;
+}
+
+/** The dispatch desks a call was sent to; a call from before 0068 counts its own department. */
+export function deskTags(incident: Pick<Incident, 'silo' | 'tagged_silos' | 'dispatched_silos'>): Silo[] {
+  const tags = new Set<Silo>([...(incident.tagged_silos ?? []), ...(incident.dispatched_silos ?? [])]);
+  if (tags.size === 0 && incident.silo !== 'Ethekwini') tags.add(incident.silo);
+  tags.delete('Ethekwini');
+  return [...tags];
 }
 
 /** ControlRoomController.CheckDuplicate */
@@ -215,6 +252,53 @@ export async function listPendingIncidents(client: CriticomClient, silo?: Silo) 
 
 const PENDING_RANK: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 
+export type QueueSort = 'newest' | 'oldest' | 'severity';
+export type QueueFilters = {
+  q?: string | null;
+  severity?: string | null;
+  region?: string | null;
+  /** The department a call was logged under; 'Ethekwini' is the control room. */
+  department?: string | null;
+  sort?: QueueSort | null;
+};
+
+/**
+ * The dispatch queue with its filters. Newest call on top by default, as a
+ * chat list reads, strictly by when the call came in; oldest-first and
+ * most-severe-first (newest first within a severity) on request. An officer's
+ * SOS is marked on the row rather than moved, so the order is always the one
+ * chosen.
+ */
+export async function listQueue(client: CriticomClient, f: QueueFilters = {}) {
+  const sort: QueueSort = f.sort === 'oldest' || f.sort === 'severity' ? f.sort : 'newest';
+  let q = client
+    .from('incidents')
+    .select('*')
+    .in('status', ['Pending Dispatch', 'Pending', 'New', 'Pending Analysis'])
+    .order('call_timestamp', { ascending: sort === 'oldest' })
+    .order('incident_created_at', { ascending: sort === 'oldest' });
+  const term = cleanSearch(f.q);
+  if (term) {
+    q = q.or([
+      `incident_number.ilike.%${term}%`, `caller_name.ilike.%${term}%`, `caller_number.ilike.%${term}%`,
+      `location_address.ilike.%${term}%`, `incident_type.ilike.%${term}%`, `suburb.ilike.%${term}%`,
+    ].join(','));
+  }
+  if (f.severity && f.severity in PENDING_RANK) q = q.eq('incident_severity', f.severity as Incident['incident_severity']);
+  if (f.region) q = q.eq('region', f.region);
+  // Sent to that desk: tagged for it, logged under it, or sent to its crews (0068).
+  if (f.department) {
+    const d = f.department as Silo;
+    q = d === 'Ethekwini' ? q.eq('silo', d) : q.or(`silo.eq.${d},tagged_silos.cs.{${d}},dispatched_silos.cs.{${d}}`);
+  }
+  const { data, error } = await q.limit(500);
+  if (error) throw error;
+  const rows = data ?? [];
+  if (sort !== 'severity') return rows;
+  // A stable sort: newest first within each severity, as the query ordered them.
+  return [...rows].sort((a, b) => (PENDING_RANK[a.incident_severity] ?? 9) - (PENDING_RANK[b.incident_severity] ?? 9));
+}
+
 /**
  * Police Home tiles (V4 dashboard): live incidents, their severity split, and
  * how many closed today. Counts only — no rows travel — and RLS scopes them
@@ -292,7 +376,8 @@ export async function getIncidentUpdates(client: CriticomClient, incidentId: str
     .eq('incident_id', incidentId)
     .order('timestamp', { ascending: false });
   if (error) throw error;
-  return data ?? [];
+  // Without the phone's outbox marker: see ./note.ts.
+  return (data ?? []).map((u) => ({ ...u, message: noteText(u.message) }));
 }
 
 /** ReportsController.AddUpdate */
@@ -381,32 +466,27 @@ export async function uploadIncidentEvidence(
   return data;
 }
 
-/** CaseManagerController.Index — closed/resolved cases for review */
-export async function listClosedIncidents(client: CriticomClient, silo?: Silo) {
-  let q = client
-    .from('incidents')
-    .select('*')
-    .in('status', ['Closed', 'Resolved'])
-    .order('closed_at', { ascending: false });
-  if (silo) q = q.eq('silo', silo);
-  const { data, error } = await q.limit(500);
-  if (error) throw error;
-  return data ?? [];
-}
-
 /** ReportsController.Index — full incident archive with basic filters */
 export async function listAllIncidents(
   client: CriticomClient,
-  opts: { silo?: Silo; status?: IncidentStatus; search?: string; limit?: number } = {},
+  opts: { silo?: Silo; status?: IncidentStatus; statuses?: IncidentStatus[]; search?: string; limit?: number } = {},
 ) {
   let q = client.from('incidents').select('*').order('incident_created_at', { ascending: false });
-  if (opts.silo) q = q.eq('silo', opts.silo);
+  // A department's incidents are the ones it owns and the ones it was sent:
+  // a call the control room logs stays filed under the control room after it
+  // is dispatched, so filtering on the owner alone hid it from the very
+  // department working it.
+  const dept = opts.silo ? `silo.eq.${opts.silo},dispatched_silos.cs.{${opts.silo}}` : null;
+  // Search text is cleaned: a comma or bracket in it would rewrite the filter.
+  const term = cleanSearch(opts.search);
+  const search = term
+    ? `incident_number.ilike.%${term}%,caller_name.ilike.%${term}%,location_address.ilike.%${term}%`
+    : null;
+  if (dept && search) q = q.or(`and(or(${dept}),or(${search}))`);
+  else if (dept) q = q.or(dept);
+  else if (search) q = q.or(search);
   if (opts.status) q = q.eq('status', opts.status);
-  if (opts.search) {
-    q = q.or(
-      `incident_number.ilike.%${opts.search}%,caller_name.ilike.%${opts.search}%,location_address.ilike.%${opts.search}%`,
-    );
-  }
+  if (opts.statuses?.length) q = q.in('status', opts.statuses);
   const { data, error } = await q.limit(opts.limit ?? 300);
   if (error) throw error;
   return data ?? [];
@@ -561,6 +641,27 @@ export async function listAssignedToMe(client: CriticomClient, userId: string) {
     .order('assigned_at', { ascending: false });
   if (error) throw error;
   return data ?? [];
+}
+
+/**
+ * The open calls this officer is on: leading, backing up, or assigned to and
+ * not yet answered (0042). Since calls go to officers rather than vehicles,
+ * this replaces looking calls up by the officer's unit, which missed every
+ * call sent to all on duty or assigned before the officer accepted it.
+ */
+export async function listMyCalls(client: CriticomClient, userId: string): Promise<FieldIncident[]> {
+  const [responding, assigned] = await Promise.all([
+    listMyActiveIncidents(client, userId),
+    client
+      .from('incidents')
+      .select(`*, ${RESPONDERS}`)
+      .eq('assigned_to', userId)
+      .not('status', 'in', '("Closed","Resolved")'),
+  ]);
+  if (assigned.error) throw assigned.error;
+  const byId = new Map<string, FieldIncident>();
+  for (const call of [...responding, ...((assigned.data ?? []) as unknown as FieldIncident[])]) byId.set(call.id, call);
+  return [...byId.values()].sort((a, b) => (b.dispatch_time ?? '').localeCompare(a.dispatch_time ?? ''));
 }
 
 /**

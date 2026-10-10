@@ -103,3 +103,99 @@ ambulance until filed; a draft never counts as clearance.
 **Not yet done:** run against the real database (0060 is for the user to
 apply), and a look on a real phone and tablet. The app is still locked to
 portrait (`app.json`); tablets in landscape need that changed in a new build.
+
+## The incident flow (migration 0063, 2026-10-09)
+
+Run `supabase/migrations/0063_ems_incident_flow.sql` after 0062. V4 reference:
+`ParamedicsController`, `Views/Paramedics/{Create,Records,PrintableReport}`,
+the medical branch of `Views/Notifications/Create.cshtml` (the field state
+machine) and the EMS triage block of `Views/ControlRoom/LogNew.cshtml`.
+
+**Call intake (console).** As V4: "Is the caller the patient?" (required); when
+No, patient name(s), with + for more, saved as `patient_name` ("Unknown / Not
+Provided" when none is typed; the caller's name when Yes). EMS triage: number
+of victims 0–4 or Multiple (5+), and the P1–P4 medical severity code with V4's
+wording. Both are required unless "No injuries / EMS not required" is ticked.
+
+**On the phone (paramedic or doctor).**
+1. The alert: Accept incident, Acknowledge, Navigate.
+2. **Accept · Mark En Route**, then **Mark On Scene**.
+3. On scene the main button is **File patient report**, with **Mark
+   Transporting** beside it. A paramedic or doctor can never close an EMS call
+   with a bare Resolved; the server refuses it. On a call shared with Police
+   the paramedic lead files the PCR, not the police report.
+4. The ePCR (`/pcr/[id]`) has V4's sections, in order, from `packages/db/src/pcr.ts`:
+   Personal Information, Scene & Transport, Crew Assignment, Multiple
+   Casualties, Clinical Assessment & Psychological Presentation, Signs Symptoms
+   & Vitals (with the GCS total), Interventions & Medication, Vehicle Inventory
+   & Restock Checklist, Sign Off & Handover (three pads) and Site Media.
+   Filled in from the call as V4 did: patient name, location with suburb and
+   city, MOI, and the scene assessment ("[Dispatch Alert]…[Severity]…
+   [Reported Casualties]…[Dispatcher Notes]"). The draft is kept on the phone;
+   filing goes through the outbox.
+5. V4's last question: **Does the vehicle require cleaning?** "Yes - mark as off
+   road" or "No - ready for next call".
+
+Required: chief complaint, care level, patient response, the lead paramedic's
+signature, the cleaning answer, and the destination when transported by
+ambulance or air.
+
+**`file_pcr()`** in one transaction: checks EMS, the lead, on scene; files
+`paramedic_reports` as `PCR-<incident number>` with its vitals,
+interventions and medical history records, the ambulance and V4's total
+response time; resolves the incident; timeline, audit and the dispatch /
+command alert. Cleaning Yes puts the ambulance Out of Service ("Off road for
+cleaning"), releases the crew and alerts command (High), as the start of shift
+does. Unticked stock alerts command (Medium). A replay returns the filed report.
+
+**Console.** `/medical`: live EMS calls with crew status, ambulances off road
+for cleaning, recent reports. `/medical/pcr`: the Clinical Archive (Incident
+Ref, Patient, Arrival, Destination, Care Level, Paramedics) with search, care
+level, destination and dates. The PCR shows on the incident page, in the case
+review line and in the incident PDF. The console's "New Manual Entry" and Edit
+use the same spec. A filed PCR is never deleted or re-linked and locks when the
+case is closed; until then EMS may correct it, as V4 allowed. Crew, EMS and
+case managers read it with its clinical records; other departments do not.
+
+**Verified:** `scripts/test-ems-pcr.mjs` (11 scenarios on PGlite with the real
+0001 tables, 0063 applied twice), `packages/db/src/pcr.test.ts` (8),
+`apps/mobile/lib/response.test.ts` (EMS ladder), typecheck and lint.
+**Not yet done:** a run on a phone, and 0063 on the hosted database.
+
+## Hospital handover and the Doctor role (migration 0064, 2026-10-10)
+
+Run `supabase/migrations/0064_hospital_handover.sql` after 0063. V4 had a
+`LegalHandover` model (receiving hospital, doctor, signature, time, patient
+status at handover) that no screen used; this builds it.
+
+**Two EMS roles, no overlap.**
+- **Paramedic** is the EMS crew: the phone app, start of shift, ambulance,
+  calls, the patient report.
+- **Doctor** is the receiving doctor at the hospital. They sign the handover
+  on the crew's phone. Their own login is read only: on the phone, a single
+  Patient Handovers screen (no start of shift, no tabs, never dispatched); on
+  the console, a two-item sidebar (Hospital Handovers, Clinical Archive) and
+  no New, Edit or Restock. `file_pcr()` and the EMS write rules no longer
+  accept Doctor. V4 seeded Doctor only as a coverage login and locked it out
+  of `ParamedicsController`, so nothing a V4 doctor could do is lost.
+
+**The handover.** When the patient is taken by Ambulance (Ground) or HEMS
+(Airlift), the PCR's Hospital Handover section appears: Receiving Hospital
+(the destination), Hospital Arrival / Handover Time, Receiving Doctor, Patient
+Status at Handover (500 characters), and the doctor signs the Attending
+Doctor pad. All are required then; none when treated on scene or by private
+transport. `file_pcr()` checks the same and writes the timeline line
+"patient handed over to <doctor> at <hospital>, HH:MM".
+
+**The record.** The handover lives on the report (`handover_doctor_name`,
+`handover_patient_status`) and on `legal_handovers`, one per report
+(`pcr_id`), written and kept in step by the `sync_pcr_handover` trigger,
+including console corrections. Nobody writes `legal_handovers` directly. It
+reads like its report (crew, EMS, case managers, the doctor; not Police) and
+locks with it when the case is closed.
+
+Also fixed: 0002's EMS write rules checked the role only on changes, so any
+EMS account could add records. 0064 checks it on new records too.
+
+**Verified:** `scripts/test-ems-handover.mjs` (8 scenarios, 0063 then 0064
+applied twice), `packages/db/src/pcr.test.ts` (9) and `roles.test.ts`.

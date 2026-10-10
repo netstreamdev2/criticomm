@@ -1,5 +1,6 @@
 import 'server-only';
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
+import { pdfSafe, saStamp } from './pdf-text';
 
 /**
  * Minimal report-PDF builder shared by the case-report and fire-report
@@ -27,7 +28,7 @@ export class ReportPdf {
     r.page.drawText('HIKTECH - eThekwini Emergency Services', {
       x: r.margin, y: r.page.getHeight() - 32, size: 10, font: r.bold, color: rgb(0.89, 0.12, 0.17),
     });
-    r.page.drawText(title, {
+    r.page.drawText(pdfSafe(title), {
       x: r.margin, y: r.page.getHeight() - 52, size: 16, font: r.bold, color: rgb(1, 1, 1),
     });
     r.y = r.page.getHeight() - 95;
@@ -48,7 +49,7 @@ export class ReportPdf {
   section(title: string) {
     this.ensure(30);
     this.y -= 14;
-    this.page.drawText(title.toUpperCase(), {
+    this.page.drawText(pdfSafe(title).toUpperCase(), {
       x: this.margin, y: this.y, size: 10, font: this.bold, color: rgb(0.15, 0.35, 0.6),
     });
     this.y -= 6;
@@ -64,7 +65,7 @@ export class ReportPdf {
     if (value === null || value === undefined || value === '') return;
     const text = String(value);
     this.ensure(16);
-    this.page.drawText(`${label}:`, { x: this.margin, y: this.y, size: 9, font: this.bold, color: rgb(0.25, 0.25, 0.25) });
+    this.page.drawText(`${pdfSafe(label)}:`, { x: this.margin, y: this.y, size: 9, font: this.bold, color: rgb(0.25, 0.25, 0.25) });
     this.wrap(text, this.margin + 150, 9);
   }
 
@@ -75,15 +76,18 @@ export class ReportPdf {
   paragraph(label: string, value: string | null | undefined) {
     if (!value) return;
     this.ensure(28);
-    this.page.drawText(label, { x: this.margin, y: this.y, size: 9, font: this.bold, color: rgb(0.25, 0.25, 0.25) });
+    this.page.drawText(pdfSafe(label), { x: this.margin, y: this.y, size: 9, font: this.bold, color: rgb(0.25, 0.25, 0.25) });
     this.y -= 13;
-    this.wrap(value, this.margin, 9);
+    // Keep the writer's paragraphs: a narrative is read, not scanned.
+    for (const para of pdfSafe(value).split(/\n+/)) this.wrap(para, this.margin, 9);
     this.y -= 4;
   }
 
   private wrap(text: string, x: number, size: number, color = rgb(0.1, 0.1, 0.1)) {
     const maxWidth = this.page.getWidth() - this.margin - x;
-    const words = text.replace(/\r/g, '').split(/\s+/);
+    // Every string drawn passes through pdfSafe: one character the font
+    // cannot encode would otherwise fail the whole document.
+    const words = pdfSafe(text).split(/\s+/).flatMap((w) => this.breakWord(w, size, maxWidth));
     let line = '';
     const flush = () => {
       if (!line) return;
@@ -102,6 +106,22 @@ export class ReportPdf {
       }
     }
     flush();
+  }
+
+  /** A word wider than the line (a URL, a plate run together) broken to fit, instead of running off the page. */
+  private breakWord(word: string, size: number, maxWidth: number): string[] {
+    if (this.font.widthOfTextAtSize(word, size) <= maxWidth) return [word];
+    const parts: string[] = [];
+    let part = '';
+    for (const ch of word) {
+      if (part && this.font.widthOfTextAtSize(part + ch, size) > maxWidth) {
+        parts.push(part);
+        part = '';
+      }
+      part += ch;
+    }
+    if (part) parts.push(part);
+    return parts;
   }
 
   /** Embed a JPEG/PNG image (evidence photos in case reports). */
@@ -131,7 +151,7 @@ export class ReportPdf {
     // Footer page numbers
     const pages = this.doc.getPages();
     pages.forEach((p, i) => {
-      p.drawText(`Page ${i + 1} of ${pages.length} · Generated ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC`, {
+      p.drawText(`Page ${i + 1} of ${pages.length} · Generated ${saStamp()} SAST`, {
         x: 50, y: 28, size: 7, font: this.font, color: rgb(0.5, 0.5, 0.5),
       });
     });

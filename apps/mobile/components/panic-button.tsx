@@ -6,6 +6,8 @@ import * as Haptics from 'expo-haptics';
 import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/lib/auth';
+import { departmentName } from '@criticom/db';
+import { personTitle } from '@/lib/department';
 import { getSupabase } from '@/lib/supabase';
 import { asUuid } from '@/lib/outbox';
 import { useSync } from '@/lib/sync';
@@ -58,7 +60,7 @@ export function PanicButton() {
   const styles = useStyles();
   const tabBar = useTabBarHeight();
   const panicOn = useFeature('mobile.panic');
-  const { session, silo, fullName } = useAuth();
+  const { session, silo, fullName, role } = useAuth();
   const { enqueue, pending, failed, online } = useSync();
   const [holding, setHolding] = useState(false);
   const [sent, setSent] = useState<Sent | null>(null);
@@ -195,7 +197,7 @@ export function PanicButton() {
         + `${sent.coords.accuracy ? ` (±${Math.round(sent.coords.accuracy)}m)` : ''}`
         + ` https://maps.google.com/?q=${sent.coords.lat.toFixed(5)},${sent.coords.lng.toFixed(5)}`
       : 'Position unknown.';
-    return `SOS — ${fullName || 'Officer'} (${silo}) needs immediate assistance at ${when}. ${where}`;
+    return `SOS — ${fullName || personTitle(silo)} (${departmentName(silo)}) needs immediate assistance at ${when}. ${where}`;
   };
   const sendSms = () => {
     // iOS separates the body with "&", Android with "?".
@@ -206,7 +208,8 @@ export function PanicButton() {
     if (CONTROL_ROOM) void Linking.openURL(`tel:${CONTROL_ROOM}`).catch(() => {});
   };
 
-  if (!session || !panicOn) return null;
+  // The receiving doctor works in the hospital, not the field: no SOS.
+  if (!session || !panicOn || role === 'Doctor') return null;
 
   return (
     <>

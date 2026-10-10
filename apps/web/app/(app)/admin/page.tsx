@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ShieldAlert, ShieldCheck, UserPlus } from 'lucide-react';
 import { countActiveSystemAdmins, countOpenInvitations, listAccountRequests, listAllProfiles } from '@criticom/api';
-import { MIN_SYSTEM_ADMINS, rolesAssignableBy, rolesInvitableBy, type Silo } from '@criticom/db';
+import { MIN_SYSTEM_ADMINS, departmentName, roleName, rolesAssignableBy, rolesInvitableBy, type Silo } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
@@ -126,8 +126,8 @@ export default async function AdminPage({
                     {p.full_name ?? '—'}
                     <div className="text-xs text-muted-foreground">{p.email ?? ''}</div>
                   </Td>
-                  <Td>{p.silo}</Td>
-                  <Td>{p.role}</Td>
+                  <Td>{departmentName(p.silo)}</Td>
+                  <Td>{roleName(p.role)}</Td>
                   <Td className="font-mono">{p.badge_number ?? '—'}</Td>
                   <Td>
                     <span className={cn(

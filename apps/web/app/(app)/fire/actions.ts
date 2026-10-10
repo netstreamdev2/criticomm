@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { createFirefighterReport, publishPublicIncidentReport, logAudit } from '@criticom/api';
+import { createFireInspection, createFirefighterReport, publishPublicIncidentReport, logAudit } from '@criticom/api';
 import { getSession } from '@/lib/session';
 
 const S = (fd: FormData, k: string) => {
@@ -125,4 +125,34 @@ export async function publishPirAction(formData: FormData) {
   });
   revalidatePath('/fire/pir');
   redirect('/fire/pir');
+}
+
+/** Firefighters/CreateInspection (0066): the server checks, stamps and numbers it. */
+export async function fileInspectionAction(formData: FormData) {
+  await getSession();
+  const pick = <T extends string>(k: string, allowed: readonly T[]): T | null => {
+    const v = S(formData, k);
+    return v && (allowed as readonly string[]).includes(v) ? (v as T) : null;
+  };
+  const extinguishers = pick('extinguishers', ['Yes', 'No', 'N/A'] as const);
+  const exits = pick('exits', ['Yes', 'No'] as const);
+  const result = pick('result', ['PASS', 'FAIL'] as const);
+  const back = (msg: string) => redirect(`/fire/inspections?error=${encodeURIComponent(msg)}`);
+  if (!extinguishers || !exits || !result) back('Answer every question.');
+  const { supabase } = await getSession();
+  let ref: string | null = null;
+  try {
+    const row = await createFireInspection(supabase, {
+      business_name: S(formData, 'business_name') ?? '',
+      address: S(formData, 'address') ?? '',
+      contact_person: S(formData, 'contact_person') ?? '',
+      extinguishers: extinguishers!, exits: exits!, result: result!,
+      notes: S(formData, 'notes'),
+    });
+    ref = row.inspection_ref;
+  } catch (e) {
+    back((e as { message?: string })?.message ?? 'The inspection was not filed.');
+  }
+  revalidatePath('/fire/inspections');
+  redirect(`/fire/inspections?filed=${encodeURIComponent(ref ?? '')}`);
 }

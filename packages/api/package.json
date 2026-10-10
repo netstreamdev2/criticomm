@@ -13,7 +13,8 @@
     "./realtime": "./src/realtime/index.ts",
     "./external/*": "./src/external/*.ts",
     "./reporting": "./src/reporting/index.ts",
-    "./rollup": "./src/performance/rollup.ts"
+    "./rollup": "./src/performance/rollup.ts",
+    "./cases": "./src/cases/stage.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

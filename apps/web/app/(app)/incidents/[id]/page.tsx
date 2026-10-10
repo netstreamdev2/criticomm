@@ -2,30 +2,33 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FileText, Lock } from 'lucide-react';
 import {
-  featureEnabled, getFireReportForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listBookedOutBodycams,
+  deskTags, featureEnabled, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listBookedOutBodycams,
   listIncidentAttachments, listIncidentMapZones, listIncidentResponders, searchBodycamBookings, signIncidentMedia,
   type IncidentResponder,
 } from '@criticom/api';
-import { CASE_MANAGER_ROLES, canAccess, canWatchBodycam, type Database, type Silo, type UserRole } from '@criticom/db';
+import {
+  DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, STATUS_OVERRIDE_ROLES, departmentName, STATUS_OVERRIDE_STEPS, canAccess, canWatchBodycam, caseStage,
+  type Database, type Silo, type UserRole,
+} from '@criticom/db';
 import { windowFor } from '@criticom/db/bodycams';
 import { getFeatures } from '@/lib/features';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { PoliceReportCard } from './report-card';
 import { FireReportCard } from './fire-report-card';
+import { PcrCard } from '@/components/pcr-card';
+import { PostMortemCard } from '@/components/post-mortem-card';
 import { IncidentLive } from '@/components/incident-live';
+import { VoiceNote } from '@/components/voice-note';
 import { IncidentZonesCard } from './zones-card';
 import { IncidentBodycamsCard, type IncidentBodycamPerson } from './bodycams-card';
-import {
-  addUpdateAction, closeCaseAction, requestCitizenLocationAction, setStatusAction,
-} from './actions';
+import { addUpdateAction, requestCitizenLocationAction } from './actions';
+import { CaseReviewCard } from './case-review-card';
+import { StatusOverride } from './case-forms';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Incident · HikTech' };
-
-const NEXT_STATUSES = ['Dispatched', 'En Route', 'Arrived', 'On Scene', 'Transporting', 'Resolved'] as const;
 
 export default async function IncidentDetailPage({
   params,
@@ -37,7 +40,7 @@ export default async function IncidentDetailPage({
 
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) notFound();
-  const [updates, attachments, audit, report, responders, zones, fireReport] = await Promise.all([
+  const [updates, attachments, audit, report, responders, zones, fireReport, pcr, postMortem] = await Promise.all([
     getIncidentUpdates(supabase, id),
     listIncidentAttachments(supabase, id),
     // Console actions log as 'incident', server RPCs as 'incidents' — the id is enough.
@@ -48,6 +51,10 @@ export default async function IncidentDetailPage({
     listIncidentMapZones(supabase, id).catch(() => null),
     // The firefighter's report (0059); none for other departments.
     getFireReportForIncident(supabase, id).catch(() => null),
+    // The paramedic's patient care report (0063).
+    getPcrForIncident(supabase, id).catch(() => null),
+    // The Disaster officer's post-mortem (0065).
+    getPostMortemForIncident(supabase, id).catch(() => null),
   ]);
   const media = await signIncidentMedia(supabase, attachments.map((a) => a.storage_path)).catch(
     () => new Map<string, string>(),
@@ -56,8 +63,15 @@ export default async function IncidentDetailPage({
   const voiceNotes = attachments.filter((a) => a.kind === 'audio');
   const otherFiles = attachments.filter((a) => a.kind !== 'image' && a.kind !== 'audio');
 
-  const isClosed = incident.status === 'Closed' || incident.status === 'Resolved';
-  const canClose = CASE_MANAGER_ROLES.includes(role);
+  // Live, awaiting review (Resolved: the report is in) or closed (0061).
+  const stage = caseStage(incident.status);
+  // The operational screens (GPS request, zones, bodycams) stop at Resolved;
+  // the case itself stays open to notes until it is closed.
+  const isClosed = stage !== 'live';
+  const isCaseClosed = stage === 'closed';
+  const canOverride = STATUS_OVERRIDE_ROLES.includes(role) && stage === 'live' && Boolean(incident.dispatch_time);
+  const canDispatch = DISPATCH_DESK_ROLES.includes(role) && stage === 'live' && !incident.accepted_by;
+  const canNote = !isCaseClosed && role !== 'Viewer';
   const bodycams = await incidentBodycams(supabase, incident, responders, role, silo);
 
   // Transporting has no column of its own: the crew's status note records it.
@@ -73,7 +87,9 @@ export default async function IncidentDetailPage({
     { label: 'En Route', at: incident.accepted_at },
     { label: 'On Scene', at: incident.arrived_timestamp },
     { label: 'Transporting', at: transportingAt, optional: true },
-    { label: incident.report_filed_at ? 'Report filed · Resolved' : 'Resolved', at: resolvedAt },
+    incident.report_filed_at || resolvedAt || !isCaseClosed
+      ? { label: incident.report_filed_at ? 'Report filed · Resolved' : 'Resolved', at: resolvedAt }
+      : { label: 'Closed without a report', at: incident.closed_at },
   ];
   const reached = ladder.filter((step) => step.at).length;
 
@@ -87,7 +103,11 @@ export default async function IncidentDetailPage({
     { label: 'Arrived on scene', at: incident.arrived_timestamp },
     { label: 'Transporting', at: transportingAt },
     { label: 'Report filed · resolved', at: incident.report_filed_at ?? incident.resolved_at },
-    { label: 'Closed', at: incident.closed_at },
+    {
+      label: incident.close_kind === 'Cancelled' ? 'Closed without a report'
+        : incident.close_kind === 'Reviewed' ? 'Reviewed · case closed' : 'Closed',
+      at: incident.closed_at,
+    },
   ];
 
   // Unified chronological history — milestones + operator notes + evidence +
@@ -120,10 +140,13 @@ export default async function IncidentDetailPage({
         <div>
           <h1 className="font-mono text-2xl font-bold">{incident.incident_number}</h1>
           <p className="text-muted-foreground">
-            {incident.incident_type} · {incident.silo} ·{' '}
+            {incident.incident_type} · {departmentName(incident.silo)} ·{' '}
             <span className="severity-pill" data-sev={incident.incident_severity}>
               {incident.incident_severity}
             </span>
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Sent to dispatch: {deskTags(incident).map((d) => DEPARTMENT_NAMES[d]).join(', ') || 'Control room only'}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -134,6 +157,13 @@ export default async function IncidentDetailPage({
             ⬇ Case PDF
           </a>
           <span className="status-badge" data-status={incident.status}>{incident.status}</span>
+          <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+            stage === 'review' ? 'border-accent/50 bg-accent/10 text-accent'
+              : stage === 'closed' ? 'border-border bg-bg-soft text-muted-foreground'
+              : 'border-severity-medium/40 bg-severity-medium/10 text-severity-medium-ink'
+          }`}>
+            {stage === 'review' ? 'Awaiting review' : stage === 'closed' ? 'Case closed' : 'Live call'}
+          </span>
         </div>
       </header>
 
@@ -163,9 +193,25 @@ export default async function IncidentDetailPage({
           </ol>
           <p className="mt-2 text-xs text-muted-foreground">
             {reached === 0 ? 'Not dispatched yet.' : 'Updates by itself as the crew moves — no need to reload.'}
+            {canDispatch && !incident.dispatch_time ? (
+              <>
+                {' '}
+                <Link href={`/dispatch/assign/${incident.id}`} className="font-semibold text-accent hover:underline">Dispatch this call →</Link>
+              </>
+            ) : null}
           </p>
         </CardContent>
       </Card>
+
+      <CaseReviewCard
+        incident={incident}
+        role={role}
+        report={report}
+        fireReport={fireReport}
+        pcr={pcr}
+        postMortem={postMortem}
+        responding={responders.length}
+      />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -285,34 +331,12 @@ export default async function IncidentDetailPage({
               })}
             </ol>
 
-            {!isClosed && (
+            {canOverride && (
               <div className="mt-5 border-t border-border pt-4">
-                <p className="mb-2 text-xs uppercase text-muted-foreground">Set status</p>
-                <div className="flex flex-wrap gap-2">
-                  {NEXT_STATUSES.map((s) => (
-                    <form key={s} action={setStatusAction}>
-                      <input type="hidden" name="incident_id" value={incident.id} />
-                      <input type="hidden" name="silo" value={incident.silo} />
-                      <input type="hidden" name="status" value={s} />
-                      <button type="submit" className="rounded-md border border-border bg-bg-soft px-2.5 py-1.5 text-xs hover:bg-muted">
-                        {s}
-                      </button>
-                    </form>
-                  ))}
-                </div>
+                <p className="mb-1 text-xs uppercase text-muted-foreground">Mark for the crew</p>
+                <p className="mb-2 text-xs text-muted-foreground">When the officer radios a step in instead of pressing it in the app.</p>
+                <StatusOverride incidentId={incident.id} silo={incident.silo} steps={STATUS_OVERRIDE_STEPS} current={incident.status} />
               </div>
-            )}
-
-            {!isClosed && canClose && (
-              <form action={closeCaseAction} className="mt-5 border-t border-border pt-4">
-                <input type="hidden" name="incident_id" value={incident.id} />
-                <input type="hidden" name="silo" value={incident.silo} />
-                <p className="mb-2 text-xs uppercase text-muted-foreground">Close case</p>
-                <Textarea name="reason" rows={2} placeholder="Closure reason…" />
-                <button type="submit" className="mt-2 w-full rounded-md bg-severity-critical/90 px-3 py-2 text-sm font-semibold hover:bg-severity-critical">
-                  Close case
-                </button>
-              </form>
             )}
           </CardContent>
         </Card>
@@ -343,12 +367,12 @@ export default async function IncidentDetailPage({
             <CardDescription>Chronological dispatcher/responder log.</CardDescription>
           </CardHeader>
           <CardContent>
-            {!isClosed && (
+            {canNote && (
               <form action={addUpdateAction} className="mb-4 flex gap-2">
                 <input type="hidden" name="incident_id" value={incident.id} />
                 <input type="hidden" name="silo" value={incident.silo} />
                 <input
-                  name="message" required placeholder="Add an update…"
+                  name="message" required placeholder={stage === 'review' ? 'Add a case note…' : 'Add an update…'}
                   className="h-10 flex-1 rounded-md border border-border bg-bg-soft px-3 text-sm"
                 />
                 <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Post</button>
@@ -368,7 +392,7 @@ export default async function IncidentDetailPage({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card id="case-evidence">
           <CardHeader>
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
@@ -423,10 +447,9 @@ export default async function IncidentDetailPage({
                     const url = media.get(a.storage_path);
                     return (
                       <li key={a.id} className="rounded-md border border-border/60 bg-bg-soft p-2.5">
-                        {/* biome-ignore lint/a11y/useMediaCaption: field voice notes have no transcript */}
-                        {url ? <audio controls preload="none" src={url} className="h-9 w-full" /> : null}
+                        {url ? <VoiceNote url={url} filename={a.storage_path} contentType={a.content_type} /> : null}
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {a.uploaded_by_name ?? 'Unknown'} · {formatSaTime(a.created_at)}
+                          {a.caption ? `${a.caption} · ` : ''}{a.uploaded_by_name ?? 'Unknown'} · {formatSaTime(a.created_at)}
                         </p>
                       </li>
                     );
@@ -457,16 +480,22 @@ export default async function IncidentDetailPage({
         </Card>
       </div>
 
-      {report ? <PoliceReportCard report={report} /> : null}
-      {fireReport ? <FireReportCard report={fireReport} /> : null}
+      {report || fireReport || pcr || postMortem ? (
+        <div id="case-report" className="space-y-4">
+          {report ? <PoliceReportCard report={report} /> : null}
+          {fireReport ? <FireReportCard report={fireReport} /> : null}
+          {pcr ? <PcrCard pcr={pcr as unknown as Parameters<typeof PcrCard>[0]['pcr']} showLink /> : null}
+          {postMortem ? <PostMortemCard report={postMortem} /> : null}
+        </div>
+      ) : null}
 
       {/* Complete life of the incident, newest first */}
-      <Card>
+      <Card id="case-history">
         <CardHeader>
           <CardTitle>Complete history ({events.length})</CardTitle>
           <CardDescription>
             Every milestone, update, evidence upload and audited action — from the first call
-            {isClosed ? ' through to closure.' : ' up to now.'}
+            {isCaseClosed ? ' through to closure.' : ' up to now.'}
           </CardDescription>
         </CardHeader>
         <CardContent>

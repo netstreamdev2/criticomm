@@ -1,5 +1,10 @@
 import 'server-only';
-import { Agent } from 'undici';
+// Use undici's own fetch alongside its Agent: Node's built-in global fetch
+// rejects a dispatcher created from the npm `undici` package (they are
+// separate undici instances → UND_ERR_INVALID_ARG → "fetch failed"), so the
+// verify_tls:false path for on-prem self-signed certs only works when both
+// come from the same package.
+import { Agent, fetch as undiciFetch } from 'undici';
 import { getIntegration } from '@criticom/api';
 import type { getServerSupabase } from '@/lib/supabase';
 import { signedHeaders, toPlatformTime } from '@/lib/hikvision-sign';
@@ -94,17 +99,17 @@ export async function hikRequest<T>(
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    const res = await fetch(`${cfg.baseUrl}${path}`, {
+    const res = await undiciFetch(`${cfg.baseUrl}${path}`, {
       method: 'POST',
       headers: signedHeaders(creds, path),
       body: JSON.stringify(body),
       signal: ctrl.signal,
-      cache: 'no-store',
-      // Node's fetch (undici) accepts a dispatcher; typed loosely because the
-      // RequestInit type doesn't know about it.
+      // On-prem platforms ship a self-signed cert; this skips verification for
+      // this one outbound hop only (the Agent and fetch are from the same
+      // undici package, so the dispatcher is accepted).
       ...(cfg.verifyTls
         ? {}
-        : { dispatcher: new Agent({ connect: { rejectUnauthorized: false } }) } as object),
+        : { dispatcher: new Agent({ connect: { rejectUnauthorized: false } }) }),
     });
     if (!res.ok) throw new Error(`The Hikvision platform responded ${res.status}`);
     const envelope = (await res.json()) as ArtemisEnvelope<T>;

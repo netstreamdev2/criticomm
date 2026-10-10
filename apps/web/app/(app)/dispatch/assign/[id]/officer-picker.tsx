@@ -30,7 +30,7 @@ function OfficerLine({ r, deptLabel }: { r: RankedOfficer; deptLabel: (s: string
             {o.activeCalls} INCIDENT{o.activeCalls === 1 ? '' : 'S'}
           </span>
         ) : (
-          <span className="shrink-0 rounded bg-severity-low/15 px-1.5 py-0.5 text-[10px] font-bold text-severity-low-ink">FREE</span>
+          <span className="shrink-0 rounded bg-severity-low/15 px-1.5 py-0.5 text-[10px] font-bold text-severity-low-ink">AVAILABLE</span>
         )}
       </span>
       <span className="mt-0.5 block truncate text-xs text-muted-foreground">

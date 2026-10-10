@@ -10,11 +10,12 @@ import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { HikTechLogo } from '@/components/hiktech-logo';
 import { Banner, Button, Input } from '@/components/ui';
 
+/** Each in its own department colour (Admin → Departments' defaults). */
 const DEPARTMENTS = [
-  { label: 'Metro Police', colour: '#f59e0b' },
+  { label: 'Metro Police', colour: '#3b82f6' },
   { label: 'Fire & Rescue', colour: '#dc3545' },
-  { label: 'EMS', colour: '#22c55e' },
-  { label: 'Disaster', colour: '#3b82f6' },
+  { label: 'EMS', colour: '#10b981' },
+  { label: 'Disaster Management', colour: '#f59e0b' },
 ];
 
 const DEACTIVATED = 'This account has been deactivated. If you think this is a mistake, speak to your station commander or system administrator.';
@@ -88,7 +89,7 @@ export default function LoginScreen() {
             <Input
               label="Email or badge number"
               icon="person-outline"
-              placeholder="Email, or a badge number like MP-1042"
+              placeholder="Your email address or badge number"
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"

@@ -47,7 +47,7 @@ export default async function ProfilePage() {
       <Card>
         <CardHeader>
           <CardTitle>Call sign</CardTitle>
-          <CardDescription>NATO phonetic generator — same scheme as V4 SystemProfile.</CardDescription>
+          <CardDescription>NATO phonetic call-sign generator.</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-between">
           <p className="font-mono text-xl">{profile?.call_sign ?? 'Not assigned'}</p>

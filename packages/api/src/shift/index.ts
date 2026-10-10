@@ -62,6 +62,46 @@ export async function listAvailableVehicles(client: CriticomClient, silo: Silo) 
   return data ?? [];
 }
 
+/**
+ * Every vehicle an officer could be on today: the free ones to choose from and
+ * the ones already taken, so the officer sees the whole fleet. Vehicles in the
+ * workshop or out of service are left off.
+ */
+export async function listShiftVehicles(client: CriticomClient, silo: Silo) {
+  const { data, error } = await client
+    .from('apparatus')
+    .select('*')
+    .eq('silo', silo)
+    .in('status', ['Available', 'In Use'])
+    .order('unit_number');
+  if (error) throw error;
+  const rows = data ?? [];
+  return {
+    available: rows.filter((v) => v.status === 'Available'),
+    taken: rows.filter((v) => v.status === 'In Use'),
+  };
+}
+
+/** No vehicle is free: say so on the record and carry on (0062). The server checks none is. */
+export async function declareShiftNoVehicle(client: CriticomClient, reason: string | null) {
+  const { data, error } = await client.rpc('declare_shift_no_vehicle', { p_reason: reason });
+  if (error) throw error;
+  return data as NoVehicleRow;
+}
+
+/** Puts licence and / or ID photos (already uploaded to the officer's folder) on today's record (0062). */
+export async function recordShiftDocuments(
+  client: CriticomClient,
+  paths: { licencePath?: string | null; idDocumentPath?: string | null },
+) {
+  const { data, error } = await client.rpc('record_shift_documents', {
+    p_licence_path: paths.licencePath ?? null,
+    p_id_document_path: paths.idDocumentPath ?? null,
+  });
+  if (error) throw error;
+  return data as ShiftDocumentsRow;
+}
+
 /** ShiftController.AssignVehicle */
 export async function assignVehicle(client: CriticomClient, apparatusId: string) {
   const { data, error } = await client.rpc('assign_vehicle', { p_apparatus_id: apparatusId });
@@ -132,6 +172,8 @@ type ApparatusRow = Database['public']['Tables']['apparatus']['Row'];
 type NoFirearmRow = Database['public']['Tables']['shift_no_firearm_declarations']['Row'];
 type BodycamBookingRow = Database['public']['Tables']['bodycam_bookings']['Row'];
 type NoBodycamRow = Database['public']['Tables']['shift_no_bodycam_declarations']['Row'];
+type NoVehicleRow = Database['public']['Tables']['shift_no_vehicle_declarations']['Row'];
+type ShiftDocumentsRow = Database['public']['Tables']['shift_identity_documents']['Row'];
 
 export type InspectionItemStatus = 'ok' | 'fault' | 'nil';
 export type ShiftType = NonNullable<VehicleChecklistRow['shift_type']>;
@@ -320,6 +362,10 @@ export type ShiftStartRecord = {
   bodycam: BodycamBookingRow | null;
   /** Set when the officer said why they have no bodycam today. */
   noBodycam: NoBodycamRow | null;
+  /** Set when no vehicle was free and the officer said so instead (0062). */
+  noVehicle: NoVehicleRow | null;
+  /** Licence and ID photos the officer chose to add (0062). */
+  documents: ShiftDocumentsRow | null;
 };
 
 /** Today's start-of-shift record for the signed-in officer — what the PDF/CSV export holds. */
@@ -328,7 +374,7 @@ export async function getTodayShiftStartRecord(client: CriticomClient): Promise<
   if (!user) throw new Error('You must be signed in to view your shift record.');
   const since = saTodayStartIso();
 
-  const [mc, vc, fc, nf, bc, nb] = await Promise.all([
+  const [mc, vc, fc, nf, bc, nb, nv, docs] = await Promise.all([
     client.from('mental_checks').select('*')
       .eq('user_id', user.id).gte('timestamp', since)
       .order('timestamp', { ascending: false }).limit(1).maybeSingle(),
@@ -349,6 +395,12 @@ export async function getTodayShiftStartRecord(client: CriticomClient): Promise<
     client.from('shift_no_bodycam_declarations').select('*')
       .eq('user_id', user.id).gte('created_at', since)
       .order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    client.from('shift_no_vehicle_declarations').select('*')
+      .eq('user_id', user.id).gte('created_at', since)
+      .order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    client.from('shift_identity_documents').select('*')
+      .eq('user_id', user.id).gte('created_at', since)
+      .order('created_at', { ascending: false }).limit(1).maybeSingle(),
   ]);
   if (mc.error) throw mc.error;
   if (vc.error) throw vc.error;
@@ -362,6 +414,9 @@ export async function getTodayShiftStartRecord(client: CriticomClient): Promise<
     // Before 0054 is run these tables do not exist: no bodycam on the record.
     bodycam: bc.error ? null : (bc.data as BodycamBookingRow | null),
     noBodycam: nb.error ? null : (nb.data as NoBodycamRow | null),
+    // Likewise before 0062.
+    noVehicle: nv.error ? null : (nv.data as NoVehicleRow | null),
+    documents: docs.error ? null : (docs.data as ShiftDocumentsRow | null),
   };
 }
 

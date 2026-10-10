@@ -234,6 +234,30 @@ export const RESPONDER_ROLES: UserRole[] = [
   'Police', 'Captain', 'Firefighter', 'FireChief', 'Paramedic', 'Doctor', 'Disaster',
 ];
 
+/**
+ * The department each field role belongs to: a Firefighter exists only in
+ * Fire & Rescue, a Disaster officer only in Disaster Management. Desk and
+ * administration roles fit any department. Mirrors role_fits_department()
+ * (migration 0067), which refuses anything else.
+ */
+export const FIELD_ROLE_DEPARTMENT: Partial<Record<UserRole, Silo>> = {
+  Police: 'MetroPolice', Captain: 'MetroPolice',
+  Firefighter: 'MetroFire', FireChief: 'MetroFire',
+  Paramedic: 'Medical', Doctor: 'Medical',
+  Disaster: 'EthekwiniDisaster',
+};
+
+/** Whether `role` may be held in `silo`. */
+export function roleFitsDepartment(role: UserRole, silo: Silo): boolean {
+  const home = FIELD_ROLE_DEPARTMENT[role];
+  return !home || home === silo;
+}
+
+/** The roles from `roles` that can be held in `silo`, in the same order. */
+export function rolesForDepartment(roles: readonly UserRole[], silo: Silo): UserRole[] {
+  return roles.filter((r) => roleFitsDepartment(r, silo));
+}
+
 /** Roles that can see any silo's routes/data (V4 GLOBAL list + auth.is_global()). */
 export const GLOBAL_ROLES: UserRole[] = [
   'SystemAdmin', 'SuperAdmin', 'Dispatcher', 'ControlRoom',
@@ -245,11 +269,72 @@ export const FIRE_ROLES: UserRole[] = ['FireChief', 'Firefighter'];
 export const MEDICAL_ROLES: UserRole[] = ['Paramedic', 'Doctor'];
 export const DISASTER_ROLES: UserRole[] = ['Disaster'];
 
-/** CaseManagerController's wide authorize list. */
+/**
+ * Who opens Case Management (the review queue, registers and case audit):
+ * CaseManagerController's wide authorize list, plus department command, who
+ * review their own officers' reports. Opening it is reading; closing is
+ * narrower (CASE_CLOSE_ROLES).
+ */
 export const CASE_MANAGER_ROLES: UserRole[] = [
   ...ADMIN_ROLES, 'CaseManager', 'Dispatcher', 'ControlRoom',
-  'IncidentLogger', 'Supervisor', 'System', 'Viewer',
+  'IncidentLogger', 'Supervisor', 'System', 'Viewer', 'Captain', 'FireChief',
 ];
+
+/* ── Closing a case (0061) ─────────────────────────────────────────────── */
+
+/**
+ * Who may close a Resolved case after reading it. Mirrors the
+ * require_role() list in close_case(). IncidentLogger and Viewer read cases
+ * but never close them.
+ */
+export const CASE_CLOSE_ROLES: UserRole[] = [
+  'SuperAdmin', 'SystemAdmin', 'Admin', 'SystemController', 'Supervisor', 'Captain', 'FireChief',
+  'Dispatcher', 'ControlRoom', 'CaseManager', 'System',
+];
+
+/**
+ * Who may close a call that is still live, without a report and with a
+ * reason (hoax, duplicate, caller cancelled): the dispatch desk and command.
+ * Not the case manager, who reviews finished work. close_case() refuses them.
+ */
+export const CALL_CANCEL_ROLES: UserRole[] = CASE_CLOSE_ROLES.filter((r) => r !== 'CaseManager');
+
+/** A live call is closed without a report only with a reason this long. Mirrors close_case(). */
+export const CANCEL_REASON_MIN = 10;
+
+/**
+ * Who may correct a crew's status from the console, when an officer radios
+ * it in instead of pressing it on the phone. The desk only: never Resolved
+ * (the report does that) and never Closed (close_case() does).
+ * Mirrors the non-field callers update_responder_status() accepts.
+ */
+export const STATUS_OVERRIDE_ROLES: UserRole[] = [
+  'SuperAdmin', 'SystemAdmin', 'Admin', 'Supervisor', 'Dispatcher', 'ControlRoom',
+];
+
+/** The statuses the desk may set on a crew's behalf. */
+export const STATUS_OVERRIDE_STEPS = ['En Route', 'Arrived', 'On Scene', 'Transporting'] as const;
+
+/**
+ * Where a case stands, from its status: a live call, a resolved call
+ * awaiting review, or closed.
+ */
+export function caseStage(status: string): 'live' | 'review' | 'closed' {
+  if (status === 'Closed') return 'closed';
+  if (status === 'Resolved') return 'review';
+  return 'live';
+}
+
+/**
+ * How `role` may close a case in `status`: review it (Resolved), cancel it
+ * (still live, with a reason), or not at all. The database has the final word.
+ */
+export function closeActionFor(role: UserRole, status: string): 'review' | 'cancel' | null {
+  const stage = caseStage(status);
+  if (stage === 'closed') return null;
+  if (stage === 'review') return CASE_CLOSE_ROLES.includes(role) ? 'review' : null;
+  return CALL_CANCEL_ROLES.includes(role) ? 'cancel' : null;
+}
 
 /* ── Live-map perimeters and zones (0053) ──────────────────────────────── */
 
@@ -400,6 +485,9 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/police/fines', roles: [...FINE_ISSUER_ROLES, ...ADMIN_ROLES], silo: 'MetroPolice' },
   { prefix: '/police',       roles: [...POLICE_ROLES, ...ADMIN_ROLES], silo: 'MetroPolice' },
   { prefix: '/fire',         roles: [...FIRE_ROLES, ...ADMIN_ROLES], silo: 'MetroFire' },
+  // The receiving doctor reads reports and handovers; the crew writes them (0064).
+  { prefix: '/medical/pcr/new', roles: ['Paramedic', ...ADMIN_ROLES], silo: 'Medical' },
+  { prefix: '/medical/restock', roles: ['Paramedic', ...ADMIN_ROLES], silo: 'Medical' },
   { prefix: '/medical',      roles: [...MEDICAL_ROLES, ...ADMIN_ROLES], silo: 'Medical' },
   { prefix: '/disaster',     roles: [...DISASTER_ROLES, ...DISPATCH_ROLES, 'Viewer'], silo: 'EthekwiniDisaster' },
   // Everyone sees their own schedule; only supervisors build the roster.

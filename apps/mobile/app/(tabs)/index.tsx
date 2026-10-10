@@ -14,6 +14,8 @@ import { Card } from '@/components/ui';
 import { PoliceHome } from '@/components/police-home';
 import { FireHome } from '@/components/fire-home';
 import { EmsHome } from '@/components/ems-home';
+import { DisasterHome } from '@/components/disaster-home';
+import { DoctorHome } from '@/components/doctor-home';
 import { HomeHeader } from '@/components/home-header';
 
 /**
@@ -31,9 +33,11 @@ import { HomeHeader } from '@/components/home-header';
  * module grid.
  */
 export default function HomeScreen() {
-  const { silo } = useAuth();
+  const { silo, role } = useAuth();
+  if (role === 'Doctor') return <DoctorHome />;
   if (silo === 'MetroFire') return <FireHome />;
   if (silo === 'Medical') return <EmsHome />;
+  if (silo === 'EthekwiniDisaster') return <DisasterHome />;
   return silo === 'MetroPolice' || silo === 'Ethekwini' ? <PoliceHome /> : <ModuleHome />;
 }
 

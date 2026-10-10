@@ -1,4 +1,5 @@
 import type { CriticomClient, Database } from '@criticom/db';
+import { cleanSearch } from '../cases/stage';
 
 export type FirefighterReport = Database['public']['Tables']['firefighter_reports']['Row'];
 type FirefighterReportInsert = Database['public']['Tables']['firefighter_reports']['Insert'];
@@ -92,4 +93,25 @@ export async function publishPublicIncidentReport(client: CriticomClient, input:
     .single();
   if (error) throw error;
   return data;
+}
+
+type FireInspection = Database['public']['Tables']['fire_safety_inspections']['Row'];
+export type FireSafetyInspectionInput = Pick<FireInspection, 'business_name' | 'address' | 'contact_person' | 'extinguishers' | 'exits' | 'notes' | 'result'>;
+
+/** Fire safety inspections (0066), newest first. */
+export async function listFireInspections(client: CriticomClient, f: { q?: string | null; result?: string | null } = {}) {
+  let query = client.from('fire_safety_inspections').select('*');
+  const q = cleanSearch(f.q);
+  if (q) query = query.or(['business_name', 'address', 'contact_person', 'inspection_ref'].map((c) => `${c}.ilike.*${q}*`).join(','));
+  if (f.result === 'PASS' || f.result === 'FAIL') query = query.eq('result', f.result);
+  const { data, error } = await query.order('inspected_at', { ascending: false }).limit(300);
+  if (error) throw error;
+  return (data ?? []) as FireInspection[];
+}
+
+/** File a fire safety inspection; the server stamps, numbers and checks it. */
+export async function createFireInspection(client: CriticomClient, input: FireSafetyInspectionInput) {
+  const { data, error } = await client.from('fire_safety_inspections').insert(input).select().single();
+  if (error) throw error;
+  return data as FireInspection;
 }

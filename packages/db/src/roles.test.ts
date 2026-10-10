@@ -380,3 +380,76 @@ test('map zones: consoles are told, field officers\' screens are not (officer ap
     assert.ok(!roles.receivesZoneNotices(role), role);
   }
 });
+
+/* ── Case review and close (0061) ──────────────────────────────────────── */
+
+test('case management opens for case managers, the desk and command, never for field officers', () => {
+  for (const [role, silo] of [
+    ['CaseManager', 'Ethekwini'], ['CaseManager', 'MetroPolice'], ['Supervisor', 'Ethekwini'],
+    ['Captain', 'MetroPolice'], ['FireChief', 'MetroFire'], ['Dispatcher', 'Ethekwini'],
+    ['SystemAdmin', 'Ethekwini'], ['Viewer', 'Ethekwini'], ['IncidentLogger', 'Ethekwini'],
+  ] as Array<[UserRole, Silo]>) {
+    for (const path of ['/case-manager', '/case-manager/review', '/case-manager/open', '/case-manager/closed', '/case-manager/audit']) {
+      assert.equal(canAccess(path, role, silo), true, `${role} opens ${path}`);
+    }
+  }
+  for (const [role, silo] of [['Police', 'MetroPolice'], ['Firefighter', 'MetroFire'], ['Paramedic', 'Medical'], ['Staff', 'Ethekwini']] as Array<[UserRole, Silo]>) {
+    assert.equal(canAccess('/case-manager', role, silo), false, `${role} must not open case management`);
+  }
+});
+
+test('a resolved case is closed after review; a live call is cancelled by the desk only, never by the case manager', () => {
+  assert.equal(roles.caseStage('Resolved'), 'review');
+  assert.equal(roles.caseStage('Closed'), 'closed');
+  for (const s of ['Pending Dispatch', 'Dispatched', 'En Route', 'On Scene', 'Transporting']) {
+    assert.equal(roles.caseStage(s), 'live', s);
+  }
+
+  assert.equal(roles.closeActionFor('CaseManager', 'Resolved'), 'review');
+  assert.equal(roles.closeActionFor('CaseManager', 'On Scene'), null, 'the case manager does not cancel live calls');
+  assert.equal(roles.closeActionFor('Dispatcher', 'Pending Dispatch'), 'cancel');
+  assert.equal(roles.closeActionFor('Dispatcher', 'Resolved'), 'review');
+  assert.equal(roles.closeActionFor('Captain', 'Resolved'), 'review');
+  for (const role of ['IncidentLogger', 'Viewer', 'Police', 'Firefighter', 'Paramedic', 'Staff'] as UserRole[]) {
+    assert.equal(roles.closeActionFor(role, 'Resolved'), null, `${role} never closes a case`);
+    assert.equal(roles.closeActionFor(role, 'Dispatched'), null, `${role} never cancels a call`);
+  }
+  for (const role of roles.ASSIGNABLE_ROLES) {
+    assert.equal(roles.closeActionFor(role, 'Closed'), null, `${role}: a closed case stays closed`);
+  }
+});
+
+test('only the desk corrects a crew status from the console, and never to Resolved or Closed', () => {
+  assert.ok(!roles.STATUS_OVERRIDE_STEPS.includes('Resolved' as never));
+  assert.ok(!roles.STATUS_OVERRIDE_STEPS.includes('Closed' as never));
+  for (const role of ['Police', 'Captain', 'CaseManager', 'Viewer', 'IncidentLogger'] as UserRole[]) {
+    assert.ok(!roles.STATUS_OVERRIDE_ROLES.includes(role), `${role} has no console status override`);
+  }
+  // Everyone who can see the button must also pass the database's role gate.
+  for (const role of roles.STATUS_OVERRIDE_ROLES) {
+    assert.ok(roles.DISPATCH_ROLES.includes(role) || roles.ADMIN_ROLES.includes(role), role);
+  }
+});
+
+test('the receiving doctor reads EMS reports and handovers but does not write them', () => {
+  assert.equal(canAccess('/medical/handovers', 'Doctor', 'Medical'), true);
+  assert.equal(canAccess('/medical/pcr', 'Doctor', 'Medical'), true);
+  assert.equal(canAccess('/medical/pcr/new', 'Doctor', 'Medical'), false);
+  assert.equal(canAccess('/medical/restock', 'Doctor', 'Medical'), false);
+  assert.equal(canAccess('/medical/pcr/new', 'Paramedic', 'Medical'), true);
+  assert.equal(canAccess('/medical/restock', 'Paramedic', 'Medical'), true);
+  assert.equal(canAccess('/medical/pcr/new', 'Admin', 'Medical'), true);
+});
+
+test('a field role is offered only in its own department; desk roles everywhere', () => {
+  const disaster = roles.rolesForDepartment(roles.ASSIGNABLE_ROLES, 'EthekwiniDisaster');
+  for (const r of ['Police', 'Captain', 'Firefighter', 'FireChief', 'Paramedic', 'Doctor'] as UserRole[]) {
+    assert.ok(!disaster.includes(r), `${r} is not a Disaster Management role`);
+  }
+  assert.ok(disaster.includes('Disaster') && disaster.includes('Admin') && disaster.includes('Supervisor'));
+  const fire = roles.rolesForDepartment(roles.ASSIGNABLE_ROLES, 'MetroFire');
+  assert.ok(fire.includes('Firefighter') && fire.includes('FireChief') && !fire.includes('Police') && !fire.includes('Disaster'));
+  const control = roles.rolesForDepartment(roles.ASSIGNABLE_ROLES, 'Ethekwini');
+  assert.ok(roles.RESPONDER_ROLES.every((r) => !control.includes(r)), 'the control room holds no field roles');
+  for (const r of roles.RESPONDER_ROLES) assert.ok(roles.FIELD_ROLE_DEPARTMENT[r], `${r} has a department`);
+});

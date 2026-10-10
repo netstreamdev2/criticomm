@@ -28,3 +28,4 @@ export * from './enforcement/index';
 export * from './access/index';
 export * from './map-zones/index';
 export * from './bodycams/index';
+export * from './cases/index';

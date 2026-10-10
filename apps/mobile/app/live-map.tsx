@@ -8,6 +8,7 @@ import { CRIME_KINDS, compass, heatColour } from '@criticom/db/map-layers';
 import { BottomSheet } from '@/components/bottom-sheet';
 import { IncidentMap, type IncidentMapHandle } from '@/components/incident-map';
 import { useAuth } from '@/lib/auth';
+import { personTitle } from '@/lib/department';
 import {
   useCrimeCircles, useLiveZoneShapes, useOverlayChoice, useRainTiles, useWeatherNow, weatherLine,
   type OverlayId, type WeatherNow,
@@ -255,7 +256,7 @@ export default function LiveMapScreen() {
           ))}
           <View style={styles.legendItem}>
             <View style={styles.sosTag}><Text style={styles.sosTagText}>SOS</Text></View>
-            <Text style={styles.legendText}>Officer</Text>
+            <Text style={styles.legendText}>{personTitle(silo)}</Text>
           </View>
           <View style={styles.legendItem}>
             <View style={styles.mineRing} />

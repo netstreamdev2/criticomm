@@ -53,7 +53,7 @@ export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Pro
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const styles = useStyles();
-  const { session, loading } = useAuth();
+  const { session, loading, role } = useAuth();
   const { shiftStarted, checking } = useDuty();
   const segments = useSegments();
   const router = useRouter();
@@ -79,7 +79,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   // Expo Router needs its root navigator mounted before any redirects. Cover it
   // with a full-screen, touch-blocking assessment while clearance is pending.
   // Nothing underneath is visible, tappable, or exposed to screen readers.
-  if (session && shiftStarted !== true) {
+  // The receiving doctor does not start a shift or take an ambulance.
+  if (session && shiftStarted !== true && role !== 'Doctor') {
     return (
       <View style={{ flex: 1 }}>
         <View style={{ flex: 1 }} pointerEvents="none" importantForAccessibility="no-hide-descendants">
@@ -121,9 +122,11 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <StatusBar style={isDark ? 'light' : 'dark'} />
+      {/* Above the gate: the start-of-shift screen it draws is the signed-in
+          department's, crest and name included. */}
+      <BrandingProvider>
       <DutyProvider>
       <AuthGate>
-        <BrandingProvider>
         <FeaturesProvider>
         {/* Sync wraps notifications: an alert handler may need to queue work,
             and the panic path must never be blocked on the alert subsystem. */}
@@ -150,12 +153,24 @@ export default function RootLayout() {
               options={{ title: 'Incident', headerBackTitle: 'Back' }}
             />
             <Stack.Screen
+              name="route/[id]"
+              options={{ title: 'Route', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
               name="report/[id]"
               options={{ title: 'Incident Report', headerBackTitle: 'Back' }}
             />
             <Stack.Screen
               name="fire-report/[id]"
               options={{ title: 'Fire Report', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="pcr/[id]"
+              options={{ title: 'Patient Report', headerBackTitle: 'Back' }}
+            />
+            <Stack.Screen
+              name="post-mortem/[id]"
+              options={{ title: 'Post-Mortem', headerBackTitle: 'Back' }}
             />
             <Stack.Screen
               name="assistant"
@@ -217,9 +232,9 @@ export default function RootLayout() {
         </NotificationsProvider>
         </SyncProvider>
         </FeaturesProvider>
-        </BrandingProvider>
       </AuthGate>
       </DutyProvider>
+      </BrandingProvider>
     </AuthProvider>
   );
 }

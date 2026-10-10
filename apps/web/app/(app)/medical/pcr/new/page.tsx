@@ -1,4 +1,5 @@
 import { PcrFormSections } from '../pcr-form';
+import { PcrFormShell } from '../pcr-form-shell';
 import { createPcrAction } from '../../actions';
 
 export const metadata = { title: 'New PCR · HikTech' };
@@ -7,18 +8,12 @@ export default function NewPcrPage() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">New patient care report</h1>
-        <p className="text-muted-foreground">
-          Full V4 Paramedic PCR — demographics, vitals, assessment, interventions, transport and inventory.
-        </p>
+        <h1 className="text-2xl font-bold">ePCR: Medical Incident Report</h1>
+        <p className="text-muted-foreground">Manual entry, not linked to a dispatched call.</p>
       </header>
-
-      <form action={createPcrAction} className="space-y-4">
+      <PcrFormShell action={createPcrAction} submitLabel="Submit final ePCR report">
         <PcrFormSections />
-        <button type="submit" className="h-11 w-full rounded-md bg-primary text-sm font-semibold">
-          Submit PCR
-        </button>
-      </form>
+      </PcrFormShell>
     </div>
   );
 }

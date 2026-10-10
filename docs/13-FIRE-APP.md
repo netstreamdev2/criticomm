@@ -179,3 +179,22 @@ migration or real duty/inspection data was written during this work. Apply the
 migration above after 0055, then reload the app and sign in with a linked
 `MetroFire` responder account and an available Fire appliance. Local app preview:
 `http://localhost:8081`. The existing web console remains on port 3000.
+
+## Fire safety inspections and the fire command console (2026-10-10)
+
+Run `supabase/migrations/0066_fire_safety_inspections.sql` after 0065.
+
+**Inspections** (`/fire/inspections`): V4's Firefighters/CreateInspection —
+Business / Site Name, Contact Person, Site Address, Extinguishers Present &
+Serviced? (Yes - Compliant / No - Violation / Not Applicable), Emergency Exits
+Clear? (Yes - Compliant / No - Blocked / Violation), Additional Inspector
+Notes, and the Final Inspection Result (PASS / FAIL). The server numbers them
+`INSP-YYYYMMDD-nnnn`, stamps the inspector and time, and needs notes for a
+FAIL or any violation. A FAIL tells fire command. Filed by Firefighter,
+FireChief and the admin tier in Fire; read by Fire and the tenant-wide tier;
+permanent. Verified by `scripts/test-fire-inspections.mjs` (6 scenarios).
+
+**Console**: the Fire Chief and the Fire admin now have a sidebar (Fire
+Dashboard, Fire Reports, Fire Safety Inspections, Hydrants, Public Reports,
+incidents, live map, appliances and shift, crews, reports, settings) instead
+of the top navigation; `/dashboard` opens `/fire`, as V4's chief board did.

@@ -112,7 +112,7 @@ export const OPERATIONAL_SETTINGS: readonly SettingDef[] = [
   {
     key: 'duty.max_shift_hours',
     label: 'Auto off-duty after',
-    description: 'Hours after going on duty in the app before an officer who never signed off is taken off duty (never mid-call). Read by the database sweep, migration 0041.',
+    description: 'Hours after going on duty in the app before an officer who never signed off is taken off duty (never mid-call).',
     category: 'Dispatch & ETA', type: 'number', default: 14, min: 4, max: 24, unit: 'h',
   },
 

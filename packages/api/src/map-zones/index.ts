@@ -1,6 +1,7 @@
 import type {
   CriticomClient, Database, MapZoneKind, MapZoneShape, MapZoneVisibility, Silo,
 } from '@criticom/db';
+import { subscribeSignedIn } from '../realtime/join';
 
 /**
  * Perimeters and zones drawn on the live map (migration 0053). Reads go
@@ -111,8 +112,8 @@ export function subscribeMapZones(client: CriticomClient, onChange: (change: Map
       { event: '*', schema: 'public', table: 'map_zones' },
       (payload: { eventType: MapZoneChange['event']; new: MapZone | null }) =>
         onChange({ event: payload.eventType, zone: payload.new && 'id' in payload.new ? payload.new : null }),
-    )
-    .subscribe();
+    );
+  subscribeSignedIn(client, channel);
   return () => {
     void client.removeChannel(channel);
   };

@@ -1,4 +1,5 @@
 import type { CriticomClient, Database } from '@criticom/db';
+import { subscribeSignedIn } from '../realtime/join';
 
 /**
  * Feature flags (migration 0029).
@@ -182,7 +183,7 @@ export function subscribeFeatureFlags(
       'postgres_changes' as never,
       { event: '*', schema: 'public', table: 'feature_flags' },
       (payload: { new: FeatureFlagRow }) => { if (payload.new?.key) onChange(payload.new); },
-    )
-    .subscribe();
+    );
+  subscribeSignedIn(client, channel);
   return () => { void client.removeChannel(channel); };
 }

@@ -1,22 +1,9 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { updateResponderStatus, uploadIncidentEvidence, logAudit } from '@criticom/api';
-import type { IncidentStatus, Silo } from '@criticom/db';
+import { uploadIncidentEvidence, logAudit } from '@criticom/api';
+import type { Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
-
-export async function responderStatusAction(formData: FormData) {
-  const { supabase, fullName } = await getSession();
-  const incidentId = String(formData.get('incident_id'));
-  const status = String(formData.get('status')) as IncidentStatus;
-  const silo = String(formData.get('silo')) as Silo;
-  await updateResponderStatus(supabase, { incident_id: incidentId, status });
-  await logAudit(supabase, {
-    silo, action_type: 'StatusChange', entity_type: 'incident', entity_id: incidentId,
-    user_name: fullName, details: `Responder set status → ${status}`,
-  });
-  revalidatePath('/responder');
-}
 
 export async function uploadEvidenceAction(formData: FormData) {
   const { supabase, fullName } = await getSession();

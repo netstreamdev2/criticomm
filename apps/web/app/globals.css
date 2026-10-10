@@ -910,3 +910,31 @@ main table td {
   padding-top: 0.375rem;
   padding-bottom: 0.375rem;
 }
+
+/* ── The console backdrop ────────────────────────────────────────────────
+   Earth at night behind every console screen, for every role. It started on
+   the two control-room desks (call-taker and dispatcher); every dashboard now
+   shares it. Fixed, so it stays put behind long forms. The veil over it keeps
+   cards and headings readable: dark on the dark themes, light on the light
+   ones, where dark text would otherwise sit on a night-time photograph. */
+:root {
+  --backdrop-veil-top: rgb(2 9 20 / 0.55);
+  --backdrop-veil-mid: rgb(2 9 20 / 0.35);
+  --backdrop-veil-bottom: rgb(2 9 20 / 0.65);
+}
+[data-theme='criticom-light'],
+[data-theme='macos'],
+[data-theme='windows'],
+[data-theme='daylight'] {
+  --backdrop-veil-top: rgb(248 250 252 / 0.88);
+  --backdrop-veil-mid: rgb(248 250 252 / 0.78);
+  --backdrop-veil-bottom: rgb(248 250 252 / 0.9);
+}
+.console-backdrop {
+  background-image:
+    linear-gradient(180deg, var(--backdrop-veil-top), var(--backdrop-veil-mid) 45%, var(--backdrop-veil-bottom)),
+    url('/shift-earth-network.png');
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}

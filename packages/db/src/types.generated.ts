@@ -144,6 +144,8 @@ export type Database = {
           id: string;
           silo: Silo;
           dispatched_silos: Silo[];
+          /** Dispatch desks the call was sent to (0068); never shrinks. */
+          tagged_silos: Silo[];
           incident_number: string;
           source: string;
           caller_name: string;
@@ -197,6 +199,12 @@ export type Database = {
           assigned_to_name: string | null;
           assigned_at: string | null;
           assigned_by: string | null;
+          /** Who closed the case, how and why (0061). Absent before 0061 is run. */
+          closed_by?: string | null;
+          closed_by_name?: string | null;
+          /** 'Reviewed' (a resolved case, read and closed) or 'Cancelled' (closed live, without a report). */
+          close_kind?: 'Reviewed' | 'Cancelled' | null;
+          close_reason?: string | null;
         };
         Insert: Partial<Database['public']['Tables']['incidents']['Row']>;
         Update: Partial<Database['public']['Tables']['incidents']['Row']>;
@@ -843,6 +851,39 @@ export type Database = {
         };
         Insert: Partial<Database['public']['Tables']['shift_no_firearm_declarations']['Row']>;
         Update: Partial<Database['public']['Tables']['shift_no_firearm_declarations']['Row']>;
+        Relationships: [];
+      };
+      /** "No vehicle free" at start of shift (migration 0062). Written via declare_shift_no_vehicle(). */
+      shift_no_vehicle_declarations: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          user_id: string;
+          user_name: string | null;
+          reason: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['shift_no_vehicle_declarations']['Row']>;
+        Update: Partial<Database['public']['Tables']['shift_no_vehicle_declarations']['Row']>;
+        Relationships: [];
+      };
+      /** Optional licence and ID photos on the day's shift record (migration 0062). Written via record_shift_documents(). */
+      shift_identity_documents: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          user_id: string;
+          user_name: string | null;
+          /** shift-inspections bucket: <tenant>/<user>/… */
+          licence_path: string | null;
+          id_document_path: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['shift_identity_documents']['Row']>;
+        Update: Partial<Database['public']['Tables']['shift_identity_documents']['Row']>;
         Relationships: [];
       };
       /** Per-tenant document counters behind next_doc_number() (migration 0033). */
@@ -1821,6 +1862,15 @@ export type Database = {
           requires_cleaning: boolean;
           created_at: string;
           updated_at: string;
+          /** Filed against an incident by file_pcr() (0063): "PCR-<incident number>". */
+          report_number: string | null;
+          filed_by: string | null;
+          filed_at: string | null;
+          ambulance_id: string | null;
+          total_response_seconds: number | null;
+          /** The hospital handover (0064), when the patient was taken by ambulance or air. */
+          handover_doctor_name: string | null;
+          handover_patient_status: string | null;
         };
         Insert: Partial<Database['public']['Tables']['paramedic_reports']['Row']>;
         Update: Partial<Database['public']['Tables']['paramedic_reports']['Row']>;
@@ -1865,10 +1915,22 @@ export type Database = {
           signature_base64: string | null;
           time_of_handover: string;
           patient_status_at_handover: string | null;
+          tenant_id: string;
+          /** The patient care report it was handed over with (0064); kept in step from it. */
+          pcr_id: string | null;
+          updated_at: string;
         };
         Insert: Partial<Database['public']['Tables']['legal_handovers']['Row']>;
         Update: Partial<Database['public']['Tables']['legal_handovers']['Row']>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'legal_handovers_pcr_id_fkey';
+            columns: ['pcr_id'];
+            isOneToOne: false;
+            referencedRelation: 'paramedic_reports';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       ambulance_restocks: {
         Row: {
@@ -1910,6 +1972,28 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['disaster_logs']['Row']>;
         Relationships: [];
       };
+      /** Fire safety inspections (0066): V4's CreateInspection, stamped and numbered by the server. */
+      fire_safety_inspections: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          inspection_ref: string | null;
+          business_name: string;
+          address: string;
+          contact_person: string;
+          extinguishers: 'Yes' | 'No' | 'N/A';
+          exits: 'Yes' | 'No';
+          notes: string | null;
+          result: 'PASS' | 'FAIL';
+          inspector_id: string;
+          inspector_name: string | null;
+          inspected_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['fire_safety_inspections']['Row']>;
+        Update: Partial<Database['public']['Tables']['fire_safety_inspections']['Row']>;
+        Relationships: [];
+      };
       post_mortem_reports: {
         Row: {
           id: string;
@@ -1929,6 +2013,9 @@ export type Database = {
           timeline_snapshot: unknown;
           reporting_officer: string | null;
           report_filed_at: string;
+          /** Filed against an incident by file_post_mortem() (0065): "PM-<incident number>". */
+          report_number: string | null;
+          filed_by: string | null;
         };
         Insert: Partial<Database['public']['Tables']['post_mortem_reports']['Row']>;
         Update: Partial<Database['public']['Tables']['post_mortem_reports']['Row']>;
@@ -2342,8 +2429,19 @@ export type Database = {
           /** Stamped in the same transaction (migration 0038). */
           p_incident_category?: string | null;
           p_region?: string | null;
+          /** The dispatch desks that receive the call (0068): at least one. */
+          p_tagged_silos?: Silo[] | null;
         };
         Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      /** Send a call to other departments' dispatch desks (0068). */
+      tag_incident_departments: {
+        Args: { p_incident: string; p_silos: Silo[]; p_note?: string | null };
+        Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      desk_silo: {
+        Args: Record<string, never>;
+        Returns: Silo | null;
       };
       check_duplicate_incident: {
         Args: { p_phone: string | null; p_location: string | null; p_type: string | null };
@@ -2525,6 +2623,11 @@ export type Database = {
         Args: { p_personnel: string; p_reason: string };
         Returns: { status: 'restored' };
       };
+      /** Move someone without an account to another department in the register (0067). */
+      move_register_person: {
+        Args: { p_personnel: string; p_silo: Silo; p_reason: string };
+        Returns: { status: 'moved'; invitations_cancelled: number };
+      };
       change_account_role: {
         Args: { p_user: string; p_role: UserRole; p_reason: string; p_confirm: string; p_silo?: Silo | null };
         Returns: { status: 'applied' | 'pending'; request_id?: string };
@@ -2624,6 +2727,22 @@ export type Database = {
       declare_shift_no_firearm: {
         Args: { p_reason?: string | null };
         Returns: Database['public']['Tables']['shift_no_firearm_declarations']['Row'];
+      };
+      file_post_mortem: {
+        Args: { p_incident_id: string; p_fields: Record<string, string> };
+        Returns: Database['public']['Tables']['post_mortem_reports']['Row'];
+      };
+      file_pcr: {
+        Args: { p_incident_id: string; p_fields: Record<string, string> };
+        Returns: Database['public']['Tables']['paramedic_reports']['Row'];
+      };
+      declare_shift_no_vehicle: {
+        Args: { p_reason?: string | null };
+        Returns: Database['public']['Tables']['shift_no_vehicle_declarations']['Row'];
+      };
+      record_shift_documents: {
+        Args: { p_licence_path?: string | null; p_id_document_path?: string | null };
+        Returns: Database['public']['Tables']['shift_identity_documents']['Row'];
       };
       issue_shift_firearm: {
         Args: {

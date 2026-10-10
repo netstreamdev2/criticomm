@@ -128,6 +128,13 @@ export async function markRegisterLeft(client: CriticomClient, personnelId: stri
   return data as { status: 'left'; invitations_cancelled: number };
 }
 
+/** Put a wrong department right before inviting someone (0067): SystemAdmin and SuperAdmin only. */
+export async function moveRegisterPerson(client: CriticomClient, personnelId: string, silo: Silo, reason: string) {
+  const { data, error } = await client.rpc('move_register_person', { p_personnel: personnelId, p_silo: silo, p_reason: reason });
+  if (error) throw error;
+  return data as { status: 'moved'; invitations_cancelled: number };
+}
+
 export async function restoreRegisterPerson(client: CriticomClient, personnelId: string, reason: string) {
   const { data, error } = await client.rpc('restore_register_person', { p_personnel: personnelId, p_reason: reason });
   if (error) throw error;

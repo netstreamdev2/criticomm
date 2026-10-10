@@ -1,4 +1,5 @@
 import type { IncidentStatus } from '@criticom/db/types';
+import { wordsFor } from './department.ts';
 
 /**
  * How a crew works a call, with no dependencies so it can be tested.
@@ -7,8 +8,10 @@ import type { IncidentStatus } from '@criticom/db/types';
  * goes En Route (responding), On Scene, then files the report — the server
  * resolves the call when the report lands (migration 0039) and refuses a bare
  * "Resolved" from the field. A firefighter works the same way with the fire
- * report (migration 0059), and may mark Transporting on the way. Other
- * services keep the full ladder.
+ * report (migration 0059), and may mark Transporting on the way. A paramedic
+ * works it with the patient care report (migrations 0063, 0064), the same
+ * way, and a Disaster Management officer with the post-mortem (migration
+ * 0065). Other services keep the full ladder.
  */
 
 /** Photos per case file; the server enforces the same number. */
@@ -34,9 +37,22 @@ export function isFireResponder(silo: string | null | undefined) {
   return silo === 'MetroFire';
 }
 
+/** A paramedic works a call with the patient care report, whatever department owns it. */
+export function isEmsResponder(silo: string | null | undefined) {
+  return silo === 'Medical';
+}
+
+/** A Disaster Management officer closes an incident with the post-mortem (migration 0065). */
+export function isDisasterResponder(silo: string | null | undefined) {
+  return silo === 'EthekwiniDisaster';
+}
+
 /** Where the lead files the report that closes the call. */
 export function reportPathFor(incidentId: string, meSilo: string | null | undefined) {
-  return isFireResponder(meSilo) ? `/fire-report/${incidentId}` : `/report/${incidentId}`;
+  if (isFireResponder(meSilo)) return `/fire-report/${incidentId}`;
+  if (isEmsResponder(meSilo)) return `/pcr/${incidentId}`;
+  if (isDisasterResponder(meSilo)) return `/post-mortem/${incidentId}`;
+  return `/report/${incidentId}`;
 }
 
 const FIRE_LADDER: Partial<Record<IncidentStatus, IncidentStatus>> = {
@@ -62,9 +78,14 @@ const LADDER: Partial<Record<IncidentStatus, IncidentStatus>> = {
 /** The one action the crew takes next on this call, if any. */
 export function nextStep(call: CallLike, status: IncidentStatus, meSilo?: string): NextStep {
   if (status === 'Resolved' || status === 'Closed') return null;
-  if (isFireResponder(meSilo)) {
+  if (isFireResponder(meSilo) || isEmsResponder(meSilo) || isDisasterResponder(meSilo)) {
     if (call.report_filed_at) return null;
-    if (status === 'On Scene' || status === 'Transporting') return { kind: 'report', label: 'File fire report' };
+    if (status === 'On Scene' || status === 'Transporting') {
+      return {
+        kind: 'report',
+        label: isEmsResponder(meSilo) ? 'File patient report' : isDisasterResponder(meSilo) ? 'File post-mortem' : 'File fire report',
+      };
+    }
     const to = FIRE_LADDER[status];
     return to ? { kind: 'status', status: to, label: to === 'En Route' ? 'Accept · Mark En Route' : 'Mark On Scene' } : null;
   }
@@ -85,7 +106,7 @@ export function nextStep(call: CallLike, status: IncidentStatus, meSilo?: string
  * Transporting (casualties to hospital, the appliance moving) before filing.
  */
 export function secondaryStep(call: CallLike, status: IncidentStatus, meSilo?: string): NextStep {
-  if (!isFireResponder(meSilo) || call.report_filed_at) return null;
+  if (!(isFireResponder(meSilo) || isEmsResponder(meSilo)) || call.report_filed_at) return null;
   return status === 'On Scene' ? { kind: 'status', status: 'Transporting', label: 'Mark Transporting' } : null;
 }
 
@@ -175,12 +196,13 @@ export function callView(
     ? (queued ?? call.status)
     : role === 'backup' ? (queued ?? mine?.status ?? null) : null;
 
+  const words = wordsFor(me.silo);
   const assignment: Assignment = lead?.user_id === me.userId || (assignedToMe && !lead)
     ? { kind: 'you' }
     : lead
-      ? { kind: 'other', name: lead.name ?? 'another officer' }
+      ? { kind: 'other', name: lead.name ?? `another ${words.person}` }
       : call.assigned_to
-        ? { kind: 'other', name: call.assigned_to_name ?? 'another officer' }
+        ? { kind: 'other', name: call.assigned_to_name ?? `another ${words.person}` }
         : { kind: 'open' };
 
   const ownSos = call.source === 'Responder-Panic' && call.created_by === me.userId;
@@ -199,9 +221,7 @@ export function callView(
   }
   if (role === 'backup') {
     if (myStatus === 'En Route') view.action = { kind: 'status', status: 'On Scene', label: 'Mark On Scene' };
-    else view.note = isFireResponder(me.silo)
-      ? 'You are backup on this incident — the lead firefighter files the fire report.'
-      : 'You are backup on this incident — the lead officer files the report.';
+    else view.note = `You are backup on this incident — the lead ${words.person} files the ${words.report}.`;
     return view;
   }
 
@@ -212,7 +232,7 @@ export function callView(
     return view;
   }
   const asLead = !lead && (!call.assigned_to || assignedToMe);
-  view.action = { kind: 'respond', asLead, label: 'Responding' };
+  view.action = { kind: 'respond', asLead, label: 'Accept' };
   if (me.onDuty === false) view.blocked = 'Go on duty to respond to incidents.';
   return view;
 }

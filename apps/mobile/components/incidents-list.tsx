@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
@@ -15,10 +15,9 @@ import { useFeature } from '@/lib/features';
 import { callView, type CallView, reportPathFor } from '@/lib/response';
 import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { Banner, EmptyState, Segmented } from '@/components/ui';
+import { formatDistance, incidentHaystack, matchesQuery } from '@/lib/incident-search';
+import { confirmAccept } from '@/lib/accept';
 import { IncidentSheet } from '@/components/incident-sheet';
-
-const SEVERITIES = ['Critical', 'High', 'Medium', 'Low'] as const;
-type Severity = (typeof SEVERITIES)[number];
 
 /** Highest severity first, then newest — the order a crew triages in. */
 const SEVERITY_RANK: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
@@ -40,19 +39,16 @@ function distanceKm(from: { lat: number; lng: number }, to: { lat: number; lng: 
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-const formatDistance = (km: number) =>
-  km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(km < 10 ? 1 : 0)} km`;
-
-type Row = { call: FieldIncident; view: CallView; status: IncidentStatus; queued: boolean; km: number | null };
+type Row = { call: FieldIncident; view: CallView; status: IncidentStatus; queued: boolean; km: number | null; haystack: string };
 
 /** The right-hand tag on a row: where this officer stands on the call. */
-function holder(v: CallView): { text: string; tone: string; strong: boolean } {
+function holder(v: CallView): { text: string; tone: string; strong: boolean } | null {
   if (v.ownSos) return { text: 'YOUR SOS', tone: colors.critical, strong: true };
   if (v.role === 'lead') return { text: 'YOU · LEAD', tone: colors.accent, strong: true };
   if (v.role === 'backup') return { text: 'YOU · BACKUP', tone: colors.accent, strong: true };
   if (v.assignment.kind === 'you') return { text: 'ASSIGNED TO YOU', tone: colors.accent, strong: true };
   if (v.assignment.kind === 'other') return { text: v.assignment.name, tone: colors.muted, strong: false };
-  return { text: 'OPEN', tone: colors.low, strong: false };
+  return null;
 }
 
 /** "My incidents" filters on the officer's own place on each incident. */
@@ -60,15 +56,16 @@ const MINE_STATES = ['All', 'Waiting', 'En route', 'On scene'] as const;
 
 /**
  * Incidents — every live incident sent to this officer's department or assigned to
- * them, whoever holds it (migration 0042). One slim row per call, coloured by
- * severity and filterable; tapping a row opens a swipe-up drawer with the
- * details and the one thing to do next: Responding (lead or backup), then the
- * ladder. An officer may hold several calls at once.
+ * them, whoever holds it. One slim row per call, coloured by severity, with a
+ * search box and the live distance from the officer; tapping a row opens a
+ * swipe-up drawer with the details and the one thing to do next. An officer
+ * may hold several calls at once.
  */
 export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
   const styles = useStyles();
   const router = useRouter();
-  const params = useLocalSearchParams<{ open?: string }>();
+  const params = useLocalSearchParams<{ open?: string; search?: string }>();
+  const searchBox = useRef<TextInput>(null);
   const { session, silo } = useAuth();
   const { onDuty } = useDuty();
   const { enqueue, pending } = useSync();
@@ -82,14 +79,14 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
   // The tab scopes by who holds an incident; My incidents by where I am on it.
   const scopes: readonly string[] = useMemo(
     () => (mineOnly ? MINE_STATES
-      : nearbyOn ? (['All', 'Mine', 'Open', 'Nearby'] as const) : (['All', 'Mine', 'Open'] as const)),
+      : nearbyOn ? (['All', 'Mine', 'Nearby'] as const) : (['All', 'Mine'] as const)),
     [nearbyOn, mineOnly],
   );
   const [scope, setScope] = useState<string>('All');
   const [sort, setSort] = useState<Sort>('Newest');
   // Back to newest whenever the tab is opened.
   useFocusEffect(useCallback(() => { setSort('Newest'); }, []));
-  const [severities, setSeverities] = useState<Set<Severity>>(new Set());
+  const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [here, setHere] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -128,22 +125,37 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
     if (params.open) setSelectedId(params.open);
   }, [params.open]);
 
-  // Distances on every row when a fix is available; asked for once, quietly.
+  // Opened from the header search: the box is ready to type in.
   useEffect(() => {
+    if (!params.search) return;
+    const t = setTimeout(() => searchBox.current?.focus(), 250);
+    return () => clearTimeout(t);
+  }, [params.search]);
+
+  // Live distance on every row: the phone's position is watched while the
+  // list is open, so metres count down as the officer drives.
+  const [locationDenied, setLocationDenied] = useState(false);
+  useFocusEffect(useCallback(() => {
+    let sub: Location.LocationSubscription | null = null;
+    let cancelled = false;
     void (async () => {
       try {
-        const { status } = await Location.getForegroundPermissionsAsync();
-        const granted = status === 'granted'
-          || ((scope === 'Nearby' || sort === 'Nearest')
-            && (await Location.requestForegroundPermissionsAsync()).status === 'granted');
-        if (!granted) return;
-        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-        setHere({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        let { status } = await Location.getForegroundPermissionsAsync();
+        if (status !== 'granted') status = (await Location.requestForegroundPermissionsAsync()).status;
+        if (cancelled) return;
+        if (status !== 'granted') { setLocationDenied(true); return; }
+        setLocationDenied(false);
+        const watch = await Location.watchPositionAsync(
+          { accuracy: Location.Accuracy.High, distanceInterval: 10, timeInterval: 3000 },
+          (pos) => setHere({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        );
+        if (cancelled) watch.remove(); else sub = watch;
       } catch {
         // No fix: rows simply show no distance.
       }
     })();
-  }, [scope, sort]);
+    return () => { cancelled = true; sub?.remove(); };
+  }, []));
 
   /** Statuses set on this phone that have not reached the server yet. */
   const queuedStatus = useMemo(() => {
@@ -166,10 +178,11 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
     const km = here && (call.location_lat || call.location_lng)
       ? distanceKm(here, { lat: call.location_lat, lng: call.location_lng })
       : null;
-    return { call, view, status, queued: queued !== null, km };
+    const haystack = incidentHaystack({ ...call, status, at: call.dispatch_time ?? call.incident_created_at });
+    return { call, view, status, queued: queued !== null, km, haystack };
   }), [calls, queuedStatus, me, here]);
 
-  // Scope first, so the severity chips count what the scope shows.
+  // Scope first, then the search box.
   const scoped = useMemo(() => rows.filter((r) => {
     const mine = r.view.role !== null || r.view.assignment.kind === 'you';
     if (mineOnly) {
@@ -182,21 +195,12 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
       return true;
     }
     if (scope === 'Mine') return mine;
-    if (scope === 'Open') return r.view.assignment.kind === 'open';
     if (scope === 'Nearby') return here ? r.km !== null && r.km <= NEARBY_KM : true;
     return true;
   }), [rows, scope, here, mineOnly]);
 
-  const sevCount = useMemo(() => {
-    const c: Record<string, number> = {};
-    for (const r of scoped) c[r.call.incident_severity] = (c[r.call.incident_severity] ?? 0) + 1;
-    return c;
-  }, [scoped]);
-
   const list = useMemo(() => {
-    const shown = severities.size
-      ? scoped.filter((r) => severities.has(r.call.incident_severity as Severity))
-      : scoped;
+    const shown = query.trim() ? scoped.filter((r) => matchesQuery(r.haystack, query)) : scoped;
     const sent = (r: Row) => new Date(r.call.dispatch_time ?? r.call.incident_created_at).getTime();
     // Ties always fall back to newest first.
     return [...shown].sort((a, b) => {
@@ -209,15 +213,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
       }
       return sent(b) - sent(a);
     });
-  }, [scoped, severities, sort]);
-
-  const toggleSeverity = (s: Severity) => {
-    setSeverities((cur) => {
-      const next = new Set(cur);
-      if (next.has(s)) next.delete(s); else next.add(s);
-      return next;
-    });
-  };
+  }, [scoped, query, sort]);
 
   const selected = rows.find((r) => r.call.id === selectedId) ?? null;
 
@@ -229,6 +225,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
       router.push(reportPathFor(row.call.id, silo) as never);
       return;
     }
+    if (action.kind === 'respond' && !(await confirmAccept(row.call.incident_number))) return;
     setBusyId(row.call.id);
     try {
       // Queued, not sent: returns once it is on disk, so a dead zone never
@@ -251,41 +248,31 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
     const sev = severityColor(item.call.incident_severity);
     const tag = holder(item.view);
     const mine = item.view.role !== null || item.view.assignment.kind === 'you';
-    const backups = item.view.backups.length;
     return (
       <Pressable
         onPress={() => setSelectedId(item.call.id)}
         accessibilityRole="button"
-        accessibilityLabel={`${item.call.incident_severity} ${item.call.incident_type}, ${item.call.incident_number}, ${tag.text}`}
+        accessibilityLabel={`${item.call.incident_severity} ${item.call.incident_type}, ${item.call.incident_number}${item.km !== null ? `, ${formatDistance(item.km)} away` : ''}${tag ? `, ${tag.text}` : ''}`}
         style={({ pressed }) => [styles.row, mine && styles.rowMine, pressed && { opacity: 0.8 }]}
       >
         <View style={[styles.sevBar, { backgroundColor: sev }]} />
         <View style={styles.rowMain}>
           <View style={styles.rowLine}>
             <Text style={styles.rowTitle} numberOfLines={1}>{item.call.incident_type}</Text>
-            <Text style={styles.rowTime}>{timeAgo(item.call.dispatch_time ?? item.call.incident_created_at)}</Text>
-          </View>
-          <View style={styles.rowLine}>
-            <Text style={styles.rowSub} numberOfLines={1}>
-              <Text style={styles.rowNumber}>{item.call.incident_number}</Text>
-              {'  '}{item.call.location_address}
-            </Text>
             {item.km !== null ? <Text style={styles.rowKm}>{formatDistance(item.km)}</Text> : null}
           </View>
           <View style={styles.rowLine}>
             <Text style={[styles.rowStatus, { color: sev }]}>{item.status.toUpperCase()}</Text>
             {item.queued ? <Ionicons name="time-outline" size={11} color={colors.medium} /> : null}
-            <View style={{ flex: 1 }} />
-            {backups > 0 ? <Text style={styles.rowBackup}>+{backups} backup</Text> : null}
-            <Text
-              style={[styles.rowTag, { color: tag.tone, borderColor: `${tag.tone}66` }, tag.strong && { backgroundColor: `${tag.tone}22` }]}
-              numberOfLines={1}
-            >
-              {tag.text}
-            </Text>
+            <Text style={styles.rowSub} numberOfLines={1}>{item.call.location_address}</Text>
+            {tag?.strong ? (
+              <Text style={[styles.rowTag, { color: tag.tone, borderColor: `${tag.tone}66`, backgroundColor: `${tag.tone}22` }]} numberOfLines={1}>
+                {tag.text}
+              </Text>
+            ) : null}
+            <Text style={styles.rowTime}>{timeAgo(item.call.dispatch_time ?? item.call.incident_created_at)}</Text>
           </View>
         </View>
-        <Ionicons name="chevron-forward" size={16} color={colors.muted} />
       </Pressable>
     );
   };
@@ -321,48 +308,37 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
               </Pressable>
             ) : null}
 
-            <Segmented options={scopes} value={scope} onChange={setScope} />
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
-              {SEVERITIES.map((s) => {
-                const on = severities.has(s);
-                const tone = severityColor(s);
-                return (
-                  <Pressable
-                    key={s}
-                    onPress={() => toggleSeverity(s)}
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked: on }}
-                    accessibilityLabel={`${s} severity`}
-                    style={[styles.chip, { borderColor: on ? tone : colors.border }, on && { backgroundColor: `${tone}26` }]}
-                  >
-                    <View style={[styles.chipDot, { backgroundColor: tone }]} />
-                    <Text style={[styles.chipText, on && { color: colors.text }]}>{s}</Text>
-                    <Text style={styles.chipCount}>{sevCount[s] ?? 0}</Text>
-                  </Pressable>
-                );
-              })}
-              {severities.size ? (
-                <Pressable onPress={() => setSeverities(new Set())} style={styles.clear} accessibilityRole="button">
-                  <Text style={styles.clearText}>Clear</Text>
+            <View style={styles.search}>
+              <Ionicons name="search" size={16} color={colors.muted} />
+              <TextInput
+                ref={searchBox}
+                value={query}
+                onChangeText={setQuery}
+                placeholder="Search incident, address, severity or date"
+                placeholderTextColor={colors.muted}
+                style={styles.searchInput}
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="search"
+                clearButtonMode="never"
+                accessibilityLabel="Search incidents"
+              />
+              {query ? (
+                <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear search">
+                  <Ionicons name="close-circle" size={17} color={colors.muted} />
                 </Pressable>
               ) : null}
-            </ScrollView>
-
-            <View style={styles.summary}>
-              <Text style={styles.summaryText}>
-                {list.length} incident{list.length === 1 ? '' : 's'}
-                {urgent ? <Text style={{ color: colors.critical }}> · {urgent} urgent</Text> : null}
-              </Text>
-              <View style={styles.live}>
-                <View style={styles.liveDot} />
-                <Text style={styles.liveText}>Live</Text>
-              </View>
             </View>
 
+            <Segmented options={scopes} value={scope} onChange={setScope} />
+
             <View style={styles.sortRow} accessibilityRole="radiogroup" accessibilityLabel="Sort incidents">
-              <Ionicons name="swap-vertical" size={13} color={colors.muted} />
-              <Text style={styles.sortLabel}>Sort</Text>
+              <Text style={styles.summaryText}>
+                {list.length}
+                {urgent ? <Text style={{ color: colors.critical }}> · {urgent} urgent</Text> : null}
+              </Text>
+              <View style={styles.liveDot} />
+              <View style={{ flex: 1 }} />
               {SORTS.map((s) => {
                 const on = sort === s;
                 return (
@@ -380,19 +356,21 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
               })}
             </View>
 
-            {scope === 'Nearby' && !here ? (
-              <Text style={styles.hint}>Allow location access to see incidents within {NEARBY_KM} km. Showing all meanwhile.</Text>
-            ) : sort === 'Nearest' && !here ? (
-              <Text style={styles.hint}>Allow location access to sort by distance. Showing newest meanwhile.</Text>
+            {(scope === 'Nearby' || sort === 'Nearest') && !here ? (
+              <Text style={styles.hint}>
+                {locationDenied ? 'Allow location access to see distances.' : 'Finding your location…'}
+              </Text>
             ) : null}
           </View>
         )}
         ListEmptyComponent={loading ? null : (
           <EmptyState
             icon={mineOnly || scope === 'Mine' ? 'person-outline' : 'radio-outline'}
-            title={mineOnly && scope !== 'All' ? `Nothing ${scope.toLowerCase()}`
+            title={query.trim() ? 'No incidents match your search'
+              : mineOnly && scope !== 'All' ? `Nothing ${scope.toLowerCase()}`
               : mineOnly || scope === 'Mine' ? 'Nothing assigned to you' : 'No live incidents'}
-            body={mineOnly || scope === 'Mine'
+            body={query.trim() ? 'Try an incident number, street, severity or a date such as 05-08-2026.'
+              : mineOnly || scope === 'Mine'
               ? 'Incidents you respond to, or that dispatch assigns to you, show here.'
               : 'Incidents appear here the moment dispatch sends them to your department or assigns them to you.'}
           />
@@ -425,26 +403,17 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
 const useStyles = makeStyles(() => StyleSheet.create({
   list: { padding: space.lg, paddingBottom: space['3xl'] },
 
-  chips: { gap: space.sm, paddingVertical: space.md },
-  chip: {
-    flexDirection: 'row', alignItems: 'center', gap: 6, height: 32, paddingHorizontal: 10,
-    borderRadius: radius.pill, borderWidth: 1, backgroundColor: colors.bgCard,
+  search: {
+    flexDirection: 'row', alignItems: 'center', gap: space.sm, height: 42, paddingHorizontal: space.md,
+    marginBottom: space.sm, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
   },
-  chipDot: { width: 8, height: 8, borderRadius: 4 },
-  chipText: { ...type.small, fontSize: 12, color: colors.textDim, fontWeight: '700' },
-  chipCount: { ...type.small, fontSize: 11, color: colors.muted, fontWeight: '700' },
-  clear: { height: 32, justifyContent: 'center', paddingHorizontal: 6 },
-  clearText: { ...type.small, fontSize: 12, color: colors.accent, fontWeight: '700' },
+  searchInput: { flex: 1, color: colors.text, fontSize: 14, paddingVertical: 0 },
 
-  summary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   summaryText: { ...type.small, color: colors.muted, fontWeight: '700' },
-  live: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   liveDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.low },
-  liveText: { ...type.small, fontSize: 12, color: colors.low, fontWeight: '700' },
   hint: { ...type.small, fontSize: 12, color: colors.muted, marginTop: 4 },
 
   sortRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: space.sm },
-  sortLabel: { ...type.small, fontSize: 12, color: colors.muted, fontWeight: '700', marginRight: 2 },
   sortPill: {
     paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill,
     borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
@@ -460,17 +429,15 @@ const useStyles = makeStyles(() => StyleSheet.create({
   },
   rowMine: { borderColor: `${colors.accent}88` },
   sevBar: { width: 5, alignSelf: 'stretch' },
-  rowMain: { flex: 1, minWidth: 0, paddingVertical: 8, gap: 2 },
+  rowMain: { flex: 1, minWidth: 0, paddingVertical: 7, gap: 2 },
   rowLine: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   rowTitle: { ...type.small, fontSize: 14, color: colors.text, fontWeight: '800', flex: 1 },
   rowTime: { ...type.small, fontSize: 11, color: colors.muted },
   rowSub: { ...type.small, fontSize: 12, color: colors.muted, flex: 1 },
-  rowNumber: { ...type.mono, fontSize: 11, color: colors.accent },
-  rowKm: { ...type.small, fontSize: 11, color: colors.accent, fontWeight: '800' },
+  rowKm: { ...type.small, fontSize: 12, color: colors.accent, fontWeight: '800', fontVariant: ['tabular-nums'] },
   rowStatus: { fontSize: 10, fontWeight: '900', letterSpacing: 0.6 },
-  rowBackup: { fontSize: 10, color: colors.muted, fontWeight: '700' },
   rowTag: {
-    maxWidth: 150, fontSize: 9, fontWeight: '900', letterSpacing: 0.6,
+    maxWidth: 110, fontSize: 9, fontWeight: '900', letterSpacing: 0.6,
     paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, borderWidth: 1, overflow: 'hidden',
   },
 }));

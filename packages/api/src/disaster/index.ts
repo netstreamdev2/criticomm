@@ -2,6 +2,33 @@ import type { CriticomClient, Database } from '@criticom/db';
 
 type Tables = Database['public']['Tables'];
 
+type Incident = Tables['incidents']['Row'];
+
+/**
+ * DisasterController.GetActiveIncidents — the Disaster Management incidents
+ * still open (owned by Disaster or sent to it), newest first.
+ */
+export async function listOpenDisasterIncidents(client: CriticomClient): Promise<Incident[]> {
+  const { data, error } = await client
+    .from('incidents')
+    .select('*')
+    .or('silo.eq.EthekwiniDisaster,dispatched_silos.cs.{EthekwiniDisaster}')
+    .not('status', 'in', '("Resolved","Closed")')
+    .order('call_timestamp', { ascending: false })
+    .limit(200);
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** The deployment log for one incident, if resources were dispatched (one per incident, as V4). */
+export async function getDisasterLogForIncident(client: CriticomClient, incidentId: string) {
+  const { data, error } = await client
+    .from('disaster_logs').select('*').eq('incident_id', incidentId)
+    .order('dispatch_timestamp', { ascending: false }).limit(1).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 /** DisasterController.Monitor — active disaster logs */
 export async function listDisasterLogs(client: CriticomClient) {
   const { data, error } = await client
@@ -12,13 +39,24 @@ export async function listDisasterLogs(client: CriticomClient) {
   return data ?? [];
 }
 
-/** DisasterController.DispatchResources POST */
+/** DisasterController.DispatchResources POST (a new log; see updateDisasterLog for one already dispatched) */
 export async function createDisasterLog(
   client: CriticomClient,
   input: Tables['disaster_logs']['Insert'],
 ) {
   const { data, error } = await client
     .from('disaster_logs').insert(input).select().single();
+  if (error) throw error;
+  return data;
+}
+
+/** DisasterController.DispatchResources POST for an incident already dispatched: the log is updated, as V4 did. */
+export async function updateDisasterLog(
+  client: CriticomClient,
+  id: string,
+  patch: Tables['disaster_logs']['Update'],
+) {
+  const { data, error } = await client.from('disaster_logs').update(patch).eq('id', id).select().single();
   if (error) throw error;
   return data;
 }
@@ -52,14 +90,29 @@ export async function listMutualAidPartners(client: CriticomClient, resourceType
 }
 
 /** DisasterController.PostMortem POST — after-action report */
-export async function createPostMortem(
+type PostMortem = Tables['post_mortem_reports']['Row'];
+
+/**
+ * File the post-mortem that closes a Disaster incident (0065). The server
+ * checks who may file, links it to the incident, takes the timeline, resolves
+ * the incident and tells dispatch. Replaying it returns the report filed.
+ */
+export async function filePostMortem(
   client: CriticomClient,
-  input: Tables['post_mortem_reports']['Insert'],
-) {
-  const { data, error } = await client
-    .from('post_mortem_reports').insert(input).select().single();
+  args: { incidentId: string; fields: Record<string, string> },
+): Promise<PostMortem> {
+  const { data, error } = await client.rpc('file_post_mortem', { p_incident_id: args.incidentId, p_fields: args.fields });
   if (error) throw error;
-  return data;
+  return data as PostMortem;
+}
+
+/** The post-mortem filed against an incident, if any. */
+export async function getPostMortemForIncident(client: CriticomClient, incidentId: string): Promise<PostMortem | null> {
+  const { data, error } = await client
+    .from('post_mortem_reports').select('*').eq('incident_id', incidentId)
+    .order('report_filed_at', { ascending: true }).limit(1).maybeSingle();
+  if (error) throw error;
+  return data as PostMortem | null;
 }
 
 export async function listPostMortems(client: CriticomClient) {

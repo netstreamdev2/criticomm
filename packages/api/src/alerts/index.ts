@@ -1,4 +1,5 @@
 import type { CriticomClient, Database, Silo, AlertKind, AlertPresentation } from '@criticom/db';
+import { subscribeSignedIn } from '../realtime/join';
 
 export type Alert = Database['public']['Tables']['alerts']['Row'];
 export type PushToken = Database['public']['Tables']['push_tokens']['Row'];
@@ -178,8 +179,8 @@ export function subscribeAlerts(
       'postgres_changes' as never,
       { event: 'INSERT', schema: 'public', table: 'alerts', filter },
       (payload: { new: Alert }) => onAlert(payload.new),
-    )
-    .subscribe();
+    );
+  subscribeSignedIn(client, channel);
   return () => {
     void client.removeChannel(channel);
   };
@@ -223,8 +224,8 @@ export function subscribeMyAlertReads(
       { event: 'DELETE', schema: 'public', table: 'alert_reads', filter },
       (payload: { old: AlertRead }) =>
         handlers.onChange({ type: 'unread', alertId: payload.old?.alert_id }),
-    )
-    .subscribe((status: string) => handlers.onStatus?.(status));
+    );
+  subscribeSignedIn(client, channel, (status: string) => handlers.onStatus?.(status));
   return () => {
     void client.removeChannel(channel);
   };

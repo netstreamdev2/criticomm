@@ -5,16 +5,18 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Ambulance, ArrowLeft, Flame, Loader2, MapPin, Megaphone, Paperclip, Phone,
-  Radio, Shield, Siren, Timer, Waves,
+  Plus, Radio, Shield, Siren, Timer, Trash2, Waves,
 } from 'lucide-react';
 import {
   checkDuplicateIncident, logIncomingCall, routeIncident, uploadIncidentEvidence,
 } from '@criticom/api';
-import type { LogIncomingCallInput, Silo } from '@criticom/db';
+import { DEPARTMENT_NAMES, suggestedDesks, type LogIncomingCallInput, type Silo } from '@criticom/db';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { LocationPicker } from '@/components/location-picker';
 import { useToast } from '@/components/toast';
 import { cn } from '@/lib/utils';
+import { COUNTRIES, DEFAULT_COUNTRY, checkPhone } from '@/lib/phone';
+import { regionFor } from '@/lib/durban-regions';
 
 type CategoryTree = Array<{
   id: string; code: string | null; name: string;
@@ -34,17 +36,19 @@ const DEPARTMENTS: Array<{
 ];
 
 const SILO_LABELS: Record<Department, string> = {
-  MetroPolice: 'Metro Police',
-  MetroFire: 'Fire & Rescue',
-  Medical: 'EMS / Medical',
-  EthekwiniDisaster: 'Disaster Mgmt',
+  MetroPolice: DEPARTMENT_NAMES.MetroPolice,
+  MetroFire: DEPARTMENT_NAMES.MetroFire,
+  Medical: DEPARTMENT_NAMES.Medical,
+  EthekwiniDisaster: DEPARTMENT_NAMES.EthekwiniDisaster,
 };
+const deskList = (ds: Department[]) => ds.map((d) => SILO_LABELS[d]).join(', ');
 
 const SEVERITIES = ['Low', 'Medium', 'High', 'Critical'] as const;
 const REGIONS = ['Central', 'North', 'South', 'West', 'Outer'] as const;
-const VICTIM_COUNTS = ['1', '2', '3', '4', '5', '6-10', '10+'] as const;
+const VICTIM_COUNTS: Array<[string, string]> = [['0', '0'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', 'Multiple (5+)']];
 const MED_PRIORITIES = [
-  'P1 — Red (Immediate)', 'P2 — Yellow (Urgent)', 'P3 — Green (Delayed)', 'P4 — Blue (Expectant)',
+  'P1 - RED: Critical / Life Threatening', 'P2 - ORANGE: Urgent / Serious',
+  'P3 - YELLOW: Minor / Walking Wounded', 'P4 - BLUE: Deceased (Mortuary)',
 ] as const;
 
 /** Tunables from Admin → Operations Settings, with the code defaults. */
@@ -97,7 +101,13 @@ export function LogCallForm({
 
   const [callerName, setCallerName] = useState('');
   const [isPatient, setIsPatient] = useState<boolean | null>(null);
+  // When the caller is not the patient: the patients' names, if known.
+  const [patientNames, setPatientNames] = useState<string[]>(['']);
   const [phone, setPhone] = useState('');
+  const [countryIso, setCountryIso] = useState(DEFAULT_COUNTRY.iso);
+  // Shown once the call-taker leaves the field, or tries to submit.
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const phoneCheck = useMemo(() => checkPhone(phone, countryIso), [phone, countryIso]);
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
   const [lat, setLat] = useState<number | null>(null);
@@ -106,6 +116,8 @@ export function LogCallForm({
   const [city, setCity] = useState('Durban');
   const [postal, setPostal] = useState('');
   const [region, setRegion] = useState('');
+  // True while the region is the one the pin gave, not one chosen by hand.
+  const [regionFromMap, setRegionFromMap] = useState(false);
   const [incidentType, setIncidentType] = useState('');
   const [category, setCategory] = useState('');
   // No default: severity decides whether crews get a toast or a blocking
@@ -117,22 +129,39 @@ export function LogCallForm({
   const [notes, setNotes] = useState('');
   const [file, setFile] = useState<File | null>(null);
 
-  /* ── Routing ────────────────────────────────────────────────────── */
+  /* ── Which dispatch desks get the call (0068) ───────────────────── */
+  // Only the tagged departments' dispatchers receive it. The incident code
+  // (and anyone hurt) suggests them until the call taker chooses by hand.
   const [targets, setTargets] = useState<Department[]>(lockedSilo ? [initialDept] : []);
+  const [targetsTouched, setTargetsTouched] = useState(false);
+  // Desk chairs may send it straight to the crews on duty instead of the queue.
+  const [dispatchNow, setDispatchNow] = useState(false);
 
   const toggleTarget = (id: Department) => {
+    setTargetsTouched(true);
     setTargets((cur) => (cur.includes(id) ? cur.filter((s) => s !== id) : [...cur, id]));
   };
   const broadcastAll = () => {
+    setTargetsTouched(true);
     setTargets(DEPARTMENTS.map((d) => d.id));
     setSeverity('Critical');
+    if (canRoute) setDispatchNow(true);
     toast.push({
       title: 'Broadcast armed',
-      body: 'All four departments will be alerted on dispatch.',
+      body: canRoute ? 'All four departments will be alerted on dispatch.' : 'All four dispatch desks will receive this call.',
       tone: 'critical',
       duration: 5000,
     });
   };
+
+  useEffect(() => {
+    if (targetsTouched) return;
+    const suggested = suggestedDesks({
+      category, incidentType, victims: victims === '' ? null : Number(victims), emsNotRequired,
+    });
+    const own: Department[] = lockedSilo ? [initialDept] : [];
+    setTargets(DEPARTMENTS.map((d) => d.id).filter((d) => own.includes(d) || suggested.includes(d)));
+  }, [category, incidentType, victims, emsNotRequired, targetsTouched, lockedSilo, initialDept]);
 
   /* ── Address ⇄ coordinates ──────────────────────────────────────── */
   const [suggestions, setSuggestions] = useState<Array<{
@@ -161,6 +190,17 @@ export function LogCallForm({
     return () => clearTimeout(t);
   }, [address]);
 
+  /** The region follows the pin: every new location sets it again. */
+  const setRegionFromLocation = useCallback((la: number, ln: number, sub?: string | null) => {
+    const found = regionFor(la, ln, sub);
+    if (found) {
+      setRegion(found);
+      setRegionFromMap(true);
+    } else {
+      setRegionFromMap(false);
+    }
+  }, []);
+
   const applySuggestion = (s: (typeof suggestions)[number]) => {
     suppressLookup.current = true;
     setAddress(s.label.split(',').slice(0, 3).join(',').trim());
@@ -169,6 +209,7 @@ export function LogCallForm({
     if (s.suburb) setSuburb(s.suburb);
     if (s.city) setCity(s.city);
     if (s.postalCode) setPostal(s.postalCode);
+    setRegionFromLocation(s.lat, s.lng, s.suburb);
     setSuggestions([]);
   };
 
@@ -176,6 +217,7 @@ export function LogCallForm({
   const onPickPoint = useCallback(async ({ lat: la, lng: ln }: { lat: number; lng: number }) => {
     setLat(la);
     setLng(ln);
+    setRegionFromLocation(la, ln);
     try {
       const res = await fetch(`/api/geocode?lat=${la}&lng=${ln}`);
       const data = (await res.json()) as { results?: typeof suggestions };
@@ -186,10 +228,11 @@ export function LogCallForm({
       if (hit.suburb) setSuburb(hit.suburb);
       if (hit.city) setCity(hit.city);
       if (hit.postalCode) setPostal(hit.postalCode);
+      if (hit.suburb) setRegionFromLocation(la, ln, hit.suburb);
     } catch {
       /* keep the coordinates; the address stays whatever was typed */
     }
-  }, []);
+  }, [setRegionFromLocation]);
 
   /* ── Helpers ────────────────────────────────────────────────────── */
   const codeGroups = useMemo(
@@ -204,10 +247,11 @@ export function LogCallForm({
   };
 
   const checkDup = () => {
-    if (!phone && !address) return;
+    const caller = phoneCheck.ok ? phoneCheck.e164 : null;
+    if (!caller && !address) return;
     void (async () => {
       const dupe = await checkDuplicateIncident(getBrowserSupabase(), {
-        phone: phone || null, location: address || null, type: incidentType || null,
+        phone: caller, location: address || null, type: incidentType || null,
       });
       setDuplicate(dupe ?? null);
       if (dupe) {
@@ -221,9 +265,12 @@ export function LogCallForm({
   };
 
   const dial = () => {
-    if (!phone) return;
+    if (!phoneCheck.ok) {
+      setPhoneTouched(true);
+      return;
+    }
     // Zoiper and most softphones register the tel: scheme.
-    window.location.href = `tel:${phone.replace(/\s+/g, '')}`;
+    window.location.href = `tel:${phoneCheck.e164}`;
   };
 
   /* ── Submit ─────────────────────────────────────────────────────── */
@@ -232,7 +279,11 @@ export function LogCallForm({
     setError(null);
 
     if (!callerName.trim()) return setError('Caller name is required.');
-    if (!phone.trim()) return setError('Citizen phone number is required.');
+    if (!phoneCheck.ok) {
+      setPhoneTouched(true);
+      return setError(phoneCheck.error);
+    }
+    if (isPatient === null) return setError('Say whether the caller is the patient.');
     if (!incidentType) return setError('Select an incident code.');
     if (!description.trim()) return setError('Call description is required.');
     if (!address.trim()) return setError('Location address is required.');
@@ -241,6 +292,9 @@ export function LogCallForm({
     }
     if (!region) return setError('Select the region.');
     if (!severity) return setError('Select the incident severity.');
+    if (!emsNotRequired && victims === '') return setError('Select the number of victims.');
+    if (!emsNotRequired && !medPriority) return setError('Select a medical severity code.');
+    if (targets.length === 0) return setError('Choose the department this call is for: who must receive it.');
 
     // With departments selected (dispatch-desk chairs), the call routes on
     // submit. Without — a pure call-taker's flow — it lands in the pending
@@ -249,12 +303,12 @@ export function LogCallForm({
     // is Ethekwini, so an unrouted call is visible to the control room and the
     // dispatch desk only — not to every officer in whichever service the form
     // happened to default to.
-    const routing = canRoute && targets.length > 0;
+    const routing = canRoute && dispatchNow;
     const owner: Silo = routing ? targets[0]! : defaultSilo;
     const payload: LogIncomingCallInput = {
       silo: owner,
       caller_name: callerName.trim(),
-      caller_number: phone.trim(),
+      caller_number: phoneCheck.e164,
       call_description: description.trim(),
       incident_type: incidentType,
       incident_severity: severity,
@@ -265,15 +319,17 @@ export function LogCallForm({
       city: city.trim() || null,
       postal_code: postal.trim() || null,
       is_caller_patient: isPatient,
-      number_of_victims: victims
-        ? (victims === '10+' ? 10 : victims === '6-10' ? 8 : Number(victims))
-        : null,
+      patient_name: isPatient
+        ? callerName.trim()
+        : (patientNames.map((n) => n.trim()).filter(Boolean).join(', ') || 'Unknown / Not Provided'),
+      number_of_victims: emsNotRequired ? 0 : victims === '' ? null : Number(victims),
       medical_type: emsNotRequired ? 'EMS Not Required' : (medPriority || null),
       notes: notes.trim() || null,
       // Stamped by log_incoming_call in the same transaction (migration 0038);
       // the call-taker's name is taken from their profile on the server.
       incident_category: category || null,
       region,
+      tagged_silos: targets,
     };
 
     start(async () => {
@@ -331,16 +387,16 @@ export function LogCallForm({
 
             toast.push({
               title: `${incident.incident_number} dispatched`,
-              body: `Sent to everyone on duty in ${targets.map((t) => SILO_LABELS[t]).join(', ')}.`,
+              body: `Sent to everyone on duty in ${deskList(targets)}.`,
               tone: 'success',
               badge: severity,
             });
           }
         } else {
-          // The intake desk's flow: log it and hand it to the dispatcher.
+          // The intake desk's flow: log it and hand it to the tagged desks.
           toast.push({
             title: `${incident.incident_number} logged`,
-            body: 'In the pending queue — the dispatch desk takes it from here.',
+            body: `Sent to the ${deskList(targets)} dispatch desk${targets.length === 1 ? '' : 's'}. Only they receive it.`,
             tone: 'success',
             badge: severity,
           });
@@ -405,26 +461,58 @@ export function LogCallForm({
             <div>
               <label className={label} htmlFor="callerPhone">Contact citizen</label>
               <div className="flex items-center gap-2">
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-soft text-severity-low-ink">
-                  <Phone className="h-4 w-4" />
-                </span>
+                <label htmlFor="callerCountry" className="sr-only">Country of the caller’s number</label>
+                <select
+                  id="callerCountry"
+                  className={cn(field, 'w-[7.5rem] shrink-0 px-2')}
+                  value={countryIso}
+                  onChange={(e) => setCountryIso(e.target.value)}
+                  title={COUNTRIES.find((c) => c.iso === countryIso)?.name}
+                >
+                  {COUNTRIES.map((c) => (
+                    <option key={c.iso} value={c.iso}>{c.iso} +{c.code}</option>
+                  ))}
+                </select>
                 <input
-                  id="callerPhone" className={field} placeholder="e.g. 082 123 4567" inputMode="tel"
-                  value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={checkDup}
+                  id="callerPhone"
+                  className={cn(field, phoneTouched && !phoneCheck.ok && 'border-severity-critical focus:border-severity-critical')}
+                  placeholder={`e.g. ${COUNTRIES.find((c) => c.iso === countryIso)?.example ?? DEFAULT_COUNTRY.example}`}
+                  inputMode="tel" autoComplete="off" maxLength={24}
+                  aria-invalid={phoneTouched && !phoneCheck.ok}
+                  aria-describedby="callerPhoneHelp"
+                  value={phone}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    setPhone(next);
+                    // A whole international number (+1 …, 0044 …) brings its country.
+                    const seen = checkPhone(next, countryIso);
+                    if (/^\s*(\+|00)/.test(next) && seen.country.iso !== countryIso) setCountryIso(seen.country.iso);
+                  }}
+                  onBlur={() => { setPhoneTouched(true); checkDup(); }}
                 />
                 <button
-                  type="button" onClick={dial} disabled={!phone}
+                  type="button" onClick={dial} disabled={!phoneCheck.ok}
                   className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-severity-low px-5 text-xs font-bold uppercase tracking-wider transition-opacity hover:opacity-90 disabled:opacity-40"
                 >
                   <Phone className="h-3.5 w-3.5" /> Call
                 </button>
               </div>
+              <p id="callerPhoneHelp" className={cn('mt-1.5 text-xs', phoneTouched && !phoneCheck.ok ? 'text-severity-critical-ink' : 'text-muted-foreground')}>
+                {phoneCheck.ok
+                  ? `Saved as ${phoneCheck.display}`
+                  : phoneTouched ? phoneCheck.error : `${phoneCheck.country.name} · +${phoneCheck.country.code}`}
+              </p>
             </div>
 
             {/* Is the caller the patient */}
-            <div className="rounded-xl border border-border bg-bg-soft/60 px-4 py-3">
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-                <span className="text-muted-foreground">Is the caller the patient?</span>
+            <div className={cn(
+              'rounded-xl border bg-bg-soft/60 px-4 py-3',
+              error && isPatient === null ? 'border-severity-critical' : 'border-border',
+            )}>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm" role="radiogroup" aria-required="true" aria-label="Is the caller the patient?">
+                <span className="text-muted-foreground">
+                  Is the caller the patient? <span className="text-severity-critical-ink" aria-hidden>*</span>
+                </span>
                 {([['Yes', true], ['No', false]] as const).map(([txt, val]) => (
                   <button
                     key={txt} type="button" onClick={() => setIsPatient(val)}
@@ -439,6 +527,39 @@ export function LogCallForm({
                   </button>
                 ))}
               </div>
+              {isPatient === false ? (
+                <div className="mt-3 space-y-2">
+                  <span className="block text-xs text-muted-foreground">Patient name(s)</span>
+                  {patientNames.map((n, i) => (
+                    <div key={`patient-${i}`} className="flex gap-2">
+                      <input
+                        className={field}
+                        placeholder={i === 0 ? 'Enter patient name' : 'Enter additional patient name'}
+                        aria-label={`Patient name ${i + 1}`}
+                        value={n}
+                        onChange={(e) => setPatientNames((cur) => cur.map((x, j) => (j === i ? e.target.value : x)))}
+                      />
+                      {i === 0 ? (
+                        <button
+                          type="button" title="Add another patient" aria-label="Add another patient"
+                          onClick={() => setPatientNames((cur) => [...cur, ''])}
+                          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-severity-low/50 text-severity-low-ink hover:bg-severity-low/10"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      ) : (
+                        <button
+                          type="button" title="Remove patient" aria-label={`Remove patient ${i + 1}`}
+                          onClick={() => setPatientNames((cur) => cur.filter((_, j) => j !== i))}
+                          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-severity-critical/50 text-severity-critical-ink hover:bg-severity-critical/10"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             {/* Map */}
@@ -507,10 +628,16 @@ export function LogCallForm({
               </div>
               <div>
                 <label className={label} htmlFor="region">Region</label>
-                <select id="region" className={field} value={region} onChange={(e) => setRegion(e.target.value)}>
+                <select
+                  id="region" className={field} value={region}
+                  onChange={(e) => { setRegion(e.target.value); setRegionFromMap(false); }}
+                >
                   <option value="">Select region…</option>
                   {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  {regionFromMap ? 'Set from the map pin' : lat !== null && !region ? 'Outside eThekwini: choose the region' : ' '}
+                </p>
               </div>
               <div>
                 <label className={label} htmlFor="city">City</label>
@@ -545,6 +672,12 @@ export function LogCallForm({
                   </optgroup>
                 ))}
               </select>
+              {codeGroups.length === 0 ? (
+                <p role="alert" className="mt-1.5 text-xs text-severity-critical-ink">
+                  No incident codes are set up for your organisation, so a call cannot be logged yet.
+                  An administrator adds them under Admin → Configuration → Incident categories.
+                </p>
+              ) : null}
             </div>
 
             <div>
@@ -575,7 +708,10 @@ export function LogCallForm({
                 </span>
                 <input
                   type="checkbox" className="sr-only" checked={emsNotRequired}
-                  onChange={(e) => setEmsNotRequired(e.target.checked)}
+                  onChange={(e) => {
+                    setEmsNotRequired(e.target.checked);
+                    if (e.target.checked) { setVictims('0'); setMedPriority(''); }
+                  }}
                 />
                 No injuries / EMS not required
               </label>
@@ -585,7 +721,7 @@ export function LogCallForm({
                   <label className={label} htmlFor="victims">Number of victims</label>
                   <select id="victims" className={field} value={victims} onChange={(e) => setVictims(e.target.value)}>
                     <option value="">Select count…</option>
-                    {VICTIM_COUNTS.map((v) => <option key={v} value={v}>{v}</option>)}
+                    {VICTIM_COUNTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                   </select>
                 </div>
                 <div>
@@ -637,25 +773,14 @@ export function LogCallForm({
               />
             </div>
 
-            {/* ── Routing — dispatch-desk chairs only; pure call-takers queue ── */}
-            {!canRoute ? (
-              <p className="flex items-start gap-2 rounded-xl border border-border bg-bg-soft/60 px-4 py-3 text-xs text-muted-foreground">
-                <Radio className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
-                <span>
-                  Routing is the dispatch desk&apos;s job. Submitting places this call in the
-                  <span className="font-semibold text-fg"> pending queue</span>, where the dispatcher
-                  assigns departments and units.
-                </span>
-              </p>
-            ) : null}
-            {canRoute ? (
-            <div className="rounded-xl border border-border bg-bg-soft/60 p-4">
-              <p className="mb-3 flex items-center gap-2 text-sm font-semibold">
-                <Radio className="h-4 w-4 text-accent" /> Unit dispatch &amp; routing
+            {/* ── Send to dispatch: only the tagged desks receive the call (0068) ── */}
+            <div className={cn('rounded-xl border bg-bg-soft/60 p-4', targets.length === 0 ? 'border-severity-medium/50' : 'border-border')}>
+              <p className="mb-3 flex flex-wrap items-center gap-2 text-sm font-semibold">
+                <Radio className="h-4 w-4 text-accent" /> Send to dispatch
                 <span className="ml-auto text-xs font-normal text-muted-foreground">
-                  {targets.length > 0
-                    ? `${targets.length} selected · lead is ${SILO_LABELS[targets[0]!]}`
-                    : 'optional — none selected sends to the pending queue'}
+                  {targets.length === 0
+                    ? 'Choose at least one department'
+                    : !targetsTouched ? 'Suggested from the incident type: change if needed' : `${targets.length} selected`}
                 </span>
               </p>
 
@@ -690,31 +815,36 @@ export function LogCallForm({
                 <Megaphone className="h-4 w-4" /> Broadcast all (emergency)
               </button>
 
-              {targets.length > 0 ? (
-                <p className="mt-3 text-xs text-muted-foreground">
-                  On dispatch, every screen in{' '}
-                  <span className="font-semibold text-fg">
-                    {targets.map((t) => SILO_LABELS[t]).join(', ')}
-                  </span>{' '}
-                  is alerted{severity === 'High' || severity === 'Critical'
-                    ? ' with a blocking pop-up that must be acknowledged.'
-                    : '.'}
-                </p>
+              {canRoute ? (
+                <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-sm">
+                  <input type="checkbox" className="mt-0.5 h-4 w-4" checked={dispatchNow} onChange={(e) => setDispatchNow(e.target.checked)} />
+                  <span>
+                    Dispatch to the crews on duty now
+                    <span className="block text-xs text-muted-foreground">Leave unticked to send it to the dispatch desks&apos; queue.</span>
+                  </span>
+                </label>
               ) : null}
+
+              <p className="mt-3 text-xs text-muted-foreground">
+                {targets.length === 0
+                  ? 'No dispatch desk receives a call that is not sent to it.'
+                  : dispatchNow && canRoute
+                    ? <>Every crew on duty in <span className="font-semibold text-fg">{deskList(targets)}</span> is alerted{severity === 'High' || severity === 'Critical' ? ' with a blocking pop-up that must be acknowledged.' : '.'}</>
+                    : <>Only the <span className="font-semibold text-fg">{deskList(targets)}</span> dispatch desk{targets.length === 1 ? '' : 's'} receive{targets.length === 1 ? 's' : ''} this call.</>}
+              </p>
             </div>
-            ) : null}
 
             <div className="grid gap-3">
               <button
                 type="submit"
-                disabled={pending}
+                disabled={pending || codeGroups.length === 0}
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-accent text-sm font-bold uppercase tracking-wider transition-transform hover:scale-[1.01] disabled:opacity-60"
               >
                 {pending
-                  ? <><Loader2 className="h-4 w-4 animate-spin" /> {canRoute && targets.length > 0 ? 'Dispatching…' : 'Logging…'}</>
-                  : canRoute && targets.length > 0
+                  ? <><Loader2 className="h-4 w-4 animate-spin" /> {canRoute && dispatchNow ? 'Dispatching…' : 'Sending…'}</>
+                  : canRoute && dispatchNow
                     ? <><Siren className="h-4 w-4" /> Dispatch incident</>
-                    : <><Siren className="h-4 w-4" /> Send to dispatch queue</>}
+                    : <><Siren className="h-4 w-4" /> {targets.length > 1 ? `Send to ${targets.length} dispatch desks` : 'Send to dispatch'}</>}
               </button>
             </div>
           </div>

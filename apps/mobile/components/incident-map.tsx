@@ -168,7 +168,7 @@ const HTML = `<!doctype html><html><head>
     function card(p) {
       var c = el('div', 'card');
       var top = el('div', 'top');
-      var sev = el('span', 'sev', p.sos ? 'SOS · OFFICER EMERGENCY' : String(p.severity).toUpperCase());
+      var sev = el('span', 'sev', p.sos ? (p.sosLabel || 'SOS') : String(p.severity).toUpperCase());
       sev.style.background = safeColor(p.color);
       top.appendChild(sev);
       top.appendChild(el('span', 'num', p.number));

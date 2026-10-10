@@ -74,18 +74,18 @@ const sent: FieldCall = { id: 'i1', silo: 'MetroPolice', status: 'Dispatched', d
 test('a call sent to all, nobody responding: I can respond and would lead', () => {
   const v = callView(sent, me);
   assert.equal(v.assignment.kind, 'open');
-  assert.deepEqual(v.action, { kind: 'respond', asLead: true, label: 'Responding' });
+  assert.deepEqual(v.action, { kind: 'respond', asLead: true, label: 'Accept' });
   assert.equal(v.role, null);
 });
 
 test('assigned to me: I lead; assigned to someone else: I can back up', () => {
   const toMe = callView({ ...sent, assigned_to: 'me' }, me);
   assert.equal(toMe.assignment.kind, 'you');
-  assert.deepEqual(toMe.action, { kind: 'respond', asLead: true, label: 'Responding' });
+  assert.deepEqual(toMe.action, { kind: 'respond', asLead: true, label: 'Accept' });
 
   const toOther = callView({ ...sent, assigned_to: 'a', assigned_to_name: 'Sgt Dube' }, me);
   assert.deepEqual(toOther.assignment, { kind: 'other', name: 'Sgt Dube' });
-  assert.deepEqual(toOther.action, { kind: 'respond', asLead: false, label: 'Responding' });
+  assert.deepEqual(toOther.action, { kind: 'respond', asLead: false, label: 'Accept' });
 });
 
 test('assigned to me works even outside my department', () => {
@@ -196,4 +196,43 @@ test('the lead files the report for their own department', () => {
   const view = callView(both, { userId: 'f1', silo: 'MetroFire', onDuty: true });
   assert.equal(view.action?.label, 'File fire report');
   assert.equal(view.secondary?.label, 'Mark Transporting');
+});
+
+/* ── EMS (0063): closed by the patient care report ───────────────────── */
+
+test('a paramedic accepts, arrives, may mark Transporting, and closes with the patient report', () => {
+  const ems = { silo: 'Medical' };
+  assert.deepEqual(nextStep(ems, 'Dispatched', 'Medical'), { kind: 'status', status: 'En Route', label: 'Accept · Mark En Route' });
+  assert.deepEqual(nextStep(ems, 'En Route', 'Medical'), { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.deepEqual(nextStep(ems, 'On Scene', 'Medical'), { kind: 'report', label: 'File patient report' });
+  assert.deepEqual(nextStep(ems, 'Transporting', 'Medical'), { kind: 'report', label: 'File patient report' });
+  assert.deepEqual(secondaryStep(ems, 'On Scene', 'Medical'), { kind: 'status', status: 'Transporting', label: 'Mark Transporting' });
+  assert.equal(nextStep({ ...ems, report_filed_at: '2026-10-09T10:00:00Z' }, 'On Scene', 'Medical'), null);
+  for (const s of ['Dispatched', 'En Route', 'On Scene', 'Transporting'] as const) {
+    const step = nextStep(ems, s, 'Medical');
+    assert.ok(!(step?.kind === 'status' && step.status === 'Resolved'), `no bare Resolved from ${s}`);
+  }
+  assert.equal(reportPathFor('i1', 'Medical'), '/pcr/i1');
+});
+
+test('a paramedic leading a call shared with Police files the patient report, not the police one', () => {
+  const both = { id: 'i1', silo: 'Ethekwini', dispatched_silos: ['MetroPolice', 'Medical'], status: 'On Scene' as const, accepted_by: 'm1' };
+  const view = callView(both, { userId: 'm1', silo: 'Medical', onDuty: true });
+  assert.equal(view.action?.label, 'File patient report');
+  assert.equal(view.secondary?.label, 'Mark Transporting');
+});
+
+/* ── Disaster (0065): closed by the post-mortem ──────────────────────── */
+
+test('a Disaster officer accepts, arrives and closes with the post-mortem; no Transporting', () => {
+  const dm = { silo: 'EthekwiniDisaster' };
+  assert.deepEqual(nextStep(dm, 'Dispatched', 'EthekwiniDisaster'), { kind: 'status', status: 'En Route', label: 'Accept · Mark En Route' });
+  assert.deepEqual(nextStep(dm, 'En Route', 'EthekwiniDisaster'), { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.deepEqual(nextStep(dm, 'On Scene', 'EthekwiniDisaster'), { kind: 'report', label: 'File post-mortem' });
+  assert.equal(secondaryStep(dm, 'On Scene', 'EthekwiniDisaster'), null);
+  assert.equal(reportPathFor('i1', 'EthekwiniDisaster'), '/post-mortem/i1');
+  for (const s of ['Dispatched', 'En Route', 'On Scene'] as const) {
+    const step = nextStep(dm, s, 'EthekwiniDisaster');
+    assert.ok(!(step?.kind === 'status' && step.status === 'Resolved'), `no bare Resolved from ${s}`);
+  }
 });

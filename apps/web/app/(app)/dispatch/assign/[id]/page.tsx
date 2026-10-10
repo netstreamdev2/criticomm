@@ -4,11 +4,13 @@ import {
   Ambulance, ArrowUpRight, FileText, Headset, MapPin, Paperclip, Phone, User,
 } from 'lucide-react';
 import {
-  getIncident, getIncidentUpdates, getOperationalSettings, listIncidentAttachments, listOnDutyOfficers,
+  deskTags, getIncident, getIncidentUpdates, getOperationalSettings, listIncidentAttachments, listOnDutyOfficers,
 } from '@criticom/api';
-import type { Silo } from '@criticom/db';
+import { DEPARTMENT_NAMES, departmentName, type Silo } from '@criticom/db';
 import { LeafletMap } from '@/components/leaflet-map';
+import { DispatchMapButton } from '@/components/dispatch-map-button';
 import { AssignForm } from './assign-form';
+import { SendToDesk } from './send-to-desk';
 import { getSession } from '@/lib/session';
 import { escapeHtml, formatSaTime, timeAgo } from '@/lib/utils';
 
@@ -31,9 +33,14 @@ function Field({ label, value, mono, span }: {
 
 export default async function AssignPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { supabase } = await getSession();
+  const { supabase, role, silo: mySilo } = await getSession();
+  // A call not sent to this desk is not found here: the database does not
+  // return it to a department's dispatch desk (0068).
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) notFound();
+  const deskOf = ['Dispatcher', 'ControlRoom', 'IncidentLogger'].includes(role) && mySilo !== 'Ethekwini'
+    ? (mySilo as Exclude<Silo, 'Ethekwini'>) : null;
+  const sentTo = deskTags(incident);
 
   // Everyone on duty in the field departments; the form narrows them to the
   // departments the dispatcher routes the call to and keeps the list live.
@@ -60,7 +67,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
           lat: o.lat,
           lng: o.lng,
           kind: 'unit',
-          popupHtml: `<strong>${escapeHtml(o.name)}</strong>${o.unitNumber ? ` · ${escapeHtml(o.unitNumber)}` : ''}<br/>${o.activeCalls ? `On ${o.activeCalls} incident${o.activeCalls === 1 ? '' : 's'}` : 'Free'}`,
+          popupHtml: `<strong>${escapeHtml(o.name)}</strong>${o.unitNumber ? ` · ${escapeHtml(o.unitNumber)}` : ''}<br/>${o.activeCalls ? `On ${o.activeCalls} incident${o.activeCalls === 1 ? '' : 's'}` : 'Available'}`,
         }]
       : []);
 
@@ -124,8 +131,22 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
               <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                 <MapPin className="h-3 w-3" /> Incident location
               </p>
-              <div className="rounded-lg border border-border bg-bg-soft px-3 py-2.5 text-sm">
-                {incident.location_address}
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg-soft px-3 py-2.5 text-sm">
+                <span>{incident.location_address}</span>
+                {hasPoint ? (
+                  <DispatchMapButton
+                    incident={{
+                      id: incident.id, number: incident.incident_number, type: incident.incident_type,
+                      severity: incident.incident_severity, address: incident.location_address,
+                      lat: incident.location_lat, lng: incident.location_lng,
+                    }}
+                    officers={officers}
+                    canAssign={!locked}
+                    className="shrink-0 rounded-md border border-accent/40 px-2.5 py-1 text-xs font-semibold text-accent"
+                  >
+                    <MapPin className="h-3.5 w-3.5" aria-hidden /> Live map &amp; routes
+                  </DispatchMapButton>
+                ) : null}
               </div>
               {hasPoint ? (
                 <div className="mt-2 overflow-hidden rounded-lg border border-border">
@@ -171,11 +192,16 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
           <div className="space-y-4 p-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Incident ID" value={incident.incident_number} mono />
-              <Field label="Owning department" value={incident.silo} />
+              <Field label="Owning department" value={departmentName(incident.silo)} />
+              <Field label="Sent to dispatch" value={sentTo.length ? sentTo.map((d) => DEPARTMENT_NAMES[d]).join(', ') : 'Control room only'} span />
               <Field label="Incident type (10-code)" value={incident.incident_type} span />
               <Field label="Category" value={incident.incident_category} />
               <Field label="Source" value={incident.source} />
             </div>
+
+            {incident.status !== 'Resolved' && incident.status !== 'Closed' ? (
+              <SendToDesk incidentId={incident.id} sentTo={sentTo} />
+            ) : null}
 
             <div>
               <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -270,6 +296,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
         locked={locked}
         awaiting={incident.status === 'Dispatched' && !incident.accepted_by}
         sosRaiser={incident.source === 'Responder-Panic' ? incident.created_by : null}
+        allowedSilos={deskOf ? [deskOf] : undefined}
         assignedTo={incident.assigned_to && !incident.accepted_by
           ? { userId: incident.assigned_to, name: incident.assigned_to_name ?? 'an officer', at: incident.assigned_at }
           : null}

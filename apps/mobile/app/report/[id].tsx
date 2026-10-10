@@ -6,8 +6,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  getIncident, getMyBodycam, listIncidentAttachments, POLICE_REPORT_TYPES, reportTypeFor, splitReportAnswers,
-  validateReportAnswers, type PoliceReportType, type ReportField,
+  composeReportType, getIncident, getMyBodycam, listIncidentAttachments, POLICE_REPORT_FORMS, rowCount, rowLabel, rowsKey,
+  sectionFields, splitReportAnswers, suggestFormsFor, validateReportAnswers, type ReportField, type ReportSection,
 } from '@criticom/api';
 import type { Database } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
@@ -22,27 +22,30 @@ import {
 type Incident = Database['public']['Tables']['incidents']['Row'];
 
 const YES_NO = ['Yes', 'No'] as const;
+const CHECK = ['OK', 'Fault', 'NIL'] as const;
 const draftKey = (id: string) => `hiktech.report-draft.${id}`;
 
 /**
  * The officer's case report — the step that closes a police call.
  *
- * The form is chosen from what the call-taker recorded (a hijacking asks
- * about the vehicle and tracker, a crash about the road) and the officer can
- * switch it if the call turned out to be something else. Answers are kept as
- * a draft on the phone until filed, so a crash or a dead battery does not
- * lose a narrative. Filing goes through the outbox like every other field
- * action; the server resolves the call and tells dispatch and command.
+ * The case report (response, outcome, evidence, narrative) plus the DMPS
+ * forms the call needs: the call type suggests one, and the officer adds or
+ * removes forms to match what happened. Answers are kept as a draft on the
+ * phone until filed, so a crash or a dead battery does not lose a narrative.
+ * Filing goes through the outbox like every other field action; the server
+ * resolves the call and tells dispatch and command.
  */
 export default function IncidentReportScreen() {
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { session } = useAuth();
-  const { enqueue, pending } = useSync();
+  const { enqueue, pending, online } = useSync();
   const [incident, setIncident] = useState<Incident | null>(null);
   const [loading, setLoading] = useState(true);
-  const [reportType, setReportType] = useState<PoliceReportType | null>(null);
+  // The DMPS forms in this report; null until the incident has loaded.
+  const [forms, setForms] = useState<string[] | null>(null);
+  const reportType = useMemo(() => (forms ? composeReportType(forms) : null), [forms]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [evidence, setEvidence] = useState({ photos: 0, voice: 0 });
   const [problems, setProblems] = useState<string[]>([]);
@@ -64,10 +67,10 @@ export default function IncidentReportScreen() {
       photos: files.filter((a) => a.kind === 'image').length,
       voice: files.filter((a) => a.kind === 'audio').length,
     });
-    let saved: { type?: string; answers?: Record<string, string> } = {};
+    let saved: { forms?: string[]; answers?: Record<string, string> } = {};
     try { saved = draft ? JSON.parse(draft) : {}; } catch { saved = {}; }
-    const auto = inc ? reportTypeFor(inc) : null;
-    setReportType(POLICE_REPORT_TYPES.find((t) => t.id === saved.type) ?? auto);
+    const known = (saved.forms ?? []).filter((f) => POLICE_REPORT_FORMS.some((x) => x.id === f));
+    setForms(known.length ? known : inc ? suggestFormsFor(inc) : []);
     const initial = { ...(saved.answers ?? {}) };
     // A bodycam booked out this shift (0054) was on; the officer can still change it.
     if (!('bodycam_active' in initial)) {
@@ -89,14 +92,26 @@ export default function IncidentReportScreen() {
 
   // Keep the draft on the phone as the officer types.
   useEffect(() => {
-    if (!id || !draftLoaded.current || !reportType) return;
+    if (!id || !draftLoaded.current || !forms) return;
     const t = setTimeout(() => {
-      void AsyncStorage.setItem(draftKey(id), JSON.stringify({ type: reportType.id, answers })).catch(() => {});
+      void AsyncStorage.setItem(draftKey(id), JSON.stringify({ forms, answers })).catch(() => {});
     }, 400);
     return () => clearTimeout(t);
-  }, [id, reportType, answers]);
+  }, [id, forms, answers]);
 
   const set = (key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: value }));
+  const toggleForm = (formId: string) => setForms((cur) => {
+    const list = cur ?? [];
+    return list.includes(formId) ? list.filter((f) => f !== formId) : [...list, formId];
+  });
+  /** Add a row to a repeated section, or take the last one off (its answers go with it). */
+  const addRow = (section: ReportSection) => set(rowsKey(section), String(rowCount(section, answers) + 1));
+  const removeRow = (section: ReportSection) => setAnswers((cur) => {
+    const n = rowCount(section, cur);
+    const next = { ...cur, [rowsKey(section)]: String(n - 1) };
+    for (const { key, row } of sectionFields(section, cur)) if (row === n) delete next[key];
+    return next;
+  });
 
   /** The officer's status as they last set it, delivered or not. */
   const status = useMemo(() => {
@@ -110,9 +125,12 @@ export default function IncidentReportScreen() {
     const out = new Set<string>();
     if (!tried || !reportType) return out;
     for (const section of reportType.sections) {
-      for (const f of section.fields) {
-        const v = (answers[f.key] ?? '').trim();
-        if ((f.required && !v) || (f.kind === 'number' && v && !/^\d+(\.\d+)?$/.test(v))) out.add(f.key);
+      for (const { key, field: f, row } of sectionFields(section, answers)) {
+        const v = (answers[key] ?? '').trim();
+        if ((f.required && !row && !v)
+          || (f.kind === 'number' && v && !/^\d+(\.\d+)?$/.test(v))
+          || (f.kind === 'date' && v && !/^\d{4}-\d{2}-\d{2}$/.test(v))
+          || (f.kind === 'time' && v && !/^([01]\d|2[0-3]):[0-5]\d$/.test(v))) out.add(key);
       }
     }
     const narrative = (answers.officer_narrative ?? '').trim();
@@ -162,7 +180,7 @@ export default function IncidentReportScreen() {
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
       Alert.alert(
         'Report filed',
-        `${incident.incident_number} is closed and on record. Dispatch and command are notified the moment it reaches the server — straight away with signal, automatically once you have it.`,
+        online ? `${incident.incident_number} is resolved.` : `Saved. It sends when you have signal.`,
       );
       router.replace('/(tabs)/incidents');
     } catch (e) {
@@ -197,7 +215,7 @@ export default function IncidentReportScreen() {
           title="Report already filed"
           body={alreadyQueued
             ? 'It is waiting for signal and sends automatically.'
-            : 'This incident is closed and the report is on record.'}
+            : 'This incident is resolved and the report is on record.'}
         />
       </View>
     );
@@ -237,7 +255,7 @@ export default function IncidentReportScreen() {
           <View style={styles.metaRow}>
             <Ionicons name="attach-outline" size={13} color={colors.muted} />
             <Text style={styles.metaText}>
-              {evidence.photos} photo{evidence.photos === 1 ? '' : 's'} · {evidence.voice} voice note{evidence.voice === 1 ? '' : 's'} on file — attached automatically
+              {evidence.photos} photo{evidence.photos === 1 ? '' : 's'} · {evidence.voice} voice note{evidence.voice === 1 ? '' : 's'} on file
             </Text>
           </View>
         </Card>
@@ -246,44 +264,70 @@ export default function IncidentReportScreen() {
           <Banner tone="info">Mark yourself On Scene before filing — the report can be drafted now.</Banner>
         ) : null}
 
-        <SectionLabel>Report type</SectionLabel>
-        <Muted style={{ marginBottom: space.sm }}>
-          Chosen from the incident: {reportType.summary} Change it if the incident turned out differently.
-        </Muted>
-        <View style={styles.chips}>
-          {POLICE_REPORT_TYPES.map((t) => {
-            const active = t.id === reportType.id;
+        <SectionLabel>Forms</SectionLabel>
+        <Muted style={{ marginBottom: space.sm }}>Select every form this incident needs.</Muted>
+        <View style={styles.formGrid}>
+          {POLICE_REPORT_FORMS.map((f) => {
+            const active = forms?.includes(f.id) ?? false;
             return (
               <Pressable
-                key={t.id}
-                onPress={() => setReportType(t)}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: active }}
-                style={({ pressed }) => [styles.chip, active && styles.chipActive, pressed && { opacity: 0.75 }]}
+                key={f.id}
+                onPress={() => toggleForm(f.id)}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: active }}
+                accessibilityLabel={`${f.label}, ${f.code}`}
+                style={({ pressed }) => [styles.formTile, active && styles.formTileActive, pressed && { opacity: 0.8 }]}
               >
-                <Text style={[styles.chipText, active && { color: '#fff' }]}>{t.label}</Text>
+                <View style={styles.formTileHead}>
+                  <Text style={[styles.formCode, active && { color: colors.accent }]}>{f.code}</Text>
+                  <Ionicons name={active ? 'checkbox' : 'square-outline'} size={18} color={active ? colors.accent : colors.muted} />
+                </View>
+                <Text style={styles.formLabel}>{f.label}</Text>
               </Pressable>
             );
           })}
         </View>
 
-        {reportType.sections.map((section) => (
-          <View key={section.title}>
-            <SectionLabel>{section.title}</SectionLabel>
-            <Card>
-              {section.fields.map((field, i) => {
-                // A missing or wrong answer after File was pressed glows red until it is fixed.
-                const bad = invalid.has(field.key);
-                return (
-                  <View key={field.key} style={[i > 0 ? { marginTop: space.md } : undefined, bad && styles.fieldBad]}>
-                    {bad ? <Text style={styles.badHint}>Required — fill this in</Text> : null}
-                    <Field field={field} value={answers[field.key] ?? ''} onChange={(v) => set(field.key, v)} />
-                  </View>
-                );
-              })}
-            </Card>
-          </View>
-        ))}
+        {reportType.sections.map((section) => {
+          const rows = section.repeat ? rowCount(section, answers) : 1;
+          return (
+            <View key={section.key ?? section.title}>
+              <SectionLabel>{section.title}</SectionLabel>
+              {Array.from({ length: rows }, (_, r) => r + 1).map((row) => (
+                <Card key={`${section.key ?? section.title}-${row}`}>
+                  {section.repeat ? (
+                    <View style={styles.rowHead}>
+                      <Text style={styles.rowTitle}>{rowLabel(section, row)}</Text>
+                      {row === rows && rows > section.repeat.min ? (
+                        <Pressable onPress={() => removeRow(section)} accessibilityRole="button" hitSlop={8}>
+                          <Text style={styles.rowRemove}>Remove</Text>
+                        </Pressable>
+                      ) : null}
+                    </View>
+                  ) : null}
+                  {sectionFields(section, answers).filter((x) => (section.repeat ? x.row === row : true)).map(({ key, field }, i) => {
+                    // A missing or wrong answer after File was pressed glows red until it is fixed.
+                    const bad = invalid.has(key);
+                    return (
+                      <View key={key} style={[i > 0 ? { marginTop: space.md } : undefined, bad && styles.fieldBad]}>
+                        {bad ? <Text style={styles.badHint}>{field.required ? 'Required — fill this in' : 'Check this answer'}</Text> : null}
+                        <Field field={field} value={answers[key] ?? ''} onChange={(v) => set(key, v)} />
+                      </View>
+                    );
+                  })}
+                </Card>
+              ))}
+              {section.repeat && rows < section.repeat.max ? (
+                <Button
+                  label={`Add ${section.repeat.noun.toLowerCase()}`}
+                  icon="add-circle-outline"
+                  variant="outline"
+                  onPress={() => addRow(section)}
+                />
+              ) : null}
+            </View>
+          );
+        })}
 
         {problems.length > 0 ? (
           <Banner tone="error" onDismiss={() => setProblems([])}>
@@ -325,6 +369,38 @@ function Field({ field, value, onChange }: {
       </View>
     );
   }
+  if (field.kind === 'check') {
+    return (
+      <View>
+        <Text style={styles.fieldLabel}>{label.toUpperCase()}</Text>
+        <Segmented options={CHECK} value={(CHECK as readonly string[]).includes(value) ? (value as (typeof CHECK)[number]) : null} onChange={onChange} />
+      </View>
+    );
+  }
+  if (field.kind === 'multi') {
+    const chosen = value ? value.split('; ').filter(Boolean) : [];
+    return (
+      <View>
+        <Text style={styles.fieldLabel}>{label.toUpperCase()}</Text>
+        <View style={styles.chips}>
+          {(field.options ?? []).map((opt) => {
+            const active = chosen.includes(opt);
+            return (
+              <Pressable
+                key={opt}
+                onPress={() => onChange((active ? chosen.filter((c) => c !== opt) : [...chosen, opt]).join('; '))}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: active }}
+                style={({ pressed }) => [styles.chip, active && styles.chipActive, pressed && { opacity: 0.75 }]}
+              >
+                <Text style={[styles.chipText, active && { color: '#fff' }]}>{opt}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    );
+  }
   if (field.kind === 'choice') {
     return (
       <View>
@@ -353,9 +429,9 @@ function Field({ field, value, onChange }: {
       label={label}
       value={value}
       onChangeText={onChange}
-      placeholder={field.placeholder}
-      keyboardType={field.kind === 'number' ? 'decimal-pad' : 'default'}
-      autoCapitalize={field.key === 'license_plate' || field.key === 'vin_number' ? 'characters' : 'sentences'}
+      placeholder={field.placeholder ?? (field.kind === 'date' ? 'YYYY-MM-DD' : field.kind === 'time' ? 'HH:MM' : undefined)}
+      keyboardType={field.kind === 'number' ? 'decimal-pad' : field.kind === 'date' || field.kind === 'time' ? 'numbers-and-punctuation' : 'default'}
+      autoCapitalize={/plate|vin|reg/.test(field.key) ? 'characters' : field.kind === 'date' || field.kind === 'time' ? 'none' : 'sentences'}
       multiline={field.kind === 'multiline'}
       style={field.kind === 'multiline' ? styles.multiline : undefined}
     />
@@ -380,6 +456,18 @@ const useStyles = makeStyles(() => StyleSheet.create({
   },
   chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
   chipText: { fontSize: 13, fontWeight: '600', color: colors.textDim },
+  formGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginBottom: space.md },
+  formTile: {
+    width: '48%', flexGrow: 1, padding: space.md, borderRadius: radius.md,
+    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
+  },
+  formTileActive: { borderColor: colors.accent, backgroundColor: colors.accentSoft },
+  formTileHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  formCode: { ...type.mono, fontSize: 12, color: colors.muted, fontWeight: '800' },
+  formLabel: { ...type.bodyStrong, color: colors.text, marginTop: 4 },
+  rowHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: space.sm },
+  rowTitle: { ...type.bodyStrong, color: colors.accent },
+  rowRemove: { color: colors.critical, fontWeight: '700', fontSize: 13 },
   multiline: { minHeight: 110, textAlignVertical: 'top', paddingTop: 12 },
   // The red glow on a missing answer.
   fieldBad: {

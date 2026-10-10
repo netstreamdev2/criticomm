@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import {
   cancelAccountRequest, changeAccountRole, decideAccountRequest, getInvitation, setAccountActive,
 } from '@criticom/api';
-import type { Silo, UserRole } from '@criticom/db';
+import { roleDepartmentProblem, type Silo, type UserRole } from '@criticom/db';
 import { deliverInvitation } from '@/lib/onboarding/server';
 import { getSession } from '@/lib/session';
 
@@ -34,11 +34,19 @@ function refresh(userId?: string) {
 export async function changeRoleAction(fd: FormData): Promise<AccountActionResult> {
   const { supabase } = await getSession();
   const userId = S(fd, 'user_id');
+  const role = S(fd, 'role') as UserRole;
+  const silo = (S(fd, 'silo') || null) as Silo | null;
   try {
+    // A field role belongs to one department: checked against the department
+    // the person will be in, before anything is sent (the database also refuses it, 0067).
+    const { data: target } = await supabase.from('profiles').select('silo').eq('id', userId).maybeSingle();
+    const department = silo ?? (target?.silo as Silo | undefined);
+    const mismatch = department ? roleDepartmentProblem(role, department) : null;
+    if (mismatch) return { ok: false, error: mismatch };
     const res = await changeAccountRole(supabase, {
       userId,
-      role: S(fd, 'role') as UserRole,
-      silo: (S(fd, 'silo') || null) as Silo | null,
+      role,
+      silo,
       reason: S(fd, 'reason'),
       confirm: S(fd, 'confirm'),
     });

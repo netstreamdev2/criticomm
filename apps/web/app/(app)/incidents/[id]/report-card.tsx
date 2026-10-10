@@ -1,15 +1,9 @@
 import { Lock } from 'lucide-react';
-import { describeReportDetails, getReportType, type getIncidentReport } from '@criticom/api';
+import { getReportType, reportReadout, type getIncidentReport } from '@criticom/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatSaTime } from '@/lib/utils';
 
 type Report = NonNullable<Awaited<ReturnType<typeof getIncidentReport>>>;
-
-/** Column answers worth showing: blanks, "No" defaults and zero counts are noise. */
-function shown(v: unknown) {
-  if (v === null || v === undefined || v === '' || v === false || v === 0) return null;
-  return v === true ? 'Yes' : String(v);
-}
 
 /**
  * The officer's filed case report, read-only. It is a permanent record
@@ -17,21 +11,8 @@ function shown(v: unknown) {
  */
 export function PoliceReportCard({ report }: { report: Report }) {
   const type = getReportType(report.report_type);
-  const row = report as unknown as Record<string, unknown>;
-
-  const sections = type.sections
-    .filter((s) => s.title !== 'Narrative')
-    .map((s) => ({
-      title: s.title,
-      items: s.fields.flatMap((f) => {
-        const v = shown(f.column ? row[f.key] : (report.details ?? {})[f.key]);
-        return v ? [{ label: f.label, value: v }] : [];
-      }),
-    }))
-    .filter((s) => s.items.length > 0);
-  // Answers from a form version that no longer lists them still belong on record.
-  const listed = new Set(sections.flatMap((s) => s.items.map((i) => i.label)));
-  const extra = describeReportDetails(type, report.details).filter((d) => !listed.has(d.label));
+  // The same readout the case PDF prints.
+  const { sections, extra } = reportReadout(type, report as unknown as Record<string, unknown>);
 
   return (
     <Card>

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import {
-  createPersonnel, finishStaffImport, importStaffRows, logAudit, markRegisterLeft, registerForImport,
+  createPersonnel, finishStaffImport, importStaffRows, logAudit, markRegisterLeft, moveRegisterPerson, registerForImport,
   restoreRegisterPerson, setRegisterRoles, startStaffImport,
 } from '@criticom/api';
 import { ADMIN_CONSOLE_ROLES, normaliseCellphone, normaliseWorkEmail, type Silo, type UserRole } from '@criticom/db';
@@ -131,6 +131,18 @@ export async function markLeftAction(personnelId: string, reason: string): Promi
   const { supabase } = await getSession();
   try {
     const res = await markRegisterLeft(supabase, String(personnelId), String(reason));
+    refresh();
+    return { ok: true, invitationsCancelled: res.invitations_cancelled };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+/** Put a wrong department right, so the invitation can be for the department they work in (0067). */
+export async function moveDepartmentAction(personnelId: string, silo: Silo, reason: string): Promise<Result<{ invitationsCancelled: number }>> {
+  const { supabase } = await getSession();
+  try {
+    const res = await moveRegisterPerson(supabase, String(personnelId), silo, String(reason));
     refresh();
     return { ok: true, invitationsCancelled: res.invitations_cancelled };
   } catch (e) {

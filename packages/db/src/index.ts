@@ -13,5 +13,6 @@ export * from './bodycams';
 export * from './fines';
 export * from './fine-slip';
 export * from './fire-report';
+export * from './desks';
 export * from './schemas/index';
 export * as schemas from './schemas/index';
