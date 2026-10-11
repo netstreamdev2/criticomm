@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import {
-  deniedHrefs, featureEnabled, getFeatureMap, getMyTenant, getOperationalSettings, listAccessRules, listOpsLinks,
+  deniedHrefs, featureEnabled, getFeatureMap, getMyTenant, getOperationalSettings, insightsApply, listAccessRules, listOpsLinks,
 } from '@criticom/api';
 import { hiddenHrefs as hiddenFor } from '@/lib/features';
 import type { Silo, UserRole } from '@criticom/db';
@@ -140,7 +140,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           soundEnabled={settings['alerts.sound_enabled']}
           toastSeconds={settings['alerts.toast_seconds']}
         />
-        {featureEnabled(features, 'web.assistant') ? <AssistantDock fullName={fullName} role={role} silo={silo} /> : null}
+        {featureEnabled(features, 'web.assistant') ? (
+          <AssistantDock fullName={fullName} role={role} silo={silo} tiles={featureEnabled(features, 'web.criti_tiles') && insightsApply(role as UserRole)} />
+        ) : null}
       </div>
     </ToastProvider>
   );

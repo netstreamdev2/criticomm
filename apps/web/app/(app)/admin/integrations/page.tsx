@@ -14,6 +14,7 @@ export const metadata = { title: 'Integrations · HikTech' };
  */
 const REQUIRED_ENV: Record<string, string[]> = {
   supabase: ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY'],
+  grok: ['XAI_API_KEY'],
   groq: ['GROQ_API_KEY'],
   gemini: ['GEMINI_API_KEY'],
   expo_push: [],
@@ -33,8 +34,9 @@ const REQUIRED_ENV: Record<string, string[]> = {
 /** What each integration actually powers, in the operator's terms. */
 const PURPOSE: Record<string, string> = {
   supabase: 'Database, authentication, file storage and the realtime channel every live screen listens on.',
-  groq: 'Powers Criti — the assistant dock, its live board context and the actions it carries out. Fast Llama inference, first in the provider chain.',
-  gemini: 'Fallback AI provider for Criti — takes over automatically if Groq is down or rate-limited.',
+  grok: 'xAI Grok: an AI provider for Criti, the assistant dock and its live board context. Tried first when its key is set.',
+  groq: 'Groq (fast Llama): an AI provider for Criti. Tried after Grok when its key is set.',
+  gemini: 'Google Gemini: an AI provider for Criti. Takes over automatically if the others are down or rate-limited. Criti’s suggestion tiles need none of the three.',
   expo_push: 'Delivers dispatch alerts to the responder app when it is closed or in the background.',
   bulksms: 'Outbound SMS to citizens, including the GPS location-request link.',
   realptt: 'Push-to-talk bridge for the dispatch radio console.',

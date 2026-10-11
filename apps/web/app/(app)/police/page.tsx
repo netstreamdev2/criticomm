@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { chatTime } from '@/lib/when';
+import { CritiTiles } from '@/components/criti/insight-tiles';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Police Operations · HikTech' };
@@ -44,6 +45,9 @@ export default async function PolicePage({ searchParams }: { searchParams: Promi
         <h1 className="text-2xl font-bold">Police operations</h1>
         <p className="text-muted-foreground">Reports, fines, armoury and records.</p>
       </header>
+
+      {/* Criti: what needs attention now, for this person. */}
+      <CritiTiles />
 
       <section className="grid gap-3 sm:grid-cols-3">
         <Card><CardContent className="p-4">

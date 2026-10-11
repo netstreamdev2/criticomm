@@ -59,6 +59,7 @@ export async function GET() {
       NEXT_PUBLIC_SUPABASE_ANON_KEY: shape(anon),
       SUPABASE_SERVICE_ROLE_KEY: shape(service),
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? null,
+      XAI_API_KEY: shape(process.env.XAI_API_KEY),
       GROQ_API_KEY: shape(process.env.GROQ_API_KEY),
       GEMINI_API_KEY: shape(process.env.GEMINI_API_KEY),
       REALPTT_ACCOUNT: shape(process.env.REALPTT_ACCOUNT),

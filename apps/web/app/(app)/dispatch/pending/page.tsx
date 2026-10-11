@@ -10,6 +10,7 @@ import { chatTime } from '@/lib/when';
 import { PendingRealtimeBridge } from './realtime-bridge';
 import { IncidentRow, StopClick } from './incident-row';
 import { QueueFilters } from './queue-filters';
+import { CritiTiles } from '@/components/criti/insight-tiles';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Pending queue · HikTech' };
@@ -78,6 +79,9 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
           </Link>
         ) : null}
       </header>
+
+      {/* Criti: what needs attention now, for this person. */}
+      <CritiTiles />
 
       <Suspense fallback={<div className="h-[54px] rounded-lg border border-border bg-bg-card" />}>
         <QueueFilters sorts={SORTS} severities={SEVERITIES} regions={REGIONS} departments={deskOf ? [] : DEPARTMENTS} />

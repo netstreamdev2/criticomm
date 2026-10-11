@@ -31,6 +31,10 @@ export type RateLimitRule = {
 export const RATE_LIMITS = {
   /** Each turn is a model call. A person types maybe 6/min; a loop types 600. */
   chat: { bucket: 'chat', limit: 40, windowSeconds: 60 },
+  /** Criti's tiles: a refresh on every live change and a 30-second tick, per open screen. No model call. */
+  criti: { bucket: 'criti', limit: 150, windowSeconds: 60 },
+  /** A task confirmed through Criti. Each is a person pressing Confirm. */
+  criti_act: { bucket: 'criti_act', limit: 30, windowSeconds: 60 },
   /** Fires per keystroke-batch on the address field, so it needs headroom. */
   geocode: { bucket: 'geocode', limit: 120, windowSeconds: 60 },
   /** Metered upstreams: TomTom, FR24, Kpler. Panels poll on a timer. */

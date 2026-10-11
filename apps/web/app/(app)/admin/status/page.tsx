@@ -164,7 +164,7 @@ export default async function StatusPage() {
   const missingEnv = [
     !process.env.SUPABASE_SERVICE_ROLE_KEY && 'SUPABASE_SERVICE_ROLE_KEY',
     !process.env.NEXT_PUBLIC_APP_URL && 'NEXT_PUBLIC_APP_URL',
-    !(process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY) && 'GROQ_API_KEY or GEMINI_API_KEY',
+    !(process.env.XAI_API_KEY || process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY) && 'XAI_API_KEY, GROQ_API_KEY or GEMINI_API_KEY',
   ].filter((v): v is string => Boolean(v));
 
   checks.push({

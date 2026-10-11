@@ -43,6 +43,25 @@ const PROBES: Record<string, Probe> = {
       : { ok: true, message: 'Database reachable and RLS accepted the session.' };
   },
 
+  async grok() {
+    const key = process.env.XAI_API_KEY;
+    if (!key) return missing('XAI_API_KEY');
+    const model = process.env.XAI_MODEL ?? 'grok-4.7';
+    const res = await ping('https://api.x.ai/v1/models', {
+      headers: { Authorization: `Bearer ${key}` },
+    });
+    if (res.status === 401 || res.status === 403) return { ok: false, message: 'Key rejected by xAI — rotate it and update the env.' };
+    if (!res.ok) return { ok: false, message: `xAI responded ${res.status}.` };
+    const data = (await res.json()) as { data?: Array<{ id: string }> };
+    const hasModel = data.data?.some((m) => m.id === model);
+    return {
+      ok: true,
+      message: hasModel
+        ? `Authenticated — model ${model} available.`
+        : `Authenticated, but model "${model}" was not in the list; check XAI_MODEL.`,
+    };
+  },
+
   async groq() {
     const key = process.env.GROQ_API_KEY;
     if (!key) return missing('GROQ_API_KEY');

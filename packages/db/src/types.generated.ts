@@ -2443,6 +2443,16 @@ export type Database = {
         Args: Record<string, never>;
         Returns: Silo | null;
       };
+      /** The escalation minutes of the three dispatch rules, for Criti's tiles (0070). */
+      criti_thresholds: {
+        Args: Record<string, never>;
+        Returns: Record<string, { enabled: boolean; config: Record<string, unknown> }>;
+      };
+      /** A broadcast to the people of the departments chosen; returns how many it reached (0070). */
+      send_broadcast: {
+        Args: { p_silos: Silo[]; p_message: string; p_severity?: 'Medium' | 'High' | 'Critical' };
+        Returns: number;
+      };
       check_duplicate_incident: {
         Args: { p_phone: string | null; p_location: string | null; p_type: string | null };
         Returns: Array<{ reason: string; incident_id: string; incident_number: string; matched_at: string }>;

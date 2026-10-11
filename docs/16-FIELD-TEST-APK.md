@@ -9,7 +9,7 @@ In the Supabase SQL editor run, in order, any not yet applied:
 `0062_call_intake_and_shift_vehicles.sql`, `0063_ems_incident_flow.sql`,
 `0064_hospital_handover.sql`, `0065_disaster_flow.sql`,
 `0066_fire_safety_inspections.sql`, `0067_role_fits_department.sql`,
-`0068_dispatch_desk_tags.sql`, `0069_no_anonymous_reads.sql`.
+`0068_dispatch_desk_tags.sql`, `0069_no_anonymous_reads.sql`, `0070_criti.sql`.
 
 ## 2. Push notifications (once)
 

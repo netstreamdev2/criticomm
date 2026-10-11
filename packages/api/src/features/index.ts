@@ -34,6 +34,11 @@ export const FEATURES: FeatureDef[] = [
     defaultEnabled: true,
   },
   {
+    key: 'web.criti_tiles', surface: 'web', label: 'Criti suggestion tiles',
+    description: 'Off: the suggestion tiles (late dispatch, critical calls waiting, possible duplicates…) disappear from the dashboards and the queue. They use no AI model, so they cost nothing to run.',
+    defaultEnabled: true,
+  },
+  {
     key: 'web.cameras', surface: 'web', label: 'Body cams and cameras',
     description: 'Off: Body Cams, Body Cam Footage and the SANRAL camera wall are hidden and their APIs refuse. Officers still book bodycams out and back.',
     defaultEnabled: true,

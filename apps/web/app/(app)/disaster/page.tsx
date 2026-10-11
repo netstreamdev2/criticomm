@@ -6,6 +6,7 @@ import { WindWidget } from './wind-widget';
 import { getSession } from '@/lib/session';
 import { escapeHtml, formatSaTime, timeAgo } from '@/lib/utils';
 import { periodicUpdateAction } from './actions';
+import { CritiTiles } from '@/components/criti/insight-tiles';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Disaster Management · HikTech' };
@@ -49,6 +50,9 @@ export default async function DisasterPage() {
           </Link>
         </div>
       </header>
+
+      {/* Criti: what needs attention now, for this person. */}
+      <CritiTiles />
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[

@@ -5,6 +5,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { IncidentLive } from '@/components/incident-live';
 import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
+import { CritiTiles } from '@/components/criti/insight-tiles';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Fire & Rescue · HikTech' };
@@ -47,6 +48,9 @@ export default async function FirePage() {
           + Capture a fire report
         </Link>
       </header>
+
+      {/* Criti: what needs attention now, for this person. */}
+      <CritiTiles />
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {[

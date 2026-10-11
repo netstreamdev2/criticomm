@@ -9,6 +9,7 @@ import { getFeatures, hiddenHrefs, requireFeaturePage } from '@/lib/features';
 import { getSession, siloFilter } from '@/lib/session';
 import { cn, formatSaTime } from '@/lib/utils';
 import { setLeaveStatusAction } from '../leave/actions';
+import { CritiTiles } from '@/components/criti/insight-tiles';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Command · HikTech' };
@@ -148,6 +149,9 @@ export default async function CommandPage({
           ))}
         </nav>
       </header>
+
+      {/* Criti: what needs attention now, for this person. */}
+      <CritiTiles />
 
       {/* ── Top stats ── */}
       <div className="grid gap-3 sm:grid-cols-3">

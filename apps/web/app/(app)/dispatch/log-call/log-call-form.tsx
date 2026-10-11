@@ -17,6 +17,7 @@ import { useToast } from '@/components/toast';
 import { cn } from '@/lib/utils';
 import { COUNTRIES, DEFAULT_COUNTRY, checkPhone } from '@/lib/phone';
 import { regionFor } from '@/lib/durban-regions';
+import { takeCallDraft } from '@/components/criti/shared';
 
 type CategoryTree = Array<{
   id: string; code: string | null; name: string;
@@ -245,6 +246,47 @@ export function LogCallForm({
     const group = categoryTree.find((g) => g.subcategories.some((s) => s.name === value));
     if (group) setCategory(group.name);
   };
+
+  /* ── A call Criti started ("Open in the form") ──────────────────── */
+  // Filled in once, when the form opens. Every field stays editable and the
+  // call is logged only by this form's own button, with its own checks.
+  useEffect(() => {
+    const draft = takeCallDraft();
+    if (!draft) return;
+    if (draft.caller_name) setCallerName(draft.caller_name);
+    if (draft.caller_number) { setPhone(draft.caller_number); setPhoneTouched(true); }
+    if (draft.is_caller_patient !== null) setIsPatient(draft.is_caller_patient);
+    if (draft.is_caller_patient === false && draft.patient_names) {
+      setPatientNames(draft.patient_names.split(',').map((n) => n.trim()).filter(Boolean));
+    }
+    if (draft.call_description) setDescription(draft.call_description);
+    if (draft.location_address) { suppressLookup.current = true; setAddress(draft.location_address); }
+    if (draft.location_lat !== null && draft.location_lng !== null) { setLat(draft.location_lat); setLng(draft.location_lng); }
+    if (draft.suburb) setSuburb(draft.suburb);
+    if (draft.city) setCity(draft.city);
+    if (draft.postal_code) setPostal(draft.postal_code);
+    if (draft.region) { setRegion(draft.region); setRegionFromMap(true); }
+    if (draft.incident_type && categoryTree.some((g) => g.subcategories.some((s) => s.name === draft.incident_type))) {
+      onSelectCode(draft.incident_type);
+    }
+    if (draft.incident_severity) setSeverity(draft.incident_severity);
+    if (draft.ems_not_required) {
+      setEmsNotRequired(true); setVictims('0'); setMedPriority('');
+    } else {
+      if (draft.number_of_victims !== null) setVictims(String(draft.number_of_victims));
+      if (draft.medical_priority) setMedPriority(draft.medical_priority);
+    }
+    if (draft.notes) setNotes(draft.notes);
+    if (draft.tagged_silos.length) {
+      setTargetsTouched(true);
+      setTargets(DEPARTMENTS.map((d) => d.id).filter((d) => draft.tagged_silos.includes(d)));
+    }
+    toast.push({
+      title: 'Filled in by Criti',
+      body: 'Check every field and the place on the map, then log the call.',
+      tone: 'info',
+    });
+  }, []);
 
   const checkDup = () => {
     const caller = phoneCheck.ok ? phoneCheck.e164 : null;

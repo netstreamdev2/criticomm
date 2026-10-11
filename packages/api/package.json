@@ -14,7 +14,8 @@
     "./external/*": "./src/external/*.ts",
     "./reporting": "./src/reporting/index.ts",
     "./rollup": "./src/performance/rollup.ts",
-    "./cases": "./src/cases/stage.ts"
+    "./cases": "./src/cases/stage.ts",
+    "./criti": "./src/criti/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

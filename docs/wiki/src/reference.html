@@ -138,7 +138,9 @@
   <table class="zebra">
     <thead><tr><th style="width:50mm">Endpoint</th><th>Purpose</th></tr></thead>
     <tbody>
-      <tr><td class="mono">/api/chat</td><td>Criti. Cookie or bearer authentication. 40/min.</td></tr>
+      <tr><td class="mono">/api/chat</td><td>Criti's conversation: answers and proposed tasks, never a change. Cookie or bearer authentication. 40/min.</td></tr>
+      <tr><td class="mono">/api/criti/insights</td><td>Criti's suggestion tiles for the signed-in person. No AI model. 150/min.</td></tr>
+      <tr><td class="mono">/api/criti/act</td><td>Carries out a task the person confirmed, through the same functions as the forms. 30/min.</td></tr>
       <tr><td class="mono">/api/geocode</td><td>Address ⇄ coordinate. Session-gated, 120/min.</td></tr>
       <tr><td class="mono">/api/route</td><td>Road-routed ETA.</td></tr>
       <tr><td class="mono">/api/wind</td><td>OpenWeather proxy.</td></tr>
@@ -269,8 +271,9 @@
       <tr><td class="mono">NEXT_PUBLIC_APP_URL</td><td>web</td><td>SMS share links fall back to the request host.</td></tr>
       <tr><td class="mono">EXPO_PUBLIC_SUPABASE_URL / _ANON_KEY</td><td>mobile</td><td>App runs but cannot reach the server.</td></tr>
       <tr><td class="mono">EXPO_PUBLIC_APP_URL</td><td>mobile</td><td>Criti unavailable on the phone.</td></tr>
-      <tr><td class="mono">GROQ_API_KEY</td><td>web</td><td>Criti falls back to Gemini.</td></tr>
-      <tr><td class="mono">GEMINI_API_KEY</td><td>web</td><td>With no Groq key either, Criti explains it is unconfigured.</td></tr>
+      <tr><td class="mono">XAI_API_KEY</td><td>web</td><td>Criti uses the next provider (Grok is tried first).</td></tr>
+      <tr><td class="mono">GROQ_API_KEY</td><td>web</td><td>Criti uses the next provider.</td></tr>
+      <tr><td class="mono">GEMINI_API_KEY</td><td>web</td><td>With none of the three keys, Criti cannot chat; its suggestion tiles still work.</td></tr>
       <tr><td class="mono">BULKSMS_TOKEN_ID / _SECRET</td><td>web</td><td>Citizen GPS request unavailable.</td></tr>
       <tr><td class="mono">REALPTT_ACCOUNT / _PASSWORD</td><td>web</td><td>PTT console reports not configured.</td></tr>
       <tr><td class="mono">TOMTOM_API_KEY</td><td>web</td><td>Traffic and POI panels report not configured.</td></tr>

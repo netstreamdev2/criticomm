@@ -6,8 +6,9 @@ import {
   listPersonnel, getUnitCompliance, listAllProfiles, listApparatus, listDevices, listBookedOutBodycams, listPcrs,
 } from '@criticom/api';
 import {
-  ADMIN_ROLES, DISPATCH_ROLES, RESPONDER_ROLES, canViewAllFines, canWatchBodycam, type Silo, type UserRole,
+  ADMIN_ROLES, DISPATCH_ROLES, RESPONDER_ROLES, canViewAllFines, canWatchBodycam, departmentName, roleName, type Silo, type UserRole,
 } from '@criticom/db';
+import { CritiTiles } from '@/components/criti/insight-tiles';
 import { featureEnabled } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
@@ -174,6 +175,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     return (
       <div className="space-y-4">
         {!usesSidebar && <DashboardLogo />}
+        {/* Criti: late dispatch, critical calls waiting, possible duplicates… */}
+        <CritiTiles />
         <DispatchBoard supabase={supabase} sf={sf} role={role} silo={silo} userId={userId} />
         <section className="space-y-3 pt-2">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
@@ -193,9 +196,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">{PERSONA_TITLE[persona]}</p>
         <h1 className="mt-1 text-2xl font-bold">Welcome back, {first}</h1>
         <p className="text-sm text-muted-foreground">
-          {role} · {silo} · live operations for your role.
+          {roleName(role)} · {departmentName(silo)} · live operations for your role.
         </p>
       </section>
+
+      <CritiTiles />
 
       {/* Quick links — "all those links and so forth", tailored per role */}
       <section className="space-y-3">
@@ -251,6 +256,8 @@ async function CaptainDashboard({
           </Link>
         </div>
       </section>
+
+      <CritiTiles />
 
       <section aria-label="Team status" className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
         <Tile label="Team members" value={personnel.length} />
@@ -320,6 +327,8 @@ async function EmsAdminDashboard({
           </Link>
         </div>
       </section>
+
+      <CritiTiles />
 
       <section aria-label="EMS status" className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         <Tile label="Crew on duty" value={onDuty} accent="text-severity-low-ink" />

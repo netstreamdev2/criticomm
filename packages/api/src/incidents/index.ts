@@ -241,7 +241,9 @@ export async function listPendingIncidents(client: CriticomClient, silo?: Silo) 
     .select('*')
     .in('status', ['Pending Dispatch', 'Pending', 'New', 'Pending Analysis'])
     .order('call_timestamp', { ascending: true });
-  if (silo) q = q.eq('silo', silo);
+  // A department's queue is the calls sent to its desk (0068): logged under
+  // it, tagged for it, or with its crews already on them.
+  if (silo) q = q.or(`silo.eq.${silo},tagged_silos.cs.{${silo}},dispatched_silos.cs.{${silo}}`);
   const { data, error } = await q;
   if (error) throw error;
   // An officer's SOS first, then by real severity (the column sorts as text,
