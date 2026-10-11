@@ -1,8 +1,11 @@
 # Native app branding
 
 Exports of the platform's existing `apps/web/public/hiktech-brand.svg`.
-The launcher uses the original red H letterform; the splash adds the full
-wordmark with silver TECH lettering for contrast against `#050510`.
+The launcher and splash match the user's supplied logo: the complete red/grey
+HIKTECH wordmark on a white rounded badge, centered against `#050510`.
+The badge uses the reference's 238:50 proportions and retains the vector's
+original colours. Themed and notification icons use the complete wordmark
+as a white alpha mask, without the badge, for Android's monochrome rendering.
 
 | Asset | Size | Use |
 | --- | --- | --- |
