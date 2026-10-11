@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "626455906922",
+    "project_id": "hiktech",
+    "storage_bucket": "hiktech.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:626455906922:android:aba42f608189d3ceef1813",
+        "android_client_info": {
+          "package_name": "za.co.ethekwini.criticom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUj50cD1y5QIK4wfisOek6btutLdianes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
