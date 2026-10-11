@@ -49,17 +49,17 @@
     "experiments": {
       "typedRoutes": false
     },
-    "owner": "kruzen22",
+    "owner": "netstreamdevtests-team",
     "extra": {
       "router": {
         "origin": false
       },
       "eas": {
-        "projectId": "f0dde5d8-3714-4335-ab03-74e1c63d8337"
+        "projectId": "65165cef-bcc7-4de5-8701-79056bbf62f0"
       }
     },
     "updates": {
-      "url": "https://u.expo.dev/f0dde5d8-3714-4335-ab03-74e1c63d8337",
+      "url": "https://u.expo.dev/65165cef-bcc7-4de5-8701-79056bbf62f0",
       "enabled": true,
       "checkAutomatically": "ON_LOAD",
       "fallbackToCacheTimeout": 5000
