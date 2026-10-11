@@ -98,6 +98,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         'expo-notifications',
         {
+          icon: './assets/branding/notification-icon.png',
           color: '#dc3545',
           // Channels are created from JS (lib/push.ts) so their importance and
           // DnD-bypass stay next to the code that depends on them.

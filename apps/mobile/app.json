@@ -8,6 +8,7 @@
     "userInterfaceStyle": "dark",
     "newArchEnabled": false,
     "backgroundColor": "#050510",
+    "icon": "./assets/branding/icon.png",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "za.co.ethekwini.criticom",
@@ -19,6 +20,11 @@
     },
     "android": {
       "package": "za.co.ethekwini.criticom",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/branding/adaptive-icon.png",
+        "monochromeImage": "./assets/branding/monochrome-icon.png",
+        "backgroundColor": "#050510"
+      },
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION",
@@ -31,6 +37,15 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/branding/splash.png",
+          "imageWidth": 288,
+          "resizeMode": "contain",
+          "backgroundColor": "#050510"
+        }
+      ],
       [
         "expo-location",
         {
