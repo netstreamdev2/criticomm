@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   FlatList, Pressable, RefreshControl, StyleSheet, Text, View,
 } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  listMyAlerts, markAlertRead, markAllAlertsRead, subscribeAlerts,
+  listMyAlerts, subscribeAlerts,
 } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { useSync } from '@/lib/sync';
 import { clearBadge } from '@/lib/push';
 import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, EmptyState, Muted } from '@/components/ui';
@@ -31,7 +32,8 @@ export default function AlertsScreen() {
   const styles = useStyles();
   const router = useRouter();
   const { session, silo } = useAuth();
-  const [alerts, setAlerts] = useState<AlertRow[]>([]);
+  const { enqueue, pending } = useSync();
+  const [serverAlerts, setAlerts] = useState<AlertRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,12 +65,27 @@ export default function AlertsScreen() {
       // Acknowledge here as well as read: a modal alert the responder never saw
       // because the app was closed is still outstanding, and tapping it in the
       // inbox is them dealing with it.
-      void markAlertRead(getSupabase(), alert.id, { acknowledged: alert.requires_ack })
-        .then(() => load())
+      // Queued, so it counts with no signal and sends when there is.
+      void enqueue({ kind: 'alert_read', alertId: alert.id, acknowledged: alert.requires_ack, title: alert.title })
         .catch(() => {});
     }
     if (alert.incident_id) router.push(`/incident/${alert.incident_id}`);
   };
+
+  // Read and acknowledged on this phone count before the server has them.
+  const alerts = useMemo(() => {
+    const read = new Set<string>();
+    const acked = new Set<string>();
+    for (const e of pending) {
+      if (e.op.kind !== 'alert_read') continue;
+      read.add(e.op.alertId);
+      if (e.op.acknowledged) acked.add(e.op.alertId);
+    }
+    if (read.size === 0) return serverAlerts;
+    return serverAlerts.map((a) => (read.has(a.id)
+      ? { ...a, read: true, acknowledged: a.acknowledged || acked.has(a.id) }
+      : a));
+  }, [serverAlerts, pending]);
 
   const unread = alerts.filter((a) => !a.read).length;
   const awaitingAck = alerts.filter((a) => a.requires_ack && !a.acknowledged).length;
@@ -110,7 +127,11 @@ export default function AlertsScreen() {
                   variant="subtle"
                   size="sm"
                   onPress={() => {
-                    void markAllAlertsRead(getSupabase()).then(() => load()).catch(() => {});
+                    void (async () => {
+                      for (const a of alerts) {
+                        if (!a.read) await enqueue({ kind: 'alert_read', alertId: a.id, acknowledged: false, title: a.title });
+                      }
+                    })().catch(() => {});
                   }}
                 />
               ) : null}

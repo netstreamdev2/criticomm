@@ -9,6 +9,7 @@ import { FIRE_CHECKS, FIRE_EQUIPMENT, FIRE_ESSENTIALS, FIRE_FUEL_LEVELS, fireChe
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { getSupabase } from '@/lib/supabase';
+import { errorWords } from '@/lib/offline-cache-policy';
 import { READINESS_ITEMS } from '@/lib/inspection-187c';
 import { colors, makeStyles, radius, space } from '@/lib/theme';
 import { Banner, Input, KeyValue, Stepper } from './ui';
@@ -20,7 +21,7 @@ const STEPS = ['Welcome', 'Readiness', 'Appliance', 'Checks', 'Sign on'];
 const STEP_NUMBER: Record<FireShiftStep, number> = { intro: 0, readiness: 1, stood_down: 1, appliance: 2, checks: 3, sign: 4, appliance_failed: 3, complete: 4 };
 type ReadinessKey = (typeof READINESS_ITEMS)[number][0];
 type FireState = Awaited<ReturnType<typeof getFireShiftState>>;
-const errorText = (error: unknown) => (error as { message?: string })?.message ?? 'Unable to connect. Check your connection and retry.';
+const errorText = (error: unknown) => errorWords(error, 'Unable to connect. Check your connection and retry.');
 
 export function FireShift({ gated = false }: { gated?: boolean }) {
   const styles = useStyles();

@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as Location from 'expo-location';
 import { Ionicons } from '@expo/vector-icons';
 import { getMyPersonnel, getMyShiftKit, toggleDuty } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
@@ -13,6 +12,8 @@ import { useFeatures } from '@/lib/features';
 import { useOpenCall } from '@/lib/open-call';
 import { useDuty } from '@/lib/duty';
 import { useDept } from '@/lib/branding';
+import { useRouteStatus } from '@/lib/tracker';
+import { errorWords } from '@/lib/offline-cache-policy';
 import { roleName } from '@criticom/db';
 import { departmentOf, wordsFor } from '@/lib/department';
 import { DeptBadge } from '@/components/dept-badge';
@@ -20,8 +21,6 @@ import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/components/ui';
 import { MyIncidents } from '@/components/my-incidents';
 import { MyPerformance } from '@/components/my-performance';
-
-const HEARTBEAT_MS = 60_000;
 
 /**
  * Push status in plain words. A supervisor checking a handset before a shift
@@ -62,7 +61,8 @@ export default function ProfileScreen() {
   const { session, fullName, role, silo } = useAuth();
   const { pushEnabled, pushStatus } = useNotifications();
   const signOut = useSignOut();
-  const { enqueue, pending, failed, online } = useSync();
+  const { pending, failed, online } = useSync();
+  const route = useRouteStatus();
   const { enabled: featureOn } = useFeatures();
   const dept = useDept();
   const words = wordsFor(silo);
@@ -70,9 +70,7 @@ export default function ProfileScreen() {
   const { refresh: refreshOpenCall } = useOpenCall();
   const [onDuty, setOnDuty] = useState(false);
   const [unit, setUnit] = useState<string | null>(null);
-  const [lastPing, setLastPing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const initials = fullName.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
 
@@ -93,46 +91,6 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (liveOnDuty !== null) setOnDuty(liveOnDuty);
   }, [liveOnDuty]);
-
-  /**
-   * GPS heartbeat — posts position to personnel.lat/lng while on duty
-   * (V4 UpdateLiveLocation).
-   *
-   * Goes through the outbox rather than straight to the server so that losing
-   * signal does not lose the position: the queue keeps only the newest fix
-   * (see `dedupeKeyOf`), and on reconnect dispatch gets where the crew is now
-   * rather than a rewind through where they were.
-   */
-  const sendHeartbeat = useCallback(async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setError('Location permission denied — dispatch cannot see your position.');
-        return;
-      }
-      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      await enqueue({
-        kind: 'duty_location',
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-      });
-      setLastPing(new Date().toLocaleTimeString());
-      setError(null);
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  }, [enqueue]);
-
-  useEffect(() => {
-    if (onDuty) {
-      void sendHeartbeat();
-      timer.current = setInterval(() => void sendHeartbeat(), HEARTBEAT_MS);
-    }
-    return () => {
-      if (timer.current) clearInterval(timer.current);
-      timer.current = null;
-    };
-  }, [onDuty, sendHeartbeat]);
 
   /**
    * An officer on a call stays on duty and signed in until its report is
@@ -159,10 +117,9 @@ export default function ProfileScreen() {
     setError(null);
     try {
       await toggleDuty(getSupabase(), { onDuty: value });
-      if (!value) setLastPing(null);
     } catch (e) {
       setOnDuty(!value);
-      setError((e as Error).message);
+      setError(errorWords(e));
     }
   };
 
@@ -239,9 +196,15 @@ export default function ProfileScreen() {
               <Title>{onDuty ? 'On duty' : 'Off duty'}</Title>
             </View>
             <Muted>
-              {onDuty
-                ? `GPS heartbeat every ${HEARTBEAT_MS / 1000}s${lastPing ? ` · last ping ${lastPing}` : ''}`
-                : 'Going on duty starts the live GPS heartbeat to dispatch.'}
+              {!onDuty
+                ? 'Going on duty shares your route with dispatch.'
+                : route.mode === 'denied'
+                  ? 'Location is off. Dispatch cannot see where you are.'
+                  : route.waiting > 0 && !online
+                    ? 'No signal. Your route is kept on this phone and sends when signal returns.'
+                    : route.lastFixAt
+                      ? `Last position ${new Date(route.lastFixAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}`
+                      : 'Finding your position…'}
             </Muted>
           </View>
           <Switch
@@ -252,10 +215,12 @@ export default function ProfileScreen() {
             accessibilityLabel="Toggle duty status"
           />
         </View>
-        {onDuty ? (
+        {onDuty && route.mode !== 'denied' ? (
           <View style={styles.gpsNote}>
             <Ionicons name="navigate" size={13} color={colors.low} />
-            <Text style={styles.gpsText}>Dispatch can see your live position</Text>
+            <Text style={styles.gpsText}>
+              {route.mode === 'foreground' ? 'Dispatch sees your route while the app is open' : 'Dispatch sees your route'}
+            </Text>
           </View>
         ) : null}
         {error ? <View style={{ marginTop: space.md }}><Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner></View> : null}

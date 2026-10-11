@@ -98,7 +98,9 @@ export default function IncidentDetailScreen() {
       const op = e.op;
       return ('incidentId' in op) && op.incidentId === id;
     });
-    const status = forThis.find((e) => e.op.kind === 'incident_status');
+    // The latest one pressed: En Route then On Scene in a dead zone is On Scene.
+    const status = forThis.filter((e) => e.op.kind === 'incident_status')
+      .reduce<(typeof forThis)[number] | undefined>((latest, e) => (!latest || e.occurredAt >= latest.occurredAt ? e : latest), undefined);
     return {
       status: status?.op.kind === 'incident_status' ? (status.op.status as IncidentStatus) : null,
       notes: forThis.filter((e) => e.op.kind === 'incident_note').length,

@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { markAlertRead, subscribeIncidentUpdates } from '@criticom/api';
+import { subscribeIncidentUpdates } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useNotifications } from '@/lib/notifications';
@@ -140,8 +140,9 @@ export function AssignmentAlert() {
   const tone = severityColor(current.severity);
 
   const acknowledge = (thenOpen: boolean) => {
-    // Best-effort: never trap a responder behind a failed write.
-    void markAlertRead(getSupabase(), current.id, { acknowledged: true }).catch(() => {});
+    // Queued, so an acknowledgement in a dead zone still reaches dispatch, and
+    // a responder is never trapped behind a failed write.
+    void enqueue({ kind: 'alert_read', alertId: current.id, acknowledged: true, title: current.title }).catch(() => {});
     clearAssignment(current.id);
     if (!thenOpen || !current.incident_id) return;
     // Command's copy of a raised SOS is not theirs to respond to: open it in full.

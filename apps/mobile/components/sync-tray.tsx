@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSync } from '@/lib/sync';
+import { useShowingSaved } from '@/lib/offline-cache';
 import { useAuth } from '@/lib/auth';
 import { wordsFor } from '@/lib/department';
 import { colors, radius, space, timeAgo, type, makeStyles } from '@/lib/theme';
@@ -28,6 +29,7 @@ export function SyncTray() {
   const { pending, failed, online, syncing, retryAll, discard, describeOp } = useSync();
   const { silo } = useAuth();
   const [open, setOpen] = useState(false);
+  const savedAt = useShowingSaved();
 
   const total = pending.length + failed.length;
   if (total === 0 && online) return null;
@@ -89,7 +91,9 @@ export function SyncTray() {
                 <Text style={styles.sheetSub}>
                   {online
                     ? 'Connected — these are being delivered now.'
-                    : 'No connection. Everything here is stored on the phone and sends itself when signal returns.'}
+                    : `No connection. Keep working: what you do is kept on this phone and sends itself when signal returns.${
+                        savedAt ? ` Screens show what was saved at ${new Date(savedAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}.` : ''
+                      }`}
                 </Text>
               </View>
               <Pressable onPress={() => setOpen(false)} hitSlop={12} accessibilityLabel="Close">

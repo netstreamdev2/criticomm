@@ -266,6 +266,8 @@ export type Database = {
           assigned_apparatus_id: string | null;
           latitude: number | null;
           longitude: number | null;
+          /** When the position above was taken (0071). */
+          location_at: string | null;
           is_on_duty: boolean;
           /** Set by migration 0041: when the officer went on duty in the app. */
           duty_started_at: string | null;
@@ -308,6 +310,25 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      duty_tracks: {
+        /** Every position fix from the officer app while on duty, offline ones included (0071). Written only by record_track(). */
+        Row: {
+          id: number;
+          tenant_id: string;
+          silo: Silo;
+          user_id: string;
+          recorded_at: string;
+          received_at: string;
+          lat: number;
+          lng: number;
+          accuracy: number | null;
+          speed: number | null;
+          heading: number | null;
+        };
+        Insert: Partial<Database['public']['Tables']['duty_tracks']['Row']>;
+        Update: Partial<Database['public']['Tables']['duty_tracks']['Row']>;
+        Relationships: [];
       };
       incident_responders: {
         /** Who is responding to a call: one lead, any number of backup (0042). */
@@ -2449,6 +2470,16 @@ export type Database = {
         Returns: Record<string, { enabled: boolean; config: Record<string, unknown> }>;
       };
       /** A broadcast to the people of the departments chosen; returns how many it reached (0070). */
+      /** The phone delivers position fixes, safe to resend; returns how many were new (0071). */
+      record_track: {
+        Args: { p_points: Array<{ t: string; lat: number; lng: number; acc?: number | null; spd?: number | null; hdg?: number | null }> };
+        Returns: number;
+      };
+      /** Routes for the console map, one fix per 15 s, at most a day back (0071). */
+      list_duty_tracks: {
+        Args: { p_since: string | null; p_user_ids?: string[] | null };
+        Returns: Array<{ user_id: string; recorded_at: string; lat: number; lng: number; offline: boolean }>;
+      };
       send_broadcast: {
         Args: { p_silos: Silo[]; p_message: string; p_severity?: 'Medium' | 'High' | 'Critical' };
         Returns: number;

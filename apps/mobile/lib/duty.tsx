@@ -69,8 +69,9 @@ export function DutyProvider({ children }: { children: React.ReactNode }) {
       ]);
       return cleared;
     } catch {
-      // The server is the authority for today's clearance. A network error
-      // cannot silently unlock incidents.
+      // The server is the authority for today's clearance. With no signal,
+      // the answer it gave this person earlier today stands (the offline
+      // cache answers only on the day it was saved); with none, it is locked.
       setShiftStarted(false);
       return false;
     } finally {

@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { signInEmailFor } from '@criticom/db';
 import { getSupabase } from '@/lib/supabase';
+import { errorWords } from '@/lib/offline-cache-policy';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { HikTechLogo } from '@/components/hiktech-logo';
 import { Banner, Button, Input } from '@/components/ui';
@@ -41,10 +42,10 @@ export default function LoginScreen() {
       if (err) {
         setError(err.code === 'user_banned' || /banned/i.test(err.message) ? DEACTIVATED
           : err.code === 'invalid_credentials' || /invalid login/i.test(err.message) ? NO_MATCH
-            : err.message);
+            : errorWords(err));
       }
     } catch (e) {
-      setError((e as Error).message);
+      setError(errorWords(e));
     } finally {
       setBusy(false);
     }

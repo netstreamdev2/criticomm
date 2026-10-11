@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { cleanupOnLogout, getShiftGateProgress, submitMentalCheck, toggleDuty } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
+import { errorWords } from '@/lib/offline-cache-policy';
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { READINESS_ITEMS } from '@/lib/inspection-187c';
@@ -15,7 +16,7 @@ import { HikTechLogo } from '@/components/hiktech-logo';
 type Step = 'loading' | 'intro' | 'readiness' | 'stood_down' | 'complete';
 type ReadinessKey = (typeof READINESS_ITEMS)[number][0];
 const STEPS = ['Welcome', 'Readiness'];
-const errorText = (e: unknown) => (e as { message?: string })?.message ?? 'Unable to connect. Check your connection and retry.';
+const errorText = (e: unknown) => errorWords(e, 'Unable to connect. Check your connection and retry.');
 
 function saTodayStartIso() {
   const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Johannesburg', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());

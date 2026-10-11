@@ -2,7 +2,7 @@
   "expo": {
     "name": "HikTech Responder",
     "slug": "criticom-responder",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "orientation": "portrait",
     "scheme": "criticom",
     "userInterfaceStyle": "dark",
@@ -15,7 +15,8 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Criticom shares your live position with dispatch while you are on duty.",
         "NSCameraUsageDescription": "Capture incident-scene evidence photos.",
-        "NSMicrophoneUsageDescription": "Record voice notes as incident evidence."
+        "NSMicrophoneUsageDescription": "Record voice notes as incident evidence.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Criticom records your route for dispatch while you are on duty, also with the screen off."
       }
     },
     "android": {
@@ -32,7 +33,9 @@
         "android.permission.RECORD_AUDIO",
         "android.permission.POST_NOTIFICATIONS",
         "android.permission.VIBRATE",
-        "android.permission.WAKE_LOCK"
+        "android.permission.WAKE_LOCK",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
       ]
     },
     "plugins": [
@@ -49,7 +52,11 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Criticom shares your live position with dispatch while you are on duty."
+          "locationWhenInUsePermission": "Criticom shares your live position with dispatch while you are on duty.",
+          "locationAlwaysAndWhenInUsePermission": "Criticom records your route for dispatch while you are on duty, also with the screen off.",
+          "isAndroidForegroundServiceEnabled": true,
+          "isAndroidBackgroundLocationEnabled": false,
+          "isIosBackgroundLocationEnabled": true
         }
       ],
       [

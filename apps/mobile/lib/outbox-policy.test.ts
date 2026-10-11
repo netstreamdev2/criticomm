@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  asUuid, backoffMs, comparePriority, dedupeKeyOf, describe, isMine, isPermanent, MAX_ATTEMPTS, newEntryId,
+  asUuid, backoffMs, comparePriority, dedupeKeyOf, describe, isMine, isPermanent, leadsOnPhone, MAX_ATTEMPTS, mediaOnPhone,
+  newEntryId, statusOnPhone,
   type OutboxEntry, type OutboxOp,
 } from './outbox-policy.ts';
 
@@ -191,4 +192,55 @@ test('old-style ids map to the same UUID every time; UUIDs pass through', () => 
   assert.notEqual(asUuid(legacy), asUuid('lzx3k9-abc12346'));
   const real = newEntryId();
   assert.equal(asUuid(real), real);
+});
+
+/* ── Offline: alerts, duty, leave ───────────────────────────────────── */
+
+test('acknowledgements, duty confirmations and leave queue too, behind a live incident', () => {
+  const ack: OutboxOp = { kind: 'alert_read', alertId: 'a1', acknowledged: true, title: 'Assigned: INC-20261011-0004' };
+  const duty: OutboxOp = { kind: 'allocation_ack', rosterId: 'r1', label: 'Mon 12 Oct · Day shift' };
+  const leave: OutboxOp = {
+    kind: 'leave_request', rowId: newEntryId(), silo: 'MetroPolice', from: '2026-10-20', to: '2026-10-22', absence: 'Annual', reason: null,
+  };
+  assert.equal(describe(ack), 'Alert acknowledged · Assigned: INC-20261011-0004');
+  assert.equal(describe({ kind: 'alert_read', alertId: 'a2', acknowledged: false }), 'Alert read');
+  assert.equal(describe(duty), 'Duty acknowledged · Mon 12 Oct · Day shift');
+  assert.equal(describe(leave), 'Leave · Annual · 2026-10-20 to 2026-10-22');
+  for (const op of [ack, duty, leave]) assert.equal(dedupeKeyOf(op), null, `${op.kind} is never collapsed`);
+  const later = { occurredAt: '2026-08-04T10:05:00.000Z' };
+  const order = [entry(leave, later), entry(duty), entry(ack), entry(STATUS), entry(PHOTO)].sort(comparePriority).map((e) => e.op.kind);
+  assert.deepEqual(order, ['incident_status', 'alert_read', 'allocation_ack', 'leave_request', 'evidence']);
+});
+
+/* ── A call as this phone knows it ──────────────────────────────────── */
+
+const ME = 'u-me';
+const status = (s: string, at: string, incidentId = 'i1') =>
+  entry({ kind: 'incident_status', incidentId, status: s }, { occurredAt: at, userId: ME });
+
+test('the status pressed last on the phone counts, before the server has it', () => {
+  const pending = [status('On Scene', '2026-10-11T10:20:00Z'), status('En Route', '2026-10-11T10:05:00Z'), status('Arrived', '2026-10-11T10:30:00Z', 'i2')];
+  assert.equal(statusOnPhone(pending, 'i1', 'Dispatched'), 'On Scene', 'En Route then On Scene in a dead zone is On Scene');
+  assert.equal(statusOnPhone(pending, 'i3', 'Dispatched'), 'Dispatched', 'nothing on the phone: the server\'s');
+  assert.equal(statusOnPhone([], 'i1', null), null);
+});
+
+test('a call responded to offline is the officer\'s to report on, unless someone else has it', () => {
+  const responded = [status('En Route', '2026-10-11T10:05:00Z')];
+  assert.equal(leadsOnPhone({ accepted_by: ME }, ME, [], 'i1'), true, 'the server says so');
+  assert.equal(leadsOnPhone({ accepted_by: 'u-other' }, ME, responded, 'i1'), false, 'someone else leads it');
+  assert.equal(leadsOnPhone({ accepted_by: null }, ME, responded, 'i1'), true, 'responded from this phone, nobody else has it');
+  assert.equal(leadsOnPhone({ accepted_by: null, assigned_to: ME }, ME, responded, 'i1'), true);
+  assert.equal(leadsOnPhone({ accepted_by: null, assigned_to: 'u-other' }, ME, responded, 'i1'), false, 'sent to someone else: backup at most');
+  assert.equal(leadsOnPhone({ accepted_by: null }, ME, [], 'i1'), false, 'not responded at all');
+  assert.equal(leadsOnPhone({ accepted_by: null }, ME, responded, 'i2'), false, 'responded to a different call');
+  assert.equal(leadsOnPhone({ accepted_by: ME }, undefined, [], 'i1'), false, 'signed out');
+});
+
+test('photos and voice notes still on the phone are counted for the report', () => {
+  const voice: OutboxOp = { ...PHOTO, mediaKind: 'audio', filename: 'a.m4a', mimeType: 'audio/m4a' } as OutboxOp;
+  const elsewhere: OutboxOp = { ...PHOTO, incidentId: 'i9' } as OutboxOp;
+  const pending = [entry(PHOTO), entry(PHOTO), entry(voice), entry(elsewhere), entry(NOTE)];
+  assert.deepEqual(mediaOnPhone(pending, 'i1'), { photos: 2, voice: 1 });
+  assert.deepEqual(mediaOnPhone(pending, 'i5'), { photos: 0, voice: 0 });
 });

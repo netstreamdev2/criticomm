@@ -13,6 +13,7 @@ import type { Database } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useSync } from '@/lib/sync';
+import { leadsOnPhone, mediaOnPhone, statusOnPhone } from '@/lib/outbox';
 import { setReportingFor } from '@/lib/open-call';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import {
@@ -47,7 +48,7 @@ export default function IncidentReportScreen() {
   const [forms, setForms] = useState<string[] | null>(null);
   const reportType = useMemo(() => (forms ? composeReportType(forms) : null), [forms]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [evidence, setEvidence] = useState({ photos: 0, voice: 0 });
+  const [evidenceOnFile, setEvidence] = useState({ photos: 0, voice: 0 });
   const [problems, setProblems] = useState<string[]>([]);
   // Set once File is pressed: from then on missing answers glow red until fixed.
   const [tried, setTried] = useState(false);
@@ -114,11 +115,13 @@ export default function IncidentReportScreen() {
   });
 
   /** The officer's status as they last set it, delivered or not. */
-  const status = useMemo(() => {
-    const queued = pending.find((e) => e.op.kind === 'incident_status' && e.op.incidentId === id);
-    return queued?.op.kind === 'incident_status' ? queued.op.status : incident?.status;
-  }, [pending, id, incident]);
+  const status = useMemo(() => statusOnPhone(pending, id ?? '', incident?.status), [pending, id, incident]);
   const alreadyQueued = pending.some((e) => e.op.kind === 'incident_report' && e.op.incidentId === id);
+  // Photos and voice notes still waiting to send count as taken.
+  const evidence = useMemo(() => {
+    const waiting = mediaOnPhone(pending, id ?? '');
+    return { photos: evidenceOnFile.photos + waiting.photos, voice: evidenceOnFile.voice + waiting.voice };
+  }, [pending, id, evidenceOnFile]);
 
   /** The fields validateReportAnswers() objects to, to mark them in red. */
   const invalid = useMemo(() => {
@@ -221,7 +224,7 @@ export default function IncidentReportScreen() {
     );
   }
 
-  if (incident.accepted_by !== session?.user.id) {
+  if (!leadsOnPhone(incident, session?.user.id, pending, incident.id)) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
         <EmptyState

@@ -13,6 +13,7 @@ import type { Database } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useSync } from '@/lib/sync';
+import { leadsOnPhone, statusOnPhone } from '@/lib/outbox';
 import { setReportingFor } from '@/lib/open-call';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, EmptyState, Input, KeyValue, Muted, SeverityPill } from '@/components/ui';
@@ -32,7 +33,7 @@ export default function PostMortemScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { session, fullName } = useAuth();
-  const { enqueue, pending } = useSync();
+  const { enqueue, pending, online } = useSync();
   const [incident, setIncident] = useState<Incident | null>(null);
   const [timeline, setTimeline] = useState<Update[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,10 +83,8 @@ export default function PostMortemScreen() {
 
   const set = (key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: value }));
 
-  const status = useMemo(() => {
-    const queued = [...pending].reverse().find((e) => e.op.kind === 'incident_status' && e.op.incidentId === id);
-    return queued?.op.kind === 'incident_status' ? queued.op.status : incident?.status;
-  }, [pending, id, incident]);
+  /** The officer's status as they last set it, delivered or not. */
+  const status = useMemo(() => statusOnPhone(pending, id ?? '', incident?.status), [pending, id, incident]);
   const alreadyQueued = pending.some((e) => e.op.kind === 'post_mortem' && e.op.incidentId === id);
 
   const missing = useMemo(() => postMortemProblems(answers), [answers]);
@@ -98,7 +97,7 @@ export default function PostMortemScreen() {
     try {
       await enqueue({ kind: 'post_mortem', incidentId: incident.id, incidentNumber: incident.incident_number, fields: postMortemPayload(answers) });
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
-      Alert.alert('Post-mortem filed', `${incident.incident_number} is resolved.`);
+      Alert.alert('Post-mortem filed', online ? `${incident.incident_number} is resolved.` : 'Saved. It sends when you have signal.');
       router.replace('/(tabs)/incidents');
     } catch (e) {
       setProblems([(e as Error).message]);
@@ -137,7 +136,7 @@ export default function PostMortemScreen() {
       </View>
     );
   }
-  if (incident.accepted_by !== session?.user.id) {
+  if (!leadsOnPhone(incident, session?.user.id, pending, incident.id)) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
         <EmptyState icon="person-outline" title="Not your incident" body="Only the officer leading this incident files its post-mortem." />

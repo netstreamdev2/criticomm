@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   availableLayers, compass, crimeCount, crimeZones, defaultLayers, facilityKind, hasPosition, heatColour,
-  isStale, parseFacilities, parseTraffic, restoreLayers, summariseIncidents, type CrimeStation,
+  isStale, offlineSince, OFFLINE_AFTER_MS, parseFacilities, parseTraffic, restoreLayers, ROUTE_GAP_MS, routeSegments,
+  summariseIncidents, type CrimeStation, type RoutePoint,
 } from './layers.ts';
 
 const station = (over: Partial<CrimeStation>): CrimeStation => ({
@@ -21,7 +22,46 @@ test('each desk opens with the layers its work needs', () => {
   assert.deepEqual(defaultLayers('Police'), ['incidents', 'units', 'zones', 'crime']);
   assert.deepEqual(defaultLayers('FireChief'), ['incidents', 'units', 'zones', 'hydrants']);
   assert.deepEqual(defaultLayers('Disaster'), ['incidents', 'units', 'zones', 'rain']);
-  assert.deepEqual(defaultLayers('Dispatcher'), ['incidents', 'units', 'zones']);
+  assert.deepEqual(defaultLayers('Dispatcher'), ['incidents', 'units', 'zones', 'routes'], 'the desk that sends crews follows where they go');
+  assert.deepEqual(defaultLayers('Supervisor'), ['incidents', 'units', 'zones', 'routes']);
+  assert.deepEqual(defaultLayers('Viewer'), ['incidents', 'units', 'zones']);
+});
+
+test('routes are offered only to the desks and command who oversee crews', () => {
+  assert.ok(availableLayers({ cameras: false, routes: true }).includes('routes'));
+  assert.ok(!availableLayers({ cameras: false, routes: false }).includes('routes'));
+  assert.ok(!availableLayers({ cameras: false }).includes('routes'), 'not unless asked for');
+  const officer = availableLayers({ cameras: false });
+  assert.deepEqual(restoreLayers(defaultLayers('Dispatcher'), officer, []), ['incidents', 'units', 'zones'], 'a default never grants a layer');
+});
+
+test('an officer is offline once their phone has gone quiet for a few minutes', () => {
+  const now = Date.parse('2026-10-11T10:00:00Z');
+  const ago = (ms: number) => new Date(now - ms).toISOString();
+  assert.equal(offlineSince({ lastContactAt: ago(60_000), seenAt: ago(60_000) }, now), null);
+  assert.equal(offlineSince({ lastContactAt: ago(OFFLINE_AFTER_MS + 1000), seenAt: ago(60_000) }, now), ago(OFFLINE_AFTER_MS + 1000));
+  assert.equal(offlineSince({ lastContactAt: null, seenAt: ago(10 * 60_000) }, now), ago(10 * 60_000), 'before 0071: the last position stands in');
+  assert.equal(offlineSince({ lastContactAt: 'not a time', seenAt: ago(0) }, now), null);
+});
+
+test('a route is drawn as stretches with and without signal, broken only where the phone went quiet', () => {
+  const t0 = Date.parse('2026-10-11T08:00:00Z');
+  const pt = (min: number, lat: number, offline = false): RoutePoint => ({ at: new Date(t0 + min * 60_000).toISOString(), lat, lng: 31, offline });
+  const segs = routeSegments([
+    pt(3, -29.83, true), pt(0, -29.80), pt(1, -29.81), pt(2, -29.82, true), pt(4, -29.84),
+    pt(4 + ROUTE_GAP_MS / 60_000 + 1, -29.90), pt(25, -29.91), { at: 'bad', lat: -29.9, lng: 31, offline: false },
+    { ...pt(26, 0), lng: 0 },
+  ]);
+  assert.deepEqual(segs.map((s) => [s.offline, s.points.map(([lat]) => lat)]), [
+    [false, [-29.8, -29.81]],
+    [true, [-29.81, -29.82, -29.83]],
+    [false, [-29.83, -29.84]],
+    [false, [-29.9, -29.91]],
+  ], 'each stretch starts where the last ended; a long silence is a gap; bad points are dropped');
+  assert.equal(segs[1]!.from, pt(1, 0).at);
+  assert.equal(segs[1]!.to, pt(3, 0).at);
+  assert.deepEqual(routeSegments([pt(0, -29.8)]), [], 'one fix is a marker, not a line');
+  assert.deepEqual(routeSegments([]), []);
 });
 
 test('a saved choice keeps only layers the viewer may still use', () => {

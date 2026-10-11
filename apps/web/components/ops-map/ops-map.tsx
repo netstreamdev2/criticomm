@@ -34,7 +34,8 @@ import {
   Crosshair, Layers, Maximize2, Minimize2, Shapes, Siren, Wind, X,
 } from 'lucide-react';
 import {
-  listBodycamHolders, listCameras, listCrimeZones, listHydrants, subscribeBodycams, type LiveMapZone, type OnDutyOfficer,
+  listBodycamHolders, listCameras, listCrimeZones, listDutyTracks, listHydrants, subscribeBodycams,
+  type DutyTrackPoint, type LiveMapZone, type OnDutyOfficer,
 } from '@criticom/api';
 import {
   DEPARTMENT_NAMES, canDrawMapZones, canWatchBodycam,
@@ -47,8 +48,8 @@ import { useOnDutyOfficers } from '@/lib/on-duty';
 import { useLiveZones } from '@/lib/live-zones';
 import {
   BASEMAPS, CRIME_KINDS, HYDRANT_COLOUR, LAYER_GROUPS, LAYERS, SEVERITY_COLOUR, WEATHER_LAYERS,
-  compass, crimeZones, hasPosition, isBasemap, isCrimeKind, isSos, isStale, parseFacilities,
-  parseTraffic, restoreLayers, summariseIncidents,
+  compass, crimeZones, hasPosition, isBasemap, isCrimeKind, isSos, isStale, offlineSince, parseFacilities,
+  parseTraffic, restoreLayers, ROUTE_COLOUR, routeSegments, summariseIncidents,
   type Basemap, type CrimeKind, type CrimeStation, type Facility, type LayerId, type TrafficItem,
 } from '@/lib/ops-map/layers';
 import { fromGeometry, kindsForShape, zoneKind, type LatLng, type ZoneDraft } from '@/lib/ops-map/zones';
@@ -103,7 +104,7 @@ const WEATHER_OPACITY: Record<(typeof WEATHER_LAYERS)[number], number> = {
 };
 
 /** Overlays drawn from data (weather layers are tiles, handled apart). */
-const DATA_GROUPS = ['incidents', 'units', 'zones', 'cameras', 'crime', 'hydrants', 'traffic', 'facilities'] as const;
+const DATA_GROUPS = ['incidents', 'units', 'routes', 'zones', 'cameras', 'crime', 'hydrants', 'traffic', 'facilities'] as const;
 type DataGroup = (typeof DATA_GROUPS)[number];
 type GroupKey = DataGroup | 'sos';
 
@@ -524,10 +525,13 @@ export function OpsMap({
       if (!hasPosition(o.lat, o.lng)) continue;
       seen.add(o.userId);
       const busy = Boolean(o.busyWith);
-      const stale = isStale(o.seenAt, now);
+      // Offline (the phone has not reached the server for a few minutes) greys
+      // the marker like an old position: where it stands is where they were.
+      const since = offlineSince(o, now);
+      const stale = isStale(o.seenAt, now) || Boolean(since);
       const cam = camHolders.get(o.userId) ?? null;
       const key = `${busy}|${stale}|${Boolean(cam)}`;
-      const tip = M.unitTooltip(o, stale, cam?.serial);
+      const tip = M.unitTooltip(o, stale, cam?.serial, since);
       const entry = unitMarkers.current.get(o.userId);
       if (!entry) {
         const marker = L.marker([o.lat!, o.lng!], { icon: M.unitIcon(L, busy, stale, Boolean(cam)), keyboard: false, zIndexOffset: -100 });
@@ -566,6 +570,17 @@ export function OpsMap({
       unitMarkers.current.delete(id);
     }
   }, [ready, officers, minute, focus, camHolders]);
+
+  /* ── Routes driven (0071) ─────────────────────────────────────────── */
+  // Each on-duty officer's route since they went on duty, offline stretches
+  // included once the phone has sent them. Read again every half minute
+  // while the layer is on; the database decides whose routes come back.
+
+  const routesOn = active.includes('routes');
+  const [routes, setRoutes] = useState<DutyTrackPoint[]>([]);
+  const crewKey = useMemo(() => officers.map((o) => o.userId).sort().join(','), [officers]);
+  const routeOfficersRef = useRef(officers);
+  routeOfficersRef.current = officers;
 
   /* ── Reference layers, fetched the first time they are switched on ── */
 
@@ -646,6 +661,69 @@ export function OpsMap({
       clearInterval(t);
     };
   }, [trafficOn, note]);
+
+  useEffect(() => {
+    if (!routesOn || !crewKey) {
+      setRoutes([]);
+      return;
+    }
+    let sb: ReturnType<typeof getBrowserSupabase>;
+    try {
+      sb = getBrowserSupabase();
+    } catch {
+      return;
+    }
+    let alive = true;
+    const load = () => {
+      const starts = routeOfficersRef.current
+        .map((o) => o.onDutySince)
+        .filter((t): t is string => Boolean(t))
+        .sort((a, b) => Date.parse(a) - Date.parse(b));
+      void listDutyTracks(sb, { since: starts[0] ?? null, userIds: crewKey.split(',') })
+        .then((rows) => {
+          if (!alive) return;
+          setRoutes(rows);
+          note('routes', null);
+        })
+        .catch(() => { if (alive) note('routes', 'Routes could not load. They try again in a moment.'); });
+    };
+    load();
+    const t = setInterval(load, 30_000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, [routesOn, crewKey, note]);
+
+  useEffect(() => {
+    const L = lib.current;
+    const g = groups.current.routes;
+    if (!ready || !L || !g) return;
+    g.clearLayers();
+    if (!routes.length) return;
+    const byOfficer = new Map<string, DutyTrackPoint[]>();
+    for (const r of routes) {
+      const list = byOfficer.get(r.userId);
+      if (list) list.push(r);
+      else byOfficer.set(r.userId, [r]);
+    }
+    for (const o of officers) {
+      const since = o.onDutySince ? Date.parse(o.onDutySince) : Number.NEGATIVE_INFINITY;
+      const mine = (byOfficer.get(o.userId) ?? []).filter((r) => Date.parse(r.at) >= since);
+      const colour = ROUTE_COLOUR[o.silo] ?? '#a78bfa';
+      for (const seg of routeSegments(mine)) {
+        L.polyline(seg.points, {
+          color: colour,
+          weight: seg.offline ? 3 : 4,
+          opacity: seg.offline ? 0.9 : 0.7,
+          dashArray: seg.offline ? '6 8' : undefined,
+          lineCap: 'round',
+          lineJoin: 'round',
+          renderer: canvas.current ?? undefined,
+        }).bindTooltip(M.routeTooltip(o, seg), { sticky: true, opacity: 0.97 }).addTo(g);
+      }
+    }
+  }, [ready, routes, officers]);
 
   const crimeYear = crime?.year ?? null;
   const crimeCircles = useMemo(() => (crime ? crimeZones(crime.stations, crimeKind) : []), [crime, crimeKind]);
@@ -1403,6 +1481,18 @@ function Legend({ isOn, wall, unplaced, crimeYear, bodycams }: {
       {isOn('units') && dot('#a78bfa', 'Officer available')}
       {isOn('units') && dot('#a78bfa', 'Officer on a call', '#f59e0b')}
       {isOn('units') && bodycams && dot('#ef4444', 'Bodycam on: click the officer to watch')}
+      {isOn('routes') && (
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-0.5 w-5 rounded-full bg-slate-200" />
+          Route
+        </span>
+      )}
+      {isOn('routes') && (
+        <span className="inline-flex items-center gap-1.5">
+          <span className="w-5 border-t-2 border-dashed border-slate-200" />
+          No signal
+        </span>
+      )}
       {isOn('crime') && (
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-8 rounded-full" style={{ background: 'linear-gradient(90deg,#facc15,#f97316,#dc2626)' }} />

@@ -14,6 +14,7 @@ import type { Database } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useSync } from '@/lib/sync';
+import { leadsOnPhone, mediaOnPhone, statusOnPhone } from '@/lib/outbox';
 import { setReportingFor } from '@/lib/open-call';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, EmptyState, Input, KeyValue, Muted, Segmented, SeverityPill } from '@/components/ui';
@@ -42,12 +43,12 @@ export default function PcrScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { session } = useAuth();
-  const { enqueue, pending } = useSync();
+  const { enqueue, pending, online } = useSync();
   const [incident, setIncident] = useState<Incident | null>(null);
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [casualties, setCasualties] = useState<SecondaryPatient[]>([]);
-  const [media, setMedia] = useState({ photos: 0, voice: 0 });
+  const [mediaOnFile, setMedia] = useState({ photos: 0, voice: 0 });
   const [open, setOpen] = useState<Set<string>>(new Set(OPEN_FIRST));
   const [problems, setProblems] = useState<string[]>([]);
   const [tried, setTried] = useState(false);
@@ -114,11 +115,14 @@ export default function PcrScreen() {
     return next;
   });
 
-  const status = useMemo(() => {
-    const queued = [...pending].reverse().find((e) => e.op.kind === 'incident_status' && e.op.incidentId === id);
-    return queued?.op.kind === 'incident_status' ? queued.op.status : incident?.status;
-  }, [pending, id, incident]);
+  /** The officer's status as they last set it, delivered or not. */
+  const status = useMemo(() => statusOnPhone(pending, id ?? '', incident?.status), [pending, id, incident]);
   const alreadyQueued = pending.some((e) => e.op.kind === 'pcr' && e.op.incidentId === id);
+  // Photos and voice notes still waiting to send count as taken.
+  const media = useMemo(() => {
+    const waiting = mediaOnPhone(pending, id ?? '');
+    return { photos: mediaOnFile.photos + waiting.photos, voice: mediaOnFile.voice + waiting.voice };
+  }, [pending, id, mediaOnFile]);
 
   const missing = useMemo(() => pcrProblems(answers), [answers]);
   const invalid = useMemo(() => new Set(tried ? missing.flatMap((p) => p.keys) : []), [tried, missing]);
@@ -133,9 +137,11 @@ export default function PcrScreen() {
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
       Alert.alert(
         'Patient report filed',
-        requiresCleaning
-          ? `${incident.incident_number} is resolved. The ambulance is off road for cleaning.`
-          : `${incident.incident_number} is resolved.`,
+        !online
+          ? 'Saved. It sends when you have signal.'
+          : requiresCleaning
+            ? `${incident.incident_number} is resolved. The ambulance is off road for cleaning.`
+            : `${incident.incident_number} is resolved.`,
       );
       router.replace('/(tabs)/incidents');
     } catch (e) {
@@ -191,7 +197,7 @@ export default function PcrScreen() {
       </View>
     );
   }
-  if (incident.accepted_by !== session?.user.id) {
+  if (!leadsOnPhone(incident, session?.user.id, pending, incident.id)) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
         <EmptyState icon="person-outline" title="Not your incident" body="Only the paramedic leading this incident files its patient report." />

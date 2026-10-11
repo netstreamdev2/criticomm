@@ -704,8 +704,10 @@ export type OnDutyOfficer = {
   unitNumber: string | null;
   lat: number | null;
   lng: number | null;
-  /** When the officer's record (and GPS heartbeat) last changed. */
+  /** When the position above was taken: the newest fix from the app (0071), else the record's last change. */
   seenAt: string;
+  /** When the officer's phone last reached the server while on duty — "last online". */
+  lastContactAt: string | null;
   /** When they went on duty in the app (migration 0041). */
   onDutySince: string | null;
   /** The latest open call this officer is on, if any. */
@@ -714,21 +716,30 @@ export type OnDutyOfficer = {
   activeCalls: number;
 };
 
+const OFFICER_COLUMNS = 'user_id, first_name, last_name, rank, badge_number, silo, station, latitude, longitude, updated_at, duty_started_at, last_login, apparatus:assigned_apparatus_id (unit_number)';
+
 /**
  * Officers on duty in the app right now — the people a dispatch reaches —
  * with their last position and whether they are already on a call.
  */
 export async function listOnDutyOfficers(client: CriticomClient, silos?: Silo[]) {
-  let q = client
-    .from('personnel')
-    .select('user_id, first_name, last_name, rank, badge_number, silo, station, latitude, longitude, updated_at, duty_started_at, apparatus:assigned_apparatus_id (unit_number)')
-    .eq('is_on_duty', true)
-    .not('user_id', 'is', null);
-  if (silos?.length) q = q.in('silo', silos);
-  const { data: people, error } = await q;
+  const read = (columns: string) => {
+    let q = client
+      .from('personnel')
+      .select(columns)
+      .eq('is_on_duty', true)
+      .not('user_id', 'is', null);
+    if (silos?.length) q = q.in('silo', silos);
+    return q;
+  };
+  let { data: people, error } = await read(`${OFFICER_COLUMNS}, location_at`);
+  // Until 0071 is run there is no location_at: read as before rather than fail the map.
+  if (error && (error.code === '42703' || /location_at/.test(error.message ?? ''))) {
+    ({ data: people, error } = await read(OFFICER_COLUMNS));
+  }
   if (error) throw error;
 
-  const officers: OnDutyOfficer[] = ((people ?? []) as Array<Record<string, unknown>>).map((p) => {
+  const officers: OnDutyOfficer[] = ((people ?? []) as unknown as Array<Record<string, unknown>>).map((p) => {
     const lat = (p.latitude as number | null) ?? null;
     const lng = (p.longitude as number | null) ?? null;
     const noFix = lat === null || lng === null || (lat === 0 && lng === 0);
@@ -741,7 +752,8 @@ export async function listOnDutyOfficers(client: CriticomClient, silos?: Silo[])
       unitNumber: (p.apparatus as { unit_number?: string } | null)?.unit_number ?? null,
       lat: noFix ? null : lat,
       lng: noFix ? null : lng,
-      seenAt: String(p.updated_at),
+      seenAt: String(p.location_at ?? p.updated_at),
+      lastContactAt: (p.last_login as string | null) ?? null,
       onDutySince: (p.duty_started_at as string | null) ?? null,
       busyWith: null,
       activeCalls: 0,

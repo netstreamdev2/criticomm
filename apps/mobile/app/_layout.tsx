@@ -9,6 +9,8 @@ import { NotificationsProvider, useNotificationRouting } from '@/lib/notificatio
 import { DutyProvider, useDuty } from '@/lib/duty';
 import { SyncProvider } from '@/lib/sync';
 import { FeaturesProvider } from '@/lib/features';
+import { RouteTracker } from '@/lib/route-tracker';
+import { OfflinePrefetch } from '@/lib/offline-prefetch';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { PanicButton } from '@/components/panic-button';
 import { BodycamWatchNotice } from '@/components/bodycam-watch';
@@ -133,6 +135,8 @@ export default function RootLayout() {
         <SyncProvider>
         <NotificationsProvider>
           <NotificationRouter />
+          <RouteTracker />
+          <OfflinePrefetch />
           <Stack
             screenOptions={{
               headerStyle: {

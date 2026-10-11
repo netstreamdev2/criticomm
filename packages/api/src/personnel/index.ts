@@ -14,6 +14,37 @@ export async function toggleDuty(
   return data;
 }
 
+/** A position fix from the officer app, as record_track() takes it (0071). */
+export type TrackFix = { t: string; lat: number; lng: number; acc?: number | null; spd?: number | null; hdg?: number | null };
+
+/**
+ * Deliver position fixes recorded on the phone, online or not. Safe to send
+ * again: fixes already on file are skipped. Moves the officer's marker to
+ * the newest fix while they are on duty. Returns how many were new.
+ */
+export async function recordTrack(client: CriticomClient, points: TrackFix[]) {
+  const { data, error } = await client.rpc('record_track', { p_points: points });
+  if (error) throw error;
+  return Number(data ?? 0);
+}
+
+export type DutyTrackPoint = { userId: string; at: string; lat: number; lng: number; offline: boolean };
+
+/**
+ * The routes officers took since `since` (at most a day back), one fix per
+ * 15 seconds. `offline` marks fixes the phone recorded with no signal and
+ * delivered later. Only the officer and the desks overseeing them read these.
+ */
+export async function listDutyTracks(client: CriticomClient, args: { since: string | null; userIds?: string[] }) {
+  const { data, error } = await client.rpc('list_duty_tracks', {
+    p_since: args.since,
+    p_user_ids: args.userIds?.length ? args.userIds : null,
+  });
+  if (error) throw error;
+  return ((data ?? []) as Array<{ user_id: string; recorded_at: string; lat: number; lng: number; offline: boolean }>)
+    .map((r): DutyTrackPoint => ({ userId: r.user_id, at: r.recorded_at, lat: r.lat, lng: r.lng, offline: r.offline }));
+}
+
 /** AuthController.Logout */
 export async function cleanupOnLogout(client: CriticomClient) {
   const { error } = await client.rpc('cleanup_on_logout');

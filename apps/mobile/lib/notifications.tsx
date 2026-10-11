@@ -3,10 +3,11 @@ import {
 } from 'react';
 import { AppState, Platform, Vibration } from 'react-native';
 import Constants from 'expo-constants';
-import { markAlertRead, registerPushToken, subscribeAlerts, unregisterPushToken, type Alert } from '@criticom/api';
+import { registerPushToken, subscribeAlerts, unregisterPushToken, type Alert } from '@criticom/api';
 import { navigateToIncident } from '@/lib/navigate';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { useSync } from '@/lib/sync';
 import {
   clearBadge, installForegroundHandler, isPushSupported, onNotificationTap,
   presentLocal, registerForPush, type PushPayload,
@@ -243,24 +244,29 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
  * on a locked phone has to land on the call, not the incident list.
  */
 export function useNotificationRouting(onOpenIncident: (incidentId: string) => void) {
+  // Queued, so Acknowledge on a locked phone in a dead zone still reaches dispatch.
+  const { enqueue } = useSync();
   useEffect(() => {
+    const ack = (alertId: string) => {
+      void enqueue({ kind: 'alert_read', alertId, acknowledged: true }).catch(() => {});
+    };
     const off = onNotificationTap((payload: PushPayload) => {
       void clearBadge();
       // Acknowledge: recorded without opening anything.
       if (payload.action === 'acknowledge') {
-        if (payload.alertId) void markAlertRead(getSupabase(), payload.alertId, { acknowledged: true }).catch(() => {});
+        if (payload.alertId) ack(payload.alertId);
         return;
       }
       if (!payload.incidentId) return;
       const incidentId = payload.incidentId;
       // Navigate: straight to the phone's map app; the incident if it has no location.
       if (payload.action === 'navigate') {
-        if (payload.alertId) void markAlertRead(getSupabase(), payload.alertId, { acknowledged: true }).catch(() => {});
+        if (payload.alertId) ack(payload.alertId);
         void navigateToIncident(incidentId).then((ok) => { if (!ok) onOpenIncident(incidentId); });
         return;
       }
       onOpenIncident(incidentId);
     });
     return off;
-  }, [onOpenIncident]);
+  }, [onOpenIncident, enqueue]);
 }

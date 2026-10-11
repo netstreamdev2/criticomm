@@ -2,7 +2,7 @@ import type * as Leaflet from 'leaflet';
 import type { OnDutyOfficer } from '@criticom/api';
 import type { Database } from '@criticom/db';
 import {
-  CRIME_KINDS, SEVERITY_COLOUR, type CrimeKind, type CrimeZone, type Facility, type TrafficItem,
+  CRIME_KINDS, SEVERITY_COLOUR, type CrimeKind, type CrimeZone, type Facility, type RouteSegment, type TrafficItem,
 } from '@/lib/ops-map/layers';
 import { escapeHtml as e, formatSaTime, timeAgo } from '@/lib/utils';
 
@@ -74,8 +74,15 @@ export function unitIcon(L: L, busy: boolean, stale: boolean, cam = false) {
   });
 }
 
-/** `cam` is the bodycam serial, shown only to people who may watch it. */
-export function unitTooltip(o: OnDutyOfficer, stale: boolean, cam?: string | null) {
+const SA_HM = new Intl.DateTimeFormat('en-ZA', { timeZone: 'Africa/Johannesburg', hour: '2-digit', minute: '2-digit', hour12: false });
+const clock = (iso: string) => SA_HM.format(new Date(iso));
+
+/**
+ * `cam` is the bodycam serial, shown only to people who may watch it.
+ * `offlineSince` is when the officer's phone last reached the server, once it
+ * has been quiet long enough to call them offline (layers.offlineSince).
+ */
+export function unitTooltip(o: OnDutyOfficer, stale: boolean, cam?: string | null, offlineSince?: string | null) {
   const unit = [o.unitNumber && `Unit ${o.unitNumber}`, o.station].filter(Boolean).join(' · ');
   const work = o.busyWith
     ? `On ${e(o.busyWith.number)}${o.activeCalls > 1 ? ` (+${o.activeCalls - 1} more)` : ''}`
@@ -85,7 +92,17 @@ export function unitTooltip(o: OnDutyOfficer, stale: boolean, cam?: string | nul
     ${unit ? `<div>${e(unit)}</div>` : ''}
     <div>${work}</div>
     ${cam ? `<div style="color:#f87171">● Bodycam ${e(cam)} · click to watch</div>` : ''}
-    <div class="ops-tip-muted">${stale ? 'No GPS for a while · ' : ''}position ${e(timeAgo(o.seenAt))}</div>
+    ${offlineSince ? `<div style="color:#fbbf24">Offline since ${e(clock(offlineSince))} · their route sends when they reconnect</div>` : ''}
+    <div class="ops-tip-muted">${stale && !offlineSince ? 'No GPS for a while · ' : ''}position ${e(timeAgo(o.seenAt))}</div>
+  </div>`;
+}
+
+/** A stretch of an officer's route: who, when, and whether it was recorded with no signal. */
+export function routeTooltip(o: Pick<OnDutyOfficer, 'name' | 'badge'>, seg: RouteSegment) {
+  return `<div class="ops-tip">
+    <div class="ops-tip-title">${e(o.name || 'Officer')}${o.badge ? ` · ${e(o.badge)}` : ''}</div>
+    <div>${e(clock(seg.from))} to ${e(clock(seg.to))}</div>
+    ${seg.offline ? '<div style="color:#fbbf24">Recorded with no signal, sent when they reconnected</div>' : ''}
   </div>`;
 }
 

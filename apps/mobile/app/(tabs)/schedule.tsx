@@ -2,10 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  acknowledgeAllocation, getMyAllocations, getMySchedule, inclusiveDays, type MySchedule,
+  getMyAllocations, getMySchedule, inclusiveDays, type MySchedule,
 } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { useSync } from '@/lib/sync';
 import { useDept } from '@/lib/branding';
 import { roleName } from '@criticom/db';
 import { wordsFor } from '@/lib/department';
@@ -39,6 +40,10 @@ type Allocated = {
   duty_posts?: { name: string; station: string | null; sector: string | null; vehicle: string | null; call_sign: string | null } | null;
 };
 
+/** "Mon 12 Oct · Day shift", for the sync tray. */
+const allocationLabel = (a: Allocated) =>
+  [a.duty_date ? dayLabel(a.duty_date) : null, a.duty_posts?.name ?? a.activity_type].filter(Boolean).join(' · ');
+
 /** "When am I working?" — the crew's own roster, leave and endorsements. */
 export default function ScheduleScreen() {
   const styles = useStyles();
@@ -46,6 +51,7 @@ export default function ScheduleScreen() {
   // The rostered vehicle in this department's own icon (car, appliance, ambulance).
   const unitIcon = wordsFor(silo).unitIcon;
   const dept = useDept();
+  const { enqueue, pending } = useSync();
   const [schedule, setSchedule] = useState<MySchedule | null>(null);
   const [allocations, setAllocations] = useState<Allocated[]>([]);
   const [acking, setAcking] = useState<string | null>(null);
@@ -73,14 +79,16 @@ export default function ScheduleScreen() {
    * Confirm an allocation. A published duty is an instruction, so the
    * supervisor's board needs to show who has actually seen theirs — otherwise
    * "it was on the roster" is the only answer available when someone doesn't
-   * turn up. Optimistic locally so the tap feels instant on a bad signal.
+   * turn up. Queued like every field action, so it counts in a dead zone and
+   * reaches the board when signal returns.
    */
   const acknowledge = useCallback(async (id: string) => {
     setAcking(id);
     const now = new Date().toISOString();
     setAllocations((rows) => rows.map((r) => (r.id === id ? { ...r, acknowledged_at: now } : r)));
     try {
-      await acknowledgeAllocation(getSupabase(), id);
+      const duty = allocations.find((r) => r.id === id);
+      await enqueue({ kind: 'allocation_ack', rosterId: id, label: duty ? allocationLabel(duty) : undefined });
     } catch (e) {
       // Put it back — a duty that looks acknowledged but isn't is worse than
       // one that still needs a tap.
@@ -89,12 +97,14 @@ export default function ScheduleScreen() {
     } finally {
       setAcking(null);
     }
-  }, []);
+  }, [allocations, enqueue]);
 
   useEffect(() => { void load(); }, [load]);
 
   const upcoming = (schedule?.duties ?? []).filter((d) => d !== schedule?.onDutyNow);
-  const unacknowledged = allocations.filter((a) => !a.acknowledged_at);
+  // Confirmed on this phone counts before the server has it.
+  const ackedOnPhone = new Set(pending.flatMap((e) => (e.op.kind === 'allocation_ack' ? [e.op.rosterId] : [])));
+  const unacknowledged = allocations.filter((a) => !a.acknowledged_at && !ackedOnPhone.has(a.id));
   const balances = (schedule?.balances ?? []).filter((b) => b.entitlement > 0);
 
   return (

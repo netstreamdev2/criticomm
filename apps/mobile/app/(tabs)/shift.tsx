@@ -11,6 +11,7 @@ import {
 } from '@criticom/api';
 import type { Database } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
+import { errorWords } from '@/lib/offline-cache-policy';
 import { useAuth } from '@/lib/auth';
 import { useDept } from '@/lib/branding';
 import { useDuty } from '@/lib/duty';
@@ -63,7 +64,7 @@ const STEP_INDEX: Record<Step, number> = {
 const FORM_STEPS: Step[] = ['mental', 'inspection', 'report', 'firearm', 'bodycam'];
 
 function errorText(e: unknown) {
-  return (e as { message?: string })?.message ?? String(e);
+  return errorWords(e, String(e));
 }
 
 function saTodayStartIso() {

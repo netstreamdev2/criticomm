@@ -1,4 +1,4 @@
-import type { UserRole } from '@criticom/db';
+import type { Silo, UserRole } from '@criticom/db';
 import { hasPosition } from '@criticom/db/map-layers';
 
 // The crime-zone maths and helpers are shared with the officer app.
@@ -15,7 +15,7 @@ export {
  */
 
 export type LayerId =
-  | 'incidents' | 'units' | 'zones' | 'cameras'
+  | 'incidents' | 'units' | 'routes' | 'zones' | 'cameras'
   | 'crime' | 'hydrants'
   | 'rain' | 'clouds' | 'temp' | 'wind'
   | 'traffic' | 'facilities';
@@ -33,6 +33,7 @@ export type LayerDef = {
 export const LAYERS: readonly LayerDef[] = [
   { id: 'incidents', label: 'Live incidents', group: 'Operations', hint: 'Open calls by severity. An SOS always shows.' },
   { id: 'units', label: 'On-duty officers', group: 'Operations', hint: 'Last GPS position from the officer app.' },
+  { id: 'routes', label: 'Routes driven', group: 'Operations', hint: 'Where each officer went this shift. Dashed: recorded with no signal.' },
   { id: 'zones', label: 'Perimeters & zones', group: 'Operations', hint: 'Cordons, closures and points set by command.' },
   { id: 'cameras', label: 'SANRAL cameras', group: 'Operations', hint: 'Freeway cameras that have a position.' },
   { id: 'crime', label: 'Crime zones', group: 'Risk', hint: 'SAPS station statistics, latest year loaded.' },
@@ -69,9 +70,15 @@ export function isBasemap(value: unknown): value is Basemap {
   return typeof value === 'string' && (BASEMAPS as readonly string[]).includes(value);
 }
 
-/** Layers a viewer may switch on. SANRAL cameras follow the access rule of the /sanral screen. */
-export function availableLayers(opts: { cameras: boolean }): LayerId[] {
-  return LAYERS.map((l) => l.id).filter((id) => id !== 'cameras' || opts.cameras);
+/**
+ * Layers a viewer may switch on. SANRAL cameras follow the access rule of the
+ * /sanral screen; routes are for the desks and command who oversee crews
+ * (canSeeRoutes).
+ */
+export function availableLayers(opts: { cameras: boolean; routes?: boolean }): LayerId[] {
+  return LAYERS.map((l) => l.id)
+    .filter((id) => id !== 'cameras' || opts.cameras)
+    .filter((id) => id !== 'routes' || Boolean(opts.routes));
 }
 
 /** What the map opens with, by desk, until the viewer makes their own choice. */
@@ -89,6 +96,12 @@ export function defaultLayers(role: UserRole): LayerId[] {
       return [...base, 'facilities'];
     case 'Disaster':
       return [...base, 'rain'];
+    // The desks that send crews follow where they go.
+    case 'Dispatcher':
+    case 'ControlRoom':
+    case 'Supervisor':
+    case 'SystemController':
+      return [...base, 'routes'];
     default:
       return base;
   }
@@ -148,6 +161,69 @@ export const STALE_POSITION_MS = 15 * 60_000;
 export function isStale(seenAt: string, now: number) {
   const t = new Date(seenAt).getTime();
   return Number.isFinite(t) && now - t > STALE_POSITION_MS;
+}
+
+/**
+ * An officer counts as offline once their phone has not reached the server
+ * for this long. On duty, the app checks in at least once a minute.
+ */
+export const OFFLINE_AFTER_MS = 3 * 60_000;
+
+/** When the officer's phone last reached the server, if that is long enough ago to call them offline. */
+export function offlineSince(o: { lastContactAt: string | null; seenAt: string }, now: number): string | null {
+  const last = o.lastContactAt ?? o.seenAt;
+  const t = Date.parse(last);
+  return Number.isFinite(t) && now - t > OFFLINE_AFTER_MS ? last : null;
+}
+
+/* ── Routes ─────────────────────────────────────────────────────────── */
+
+export const ROUTE_COLOUR: Record<Silo, string> = {
+  MetroPolice: '#60a5fa',
+  MetroFire: '#f87171',
+  Medical: '#34d399',
+  EthekwiniDisaster: '#fbbf24',
+  Ethekwini: '#a78bfa',
+};
+
+/** A pause longer than this (phone off, out of battery) is a gap, not a straight line across the map. */
+export const ROUTE_GAP_MS = 15 * 60_000;
+
+export type RoutePoint = { at: string; lat: number; lng: number; offline: boolean };
+export type RouteSegment = { points: Array<[number, number]>; offline: boolean; from: string; to: string };
+
+/**
+ * A route as lines to draw: one per stretch recorded with signal or without,
+ * joined end to start so the road reads unbroken, and broken only where the
+ * phone went quiet for longer than ROUTE_GAP_MS.
+ */
+export function routeSegments(points: readonly RoutePoint[]): RouteSegment[] {
+  const sorted = [...points]
+    .filter((p) => hasPosition(p.lat, p.lng) && Number.isFinite(Date.parse(p.at)))
+    .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+  const out: RouteSegment[] = [];
+  let cur: RouteSegment | null = null;
+  let prev: RoutePoint | null = null;
+  for (const p of sorted) {
+    const gap = prev ? Date.parse(p.at) - Date.parse(prev.at) : 0;
+    if (!cur || !prev || gap > ROUTE_GAP_MS || p.offline !== cur.offline) {
+      if (cur && cur.points.length > 1) out.push(cur);
+      // A change of signal starts where the last stretch ended; a gap does not.
+      const joined: boolean = Boolean(cur && prev && gap <= ROUTE_GAP_MS);
+      cur = {
+        points: joined ? [[prev!.lat, prev!.lng], [p.lat, p.lng]] : [[p.lat, p.lng]],
+        offline: p.offline,
+        from: joined ? prev!.at : p.at,
+        to: p.at,
+      };
+    } else {
+      cur.points.push([p.lat, p.lng]);
+      cur.to = p.at;
+    }
+    prev = p;
+  }
+  if (cur && cur.points.length > 1) out.push(cur);
+  return out;
 }
 
 /* ── Hydrants ───────────────────────────────────────────────────────── */

@@ -280,6 +280,21 @@ export const CASE_MANAGER_ROLES: UserRole[] = [
   'IncidentLogger', 'Supervisor', 'System', 'Viewer', 'Captain', 'FireChief',
 ];
 
+/**
+ * Who follows the routes crews drove, offline stretches included, on the map
+ * (0071's duty_tracks_read): the desks and command who oversee crews. The
+ * database still decides whose routes come back — only people the viewer can
+ * already see, and a department's desk only its own crews.
+ */
+export const ROUTE_VIEW_ROLES: UserRole[] = [
+  'SuperAdmin', 'SystemAdmin', 'Admin', 'SystemController', 'Supervisor', 'Captain', 'FireChief',
+  'Dispatcher', 'ControlRoom', 'System',
+];
+
+export function canSeeRoutes(role: UserRole): boolean {
+  return ROUTE_VIEW_ROLES.includes(role);
+}
+
 /* ── Closing a case (0061) ─────────────────────────────────────────────── */
 
 /**

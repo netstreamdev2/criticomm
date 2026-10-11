@@ -121,6 +121,31 @@ export type OutboxOp =
       noticeType: 'AARTO 01' | 'Section 56' | 'Section 341';
       /** "ND123456 · B Dlamini" — for the sync tray. */
       label: string;
+    }
+  | {
+      /** An alert read, or acknowledged, with no signal. */
+      kind: 'alert_read';
+      alertId: string;
+      acknowledged: boolean;
+      /** The alert's title, for the sync tray. */
+      title?: string;
+    }
+  | {
+      /** A duty on the roster acknowledged (0021). */
+      kind: 'allocation_ack';
+      rosterId: string;
+      /** "Mon 12 Oct · Day shift", for the sync tray. */
+      label?: string;
+    }
+  | {
+      /** A leave request. The row id is chosen on the phone, so a resend never files it twice. */
+      kind: 'leave_request';
+      rowId: string;
+      silo: Silo;
+      from: string;
+      to: string;
+      absence: string;
+      reason: string | null;
     };
 
 export type OutboxStatus = 'queued' | 'failed';
@@ -185,6 +210,12 @@ export function describe(op: OutboxOp): string {
       return `Firearm ${op.checkKind.toLowerCase()} · ${op.serialNumber}`;
     case 'issue_fine':
       return `Fine · ${op.noticeType} · ${op.label}`;
+    case 'alert_read':
+      return `Alert ${op.acknowledged ? 'acknowledged' : 'read'}${op.title ? ` · ${op.title.slice(0, 40)}` : ''}`;
+    case 'allocation_ack':
+      return `Duty acknowledged${op.label ? ` · ${op.label}` : ''}`;
+    case 'leave_request':
+      return `Leave · ${op.absence} · ${op.from} to ${op.to}`;
   }
 }
 
@@ -212,6 +243,10 @@ const PRIORITY: Record<OutboxOp['kind'], number> = {
   // A served notice is paperwork too: after anything a live incident is
   // waiting on, ahead of photos.
   issue_fine: 4,
+  // Small, and nothing a live incident waits on.
+  alert_read: 3,
+  allocation_ack: 4,
+  leave_request: 4,
   evidence: 5,
 };
 
@@ -267,6 +302,52 @@ export function isPermanent(error: unknown): boolean {
  */
 export function isMine(entry: OutboxEntry, userId: string): boolean {
   return entry.userId === undefined || entry.userId === userId;
+}
+
+/* ── A call as this phone knows it ─────────────────────────────────────── */
+// What the officer did on the phone counts before the server has heard of
+// it, so a report can be written and filed in a dead zone: the call they
+// responded to offline is theirs, the On Scene they pressed stands, and the
+// photos still waiting to send are counted.
+
+/** The officer's status on a call: the latest one waiting on this phone, else the server's. */
+export function statusOnPhone(pending: readonly OutboxEntry[], incidentId: string, serverStatus: string | null | undefined) {
+  let latest: OutboxEntry | null = null;
+  for (const e of pending) {
+    if (e.op.kind !== 'incident_status' || e.op.incidentId !== incidentId) continue;
+    if (!latest || e.occurredAt >= latest.occurredAt) latest = e;
+  }
+  return latest?.op.kind === 'incident_status' ? latest.op.status : (serverStatus ?? null);
+}
+
+/**
+ * Whether this officer leads the call: the server says so, or nobody has it
+ * yet (and it was not sent to someone else) and they responded from this phone. If someone else got there first,
+ * the server refuses the report and it shows in the sync tray.
+ */
+export function leadsOnPhone(
+  incident: { accepted_by: string | null; assigned_to?: string | null },
+  userId: string | undefined,
+  pending: readonly OutboxEntry[],
+  incidentId: string,
+): boolean {
+  if (!userId) return false;
+  if (incident.accepted_by) return incident.accepted_by === userId;
+  // As the server rules (callView): a call sent to someone else is theirs to lead.
+  if (incident.assigned_to && incident.assigned_to !== userId) return false;
+  return pending.some((e) => e.op.kind === 'incident_status' && e.op.incidentId === incidentId && isMine(e, userId));
+}
+
+/** Photos and voice notes for a call taken on this phone and still waiting to send. */
+export function mediaOnPhone(pending: readonly OutboxEntry[], incidentId: string) {
+  let photos = 0;
+  let voice = 0;
+  for (const e of pending) {
+    if (e.op.kind !== 'evidence' || e.op.incidentId !== incidentId) continue;
+    if (e.op.mediaKind === 'audio') voice++;
+    else if (e.op.mediaKind === 'image') photos++;
+  }
+  return { photos, voice };
 }
 
 /* ── Entry ids ──────────────────────────────────────────────────────────── */

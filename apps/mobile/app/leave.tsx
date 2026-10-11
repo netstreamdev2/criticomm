@@ -4,11 +4,14 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  createLeaveEntry, getLeaveBalances, inclusiveDays, listActiveConfig, listLeaveEntries,
+  getLeaveBalances, inclusiveDays, listActiveConfig, listLeaveEntries,
 } from '@criticom/api';
 import type { Silo } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { useSync } from '@/lib/sync';
+import { newEntryId } from '@/lib/outbox';
+import { errorWords } from '@/lib/offline-cache-policy';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import {
   Banner, Button, Card, Input, KeyValue, Muted, SectionLabel, Title,
@@ -45,6 +48,7 @@ const STATUS_TONE = (): Record<string, string> => ({
 export default function LeaveScreen() {
   const styles = useStyles();
   const { session, silo } = useAuth();
+  const { enqueue, online } = useSync();
   const [types, setTypes] = useState<string[]>([]);
   const [balances, setBalances] = useState<Balance[]>([]);
   const [history, setHistory] = useState<LeaveRow[]>([]);
@@ -105,25 +109,28 @@ export default function LeaveScreen() {
     setBusy(true);
     setMessage(null);
     try {
-      await createLeaveEntry(getSupabase(), {
+      // Queued, so a request made with no signal is sent when there is.
+      await enqueue({
+        kind: 'leave_request',
+        rowId: newEntryId(),
         // Leave belongs to an operational department. Someone carried under the
         // global Ethekwini silo has no leave register of their own, so their
         // request is filed against Metro Police — matching the console.
         silo: (silo === 'Ethekwini' ? 'MetroPolice' : silo) as Silo,
-        user_id: session.user.id,
-        eff_from: from,
-        eff_to: to,
+        from,
+        to,
         absence,
         reason: reason.trim() || null,
-        status: 'Pending',
       });
       setReason('');
       setTone('success');
-      setMessage('Request submitted. Your supervisor sees it on the approvals board, and you get an alert when they decide.');
-      await load();
+      setMessage(online
+        ? 'Request submitted. Your supervisor sees it on the approvals board, and you get an alert when they decide.'
+        : 'Saved. It sends when you have signal.');
+      if (online) setTimeout(() => { void load(); }, 1500);
     } catch (e) {
       setTone('error');
-      setMessage((e as Error).message);
+      setMessage(errorWords(e));
     } finally {
       setBusy(false);
     }

@@ -16,6 +16,7 @@ import {
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { getSupabase } from '@/lib/supabase';
+import { errorWords } from '@/lib/offline-cache-policy';
 import { READINESS_ITEMS } from '@/lib/inspection-187c';
 import { newEntryId } from '@/lib/outbox-policy';
 import { colors, makeStyles, radius, space } from '@/lib/theme';
@@ -35,7 +36,7 @@ const STEP_NUMBER: Record<EmsShiftStep, number> = {
 };
 type ReadinessKey = (typeof READINESS_ITEMS)[number][0];
 type EmsState = Awaited<ReturnType<typeof getEmsShiftState>>;
-const errorText = (error: unknown) => (error as { message?: string })?.message ?? 'Unable to connect. Check your connection and retry.';
+const errorText = (error: unknown) => errorWords(error, 'Unable to connect. Check your connection and retry.');
 const WIDE = 700;
 
 const vehicleOf = (c: EmsShiftCheck): EmsVehicleAnswers =>

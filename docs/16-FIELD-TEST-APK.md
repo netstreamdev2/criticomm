@@ -9,7 +9,8 @@ In the Supabase SQL editor run, in order, any not yet applied:
 `0062_call_intake_and_shift_vehicles.sql`, `0063_ems_incident_flow.sql`,
 `0064_hospital_handover.sql`, `0065_disaster_flow.sql`,
 `0066_fire_safety_inspections.sql`, `0067_role_fits_department.sql`,
-`0068_dispatch_desk_tags.sql`, `0069_no_anonymous_reads.sql`, `0070_criti.sql`.
+`0068_dispatch_desk_tags.sql`, `0069_no_anonymous_reads.sql`, `0070_criti.sql`,
+`0071_duty_tracks.sql`.
 
 ## 2. Push notifications (once)
 
@@ -36,6 +37,9 @@ When it finishes, open the link on each phone and install the APK (allow
 "install unknown apps"). Later code changes reach installed phones with
 `eas update --channel preview` — no reinstall — unless a native module changes.
 
+Version 1.2.0 adds one (background location, for the route recorder), so
+phones on 1.1.0 need the new APK; updates sent to 1.2.0 never reach 1.1.0.
+
 ## 4. What to test
 
 Accounts are the seeded ones, password `Test123!`.
@@ -45,10 +49,14 @@ notifications. From the console as the dispatcher, assign a call to that
 officer. With the app in the background or the phone locked, the alert
 arrives with Accept / Navigate / Acknowledge.
 
-**Offline**: start a call on the phone (Accept, On Scene). Turn on aeroplane
-mode. File the report (police, fire, patient or post-mortem) and add a photo.
-The home shows "queued". Turn aeroplane mode off: the queue sends itself and
-the console shows the call resolved. Filing twice never files twice.
+**Offline** (the full list is in [19-OFFLINE.md](19-OFFLINE.md)): sign in and
+start the shift with signal, then open the call the dispatcher sent. Turn on
+aeroplane mode, close the app completely and open it again: it opens signed
+in, on the same shift. Accept, On Scene, add a photo and a note, and file the
+report (police, fire, patient or post-mortem). Walk or drive a few hundred
+metres. Turn aeroplane mode off: the queue sends itself, the console shows
+the call resolved, and on the console map (Routes driven) the walk appears,
+dashed where there was no signal. Filing twice never files twice.
 
 **Each department, start to finish:**
 - Police (`police01.metro`): start of shift (readiness, vehicle or "no
@@ -60,4 +68,5 @@ the console shows the call resolved. Filing twice never files twice.
 - Disaster (`disaster01`): readiness-only start of shift, a call, the
   post-mortem.
 
-Sign-in itself needs a connection; everything after that queues offline.
+Signing in the first time, starting the shift and signing out need a
+connection; everything in between works offline.

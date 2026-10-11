@@ -6,7 +6,7 @@ import {
 import {
   featureEnabled, getDispatcherKpis, getOperationalSettings, listActiveIncidents, listOnDutyOfficers, listPendingIncidents,
 } from '@criticom/api';
-import { DEPARTMENT_NAMES, canAccess, type Database, type Silo, type UserRole } from '@criticom/db';
+import { DEPARTMENT_NAMES, canAccess, canSeeRoutes, type Database, type Silo, type UserRole } from '@criticom/db';
 import { Card, CardContent } from '@/components/ui/card';
 import { OpsMap } from '@/components/ops-map/ops-map';
 import { getFeatures } from '@/lib/features';
@@ -382,7 +382,10 @@ export async function DispatchBoard({
             incidents={live}
             officers={officers}
             silo={sf}
-            layers={availableLayers({ cameras: canAccess('/sanral', role as UserRole, silo as Silo) })}
+            layers={availableLayers({
+              cameras: canAccess('/sanral', role as UserRole, silo as Silo),
+              routes: canSeeRoutes(role as UserRole),
+            })}
             defaults={defaultLayers(role as UserRole)}
             basemap={settings['map.default_basemap']}
             scopeLabel={sf ? DEPARTMENT_NAMES[sf] : 'All departments'}

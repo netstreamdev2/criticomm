@@ -249,6 +249,54 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
     await filePostMortem(client, { incidentId: op.incidentId, fields: op.fields });
   },
 
+  /**
+   * Idempotent: one row per alert and person. An acknowledgement overwrites
+   * a plain read; a plain read never takes back an acknowledgement.
+   */
+  alert_read: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'alert_read' }>;
+    const userId = entry.userId ?? (await client.auth.getSession()).data.session?.user.id;
+    if (!userId) throw Object.assign(new Error('Sign in again to send this'), { status: 401 });
+    const row = { alert_id: op.alertId, user_id: userId, read_at: entry.occurredAt, acknowledged: op.acknowledged };
+    const { error } = await client
+      .from('alert_reads')
+      .upsert(row, { onConflict: 'alert_id,user_id', ignoreDuplicates: !op.acknowledged });
+    // The alert was withdrawn since: nothing left to read.
+    if (error && error.code !== '23503') throw error;
+  },
+
+  /** Idempotent: only the first acknowledgement is recorded, at the time it was given. */
+  allocation_ack: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'allocation_ack' }>;
+    const { error } = await client
+      .from('rosters')
+      .update({ acknowledged_at: entry.occurredAt })
+      .eq('id', op.rosterId)
+      .is('acknowledged_at', null);
+    if (error) throw error;
+  },
+
+  /**
+   * Idempotent through the row id chosen on the phone: a resend of a request
+   * already filed hits the primary key and counts as delivered.
+   */
+  leave_request: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'leave_request' }>;
+    const userId = entry.userId ?? (await client.auth.getSession()).data.session?.user.id;
+    if (!userId) throw Object.assign(new Error('Sign in again to send this'), { status: 401 });
+    const { error } = await client.from('leave_entries').insert({
+      id: op.rowId,
+      silo: op.silo,
+      user_id: userId,
+      eff_from: op.from,
+      eff_to: op.to,
+      absence: op.absence,
+      reason: op.reason,
+      status: 'Pending',
+    });
+    if (error && error.code !== '23505') throw error;
+  },
+
   issue_fine: async (client, entry) => {
     const op = entry.op as Extract<OutboxOp, { kind: 'issue_fine' }>;
     await issueFines(client, {
@@ -344,6 +392,14 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     setSyncing(true);
     try {
       const client = getSupabase();
+
+      // Only under this person's own, current sign-in. Back in signal, the
+      // sign-in can take a minute to renew, and until it has, a write goes
+      // as nobody and is refused — which would park a report as "not sent"
+      // for no reason. The queue waits for the renewal instead (it flushes
+      // again when the session changes).
+      const { data: live } = await client.auth.getSession();
+      if (!live.session || live.session.user.id !== session.user.id) return;
 
       // One pass over a priority-ordered snapshot. A pass, rather than a loop
       // until empty: if the connection is flapping we want to yield and let the

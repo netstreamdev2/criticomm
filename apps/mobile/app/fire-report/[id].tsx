@@ -14,6 +14,7 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useDept } from '@/lib/branding';
 import { useSync } from '@/lib/sync';
+import { leadsOnPhone, mediaOnPhone, statusOnPhone } from '@/lib/outbox';
 import { setReportingFor } from '@/lib/open-call';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, EmptyState, Input, KeyValue, Muted, Segmented, SeverityPill } from '@/components/ui';
@@ -40,11 +41,11 @@ export default function FireReportScreen() {
   const router = useRouter();
   const { session } = useAuth();
   const dept = useDept();
-  const { enqueue, pending } = useSync();
+  const { enqueue, pending, online } = useSync();
   const [incident, setIncident] = useState<Incident | null>(null);
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [photos, setPhotos] = useState(0);
+  const [photosOnFile, setPhotos] = useState(0);
   const [problems, setProblems] = useState<string[]>([]);
   // Set once File is pressed: from then on missing answers glow red until fixed.
   const [tried, setTried] = useState(false);
@@ -109,11 +110,11 @@ export default function FireReportScreen() {
 
   const set = (key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: value }));
 
-  const status = useMemo(() => {
-    const queued = [...pending].reverse().find((e) => e.op.kind === 'incident_status' && e.op.incidentId === id);
-    return queued?.op.kind === 'incident_status' ? queued.op.status : incident?.status;
-  }, [pending, id, incident]);
+  /** The officer's status as they last set it, delivered or not. */
+  const status = useMemo(() => statusOnPhone(pending, id ?? '', incident?.status), [pending, id, incident]);
   const alreadyQueued = pending.some((e) => e.op.kind === 'fire_report' && e.op.incidentId === id);
+  // Photos still waiting to send count as taken.
+  const photos = photosOnFile + mediaOnPhone(pending, id ?? '').photos;
 
   /** Everything still missing, with the fields to mark. */
   const missing = useMemo(() => {
@@ -156,7 +157,7 @@ export default function FireReportScreen() {
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
       Alert.alert(
         'Fire report filed',
-        `${incident.incident_number} is resolved and on record.`,
+        online ? `${incident.incident_number} is resolved and on record.` : 'Saved. It sends when you have signal.',
       );
       router.replace('/(tabs)/incidents');
     } catch (e) {
@@ -192,7 +193,7 @@ export default function FireReportScreen() {
       </View>
     );
   }
-  if (incident.accepted_by !== session?.user.id) {
+  if (!leadsOnPhone(incident, session?.user.id, pending, incident.id)) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
         <EmptyState icon="person-outline" title="Not your incident" body="Only the firefighter leading this incident files its fire report." />

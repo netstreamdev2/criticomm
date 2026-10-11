@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { endShift, getMyShiftKit, returnBodycam, returnShiftFirearm, roundsShort, type MyShiftKit } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
+import { errorWords } from '@/lib/offline-cache-policy';
 import { useAuth } from '@/lib/auth';
 import { wordsFor } from '@/lib/department';
 import { useDuty } from '@/lib/duty';
@@ -35,7 +36,7 @@ function errorText(e: unknown) {
   if (err?.code === 'PGRST202') {
     return 'Ending a shift in the app is not switched on for this server yet. Hand your kit in at the counter and tell your supervisor.';
   }
-  return err?.message ?? String(e);
+  return errorWords(e, String(e));
 }
 
 const digits = (s: string) => s.replace(/\D/g, '');
