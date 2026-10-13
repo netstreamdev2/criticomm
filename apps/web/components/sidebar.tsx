@@ -10,7 +10,7 @@ import type { DepartmentBranding } from '@criticom/api';
 import { DEPARTMENT_LABELS } from '@criticom/api/cases';
 import { DeptBadge } from '@/components/dept-badge';
 import {
-  ALL_NAV_ITEMS, NAV_GROUPS, POLICE_OPERATIONS, isDisasterDesk, isDoctor, isEmsAdmin, isFireCommand, type NavGroup, type NavItem,
+  ALL_NAV_ITEMS, NAV_GROUPS, POLICE_OPERATIONS, isDisasterDesk, isDoctor, isEmsAdmin, isFireCommand, isPoliceAdmin, type NavGroup, type NavItem,
 } from '@/lib/nav';
 import { cn } from '@/lib/utils';
 
@@ -84,6 +84,10 @@ const SYSTEM_ADMIN_GROUPS: NavGroup[] = [
     id: 'organisation-resources', label: 'People & Resources', items: [
       adminLink('/admin', 'Users & Roles'),
       adminLink('/admin/personnel', 'Personnel'),
+      adminLink('/roster', 'Rosters'),
+      adminLink('/roster/setup', 'Shift Setup'),
+      adminLink('/leave', 'Leave'),
+      adminLink('/hr', 'HR Centre'),
       adminLink('/admin/vehicles', 'Fleet'),
       adminLink('/admin/devices', 'Devices'),
     ],
@@ -112,12 +116,14 @@ const SUPERVISOR_GROUPS: NavGroup[] = [
   {
     id: 'supervisor-team', label: 'Team & Duty', items: [
       adminLink('/shift/today'),
-      adminLink('/roster/allocation', 'Duty Allocation'),
       adminLink('/roster', 'Roster'),
+      adminLink('/roster/allocation', 'Duty Board'),
       adminLink('/roster/duty-sheet', 'Duty Sheet'),
+      adminLink('/roster/setup', 'Shift Setup'),
       adminLink('/hr', 'Team Readiness'),
       adminLink('/attendance', 'Attendance'),
       adminLink('/leave', 'Leave Approvals'),
+      adminLink('/roster/mine', 'My Schedule'),
       adminLink('/training', 'Training'),
     ],
   },
@@ -155,11 +161,12 @@ const CAPTAIN_GROUPS: NavGroup[] = [
   ] },
   { id: 'captain-team', label: 'Team & Duty', items: [
     adminLink('/shift/today'),
-    adminLink('/roster/allocation', 'Duty Allocation'),
     adminLink('/roster', 'Roster'),
+    adminLink('/roster/allocation', 'Duty Board'),
     adminLink('/roster/duty-sheet', 'Duty Sheet'),
+    adminLink('/roster/setup', 'Shift Setup'),
     adminLink('/hr', 'Team Readiness'),
-    adminLink('/leave', 'Leave'),
+    adminLink('/leave', 'Leave Approvals'),
     adminLink('/training', 'Training'),
   ] },
   { id: 'captain-operations', label: 'Operations', items: [
@@ -221,6 +228,7 @@ const CASE_MANAGER_GROUPS: NavGroup[] = [
   ] },
   { id: 'cases-account', label: 'Account', items: [
     adminLink('/notifications', 'Notifications'),
+    adminLink('/roster/mine', 'My Schedule'),
     adminLink('/leave', 'Leave'),
     adminLink('/profile', 'My Profile'),
   ] },
@@ -250,8 +258,9 @@ const EMS_ADMIN_GROUPS: NavGroup[] = [
   { id: 'ems-people', label: 'Crews', items: [
     adminLink('/admin', 'Users & Roles'),
     adminLink('/admin/personnel', 'Personnel'),
-    adminLink('/roster/allocation', 'Duty Allocation'),
     adminLink('/roster', 'Roster'),
+    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/roster/setup', 'Shift Setup'),
     adminLink('/leave', 'Leave'),
     adminLink('/training', 'Training'),
     adminLink('/attendance', 'Attendance'),
@@ -261,6 +270,45 @@ const EMS_ADMIN_GROUPS: NavGroup[] = [
     adminLink('/analytics', 'Analytics'),
   ] },
   { id: 'ems-account', label: 'Settings & Account', items: [
+    adminLink('/admin/config', 'Configuration'),
+    adminLink('/notifications', 'Notifications'),
+    adminLink('/profile', 'My Profile'),
+  ] },
+];
+
+// The Metro Police (or Control Room) administrator: their department's
+// operations, people, fleet and settings.
+const POLICE_ADMIN_GROUPS: NavGroup[] = [
+  { id: 'padmin-overview', label: 'Overview', items: [
+    adminLink('/dashboard', 'Dashboard'),
+    adminLink('/command', 'Command Board'),
+    adminLink('/analytics', 'Analytics'),
+  ] },
+  { id: 'padmin-operations', label: 'Operations', items: [
+    POLICE_OPERATIONS,
+    adminLink('/incidents', 'Incidents'),
+    adminLink('/incidents/map', 'Live Map'),
+    adminLink('/case-manager/review', 'Reports to Review'),
+    adminLink('/cameras'),
+    adminLink('/report-hub', 'Reports'),
+  ] },
+  { id: 'padmin-people', label: 'People & Duty', items: [
+    adminLink('/admin', 'Users & Roles'),
+    adminLink('/admin/personnel', 'Personnel'),
+    adminLink('/shift/today'),
+    adminLink('/roster', 'Roster'),
+    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/roster/setup', 'Shift Setup'),
+    adminLink('/leave', 'Leave'),
+    adminLink('/hr', 'HR Centre'),
+    adminLink('/training', 'Training'),
+    adminLink('/attendance', 'Attendance'),
+  ] },
+  { id: 'padmin-fleet', label: 'Fleet & Devices', items: [
+    adminLink('/admin/vehicles', 'Fleet'),
+    adminLink('/admin/devices', 'Devices'),
+  ] },
+  { id: 'padmin-account', label: 'Settings & Account', items: [
     adminLink('/admin/config', 'Configuration'),
     adminLink('/notifications', 'Notifications'),
     adminLink('/profile', 'My Profile'),
@@ -289,8 +337,9 @@ const FIRE_COMMAND_GROUPS: NavGroup[] = [
   { id: 'fire-people', label: 'Crews', items: [
     adminLink('/admin', 'Users & Roles'),
     adminLink('/admin/personnel', 'Personnel'),
-    adminLink('/roster/allocation', 'Duty Allocation'),
     adminLink('/roster', 'Roster'),
+    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/roster/setup', 'Shift Setup'),
     adminLink('/leave', 'Leave'),
     adminLink('/training', 'Training'),
     adminLink('/attendance', 'Attendance'),
@@ -319,8 +368,9 @@ const DISASTER_GROUPS: NavGroup[] = [
     adminLink('/shift/readiness-review'),
     adminLink('/admin', 'Users & Roles'),
     adminLink('/admin/personnel', 'Personnel'),
-    adminLink('/roster/allocation', 'Duty Allocation'),
     adminLink('/roster', 'Roster'),
+    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/roster/setup', 'Shift Setup'),
     adminLink('/leave', 'Leave'),
     adminLink('/training', 'Training'),
     adminLink('/attendance', 'Attendance'),
@@ -371,6 +421,8 @@ const DISPATCHER_GROUPS: NavGroup[] = [
   },
   {
     id: 'dispatcher-account', label: 'Account', items: [
+      adminLink('/roster/mine', 'My Schedule'),
+      adminLink('/leave', 'Leave'),
       adminLink('/notifications', 'Notifications'),
       adminLink('/profile', 'My Profile'),
     ],
@@ -409,6 +461,39 @@ const INCIDENT_LOGGER_GROUPS: NavGroup[] = [
   ] },
 ];
 
+// The control room: the chair that both takes calls and dispatches them, for
+// every department (a department's control room, for its own). Its work is
+// live calls; administration, HR and department records are not on it.
+const CONTROL_ROOM_GROUPS: NavGroup[] = [
+  { id: 'control-overview', label: 'Overview', items: [
+    adminLink('/dashboard', 'Control Room Dashboard'),
+  ] },
+  { id: 'control-calls', label: 'Calls', items: [
+    adminLink('/dispatch/log-call', 'Log Incoming Call'),
+    adminLink('/dispatch/pending', 'Pending Queue'),
+    adminLink('/incidents', 'Incidents'),
+    adminLink('/incidents/map', 'Live Map'),
+  ] },
+  { id: 'control-monitoring', label: 'Monitoring', items: [
+    adminLink('/cameras'),
+    adminLink('/sanral'),
+    adminLink('/dispatch/ptt', 'PTT Radio'),
+  ] },
+  { id: 'control-reporting', label: 'Duty & Reporting', items: [
+    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/dispatch/kpi', 'Dispatch KPIs'),
+    adminLink('/report-hub', 'Reports'),
+    adminLink('/cameras/footage'),
+  ] },
+  { id: 'control-account', label: 'My Work', items: [
+    adminLink('/roster/mine', 'My Schedule'),
+    adminLink('/leave', 'Leave'),
+    adminLink('/performance/mine', 'My Performance'),
+    adminLink('/notifications', 'Notifications'),
+    adminLink('/profile', 'My Profile'),
+  ] },
+];
+
 const SYSTEM_CONTROLLER_GROUPS: NavGroup[] = [
   { id: 'controller-command', label: 'Command', items: [
     adminLink('/command', 'Command Centre'),
@@ -426,8 +511,9 @@ const SYSTEM_CONTROLLER_GROUPS: NavGroup[] = [
   ] },
   { id: 'controller-duty', label: 'Duty & People', items: [
     adminLink('/shift/today'),
-    adminLink('/roster/allocation', 'Duty Allocation'),
-    adminLink('/roster', 'Roster'),
+    adminLink('/roster', 'Rosters'),
+    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/roster/setup', 'Shift Setup'),
     adminLink('/duty-tasks', 'Duty Maintenance'),
     adminLink('/attendance', 'Attendance'),
     adminLink('/leave', 'Leave'),
@@ -515,6 +601,7 @@ function NavList({
       : isDoctor(role) ? DOCTOR_GROUPS
       : isFireCommand(role, silo) ? FIRE_COMMAND_GROUPS
       : isDisasterDesk(role, silo) ? DISASTER_GROUPS
+      : isPoliceAdmin(role, silo) ? POLICE_ADMIN_GROUPS
       : role === 'SuperAdmin' ? SUPER_ADMIN_GROUPS
       : role === 'SystemAdmin' ? SYSTEM_ADMIN_GROUPS
       : role === 'Supervisor' ? SUPERVISOR_GROUPS
@@ -522,6 +609,7 @@ function NavList({
       : role === 'Police' ? POLICE_OFFICER_GROUPS
       : role === 'Dispatcher' ? DISPATCHER_GROUPS
       : role === 'IncidentLogger' ? INCIDENT_LOGGER_GROUPS
+      : role === 'ControlRoom' ? CONTROL_ROOM_GROUPS
       : role === 'CaseManager' ? CASE_MANAGER_GROUPS
       : role === 'SystemController' ? SYSTEM_CONTROLLER_GROUPS : NAV_GROUPS;
     const allowed = (i: NavItem) => canAccess(i.href, role as UserRole, silo as Silo) && !hiddenHrefs.includes(i.href);
@@ -657,8 +745,14 @@ function roleHeading(role: string, silo: string, tenantName?: string): { title: 
       if (silo === 'Medical') return { title: 'EMS Administration', subtitle: `Emergency Medical Services · ${org}` };
       if (silo === 'MetroFire') return { title: 'Fire & Rescue Administration', subtitle: org };
       if (silo === 'EthekwiniDisaster') return { title: 'Disaster Management Administration', subtitle: org };
-      return null;
+      if (silo === 'Ethekwini') return { title: 'Control Room Administration', subtitle: org };
+      return { title: 'Metro Police Administration', subtitle: org };
     case 'SystemController': return { title: 'System Controller', subtitle: `All departments · ${org}` };
+    case 'ControlRoom':
+      return {
+        title: 'Control Room',
+        subtitle: silo === 'Ethekwini' ? `All departments · ${org}` : `${DEPARTMENT_LABELS[silo] ?? silo} · ${org}`,
+      };
     case 'CaseManager':
       return {
         title: 'Case Management',

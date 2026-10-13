@@ -4,7 +4,7 @@ import { useActionState, useState } from 'react';
 import { CANCEL_REASON_MIN } from '@criticom/db';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { closeCaseAction, setStatusAction, type FormState } from './actions';
+import { closeCaseAction, setStatusAction, standDownAction, type FormState } from './actions';
 
 function Outcome({ state }: { state: FormState }) {
   if (state?.error) {
@@ -91,8 +91,8 @@ export function CancelCallForm({
  * pressing it on the phone. Resolved and Closed are not offered.
  */
 export function StatusOverride({
-  incidentId, silo, steps, current,
-}: { incidentId: string; silo: string; steps: readonly string[]; current: string }) {
+  incidentId, silo, steps, current, department,
+}: { incidentId: string; silo: string; steps: readonly string[]; current: string; department?: string }) {
   const [state, action, pending] = useActionState(setStatusAction, null);
   return (
     <div>
@@ -101,6 +101,7 @@ export function StatusOverride({
           <form key={s} action={action}>
             <input type="hidden" name="incident_id" value={incidentId} />
             <input type="hidden" name="silo" value={silo} />
+            {department ? <input type="hidden" name="department" value={department} /> : null}
             <input type="hidden" name="status" value={s} />
             <button
               type="submit"
@@ -117,5 +118,38 @@ export function StatusOverride({
       </div>
       <Outcome state={state} />
     </div>
+  );
+}
+
+/** A department is not needed on this call (0073): say why; its crew is told to stand down. */
+export function StandDown({ incidentId, department, label }: { incidentId: string; department: string; label: string }) {
+  const [state, action, pending] = useActionState(standDownAction, null);
+  const [reason, setReason] = useState('');
+  if (state?.done) return <Outcome state={state} />;
+  return (
+    <details className="group">
+      <summary className="cursor-pointer text-xs font-semibold text-muted-foreground hover:text-fg">Not needed</summary>
+      <form action={action} className="mt-2 space-y-2">
+        <input type="hidden" name="incident_id" value={incidentId} />
+        <input type="hidden" name="department" value={department} />
+        <Textarea
+          name="reason"
+          rows={2}
+          required
+          minLength={CANCEL_REASON_MIN}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder={`Why ${label} is not needed`}
+        />
+        <button
+          type="submit"
+          disabled={pending || reason.trim().length < CANCEL_REASON_MIN}
+          className="rounded-md border border-severity-medium/50 bg-severity-medium/10 px-3 py-1.5 text-xs font-semibold text-severity-medium-ink disabled:opacity-50"
+        >
+          {pending ? 'Saving…' : `Mark ${label} not needed`}
+        </button>
+        <Outcome state={state} />
+      </form>
+    </details>
   );
 }

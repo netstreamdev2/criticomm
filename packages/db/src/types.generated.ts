@@ -21,6 +21,16 @@ export type BodycamViewReason = 'incident' | 'officer_safety' | 'sos' | 'supervi
 export type FineNoticeType = 'AARTO 01' | 'Section 56' | 'Section 341';
 
 export type Silo = 'Ethekwini' | 'MetroPolice' | 'MetroFire' | 'Medical' | 'EthekwiniDisaster';
+/**
+ * One department's part of a call (0073): waiting at its desk, dispatched,
+ * its lead's progress, then finished by its report, stood down, or cancelled
+ * with the call.
+ */
+export type DepartmentPartStatus =
+  | 'Waiting' | 'Dispatched' | 'En Route' | 'Arrived' | 'On Scene' | 'Transporting'
+  | 'Resolved' | 'Not needed' | 'Cancelled';
+/** Why someone senior recorded a shift the way they did (0072). */
+export type ShiftOutcome = 'Present' | 'Excused' | 'Sick' | 'Absent without leave' | 'Swapped';
 
 export type UserRole =
   | 'SystemAdmin' | 'SuperAdmin' | 'Admin' | 'Supervisor'
@@ -45,7 +55,15 @@ export type AlertKind =
   // officers, and the call being accepted / resolved, told to command.
   | 'dispatch' | 'accepted' | 'resolved'
   // Assign / backup (0042) and an officer's SOS to dispatch and command (0043).
-  | 'responding' | 'reassigned' | 'backup' | 'sos';
+  | 'responding' | 'reassigned' | 'backup' | 'sos'
+  // Schedules (0072): about a person's own shifts and leave, and to those who
+  // oversee them. The server pushes the ones in schedule_push_kinds().
+  | 'shift_published' | 'shift_changed' | 'shift_confirm' | 'shift_late' | 'shift_noshow'
+  | 'shift_team_late' | 'shift_team_noshow' | 'shift_started_late' | 'shift_outcome'
+  | 'leave_request' | 'leave_decision' | 'swap' | 'swap_waiting'
+  // Departments' parts of a call (0073): one department's report filed while
+  // others still work it; a department stood down, and its crew told.
+  | 'report_filed' | 'stood_down' | 'stand_down';
 
 /** How forcefully an alert interrupts: a corner toast or a modal that blocks. */
 export type AlertPresentation = 'toast' | 'modal';
@@ -1347,6 +1365,17 @@ export type Database = {
           published: boolean;
           published_at: string | null;
           acknowledged_at: string | null;
+          // Schedules (0072)
+          /** The shift type the line was made from. */
+          template_id: string | null;
+          /** The rotation that generated it, and the team it was for. */
+          rotation_id: string | null;
+          team: string | null;
+          /** Set while the person is on approved leave for this shift (status 'Leave'). */
+          leave_id: string | null;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          cancel_reason: string | null;
         };
         Insert: Partial<Database['public']['Tables']['rosters']['Row']>;
         Update: Partial<Database['public']['Tables']['rosters']['Row']>;
@@ -1358,7 +1387,189 @@ export type Database = {
             referencedRelation: 'shifts';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'rosters_post_id_fkey';
+            columns: ['post_id'];
+            isOneToOne: false;
+            referencedRelation: 'duty_posts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'rosters_template_id_fkey';
+            columns: ['template_id'];
+            isOneToOne: false;
+            referencedRelation: 'shift_templates';
+            referencedColumns: ['id'];
+          },
         ];
+      };
+      /** A department's late and no-show minutes (0072). */
+      schedule_settings: {
+        Row: {
+          tenant_id: string;
+          silo: Silo;
+          grace_minutes: number;
+          noshow_minutes: number;
+          updated_by: string | null;
+          updated_by_name: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['schedule_settings']['Row']> & { silo: Silo };
+        Update: Partial<Database['public']['Tables']['schedule_settings']['Row']>;
+        Relationships: [];
+      };
+      /** A department's shift types: Day, Night, 24 hours, Office (0072). */
+      shift_templates: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          name: string;
+          code: string;
+          /** "06:00:00", South African time. */
+          start_time: string;
+          minutes: number;
+          colour: string;
+          active: boolean;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['shift_templates']['Row']>;
+        Update: Partial<Database['public']['Tables']['shift_templates']['Row']>;
+        Relationships: [];
+      };
+      /** A cycle of shift types that each team works from its own starting day (0072). */
+      rotations: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          name: string;
+          /** One entry per day of the cycle: a shift type id, or null for a day off. */
+          cycle: Array<string | null>;
+          teams: string[];
+          offsets: number[];
+          anchor: string;
+          skip_public_holidays: boolean;
+          active: boolean;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['rotations']['Row']>;
+        Update: Partial<Database['public']['Tables']['rotations']['Row']>;
+        Relationships: [];
+      };
+      /** Public holidays, kept by organisation HR (0072). */
+      public_holidays: {
+        Row: { tenant_id: string; day: string; name: string };
+        Insert: Partial<Database['public']['Tables']['public_holidays']['Row']> & { day: string; name: string };
+        Update: Partial<Database['public']['Tables']['public_holidays']['Row']>;
+        Relationships: [];
+      };
+      /** Every change to a roster line (0072). Read-only. */
+      roster_changes: {
+        Row: {
+          id: number;
+          tenant_id: string;
+          silo: Silo;
+          roster_id: string;
+          user_id: string | null;
+          actor_id: string | null;
+          actor_name: string | null;
+          action: string;
+          detail: Record<string, unknown>;
+          at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** Whether and when a person started a shift (0072). Written by the server only. */
+      shift_attendance: {
+        Row: {
+          roster_id: string;
+          tenant_id: string;
+          silo: Silo;
+          user_id: string;
+          start_at: string;
+          end_at: string;
+          checked_in_at: string | null;
+          check_in_source: 'start_of_shift' | 'clock_in' | 'console' | null;
+          late_minutes: number | null;
+          late_alerted_at: string | null;
+          noshow_alerted_at: string | null;
+          outcome: ShiftOutcome | null;
+          outcome_reason: string | null;
+          outcome_by: string | null;
+          outcome_by_name: string | null;
+          outcome_at: string | null;
+          ended_at: string | null;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'shift_attendance_roster_id_fkey';
+            columns: ['roster_id'];
+            isOneToOne: true;
+            referencedRelation: 'rosters';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      /** A shift offered for a colleague's (0072). Written through the swap functions. */
+      incident_departments: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          incident_id: string;
+          silo: Silo;
+          status: DepartmentPartStatus;
+          sent_at: string;
+          dispatched_at: string | null;
+          dispatched_by: string | null;
+          dispatched_by_name: string | null;
+          assigned_to: string | null;
+          assigned_to_name: string | null;
+          assigned_at: string | null;
+          lead_id: string | null;
+          lead_name: string | null;
+          accepted_at: string | null;
+          arrived_at: string | null;
+          report_filed_at: string | null;
+          finished_at: string | null;
+          finished_by: string | null;
+          finished_by_name: string | null;
+          finish_reason: string | null;
+          updated_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [
+          { foreignKeyName: 'incident_departments_incident_id_fkey'; columns: ['incident_id']; isOneToOne: false; referencedRelation: 'incidents'; referencedColumns: ['id'] },
+        ];
+      };
+      shift_swaps: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          requester_id: string;
+          requester_line: string;
+          partner_id: string;
+          partner_line: string;
+          note: string | null;
+          status: 'Requested' | 'Accepted' | 'Declined' | 'Approved' | 'Refused' | 'Withdrawn' | 'Expired';
+          responded_at: string | null;
+          decided_by: string | null;
+          decided_by_name: string | null;
+          decided_at: string | null;
+          decision_comment: string | null;
+          created_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
       };
       mental_checks: {
         Row: {
@@ -2181,6 +2392,16 @@ export type Database = {
           approved_by: string | null;
           approved_at: string | null;
           created_at: string;
+          // 0072
+          /** What it costs: the shifts it covers, and working days beyond the roster. */
+          days: number | null;
+          review_comments: string | null;
+          decided_by: string | null;
+          cancelled_at: string | null;
+          cancelled_by: string | null;
+          cancel_reason: string | null;
+          applicant_name: string | null;
+          applied_at: string | null;
         };
         Insert: Partial<Database['public']['Tables']['leave_entries']['Row']>;
         Update: Partial<Database['public']['Tables']['leave_entries']['Row']>;
@@ -2470,6 +2691,53 @@ export type Database = {
         Returns: Record<string, { enabled: boolean; config: Record<string, unknown> }>;
       };
       /** A broadcast to the people of the departments chosen; returns how many it reached (0070). */
+      // ── Schedules (0072) ──
+      can_manage_roster: { Args: { p_silo: Silo }; Returns: boolean };
+      can_admin_schedule: { Args: { p_silo: Silo }; Returns: boolean };
+      outranks: { Args: { p_user: string }; Returns: boolean };
+      schedule_actor_rank: { Args: Record<string, never>; Returns: number };
+      leave_days: { Args: { p_tenant: string; p_user: string; p_from: string; p_to: string }; Returns: number };
+      add_shift: {
+        Args: { p_user: string; p_day: string; p_template: string; p_publish?: boolean; p_note?: string | null };
+        Returns: string;
+      };
+      generate_roster: {
+        Args: { p_rotation: string; p_from: string; p_to: string; p_teams?: string[] | null };
+        Returns: { created: number; skipped: number; already: number; reasons: Array<{ name: string; day: string; reason: string }> };
+      };
+      publish_roster: { Args: { p_silo: Silo; p_from: string; p_to: string }; Returns: number };
+      cancel_shift: { Args: { p_roster: string; p_reason: string }; Returns: undefined };
+      assign_post: { Args: { p_post: string; p_day: string; p_user: string; p_template?: string | null }; Returns: string };
+      clear_post: { Args: { p_roster: string }; Returns: undefined };
+      copy_roster_day: {
+        Args: { p_silo: Silo; p_from: string; p_to: string };
+        Returns: { copied: number; skipped: number; reasons: Array<{ name: string; reason: string }> };
+      };
+      set_member_team: { Args: { p_user: string; p_team: string | null }; Returns: undefined };
+      start_my_shift: {
+        Args: Record<string, never>;
+        Returns: { checked_in: boolean; roster_id?: string; label?: string; late_minutes?: number; checked_in_at?: string };
+      };
+      record_shift_outcome: { Args: { p_roster: string; p_outcome: ShiftOutcome; p_reason: string }; Returns: undefined };
+      attendance_summary: {
+        Args: { p_silo: Silo; p_from: string; p_to: string };
+        Returns: Array<{
+          user_id: string; user_name: string; shifts: number; started: number; late: number; late_minutes: number;
+          not_started: number; excused: number; sick: number; absent: number;
+        }>;
+      };
+      decide_leave: {
+        Args: { p_id: string; p_approve: boolean; p_comment?: string | null };
+        Returns: Database['public']['Tables']['leave_entries']['Row'];
+      };
+      cancel_leave: {
+        Args: { p_id: string; p_reason?: string | null };
+        Returns: Database['public']['Tables']['leave_entries']['Row'];
+      };
+      request_swap: { Args: { p_id: string; p_my_line: string; p_their_line: string; p_note?: string | null }; Returns: string };
+      respond_swap: { Args: { p_id: string; p_accept: boolean }; Returns: undefined };
+      decide_swap: { Args: { p_id: string; p_approve: boolean; p_comment?: string | null }; Returns: undefined };
+      withdraw_swap: { Args: { p_id: string }; Returns: undefined };
       /** The phone delivers position fixes, safe to resend; returns how many were new (0071). */
       record_track: {
         Args: { p_points: Array<{ t: string; lat: number; lng: number; acc?: number | null; spd?: number | null; hdg?: number | null }> };
@@ -2490,6 +2758,16 @@ export type Database = {
       };
       dispatch_unit: {
         Args: { p_incident_id: string; p_unit_id: string; p_unit_type: string; p_target_silos: Silo[] };
+        Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      /** The desk marking one department's crew on a call (0073). */
+      set_department_status: {
+        Args: { p_incident_id: string; p_silo: Silo; p_status: IncidentStatus };
+        Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      /** A department is not needed on a call, with the reason (0073). */
+      stand_down_department: {
+        Args: { p_incident_id: string; p_silo: Silo; p_reason: string };
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
       update_responder_status: {

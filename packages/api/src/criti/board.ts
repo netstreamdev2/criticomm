@@ -1,5 +1,6 @@
 import type { CriticomClient } from '@criticom/db';
 import { listOnDutyOfficers } from '../incidents/index';
+import { PARTS, forDepartment } from '../incidents/parts';
 import { getOperationalSettings } from '../settings/index';
 import { teamOf } from './insights.ts';
 import { DEFAULT_THRESHOLDS, type CritiCrew, type CritiIncident, type CritiMe, type CritiThresholds } from './types.ts';
@@ -64,18 +65,30 @@ export async function loadThresholds(client: CriticomClient): Promise<CritiThres
 
 export async function loadCritiBoard(client: CriticomClient, me: Pick<CritiMe, 'role' | 'silo'>): Promise<CritiBoard> {
   const team = teamOf(me);
-  const [incidentsRes, crews, thresholds] = await Promise.all([
-    client
-      .from('incidents')
-      .select(CRITI_INCIDENT_COLUMNS)
-      .not('status', 'in', '("Closed","Resolved")')
-      .order('incident_created_at', { ascending: false })
-      .limit(400),
+  // One department's desk or command reads each call as its department sees
+  // it (0073): a call Police has dispatched still waits for Fire's desk, and a
+  // call whose part for the department is finished is no longer on its board.
+  const own = team === 'all' || team.length !== 1 ? null : team[0];
+  const read = (columns: string) => client
+    .from('incidents')
+    .select(columns)
+    .not('status', 'in', '("Closed","Resolved")')
+    .order('incident_created_at', { ascending: false })
+    .limit(400);
+  const [first, crews, thresholds] = await Promise.all([
+    read(own ? `${CRITI_INCIDENT_COLUMNS}, ${PARTS}` : CRITI_INCIDENT_COLUMNS),
     listOnDutyOfficers(client, team === 'all' ? undefined : team).catch(() => [] as CritiCrew[]),
     loadThresholds(client),
   ]);
+  // Before 0073 there are no parts to read.
+  const incidentsRes = own && first.error && (first.error.code === 'PGRST200' || /incident_departments/.test(first.error.message ?? ''))
+    ? await read(CRITI_INCIDENT_COLUMNS)
+    : first;
   if (incidentsRes.error) throw incidentsRes.error;
-  const incidents = (incidentsRes.data ?? []) as unknown as CritiIncident[];
+  const rows = (incidentsRes.data ?? []) as unknown as CritiIncident[];
+  const incidents = own
+    ? rows.map((i) => forDepartment(i, own)).filter((i) => i.status !== 'Closed' && i.status !== 'Resolved')
+    : rows;
 
   // When each call last had news on its timeline (calls already sent out).
   const sent = incidents

@@ -70,6 +70,8 @@ export default function AlertsScreen() {
         .catch(() => {});
     }
     if (alert.incident_id) router.push(`/incident/${alert.incident_id}`);
+    // Shifts, leave and swaps (0072) open the schedule.
+    else if (/^(shift_|leave_|swap)/.test(alert.kind)) router.push('/(tabs)/schedule');
   };
 
   // Read and acknowledged on this phone count before the server has them.

@@ -5,7 +5,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { getIncident, getMyPersonnel, listIncidentAttachments } from '@criticom/api';
+import { forDepartment, getIncident, getMyPersonnel, listIncidentAttachments } from '@criticom/api';
 import {
   PCR_SECTIONS, PCR_SIGNATURES, TRIAGE, gcsTotal, pcrFieldShown, pcrPayload, pcrProblems, pcrSignatureRequired, pcrTransported,
   type PcrField, type SecondaryPatient,
@@ -42,9 +42,11 @@ export default function PcrScreen() {
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { session } = useAuth();
+  const { session, silo } = useAuth();
   const { enqueue, pending, online } = useSync();
-  const [incident, setIncident] = useState<Incident | null>(null);
+  // The call as this crew's department sees it (0073): its own lead, status and report.
+  const [rawIncident, setIncident] = useState<Incident | null>(null);
+  const incident = useMemo(() => (rawIncident ? forDepartment(rawIncident, silo) : null), [rawIncident, silo]);
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [casualties, setCasualties] = useState<SecondaryPatient[]>([]);
@@ -140,8 +142,8 @@ export default function PcrScreen() {
         !online
           ? 'Saved. It sends when you have signal.'
           : requiresCleaning
-            ? `${incident.incident_number} is resolved. The ambulance is off road for cleaning.`
-            : `${incident.incident_number} is resolved.`,
+            ? `Your report for ${incident.incident_number} is on record. The ambulance is off road for cleaning.`
+            : `Your report for ${incident.incident_number} is on record.`,
       );
       router.replace('/(tabs)/incidents');
     } catch (e) {
@@ -192,7 +194,7 @@ export default function PcrScreen() {
         <EmptyState
           icon="lock-closed-outline"
           title="Patient report already filed"
-          body={alreadyQueued ? 'It sends when you have signal.' : 'This incident is resolved.'}
+          body={alreadyQueued ? 'It sends when you have signal.' : 'Your patient report is on record.'}
         />
       </View>
     );

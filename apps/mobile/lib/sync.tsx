@@ -297,6 +297,35 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
     if (error && error.code !== '23505') throw error;
   },
 
+  /** Idempotent: cancel_leave returns the leave as it is once cancelled. */
+  leave_cancel: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'leave_cancel' }>;
+    const { error } = await client.rpc('cancel_leave', { p_id: op.leaveId, p_reason: null });
+    if (error) throw error;
+  },
+
+  /** Idempotent through the entry id, which request_swap takes as the swap's id. */
+  swap_request: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'swap_request' }>;
+    const { error } = await client.rpc('request_swap', {
+      p_id: asUuid(entry.id), p_my_line: op.myLine, p_their_line: op.theirLine, p_note: op.note,
+    });
+    if (error) throw error;
+  },
+
+  /** Idempotent: answering again with the same answer changes nothing. */
+  swap_respond: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'swap_respond' }>;
+    const { error } = await client.rpc('respond_swap', { p_id: op.swapId, p_accept: op.accept });
+    if (error) throw error;
+  },
+
+  swap_withdraw: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'swap_withdraw' }>;
+    const { error } = await client.rpc('withdraw_swap', { p_id: op.swapId });
+    if (error) throw error;
+  },
+
   issue_fine: async (client, entry) => {
     const op = entry.op as Extract<OutboxOp, { kind: 'issue_fine' }>;
     await issueFines(client, {

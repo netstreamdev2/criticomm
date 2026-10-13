@@ -1,6 +1,7 @@
 import 'server-only';
 import type { getServerSupabase } from '@/lib/supabase';
-import { hikConfig, hikCredentials, hikPlaybackUrl, hikPreviewUrl } from '@/lib/hikvision';
+import { hikConfig, hikCredentials, hikPlaybackUrl, hikPreviewUrl, hikRtspUrl } from '@/lib/hikvision';
+import { startRelay } from '@/lib/bodycams/hls-relay';
 
 type Supabase = Awaited<ReturnType<typeof getServerSupabase>>;
 
@@ -37,6 +38,17 @@ export async function bodycamStream(
   if (!args.cameraCode) {
     throw new StreamUnavailable('This bodycam has no Hikvision camera code on the register yet. Add it on the bodycam register.');
   }
+
+  // Live view: the platform serves RTSP reliably but not HLS, so repackage
+  // RTSP → HLS on our own server (ffmpeg). The browser plays our same-origin
+  // HLS, which also avoids the mixed-content block an http:// stream would hit.
+  if (args.kind === 'live' && cfg.relayLive) {
+    const rtsp = await hikRtspUrl(cfg, args.cameraCode);
+    if (!rtsp) throw new StreamUnavailable('The Hikvision platform returned no stream address.');
+    const { playlistUrl } = await startRelay(args.cameraCode, rtsp);
+    return { url: playlistUrl, test: false, insecure: false };
+  }
+
   const url = args.kind === 'live'
     ? await hikPreviewUrl(cfg, args.cameraCode)
     : await hikPlaybackUrl(cfg, { cameraIndexCode: args.cameraCode, beginIso: args.from!, endIso: args.to! });

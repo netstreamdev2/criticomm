@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Radio, Megaphone, Siren, Info, Bell, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { Radio, Megaphone, Siren, Info, Bell, ArrowUpRight, CheckCircle2, CalendarClock, Clock, Repeat, Plane } from 'lucide-react';
 import { listMyAlerts, listNotifications } from '@criticom/api';
 import type { AlertKind } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,6 +26,22 @@ const KIND_META: Record<AlertKind, { label: string; icon: typeof Info; tone: str
   reassigned: { label: 'Reassigned', icon: Info, tone: 'text-muted-foreground' },
   backup: { label: 'Backup', icon: Radio, tone: 'text-accent' },
   sos: { label: 'SOS', icon: Siren, tone: 'text-severity-critical-ink' },
+  shift_published: { label: 'Roster', icon: CalendarClock, tone: 'text-primary' },
+  shift_changed: { label: 'Shift', icon: CalendarClock, tone: 'text-accent' },
+  shift_confirm: { label: 'Shift', icon: CalendarClock, tone: 'text-accent' },
+  shift_late: { label: 'Late', icon: Clock, tone: 'text-severity-high-ink' },
+  shift_noshow: { label: 'Not started', icon: Clock, tone: 'text-severity-critical-ink' },
+  shift_team_late: { label: 'Late', icon: Clock, tone: 'text-severity-high-ink' },
+  shift_team_noshow: { label: 'Not started', icon: Clock, tone: 'text-severity-critical-ink' },
+  shift_started_late: { label: 'Started', icon: CheckCircle2, tone: 'text-severity-low-ink' },
+  shift_outcome: { label: 'Shift', icon: Info, tone: 'text-muted-foreground' },
+  leave_request: { label: 'Leave', icon: Plane, tone: 'text-accent' },
+  leave_decision: { label: 'Leave', icon: Plane, tone: 'text-primary' },
+  swap: { label: 'Swap', icon: Repeat, tone: 'text-accent' },
+  swap_waiting: { label: 'Swap', icon: Repeat, tone: 'text-accent' },
+  report_filed: { label: 'Report filed', icon: CheckCircle2, tone: 'text-severity-low-ink' },
+  stood_down: { label: 'Not needed', icon: Info, tone: 'text-muted-foreground' },
+  stand_down: { label: 'Stand down', icon: Info, tone: 'text-severity-medium-ink' },
 };
 
 export default async function NotificationsPage() {

@@ -65,6 +65,9 @@ const nextConfig = {
   // with the route that serves them.
   outputFileTracingIncludes: {
     '/admin/handbook/\\[slug\\]': ['./handbook/**/*.html'],
+    // The public guides (/guide) read the same files.
+    '/guide': ['./handbook/**/*.html'],
+    '/guide/\\[slug\\]': ['./handbook/**/*.html'],
   },
   images: {
     remotePatterns: [

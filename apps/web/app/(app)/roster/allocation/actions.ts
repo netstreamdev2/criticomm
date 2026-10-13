@@ -2,108 +2,95 @@
 
 import { revalidatePath } from 'next/cache';
 import {
-  acknowledgeAllocation, assignToPost, copyDayForward, logAudit,
+  acknowledgeAllocation, assignToPost, copyDayForward,
   publishDay, setDutyPostActive, unassign, upsertDutyPost,
 } from '@criticom/api';
-import { SUPERVISORY_ROLES, type Silo } from '@criticom/db';
+import { canManageRoster, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
 /**
  * Duty allocation actions.
  *
- * Building the board is supervisory; acknowledging your own duty is not. Both
- * checks live here rather than relying on the route matrix, because Server
- * Actions post to the page the caller is already on.
+ * Building the board is for those who roster the department; acknowledging
+ * your own duty is not. The database checks both again (migration 0072) —
+ * this only turns a stranger away before the round trip.
  */
 
-async function requireDutyOfficer() {
+async function requireDutyOfficer(target?: string | null) {
   const session = await getSession();
-  if (!SUPERVISORY_ROLES.includes(session.role)) throw new Error('Forbidden');
-  return session;
+  const silo = (target || session.silo) as Silo;
+  if (!canManageRoster(session.role, session.silo, silo)) throw new Error('Forbidden');
+  return { ...session, target: silo };
 }
 
 const day = (fd: FormData) => String(fd.get('date') ?? '').slice(0, 10);
+const message = (e: unknown, fallback: string) => (e instanceof Error ? e.message : fallback);
 
 export async function assignAction(formData: FormData) {
-  const { supabase, silo, fullName } = await requireDutyOfficer();
+  const { supabase } = await requireDutyOfficer(String(formData.get('silo') ?? ''));
   const date = day(formData);
   const userId = String(formData.get('userId') ?? '');
-  const userName = String(formData.get('userName') ?? '');
-  if (!date || !userId || !userName) return { error: 'Pick a member and a date.' };
+  const postId = String(formData.get('postId') ?? '');
+  if (!date || !userId || !postId) return { error: 'Pick a member, a post and a date.' };
 
   try {
     await assignToPost(supabase, {
-      silo: (String(formData.get('silo') ?? silo) as Silo),
+      postId,
       date,
-      postId: String(formData.get('postId') ?? '') || null,
       userId,
-      userName,
-      badgeNumber: String(formData.get('badge') ?? '') || null,
-      station: String(formData.get('station') ?? '') || null,
-      activityType: String(formData.get('activity') ?? '') || null,
-      vehicle: String(formData.get('vehicle') ?? '') || null,
-      sector: String(formData.get('sector') ?? '') || null,
-      callSign: String(formData.get('callSign') ?? '') || null,
-      specialInstructions: String(formData.get('instructions') ?? '') || null,
-      bySupervisorName: fullName,
+      templateId: String(formData.get('templateId') ?? '') || null,
     });
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Could not allocate.' };
+    return { error: message(e, 'Could not allocate.') };
   }
   revalidatePath('/roster/allocation');
   return { ok: true };
 }
 
 export async function unassignAction(formData: FormData) {
-  const { supabase } = await requireDutyOfficer();
+  const { supabase } = await requireDutyOfficer(String(formData.get('silo') ?? ''));
   const id = String(formData.get('id') ?? '');
-  if (id) await unassign(supabase, id).catch(() => {});
+  if (!id) return { error: 'Nothing to remove.' };
+  try {
+    await unassign(supabase, id);
+  } catch (e) {
+    return { error: message(e, 'Could not remove.') };
+  }
   revalidatePath('/roster/allocation');
+  return { ok: true };
 }
 
 export async function publishDayAction(formData: FormData) {
-  const { supabase, silo, fullName } = await requireDutyOfficer();
+  const { supabase, target } = await requireDutyOfficer(String(formData.get('silo') ?? ''));
   const date = day(formData);
   if (!date) return { error: 'No date.' };
-
-  const targetSilo = (String(formData.get('silo') ?? silo) as Silo);
-  const count = await publishDay(supabase, { silo: targetSilo, date });
-
-  // Issuing a duty board is the moment it becomes an instruction to staff, so
-  // it belongs in the audit trail alongside dispatch decisions.
-  await logAudit(supabase, {
-    silo: targetSilo,
-    action_type: 'DutyBoardPublished',
-    entity_type: 'roster',
-    entity_id: date,
-    user_name: fullName,
-    details: `Published ${count} allocation(s) for ${date}`,
-  }).catch(() => {});
-
-  revalidatePath('/roster/allocation');
-  return { ok: true, count };
+  try {
+    // publish_roster tells each person and writes the audit trail.
+    const count = await publishDay(supabase, { silo: target, date });
+    revalidatePath('/roster/allocation');
+    return { ok: true, count };
+  } catch (e) {
+    return { error: message(e, 'Could not publish.') };
+  }
 }
 
 export async function copyForwardAction(formData: FormData) {
-  const { supabase, silo, fullName } = await requireDutyOfficer();
+  const { supabase, target } = await requireDutyOfficer(String(formData.get('silo') ?? ''));
   const from = String(formData.get('from') ?? '').slice(0, 10);
   const to = String(formData.get('to') ?? '').slice(0, 10);
   if (!from || !to || from === to) return { error: 'Choose two different dates.' };
 
   try {
-    const res = await copyDayForward(supabase, {
-      silo: (String(formData.get('silo') ?? silo) as Silo),
-      from, to, bySupervisorName: fullName,
-    });
+    const res = await copyDayForward(supabase, { silo: target, from, to });
     revalidatePath('/roster/allocation');
     return { ok: true, ...res };
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Could not copy the day.' };
+    return { error: message(e, 'Could not copy the day.') };
   }
 }
 
 export async function savePostAction(formData: FormData) {
-  const { supabase, silo } = await requireDutyOfficer();
+  const { supabase, target } = await requireDutyOfficer(String(formData.get('silo') ?? ''));
   const name = String(formData.get('name') ?? '').trim();
   if (!name) return { error: 'The post needs a name.' };
 
@@ -116,7 +103,7 @@ export async function savePostAction(formData: FormData) {
   try {
     await upsertDutyPost(supabase, {
       ...(id ? { id } : {}),
-      silo: (String(formData.get('silo') ?? silo) as Silo),
+      silo: target,
       name,
       station: String(formData.get('station') ?? '') || null,
       sector: String(formData.get('sector') ?? '') || null,
@@ -127,14 +114,14 @@ export async function savePostAction(formData: FormData) {
       sort_order: Number(formData.get('sortOrder') ?? 0) || 0,
     });
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Could not save the post.' };
+    return { error: message(e, 'Could not save the post.') };
   }
   revalidatePath('/roster/allocation');
   return { ok: true };
 }
 
 export async function retirePostAction(formData: FormData) {
-  const { supabase } = await requireDutyOfficer();
+  const { supabase } = await requireDutyOfficer(String(formData.get('silo') ?? ''));
   const id = String(formData.get('id') ?? '');
   // Retire rather than delete: allocation history must keep pointing somewhere.
   if (id) await setDutyPostActive(supabase, id, false).catch(() => {});
@@ -145,8 +132,7 @@ export async function retirePostAction(formData: FormData) {
 export async function acknowledgeAction(formData: FormData) {
   const { supabase } = await getSession();
   const id = String(formData.get('id') ?? '');
-  // RLS (rosters_self_acknowledge) restricts this to the member's own
-  // published rows, so no extra ownership check is needed here.
+  // The database lets the person change only this, on their own issued duty.
   if (id) await acknowledgeAllocation(supabase, id).catch(() => {});
   revalidatePath('/roster/allocation');
   revalidatePath('/roster/mine');

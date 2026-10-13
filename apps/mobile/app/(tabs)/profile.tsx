@@ -20,6 +20,7 @@ import { DeptBadge } from '@/components/dept-badge';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/components/ui';
 import { MyIncidents } from '@/components/my-incidents';
+import { MyShiftsCard } from '@/components/my-shifts-card';
 import { MyPerformance } from '@/components/my-performance';
 
 /**
@@ -236,6 +237,7 @@ export default function ProfileScreen() {
       {/* Alerts */}
       {/* My work — the same cards as Home, each opening its own page */}
       <SectionLabel>My work</SectionLabel>
+      <MyShiftsCard />
       <MyIncidents />
       <MyPerformance />
 

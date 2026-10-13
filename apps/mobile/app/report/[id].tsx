@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  composeReportType, getIncident, getMyBodycam, listIncidentAttachments, POLICE_REPORT_FORMS, rowCount, rowLabel, rowsKey,
+  composeReportType, forDepartment, getIncident, getMyBodycam, listIncidentAttachments, POLICE_REPORT_FORMS, rowCount, rowLabel, rowsKey,
   sectionFields, splitReportAnswers, suggestFormsFor, validateReportAnswers, type ReportField, type ReportSection,
 } from '@criticom/api';
 import type { Database } from '@criticom/db/types';
@@ -40,9 +40,11 @@ export default function IncidentReportScreen() {
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { session } = useAuth();
+  const { session, silo } = useAuth();
   const { enqueue, pending, online } = useSync();
-  const [incident, setIncident] = useState<Incident | null>(null);
+  // The call as this crew's department sees it (0073): its own lead, status and report.
+  const [rawIncident, setIncident] = useState<Incident | null>(null);
+  const incident = useMemo(() => (rawIncident ? forDepartment(rawIncident, silo) : null), [rawIncident, silo]);
   const [loading, setLoading] = useState(true);
   // The DMPS forms in this report; null until the incident has loaded.
   const [forms, setForms] = useState<string[] | null>(null);
@@ -183,7 +185,7 @@ export default function IncidentReportScreen() {
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
       Alert.alert(
         'Report filed',
-        online ? `${incident.incident_number} is resolved.` : `Saved. It sends when you have signal.`,
+        online ? `Your report for ${incident.incident_number} is on record.` : `Saved. It sends when you have signal.`,
       );
       router.replace('/(tabs)/incidents');
     } catch (e) {
@@ -218,7 +220,7 @@ export default function IncidentReportScreen() {
           title="Report already filed"
           body={alreadyQueued
             ? 'It is waiting for signal and sends automatically.'
-            : 'This incident is resolved and the report is on record.'}
+            : 'Your report is on record.'}
         />
       </View>
     );

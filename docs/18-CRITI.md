@@ -140,8 +140,8 @@ anywhere.
    | Variable | Provider | Model variable and default |
    |---|---|---|
    | `XAI_API_KEY` | xAI Grok | `XAI_MODEL`, `grok-4.7` |
-   | `GROQ_API_KEY` | Groq (Llama) | `GROQ_MODEL`, `llama-3.3-70b-versatile` |
-   | `GEMINI_API_KEY` | Google Gemini | `GEMINI_MODEL`, `gemini-2.5-flash-lite` |
+   | `GROQ_API_KEY` | Groq | `GROQ_MODEL`, `openai/gpt-oss-120b` |
+   | `GEMINI_API_KEY` | Google Gemini | `GEMINI_MODEL`, `gemini-3.5-flash-lite` |
 
    They are tried in that order, skipping any without a key or switched off
    under Admin → Integrations. `CRITI_PROVIDERS=gemini,grok` changes the order.

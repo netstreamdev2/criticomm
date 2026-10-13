@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import {
   AlertTriangle, CalendarDays, Check, CircleSlash, Copy, Plus, Send, UserPlus, Users, X,
 } from 'lucide-react';
-import type { DutyBoard, PersonRow, PostCoverage } from '@criticom/api';
+import { shiftState, stateWords, needsAttention, type DutyBoard, type PersonRow, type PostCoverage, type ScheduleSettings } from '@criticom/api';
 import { useToast } from '@/components/toast';
 import {
   assignAction, copyForwardAction, publishDayAction, savePostAction, unassignAction,
@@ -21,8 +21,10 @@ const STATE_STYLE: Record<PostCoverage['state'], { dot: string; ring: string; te
   manned: { dot: 'bg-success', ring: 'border-border', text: 'text-success' },
 };
 
+type TemplateOption = { id: string; name: string; start: string };
+
 export function AllocationBoard({
-  board, people, date, silo, canManage, prevDate,
+  board, people, date, silo, canManage, prevDate, templates, settings, isToday,
 }: {
   board: DutyBoard;
   people: PersonRow[];
@@ -30,6 +32,9 @@ export function AllocationBoard({
   silo: string;
   canManage: boolean;
   prevDate: string;
+  templates: TemplateOption[];
+  settings: ScheduleSettings;
+  isToday: boolean;
 }) {
   const toast = useToast();
   const [tab, setTab] = useState<'posts' | 'people'>('posts');
@@ -39,12 +44,25 @@ export function AllocationBoard({
   const s = board.summary;
   const coverPct = s.slotsRequired > 0 ? Math.round((s.slotsFilled / s.slotsRequired) * 100) : 100;
 
-  const go = (fn: () => Promise<{ error?: string; ok?: boolean } | void>, ok: string) =>
+  const go = (fn: () => Promise<{ error?: string; ok?: boolean; skipped?: number } | void>, ok: string) =>
     start(async () => {
       const res = await fn();
       if (res && 'error' in res && res.error) toast.push({ title: 'Not done', body: res.error, tone: 'critical' });
+      else if (res && 'skipped' in res && res.skipped) toast.push({ title: ok, body: `${res.skipped} not copied: already on, or unavailable that day.`, tone: 'warning' });
       else toast.push({ title: ok, tone: 'success' });
     });
+
+  /** Started, late or not started, on today's board, for those who run it. */
+  const attendance = (a: PostCoverage['allocations'][number]) => {
+    if (!canManage || !isToday || !a.published || !a.start_at || !a.end_at) return null;
+    const state = shiftState({ start_at: a.start_at, end_at: a.end_at, status: a.status, cancelled_at: a.cancelled_at }, a.attendance ?? null, settings);
+    if (state === 'upcoming' || state === 'leave' || state === 'cancelled') return null;
+    return (
+      <span className={`font-semibold ${needsAttention(state) ? 'text-danger' : state === 'started_late' ? 'text-warning' : 'text-success'}`}>
+        {stateWords(state, a.attendance ?? null)}
+      </span>
+    );
+  };
 
   const setDate = (d: string) => {
     const u = new URL(window.location.href);
@@ -151,19 +169,25 @@ export function AllocationBoard({
                             : a.published ? 'border-border bg-bg-soft' : 'border-accent/50 bg-accent/10'}`}>
                         <span className="font-semibold">{a.user_name}</span>
                         {a.badge_number ? <span className="text-muted-foreground">{a.badge_number}</span> : null}
+                        {a.start_at && a.end_at ? (
+                          <span className="text-muted-foreground">
+                            {new Date(a.start_at).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Johannesburg' })}
+                          </span>
+                        ) : null}
                         {a.leaveConflict ? (
                           <span className="inline-flex items-center gap-1 font-semibold text-danger"
-                            title={`On ${a.leaveConflict.absence} from ${a.leaveConflict.from} to ${a.leaveConflict.to}`}>
+                            title={canManage ? `On ${a.leaveConflict.absence} from ${a.leaveConflict.from} to ${a.leaveConflict.to}` : 'On leave'}>
                             <AlertTriangle className="h-3 w-3" /> on leave
                           </span>
                         ) : !a.published ? (
                           <span className="text-accent">draft</span>
-                        ) : a.acknowledged_at ? (
+                        ) : attendance(a) ?? (a.acknowledged_at ? (
                           <Check className="h-3 w-3 text-success" />
-                        ) : null}
+                        ) : null)}
                         {canManage ? (
-                          <form action={unassignAction} className="contents">
+                          <form action={(fd) => go(() => unassignAction(fd), `${a.user_name} taken off ${c.post.name}`)} className="contents">
                             <input type="hidden" name="id" value={a.id} />
+                            <input type="hidden" name="silo" value={silo} />
                             <button type="submit" aria-label={`Remove ${a.user_name}`}
                               className="ml-0.5 text-muted-foreground hover:text-danger">
                               <X className="h-3 w-3" />
@@ -190,6 +214,7 @@ export function AllocationBoard({
                   <li key={a.id} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg-soft px-2.5 py-1 text-xs">
                     <span className="font-semibold">{a.user_name}</span>
                     <span className="text-muted-foreground">{a.activity_type || 'General'}</span>
+                    {a.leaveConflict ? <span className="font-semibold text-danger">on leave</span> : !a.published ? <span className="text-accent">draft</span> : attendance(a)}
                   </li>
                 ))}
               </ul>
@@ -204,7 +229,7 @@ export function AllocationBoard({
 
       {assigning ? (
         <AssignDialog
-          post={assigning} people={people} date={date} silo={silo}
+          post={assigning} people={people} date={date} silo={silo} templates={templates}
           onClose={() => setAssigning(null)}
           onDone={(msg) => { setAssigning(null); toast.push({ title: msg, tone: 'success' }); }}
         />
@@ -295,22 +320,24 @@ function PersonList({ people }: { people: PersonRow[] }) {
 /* ── Assign dialog ────────────────────────────────────────────────── */
 
 function AssignDialog({
-  post, people, date, silo, onClose, onDone,
+  post, people, date, silo, templates, onClose, onDone,
 }: {
-  post: PostCoverage; people: PersonRow[]; date: string; silo: string;
+  post: PostCoverage; people: PersonRow[]; date: string; silo: string; templates: TemplateOption[];
   onClose: () => void; onDone: (msg: string) => void;
 }) {
   const [q, setQ] = useState('');
   const [pending, start] = useTransition();
+  // For someone with no shift that day: which shift they work on this post.
+  const [templateId, setTemplateId] = useState(templates[0]?.id ?? '');
 
   const already = new Set(post.allocations.map((a) => a.user_id));
   const candidates = people
     .filter((p) => !already.has(p.userId))
     .filter((p) => !q || `${p.name} ${p.badge ?? ''} ${p.rank ?? ''}`.toLowerCase().includes(q.toLowerCase()))
-    // Available first, then already-busy, then on leave — the order a duty
-    // officer actually wants when filling a gap.
+    // Those rostered that day first, then those who would need a shift, then
+    // anyone on leave — the order a duty officer wants when filling a post.
     .sort((a, b) => {
-      const rank = (p: PersonRow) => (p.onLeave ? 2 : p.allocations.length ? 1 : 0);
+      const rank = (p: PersonRow) => (p.onLeave ? 2 : p.allocations.length ? 0 : 1);
       return rank(a) - rank(b) || a.name.localeCompare(b.name);
     });
 
@@ -320,13 +347,7 @@ function AssignDialog({
     fd.set('silo', silo);
     fd.set('postId', post.post.id);
     fd.set('userId', p.userId);
-    fd.set('userName', p.name);
-    fd.set('badge', p.badge ?? '');
-    fd.set('station', post.post.station ?? '');
-    fd.set('activity', post.post.activity_type ?? '');
-    fd.set('vehicle', post.post.vehicle ?? '');
-    fd.set('sector', post.post.sector ?? '');
-    fd.set('callSign', post.post.call_sign ?? '');
+    if (!p.allocations.length) fd.set('templateId', templateId);
     start(async () => {
       const res = await assignAction(fd);
       if (res?.error) onDone(res.error);
@@ -354,6 +375,14 @@ function AssignDialog({
               intent — they opened it to type a name. */}
           <input autoFocus className={`${input} w-full`} placeholder="Search name, badge or rank…"
             value={q} onChange={(e) => setQ(e.target.value)} />
+          {templates.length ? (
+            <label className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+              Shift for anyone not on the roster that day
+              <select className={`${input} h-8`} value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
+                {templates.map((t) => <option key={t.id} value={t.id}>{t.name} ({t.start})</option>)}
+              </select>
+            </label>
+          ) : null}
         </div>
         <ul className="max-h-[45vh] overflow-y-auto px-2 pb-3">
           {candidates.map((p) => (
@@ -369,9 +398,9 @@ function AssignDialog({
                     <AlertTriangle className="h-3 w-3" /> on {p.onLeave.absence}
                   </span>
                 ) : p.allocations.length ? (
-                  <span className="text-xs text-warning">already on duty</span>
+                  <span className="text-xs text-success">on the roster</span>
                 ) : (
-                  <span className="text-xs text-success">available</span>
+                  <span className="text-xs text-muted-foreground">not rostered: adds a shift</span>
                 )}
               </button>
             </li>

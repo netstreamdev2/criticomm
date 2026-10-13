@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import {
   BadgeCheck, BarChart3, Briefcase, CalendarClock, GraduationCap, IdCard,
@@ -8,7 +9,8 @@ import type { Silo } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSession, siloFilter } from '@/lib/session';
 import { cn } from '@/lib/utils';
-import { setLeaveStatusAction } from '../leave/actions';
+import { LeaveDecision } from '@/components/schedule/leave-actions';
+import { Punctuality } from '@/components/schedule/punctuality';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'HR Command Centre · HikTech' };
@@ -23,7 +25,7 @@ const QUICK = [
 ];
 
 export default async function HrHubPage() {
-  const { supabase, silo } = await getSession();
+  const { supabase, silo, userId, role } = await getSession();
   const sf = siloFilter(silo);
   const todayIso = new Date().toISOString().slice(0, 10);
   const soonIso = new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10);
@@ -46,7 +48,8 @@ export default async function HrHubPage() {
   const onLeaveToday = leave.filter(
     (l) => l.status === 'Approved' && l.eff_from <= todayIso && l.eff_to >= todayIso,
   ).length;
-  const pending = leave.filter((l) => l.status === 'Pending').slice(0, 8);
+  // Nobody decides their own leave (0072).
+  const pending = leave.filter((l) => l.status === 'Pending' && l.user_id !== userId).slice(0, 8);
 
   // Coverage chip per pending request, same signal the leave page shows.
   const coverage = new Map(
@@ -133,7 +136,7 @@ export default async function HrHubPage() {
                     <li key={l.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold">
-                          {l.absence ?? 'Leave'} · {inclusiveDays(l.eff_from, l.eff_to)} day{inclusiveDays(l.eff_from, l.eff_to) === 1 ? '' : 's'}
+                          {l.applicant_name ?? 'Member'} · {l.absence ?? 'Leave'} · {l.days ?? inclusiveDays(l.eff_from, l.eff_to)} day{(l.days ?? inclusiveDays(l.eff_from, l.eff_to)) === 1 ? '' : 's'}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {l.eff_from} → {l.eff_to} · {l.silo}{l.reason ? ` · ${l.reason}` : ''}
@@ -151,18 +154,7 @@ export default async function HrHubPage() {
                           {impact.pct}% away
                         </span>
                       ) : null}
-                      <div className="flex gap-1.5">
-                        <form action={setLeaveStatusAction}>
-                          <input type="hidden" name="id" value={l.id} />
-                          <input type="hidden" name="status" value="Approved" />
-                          <button type="submit" className="rounded bg-severity-low/20 px-2.5 py-1 text-xs font-semibold text-severity-low-ink hover:bg-severity-low/30">Approve</button>
-                        </form>
-                        <form action={setLeaveStatusAction}>
-                          <input type="hidden" name="id" value={l.id} />
-                          <input type="hidden" name="status" value="Rejected" />
-                          <button type="submit" className="rounded bg-severity-critical/20 px-2.5 py-1 text-xs font-semibold text-severity-critical-ink hover:bg-severity-critical/30">Reject</button>
-                        </form>
-                      </div>
+                      <LeaveDecision id={l.id} />
                     </li>
                   );
                 })}
@@ -210,6 +202,7 @@ export default async function HrHubPage() {
           </CardContent>
         </Card>
       </div>
+      <Suspense fallback={null}><Punctuality viewerRole={role} silo={silo} /></Suspense>
     </div>
   );
 }

@@ -92,6 +92,9 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const [pushStatus, setPushStatus] = useState<PushStatus>(
     isPushSupported() ? 'checking' : 'unsupported',
   );
+  // Read inside the live alert stream, which is set up once.
+  const pushStatusRef = useRef(pushStatus);
+  pushStatusRef.current = pushStatus;
   const tokenRef = useRef<string | null>(null);
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
@@ -184,7 +187,8 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       // Backgrounded but still connected: the socket delivered the alert to a
       // screen nobody is looking at. Raise it through the OS so it reaches the
       // responder, and let push dedupe against it if it arrives too.
-      if (AppState.currentState !== 'active') {
+      if (AppState.currentState !== 'active'
+          && !(pushStatusRef.current === 'enabled' && SERVER_PUSHED.has(alert.kind))) {
         void presentLocal({
           title: alert.title,
           body: alert.body ?? undefined,
@@ -243,7 +247,16 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
  * Covers the cold-start case too (see `onNotificationTap`): tapping a dispatch
  * on a locked phone has to land on the call, not the incident list.
  */
-export function useNotificationRouting(onOpenIncident: (incidentId: string) => void) {
+/** Alerts the server pushes to the phone itself (migration 0072, schedule_push_kinds()). */
+const SERVER_PUSHED = new Set<string>([
+  'shift_published', 'shift_changed', 'shift_confirm', 'shift_late', 'shift_noshow',
+  'shift_team_late', 'shift_team_noshow', 'shift_outcome', 'leave_decision', 'swap',
+]);
+
+export function useNotificationRouting(
+  onOpenIncident: (incidentId: string) => void,
+  onOpenSchedule: () => void = () => {},
+) {
   // Queued, so Acknowledge on a locked phone in a dead zone still reaches dispatch.
   const { enqueue } = useSync();
   useEffect(() => {
@@ -257,6 +270,12 @@ export function useNotificationRouting(onOpenIncident: (incidentId: string) => v
         if (payload.alertId) ack(payload.alertId);
         return;
       }
+      // A shift, leave or swap (0072): the schedule, read when the alert is.
+      if (payload.screen === 'schedule') {
+        if (payload.alertId) void enqueue({ kind: 'alert_read', alertId: payload.alertId, acknowledged: false }).catch(() => {});
+        onOpenSchedule();
+        return;
+      }
       if (!payload.incidentId) return;
       const incidentId = payload.incidentId;
       // Navigate: straight to the phone's map app; the incident if it has no location.
@@ -268,5 +287,5 @@ export function useNotificationRouting(onOpenIncident: (incidentId: string) => v
       onOpenIncident(incidentId);
     });
     return off;
-  }, [onOpenIncident, enqueue]);
+  }, [onOpenIncident, onOpenSchedule, enqueue]);
 }

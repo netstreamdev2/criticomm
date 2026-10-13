@@ -41,7 +41,7 @@ export type AwaitingCall = {
  * responded to yet, newest first.
  */
 export function useOpenCall() {
-  const { session } = useAuth();
+  const { session, silo } = useAuth();
   const { pending } = useSync();
   const [serverCalls, setServerCalls] = useState<OpenCall[]>([]);
   const [assigned, setAssigned] = useState<AwaitingCall[]>([]);
@@ -91,7 +91,8 @@ export function useOpenCall() {
     // Separate from the calls below: a failure here must not hide them.
     void listAssignedToMe(getSupabase(), session.user.id).then(setAssigned).catch(() => {});
     try {
-      const rows = await listMyActiveIncidents(getSupabase(), session.user.id);
+      // As this officer's department sees each call (0073): its part finished, the call is no longer theirs.
+      const rows = await listMyActiveIncidents(getSupabase(), session.user.id, silo);
       current = rows.map((r) => {
         const mine = r.responders.find((x) => x.user_id === session.user.id);
         const role = mine?.role ?? (r.accepted_by === session.user.id ? 'lead' : 'backup');
@@ -111,7 +112,7 @@ export function useOpenCall() {
     }
     const queuedOnly = callsRef.current.find((c) => c.role === null && !current.some((s) => s.id === c.id));
     return current.find((c) => c.role === 'lead') ?? queuedOnly ?? null;
-  }, [session]);
+  }, [session, silo]);
 
   useEffect(() => {
     void refresh();

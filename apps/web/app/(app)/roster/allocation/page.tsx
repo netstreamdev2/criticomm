@@ -1,5 +1,5 @@
-import { getDutyBoard, getPersonDay } from '@criticom/api';
-import { SUPERVISORY_ROLES, type Silo } from '@criticom/db';
+import { getDutyBoard, getPersonDay, getScheduleSettings, listShiftTemplates } from '@criticom/api';
+import { DEPARTMENT_NAMES, canManageRoster, isScheduleHr, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 import { AllocationBoard } from './allocation-client';
 
@@ -26,17 +26,20 @@ export default async function AllocationPage({
   const params = await searchParams;
 
   const date = /^\d{4}-\d{2}-\d{2}$/.test(params.date ?? '') ? params.date! : saToday();
-  const canManage = SUPERVISORY_ROLES.includes(role);
 
-  // Global roles may inspect a specific department's board; everyone else is
-  // pinned to their own.
-  const target: Silo = silo === 'Ethekwini' && params.silo ? (params.silo as Silo) : silo;
+  // The control room and organisation HR may look at any department's board;
+  // everyone else is pinned to their own.
+  const asked = params.silo && params.silo in DEPARTMENT_NAMES ? (params.silo as Silo) : null;
+  const target: Silo = asked && (silo === 'Ethekwini' || isScheduleHr(role)) ? asked : silo;
+  const canManage = canManageRoster(role, silo, target);
 
-  const [board, people] = await Promise.all([
-    // Only duty officers see drafts — staff must not read a half-built board
-    // as an instruction.
+  const [board, people, templates, settings] = await Promise.all([
+    // Only those who roster the department see drafts — staff must not read
+    // a half-built board as an instruction.
     getDutyBoard(supabase, { silo: target, date, includeDrafts: canManage }),
     getPersonDay(supabase, { silo: target, date, includeDrafts: canManage }),
+    canManage ? listShiftTemplates(supabase, target).catch(() => []) : Promise.resolve([]),
+    getScheduleSettings(supabase, target),
   ]);
 
   return (
@@ -57,6 +60,9 @@ export default async function AllocationPage({
         silo={target}
         canManage={canManage}
         prevDate={shiftDate(date, -1)}
+        templates={templates.map((t) => ({ id: t.id, name: t.name, start: t.start_time.slice(0, 5) }))}
+        settings={settings}
+        isToday={date === saToday()}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import {
   Ambulance, Flame, Loader2, Radio, Shield, Siren, UserCheck, UserX, Users, Waves,
 } from 'lucide-react';
-import { assignIncident, routeIncident, type OnDutyOfficer } from '@criticom/api';
+import { assignIncident, partOpen, partWords, routeIncident, type DepartmentPart, type OnDutyOfficer } from '@criticom/api';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { useOnDutyOfficers } from '@/lib/on-duty';
 import { DEPARTMENT_NAMES, type IncidentSeverity, type Silo } from '@criticom/db';
@@ -56,7 +56,7 @@ function distanceKm(a: [number, number], b: [number, number]) {
  */
 export function AssignForm({
   incidentId, incidentNumber, silo, dispatchedSilos, severity, scene, officers: initialOfficers, eta, locked,
-  awaiting, assignedTo, sosRaiser, allowedSilos,
+  parts = [], awaiting, assignedTo, sosRaiser, allowedSilos,
 }: {
   incidentId: string;
   incidentNumber: string;
@@ -71,6 +71,8 @@ export function AssignForm({
   eta: { speedKmh: number; roadFactor: number };
   /** Why this call can no longer be dispatched, if it can't. */
   locked: string | null;
+  /** Each department's part of the call (0073): one led or finished is not sent again. */
+  parts?: DepartmentPart[];
   /** Already sent out and waiting for someone to respond. */
   awaiting: boolean;
   /** Assigned and not yet answered. */
@@ -87,8 +89,22 @@ export function AssignForm({
   const toast = useToast();
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const live = useOnDutyOfficers(initialOfficers, FIELD_SILOS);
-  const allowed = useMemo<Department[]>(() => allowedSilos ?? DEPARTMENTS.map((d) => d.id), [allowedSilos]);
+  const live = useOnDutyOfficers(initialOfficers, allowedSilos ?? FIELD_SILOS);
+  // A department already led, or finished, is not sent again (0073); the
+  // others still can be, whoever leads them.
+  const busy = useMemo(() => {
+    const m = new Map<Department, string>();
+    for (const p of parts) {
+      if (p.silo === 'Ethekwini') continue;
+      if (!partOpen(p.status)) m.set(p.silo, partWords(p));
+      else if (p.lead_id) m.set(p.silo, `Led by ${p.lead_name ?? 'a crew member'}`);
+    }
+    return m;
+  }, [parts]);
+  const allowed = useMemo<Department[]>(
+    () => (allowedSilos ?? DEPARTMENTS.map((d) => d.id)).filter((d) => !busy.has(d)),
+    [allowedSilos, busy],
+  );
   const departments = DEPARTMENTS.filter((d) => allowed.includes(d.id));
   const officers = useMemo(
     () => live.filter((o) => allowed.includes(o.silo as Department) && o.userId !== sosRaiser),
@@ -98,10 +114,16 @@ export function AssignForm({
   const [mode, setMode] = useState<Mode>(assignedTo ? 'assign' : 'all');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Start from where the call is already routed, else the owning department.
-  const initialTargets: Department[] = (dispatchedSilos.length
-    ? dispatchedSilos.filter((s): s is Department => s !== 'Ethekwini')
-    : silo === 'Ethekwini' ? [] : [silo as Department]).filter((d) => allowed.includes(d));
+  // Start from the departments still waiting for their desk (0073); before
+  // 0073, from where the call is routed, else the owning department.
+  const waiting = parts.filter((p) => p.status === 'Waiting').map((p) => p.silo as Department);
+  const initialTargets: Department[] = (parts.length
+    ? waiting
+    : dispatchedSilos.length
+      ? dispatchedSilos.filter((s): s is Department => s !== 'Ethekwini')
+      : silo === 'Ethekwini' ? [] : [silo as Department]).filter((d) => allowed.includes(d));
+  // Sent out and not yet answered, per department.
+  const sentOut = parts.filter((p) => p.status === 'Dispatched' && !p.lead_id && allowed.includes(p.silo as Department));
   const [targets, setTargets] = useState<Department[]>(initialTargets);
 
   const perDept = useMemo(() => {
@@ -210,7 +232,23 @@ export function AssignForm({
       <div className="space-y-4 p-5">
         {locked ? (
           <p className="rounded-lg border border-severity-medium/40 bg-severity-medium/10 px-3 py-2 text-sm">{locked}</p>
-        ) : assignedTo ? (
+        ) : null}
+        {busy.size > 0 ? (
+          <ul className="space-y-1 rounded-lg border border-border bg-bg-soft px-3 py-2 text-sm">
+            {[...busy].map(([d, words]) => (
+              <li key={d}><span className="font-semibold">{SILO_LABELS[d]}:</span> {words}. Other crews can join it as backup from the app.</li>
+            ))}
+          </ul>
+        ) : null}
+        {sentOut.map((p) => (
+          <p key={p.silo} className="flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2 text-sm">
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-accent" />
+            {deptLabel(p.silo)}: {p.assigned_to_name
+              ? `assigned to ${p.assigned_to_name}${p.assigned_at ? ` ${timeAgo(p.assigned_at)}` : ''}, waiting for them to respond.`
+              : 'sent out, waiting for a crew to respond.'} Dispatching again re-alerts them.
+          </p>
+        ))}
+        {locked ? null : assignedTo ? (
           <p className="flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2 text-sm">
             <Loader2 className="h-4 w-4 shrink-0 animate-spin text-accent" />
             Assigned to {assignedTo.name}{assignedTo.at ? ` ${timeAgo(assignedTo.at)}` : ''} — waiting for them to respond.

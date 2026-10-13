@@ -15,7 +15,8 @@
     "./reporting": "./src/reporting/index.ts",
     "./rollup": "./src/performance/rollup.ts",
     "./cases": "./src/cases/stage.ts",
-    "./criti": "./src/criti/index.ts"
+    "./criti": "./src/criti/index.ts",
+    "./schedule": "./src/schedule/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

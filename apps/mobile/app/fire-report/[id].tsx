@@ -5,7 +5,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { getIncident, getMyPersonnel, listIncidentAttachments } from '@criticom/api';
+import { forDepartment, getIncident, getMyPersonnel, listIncidentAttachments } from '@criticom/api';
 import {
   FIRE_REPORT_SECTIONS, fireFieldShown, fireReportPayload, fireReportProblems, formatDuration, type FireField,
 } from '@criticom/db/fire-report';
@@ -39,10 +39,12 @@ export default function FireReportScreen() {
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { session } = useAuth();
+  const { session, silo } = useAuth();
   const dept = useDept();
   const { enqueue, pending, online } = useSync();
-  const [incident, setIncident] = useState<Incident | null>(null);
+  // The call as this crew's department sees it (0073): its own lead, status and report.
+  const [rawIncident, setIncident] = useState<Incident | null>(null);
+  const incident = useMemo(() => (rawIncident ? forDepartment(rawIncident, silo) : null), [rawIncident, silo]);
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [photosOnFile, setPhotos] = useState(0);
@@ -157,7 +159,7 @@ export default function FireReportScreen() {
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
       Alert.alert(
         'Fire report filed',
-        online ? `${incident.incident_number} is resolved and on record.` : 'Saved. It sends when you have signal.',
+        online ? `Your report for ${incident.incident_number} is on record.` : 'Saved. It sends when you have signal.',
       );
       router.replace('/(tabs)/incidents');
     } catch (e) {
@@ -188,7 +190,7 @@ export default function FireReportScreen() {
         <EmptyState
           icon="lock-closed-outline"
           title="Fire report already filed"
-          body={alreadyQueued ? 'It is waiting for signal and sends automatically.' : 'This incident is resolved and the report is on record.'}
+          body={alreadyQueued ? 'It is waiting for signal and sends automatically.' : 'Your fire report is on record.'}
         />
       </View>
     );

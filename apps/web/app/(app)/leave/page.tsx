@@ -1,16 +1,14 @@
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, Umbrella } from 'lucide-react';
 import {
-  getCoverageImpact, getLeaveBalances, getLeaveMonth, inclusiveDays,
-  listActiveConfig, listLeaveEntries,
+  getCoverageImpact, getLeaveBalances, getLeaveMonth, inclusiveDays, listActiveConfig, listLeaveEntries, saDay,
 } from '@criticom/api';
-import { ADMIN_ROLES, type Silo } from '@criticom/db';
+import { canManageRoster, type Silo } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
-import { FormSection, TextField, TextAreaField, SelectField } from '@/components/fields';
+import { ApplyLeaveForm, LeaveCancel, LeaveDecision } from '@/components/schedule/leave-actions';
 import { getSession, siloFilter } from '@/lib/session';
 import { cn } from '@/lib/utils';
-import { applyLeaveAction, setLeaveStatusAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Leave · HikTech' };
@@ -21,7 +19,9 @@ const STATUS_TONE: Record<string, string> = {
   Approved: 'text-severity-low-ink',
   Rejected: 'text-severity-critical-ink',
   Pending: 'text-severity-medium-ink',
+  Cancelled: 'text-muted-foreground',
 };
+const STATUS_WORD: Record<string, string> = { Rejected: 'Not approved' };
 
 export default async function LeavePage({
   searchParams,
@@ -29,35 +29,43 @@ export default async function LeavePage({
   searchParams: Promise<{ m?: string }>;
 }) {
   const { supabase, role, silo, userId } = await getSession();
-  const isApprover = ADMIN_ROLES.includes(role) || role === 'Supervisor';
+  // Those who roster a department decide its leave (0072); the database
+  // checks each decision against the person asking.
+  const isApprover = canManageRoster(role, silo);
   const sf = siloFilter(silo);
+  const today = saDay();
 
-  // ?m=YYYY-MM drives the calendar; default to the current month.
   const { m } = await searchParams;
   const now = new Date();
   const [year, month] = /^\d{4}-\d{2}$/.test(m ?? '')
     ? [Number(m!.slice(0, 4)), Number(m!.slice(5, 7)) - 1]
     : [now.getFullYear(), now.getMonth()];
   const monthFirst = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-  const monthLabel = new Date(year, month, 1).toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
+  const monthName = new Date(year, month, 1).toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
   const prev = `${month === 0 ? year - 1 : year}-${String((month === 0 ? 12 : month)).padStart(2, '0')}`;
   const next = `${month === 11 ? year + 1 : year}-${String((month === 11 ? 1 : month + 2)).padStart(2, '0')}`;
 
   const [entries, leaveTypes, balances, calendar] = await Promise.all([
+    // The row rules decide what comes back: your own, and your department's
+    // for those who roster it.
     listLeaveEntries(supabase, isApprover ? undefined : userId),
     listActiveConfig(supabase, 'LeaveType').catch(() => []),
     getLeaveBalances(supabase, { userId }).catch(() => []),
-    getLeaveMonth(supabase, { monthFirstDayIso: monthFirst, silo: sf }).catch(() => []),
+    isApprover ? getLeaveMonth(supabase, { monthFirstDayIso: monthFirst, silo: sf }).catch(() => []) : Promise.resolve([]),
   ]);
   const absenceTypes = leaveTypes.length > 0
     ? leaveTypes.map((t) => t.name ?? '').filter(Boolean)
     : FALLBACK_TYPES;
 
-  // Coverage impact for the pending rows an approver is about to decide on.
-  const pending = isApprover ? entries.filter((e) => e.status === 'Pending').slice(0, 12) : [];
+  const mine = entries.filter((e) => e.user_id === userId);
+  const toDecide = isApprover ? entries.filter((e) => e.user_id !== userId && e.status === 'Pending') : [];
+  const othersApproved = isApprover
+    ? entries.filter((e) => e.user_id !== userId && e.status === 'Approved' && e.eff_to >= today).slice(0, 30)
+    : [];
+
   const coverage = new Map(
     await Promise.all(
-      pending.map(async (e) => {
+      toDecide.slice(0, 12).map(async (e) => {
         const impact = await getCoverageImpact(supabase, {
           silo: e.silo as Silo, from: e.eff_from, to: e.eff_to,
         }).catch(() => null);
@@ -66,7 +74,9 @@ export default async function LeavePage({
     ),
   );
 
-  // Calendar grid: which entries touch each day of the month.
+  const daysOf = (l: { days: number | null; eff_from: string; eff_to: string }) =>
+    l.days != null ? Number(l.days) : inclusiveDays(l.eff_from, l.eff_to);
+
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7; // Monday-first
   const dayEntries = (day: number) => {
@@ -79,14 +89,11 @@ export default async function LeavePage({
       <header>
         <h1 className="text-2xl font-bold">Leave</h1>
         <p className="text-muted-foreground">
-          {isApprover
-            ? 'Balances, the department calendar, and pending approvals with coverage impact.'
-            : 'Your balances, the department calendar, and your requests.'}
+          {isApprover ? 'Your leave, and the requests waiting for you.' : 'Your balances and your requests.'}
         </p>
       </header>
 
-      {/* ── My balances ── */}
-      {balances.length > 0 ? (
+      {balances.some((b) => b.entitlement > 0) ? (
         <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {balances.filter((b) => b.entitlement > 0).map((b) => {
             const used = Math.min(100, Math.round(((b.taken + b.pending) / b.entitlement) * 100));
@@ -116,132 +123,158 @@ export default async function LeavePage({
         </section>
       ) : null}
 
-      {/* ── Apply ── */}
-      <form action={applyLeaveAction} className="space-y-4">
-        <FormSection title="Apply for leave">
-          <SelectField name="absence" label="Type" options={absenceTypes} required />
-          <TextField name="eff_from" label="From" type="date" required />
-          <TextField name="eff_to" label="To" type="date" required />
-          <TextField name="rank" label="Rank" />
-          <TextField name="service_no" label="Service number" />
-          <TextAreaField name="reason" label="Reason (helps your approver)" className="sm:col-span-2 lg:col-span-3" />
-        </FormSection>
-        <button type="submit" className="h-10 w-full rounded-md bg-primary text-sm font-semibold">Submit request</button>
-      </form>
+      <section className="space-y-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Ask for leave</h2>
+        <ApplyLeaveForm types={absenceTypes} />
+        <p className="text-xs text-muted-foreground">
+          Days are counted from your roster: the shifts the leave covers, and working days after it.
+        </p>
+      </section>
 
-      {/* ── Department calendar ── */}
-      <Card>
-        <CardHeader className="flex-row items-center justify-between space-y-0">
-          <div>
-            <CardTitle>Who&apos;s away — {monthLabel}</CardTitle>
-            <CardDescription>Solid chips are approved; outlined are still pending.</CardDescription>
-          </div>
-          <div className="flex items-center gap-1">
-            <Link href={`/leave?m=${prev}`} aria-label="Previous month" className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronLeft className="h-4 w-4" /></Link>
-            <Link href={`/leave?m=${next}`} aria-label="Next month" className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronRight className="h-4 w-4" /></Link>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border text-xs">
-            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
-              <div key={d} className="bg-bg-soft px-2 py-1.5 text-center font-bold uppercase tracking-wider text-muted-foreground">{d}</div>
-            ))}
-            {Array.from({ length: firstWeekday }, (_, i) => (
-              <div key={`pad-${i}`} className="min-h-20 bg-bg-card/50" />
-            ))}
-            {Array.from({ length: daysInMonth }, (_, i) => {
-              const day = i + 1;
-              const off = dayEntries(day);
-              return (
-                <div key={day} className="min-h-20 space-y-1 bg-bg-card p-1.5">
-                  <p className="text-[10px] font-bold text-muted-foreground">{day}</p>
-                  {off.slice(0, 3).map((e) => (
-                    <p
-                      key={`${e.id}-${day}`}
-                      title={`${e.name} · ${e.absence ?? 'Leave'} (${e.status})`}
-                      className={cn(
-                        'truncate rounded px-1 py-0.5 text-[10px] font-semibold leading-tight',
-                        e.status === 'Approved'
-                          ? 'bg-accent/20 text-fg'
-                          : 'border border-severity-medium/50 text-severity-medium-ink',
-                      )}
-                    >
-                      {e.name.split(' ')[0]}
-                    </p>
-                  ))}
-                  {off.length > 3 ? (
-                    <p className="text-[10px] text-muted-foreground">+{off.length - 3} more</p>
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ── Requests ── */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{entries.length} requests</CardTitle>
-          <CardDescription>
-            {isApprover
-              ? 'Pending rows show how thin the department runs if granted.'
-              : 'Your full request history with the approval trail.'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <SimpleTable
-            headers={['Type', 'From', 'To', 'Days', 'Reason', 'Status', 'Decided by', isApprover ? 'Action' : '']}
-            empty="No leave requests."
-          >
-            {entries.map((l) => {
-              const impact = coverage.get(l.id);
-              return (
-                <Tr key={l.id}>
-                  <Td>{l.absence ?? '—'}</Td>
-                  <Td className="font-mono">{l.eff_from}</Td>
-                  <Td className="font-mono">{l.eff_to}</Td>
-                  <Td className="font-mono">{inclusiveDays(l.eff_from, l.eff_to)}</Td>
-                  <Td className="max-w-[220px] truncate">{l.reason ?? '—'}</Td>
-                  <Td><span className={STATUS_TONE[l.status] ?? ''}>{l.status}</span></Td>
-                  <Td className="text-muted-foreground">{l.approved_by ?? '—'}</Td>
-                  <Td>
-                    {isApprover && l.status === 'Pending' ? (
+      {isApprover ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Waiting for you ({toDecide.length})</CardTitle>
+            <CardDescription>Shows how many in the department would be away if granted.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <SimpleTable headers={['Who', 'Type', 'From', 'To', 'Days', 'Reason', '']} empty="Nothing waiting.">
+              {toDecide.map((l) => {
+                const impact = coverage.get(l.id);
+                return (
+                  <Tr key={l.id}>
+                    <Td className="font-medium">{l.applicant_name ?? 'Member'}</Td>
+                    <Td>{l.absence ?? '—'}</Td>
+                    <Td className="font-mono">{l.eff_from}</Td>
+                    <Td className="font-mono">{l.eff_to}</Td>
+                    <Td className="font-mono">{daysOf(l)}</Td>
+                    <Td className="max-w-[220px] truncate">{l.reason ?? '—'}</Td>
+                    <Td>
                       <div className="flex flex-wrap items-center gap-1.5">
                         {impact ? (
                           <span
                             title={`${impact.onLeave} of ${impact.headcount} away in this window`}
                             className={cn(
                               'rounded-full px-2 py-0.5 text-[10px] font-bold',
-                              impact.pct >= 25
-                                ? 'bg-severity-critical/15 text-severity-critical-ink'
-                                : impact.pct >= 15
-                                  ? 'bg-severity-medium/15 text-severity-medium-ink'
+                              impact.pct >= 25 ? 'bg-severity-critical/15 text-severity-critical-ink'
+                                : impact.pct >= 15 ? 'bg-severity-medium/15 text-severity-medium-ink'
                                   : 'bg-severity-low/15 text-severity-low-ink',
                             )}
                           >
                             {impact.pct}% away
                           </span>
                         ) : null}
-                        <form action={setLeaveStatusAction}>
-                          <input type="hidden" name="id" value={l.id} />
-                          <input type="hidden" name="status" value="Approved" />
-                          <button type="submit" className="rounded bg-severity-low/20 px-2 py-1 text-xs text-severity-low-ink hover:bg-severity-low/30">Approve</button>
-                        </form>
-                        <form action={setLeaveStatusAction}>
-                          <input type="hidden" name="id" value={l.id} />
-                          <input type="hidden" name="status" value="Rejected" />
-                          <button type="submit" className="rounded bg-severity-critical/20 px-2 py-1 text-xs text-severity-critical-ink hover:bg-severity-critical/30">Reject</button>
-                        </form>
+                        <LeaveDecision id={l.id} />
                       </div>
-                    ) : null}
-                  </Td>
-                </Tr>
-              );
-            })}
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </SimpleTable>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>My leave</CardTitle>
+          <CardDescription>Cancel a request any time before your leave starts.</CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <SimpleTable headers={['Type', 'From', 'To', 'Days', 'Status', 'Decided by', '']} empty="No leave requests.">
+            {mine.map((l) => (
+              <Tr key={l.id}>
+                <Td>{l.absence ?? '—'}</Td>
+                <Td className="font-mono">{l.eff_from}</Td>
+                <Td className="font-mono">{l.eff_to}</Td>
+                <Td className="font-mono">{daysOf(l)}</Td>
+                <Td>
+                  <span className={STATUS_TONE[l.status] ?? ''}>{STATUS_WORD[l.status] ?? l.status}</span>
+                  {l.review_comments ? <div className="max-w-[240px] truncate text-xs text-muted-foreground">{l.review_comments}</div> : null}
+                </Td>
+                <Td className="text-muted-foreground">{l.approved_by ?? '—'}</Td>
+                <Td>
+                  {l.status === 'Pending' || (l.status === 'Approved' && l.eff_from > today)
+                    ? <LeaveCancel id={l.id} own /> : null}
+                </Td>
+              </Tr>
+            ))}
           </SimpleTable>
         </CardContent>
       </Card>
+
+      {isApprover ? (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Approved leave ahead</CardTitle>
+              <CardDescription>Cancelling gives the person their shifts back. Say why; they are told.</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <SimpleTable headers={['Who', 'Type', 'From', 'To', 'Days', 'Decided by', '']} empty="No approved leave ahead.">
+                {othersApproved.map((l) => (
+                  <Tr key={l.id}>
+                    <Td className="font-medium">{l.applicant_name ?? 'Member'}</Td>
+                    <Td>{l.absence ?? '—'}</Td>
+                    <Td className="font-mono">{l.eff_from}</Td>
+                    <Td className="font-mono">{l.eff_to}</Td>
+                    <Td className="font-mono">{daysOf(l)}</Td>
+                    <Td className="text-muted-foreground">{l.approved_by ?? '—'}</Td>
+                    <Td><LeaveCancel id={l.id} own={false} /></Td>
+                  </Tr>
+                ))}
+              </SimpleTable>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle>Who&apos;s away · {monthName}</CardTitle>
+                <CardDescription>Solid: approved. Outlined: waiting for a decision.</CardDescription>
+              </div>
+              <div className="flex items-center gap-1">
+                <Link href={`/leave?m=${prev}`} aria-label="Previous month" className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronLeft className="h-4 w-4" /></Link>
+                <Link href={`/leave?m=${next}`} aria-label="Next month" className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronRight className="h-4 w-4" /></Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border text-xs">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
+                  <div key={d} className="bg-bg-soft px-2 py-1.5 text-center font-bold uppercase tracking-wider text-muted-foreground">{d}</div>
+                ))}
+                {Array.from({ length: firstWeekday }, (_, i) => (
+                  <div key={`pad-${i}`} className="min-h-20 bg-bg-card/50" />
+                ))}
+                {Array.from({ length: daysInMonth }, (_, i) => {
+                  const day = i + 1;
+                  const off = dayEntries(day);
+                  return (
+                    <div key={day} className="min-h-20 space-y-1 bg-bg-card p-1.5">
+                      <p className="text-[10px] font-bold text-muted-foreground">{day}</p>
+                      {off.slice(0, 3).map((e) => (
+                        <p
+                          key={`${e.id}-${day}`}
+                          title={`${e.name} · ${e.absence ?? 'Leave'} (${e.status})`}
+                          className={cn(
+                            'truncate rounded px-1 py-0.5 text-[10px] font-semibold leading-tight',
+                            e.status === 'Approved'
+                              ? 'bg-accent/20 text-fg'
+                              : 'border border-severity-medium/50 text-severity-medium-ink',
+                          )}
+                        >
+                          {e.name.split(' ')[0]}
+                        </p>
+                      ))}
+                      {off.length > 3 ? <p className="text-[10px] text-muted-foreground">+{off.length - 3} more</p> : null}
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      ) : null}
     </div>
   );
 }

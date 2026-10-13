@@ -10,6 +10,7 @@ import { DutyProvider, useDuty } from '@/lib/duty';
 import { SyncProvider } from '@/lib/sync';
 import { FeaturesProvider } from '@/lib/features';
 import { RouteTracker } from '@/lib/route-tracker';
+import { ShiftReminders } from '@/lib/shift-reminders';
 import { OfflinePrefetch } from '@/lib/offline-prefetch';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { PanicButton } from '@/components/panic-button';
@@ -104,7 +105,8 @@ function NotificationRouter() {
     (incidentId: string) => router.push(`/incident/${incidentId}`),
     [router],
   );
-  useNotificationRouting(open);
+  const schedule = useCallback(() => router.push('/(tabs)/schedule'), [router]);
+  useNotificationRouting(open, schedule);
   return null;
 }
 
@@ -136,6 +138,7 @@ export default function RootLayout() {
         <NotificationsProvider>
           <NotificationRouter />
           <RouteTracker />
+          <ShiftReminders />
           <OfflinePrefetch />
           <Stack
             screenOptions={{

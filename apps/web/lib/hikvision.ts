@@ -47,6 +47,12 @@ export type HikConfig = {
   /** 'test' plays the sample stream instead of asking the platform. */
   streamSource: 'hikvision' | 'test';
   testStreamUrl: string;
+  /**
+   * Repackage the platform's RTSP into HLS on our own server (ffmpeg) for live
+   * view, instead of using the platform's HLS. On by default: this deployment's
+   * platform does not serve HLS, and it also avoids the mixed-content block.
+   */
+  relayLive: boolean;
 };
 
 export type HikCamera = {
@@ -82,6 +88,7 @@ export async function hikConfig(supabase: Supabase): Promise<HikConfig> {
     enabled: Boolean(row?.enabled),
     streamSource: cfg.stream_source === 'test' ? 'test' : 'hikvision',
     testStreamUrl: /^https:\/\//.test(testUrl) ? testUrl : DEFAULT_TEST_STREAM,
+    relayLive: cfg.relay_live !== false,
   };
 }
 
@@ -174,6 +181,21 @@ export async function hikPreviewUrl(cfg: HikConfig, cameraIndexCode: string) {
     protocol: 'hls',
     transmode: 1,
     ...expandFor(cfg),
+  });
+  return data.url;
+}
+
+/**
+ * Live stream as RTSP (native H.264), for the server to repackage into HLS.
+ * Used when the platform's own HLS output is unavailable; no transcode, since
+ * ffmpeg copies the stream rather than re-encoding it.
+ */
+export async function hikRtspUrl(cfg: HikConfig, cameraIndexCode: string) {
+  const data = await hikRequest<{ url: string }>(cfg, '/artemis/api/video/v1/cameras/previewURLs', {
+    cameraIndexCode,
+    streamType: cfg.streamType,
+    protocol: 'rtsp',
+    transmode: 1,
   });
   return data.url;
 }

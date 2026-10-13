@@ -295,6 +295,59 @@ export function canSeeRoutes(role: UserRole): boolean {
   return ROUTE_VIEW_ROLES.includes(role);
 }
 
+/* ── Schedules (0072) ──────────────────────────────────────────────────── */
+// Mirrors schedule_rank() and the checks built on it. The database decides;
+// these only choose what a screen offers.
+
+/**
+ * 5 the platform, 4 organisation HR (SystemAdmin, SystemController), 3 the
+ * department admin, 2 Captain and Fire Chief, 1 Supervisor, 0 everyone else.
+ */
+export function scheduleRank(role: UserRole): number {
+  switch (role) {
+    case 'SuperAdmin': return 5;
+    case 'SystemAdmin': case 'SystemController': return 4;
+    case 'Admin': return 3;
+    case 'Captain': case 'FireChief': return 2;
+    case 'Supervisor': return 1;
+    default: return 0;
+  }
+}
+
+/** Builds and changes this department's roster (can_manage_roster). */
+export function canManageRoster(role: UserRole, ownSilo: Silo, silo: Silo = ownSilo): boolean {
+  const rank = scheduleRank(role);
+  return rank >= 1 && (rank >= 4 || ownSilo === silo);
+}
+
+/** Sets up shift types, rotations and the late minutes (can_admin_schedule). */
+export function canAdminSchedule(role: UserRole, ownSilo: Silo, silo: Silo = ownSilo): boolean {
+  const rank = scheduleRank(role);
+  return rank >= 4 || (rank === 3 && ownSilo === silo);
+}
+
+/** Organisation HR: public holidays, every department. */
+export function isScheduleHr(role: UserRole): boolean {
+  return scheduleRank(role) >= 4;
+}
+
+/**
+ * Whether one person may decide about another (their leave, their lateness, a
+ * shift of theirs that has started): senior to them, in their department
+ * (organisation HR anywhere, and for one another), never themselves.
+ */
+export function outranksForSchedule(
+  me: { id: string; role: UserRole; silo: Silo },
+  them: { id: string; role: UserRole; silo: Silo },
+): boolean {
+  if (me.id === them.id) return false;
+  const mine = scheduleRank(me.role);
+  const theirs = scheduleRank(them.role);
+  if (mine < 1) return false;
+  if (!(mine > theirs || (mine >= 4 && theirs >= 4))) return false;
+  return mine >= 4 || me.silo === them.silo;
+}
+
 /* ── Closing a case (0061) ─────────────────────────────────────────────── */
 
 /**
@@ -508,7 +561,10 @@ export const ROUTE_RULES: RouteRule[] = [
   // Everyone sees their own schedule; only supervisors build the roster.
   { prefix: '/roster/allocation', roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'Staff', 'CaseManager'] },
   { prefix: '/roster/mine',  roles: undefined },
-  { prefix: '/roster',       roles: SUPERVISORY_ROLES },
+  // Shift setup (0072): the department admin sets it up; those who roster
+  // see it and put people in teams. The database holds the same line.
+  { prefix: '/roster/setup', roles: [...SUPERVISORY_ROLES, 'SystemController'] },
+  { prefix: '/roster',       roles: [...SUPERVISORY_ROLES, 'SystemController'] },
   // The command dashboard: one screen with duty state, approvals, tasks and
   // the module launcher. Command staff and the controller seat.
   { prefix: '/command',      roles: [...SUPERVISORY_ROLES, 'SystemController'] },
@@ -518,9 +574,9 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/attendance' },
   { prefix: '/mail' },
   // HR command centre: supervisors and the admin tier run people-readiness.
-  { prefix: '/hr',           roles: SUPERVISORY_ROLES },
+  { prefix: '/hr',           roles: [...SUPERVISORY_ROLES, 'SystemController'] },
   // Everyone who works here files leave — the desk (dispatch tier) included.
-  { prefix: '/leave',        roles: [...ADMIN_ROLES, 'Staff', 'Supervisor', ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'CaseManager'] },
+  { prefix: '/leave',        roles: [...ADMIN_ROLES, 'Staff', 'Supervisor', ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'CaseManager', 'SystemController'] },
   { prefix: '/training',     roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES] },
   // Self-service performance views are open to field members; management views stay restricted.
   { prefix: '/performance/mine', roles: [...RESPONDER_ROLES, ...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'Viewer'] },
@@ -576,4 +632,22 @@ export function canAccess(pathname: string, role: UserRole, silo: Silo): boolean
   }
   if (rule.roles && !rule.roles.includes(role)) return false;
   return true;
+}
+
+/**
+ * May this person direct a department's part of a call (0073): dispatch it,
+ * mark its crew's steps, stand it down? Its own desk and command, the control
+ * room, and organisation administrators. Mirrors can_direct_department().
+ */
+export function canDirectDepartment(role: UserRole, ownSilo: Silo, silo: Silo): boolean {
+  if (role === 'SystemAdmin' || role === 'SuperAdmin' || role === 'SystemController' || role === 'System') return true;
+  return (['Dispatcher', 'ControlRoom', 'Operator', 'Supervisor', 'Captain', 'FireChief', 'Chief', 'Admin'] as UserRole[]).includes(role)
+    && (ownSilo === 'Ethekwini' || ownSilo === silo);
+}
+
+/** Command of a department: may stand down a crew already on scene. Mirrors commands_department(). */
+export function commandsDepartment(role: UserRole, ownSilo: Silo, silo: Silo): boolean {
+  if (role === 'SystemAdmin' || role === 'SuperAdmin' || role === 'SystemController' || role === 'System') return true;
+  return (['Supervisor', 'Captain', 'FireChief', 'Chief', 'Admin'] as UserRole[]).includes(role)
+    && (ownSilo === 'Ethekwini' || ownSilo === silo);
 }

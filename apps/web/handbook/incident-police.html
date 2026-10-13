@@ -1,0 +1,1081 @@
+<title>HikTech · A police call, start to finish</title>
+<!-- Built by apps/web/handbook/src/build.mjs from incident-police.body.html. Edit the source, then rebuild. -->
+<!-- handbook:fonts — the app replaces this block with self-hosted fonts (its CSP allows no third-party fonts). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<!-- /handbook:fonts -->
+<style>
+/* Layout: one reading column (~44rem) for the argument, wider exhibit bands (~72rem)
+   where the screens are shown, so the mock-ups read at a realistic size. */
+:root {
+  --bg: #F4F6FB;
+  --surface: #FFFFFF;
+  --ink: #0F1420;
+  --muted: #5A6478;
+  --line: #D6DBE6;
+  --brand: #CD2837;
+  --accent: #2563EB;
+  --ok: #046C4E;   --ok-bg: #E2F3EC;
+  --warn: #8A4504; --warn-bg: #FBEFDC;
+  --crit: #991B1B; --crit-bg: #FBE5E5;
+  --accent-bg: #E6EEFD;
+
+  --font-display: 'Rubik', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+
+  /* The app's own default dark theme — used only inside the screen mock-ups,
+     so they look the same whichever theme this document is read in. */
+  --m-bg: #050510;
+  --m-soft: #0B0B1A;
+  --m-card: #11112A;
+  --m-line: #262648;
+  --m-fg: #FFFFFF;
+  --m-muted: #9CA3AF;
+  --m-primary: #DC3545;
+  --m-accent: #3B82F6;
+  --m-ok: #10B981;
+  --m-warn: #F59E0B;
+  --m-crit: #EF4444;
+  --m-bezel: #1A1A2C;
+
+  /* Printed paper is white whatever the screen theme. */
+  --paper: #FFFFFF;
+  --paper-ink: #14161C;
+  --paper-muted: #5B606B;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #080814; --surface: #10101F; --ink: #EEF0F7; --muted: #9AA3B5; --line: #26263F;
+    --brand: #F25C6E; --accent: #79A6FF;
+    --ok: #4ADE9A; --ok-bg: #0E2A20; --warn: #FBBF24; --warn-bg: #2E2209;
+    --crit: #F98080; --crit-bg: #321216; --accent-bg: #111F3D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080814; --surface: #10101F; --ink: #EEF0F7; --muted: #9AA3B5; --line: #26263F;
+  --brand: #F25C6E; --accent: #79A6FF;
+  --ok: #4ADE9A; --ok-bg: #0E2A20; --warn: #FBBF24; --warn-bg: #2E2209;
+  --crit: #F98080; --crit-bg: #321216; --accent-bg: #111F3D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.page { padding-inline: 16px; padding-block: 2.5rem 4rem; }
+.col { max-width: 44rem; margin-inline: auto; }
+.band { max-width: 72rem; margin-inline: auto; }
+
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 2.9rem); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.55rem; font-weight: 600; }
+h3 { font-size: 1.1rem; font-weight: 600; }
+p { margin: 0; }
+.eyebrow {
+  font-family: var(--font-display); font-size: .75rem; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--brand);
+}
+.lede { font-size: 1.15rem; color: var(--ink); max-width: 40rem; }
+.muted { color: var(--muted); }
+.mono, code { font-family: var(--font-mono); font-size: .86em; }
+code { background: var(--accent-bg); border-radius: 4px; padding: .05rem .3rem; overflow-wrap: anywhere; }
+a { color: var(--accent); }
+
+/* ── Masthead ─────────────────────────────────────── */
+.masthead { display: grid; gap: 1rem; padding-bottom: 2rem; border-bottom: 1px solid var(--line); }
+.meta { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; font-size: .85rem; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+.toc { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .25rem; }
+.toc a {
+  font-size: .82rem; text-decoration: none; color: var(--ink);
+  border: 1px solid var(--line); border-radius: 999px; padding: .2rem .7rem; background: var(--surface);
+}
+.toc a:hover, .toc a:focus-visible { border-color: var(--accent); outline: none; }
+
+section { padding-block: 3rem 0; scroll-margin-top: 1rem; }
+.section-head { display: grid; gap: .6rem; margin-bottom: 1.5rem; }
+.band > .section-head { max-width: 44rem; }
+
+/* ── Journey ─────────────────────────────────────── */
+.journey { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; counter-reset: step;
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr)); }
+.journey li {
+  counter-increment: step; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; padding: 1rem 1rem 1.1rem; display: grid; gap: .35rem; align-content: start;
+}
+.journey li::before {
+  content: counter(step); font-family: var(--font-display); font-weight: 700; font-size: .85rem;
+  width: 1.7rem; height: 1.7rem; border-radius: 50%; display: grid; place-items: center;
+  background: var(--brand); color: #FFFFFF;
+}
+.journey .who { font-size: .8rem; color: var(--muted); }
+.journey li.optional { border-style: dashed; }
+
+/* ── Exhibits ─────────────────────────────────────── */
+.exhibit { display: grid; gap: .6rem; margin-top: 2rem; }
+.exhibit figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .75rem; }
+.exhibit figcaption .tag {
+  font-family: var(--font-display); font-size: .72rem; font-weight: 600; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted);
+}
+.exhibit figcaption .where { font-family: var(--font-mono); font-size: .78rem; color: var(--muted); }
+.exhibit .note { font-size: .92rem; color: var(--muted); max-width: 44rem; }
+figure { margin: 0; }
+.example { font-size: .72rem; color: var(--muted); font-style: italic; }
+
+/* ── Mock app screens (app dark theme) ─────────────── */
+.screen {
+  background: var(--m-bg); color: var(--m-fg); font-family: var(--font-display);
+  border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  box-shadow: 0 12px 32px -18px rgba(5, 5, 16, .55);
+  font-size: .88rem; line-height: 1.45;
+}
+.chrome {
+  display: flex; align-items: center; gap: .6rem; padding: .55rem .8rem;
+  background: var(--m-soft); border-bottom: 1px solid var(--m-line);
+}
+.chrome i { width: .55rem; height: .55rem; border-radius: 50%; background: var(--m-line); display: block; }
+.chrome .url {
+  flex: 1; min-width: 0; font-family: var(--font-mono); font-size: .72rem; color: var(--m-muted);
+  background: var(--m-bg); border-radius: 6px; padding: .2rem .6rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.screen-body { padding: 1.25rem; display: grid; gap: 1rem; }
+.m-title { font-size: 1.25rem; font-weight: 700; }
+.m-sub { color: var(--m-muted); font-size: .82rem; }
+.m-card { background: var(--m-card); border: 1px solid var(--m-line); border-radius: 10px; padding: 1rem; display: grid; gap: .8rem; min-width: 0; }
+.m-label { font-size: .72rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--m-muted); }
+.m-input {
+  background: var(--m-soft); border: 1px solid var(--m-line); border-radius: 7px;
+  padding: .5rem .7rem; min-height: 2.3rem; display: flex; align-items: center; gap: .5rem; min-width: 0;
+}
+.m-input.focus { border-color: var(--m-accent); box-shadow: 0 0 0 2px rgba(59, 130, 246, .25); }
+.m-input.ok { border-color: var(--m-ok); }
+.m-input .caret { color: var(--m-muted); margin-left: auto; }
+.m-field { display: grid; gap: .35rem; min-width: 0; }
+.m-grid2 { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.m-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  background: var(--m-primary); color: #FFFFFF; font-weight: 600; border-radius: 7px;
+  padding: .55rem 1rem; font-size: .85rem; white-space: nowrap;
+}
+.m-btn.ghost { background: transparent; border: 1px solid var(--m-line); color: var(--m-fg); }
+.m-btn.small { padding: .3rem .65rem; font-size: .75rem; }
+.m-btn.full { width: 100%; }
+.m-chip {
+  display: inline-flex; align-items: center; gap: .3rem; border-radius: 999px; padding: .12rem .55rem;
+  font-size: .72rem; font-weight: 600; white-space: nowrap;
+}
+.m-chip.ok { background: rgba(16, 185, 129, .16); color: var(--m-ok); }
+.m-chip.warn { background: rgba(245, 158, 11, .16); color: var(--m-warn); }
+.m-chip.crit { background: rgba(239, 68, 68, .16); color: var(--m-crit); }
+.m-chip.info { background: rgba(59, 130, 246, .16); color: var(--m-accent); }
+.m-chip.dim { background: rgba(156, 163, 175, .14); color: var(--m-muted); }
+.m-seg { display: flex; flex-wrap: wrap; gap: .3rem; background: var(--m-soft); border: 1px solid var(--m-line); border-radius: 8px; padding: .25rem; }
+.m-seg span { flex: 1; text-align: center; padding: .35rem .5rem; border-radius: 6px; color: var(--m-muted); font-size: .8rem; min-width: 5.5rem; }
+.m-seg span.on { background: var(--m-card); color: var(--m-fg); box-shadow: inset 0 0 0 1px var(--m-line); font-weight: 600; }
+.m-result { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; padding: .6rem .7rem; border-radius: 8px; border: 1px solid var(--m-line); }
+.m-result.on { border-color: var(--m-accent); background: rgba(59, 130, 246, .08); }
+.m-result.off { opacity: .55; }
+.m-result .name { font-weight: 600; }
+.m-result .facts { color: var(--m-muted); font-size: .78rem; }
+.m-result .end { margin-left: auto; }
+.m-tick { display: flex; gap: .55rem; align-items: flex-start; font-size: .82rem; }
+.m-box { width: 1rem; height: 1rem; border-radius: 4px; border: 1.5px solid var(--m-line); flex: 0 0 auto; margin-top: .15rem; display: grid; place-items: center; }
+.m-box.on { background: var(--m-accent); border-color: var(--m-accent); }
+.m-box.on::after { content: ''; width: .45rem; height: .25rem; border-left: 2px solid #FFFFFF; border-bottom: 2px solid #FFFFFF; transform: rotate(-45deg) translateY(-1px); }
+.m-review { border-radius: 8px; padding: .75rem .85rem; background: rgba(59, 130, 246, .1); border: 1px solid rgba(59, 130, 246, .35); font-size: .84rem; }
+.m-warnbox { border-radius: 8px; padding: .7rem .85rem; background: rgba(245, 158, 11, .1); border: 1px solid rgba(245, 158, 11, .35); font-size: .82rem; }
+.m-access { display: flex; flex-wrap: wrap; gap: .35rem; }
+.m-access span { font-size: .72rem; background: var(--m-soft); border: 1px solid var(--m-line); border-radius: 5px; padding: .1rem .45rem; color: var(--m-muted); }
+.m-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+.m-link { color: var(--m-accent); font-size: .8rem; }
+
+/* Tables inside mock screens */
+.table-wrap { overflow-x: auto; }
+.m-table { width: 100%; border-collapse: collapse; min-width: 44rem; font-size: .82rem; }
+.m-table th { text-align: left; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--m-muted); font-weight: 600; padding: .55rem .7rem; border-bottom: 1px solid var(--m-line); }
+.m-table td { padding: .65rem .7rem; border-bottom: 1px solid var(--m-line); vertical-align: middle; }
+.m-table td small { display: block; color: var(--m-muted); font-size: .74rem; }
+.m-table tr:last-child td { border-bottom: 0; }
+.m-tabs { display: flex; flex-wrap: wrap; gap: 1.2rem; border-bottom: 1px solid var(--m-line); font-size: .85rem; }
+.m-tabs span { padding-bottom: .5rem; color: var(--m-muted); }
+.m-tabs span.on { color: var(--m-fg); font-weight: 600; box-shadow: inset 0 -2px 0 var(--m-primary); }
+
+/* Import tiles and rollout bars inside mock screens */
+.m-tiles { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); }
+.m-tile { background: var(--m-card); border: 1px solid var(--m-line); border-radius: 9px; padding: .7rem .8rem; display: grid; gap: .1rem; }
+.m-tile b { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.m-tile.ok b { color: var(--m-ok); }
+.m-tile.info b { color: var(--m-accent); }
+.m-tile.warn b { color: var(--m-warn); }
+.m-tile.crit b { color: var(--m-crit); }
+.m-tile span { font-size: .78rem; font-weight: 600; }
+.m-tile small { font-size: .7rem; color: var(--m-muted); }
+.m-file { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .9rem; font-size: .8rem; color: var(--m-muted); }
+.m-file b { color: var(--m-fg); font-weight: 600; }
+.m-file .fp { font-family: var(--font-mono); font-size: .72rem; }
+.m-bar { height: .5rem; background: var(--m-soft); border: 1px solid var(--m-line); border-radius: 999px; overflow: hidden; }
+.m-bar i { display: block; height: 100%; background: var(--m-ok); border-radius: 999px; }
+.m-roll { display: grid; gap: .55rem; }
+.m-roll-row { display: grid; grid-template-columns: minmax(9rem, 1.4fr) minmax(6rem, 2fr) 4.5rem minmax(6rem, auto); gap: .5rem .9rem; align-items: center; font-size: .82rem; }
+.m-roll-row .num { font-variant-numeric: tabular-nums; text-align: right; color: var(--m-muted); }
+.m-roll-row .dept small { display: block; color: var(--m-muted); font-size: .72rem; }
+.m-overall { display: grid; gap: .45rem; }
+.m-overall p { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem; font-size: .85rem; }
+.m-overall .m-bar { height: .75rem; }
+
+/* ── Delivery exhibits ─────────────────────────────── */
+.trio { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); align-items: start; }
+
+.mail { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: .88rem; }
+.mail-head { padding: .8rem 1rem; border-bottom: 1px solid var(--line); display: grid; gap: .15rem; font-size: .8rem; }
+.mail-head .subj { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--ink); }
+.mail-brand { background: var(--m-bg); color: #FFFFFF; padding: .7rem 1rem; font-family: var(--font-display); font-weight: 700; letter-spacing: .02em; display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+.mail-brand small { font-weight: 400; color: var(--m-muted); }
+.mail-body { padding: 1rem; display: grid; gap: .75rem; }
+.mail-role { border-left: 3px solid var(--brand); padding: .3rem .7rem; background: var(--bg); border-radius: 0 6px 6px 0; }
+.mail-cta { justify-self: start; background: var(--brand); color: #FFFFFF; font-family: var(--font-display); font-weight: 600; border-radius: 7px; padding: .55rem 1.1rem; }
+
+.phone {
+  width: 100%; max-width: 19rem; justify-self: center; background: var(--m-bg); color: var(--m-fg);
+  border: 9px solid var(--m-bezel); border-radius: 30px; overflow: hidden; font-family: var(--font-display);
+  box-shadow: 0 14px 30px -20px rgba(5, 5, 16, .7);
+}
+.phone-top { display: flex; justify-content: space-between; padding: .45rem 1rem .3rem; font-size: .68rem; color: var(--m-muted); }
+.phone-body { padding: .8rem .9rem 1.1rem; display: grid; gap: .8rem; font-size: .84rem; }
+.thread-head { text-align: center; font-size: .75rem; color: var(--m-muted); }
+.bubble { background: #23233A; border-radius: 16px 16px 16px 4px; padding: .7rem .8rem; line-height: 1.45; }
+.bubble .lnk { color: #8FB6FF; text-decoration: underline; word-break: break-all; }
+.stamp { font-size: .66rem; color: var(--m-muted); }
+
+.slip {
+  background: var(--paper); color: var(--paper-ink); border: 2px dashed #8C93A3; border-radius: 4px;
+  padding: 1rem 1.1rem; font-size: .84rem; display: grid; gap: .65rem; position: relative;
+}
+.slip-head { display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; font-family: var(--font-display); font-weight: 700; border-bottom: 2px solid var(--paper-ink); padding-bottom: .45rem; }
+.slip-head small { font-weight: 500; color: var(--paper-muted); }
+.slip dl { display: grid; grid-template-columns: auto 1fr; gap: .2rem .8rem; margin: 0; }
+.slip dt { color: var(--paper-muted); }
+.slip dd { margin: 0; font-weight: 600; }
+.code { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 600; letter-spacing: .12em; text-align: center; border: 2px solid var(--paper-ink); border-radius: 6px; padding: .35rem; }
+.slip ol { margin: 0; padding-left: 1.2rem; display: grid; gap: .15rem; }
+.slip .fine { font-size: .72rem; color: var(--paper-muted); }
+
+/* ── Accept flow ───────────────────────────────────── */
+.flow { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr)); align-items: start; }
+.flow figure { display: grid; gap: .55rem; }
+.flow figcaption { font-size: .85rem; }
+.flow figcaption b { font-family: var(--font-display); }
+.flow .phone { max-width: 100%; }
+.m-check { display: grid; gap: .3rem; font-size: .78rem; }
+.m-check span::before { content: '✓  '; color: var(--m-ok); font-weight: 700; }
+.m-dl { display: grid; grid-template-columns: auto 1fr; gap: .25rem .7rem; font-size: .8rem; }
+.m-dl dt { color: var(--m-muted); }
+.m-dl dd { margin: 0; font-weight: 500; }
+
+/* ── Bringing staff across ─────────────────────────── */
+.why { display: grid; gap: .75rem; padding: 1.1rem 1.2rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 2rem; }
+.why ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .45rem; }
+.stages { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.stages > li { display: grid; grid-template-columns: 9.5rem 1fr; gap: 1.25rem; padding-block: 1.25rem; border-top: 1px solid var(--line); }
+.stages > li:first-child { border-top: 0; padding-top: 0; }
+.stages .when { font-family: var(--font-display); font-weight: 600; color: var(--brand); }
+.stages .when small { display: block; font-family: var(--font-body); font-weight: 400; color: var(--muted); font-size: .8rem; }
+.stages .what { display: grid; gap: .55rem; min-width: 0; }
+.stages .what ol { margin: 0; padding-left: 1.2rem; display: grid; gap: .45rem; }
+.data-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.data-table { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 32rem; }
+.data-table th { text-align: left; font-family: var(--font-display); font-weight: 600; font-size: .78rem; letter-spacing: .04em; color: var(--muted); padding: .65rem .9rem; border-bottom: 1px solid var(--line); }
+.data-table td { padding: .6rem .9rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.data-table tr:last-child td { border-bottom: 0; }
+.data-table .flag { color: var(--crit); font-weight: 600; }
+
+/* ── Safety and care grids ─────────────────────────── */
+.safety { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.safety > div { padding: 1rem 1.1rem; border-top: 3px solid var(--brand); background: var(--surface); border-radius: 0 0 8px 8px; display: grid; gap: .35rem; align-content: start; }
+.safety h3 { font-size: 1rem; }
+.safety p { font-size: .92rem; color: var(--muted); }
+.safety.care > div { border-top-color: var(--accent); }
+
+/* ── States ───────────────────────────────────────── */
+.states { display: grid; gap: .9rem; }
+.track { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.state { font-family: var(--font-display); font-size: .85rem; font-weight: 600; border-radius: 999px; padding: .3rem .8rem; border: 1px solid var(--line); background: var(--surface); }
+.state.ok { background: var(--ok-bg); color: var(--ok); border-color: transparent; }
+.state.warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+.state.crit { background: var(--crit-bg); color: var(--crit); border-color: transparent; }
+.state.info { background: var(--accent-bg); color: var(--accent); border-color: transparent; }
+.arrow { color: var(--muted); font-size: .9rem; }
+.exits { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.exits p { font-size: .9rem; color: var(--muted); display: flex; gap: .55rem; align-items: baseline; flex-wrap: wrap; }
+
+/* ── Phases, agreements, questions ────────────────── */
+.phases { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.phases li { display: grid; grid-template-columns: 6.5rem 1fr; gap: 1rem; padding: 1rem 0; border-top: 1px solid var(--line); }
+.phases li:first-child { border-top: 0; }
+.phases .when { font-family: var(--font-display); font-weight: 600; color: var(--brand); font-size: .95rem; }
+.phases .what { display: grid; gap: .35rem; min-width: 0; }
+.phases ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: .95rem; display: grid; gap: .15rem; }
+
+.decisions { list-style: none; counter-reset: d; margin: 0; padding: 0; display: grid; gap: 1rem; }
+.decisions li { counter-increment: d; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem 1.2rem; display: grid; gap: .5rem; }
+.decisions h3::before { content: counter(d) '. '; color: var(--brand); }
+.rec { display: inline-block; font-family: var(--font-display); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ok); background: var(--ok-bg); border-radius: 4px; padding: .1rem .45rem; margin-right: .4rem; vertical-align: .1em; }
+.rec.open { color: var(--warn); background: var(--warn-bg); }
+.decisions p { font-size: .95rem; }
+.decisions .alt { color: var(--muted); }
+
+/* ── For the build team ───────────────────────────── */
+.dev { display: grid; gap: 1rem; }
+.dev dl { margin: 0; display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
+.dev dl > div { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem; padding: .85rem 1rem; border-top: 1px solid var(--line); }
+.dev dl > div:first-child { border-top: 0; }
+.dev dt { font-family: var(--font-display); font-weight: 600; font-size: .92rem; }
+.dev dd { margin: 0; font-size: .92rem; display: grid; gap: .35rem; min-width: 0; }
+.dev dd ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .3rem; }
+
+footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
+
+@media (max-width: 40rem) {
+  .phases li, .stages > li, .dev dl > div { grid-template-columns: 1fr; gap: .4rem; }
+  .m-roll-row { grid-template-columns: 1fr 4.5rem; }
+  .m-roll-row .m-bar { grid-column: 1 / -1; grid-row: 2; }
+  .screen-body { padding: 1rem; }
+}
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+/* ── Guide additions: numbered markers, console and phone parts ─────────── */
+.pin {
+  display: inline-grid; place-items: center; min-width: 1.3rem; height: 1.3rem; padding: 0 .3rem;
+  border-radius: 999px; background: #FACC15; color: #14161C; font-family: var(--font-display);
+  font-weight: 700; font-size: .7rem; line-height: 1; flex: 0 0 auto; vertical-align: middle;
+  box-shadow: 0 0 0 2px rgba(5, 5, 16, .85);
+}
+.legend { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .65rem 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); }
+.legend li { display: grid; grid-template-columns: 1.7rem 1fr; gap: .55rem; align-items: start; font-size: .93rem; }
+.legend .pin { box-shadow: none; margin-top: .2rem; }
+.legend b { font-family: var(--font-display); font-weight: 600; }
+
+.howto { display: flex; flex-wrap: wrap; gap: .6rem 1.4rem; padding: .9rem 1.1rem; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 10px; font-size: .9rem; color: var(--muted); }
+.howto span { display: inline-flex; align-items: center; gap: .45rem; }
+
+.tip { border-left: 3px solid var(--accent); background: var(--surface); padding: .9rem 1.1rem;
+  border-radius: 0 10px 10px 0; display: grid; gap: .4rem; font-size: .95rem; margin-top: 1.5rem; max-width: 44rem; }
+.tip.warn { border-left-color: var(--warn); }
+.tip.ok { border-left-color: var(--ok); }
+.tip h3 { font-size: 1rem; }
+.tip ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .3rem; }
+
+.people { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.people > div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; display: grid; gap: .35rem; align-content: start; }
+.people .where-tag { font-family: var(--font-display); font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); }
+.people p { font-size: .92rem; color: var(--muted); }
+
+/* Console chrome inside a screen */
+.m-top { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; padding: .6rem 1rem;
+  border-bottom: 1px solid var(--m-line); background: var(--m-soft); font-size: .8rem; }
+.m-top .crumb { color: var(--m-muted); }
+.m-top .crumb b { color: var(--m-fg); }
+.m-top .who { margin-left: auto; display: flex; align-items: center; gap: .45rem; font-size: .76rem; }
+.m-top .who small { display: block; color: var(--m-muted); font-size: .66rem; }
+.m-avatar { width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--m-primary); display: grid; place-items: center; font-size: .62rem; font-weight: 700; flex: 0 0 auto; }
+.m-head { text-align: center; font-size: .66rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+  padding: .55rem; background: var(--m-soft); border-bottom: 1px solid var(--m-line); margin: -1rem -1rem 0; border-radius: 10px 10px 0 0; }
+.m-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; min-width: 0; }
+.m-row.between { justify-content: space-between; }
+.m-help { font-size: .72rem; color: var(--m-muted); }
+.m-help.ok { color: var(--m-ok); }
+.m-radio { display: inline-flex; align-items: center; gap: .35rem; font-size: .8rem; color: var(--m-muted); }
+.m-radio i { width: .8rem; height: .8rem; border-radius: 50%; border: 2px solid var(--m-muted); display: block; }
+.m-radio.on { color: var(--m-fg); font-weight: 600; }
+.m-radio.on i { border-color: var(--m-accent); background: var(--m-accent); }
+.m-switch { width: 2rem; height: 1.1rem; border-radius: 999px; background: var(--m-ok); position: relative; flex: 0 0 auto; }
+.m-switch::after { content: ''; position: absolute; top: .12rem; right: .12rem; width: .86rem; height: .86rem; border-radius: 50%; background: #FFFFFF; }
+.m-switch.off { background: var(--m-line); }
+.m-switch.off::after { right: auto; left: .12rem; }
+.m-dim { opacity: .45; }
+
+.m-clock { display: inline-flex; align-items: center; gap: .45rem; border-radius: 999px; padding: .4rem .95rem; font-weight: 700; font-size: .85rem; }
+.m-clock.ok { border: 1px solid var(--m-line); background: var(--m-card); }
+.m-clock.warn { background: var(--m-warn); color: #14161C; }
+.m-clock.crit { background: var(--m-crit); }
+.m-clock span { font-family: var(--font-mono); }
+
+.m-dept { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .4rem; }
+.m-dept span { text-align: center; border-radius: 7px; padding: .5rem .2rem; font-size: .66rem; font-weight: 700; letter-spacing: .05em;
+  text-transform: uppercase; border: 1px solid var(--m-line); color: var(--m-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.m-dept span.on { color: #FFFFFF; border-color: transparent; box-shadow: 0 0 0 2px var(--m-card), 0 0 0 3px rgba(255, 255, 255, .5); }
+.m-dept span.police.on { background: #3B82F6; }
+.m-dept span.fire.on { background: #F59E0B; color: #14161C; }
+.m-dept span.med.on { background: #DC3545; }
+.m-dept span.dis.on { background: #8B5CF6; }
+.m-dept span small { display: block; font-size: .58rem; font-weight: 600; letter-spacing: 0; text-transform: none; opacity: .85; }
+.m-bcast { text-align: center; border-radius: 7px; padding: .5rem; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; background: var(--m-crit); }
+
+.m-map { position: relative; height: 9.5rem; border-radius: 8px; border: 1px solid var(--m-line); overflow: hidden;
+  background:
+    linear-gradient(115deg, transparent 0 46%, rgba(255, 255, 255, .13) 46% 48%, transparent 48%),
+    linear-gradient(25deg, transparent 0 60%, rgba(255, 255, 255, .1) 60% 61.5%, transparent 61.5%),
+    linear-gradient(160deg, #1D3326 0%, #233C2E 40%, #2D3B4A 70%, #1B2A3A 100%); }
+.m-map .drop { position: absolute; left: 52%; top: 38%; width: 1rem; height: 1rem; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+  background: var(--m-crit); box-shadow: 0 0 0 4px rgba(239, 68, 68, .25); }
+.m-map .unit { position: absolute; width: .7rem; height: .7rem; border-radius: 50%; background: var(--m-ok); box-shadow: 0 0 0 3px rgba(16, 185, 129, .3); }
+.m-map .route { position: absolute; left: 22%; top: 70%; width: 32%; height: 0; border-top: 3px solid var(--m-accent); transform: rotate(-38deg); transform-origin: left; border-radius: 3px; }
+.m-map .pin { position: absolute; }
+
+.m-sev { display: inline-flex; border-radius: 999px; padding: .1rem .55rem; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.m-sev.crit { background: rgba(239, 68, 68, .2); color: #F87171; }
+.m-sev.high { background: rgba(249, 115, 22, .2); color: #FB923C; }
+.m-sev.med { background: rgba(245, 158, 11, .2); color: #FBBF24; }
+.m-sev.low { background: rgba(16, 185, 129, .18); color: #34D399; }
+
+.m-ladder { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: .4rem; }
+.m-step { border: 1px solid var(--m-line); border-radius: 8px; padding: .5rem .6rem; font-size: .66rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--m-muted); }
+.m-step small { display: block; font-weight: 500; letter-spacing: 0; text-transform: none; margin-top: .15rem; }
+.m-step.done { border-color: rgba(16, 185, 129, .45); background: rgba(16, 185, 129, .06); color: var(--m-fg); }
+.m-step.now { border-color: var(--m-accent); background: rgba(59, 130, 246, .1); color: var(--m-fg); }
+
+.m-tl { display: grid; gap: .45rem; font-size: .76rem; }
+.m-tl p { border: 1px solid var(--m-line); border-radius: 7px; padding: .45rem .6rem; background: var(--m-soft); }
+.m-tl p small { display: block; color: var(--m-muted); font-size: .68rem; margin-top: .1rem; }
+
+.m-part { display: grid; gap: .3rem; padding: .7rem .8rem; border: 1px solid var(--m-line); border-radius: 8px; }
+.m-part .facts { font-size: .72rem; color: var(--m-muted); }
+
+/* Phone parts */
+.phone-body .m-btn { width: 100%; padding-block: .7rem; }
+.m-btn.ok { background: var(--m-ok); }
+.m-btn.blue { background: var(--m-accent); }
+.m-btn.paper { background: #1F7A4D; }
+.m-alert { border-radius: 14px; overflow: hidden; border: 2px solid #F97316; background: var(--m-card); }
+.m-alert-head { background: #F97316; padding: .65rem .8rem; display: flex; gap: .6rem; align-items: center; }
+.m-alert-head small { display: block; font-size: .62rem; font-weight: 700; letter-spacing: .06em; opacity: .9; }
+.m-alert-head b { font-size: 1rem; }
+.m-alert-body { padding: .8rem; display: grid; gap: .45rem; font-size: .8rem; }
+.m-alert-body .m-btn { margin-top: .1rem; }
+.m-dialog { background: #2A2A3E; border-radius: 16px; padding: 1rem 1.1rem .7rem; display: grid; gap: .6rem; box-shadow: 0 10px 30px rgba(0, 0, 0, .5); }
+.m-dialog b { font-size: .98rem; }
+.m-dialog .btns { display: flex; justify-content: flex-end; gap: 1.2rem; font-weight: 700; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; color: #8FB6FF; }
+.m-scrim { background: rgba(0, 0, 0, .55); border-radius: 12px; padding: 2.2rem .6rem; }
+.m-callrow { display: grid; gap: .2rem; padding: .55rem .65rem; border-radius: 8px; border: 1px solid var(--m-line); border-left: 4px solid #F97316; background: var(--m-card); font-size: .76rem; }
+.m-callrow .top { display: flex; justify-content: space-between; gap: .4rem; font-weight: 700; }
+.m-callrow .sub { color: var(--m-muted); font-size: .7rem; }
+.m-callrow .tagline { color: var(--m-accent); font-weight: 700; font-size: .66rem; letter-spacing: .04em; }
+.m-stepper { display: flex; gap: .25rem; font-size: .58rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--m-muted); }
+.m-stepper span { flex: 1; border-top: 3px solid var(--m-line); padding-top: .25rem; text-align: center; }
+.m-stepper span.on { border-color: var(--m-accent); color: var(--m-fg); }
+.m-stepper span.done { border-color: var(--m-ok); }
+.m-yn { display: flex; gap: .35rem; }
+.m-yn span { flex: 1; text-align: center; border-radius: 7px; border: 1px solid var(--m-line); padding: .3rem; font-size: .72rem; font-weight: 600; }
+.m-yn span.yes { background: var(--m-ok); border-color: var(--m-ok); }
+.m-yn span.no { background: var(--m-crit); border-color: var(--m-crit); }
+.m-q { display: grid; gap: .3rem; font-size: .74rem; }
+.m-units { display: grid; grid-template-columns: 1fr 1fr; gap: .45rem; }
+.m-unit { border: 1px solid var(--m-line); border-radius: 9px; padding: .55rem .4rem; text-align: center; display: grid; gap: .1rem; font-size: .68rem; }
+.m-unit b { font-size: .9rem; }
+.m-unit.on { border-color: var(--m-accent); background: rgba(59, 130, 246, .12); }
+.m-unit.taken { opacity: .5; }
+.m-unit .tg { font-size: .56rem; font-weight: 700; letter-spacing: .05em; color: var(--m-muted); }
+.m-tabsrow { display: flex; gap: .35rem; overflow: hidden; font-size: .62rem; }
+.m-tabsrow span { border: 1px solid var(--m-line); border-radius: 999px; padding: .15rem .5rem; white-space: nowrap; color: var(--m-muted); }
+.m-tabsrow span.on { background: var(--m-accent); border-color: var(--m-accent); color: #FFFFFF; }
+.m-paper { background: #F3F5F9; color: #14161C; border-radius: 10px; padding: .8rem; display: grid; gap: .45rem; font-size: .76rem; }
+.m-paper .crest { text-align: center; font-weight: 700; font-size: .7rem; letter-spacing: .06em; border-bottom: 2px solid #14161C; padding-bottom: .35rem; }
+.m-paper .row { display: flex; justify-content: space-between; gap: .5rem; border-bottom: 1px solid #D6DBE6; padding-bottom: .2rem; }
+.m-paper .row span { color: #5B606B; }
+.m-forms { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+.m-forms span { border: 1px solid var(--m-line); border-radius: 8px; padding: .4rem .45rem; font-size: .66rem; display: grid; gap: .05rem; }
+.m-forms span b { font-size: .7rem; }
+.m-forms span.on { border-color: var(--m-accent); background: rgba(59, 130, 246, .14); }
+.m-eta { display: flex; align-items: baseline; gap: .5rem; }
+.m-eta b { font-size: 1.5rem; }
+.m-live { margin-left: auto; display: inline-flex; align-items: center; gap: .3rem; font-size: .68rem; color: var(--m-ok); font-weight: 700; }
+.m-live::before { content: ''; width: .45rem; height: .45rem; border-radius: 50%; background: var(--m-ok); }
+.phone-body .m-map { height: 11rem; }
+.m-filed { display: flex; gap: .4rem; align-items: center; font-size: .74rem; color: var(--m-ok); }
+
+@media (max-width: 40rem) {
+  .m-dept { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Tables keep the screen's colours even when the file is opened on its own. */
+.screen table, .screen td, .screen th { color: var(--m-fg); font-family: var(--font-display); }
+.screen th { color: var(--m-muted); }
+.screen td small { color: var(--m-muted); }
+
+/* Phones stay phone-sized when only a few sit side by side. */
+.flow .phone { max-width: 21rem; justify-self: center; width: 100%; }
+</style>
+
+<div class="page">
+
+  <header class="masthead col">
+    <p class="eyebrow">eThekwini Municipality · HikTech · Guide</p>
+    <h1>A police call, from first ring to closed case</h1>
+    <p class="lede">Follow one call through HikTech. A call logger takes it, the Metro Police dispatch desk sends it out, an officer accepts it on the phone, goes to the scene and files the report, and a case manager reads the report and closes the case.</p>
+    <div class="meta">
+      <span><b>For:</b> anyone reviewing HikTech</span>
+      <span><b>Console:</b> any web browser</span>
+      <span><b>App:</b> HikTech for Android</span>
+      <span><b>Updated:</b> 13 October 2026</span>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#people">Who is involved</a>
+      <a href="#journey">The journey</a>
+      <a href="#duty">1 · Going on duty</a>
+      <a href="#log">2 · Logging the call</a>
+      <a href="#dispatch">3 · Dispatching</a>
+      <a href="#accept">4 · Accepting</a>
+      <a href="#scene">5 · At the scene</a>
+      <a href="#report">6 · The report</a>
+      <a href="#close">7 · Closing the case</a>
+      <a href="#other">Other endings</a>
+      <a href="#signal">No signal</a>
+    </nav>
+  </header>
+
+  <section class="col" style="padding-top:2rem">
+    <div class="howto">
+      <span><span class="pin">1</span> A yellow number on a screen matches the note with the same number below it.</span>
+      <span><span class="example">Example data</span> All names, numbers and addresses are made up.</span>
+    </div>
+  </section>
+
+  <!-- ── People ─────────────────────────────── -->
+  <section id="people" class="band">
+    <div class="section-head">
+      <h2>Who is involved</h2>
+      <p class="muted">Four people touch a police call. Each sees only what their job needs.</p>
+    </div>
+    <div class="people">
+      <div><span class="where-tag">Console</span><h3>Call logger</h3><p>Answers the phone and logs the call: who is calling, where, and what happened. Chooses which departments must receive it.</p></div>
+      <div><span class="where-tag">Console</span><h3>Police dispatcher</h3><p>Sees the calls sent to the Metro Police desk and sends each one to officers on duty. Watches every step live.</p></div>
+      <div><span class="where-tag">Phone app</span><h3>Police officer</h3><p>Goes on duty, accepts the call, drives to the scene, and files the report from the phone.</p></div>
+      <div><span class="where-tag">Console</span><h3>Case manager</h3><p>Reads every finished report and closes the case. Nothing is closed without someone reading it.</p></div>
+    </div>
+    <p class="note muted" style="margin-top:1rem;font-size:.92rem">The control room sees every department’s calls and can do the call logger’s and the dispatcher’s work. Supervisors and Captains see their department’s calls and can step in at any point.</p>
+  </section>
+
+  <!-- ── Journey ─────────────────────────────── -->
+  <section id="journey" class="band">
+    <div class="section-head">
+      <h2>The journey, start to finish</h2>
+      <p class="muted">Seven steps. The first happens once a shift, before any call.</p>
+    </div>
+    <ol class="journey">
+      <li><h3>Go on duty</h3><p>The officer completes the start-of-shift checks on the phone.</p><p class="who">Officer · app · once a shift</p></li>
+      <li><h3>Log the call</h3><p>The call logger fills in the call form and sends it to the Metro Police desk.</p><p class="who">Call logger · console</p></li>
+      <li><h3>Dispatch</h3><p>The dispatcher sends it to every officer on duty, or to one chosen officer.</p><p class="who">Dispatcher · console</p></li>
+      <li><h3>Accept</h3><p>The officer gets a pop-up, accepts, and follows the route to the scene.</p><p class="who">Officer · app</p></li>
+      <li><h3>At the scene</h3><p>The officer marks On Scene, and adds photos, voice notes and updates.</p><p class="who">Officer · app</p></li>
+      <li><h3>File the report</h3><p>The officer fills in the police forms the call needs and files them.</p><p class="who">Officer · app</p></li>
+      <li><h3>Close the case</h3><p>A case manager reads the report and closes the case.</p><p class="who">Case manager · console</p></li>
+    </ol>
+    <div class="states" style="margin-top:2rem">
+      <h3>What the call says about itself</h3>
+      <div class="track">
+        <span class="state warn">Pending Dispatch</span><span class="arrow">→</span>
+        <span class="state info">Dispatched</span><span class="arrow">→</span>
+        <span class="state info">En Route</span><span class="arrow">→</span>
+        <span class="state info">On Scene</span><span class="arrow">→</span>
+        <span class="state ok">Resolved</span><span class="arrow">→</span>
+        <span class="state">Closed</span>
+      </div>
+      <p class="muted" style="font-size:.92rem">Resolved means the report is in. Closed means a case manager has read it. Every change is recorded with who made it and when.</p>
+    </div>
+  </section>
+
+  <!-- ── 1 Going on duty ─────────────────────── -->
+  <section id="duty" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 1 · Officer · phone</p>
+      <h2>Going on duty</h2>
+      <p class="muted">Calls only reach officers who are on duty. An officer goes on duty by completing four checks, once a shift. The bar at the top of each screen shows where they are: Readiness, Unit, Inspection, Loadout.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:02</span><span>HikTech</span></div>
+          <div class="phone-body">
+            <p class="m-help" style="text-align:center;letter-spacing:.08em">METRO POLICE · STEP 1 OF 4</p>
+            <p class="m-title" style="text-align:center">Start of Shift</p>
+            <p class="m-sub" style="text-align:center">Begin your start-of-shift readiness checks to go on duty.</p>
+            <span class="m-btn ok">Go on Duty — Begin Checks</span>
+          </div></div>
+        <figcaption><b>Begin.</b> <span class="muted">The app opens here at the start of every shift until the checks are done.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:03</span><span>Readiness</span></div>
+          <div class="phone-body">
+            <div class="m-stepper"><span class="on">Readiness</span><span>Unit</span><span>Inspection</span><span>Loadout</span></div>
+            <p style="font-weight:700">Readiness Assessment</p>
+            <div class="m-q">Memory Recall (Can you remember key facts?) *<div class="m-yn"><span class="yes">✓ Yes</span><span>✕ No</span></div></div>
+            <div class="m-q">Are you free from the influence of Alcohol/Drugs? *<div class="m-yn"><span class="yes">✓ Yes</span><span>✕ No</span></div></div>
+            <p class="m-help">+ 4 more: judgment, situational awareness, emotional wellbeing, reflexes</p>
+            <span class="m-btn">Submit Readiness Check</span>
+          </div></div>
+        <figcaption><b>Six honest answers.</b> <span class="muted">Any No stops the officer going on duty. The answers go to the supervisor.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:04</span><span>Unit</span></div>
+          <div class="phone-body">
+            <div class="m-stepper"><span class="done">Readiness</span><span class="on">Unit</span><span>Inspection</span><span>Loadout</span></div>
+            <p style="font-weight:700;text-align:center">Select Your Unit</p>
+            <div class="m-units">
+              <div class="m-unit on"><b>MP-12</b>Patrol car<span class="tg">ND 456-789</span></div>
+              <div class="m-unit"><b>MP-15</b>Patrol car<span class="tg">ND 221-930</span></div>
+            </div>
+            <span class="m-btn ok">Confirm Assignment</span>
+            <p class="m-help">Taken (1)</p>
+            <div class="m-units"><div class="m-unit taken"><span class="tg">TAKEN</span><b>MP-09</b>Patrol car</div></div>
+          </div></div>
+        <figcaption><b>Pick a vehicle.</b> <span class="muted">Vehicles another officer has signed onto show as Taken. If none is free, the screen says <i>No available cars</i> and the officer can continue without one, with a note.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:06</span><span>Inspection</span></div>
+          <div class="phone-body">
+            <div class="m-stepper"><span class="done">Readiness</span><span class="done">Unit</span><span class="on">Inspection</span><span>Loadout</span></div>
+            <p style="font-weight:700">Vehicle Inspection 187(c)</p>
+            <div class="m-tabsrow"><span>Vehicle Check</span><span>Details</span><span class="on">Lights</span><span>Interior</span><span>Body</span></div>
+            <p class="m-help">External Lights</p>
+            <div class="m-q">Brake<div class="m-yn"><span class="yes">OK</span><span>FAULT</span><span>NIL</span></div></div>
+            <div class="m-q">Blue Lights<div class="m-yn"><span class="yes">OK</span><span>FAULT</span><span>NIL</span></div></div>
+            <span class="m-btn">Next</span>
+          </div></div>
+        <figcaption><b>Check the vehicle.</b> <span class="muted">Eight short tabs, ending with Review and Sign Off. A failed essential check takes the vehicle off the road and tells the supervisor.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:12</span><span>Loadout</span></div>
+          <div class="phone-body">
+            <div class="m-stepper"><span class="done">Readiness</span><span class="done">Unit</span><span class="done">Inspection</span><span class="on">Loadout</span></div>
+            <p style="font-weight:700">Select Firearm &amp; Checklist</p>
+            <div class="m-input">Z88 · S/N 51200 <span class="caret">▾</span></div>
+            <div class="m-grid2" style="gap:.4rem"><div class="m-input">15 rounds</div><div class="m-input">2 magazines</div></div>
+            <div class="m-input">Chamber status: Empty <span class="caret">▾</span></div>
+            <span class="m-btn ok">Confirm Loadout &amp; Start Shift</span>
+          </div></div>
+        <figcaption><b>Firearm, then bodycam.</b> <span class="muted">The firearm is inspected and booked out, then the bodycam the same way (<i>Confirm Bodycam &amp; Start Shift</i>). <i>No firearm</i> and <i>No bodycam today</i> are there for unarmed duty or when none is left.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:14</span><span>Done</span></div>
+          <div class="phone-body">
+            <div class="m-paper">
+              <p class="crest">METRO POLICE · START OF SHIFT RECORD</p>
+              <p style="text-align:center;font-weight:700">Shift Start Complete</p>
+              <div class="row"><span>Vehicle</span><b>MP-12</b></div>
+              <div class="row"><span>Firearm</span><b>Z88 · 15 rds</b></div>
+              <div class="row"><span>Bodycam</span><b>BC-0417</b></div>
+              <p style="font-weight:700">Licence and ID <span style="color:#5B606B;font-weight:500">(optional)</span></p>
+              <div class="row"><span>Driver’s licence</span><b>Scan the front of the card</b></div>
+              <div class="row"><span>ID document</span><b>Take a photo or upload one</b></div>
+            </div>
+            <span class="m-btn">Go to Dashboard →</span>
+          </div></div>
+        <figcaption><b>On duty.</b> <span class="muted">Everything is signed and filed for today and can be exported as a PDF. The licence scan and ID photo are optional.</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ── 2 Logging the call ─────────────────── -->
+  <section id="log" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 2 · Call logger · console</p>
+      <h2>Logging the call</h2>
+      <p class="muted">One screen, two halves: who is calling and where on the left, what happened and who must receive it on the right. The call logger can’t skip a step that matters; the form says exactly what is missing.</p>
+    </div>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">Log incoming call</span><span class="where">/dispatch/log-call</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/dispatch/log-call</span></div>
+        <div class="m-top"><span class="crumb">Dispatch › <b>Log incoming call</b></span><span class="who"><span class="m-avatar">LL</span><span>Lerato Logger<small>Call logger · Control Room</small></span></span></div>
+        <div class="screen-body">
+          <div class="m-row between"><span class="m-clock ok"><span class="pin">1</span> Response clock <span>00:48</span></span><span class="m-btn ghost small">← Back to dashboard</span></div>
+          <div class="m-grid2" style="grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))">
+            <div class="m-card">
+              <p class="m-head">Caller &amp; location info</p>
+              <div class="m-field"><span class="m-label"><span class="pin">2</span> Caller name</span><div class="m-input">Thabo Mkhize</div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">3</span> Contact citizen</span>
+                <div class="m-row"><div class="m-input" style="width:6.5rem">ZA +27 <span class="caret">▾</span></div><div class="m-input" style="flex:1">082 555 0143</div><span class="m-btn small ok">Call</span></div>
+                <span class="m-help ok">Saved as +27 82 555 0143</span></div>
+              <div class="m-input" style="gap:1rem;flex-wrap:wrap"><span class="pin">4</span><span class="m-sub">Is the caller the patient? *</span><span class="m-radio"><i></i>Yes</span><span class="m-radio on"><i></i>No</span></div>
+              <div class="m-field"><span class="m-label"><span class="pin">5</span> Incident location</span><div class="m-input focus">112 Florida Road, Morningside, Durban</div>
+                <div class="m-map"><span class="drop"></span></div></div>
+              <div class="m-grid2" style="gap:.6rem">
+                <div class="m-field"><span class="m-label">Suburb</span><div class="m-input">Morningside</div></div>
+                <div class="m-field"><span class="m-label"><span class="pin">6</span> Region</span><div class="m-input ok">Central <span class="caret">▾</span></div><span class="m-help">Set from the map pin</span></div>
+              </div>
+            </div>
+            <div class="m-card">
+              <p class="m-head">Incident details &amp; routing</p>
+              <div class="m-field"><span class="m-label"><span class="pin">7</span> Incident type (10-code)</span><div class="m-input">10-3: Burglary <span class="caret">▾</span></div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">8</span> Call description / narrative</span><div class="m-input" style="min-height:3.2rem;align-items:flex-start">Caller hears breaking glass at the neighbour’s house. Owners are away. Two men seen at the back door.</div></div>
+              <div class="m-part"><span class="m-label"><span class="pin">9</span> EMS / medical triage</span><div class="m-row"><span class="m-switch"></span><span class="m-sub">No injuries / EMS not required</span></div>
+                <div class="m-grid2 m-dim" style="gap:.5rem"><div class="m-input">Number of victims</div><div class="m-input">Medical severity code</div></div></div>
+              <div class="m-grid2" style="gap:.6rem">
+                <div class="m-field"><span class="m-label"><span class="pin">10</span> Incident severity</span><div class="m-input">High <span class="caret">▾</span></div></div>
+                <div class="m-field"><span class="m-label"><span class="pin">11</span> Attachment (optional)</span><div class="m-input m-sub">Choose a photo, recording or document…</div></div>
+              </div>
+              <div class="m-field"><span class="m-label"><span class="pin">12</span> Internal dispatch notes</span><div class="m-input">Gate code 4471. Dog in the yard.</div></div>
+              <div class="m-part"><span class="m-row between"><span class="m-label"><span class="pin">13</span> Send to dispatch</span><span class="m-help">Suggested from the incident type: change if needed</span></span>
+                <div class="m-dept"><span class="fire">Fire</span><span class="police on">Police</span><span class="med">Medical</span><span class="dis">Disaster</span></div>
+                <span class="m-bcast">Broadcast all (emergency)</span>
+                <span class="m-help">Only the Metro Police dispatch desk receives this call.</span></div>
+              <span class="m-btn blue full"><span class="pin">14</span> Send to dispatch</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>Response clock.</b> Starts when the screen opens. It turns amber after 1 minute 30 and flashes red after 3 minutes, so a long call is never forgotten. The times are set in Admin.</span></li>
+        <li><span class="pin">2</span><span><b>Caller name</b>, as the caller gives it. Required.</span></li>
+        <li><span class="pin">3</span><span><b>Contact number.</b> South Africa (+27) is chosen; other countries are in the list, and a number typed with + or 00 picks its own country. A wrong number is refused with the reason. <b>Call</b> rings the caller back. If the same number or address called in the last 12 hours, a <i>Possible duplicate</i> note appears.</span></li>
+        <li><span class="pin">4</span><span><b>Is the caller the patient?</b> Required. With No, the patient names can be added, one row per person.</span></li>
+        <li><span class="pin">5</span><span><b>Incident location.</b> Type an address and pick a suggestion, or click the map. The red pin is where crews are sent.</span></li>
+        <li><span class="pin">6</span><span><b>Region</b> is filled in from the pin (Central, North, South, West, Outer). It can be changed by hand.</span></li>
+        <li><span class="pin">7</span><span><b>Incident type</b>, from eThekwini’s 10-codes, grouped: Crime, Traffic, Fire, Medical, Public Order, Disaster.</span></li>
+        <li><span class="pin">8</span><span><b>What the caller said</b>, in their words where possible. Required.</span></li>
+        <li><span class="pin">9</span><span><b>Medical triage.</b> Switch on <i>No injuries</i>, or give the number of victims and a medical code (P1 red to P4 blue).</span></li>
+        <li><span class="pin">10</span><span><b>Severity:</b> Low, Medium, High or Critical. It colours the call everywhere, and a Critical call is flagged <i>Priority 1 — respond immediately</i> on the phone.</span></li>
+        <li><span class="pin">11</span><span><b>Attachment</b>: a photo, recording or document the caller sent. Optional.</span></li>
+        <li><span class="pin">12</span><span><b>Dispatch notes</b> for the crew only: access, hazards, instructions.</span></li>
+        <li><span class="pin">13</span><span><b>Who receives the call.</b> The departments are suggested from the incident type. Only the departments chosen here get the call. <b>Broadcast all</b> sends it to every department at once.</span></li>
+        <li><span class="pin">14</span><span><b>Send to dispatch.</b> The call gets its number (for example INC-20261013-0004) and lands in the Metro Police queue at once. The call logger is taken to the call’s page.</span></li>
+      </ol>
+    </figure>
+
+    <div class="tip warn">
+      <h3>If something is missing</h3>
+      <p class="muted">Nothing is sent until the form is complete. The message says exactly what to fix, for example:</p>
+      <ul class="muted">
+        <li>Say whether the caller is the patient.</li>
+        <li>Place the scene on the map — pick an address suggestion or click the map.</li>
+        <li>Choose the department this call is for: who must receive it.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── 3 Dispatching ─────────────────────── -->
+  <section id="dispatch" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 3 · Police dispatcher · console</p>
+      <h2>Dispatching</h2>
+      <p class="muted">The Metro Police desk sees only the calls sent to it, newest first, and only its own officers on duty.</p>
+    </div>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">The pending queue</span><span class="where">/dispatch/pending</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/dispatch/pending</span></div>
+        <div class="m-top"><span class="crumb">Dispatch › <b>Pending Queue</b></span><span class="who"><span class="m-avatar">NM</span><span>Nomsa Metro<small>Dispatcher · Metro Police</small></span></span></div>
+        <div class="screen-body">
+          <div class="m-card" style="grid-template-columns:1fr auto;align-items:center">
+            <p><b style="font-size:1.4rem;color:var(--m-crit)">3</b> <b>awaiting dispatch</b> <span class="m-sub">sent to the Metro Police desk</span> <span class="pin">1</span></p>
+            <span class="m-chip ok"><span class="pin">2</span> 4 on duty · 3 available</span>
+          </div>
+          <div class="m-row"><span class="pin">3</span><div class="m-input" style="flex:1;min-width:14rem">⌕ Search incident #, caller, phone, address, type</div><div class="m-input">Newest first ▾</div><div class="m-input">All severities ▾</div><div class="m-input">All regions ▾</div></div>
+          <div class="table-wrap">
+            <table class="m-table">
+              <thead><tr><th>Incident #</th><th>Severity</th><th>Type</th><th>Sent to <span class="pin">4</span></th><th>Caller</th><th>Location <span class="pin">5</span></th><th>Received <span class="pin">6</span></th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="mono">INC-20261013-0004</td><td><span class="m-sev high">High</span></td><td>Burglary</td><td><span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Thabo Mkhize<small>+27 82 555 0143</small></td><td>📍 112 Florida Road<small>Central</small></td><td>2 min</td><td><span class="m-btn small blue"><span class="pin">7</span> Dispatch</span></td></tr>
+                <tr><td class="mono">INC-20261013-0003</td><td><span class="m-sev med">Medium</span></td><td>Motor Vehicle Accident</td><td><span class="m-chip ok">Fire &amp; Rescue · Dispatched</span> <span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Ayesha Khan<small>+27 83 410 2290</small></td><td>📍 N3, Westville off-ramp<small>West</small></td><td>14 min</td><td><span class="m-btn small blue">Dispatch</span></td></tr>
+                <tr><td class="mono">INC-20261012-0061</td><td><span class="m-sev low">Low</span></td><td>Traffic Violation</td><td><span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Sipho Ndlovu<small>+27 72 118 4410</small></td><td>📍 Umgeni Road<small>Central</small></td><td>Yesterday</td><td><span class="m-btn small blue">Dispatch</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>How many calls are waiting</b> for this desk. It turns green at zero.</span></li>
+        <li><span class="pin">2</span><span><b>Metro Police officers on duty</b>, and how many are not on a call. It updates live as officers go on or off duty.</span></li>
+        <li><span class="pin">3</span><span><b>Search and filters:</b> by number, caller, phone, address or type; newest, oldest or most severe first; severity; region.</span></li>
+        <li><span class="pin">4</span><span><b>Sent to</b> shows every department on the call and how far each has got. Here Fire &amp; Rescue has already sent its crew to the accident; the call stays in the Police queue until Police dispatches too.</span></li>
+        <li><span class="pin">5</span><span><b>Location.</b> Clicking it opens the live map: the scene, every officer on duty, and the road route and minutes from the nearest.</span></li>
+        <li><span class="pin">6</span><span><b>Received</b>, the way a chat app shows it: minutes, today’s time, Yesterday, then the date.</span></li>
+        <li><span class="pin">7</span><span><b>Dispatch</b> opens the call’s dispatch page.</span></li>
+      </ol>
+    </figure>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">Dispatch &amp; routing</span><span class="where">/dispatch/assign/…</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/dispatch/assign/INC-20261013-0004</span></div>
+        <div class="screen-body">
+          <div class="m-row between"><div><p class="m-title">Dispatch call</p><p class="m-sub">Incident INC-20261013-0004 <span class="m-sev high">High</span> · logged 2 minutes ago</p></div><span class="m-btn ghost small">Full lifecycle ↗</span></div>
+          <p class="m-sub"><span class="pin">1</span> Above this, everything the call logger captured is shown read-only: caller, map, description, triage, notes and attachments.</p>
+          <div class="m-card">
+            <p class="m-head">Dispatch &amp; routing</p>
+            <div class="m-grid2" style="gap:.6rem">
+              <div class="m-result on"><span class="pin">2</span><span class="name">Send to all on duty</span><span class="facts">First to respond leads; others can join as backup.</span></div>
+              <div class="m-result"><span class="name">Assign to officer</span><span class="facts">Pick one officer — they lead. Others can still back up.</span></div>
+            </div>
+            <div class="m-dept"><span class="police on">Police<small>4 on duty</small></span></div>
+            <p class="m-label"><span class="pin">3</span> On duty now · 4 on duty · 3 available · nearest first</p>
+            <div class="m-result"><span class="name">Const. S. Khumalo #MP-1042</span><span class="m-chip ok">AVAILABLE</span><span class="facts">Metro Police · MP-12 · Durban Central</span><span class="facts end">1.8 km · ≈4 min</span></div>
+            <div class="m-result"><span class="name">Sgt. P. Naidoo #MP-0988</span><span class="m-chip warn">1 INCIDENT</span><span class="facts">Metro Police · MP-15</span><span class="facts end">3.2 km · ≈7 min</span></div>
+            <div class="m-actions" style="justify-content:flex-end"><span class="m-btn ghost">Cancel</span><span class="m-btn blue"><span class="pin">4</span> Dispatch to 4 on duty</span></div>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>The whole call at a glance</b>, so the dispatcher never re-asks the caller anything.</span></li>
+        <li><span class="pin">2</span><span><b>Two ways to send it.</b> To everyone on duty: the first officer to accept leads. Or to one chosen officer: they lead. Either way, others can join as backup.</span></li>
+        <li><span class="pin">3</span><span><b>Who is on duty</b>, nearest first, with the distance and minutes from their phone’s last position. <i>Available</i> means not on a call. Searchable by name, badge, vehicle or station.</span></li>
+        <li><span class="pin">4</span><span><b>Dispatch.</b> Every chosen officer’s phone gets the call at once, even locked. The dispatcher is then taken to the call’s page to follow it.</span></li>
+      </ol>
+    </figure>
+  </section>
+
+  <!-- ── 4 Accepting ─────────────────────── -->
+  <section id="accept" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 4 · Officer · phone</p>
+      <h2>Accepting the call</h2>
+      <p class="muted">The phone sounds and shows the call over whatever is open. Three choices, and accepting is asked once to be sure.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:06</span><span>HikTech</span></div>
+          <div class="phone-body">
+            <div class="m-alert">
+              <div class="m-alert-head">⚠<span><small>HIGH · METRO POLICE</small><b>New incident</b></span></div>
+              <div class="m-alert-body">
+                <b>New incident INC-20261013-0004</b>
+                <span class="m-sub">📍 Burglary · 112 Florida Road, Morningside</span>
+                <span class="m-sub">📻 Dispatched by Nomsa Metro</span>
+                <span class="m-sub">🕑 14:06:12</span>
+                <span class="m-help">Sent to everyone on duty. The first to respond leads; others can join as backup.</span>
+                <span class="m-btn"><span class="pin">1</span> Accept incident</span>
+                <span class="m-btn ghost"><span class="pin">2</span> Acknowledge</span>
+                <span class="m-btn ghost"><span class="pin">3</span> Navigate</span>
+              </div>
+            </div>
+          </div></div>
+        <figcaption><b>The pop-up.</b> <span class="muted">It appears over whatever is open, and the phone sounds even when locked.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:06</span><span>HikTech</span></div>
+          <div class="phone-body">
+            <div class="m-scrim">
+              <div class="m-dialog"><b>Accept INC-20261013-0004</b><span class="m-sub">Are you sure you want to accept this incident?</span><div class="btns"><span>Cancel</span><span>Accept</span></div></div>
+            </div>
+          </div></div>
+        <figcaption><b>Asked once.</b> <span class="muted">Accepting puts the officer En Route and tells the dispatcher straight away.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:07</span><span>Route</span></div>
+          <div class="phone-body">
+            <div class="m-map"><span class="route"></span><span class="unit" style="left:20%;top:68%"></span><span class="drop" style="left:55%;top:30%"></span></div>
+            <div class="m-eta"><b>4 min</b><span class="m-sub">1.8 km</span><span class="m-live">Live</span></div>
+            <p class="m-sub">● Burglary<br>112 Florida Road, Morningside, Durban</p>
+            <span class="m-btn blue">Turn-by-turn in Maps</span>
+          </div></div>
+        <figcaption><b>The route.</b> <span class="muted">The map follows the officer and the minutes count down. At the scene it says <i>You have arrived</i>. Turn-by-turn hands over to Google Maps or Waze.</span></figcaption>
+      </figure>
+    </div>
+    <ol class="legend">
+      <li><span class="pin">1</span><span><b>Accept incident:</b> the officer takes the call (leads it, or joins as backup if someone already leads).</span></li>
+      <li><span class="pin">2</span><span><b>Acknowledge:</b> seen, without accepting. The call opens in the list.</span></li>
+      <li><span class="pin">3</span><span><b>Navigate:</b> straight to the route map.</span></li>
+    </ol>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">The incidents tab</span><span class="where">App · Incidents</span><span class="example">Example data</span></figcaption>
+      <div class="flow">
+        <div class="phone"><div class="phone-top"><span>14:08</span><span>Incidents</span></div>
+          <div class="phone-body">
+            <div class="m-input"><span class="pin">1</span> ⌕ Search incident, address, severity or date</div>
+            <div class="m-seg"><span class="on">All</span><span>Mine</span><span>Nearby</span></div>
+            <div class="m-callrow"><div class="top"><span>INC-20261013-0004</span><span class="tagline"><span class="pin">2</span> YOU · LEAD</span></div><span>Burglary · En Route</span><span class="sub">112 Florida Road · 1.2 km <span class="pin">3</span></span></div>
+            <div class="m-callrow" style="border-left-color:#FBBF24"><div class="top"><span>INC-20261013-0003</span><span class="sub">Sgt. P. Naidoo</span></div><span>Motor Vehicle Accident · On Scene</span><span class="sub">N3, Westville · 9.4 km</span></div>
+          </div></div>
+        <ol class="legend" style="align-content:start">
+          <li><span class="pin">1</span><span><b>Search</b> by number, address, severity, or a date such as “today” or 13-10-2026.</span></li>
+          <li><span class="pin">2</span><span><b>Where the officer stands</b> on each call: YOU · LEAD, YOU · BACKUP, ASSIGNED TO YOU, or the name of whoever leads it.</span></li>
+          <li><span class="pin">3</span><span><b>Live distance</b> from the officer to the scene, updated as they move. The left edge is the severity colour.</span></li>
+        </ol>
+      </div>
+    </figure>
+  </section>
+
+  <!-- ── 5 At the scene ─────────────────────── -->
+  <section id="scene" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 5 · Officer · phone, and the dispatcher</p>
+      <h2>At the scene</h2>
+      <p class="muted">One button always shows the next step. The dispatcher sees each step on the console the moment it is pressed.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:11</span><span>Incident</span></div>
+          <div class="phone-body">
+            <div class="m-row between"><b class="mono">INC-20261013-0004</b><span class="m-sev high">High</span></div>
+            <p style="font-weight:700;font-size:1.05rem">Burglary</p>
+            <span class="m-sub">📍 112 Florida Road · Reported 5 minutes ago</span>
+            <span class="m-chip info">En Route</span>
+            <dl class="m-dl"><dt>Caller</dt><dd>Thabo Mkhize</dd><dt>Contact</dt><dd>+27 82 555 0143</dd><dt>Dispatched by</dt><dd>Nomsa Metro</dd><dt>Lead</dt><dd>You · En Route</dd></dl>
+            <span class="m-btn"><span class="pin">1</span> Mark On Scene</span>
+            <div class="m-grid2" style="gap:.4rem;grid-template-columns:1fr 1fr"><span class="m-btn ghost small">Navigate</span><span class="m-btn ghost small">Call caller</span></div>
+            <p class="m-label"><span class="pin">2</span> Photos 2/10</p>
+            <div class="m-grid2" style="gap:.4rem;grid-template-columns:1fr 1fr"><span class="m-btn ghost small">Camera</span><span class="m-btn ghost small">Library</span></div>
+            <span class="m-btn ghost small">🎙 Record voice note</span>
+            <div class="m-input"><span class="pin">3</span> Add an update…</div>
+          </div></div>
+        <figcaption><b>The call screen.</b> <span class="muted">After <i>Mark On Scene</i>, the button becomes <i>File incident report</i>.</span></figcaption>
+      </figure>
+      <figure style="grid-column:span 2">
+        <div class="screen">
+          <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/incidents/INC-20261013-0004</span></div>
+          <div class="screen-body">
+            <div class="m-row between"><p class="m-title mono">INC-20261013-0004</p><span class="m-row"><span class="m-chip info">Metro Police · On Scene · Const. S. Khumalo</span><span class="m-chip warn">Live call</span></span></div>
+            <p class="m-label"><span class="pin">4</span> Where the crew is</p>
+            <div class="m-ladder">
+              <span class="m-step done">✓ Dispatched<small>14:06</small></span><span class="m-step done">✓ En Route<small>14:07</small></span><span class="m-step now">✓ On Scene<small>14:11</small></span><span class="m-step">Transporting<small>If needed</small></span><span class="m-step">Report filed<small>Waiting</small></span>
+            </div>
+            <p class="m-sub">Updates by itself as the crew moves — no need to reload.</p>
+            <p class="m-label"><span class="pin">5</span> Timeline</p>
+            <div class="m-tl">
+              <p>[STATUS] On Scene · Metro Police<small>Const. S. Khumalo · 14:11</small></p>
+              <p>📷 Scene photo captured 14:12<small>Const. S. Khumalo</small></p>
+              <p>[RESPONDING] Const. S. Khumalo (MP-12) responding — leads Metro Police<small>14:07</small></p>
+              <p>[DISPATCH] Sent to all on duty in Metro Police (4 officers).<small>Nomsa Metro · 14:06</small></p>
+            </div>
+          </div>
+        </div>
+        <figcaption><b>What the dispatcher sees.</b> <span class="muted">The same call on the console, live.</span></figcaption>
+      </figure>
+    </div>
+    <ol class="legend">
+      <li><span class="pin">1</span><span><b>The next step</b>, one button. Backup officers mark only En Route and On Scene; the lead files the report.</span></li>
+      <li><span class="pin">2</span><span><b>Evidence:</b> up to 10 photos from the camera or the library, and voice notes. Each lands on the call’s record.</span></li>
+      <li><span class="pin">3</span><span><b>Updates</b> appear on the timeline for the dispatcher at once.</span></li>
+      <li><span class="pin">4</span><span><b>Where the crew is.</b> Each box fills in with the real time the officer pressed it. The dispatcher can also mark a step when an officer radios it in.</span></li>
+      <li><span class="pin">5</span><span><b>The timeline</b>: every step, photo and note, with who and when. Nothing on it can be deleted.</span></li>
+    </ol>
+  </section>
+
+  <!-- ── 6 The report ─────────────────────── -->
+  <section id="report" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 6 · Officer · phone</p>
+      <h2>Filing the report</h2>
+      <p class="muted">The police report is made of the same seven forms as the paper system. The officer ticks the ones this call needs; the screen then asks only for those.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:40</span><span>Report</span></div>
+          <div class="phone-body">
+            <p style="font-weight:700">Forms <span class="pin">1</span></p>
+            <p class="m-sub">Select every form this incident needs.</p>
+            <div class="m-forms">
+              <span class="on"><b>12A</b>Arrest Report</span><span><b>CR1</b>Crash Report</span>
+              <span><b>VI</b>Vehicle Inspection</span><span><b>216E</b>Use of Official Firearm</span>
+              <span class="on"><b>SANRAL</b>Incident Report</span><span><b>211A</b>Tow In</span>
+              <span><b>DOG</b>Dog Capture / Tackle</span>
+            </div>
+          </div></div>
+        <figcaption><b>Choose the forms.</b> <span class="muted">One report can hold several forms: here an arrest was made at a burglary.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:52</span><span>Report</span></div>
+          <div class="phone-body">
+            <p class="m-label"><span class="pin">2</span> Response</p>
+            <div class="m-input">Partner: Const. T. Dlamini</div>
+            <div class="m-row"><span class="m-switch"></span><span class="m-sub">Body camera active</span></div>
+            <p class="m-label">12A · Suspect’s details</p>
+            <div class="m-input">Male, about 25, grey hoodie</div>
+            <p class="m-label">Outcome</p>
+            <div class="m-row"><span class="m-switch"></span><span class="m-sub">Arrest made</span></div>
+            <p class="m-label"><span class="pin">3</span> Narrative</p>
+            <div class="m-input" style="min-height:3rem;align-items:flex-start">On arrival the back door was forced. One suspect detained in the garden…</div>
+            <span class="m-btn ok"><span class="pin">4</span> File report &amp; close incident</span>
+          </div></div>
+        <figcaption><b>Fill it in.</b> <span class="muted">A draft is kept on the phone, so nothing is lost if the officer is called away.</span></figcaption>
+      </figure>
+    </div>
+    <ol class="legend">
+      <li><span class="pin">1</span><span><b>Seven police forms:</b> 12A Arrest, CR1 Crash, VI Vehicle Inspection, 216E Use of Official Firearm, SANRAL Incident, 211A Tow In, and Dog Capture / Tackle. Repeating parts, such as each vehicle in a crash, have an <i>Add</i> button.</span></li>
+      <li><span class="pin">2</span><span><b>Every report starts with the response</b> (partner, bodycam, use of force) and ends with the outcome, evidence booked and the narrative.</span></li>
+      <li><span class="pin">3</span><span><b>The narrative</b> is required: at least 20 characters, in the officer’s own words.</span></li>
+      <li><span class="pin">4</span><span><b>File.</b> The report is permanent from this moment; it can’t be edited or deleted. The call becomes <i>Resolved</i> and the case manager is told. If other departments are also on the call, it is resolved once they have filed too.</span></li>
+    </ol>
+  </section>
+
+  <!-- ── 7 Closing the case ─────────────────── -->
+  <section id="close" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 7 · Case manager · console</p>
+      <h2>Closing the case</h2>
+      <p class="muted">Every resolved call waits for a case manager, longest waiting first. Closing is the last step, and it is recorded with who closed it and when.</p>
+    </div>
+    <figure class="exhibit">
+      <figcaption><span class="tag">The case file</span><span class="where">/incidents/… and /case-manager/review</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/incidents/INC-20261013-0004</span></div>
+        <div class="m-top"><span class="crumb">Case Management › <b>Awaiting review</b></span><span class="who"><span class="m-avatar">LC</span><span>Lindiwe Case<small>Case manager</small></span></span></div>
+        <div class="screen-body">
+          <div class="m-card" style="border-color:var(--m-accent);grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))">
+            <div style="display:grid;gap:.35rem">
+              <p class="m-label" style="color:var(--m-accent)"><span class="pin">1</span> Awaiting review</p>
+              <p style="font-weight:700">Arrest Report · Incident Report by Const. S. Khumalo #MP-1042</p>
+              <p class="m-sub">Resolved 13 Oct 2026, 15:02 · waiting 25 min</p>
+              <p class="m-row" style="gap:.9rem"><span class="pin">2</span><span class="m-link">Read the report</span><span class="m-link">Evidence</span><span class="m-link">Full history</span><span class="m-link">Case PDF</span></p>
+            </div>
+            <div style="display:grid;gap:.45rem">
+              <span class="m-label"><span class="pin">3</span> Review note (optional, goes on the record and to the officer)</span>
+              <div class="m-input">Report complete; statement and photos on file.</div>
+              <span class="m-btn ok"><span class="pin">4</span> Close INC-20261013-0004</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>Awaiting review:</b> which report is in, who filed it, and how long it has waited.</span></li>
+        <li><span class="pin">2</span><span><b>Everything in one place:</b> the report, the photos and voice notes, the full history, and a PDF of the whole case.</span></li>
+        <li><span class="pin">3</span><span><b>A note</b> for the record, if needed. The officer sees it.</span></li>
+        <li><span class="pin">4</span><span><b>Close.</b> The call is Closed. The officer is told: <i>Your report was reviewed by Lindiwe Case. The case is closed.</i> It moves to <i>Recently closed</i> with who closed it.</span></li>
+      </ol>
+    </figure>
+  </section>
+
+  <!-- ── Other endings ─────────────────── -->
+  <section id="other" class="band">
+    <div class="section-head">
+      <h2>Other ways a call ends</h2>
+      <p class="muted">Not every call ends with a report.</p>
+    </div>
+    <div class="safety">
+      <div><h3>Hoax, duplicate or cancelled</h3><p>The dispatch desk chooses <i>Close without a report</i> and must say why (at least 10 characters). Any officer on the way is told to stand down.</p></div>
+      <div><h3>Another department is also on it</h3><p>Each department works its own part: its own lead, its own report. Police filing does not close the call while Fire or EMS are still working; it is resolved when all have finished. A department not needed is marked <i>Not needed</i> with a reason.</p></div>
+      <div><h3>An officer in danger</h3><p>The SOS button on the phone raises a Critical call at the officer’s position. It interrupts the dispatch desks and command, and is never sent back to the officer who raised it.</p></div>
+    </div>
+  </section>
+
+  <!-- ── No signal ─────────────────── -->
+  <section id="signal" class="band">
+    <div class="section-head">
+      <h2>When there is no signal</h2>
+      <p class="muted">The app keeps working in basements, lifts and dead zones.</p>
+    </div>
+    <div class="safety care">
+      <div><h3>What still works</h3><p>Accepting, every step, photos, voice notes, updates and filing the report. Each is recorded with the real time it was done.</p></div>
+      <div><h3>When signal returns</h3><p>Everything is sent in order, never twice. The tray at the top of the app shows what is still waiting to send.</p></div>
+      <div><h3>The route</h3><p>The phone keeps recording where the officer goes. The console map draws the offline stretch once the phone reconnects.</p></div>
+    </div>
+  </section>
+
+  <footer class="col">
+    HikTech · eThekwini Municipality. A guide for reviewers; screens shown with example data. The other departments: <a href="incident-fire">Fire &amp; Rescue</a>, <a href="incident-ems">EMS</a>, <a href="incident-disaster">Disaster Management</a>.
+  </footer>
+</div>

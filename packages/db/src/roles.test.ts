@@ -453,3 +453,55 @@ test('a field role is offered only in its own department; desk roles everywhere'
   assert.ok(roles.RESPONDER_ROLES.every((r) => !control.includes(r)), 'the control room holds no field roles');
   for (const r of roles.RESPONDER_ROLES) assert.ok(roles.FIELD_ROLE_DEPARTMENT[r], `${r} has a department`);
 });
+
+/* ── Schedules (0072): the same ladder the database keeps ───────────── */
+
+test('who rosters, who sets up, who decides — as schedule_rank() and its checks', () => {
+  const { scheduleRank, canManageRoster, canAdminSchedule, isScheduleHr, outranksForSchedule } = roles;
+  assert.deepEqual(
+    (['SuperAdmin', 'SystemAdmin', 'SystemController', 'Admin', 'Captain', 'FireChief', 'Supervisor', 'Police', 'Dispatcher', 'ControlRoom'] as const)
+      .map((r) => scheduleRank(r)),
+    [5, 4, 4, 3, 2, 2, 1, 0, 0, 0],
+  );
+  assert.equal(canManageRoster('Supervisor', 'MetroPolice'), true);
+  assert.equal(canManageRoster('Supervisor', 'MetroPolice', 'MetroFire'), false, 'never another department');
+  assert.equal(canManageRoster('SystemAdmin', 'Ethekwini', 'MetroFire'), true, 'HR rosters any department');
+  assert.equal(canManageRoster('Dispatcher', 'Ethekwini'), false);
+  assert.equal(canManageRoster('ControlRoom', 'Ethekwini'), false, 'the control room supervisor rosters the control room, not the operator');
+  assert.equal(canAdminSchedule('Admin', 'Medical'), true);
+  assert.equal(canAdminSchedule('Admin', 'Medical', 'MetroFire'), false);
+  assert.equal(canAdminSchedule('Captain', 'MetroPolice'), false, 'captains roster; the admin sets up');
+  assert.equal(isScheduleHr('SystemAdmin'), true);
+  assert.equal(isScheduleHr('Admin'), false);
+
+  const p = (id: string, role: UserRole, silo: Silo = 'MetroPolice') => ({ id, role, silo });
+  assert.equal(outranksForSchedule(p('s', 'Supervisor'), p('c', 'Police')), true);
+  assert.equal(outranksForSchedule(p('s', 'Supervisor'), p('s2', 'Supervisor')), false, 'a sergeant does not decide for a sergeant');
+  assert.equal(outranksForSchedule(p('s', 'Supervisor'), p('s', 'Supervisor')), false, 'never yourself');
+  assert.equal(outranksForSchedule(p('cap', 'Captain'), p('s', 'Supervisor')), true);
+  assert.equal(outranksForSchedule(p('f', 'Supervisor', 'MetroFire'), p('c', 'Police')), false, 'never across departments');
+  assert.equal(outranksForSchedule(p('hr', 'SystemAdmin', 'Ethekwini'), p('a', 'Admin', 'Medical')), true);
+  assert.equal(outranksForSchedule(p('hr', 'SystemAdmin', 'Ethekwini'), p('hr2', 'SystemAdmin', 'Ethekwini')), true, 'HR decide for one another');
+  assert.equal(outranksForSchedule(p('c', 'Police'), p('c2', 'Police')), false);
+});
+
+test('schedule pages: setup and rosters for those who roster, My Schedule for everyone', () => {
+  assert.equal(roles.canAccess('/roster/setup', 'Supervisor', 'MetroPolice'), true);
+  assert.equal(roles.canAccess('/roster/setup', 'Police', 'MetroPolice'), false);
+  assert.equal(roles.canAccess('/roster', 'SystemController', 'Ethekwini'), true);
+  assert.equal(roles.canAccess('/roster/mine', 'ControlRoom', 'Ethekwini'), true);
+  assert.equal(roles.canAccess('/leave', 'SystemController', 'Ethekwini'), true);
+});
+
+test('who directs a department on a shared call: its desk and command, the control room, the organisation', () => {
+  assert.equal(roles.canDirectDepartment('Dispatcher', 'MetroFire', 'MetroFire'), true);
+  assert.equal(roles.canDirectDepartment('Dispatcher', 'MetroFire', 'MetroPolice'), false, 'the Fire desk never directs Police');
+  assert.equal(roles.canDirectDepartment('Dispatcher', 'Ethekwini', 'MetroPolice'), true, 'the control room directs every department');
+  assert.equal(roles.canDirectDepartment('Captain', 'MetroPolice', 'MetroPolice'), true);
+  assert.equal(roles.canDirectDepartment('SystemAdmin', 'Ethekwini', 'Medical'), true);
+  assert.equal(roles.canDirectDepartment('Police', 'MetroPolice', 'MetroPolice'), false, 'field crews work their part, they do not direct it');
+  assert.equal(roles.canDirectDepartment('CaseManager', 'Ethekwini', 'MetroPolice'), false);
+  assert.equal(roles.commandsDepartment('Dispatcher', 'Medical', 'Medical'), false, 'a desk does not stand down a crew on scene');
+  assert.equal(roles.commandsDepartment('Supervisor', 'Medical', 'Medical'), true);
+  assert.equal(roles.commandsDepartment('FireChief', 'MetroFire', 'Medical'), false);
+});

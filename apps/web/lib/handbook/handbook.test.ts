@@ -42,3 +42,25 @@ test('the real handbook renders without any third-party request', () => {
   assert.ok(!/https:\/\/fonts\.(googleapis|gstatic)\.com/.test(html));
   assert.ok(!/<script[^>]+src=/.test(html), 'no external scripts');
 });
+
+test('the public guides are only the guides, never an administrators’ page', async () => {
+  const { PUBLIC_GUIDES, findPublicGuide, guideIndexFragment } = await import('./index.ts');
+  assert.deepEqual(PUBLIC_GUIDES.map((p) => p.slug), ['incident-police', 'incident-fire', 'incident-ems', 'incident-disaster']);
+  assert.equal(findPublicGuide('staff-onboarding'), null, 'the onboarding design stays for administrators');
+  assert.equal(findPublicGuide('../handbook/staff-onboarding'), null);
+  const style = readFileSync(path.join(import.meta.dirname, '../../handbook', 'incident-police.html'), 'utf8');
+  const index = guideIndexFragment(style, PUBLIC_GUIDES);
+  for (const g of PUBLIC_GUIDES) assert.ok(index.includes(`href="/guide/${g.slug}"`));
+  const html = renderHandbookPage(index, { ...opts, audience: 'public' });
+  assert.ok(html.includes('href="/guide"'), 'links back to the guides');
+  assert.ok(!html.includes('/admin'), 'no way into Admin from a public page');
+});
+
+test('every guide is built from its source and names only example people', () => {
+  for (const page of HANDBOOK.filter((p) => p.public)) {
+    const html = readFileSync(path.join(import.meta.dirname, '../../handbook', page.file), 'utf8');
+    assert.match(html, /Built by apps\/web\/handbook\/src\/build\.mjs/, `${page.file} is built, not hand-edited`);
+    assert.match(html, /Example data/, `${page.file} says its data is made up`);
+    assert.ok(!/Test123|@criticom\.gov\.za/.test(html), `${page.file} holds no test credentials`);
+  }
+});

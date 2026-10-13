@@ -1,6 +1,7 @@
 export type {
   Database, Silo, UserRole, IncidentStatus, IncidentSeverity, ApparatusStatus,
   AlertKind, AlertPresentation, MapZoneKind, MapZoneShape, MapZoneVisibility, BodycamStatus, BodycamViewReason, FineNoticeType,
+  ShiftOutcome, DepartmentPartStatus,
 } from './types.generated';
 export * from './client';
 export * from './server';

@@ -6,8 +6,8 @@ import type { CriticomClient } from '@criticom/db';
  * the answer and the tasks it prepares behave the same whichever answers.
  *
  *   grok    xAI Grok           XAI_API_KEY     (XAI_MODEL, default grok-4.7)
- *   groq    Groq (Llama)       GROQ_API_KEY    (GROQ_MODEL, default llama-3.3-70b-versatile)
- *   gemini  Google Gemini      GEMINI_API_KEY  (GEMINI_MODEL, default gemini-2.5-flash-lite)
+ *   groq    Groq               GROQ_API_KEY    (GROQ_MODEL, default openai/gpt-oss-120b)
+ *   gemini  Google Gemini      GEMINI_API_KEY  (GEMINI_MODEL, default gemini-3.5-flash-lite)
  *
  * They are tried in that order (CRITI_PROVIDERS changes it, e.g.
  * "gemini,grok"), skipping any without a key or switched off under Admin →
@@ -21,8 +21,8 @@ const LABEL: Record<ProviderId, string> = { grok: 'Grok', groq: 'Groq', gemini: 
 const KEY_ENV: Record<ProviderId, string> = { grok: 'XAI_API_KEY', groq: 'GROQ_API_KEY', gemini: 'GEMINI_API_KEY' };
 const DEFAULT_MODEL: Record<ProviderId, string> = {
   grok: 'grok-4.7',
-  groq: 'llama-3.3-70b-versatile',
-  gemini: 'gemini-2.5-flash-lite',
+  groq: 'openai/gpt-oss-120b',
+  gemini: 'gemini-3.5-flash-lite',
 };
 const MODEL_ENV: Record<ProviderId, string> = { grok: 'XAI_MODEL', groq: 'GROQ_MODEL', gemini: 'GEMINI_MODEL' };
 const DEFAULT_ORDER: ProviderId[] = ['grok', 'groq', 'gemini'];

@@ -10,7 +10,10 @@ In the Supabase SQL editor run, in order, any not yet applied:
 `0064_hospital_handover.sql`, `0065_disaster_flow.sql`,
 `0066_fire_safety_inspections.sql`, `0067_role_fits_department.sql`,
 `0068_dispatch_desk_tags.sql`, `0069_no_anonymous_reads.sql`, `0070_criti.sql`,
-`0071_duty_tracks.sql`.
+`0071_duty_tracks.sql`, `0072_schedules.sql`, `0073_department_parts.sql`.
+
+Schedules (0072) also need pg_cron and pg_net turned on (Database →
+Extensions). See `docs/20-SCHEDULES.md`.
 
 ## 2. Push notifications (once)
 

@@ -1,0 +1,561 @@
+<div class="page">
+
+  <header class="masthead col">
+    <p class="eyebrow">eThekwini Municipality · HikTech · Guide</p>
+    <h1>A police call, from first ring to closed case</h1>
+    <p class="lede">Follow one call through HikTech. A call logger takes it, the Metro Police dispatch desk sends it out, an officer accepts it on the phone, goes to the scene and files the report, and a case manager reads the report and closes the case.</p>
+    <div class="meta">
+      <span><b>For:</b> anyone reviewing HikTech</span>
+      <span><b>Console:</b> any web browser</span>
+      <span><b>App:</b> HikTech for Android</span>
+      <span><b>Updated:</b> 13 October 2026</span>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#people">Who is involved</a>
+      <a href="#journey">The journey</a>
+      <a href="#duty">1 · Going on duty</a>
+      <a href="#log">2 · Logging the call</a>
+      <a href="#dispatch">3 · Dispatching</a>
+      <a href="#accept">4 · Accepting</a>
+      <a href="#scene">5 · At the scene</a>
+      <a href="#report">6 · The report</a>
+      <a href="#close">7 · Closing the case</a>
+      <a href="#other">Other endings</a>
+      <a href="#signal">No signal</a>
+    </nav>
+  </header>
+
+  <section class="col" style="padding-top:2rem">
+    <div class="howto">
+      <span><span class="pin">1</span> A yellow number on a screen matches the note with the same number below it.</span>
+      <span><span class="example">Example data</span> All names, numbers and addresses are made up.</span>
+    </div>
+  </section>
+
+  <!-- ── People ─────────────────────────────── -->
+  <section id="people" class="band">
+    <div class="section-head">
+      <h2>Who is involved</h2>
+      <p class="muted">Four people touch a police call. Each sees only what their job needs.</p>
+    </div>
+    <div class="people">
+      <div><span class="where-tag">Console</span><h3>Call logger</h3><p>Answers the phone and logs the call: who is calling, where, and what happened. Chooses which departments must receive it.</p></div>
+      <div><span class="where-tag">Console</span><h3>Police dispatcher</h3><p>Sees the calls sent to the Metro Police desk and sends each one to officers on duty. Watches every step live.</p></div>
+      <div><span class="where-tag">Phone app</span><h3>Police officer</h3><p>Goes on duty, accepts the call, drives to the scene, and files the report from the phone.</p></div>
+      <div><span class="where-tag">Console</span><h3>Case manager</h3><p>Reads every finished report and closes the case. Nothing is closed without someone reading it.</p></div>
+    </div>
+    <p class="note muted" style="margin-top:1rem;font-size:.92rem">The control room sees every department’s calls and can do the call logger’s and the dispatcher’s work. Supervisors and Captains see their department’s calls and can step in at any point.</p>
+  </section>
+
+  <!-- ── Journey ─────────────────────────────── -->
+  <section id="journey" class="band">
+    <div class="section-head">
+      <h2>The journey, start to finish</h2>
+      <p class="muted">Seven steps. The first happens once a shift, before any call.</p>
+    </div>
+    <ol class="journey">
+      <li><h3>Go on duty</h3><p>The officer completes the start-of-shift checks on the phone.</p><p class="who">Officer · app · once a shift</p></li>
+      <li><h3>Log the call</h3><p>The call logger fills in the call form and sends it to the Metro Police desk.</p><p class="who">Call logger · console</p></li>
+      <li><h3>Dispatch</h3><p>The dispatcher sends it to every officer on duty, or to one chosen officer.</p><p class="who">Dispatcher · console</p></li>
+      <li><h3>Accept</h3><p>The officer gets a pop-up, accepts, and follows the route to the scene.</p><p class="who">Officer · app</p></li>
+      <li><h3>At the scene</h3><p>The officer marks On Scene, and adds photos, voice notes and updates.</p><p class="who">Officer · app</p></li>
+      <li><h3>File the report</h3><p>The officer fills in the police forms the call needs and files them.</p><p class="who">Officer · app</p></li>
+      <li><h3>Close the case</h3><p>A case manager reads the report and closes the case.</p><p class="who">Case manager · console</p></li>
+    </ol>
+    <div class="states" style="margin-top:2rem">
+      <h3>What the call says about itself</h3>
+      <div class="track">
+        <span class="state warn">Pending Dispatch</span><span class="arrow">→</span>
+        <span class="state info">Dispatched</span><span class="arrow">→</span>
+        <span class="state info">En Route</span><span class="arrow">→</span>
+        <span class="state info">On Scene</span><span class="arrow">→</span>
+        <span class="state ok">Resolved</span><span class="arrow">→</span>
+        <span class="state">Closed</span>
+      </div>
+      <p class="muted" style="font-size:.92rem">Resolved means the report is in. Closed means a case manager has read it. Every change is recorded with who made it and when.</p>
+    </div>
+  </section>
+
+  <!-- ── 1 Going on duty ─────────────────────── -->
+  <section id="duty" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 1 · Officer · phone</p>
+      <h2>Going on duty</h2>
+      <p class="muted">Calls only reach officers who are on duty. An officer goes on duty by completing four checks, once a shift. The bar at the top of each screen shows where they are: Readiness, Unit, Inspection, Loadout.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:02</span><span>HikTech</span></div>
+          <div class="phone-body">
+            <p class="m-help" style="text-align:center;letter-spacing:.08em">METRO POLICE · STEP 1 OF 4</p>
+            <p class="m-title" style="text-align:center">Start of Shift</p>
+            <p class="m-sub" style="text-align:center">Begin your start-of-shift readiness checks to go on duty.</p>
+            <span class="m-btn ok">Go on Duty — Begin Checks</span>
+          </div></div>
+        <figcaption><b>Begin.</b> <span class="muted">The app opens here at the start of every shift until the checks are done.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:03</span><span>Readiness</span></div>
+          <div class="phone-body">
+            <div class="m-stepper"><span class="on">Readiness</span><span>Unit</span><span>Inspection</span><span>Loadout</span></div>
+            <p style="font-weight:700">Readiness Assessment</p>
+            <div class="m-q">Memory Recall (Can you remember key facts?) *<div class="m-yn"><span class="yes">✓ Yes</span><span>✕ No</span></div></div>
+            <div class="m-q">Are you free from the influence of Alcohol/Drugs? *<div class="m-yn"><span class="yes">✓ Yes</span><span>✕ No</span></div></div>
+            <p class="m-help">+ 4 more: judgment, situational awareness, emotional wellbeing, reflexes</p>
+            <span class="m-btn">Submit Readiness Check</span>
+          </div></div>
+        <figcaption><b>Six honest answers.</b> <span class="muted">Any No stops the officer going on duty. The answers go to the supervisor.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:04</span><span>Unit</span></div>
+          <div class="phone-body">
+            <div class="m-stepper"><span class="done">Readiness</span><span class="on">Unit</span><span>Inspection</span><span>Loadout</span></div>
+            <p style="font-weight:700;text-align:center">Select Your Unit</p>
+            <div class="m-units">
+              <div class="m-unit on"><b>MP-12</b>Patrol car<span class="tg">ND 456-789</span></div>
+              <div class="m-unit"><b>MP-15</b>Patrol car<span class="tg">ND 221-930</span></div>
+            </div>
+            <span class="m-btn ok">Confirm Assignment</span>
+            <p class="m-help">Taken (1)</p>
+            <div class="m-units"><div class="m-unit taken"><span class="tg">TAKEN</span><b>MP-09</b>Patrol car</div></div>
+          </div></div>
+        <figcaption><b>Pick a vehicle.</b> <span class="muted">Vehicles another officer has signed onto show as Taken. If none is free, the screen says <i>No available cars</i> and the officer can continue without one, with a note.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:06</span><span>Inspection</span></div>
+          <div class="phone-body">
+            <div class="m-stepper"><span class="done">Readiness</span><span class="done">Unit</span><span class="on">Inspection</span><span>Loadout</span></div>
+            <p style="font-weight:700">Vehicle Inspection 187(c)</p>
+            <div class="m-tabsrow"><span>Vehicle Check</span><span>Details</span><span class="on">Lights</span><span>Interior</span><span>Body</span></div>
+            <p class="m-help">External Lights</p>
+            <div class="m-q">Brake<div class="m-yn"><span class="yes">OK</span><span>FAULT</span><span>NIL</span></div></div>
+            <div class="m-q">Blue Lights<div class="m-yn"><span class="yes">OK</span><span>FAULT</span><span>NIL</span></div></div>
+            <span class="m-btn">Next</span>
+          </div></div>
+        <figcaption><b>Check the vehicle.</b> <span class="muted">Eight short tabs, ending with Review and Sign Off. A failed essential check takes the vehicle off the road and tells the supervisor.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:12</span><span>Loadout</span></div>
+          <div class="phone-body">
+            <div class="m-stepper"><span class="done">Readiness</span><span class="done">Unit</span><span class="done">Inspection</span><span class="on">Loadout</span></div>
+            <p style="font-weight:700">Select Firearm &amp; Checklist</p>
+            <div class="m-input">Z88 · S/N 51200 <span class="caret">▾</span></div>
+            <div class="m-grid2" style="gap:.4rem"><div class="m-input">15 rounds</div><div class="m-input">2 magazines</div></div>
+            <div class="m-input">Chamber status: Empty <span class="caret">▾</span></div>
+            <span class="m-btn ok">Confirm Loadout &amp; Start Shift</span>
+          </div></div>
+        <figcaption><b>Firearm, then bodycam.</b> <span class="muted">The firearm is inspected and booked out, then the bodycam the same way (<i>Confirm Bodycam &amp; Start Shift</i>). <i>No firearm</i> and <i>No bodycam today</i> are there for unarmed duty or when none is left.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>07:14</span><span>Done</span></div>
+          <div class="phone-body">
+            <div class="m-paper">
+              <p class="crest">METRO POLICE · START OF SHIFT RECORD</p>
+              <p style="text-align:center;font-weight:700">Shift Start Complete</p>
+              <div class="row"><span>Vehicle</span><b>MP-12</b></div>
+              <div class="row"><span>Firearm</span><b>Z88 · 15 rds</b></div>
+              <div class="row"><span>Bodycam</span><b>BC-0417</b></div>
+              <p style="font-weight:700">Licence and ID <span style="color:#5B606B;font-weight:500">(optional)</span></p>
+              <div class="row"><span>Driver’s licence</span><b>Scan the front of the card</b></div>
+              <div class="row"><span>ID document</span><b>Take a photo or upload one</b></div>
+            </div>
+            <span class="m-btn">Go to Dashboard →</span>
+          </div></div>
+        <figcaption><b>On duty.</b> <span class="muted">Everything is signed and filed for today and can be exported as a PDF. The licence scan and ID photo are optional.</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ── 2 Logging the call ─────────────────── -->
+  <section id="log" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 2 · Call logger · console</p>
+      <h2>Logging the call</h2>
+      <p class="muted">One screen, two halves: who is calling and where on the left, what happened and who must receive it on the right. The call logger can’t skip a step that matters; the form says exactly what is missing.</p>
+    </div>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">Log incoming call</span><span class="where">/dispatch/log-call</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/dispatch/log-call</span></div>
+        <div class="m-top"><span class="crumb">Dispatch › <b>Log incoming call</b></span><span class="who"><span class="m-avatar">LL</span><span>Lerato Logger<small>Call logger · Control Room</small></span></span></div>
+        <div class="screen-body">
+          <div class="m-row between"><span class="m-clock ok"><span class="pin">1</span> Response clock <span>00:48</span></span><span class="m-btn ghost small">← Back to dashboard</span></div>
+          <div class="m-grid2" style="grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))">
+            <div class="m-card">
+              <p class="m-head">Caller &amp; location info</p>
+              <div class="m-field"><span class="m-label"><span class="pin">2</span> Caller name</span><div class="m-input">Thabo Mkhize</div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">3</span> Contact citizen</span>
+                <div class="m-row"><div class="m-input" style="width:6.5rem">ZA +27 <span class="caret">▾</span></div><div class="m-input" style="flex:1">082 555 0143</div><span class="m-btn small ok">Call</span></div>
+                <span class="m-help ok">Saved as +27 82 555 0143</span></div>
+              <div class="m-input" style="gap:1rem;flex-wrap:wrap"><span class="pin">4</span><span class="m-sub">Is the caller the patient? *</span><span class="m-radio"><i></i>Yes</span><span class="m-radio on"><i></i>No</span></div>
+              <div class="m-field"><span class="m-label"><span class="pin">5</span> Incident location</span><div class="m-input focus">112 Florida Road, Morningside, Durban</div>
+                <div class="m-map"><span class="drop"></span></div></div>
+              <div class="m-grid2" style="gap:.6rem">
+                <div class="m-field"><span class="m-label">Suburb</span><div class="m-input">Morningside</div></div>
+                <div class="m-field"><span class="m-label"><span class="pin">6</span> Region</span><div class="m-input ok">Central <span class="caret">▾</span></div><span class="m-help">Set from the map pin</span></div>
+              </div>
+            </div>
+            <div class="m-card">
+              <p class="m-head">Incident details &amp; routing</p>
+              <div class="m-field"><span class="m-label"><span class="pin">7</span> Incident type (10-code)</span><div class="m-input">10-3: Burglary <span class="caret">▾</span></div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">8</span> Call description / narrative</span><div class="m-input" style="min-height:3.2rem;align-items:flex-start">Caller hears breaking glass at the neighbour’s house. Owners are away. Two men seen at the back door.</div></div>
+              <div class="m-part"><span class="m-label"><span class="pin">9</span> EMS / medical triage</span><div class="m-row"><span class="m-switch"></span><span class="m-sub">No injuries / EMS not required</span></div>
+                <div class="m-grid2 m-dim" style="gap:.5rem"><div class="m-input">Number of victims</div><div class="m-input">Medical severity code</div></div></div>
+              <div class="m-grid2" style="gap:.6rem">
+                <div class="m-field"><span class="m-label"><span class="pin">10</span> Incident severity</span><div class="m-input">High <span class="caret">▾</span></div></div>
+                <div class="m-field"><span class="m-label"><span class="pin">11</span> Attachment (optional)</span><div class="m-input m-sub">Choose a photo, recording or document…</div></div>
+              </div>
+              <div class="m-field"><span class="m-label"><span class="pin">12</span> Internal dispatch notes</span><div class="m-input">Gate code 4471. Dog in the yard.</div></div>
+              <div class="m-part"><span class="m-row between"><span class="m-label"><span class="pin">13</span> Send to dispatch</span><span class="m-help">Suggested from the incident type: change if needed</span></span>
+                <div class="m-dept"><span class="fire">Fire</span><span class="police on">Police</span><span class="med">Medical</span><span class="dis">Disaster</span></div>
+                <span class="m-bcast">Broadcast all (emergency)</span>
+                <span class="m-help">Only the Metro Police dispatch desk receives this call.</span></div>
+              <span class="m-btn blue full"><span class="pin">14</span> Send to dispatch</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>Response clock.</b> Starts when the screen opens. It turns amber after 1 minute 30 and flashes red after 3 minutes, so a long call is never forgotten. The times are set in Admin.</span></li>
+        <li><span class="pin">2</span><span><b>Caller name</b>, as the caller gives it. Required.</span></li>
+        <li><span class="pin">3</span><span><b>Contact number.</b> South Africa (+27) is chosen; other countries are in the list, and a number typed with + or 00 picks its own country. A wrong number is refused with the reason. <b>Call</b> rings the caller back. If the same number or address called in the last 12 hours, a <i>Possible duplicate</i> note appears.</span></li>
+        <li><span class="pin">4</span><span><b>Is the caller the patient?</b> Required. With No, the patient names can be added, one row per person.</span></li>
+        <li><span class="pin">5</span><span><b>Incident location.</b> Type an address and pick a suggestion, or click the map. The red pin is where crews are sent.</span></li>
+        <li><span class="pin">6</span><span><b>Region</b> is filled in from the pin (Central, North, South, West, Outer). It can be changed by hand.</span></li>
+        <li><span class="pin">7</span><span><b>Incident type</b>, from eThekwini’s 10-codes, grouped: Crime, Traffic, Fire, Medical, Public Order, Disaster.</span></li>
+        <li><span class="pin">8</span><span><b>What the caller said</b>, in their words where possible. Required.</span></li>
+        <li><span class="pin">9</span><span><b>Medical triage.</b> Switch on <i>No injuries</i>, or give the number of victims and a medical code (P1 red to P4 blue).</span></li>
+        <li><span class="pin">10</span><span><b>Severity:</b> Low, Medium, High or Critical. It colours the call everywhere, and a Critical call is flagged <i>Priority 1 — respond immediately</i> on the phone.</span></li>
+        <li><span class="pin">11</span><span><b>Attachment</b>: a photo, recording or document the caller sent. Optional.</span></li>
+        <li><span class="pin">12</span><span><b>Dispatch notes</b> for the crew only: access, hazards, instructions.</span></li>
+        <li><span class="pin">13</span><span><b>Who receives the call.</b> The departments are suggested from the incident type. Only the departments chosen here get the call. <b>Broadcast all</b> sends it to every department at once.</span></li>
+        <li><span class="pin">14</span><span><b>Send to dispatch.</b> The call gets its number (for example INC-20261013-0004) and lands in the Metro Police queue at once. The call logger is taken to the call’s page.</span></li>
+      </ol>
+    </figure>
+
+    <div class="tip warn">
+      <h3>If something is missing</h3>
+      <p class="muted">Nothing is sent until the form is complete. The message says exactly what to fix, for example:</p>
+      <ul class="muted">
+        <li>Say whether the caller is the patient.</li>
+        <li>Place the scene on the map — pick an address suggestion or click the map.</li>
+        <li>Choose the department this call is for: who must receive it.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── 3 Dispatching ─────────────────────── -->
+  <section id="dispatch" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 3 · Police dispatcher · console</p>
+      <h2>Dispatching</h2>
+      <p class="muted">The Metro Police desk sees only the calls sent to it, newest first, and only its own officers on duty.</p>
+    </div>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">The pending queue</span><span class="where">/dispatch/pending</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/dispatch/pending</span></div>
+        <div class="m-top"><span class="crumb">Dispatch › <b>Pending Queue</b></span><span class="who"><span class="m-avatar">NM</span><span>Nomsa Metro<small>Dispatcher · Metro Police</small></span></span></div>
+        <div class="screen-body">
+          <div class="m-card" style="grid-template-columns:1fr auto;align-items:center">
+            <p><b style="font-size:1.4rem;color:var(--m-crit)">3</b> <b>awaiting dispatch</b> <span class="m-sub">sent to the Metro Police desk</span> <span class="pin">1</span></p>
+            <span class="m-chip ok"><span class="pin">2</span> 4 on duty · 3 available</span>
+          </div>
+          <div class="m-row"><span class="pin">3</span><div class="m-input" style="flex:1;min-width:14rem">⌕ Search incident #, caller, phone, address, type</div><div class="m-input">Newest first ▾</div><div class="m-input">All severities ▾</div><div class="m-input">All regions ▾</div></div>
+          <div class="table-wrap">
+            <table class="m-table">
+              <thead><tr><th>Incident #</th><th>Severity</th><th>Type</th><th>Sent to <span class="pin">4</span></th><th>Caller</th><th>Location <span class="pin">5</span></th><th>Received <span class="pin">6</span></th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="mono">INC-20261013-0004</td><td><span class="m-sev high">High</span></td><td>Burglary</td><td><span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Thabo Mkhize<small>+27 82 555 0143</small></td><td>📍 112 Florida Road<small>Central</small></td><td>2 min</td><td><span class="m-btn small blue"><span class="pin">7</span> Dispatch</span></td></tr>
+                <tr><td class="mono">INC-20261013-0003</td><td><span class="m-sev med">Medium</span></td><td>Motor Vehicle Accident</td><td><span class="m-chip ok">Fire &amp; Rescue · Dispatched</span> <span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Ayesha Khan<small>+27 83 410 2290</small></td><td>📍 N3, Westville off-ramp<small>West</small></td><td>14 min</td><td><span class="m-btn small blue">Dispatch</span></td></tr>
+                <tr><td class="mono">INC-20261012-0061</td><td><span class="m-sev low">Low</span></td><td>Traffic Violation</td><td><span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Sipho Ndlovu<small>+27 72 118 4410</small></td><td>📍 Umgeni Road<small>Central</small></td><td>Yesterday</td><td><span class="m-btn small blue">Dispatch</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>How many calls are waiting</b> for this desk. It turns green at zero.</span></li>
+        <li><span class="pin">2</span><span><b>Metro Police officers on duty</b>, and how many are not on a call. It updates live as officers go on or off duty.</span></li>
+        <li><span class="pin">3</span><span><b>Search and filters:</b> by number, caller, phone, address or type; newest, oldest or most severe first; severity; region.</span></li>
+        <li><span class="pin">4</span><span><b>Sent to</b> shows every department on the call and how far each has got. Here Fire &amp; Rescue has already sent its crew to the accident; the call stays in the Police queue until Police dispatches too.</span></li>
+        <li><span class="pin">5</span><span><b>Location.</b> Clicking it opens the live map: the scene, every officer on duty, and the road route and minutes from the nearest.</span></li>
+        <li><span class="pin">6</span><span><b>Received</b>, the way a chat app shows it: minutes, today’s time, Yesterday, then the date.</span></li>
+        <li><span class="pin">7</span><span><b>Dispatch</b> opens the call’s dispatch page.</span></li>
+      </ol>
+    </figure>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">Dispatch &amp; routing</span><span class="where">/dispatch/assign/…</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/dispatch/assign/INC-20261013-0004</span></div>
+        <div class="screen-body">
+          <div class="m-row between"><div><p class="m-title">Dispatch call</p><p class="m-sub">Incident INC-20261013-0004 <span class="m-sev high">High</span> · logged 2 minutes ago</p></div><span class="m-btn ghost small">Full lifecycle ↗</span></div>
+          <p class="m-sub"><span class="pin">1</span> Above this, everything the call logger captured is shown read-only: caller, map, description, triage, notes and attachments.</p>
+          <div class="m-card">
+            <p class="m-head">Dispatch &amp; routing</p>
+            <div class="m-grid2" style="gap:.6rem">
+              <div class="m-result on"><span class="pin">2</span><span class="name">Send to all on duty</span><span class="facts">First to respond leads; others can join as backup.</span></div>
+              <div class="m-result"><span class="name">Assign to officer</span><span class="facts">Pick one officer — they lead. Others can still back up.</span></div>
+            </div>
+            <div class="m-dept"><span class="police on">Police<small>4 on duty</small></span></div>
+            <p class="m-label"><span class="pin">3</span> On duty now · 4 on duty · 3 available · nearest first</p>
+            <div class="m-result"><span class="name">Const. S. Khumalo #MP-1042</span><span class="m-chip ok">AVAILABLE</span><span class="facts">Metro Police · MP-12 · Durban Central</span><span class="facts end">1.8 km · ≈4 min</span></div>
+            <div class="m-result"><span class="name">Sgt. P. Naidoo #MP-0988</span><span class="m-chip warn">1 INCIDENT</span><span class="facts">Metro Police · MP-15</span><span class="facts end">3.2 km · ≈7 min</span></div>
+            <div class="m-actions" style="justify-content:flex-end"><span class="m-btn ghost">Cancel</span><span class="m-btn blue"><span class="pin">4</span> Dispatch to 4 on duty</span></div>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>The whole call at a glance</b>, so the dispatcher never re-asks the caller anything.</span></li>
+        <li><span class="pin">2</span><span><b>Two ways to send it.</b> To everyone on duty: the first officer to accept leads. Or to one chosen officer: they lead. Either way, others can join as backup.</span></li>
+        <li><span class="pin">3</span><span><b>Who is on duty</b>, nearest first, with the distance and minutes from their phone’s last position. <i>Available</i> means not on a call. Searchable by name, badge, vehicle or station.</span></li>
+        <li><span class="pin">4</span><span><b>Dispatch.</b> Every chosen officer’s phone gets the call at once, even locked. The dispatcher is then taken to the call’s page to follow it.</span></li>
+      </ol>
+    </figure>
+  </section>
+
+  <!-- ── 4 Accepting ─────────────────────── -->
+  <section id="accept" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 4 · Officer · phone</p>
+      <h2>Accepting the call</h2>
+      <p class="muted">The phone sounds and shows the call over whatever is open. Three choices, and accepting is asked once to be sure.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:06</span><span>HikTech</span></div>
+          <div class="phone-body">
+            <div class="m-alert">
+              <div class="m-alert-head">⚠<span><small>HIGH · METRO POLICE</small><b>New incident</b></span></div>
+              <div class="m-alert-body">
+                <b>New incident INC-20261013-0004</b>
+                <span class="m-sub">📍 Burglary · 112 Florida Road, Morningside</span>
+                <span class="m-sub">📻 Dispatched by Nomsa Metro</span>
+                <span class="m-sub">🕑 14:06:12</span>
+                <span class="m-help">Sent to everyone on duty. The first to respond leads; others can join as backup.</span>
+                <span class="m-btn"><span class="pin">1</span> Accept incident</span>
+                <span class="m-btn ghost"><span class="pin">2</span> Acknowledge</span>
+                <span class="m-btn ghost"><span class="pin">3</span> Navigate</span>
+              </div>
+            </div>
+          </div></div>
+        <figcaption><b>The pop-up.</b> <span class="muted">It appears over whatever is open, and the phone sounds even when locked.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:06</span><span>HikTech</span></div>
+          <div class="phone-body">
+            <div class="m-scrim">
+              <div class="m-dialog"><b>Accept INC-20261013-0004</b><span class="m-sub">Are you sure you want to accept this incident?</span><div class="btns"><span>Cancel</span><span>Accept</span></div></div>
+            </div>
+          </div></div>
+        <figcaption><b>Asked once.</b> <span class="muted">Accepting puts the officer En Route and tells the dispatcher straight away.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:07</span><span>Route</span></div>
+          <div class="phone-body">
+            <div class="m-map"><span class="route"></span><span class="unit" style="left:20%;top:68%"></span><span class="drop" style="left:55%;top:30%"></span></div>
+            <div class="m-eta"><b>4 min</b><span class="m-sub">1.8 km</span><span class="m-live">Live</span></div>
+            <p class="m-sub">● Burglary<br>112 Florida Road, Morningside, Durban</p>
+            <span class="m-btn blue">Turn-by-turn in Maps</span>
+          </div></div>
+        <figcaption><b>The route.</b> <span class="muted">The map follows the officer and the minutes count down. At the scene it says <i>You have arrived</i>. Turn-by-turn hands over to Google Maps or Waze.</span></figcaption>
+      </figure>
+    </div>
+    <ol class="legend">
+      <li><span class="pin">1</span><span><b>Accept incident:</b> the officer takes the call (leads it, or joins as backup if someone already leads).</span></li>
+      <li><span class="pin">2</span><span><b>Acknowledge:</b> seen, without accepting. The call opens in the list.</span></li>
+      <li><span class="pin">3</span><span><b>Navigate:</b> straight to the route map.</span></li>
+    </ol>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">The incidents tab</span><span class="where">App · Incidents</span><span class="example">Example data</span></figcaption>
+      <div class="flow">
+        <div class="phone"><div class="phone-top"><span>14:08</span><span>Incidents</span></div>
+          <div class="phone-body">
+            <div class="m-input"><span class="pin">1</span> ⌕ Search incident, address, severity or date</div>
+            <div class="m-seg"><span class="on">All</span><span>Mine</span><span>Nearby</span></div>
+            <div class="m-callrow"><div class="top"><span>INC-20261013-0004</span><span class="tagline"><span class="pin">2</span> YOU · LEAD</span></div><span>Burglary · En Route</span><span class="sub">112 Florida Road · 1.2 km <span class="pin">3</span></span></div>
+            <div class="m-callrow" style="border-left-color:#FBBF24"><div class="top"><span>INC-20261013-0003</span><span class="sub">Sgt. P. Naidoo</span></div><span>Motor Vehicle Accident · On Scene</span><span class="sub">N3, Westville · 9.4 km</span></div>
+          </div></div>
+        <ol class="legend" style="align-content:start">
+          <li><span class="pin">1</span><span><b>Search</b> by number, address, severity, or a date such as “today” or 13-10-2026.</span></li>
+          <li><span class="pin">2</span><span><b>Where the officer stands</b> on each call: YOU · LEAD, YOU · BACKUP, ASSIGNED TO YOU, or the name of whoever leads it.</span></li>
+          <li><span class="pin">3</span><span><b>Live distance</b> from the officer to the scene, updated as they move. The left edge is the severity colour.</span></li>
+        </ol>
+      </div>
+    </figure>
+  </section>
+
+  <!-- ── 5 At the scene ─────────────────────── -->
+  <section id="scene" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 5 · Officer · phone, and the dispatcher</p>
+      <h2>At the scene</h2>
+      <p class="muted">One button always shows the next step. The dispatcher sees each step on the console the moment it is pressed.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:11</span><span>Incident</span></div>
+          <div class="phone-body">
+            <div class="m-row between"><b class="mono">INC-20261013-0004</b><span class="m-sev high">High</span></div>
+            <p style="font-weight:700;font-size:1.05rem">Burglary</p>
+            <span class="m-sub">📍 112 Florida Road · Reported 5 minutes ago</span>
+            <span class="m-chip info">En Route</span>
+            <dl class="m-dl"><dt>Caller</dt><dd>Thabo Mkhize</dd><dt>Contact</dt><dd>+27 82 555 0143</dd><dt>Dispatched by</dt><dd>Nomsa Metro</dd><dt>Lead</dt><dd>You · En Route</dd></dl>
+            <span class="m-btn"><span class="pin">1</span> Mark On Scene</span>
+            <div class="m-grid2" style="gap:.4rem;grid-template-columns:1fr 1fr"><span class="m-btn ghost small">Navigate</span><span class="m-btn ghost small">Call caller</span></div>
+            <p class="m-label"><span class="pin">2</span> Photos 2/10</p>
+            <div class="m-grid2" style="gap:.4rem;grid-template-columns:1fr 1fr"><span class="m-btn ghost small">Camera</span><span class="m-btn ghost small">Library</span></div>
+            <span class="m-btn ghost small">🎙 Record voice note</span>
+            <div class="m-input"><span class="pin">3</span> Add an update…</div>
+          </div></div>
+        <figcaption><b>The call screen.</b> <span class="muted">After <i>Mark On Scene</i>, the button becomes <i>File incident report</i>.</span></figcaption>
+      </figure>
+      <figure style="grid-column:span 2">
+        <div class="screen">
+          <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/incidents/INC-20261013-0004</span></div>
+          <div class="screen-body">
+            <div class="m-row between"><p class="m-title mono">INC-20261013-0004</p><span class="m-row"><span class="m-chip info">Metro Police · On Scene · Const. S. Khumalo</span><span class="m-chip warn">Live call</span></span></div>
+            <p class="m-label"><span class="pin">4</span> Where the crew is</p>
+            <div class="m-ladder">
+              <span class="m-step done">✓ Dispatched<small>14:06</small></span><span class="m-step done">✓ En Route<small>14:07</small></span><span class="m-step now">✓ On Scene<small>14:11</small></span><span class="m-step">Transporting<small>If needed</small></span><span class="m-step">Report filed<small>Waiting</small></span>
+            </div>
+            <p class="m-sub">Updates by itself as the crew moves — no need to reload.</p>
+            <p class="m-label"><span class="pin">5</span> Timeline</p>
+            <div class="m-tl">
+              <p>[STATUS] On Scene · Metro Police<small>Const. S. Khumalo · 14:11</small></p>
+              <p>📷 Scene photo captured 14:12<small>Const. S. Khumalo</small></p>
+              <p>[RESPONDING] Const. S. Khumalo (MP-12) responding — leads Metro Police<small>14:07</small></p>
+              <p>[DISPATCH] Sent to all on duty in Metro Police (4 officers).<small>Nomsa Metro · 14:06</small></p>
+            </div>
+          </div>
+        </div>
+        <figcaption><b>What the dispatcher sees.</b> <span class="muted">The same call on the console, live.</span></figcaption>
+      </figure>
+    </div>
+    <ol class="legend">
+      <li><span class="pin">1</span><span><b>The next step</b>, one button. Backup officers mark only En Route and On Scene; the lead files the report.</span></li>
+      <li><span class="pin">2</span><span><b>Evidence:</b> up to 10 photos from the camera or the library, and voice notes. Each lands on the call’s record.</span></li>
+      <li><span class="pin">3</span><span><b>Updates</b> appear on the timeline for the dispatcher at once.</span></li>
+      <li><span class="pin">4</span><span><b>Where the crew is.</b> Each box fills in with the real time the officer pressed it. The dispatcher can also mark a step when an officer radios it in.</span></li>
+      <li><span class="pin">5</span><span><b>The timeline</b>: every step, photo and note, with who and when. Nothing on it can be deleted.</span></li>
+    </ol>
+  </section>
+
+  <!-- ── 6 The report ─────────────────────── -->
+  <section id="report" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 6 · Officer · phone</p>
+      <h2>Filing the report</h2>
+      <p class="muted">The police report is made of the same seven forms as the paper system. The officer ticks the ones this call needs; the screen then asks only for those.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:40</span><span>Report</span></div>
+          <div class="phone-body">
+            <p style="font-weight:700">Forms <span class="pin">1</span></p>
+            <p class="m-sub">Select every form this incident needs.</p>
+            <div class="m-forms">
+              <span class="on"><b>12A</b>Arrest Report</span><span><b>CR1</b>Crash Report</span>
+              <span><b>VI</b>Vehicle Inspection</span><span><b>216E</b>Use of Official Firearm</span>
+              <span class="on"><b>SANRAL</b>Incident Report</span><span><b>211A</b>Tow In</span>
+              <span><b>DOG</b>Dog Capture / Tackle</span>
+            </div>
+          </div></div>
+        <figcaption><b>Choose the forms.</b> <span class="muted">One report can hold several forms: here an arrest was made at a burglary.</span></figcaption>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>14:52</span><span>Report</span></div>
+          <div class="phone-body">
+            <p class="m-label"><span class="pin">2</span> Response</p>
+            <div class="m-input">Partner: Const. T. Dlamini</div>
+            <div class="m-row"><span class="m-switch"></span><span class="m-sub">Body camera active</span></div>
+            <p class="m-label">12A · Suspect’s details</p>
+            <div class="m-input">Male, about 25, grey hoodie</div>
+            <p class="m-label">Outcome</p>
+            <div class="m-row"><span class="m-switch"></span><span class="m-sub">Arrest made</span></div>
+            <p class="m-label"><span class="pin">3</span> Narrative</p>
+            <div class="m-input" style="min-height:3rem;align-items:flex-start">On arrival the back door was forced. One suspect detained in the garden…</div>
+            <span class="m-btn ok"><span class="pin">4</span> File report &amp; close incident</span>
+          </div></div>
+        <figcaption><b>Fill it in.</b> <span class="muted">A draft is kept on the phone, so nothing is lost if the officer is called away.</span></figcaption>
+      </figure>
+    </div>
+    <ol class="legend">
+      <li><span class="pin">1</span><span><b>Seven police forms:</b> 12A Arrest, CR1 Crash, VI Vehicle Inspection, 216E Use of Official Firearm, SANRAL Incident, 211A Tow In, and Dog Capture / Tackle. Repeating parts, such as each vehicle in a crash, have an <i>Add</i> button.</span></li>
+      <li><span class="pin">2</span><span><b>Every report starts with the response</b> (partner, bodycam, use of force) and ends with the outcome, evidence booked and the narrative.</span></li>
+      <li><span class="pin">3</span><span><b>The narrative</b> is required: at least 20 characters, in the officer’s own words.</span></li>
+      <li><span class="pin">4</span><span><b>File.</b> The report is permanent from this moment; it can’t be edited or deleted. The call becomes <i>Resolved</i> and the case manager is told. If other departments are also on the call, it is resolved once they have filed too.</span></li>
+    </ol>
+  </section>
+
+  <!-- ── 7 Closing the case ─────────────────── -->
+  <section id="close" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 7 · Case manager · console</p>
+      <h2>Closing the case</h2>
+      <p class="muted">Every resolved call waits for a case manager, longest waiting first. Closing is the last step, and it is recorded with who closed it and when.</p>
+    </div>
+    <figure class="exhibit">
+      <figcaption><span class="tag">The case file</span><span class="where">/incidents/… and /case-manager/review</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/incidents/INC-20261013-0004</span></div>
+        <div class="m-top"><span class="crumb">Case Management › <b>Awaiting review</b></span><span class="who"><span class="m-avatar">LC</span><span>Lindiwe Case<small>Case manager</small></span></span></div>
+        <div class="screen-body">
+          <div class="m-card" style="border-color:var(--m-accent);grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))">
+            <div style="display:grid;gap:.35rem">
+              <p class="m-label" style="color:var(--m-accent)"><span class="pin">1</span> Awaiting review</p>
+              <p style="font-weight:700">Arrest Report · Incident Report by Const. S. Khumalo #MP-1042</p>
+              <p class="m-sub">Resolved 13 Oct 2026, 15:02 · waiting 25 min</p>
+              <p class="m-row" style="gap:.9rem"><span class="pin">2</span><span class="m-link">Read the report</span><span class="m-link">Evidence</span><span class="m-link">Full history</span><span class="m-link">Case PDF</span></p>
+            </div>
+            <div style="display:grid;gap:.45rem">
+              <span class="m-label"><span class="pin">3</span> Review note (optional, goes on the record and to the officer)</span>
+              <div class="m-input">Report complete; statement and photos on file.</div>
+              <span class="m-btn ok"><span class="pin">4</span> Close INC-20261013-0004</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>Awaiting review:</b> which report is in, who filed it, and how long it has waited.</span></li>
+        <li><span class="pin">2</span><span><b>Everything in one place:</b> the report, the photos and voice notes, the full history, and a PDF of the whole case.</span></li>
+        <li><span class="pin">3</span><span><b>A note</b> for the record, if needed. The officer sees it.</span></li>
+        <li><span class="pin">4</span><span><b>Close.</b> The call is Closed. The officer is told: <i>Your report was reviewed by Lindiwe Case. The case is closed.</i> It moves to <i>Recently closed</i> with who closed it.</span></li>
+      </ol>
+    </figure>
+  </section>
+
+  <!-- ── Other endings ─────────────────── -->
+  <section id="other" class="band">
+    <div class="section-head">
+      <h2>Other ways a call ends</h2>
+      <p class="muted">Not every call ends with a report.</p>
+    </div>
+    <div class="safety">
+      <div><h3>Hoax, duplicate or cancelled</h3><p>The dispatch desk chooses <i>Close without a report</i> and must say why (at least 10 characters). Any officer on the way is told to stand down.</p></div>
+      <div><h3>Another department is also on it</h3><p>Each department works its own part: its own lead, its own report. Police filing does not close the call while Fire or EMS are still working; it is resolved when all have finished. A department not needed is marked <i>Not needed</i> with a reason.</p></div>
+      <div><h3>An officer in danger</h3><p>The SOS button on the phone raises a Critical call at the officer’s position. It interrupts the dispatch desks and command, and is never sent back to the officer who raised it.</p></div>
+    </div>
+  </section>
+
+  <!-- ── No signal ─────────────────── -->
+  <section id="signal" class="band">
+    <div class="section-head">
+      <h2>When there is no signal</h2>
+      <p class="muted">The app keeps working in basements, lifts and dead zones.</p>
+    </div>
+    <div class="safety care">
+      <div><h3>What still works</h3><p>Accepting, every step, photos, voice notes, updates and filing the report. Each is recorded with the real time it was done.</p></div>
+      <div><h3>When signal returns</h3><p>Everything is sent in order, never twice. The tray at the top of the app shows what is still waiting to send.</p></div>
+      <div><h3>The route</h3><p>The phone keeps recording where the officer goes. The console map draws the offline stretch once the phone reconnects.</p></div>
+    </div>
+  </section>
+
+  <footer class="col">
+    HikTech · eThekwini Municipality. A guide for reviewers; screens shown with example data. The other departments: <a href="incident-fire">Fire &amp; Rescue</a>, <a href="incident-ems">EMS</a>, <a href="incident-disaster">Disaster Management</a>.
+  </footer>
+</div>

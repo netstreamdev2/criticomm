@@ -42,9 +42,10 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
     ? (mySilo as Exclude<Silo, 'Ethekwini'>) : null;
   const sentTo = deskTags(incident);
 
-  // Everyone on duty in the field departments; the form narrows them to the
-  // departments the dispatcher routes the call to and keeps the list live.
-  const fieldSilos: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
+  // Who is on duty: a department's desk sees its own crews only, the control
+  // room every department's. The form narrows them to the departments the
+  // dispatcher routes the call to and keeps the list live.
+  const fieldSilos: Silo[] = deskOf ? [deskOf] : ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
   const [officers, settings, attachments, updates] = await Promise.all([
     listOnDutyOfficers(supabase, fieldSilos).catch(() => []),
     getOperationalSettings(supabase),
@@ -52,10 +53,13 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
     getIncidentUpdates(supabase, id).catch(() => []),
   ]);
 
+  // Each department dispatches its own part (0073): one department leading
+  // the call never stops another from sending its crews.
+  const parts = incident.departments ?? [];
   const locked =
     incident.status === 'Resolved' || incident.status === 'Closed'
       ? `${incident.incident_number} is ${incident.status.toLowerCase()} — it can no longer be dispatched.`
-      : incident.accepted_by
+      : !incident.departments && incident.accepted_by
         ? `${incident.responding_officer ?? 'An officer'} is leading this incident${incident.accepted_at ? ` (responded ${timeAgo(incident.accepted_at)})` : ''}. Other officers can still join it as backup from the app.`
         : null;
 
@@ -294,10 +298,11 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
           roadFactor: settings['dispatch.eta_road_factor'],
         }}
         locked={locked}
-        awaiting={incident.status === 'Dispatched' && !incident.accepted_by}
+        parts={parts}
+        awaiting={!incident.departments && incident.status === 'Dispatched' && !incident.accepted_by}
         sosRaiser={incident.source === 'Responder-Panic' ? incident.created_by : null}
         allowedSilos={deskOf ? [deskOf] : undefined}
-        assignedTo={incident.assigned_to && !incident.accepted_by
+        assignedTo={!incident.departments && incident.assigned_to && !incident.accepted_by
           ? { userId: incident.assigned_to, name: incident.assigned_to_name ?? 'an officer', at: incident.assigned_at }
           : null}
       />

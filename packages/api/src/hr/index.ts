@@ -41,33 +41,33 @@ export async function getDutySheet(
   client: CriticomClient,
   args: { silo: Silo; date: string },
 ) {
-  // Roster rows joined to their shift; filter to shifts covering the date.
+  // The day's issued shifts (0072: every line carries its own times), with
+  // the shift type or week-board shift each came from.
   const { data: rosterRows, error } = await client
     .from('rosters')
-    .select('*, shift:shift_id (shift_name, activity_type, start_time, end_time)')
-    .eq('silo', args.silo);
+    .select('*, shift:shift_id (shift_name, activity_type, start_time, end_time), template:template_id (name)')
+    .eq('silo', args.silo)
+    .eq('duty_date', args.date)
+    .eq('published', true)
+    .is('cancelled_at', null)
+    .order('start_at', { ascending: true });
   if (error) throw error;
 
-  const dayStart = `${args.date}T00:00:00`;
-  const dayEnd = `${args.date}T23:59:59`;
   type Row = (typeof rosterRows)[number] & {
     shift?: { shift_name?: string; activity_type?: string; start_time?: string; end_time?: string } | null;
+    template?: { name?: string } | null;
   };
-  const onDate = ((rosterRows ?? []) as Row[]).filter((r) => {
-    const s = r.shift?.start_time;
-    // Include entries whose shift starts on the date, or shifts with no time (standing duty).
-    return !s || (s >= dayStart && s <= dayEnd) || s.slice(0, 10) === args.date;
-  });
+  const onDate = (rosterRows ?? []) as Row[];
 
   // Group into shift blocks.
   const blocks = new Map<string, { shiftName: string; activityType: string; start: string | null; end: string | null; members: Row[] }>();
   for (const r of onDate) {
-    const key = r.shift?.shift_name ?? r.activity_type ?? 'General duty';
+    const key = r.template?.name ?? r.shift?.shift_name ?? r.activity_type ?? 'General duty';
     const block = blocks.get(key) ?? {
       shiftName: key,
       activityType: r.shift?.activity_type ?? r.activity_type ?? '',
-      start: r.shift?.start_time ?? null,
-      end: r.shift?.end_time ?? null,
+      start: r.start_at ?? r.shift?.start_time ?? null,
+      end: r.end_at ?? r.shift?.end_time ?? null,
       members: [],
     };
     block.members.push(r);
@@ -165,14 +165,11 @@ export async function createLeaveEntry(
 
 export async function setLeaveStatus(
   client: CriticomClient,
-  args: { id: string; status: 'Approved' | 'Rejected' | 'Pending' },
+  args: { id: string; status: 'Approved' | 'Rejected'; comment?: string | null },
 ) {
-  const { data, error } = await client
-    .from('leave_entries')
-    .update({ status: args.status })
-    .eq('id', args.id)
-    .select()
-    .single();
+  const { data, error } = await client.rpc('decide_leave', {
+    p_id: args.id, p_approve: args.status === 'Approved', p_comment: args.comment ?? null,
+  });
   if (error) throw error;
   return data;
 }

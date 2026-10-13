@@ -58,7 +58,7 @@ export async function getLeaveBalances(
     listActiveConfig(client, 'LeaveType').catch(() => []),
     client
       .from('leave_entries')
-      .select('absence, status, eff_from, eff_to')
+      .select('absence, status, eff_from, eff_to, days')
       .eq('user_id', args.userId)
       .lte('eff_from', yearTo)
       .gte('eff_to', yearFrom),
@@ -67,7 +67,10 @@ export async function getLeaveBalances(
   const usage = new Map<string, { taken: number; pending: number }>();
   for (const e of entries ?? []) {
     const key = e.absence ?? 'Annual';
-    const days = overlapDays(e.eff_from, e.eff_to, yearFrom, yearTo);
+    // What it cost, as the server counted it (0072: the shifts it covers,
+    // then working days), when the whole request falls in this year.
+    const inYear = e.eff_from >= yearFrom && e.eff_to <= yearTo;
+    const days = inYear && e.days != null ? Number(e.days) : overlapDays(e.eff_from, e.eff_to, yearFrom, yearTo);
     const u = usage.get(key) ?? { taken: 0, pending: 0 };
     if (e.status === 'Approved') u.taken += days;
     else if (e.status === 'Pending') u.pending += days;
@@ -106,7 +109,7 @@ export async function getLeaveMonth(
   let q = client
     .from('leave_entries')
     .select('id, silo, user_id, absence, status, eff_from, eff_to, service_no')
-    .neq('status', 'Rejected')
+    .in('status', ['Pending', 'Approved'])
     .lte('eff_from', lastIso)
     .gte('eff_to', args.monthFirstDayIso.slice(0, 10));
   if (args.silo) q = q.eq('silo', args.silo);
@@ -160,7 +163,7 @@ export async function getCoverageImpact(
       .from('leave_entries')
       .select('user_id, service_no, status')
       .eq('silo', args.silo)
-      .neq('status', 'Rejected')
+      .in('status', ['Pending', 'Approved'])
       .lte('eff_from', args.to.slice(0, 10))
       .gte('eff_to', args.from.slice(0, 10)),
   ]);
@@ -174,23 +177,20 @@ export async function getCoverageImpact(
   };
 }
 
-/** Approve/reject with the trail 0014 added. */
+/**
+ * Approve or refuse, through decide_leave (0072): only someone senior to the
+ * person in their department decides, never their own; a refusal needs a
+ * reason; approval marks their shifts as on leave and tells them.
+ */
 export async function setLeaveStatusWithTrail(
   client: CriticomClient,
-  args: { id: string; status: 'Approved' | 'Rejected'; byName: string },
+  args: { id: string; status: 'Approved' | 'Rejected'; comment?: string | null },
 ) {
-  const { data, error } = await client
-    .from('leave_entries')
-    .update({
-      status: args.status,
-      approved_by: args.byName,
-      approved_at: new Date().toISOString(),
-    })
-    .eq('id', args.id)
-    .select()
-    .single();
+  const { data, error } = await client.rpc('decide_leave', {
+    p_id: args.id, p_approve: args.status === 'Approved', p_comment: args.comment ?? null,
+  });
   if (error) throw error;
-  return data;
+  return data as LeaveEntry;
 }
 
 /* ── Three-axis performance reports ─────────────────────────────────── */

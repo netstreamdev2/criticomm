@@ -30,3 +30,4 @@ export * from './map-zones/index';
 export * from './bodycams/index';
 export * from './cases/index';
 export * from './criti/index';
+export * from './schedule/index';

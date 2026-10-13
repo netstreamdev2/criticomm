@@ -16,8 +16,9 @@ import { ToastProvider } from '@/components/toast';
 import { AlertCenter } from '@/components/alert-center';
 import { AssistantDock } from '@/components/assistant-dock';
 import { PanicBanner } from '@/components/panic-banner';
+import { ShiftBanner } from '@/components/schedule/shift-banner';
 import { ZoneNotifier } from '@/components/zone-notifier';
-import { hasSidebar, isDisasterDesk, isDoctor, isEmsAdmin, isFireCommand } from '@/lib/nav';
+import { hasSidebar, isDisasterDesk, isDoctor, isEmsAdmin, isFireCommand, isPoliceAdmin } from '@/lib/nav';
 
 // Every page in this group is per-user (cookies + RLS), so none of them should
 // ever be statically prerendered at build time.
@@ -66,7 +67,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     getBrandingMap(),
     getFeatureMap(supabase),
     listAccessRules(supabase),
-    role === 'SystemAdmin' || role === 'Supervisor' || role === 'Captain' || role === 'SystemController' || isEmsAdmin(role, silo) || isDoctor(role) || isFireCommand(role, silo) || isDisasterDesk(role, silo)
+    role === 'SystemAdmin' || role === 'Supervisor' || role === 'Captain' || role === 'SystemController' || role === 'ControlRoom' || isEmsAdmin(role, silo) || isDoctor(role) || isFireCommand(role, silo) || isDisasterDesk(role, silo) || isPoliceAdmin(role, silo)
       ? getMyTenant(supabase).catch(() => null) : Promise.resolve(null),
   ]);
   // Two subtractive overlays on the nav: features the tenant has switched off,
@@ -118,6 +119,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
                 mattered; this is the standing reminder afterwards. */}
             <Suspense fallback={null}>
               <PanicBanner userId={user.id} role={role as UserRole} />
+            </Suspense>
+            {/* Desk staff whose shift is starting: Start shift here checks them in. */}
+            <Suspense fallback={null}>
+              <ShiftBanner userId={user.id} role={role as UserRole} silo={silo as Silo} />
             </Suspense>
             {children}
           </main>

@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { listActiveIncidents, listPcrs } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +7,7 @@ import { IncidentLive } from '@/components/incident-live';
 import { getSession } from '@/lib/session';
 import { formatSaTime, timeAgo } from '@/lib/utils';
 import { CritiTiles } from '@/components/criti/insight-tiles';
+import { AttendanceNow } from '@/components/schedule/attendance-now';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'EMS · HikTech' };
@@ -17,7 +19,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 /** EMS: the calls crews are working now, ambulances off road, and the clinical archive. */
 export default async function MedicalPage() {
-  const { supabase } = await getSession();
+  const { supabase, role, silo } = await getSession();
   const [active, pcrs, offRoad] = await Promise.all([
     listActiveIncidents(supabase, 'Medical').catch(() => []),
     listPcrs(supabase).catch(() => []),
@@ -45,6 +47,7 @@ export default async function MedicalPage() {
 
       {/* Criti: what needs attention now, for this person. */}
       <CritiTiles />
+      <Suspense fallback={null}><AttendanceNow viewerRole={role} ownSilo={silo} silo={'Medical'} /></Suspense>
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {[

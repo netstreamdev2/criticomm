@@ -1,8 +1,10 @@
 import type { CriticomClient, Database, Silo, IncidentStatus } from '@criticom/db';
 import { cleanSearch } from '../cases/stage';
 import { noteText } from './note';
+import { PARTS, forDepartment, type DepartmentPart } from './parts';
 
 export { noteText } from './note';
+export * from './parts';
 import type {
   LogIncomingCallInput,
   DispatchUnitInput,
@@ -11,6 +13,15 @@ import type {
 import { logIncomingCallSchema } from '@criticom/db/schemas';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
+/** A call with each department's part of it (0073); none until 0073 is run. */
+export type IncidentWithParts = Incident & { departments?: DepartmentPart[] };
+
+/** Until migration 0073 is run a call has no parts: read it as before rather than fail. */
+function noParts(error: { code?: string; message?: string } | null): boolean {
+  return Boolean(error && (error.code === 'PGRST200' || error.code === '42P01' || /incident_departments/.test(error.message ?? '')));
+}
+
+const PENDING_STATUSES: IncidentStatus[] = ['Pending Dispatch', 'Pending', 'New', 'Pending Analysis'];
 
 /** ControlRoomController.LogNew + IncidentWorkflowService.LogIncomingCallAsync */
 export async function logIncomingCall(
@@ -234,22 +245,61 @@ export async function getDispatcherKpis(client: CriticomClient, silo?: Silo) {
   return data;
 }
 
-/** IncidentsController.IncomingIncidents — for dispatchers */
-export async function listPendingIncidents(client: CriticomClient, silo?: Silo) {
+/**
+ * The calls still waiting at a desk (0073): a call stays in a department's
+ * queue until that department dispatches it, whatever the other departments
+ * it was sent to have done. With no department, every desk's waiting calls
+ * (the control room), and control-room calls never sent to a department.
+ * Each call comes with its parts, so the desk sees what the others did.
+ */
+async function waitingCalls(
+  client: CriticomClient,
+  department: Silo | null,
+  narrow: <Q>(q: Q) => Q,
+  ascending: boolean,
+): Promise<IncidentWithParts[]> {
+  const order = <Q extends { order: (c: string, o: { ascending: boolean }) => Q }>(q: Q) =>
+    q.order('call_timestamp', { ascending }).order('incident_created_at', { ascending });
   let q = client
     .from('incidents')
-    .select('*')
-    .in('status', ['Pending Dispatch', 'Pending', 'New', 'Pending Analysis'])
-    .order('call_timestamp', { ascending: true });
-  // A department's queue is the calls sent to its desk (0068): logged under
-  // it, tagged for it, or with its crews already on them.
-  if (silo) q = q.or(`silo.eq.${silo},tagged_silos.cs.{${silo}},dispatched_silos.cs.{${silo}}`);
-  const { data, error } = await q;
+    .select(`*, ${PARTS}, waiting:incident_departments!inner(silo)`)
+    .eq('waiting.status', 'Waiting')
+    .neq('status', 'Closed');
+  if (department === 'Ethekwini') q = q.eq('silo', department);
+  else if (department) q = q.eq('waiting.silo', department);
+  const { data, error } = await narrow(order(q)).limit(500);
+  if (noParts(error)) {
+    // Before 0073: the call's own status, and the departments it was sent to.
+    let old = client.from('incidents').select('*').in('status', PENDING_STATUSES);
+    if (department === 'Ethekwini') old = old.eq('silo', department);
+    else if (department) old = old.or(`silo.eq.${department},tagged_silos.cs.{${department}},dispatched_silos.cs.{${department}}`);
+    const res = await narrow(order(old)).limit(500);
+    if (res.error) throw res.error;
+    return (res.data ?? []) as IncidentWithParts[];
+  }
   if (error) throw error;
+  const rows = ((data ?? []) as unknown as Array<IncidentWithParts & { waiting?: unknown }>).map(({ waiting: _, ...r }) => r);
+  if (department && department !== 'Ethekwini') return rows;
+
+  // A control-room call never sent to a department has no parts to wait on.
+  const own = client.from('incidents').select(`*, ${PARTS}`).in('status', PENDING_STATUSES).eq('silo', 'Ethekwini');
+  const unsent = await narrow(order(own)).limit(200);
+  if (unsent.error) throw unsent.error;
+  const seen = new Set(rows.map((r) => r.id));
+  const extra = ((unsent.data ?? []) as unknown as IncidentWithParts[])
+    .filter((r) => !seen.has(r.id) && (r.departments ?? []).length === 0);
+  if (extra.length === 0) return rows;
+  return [...rows, ...extra].sort((a, b) =>
+    (ascending ? 1 : -1) * (a.call_timestamp.localeCompare(b.call_timestamp) || a.incident_created_at.localeCompare(b.incident_created_at)));
+}
+
+/** IncidentsController.IncomingIncidents — for dispatchers */
+export async function listPendingIncidents(client: CriticomClient, silo?: Silo) {
+  const rows = await waitingCalls(client, silo ?? null, (q) => q, true);
   // An officer's SOS first, then by real severity (the column sorts as text,
   // which put Medium above Critical), then the longest-waiting first.
   const rank = (i: Incident) => (i.source === 'Responder-Panic' ? -1 : (PENDING_RANK[i.incident_severity] ?? 9));
-  return (data ?? []).sort((a, b) => rank(a) - rank(b));
+  return rows.sort((a, b) => rank(a) - rank(b));
 }
 
 const PENDING_RANK: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
@@ -259,7 +309,10 @@ export type QueueFilters = {
   q?: string | null;
   severity?: string | null;
   region?: string | null;
-  /** The department a call was logged under; 'Ethekwini' is the control room. */
+  /**
+   * The desk whose queue it is: the calls waiting for that department.
+   * 'Ethekwini' is calls logged by the control room.
+   */
   department?: string | null;
   sort?: QueueSort | null;
 };
@@ -273,29 +326,22 @@ export type QueueFilters = {
  */
 export async function listQueue(client: CriticomClient, f: QueueFilters = {}) {
   const sort: QueueSort = f.sort === 'oldest' || f.sort === 'severity' ? f.sort : 'newest';
-  let q = client
-    .from('incidents')
-    .select('*')
-    .in('status', ['Pending Dispatch', 'Pending', 'New', 'Pending Analysis'])
-    .order('call_timestamp', { ascending: sort === 'oldest' })
-    .order('incident_created_at', { ascending: sort === 'oldest' });
   const term = cleanSearch(f.q);
-  if (term) {
-    q = q.or([
-      `incident_number.ilike.%${term}%`, `caller_name.ilike.%${term}%`, `caller_number.ilike.%${term}%`,
-      `location_address.ilike.%${term}%`, `incident_type.ilike.%${term}%`, `suburb.ilike.%${term}%`,
-    ].join(','));
-  }
-  if (f.severity && f.severity in PENDING_RANK) q = q.eq('incident_severity', f.severity as Incident['incident_severity']);
-  if (f.region) q = q.eq('region', f.region);
-  // Sent to that desk: tagged for it, logged under it, or sent to its crews (0068).
-  if (f.department) {
-    const d = f.department as Silo;
-    q = d === 'Ethekwini' ? q.eq('silo', d) : q.or(`silo.eq.${d},tagged_silos.cs.{${d}},dispatched_silos.cs.{${d}}`);
-  }
-  const { data, error } = await q.limit(500);
-  if (error) throw error;
-  const rows = data ?? [];
+  const severity = f.severity && f.severity in PENDING_RANK ? (f.severity as Incident['incident_severity']) : null;
+  const narrow = <Q>(query: Q): Q => {
+    // biome-ignore lint/suspicious/noExplicitAny: the same filters on two differently typed selects.
+    let q = query as any;
+    if (term) {
+      q = q.or([
+        `incident_number.ilike.%${term}%`, `caller_name.ilike.%${term}%`, `caller_number.ilike.%${term}%`,
+        `location_address.ilike.%${term}%`, `incident_type.ilike.%${term}%`, `suburb.ilike.%${term}%`,
+      ].join(','));
+    }
+    if (severity) q = q.eq('incident_severity', severity);
+    if (f.region) q = q.eq('region', f.region);
+    return q as Q;
+  };
+  const rows = await waitingCalls(client, (f.department as Silo | null) ?? null, narrow, sort === 'oldest');
   if (sort !== 'severity') return rows;
   // A stable sort: newest first within each severity, as the query ordered them.
   return [...rows].sort((a, b) => (PENDING_RANK[a.incident_severity] ?? 9) - (PENDING_RANK[b.incident_severity] ?? 9));
@@ -363,11 +409,46 @@ export async function listMyAssignedIncidents(client: CriticomClient, unitId: st
   return data ?? [];
 }
 
-/** IncidentsController.Details + ReportsController.IncidentLifecycle */
-export async function getIncident(client: CriticomClient, id: string) {
-  const { data, error } = await client.from('incidents').select('*').eq('id', id).single();
+/** IncidentsController.Details + ReportsController.IncidentLifecycle. With each department's part (0073). */
+export async function getIncident(client: CriticomClient, id: string): Promise<IncidentWithParts> {
+  const { data, error } = await client.from('incidents').select(`*, ${PARTS}`).eq('id', id).single();
+  if (noParts(error)) {
+    const old = await client.from('incidents').select('*').eq('id', id).single();
+    if (old.error) throw old.error;
+    return old.data;
+  }
   if (error) throw error;
-  return data;
+  return data as unknown as IncidentWithParts;
+}
+
+/** Each department's part of a call (0073). */
+export async function listIncidentDepartments(client: CriticomClient, incidentId: string): Promise<DepartmentPart[]> {
+  const { data, error } = await client.from('incident_departments').select('*').eq('incident_id', incidentId);
+  if (noParts(error)) return [];
+  if (error) throw error;
+  return (data ?? []) as DepartmentPart[];
+}
+
+/**
+ * A department is not needed on a call (0073): its desk or command says why,
+ * and its crew is told to stand down. Refused for the last department on a
+ * call nobody filed on: that call is cancelled instead.
+ */
+export async function standDownDepartment(client: CriticomClient, args: { incident_id: string; silo: Silo; reason: string }) {
+  const { data, error } = await client.rpc('stand_down_department', {
+    p_incident_id: args.incident_id, p_silo: args.silo, p_reason: args.reason,
+  });
+  if (error) throw error;
+  return data as Incident;
+}
+
+/** The desk marking one department's crew when they radio a step in (0073). */
+export async function setDepartmentStatus(client: CriticomClient, args: { incident_id: string; silo: Silo; status: IncidentStatus }) {
+  const { data, error } = await client.rpc('set_department_status', {
+    p_incident_id: args.incident_id, p_silo: args.silo, p_status: args.status,
+  });
+  if (error) throw error;
+  return data as Incident;
 }
 
 /** ReportsController.GetIncidentUpdates */
@@ -569,10 +650,26 @@ export type IncidentResponder = Pick<
   'user_id' | 'name' | 'silo' | 'role' | 'status' | 'joined_at'
 >;
 
-/** An incident with who is responding to it. */
-export type FieldIncident = Incident & { responders: IncidentResponder[] };
+/** An incident with who is responding to it, and each department's part (0073). */
+export type FieldIncident = Incident & { responders: IncidentResponder[]; departments?: DepartmentPart[] };
 
 const RESPONDERS = 'responders:incident_responders(user_id, name, silo, role, status, joined_at)';
+
+/**
+ * A field read with the departments' parts, or without them until 0073 is
+ * run. Given the officer's department, each call is shown as that department
+ * sees it (forDepartment): its own lead, status and report.
+ */
+async function fieldRead<R>(
+  run: (columns: string) => PromiseLike<{ data: R | null; error: { code?: string; message?: string } | null }>,
+  columns: string,
+): Promise<R | null> {
+  let { data, error } = await run(`${columns}, ${PARTS}`);
+  if (noParts(error)) ({ data, error } = await run(columns));
+  if (error) throw error;
+  return data;
+}
+const seenBy = (calls: FieldIncident[], silo?: Silo | null) => (silo ? calls.map((c) => forDepartment(c, silo)) : calls);
 
 /** Statuses before a call has been sent out; officers never see these. */
 const NOT_YET_SENT = '("New","Pending","Pending Dispatch","Pending Analysis","Closed","Resolved")';
@@ -596,45 +693,61 @@ export async function assignIncident(
  * department, assigned to them, or that they respond to — whoever holds them.
  */
 export async function listFieldIncidents(client: CriticomClient, silo: Silo, userId: string) {
-  const { data, error } = await client
+  const data = await fieldRead((columns) => client
     .from('incidents')
-    .select(`*, ${RESPONDERS}`)
+    .select(columns)
     .not('status', 'in', NOT_YET_SENT)
     .or(`dispatched_silos.cs.{${silo}},assigned_to.eq.${userId},accepted_by.eq.${userId}`)
     .order('dispatch_time', { ascending: false, nullsFirst: false })
-    .limit(300);
-  if (error) throw error;
-  return (data ?? []) as unknown as FieldIncident[];
+    .limit(300), `*, ${RESPONDERS}`);
+  return seenBy((data ?? []) as unknown as FieldIncident[], silo);
 }
 
-/** One call with its responders. */
-export async function getFieldIncident(client: CriticomClient, id: string) {
-  const { data, error } = await client
+/** One call with its responders; given the officer's department, as it sees the call. */
+export async function getFieldIncident(client: CriticomClient, id: string, silo?: Silo | null) {
+  const data = await fieldRead((columns) => client
     .from('incidents')
-    .select(`*, ${RESPONDERS}`)
+    .select(columns)
     .eq('id', id)
-    .maybeSingle();
-  if (error) throw error;
-  return data as unknown as FieldIncident | null;
-}
-
-/** The open calls this officer is responding to, lead or backup. */
-export async function listMyActiveIncidents(client: CriticomClient, userId: string) {
-  const { data, error } = await client
-    .from('incidents')
-    .select(`*, ${RESPONDERS}, mine:incident_responders!inner(user_id)`)
-    .eq('mine.user_id', userId)
-    .not('status', 'in', '("Closed","Resolved")')
-    .order('updated_at', { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as unknown as FieldIncident[];
+    .maybeSingle(), `*, ${RESPONDERS}`);
+  if (!data) return null;
+  return seenBy([data as unknown as FieldIncident], silo)[0] ?? null;
 }
 
 /**
- * Open incidents dispatch has assigned to this officer, newest first. Callers
- * drop the ones the officer is already responding to.
+ * The open calls this officer is responding to, lead or backup. Given their
+ * department, a call whose part for it has finished is no longer theirs.
+ */
+export async function listMyActiveIncidents(client: CriticomClient, userId: string, silo?: Silo | null) {
+  const data = await fieldRead((columns) => client
+    .from('incidents')
+    .select(columns)
+    .eq('mine.user_id', userId)
+    .not('status', 'in', '("Closed","Resolved")')
+    .order('updated_at', { ascending: false }), `*, ${RESPONDERS}, mine:incident_responders!inner(user_id)`);
+  return seenBy((data ?? []) as unknown as FieldIncident[], silo)
+    .filter((c) => c.status !== 'Resolved' && c.status !== 'Closed');
+}
+
+/**
+ * Open incidents dispatch has assigned to this officer, newest first: their
+ * department's part assigned to them (0073), or the call's own assignment
+ * before 0073. Callers drop the ones the officer is already responding to.
  */
 export async function listAssignedToMe(client: CriticomClient, userId: string) {
+  const parts = await client
+    .from('incident_departments')
+    .select('assigned_at, incident:incidents!inner(id, incident_number, incident_type, incident_severity, location_address, status)')
+    .eq('assigned_to', userId)
+    .in('status', ['Dispatched', 'En Route', 'Arrived', 'On Scene', 'Transporting'])
+    .order('assigned_at', { ascending: false });
+  if (!noParts(parts.error)) {
+    if (parts.error) throw parts.error;
+    type Row = { incident: Pick<Incident, 'id' | 'incident_number' | 'incident_type' | 'incident_severity' | 'location_address' | 'status'> };
+    return ((parts.data ?? []) as unknown as Row[])
+      .map((r) => r.incident)
+      .filter((i) => i.status !== 'Closed' && i.status !== 'Resolved');
+  }
   const { data, error } = await client
     .from('incidents')
     .select('id, incident_number, incident_type, incident_severity, location_address, status')
@@ -651,18 +764,18 @@ export async function listAssignedToMe(client: CriticomClient, userId: string) {
  * this replaces looking calls up by the officer's unit, which missed every
  * call sent to all on duty or assigned before the officer accepted it.
  */
-export async function listMyCalls(client: CriticomClient, userId: string): Promise<FieldIncident[]> {
-  const [responding, assigned] = await Promise.all([
-    listMyActiveIncidents(client, userId),
-    client
-      .from('incidents')
-      .select(`*, ${RESPONDERS}`)
-      .eq('assigned_to', userId)
-      .not('status', 'in', '("Closed","Resolved")'),
+export async function listMyCalls(client: CriticomClient, userId: string, silo?: Silo | null): Promise<FieldIncident[]> {
+  const [responding, assignedIds] = await Promise.all([
+    listMyActiveIncidents(client, userId, silo),
+    listAssignedToMe(client, userId).then((rows) => rows.map((r) => r.id)),
   ]);
-  if (assigned.error) throw assigned.error;
+  const assigned = assignedIds.length === 0 ? [] : await fieldRead((columns) => client
+    .from('incidents')
+    .select(columns)
+    .in('id', assignedIds)
+    .not('status', 'in', '("Closed","Resolved")'), `*, ${RESPONDERS}`);
   const byId = new Map<string, FieldIncident>();
-  for (const call of [...responding, ...((assigned.data ?? []) as unknown as FieldIncident[])]) byId.set(call.id, call);
+  for (const call of [...responding, ...seenBy((assigned ?? []) as unknown as FieldIncident[], silo)]) byId.set(call.id, call);
   return [...byId.values()].sort((a, b) => (b.dispatch_time ?? '').localeCompare(a.dispatch_time ?? ''));
 }
 
@@ -674,11 +787,22 @@ export async function countAssignedToMeToday(client: CriticomClient, userId: str
   const saDate = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Africa/Johannesburg', year: 'numeric', month: '2-digit', day: '2-digit',
   }).format(new Date());
+  const since = new Date(`${saDate}T00:00:00+02:00`).toISOString();
+  // Their department's part assigned to them (0073), else the call's own assignment.
+  const parts = await client
+    .from('incident_departments')
+    .select('id', { count: 'exact', head: true })
+    .eq('assigned_to', userId)
+    .gte('assigned_at', since);
+  if (!noParts(parts.error)) {
+    if (parts.error) throw parts.error;
+    return parts.count ?? 0;
+  }
   const { count, error } = await client
     .from('incidents')
     .select('id', { count: 'exact', head: true })
     .eq('assigned_to', userId)
-    .gte('assigned_at', new Date(`${saDate}T00:00:00+02:00`).toISOString());
+    .gte('assigned_at', since);
   if (error) throw error;
   return count ?? 0;
 }

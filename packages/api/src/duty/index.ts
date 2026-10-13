@@ -15,11 +15,22 @@ import type { CriticomClient, Database, Silo } from '@criticom/db';
 
 export type DutyPost = Database['public']['Tables']['duty_posts']['Row'];
 export type Roster = Database['public']['Tables']['rosters']['Row'];
+type ShiftAttendance = Database['public']['Tables']['shift_attendance']['Row'];
 
 export type Allocation = Roster & {
   /** Set when the member is on approved leave for this date. */
   leaveConflict?: { absence: string; from: string; to: string } | null;
+  /** Whether they have started (0072); only those who roster the department read it. */
+  attendance?: ShiftAttendance | null;
 };
+
+/** A day's lines with their attendance, cancelled ones left out. */
+const DAY_COLUMNS = '*, attendance:shift_attendance(*)';
+function flatten(rows: unknown[]): Roster[] {
+  return (rows as Array<Roster & { attendance?: ShiftAttendance | ShiftAttendance[] | null }>)
+    .filter((r) => !r.cancelled_at)
+    .map((r) => ({ ...r, attendance: Array.isArray(r.attendance) ? (r.attendance[0] ?? null) : (r.attendance ?? null) })) as Roster[];
+}
 
 export type PostCoverage = {
   post: DutyPost;
@@ -84,7 +95,11 @@ function decorate(rows: Roster[], leave: Map<string, LeaveWindow>): Allocation[]
     const l = r.user_id ? leave.get(r.user_id) : undefined;
     return {
       ...r,
-      leaveConflict: l ? { absence: l.absence, from: l.eff_from, to: l.eff_to } : null,
+      // Those who roster the department see the leave itself; everyone else
+      // sees only that the person is off (0072 marks their shift 'Leave').
+      leaveConflict: l
+        ? { absence: l.absence, from: l.eff_from, to: l.eff_to }
+        : r.status === 'Leave' ? { absence: 'leave', from: r.duty_date ?? '', to: r.duty_date ?? '' } : null,
     };
   });
 }
@@ -104,7 +119,7 @@ export async function getDutyBoard(
       .order('sort_order', { ascending: true })
       .order('name', { ascending: true }),
     (() => {
-      let q = client.from('rosters').select('*').eq('silo', args.silo).eq('duty_date', args.date);
+      let q = client.from('rosters').select(DAY_COLUMNS).eq('silo', args.silo).eq('duty_date', args.date);
       // Members see only what has been issued; supervisors see drafts too.
       if (!args.includeDrafts) q = q.eq('published', true);
       return q.order('user_name', { ascending: true });
@@ -116,7 +131,7 @@ export async function getDutyBoard(
   if (rostersRes.error) throw new Error(rostersRes.error.message);
 
   const posts = (postsRes.data ?? []) as DutyPost[];
-  const allocations = decorate((rostersRes.data ?? []) as Roster[], leave);
+  const allocations = decorate(flatten(rostersRes.data ?? []), leave);
 
   const byPost = new Map<string, Allocation[]>();
   const adHoc: Allocation[] = [];
@@ -192,7 +207,7 @@ export async function getPersonDay(
       .eq('silo', args.silo)
       .order('full_name', { ascending: true }),
     (() => {
-      let q = client.from('rosters').select('*').eq('silo', args.silo).eq('duty_date', args.date);
+      let q = client.from('rosters').select(DAY_COLUMNS).eq('silo', args.silo).eq('duty_date', args.date);
       if (!args.includeDrafts) q = q.eq('published', true);
       return q;
     })(),
@@ -200,7 +215,7 @@ export async function getPersonDay(
   ]);
 
   if (profilesRes.error) throw new Error(profilesRes.error.message);
-  const allocations = decorate((rostersRes.data ?? []) as Roster[], leave);
+  const allocations = decorate(flatten(rostersRes.data ?? []), leave);
 
   const byUser = new Map<string, Allocation[]>();
   for (const a of allocations) {
@@ -239,6 +254,8 @@ export async function getMyAllocations(
     .select('*, duty_posts(name, station, sector, vehicle, call_sign)')
     .eq('user_id', args.userId)
     .eq('published', true)
+    .is('cancelled_at', null)
+    .neq('status', 'Leave')
     .gte('duty_date', args.fromDate)
     .lte('duty_date', to.toISOString().slice(0, 10))
     .order('duty_date', { ascending: true });
@@ -248,59 +265,25 @@ export async function getMyAllocations(
 
 /* ── Mutations ───────────────────────────────────────────────────── */
 
+/**
+ * Put someone on a post for a day (assign_post). Their shift that day carries
+ * the post; with no shift that day, one is added from the shift type given.
+ * Leave, court, another shift and a vehicle already out are refused.
+ */
 export async function assignToPost(
   client: CriticomClient,
-  input: {
-    silo: Silo;
-    date: string;
-    postId: string | null;
-    userId: string;
-    userName: string;
-    badgeNumber?: string | null;
-    station?: string | null;
-    activityType?: string | null;
-    vehicle?: string | null;
-    sector?: string | null;
-    callSign?: string | null;
-    startAt?: string | null;
-    endAt?: string | null;
-    specialInstructions?: string | null;
-    /** New allocations start as drafts so a half-built board is not issued. */
-    published?: boolean;
-    bySupervisorName?: string | null;
-  },
+  input: { postId: string; date: string; userId: string; templateId?: string | null },
 ) {
-  const published = input.published ?? false;
-  const { data, error } = await client
-    .from('rosters')
-    .insert({
-      silo: input.silo,
-      duty_date: input.date,
-      post_id: input.postId,
-      user_id: input.userId,
-      user_name: input.userName,
-      badge_number: input.badgeNumber ?? null,
-      station: input.station ?? '',
-      activity_type: input.activityType ?? '',
-      vehicle: input.vehicle ?? null,
-      sector: input.sector ?? null,
-      call_sign: input.callSign ?? null,
-      start_at: input.startAt ?? null,
-      end_at: input.endAt ?? null,
-      special_instructions: input.specialInstructions ?? null,
-      published,
-      published_at: published ? new Date().toISOString() : null,
-      status: 'Allocated',
-      created_by_supervisor_name: input.bySupervisorName ?? null,
-    })
-    .select('*')
-    .single();
+  const { data, error } = await client.rpc('assign_post', {
+    p_post: input.postId, p_day: input.date, p_user: input.userId, p_template: input.templateId ?? null,
+  });
   if (error) throw new Error(error.message);
-  return data as Roster;
+  return data as string;
 }
 
+/** Take someone off a post; a shift from the roster stays (clear_post). */
 export async function unassign(client: CriticomClient, rosterId: string) {
-  const { error } = await client.from('rosters').delete().eq('id', rosterId);
+  const { error } = await client.rpc('clear_post', { p_roster: rosterId });
   if (error) throw new Error(error.message);
 }
 
@@ -309,15 +292,9 @@ export async function publishDay(
   client: CriticomClient,
   args: { silo: Silo; date: string },
 ): Promise<number> {
-  const { data, error } = await client
-    .from('rosters')
-    .update({ published: true, published_at: new Date().toISOString() })
-    .eq('silo', args.silo)
-    .eq('duty_date', args.date)
-    .eq('published', false)
-    .select('id');
+  const { data, error } = await client.rpc('publish_roster', { p_silo: args.silo, p_from: args.date, p_to: args.date });
   if (error) throw new Error(error.message);
-  return (data ?? []).length;
+  return Number(data ?? 0);
 }
 
 /** A member confirming they have seen their duty. */
@@ -330,60 +307,20 @@ export async function acknowledgeAllocation(client: CriticomClient, rosterId: st
 }
 
 /**
- * Copy a day's allocations forward as drafts.
+ * Copy a day's shifts and posts onto another day, as drafts (copy_roster_day).
  *
  * Rostering is overwhelmingly repetitive — the same crews on the same posts —
- * so building each day from scratch is where mistakes come from. Copies land
- * as drafts, and anyone who has since gone on leave is left out rather than
- * carried across into a gap nobody notices.
+ * so building each day from scratch is where mistakes come from. Anyone who
+ * cannot work the new day (leave, court, another shift) is left out with the
+ * reason, and anyone already on that day is not copied twice.
  */
 export async function copyDayForward(
   client: CriticomClient,
-  args: { silo: Silo; from: string; to: string; bySupervisorName?: string | null },
-): Promise<{ copied: number; skippedOnLeave: number; skippedExisting: number }> {
-  const [srcRes, existingRes, leave] = await Promise.all([
-    client.from('rosters').select('*').eq('silo', args.silo).eq('duty_date', args.from),
-    client.from('rosters').select('user_id, post_id').eq('silo', args.silo).eq('duty_date', args.to),
-    leaveOn(client, args.silo, args.to),
-  ]);
-  if (srcRes.error) throw new Error(srcRes.error.message);
-
-  const source = (srcRes.data ?? []) as Roster[];
-  const taken = new Set(
-    ((existingRes.data ?? []) as Array<{ user_id: string; post_id: string | null }>)
-      .map((r) => `${r.user_id}:${r.post_id ?? ''}`),
-  );
-
-  let skippedOnLeave = 0;
-  let skippedExisting = 0;
-  const rows = [];
-  for (const r of source) {
-    if (r.user_id && leave.has(r.user_id)) { skippedOnLeave++; continue; }
-    if (taken.has(`${r.user_id}:${r.post_id ?? ''}`)) { skippedExisting++; continue; }
-    rows.push({
-      silo: r.silo,
-      duty_date: args.to,
-      post_id: r.post_id,
-      user_id: r.user_id,
-      user_name: r.user_name,
-      badge_number: r.badge_number,
-      station: r.station,
-      activity_type: r.activity_type,
-      vehicle: r.vehicle,
-      sector: r.sector,
-      call_sign: r.call_sign,
-      special_instructions: r.special_instructions,
-      published: false,
-      status: 'Allocated',
-      created_by_supervisor_name: args.bySupervisorName ?? null,
-    });
-  }
-
-  if (rows.length) {
-    const { error } = await client.from('rosters').insert(rows);
-    if (error) throw new Error(error.message);
-  }
-  return { copied: rows.length, skippedOnLeave, skippedExisting };
+  args: { silo: Silo; from: string; to: string },
+): Promise<{ copied: number; skipped: number; reasons: Array<{ name: string; reason: string }> }> {
+  const { data, error } = await client.rpc('copy_roster_day', { p_silo: args.silo, p_from: args.from, p_to: args.to });
+  if (error) throw new Error(error.message);
+  return data as { copied: number; skipped: number; reasons: Array<{ name: string; reason: string }> };
 }
 
 /* ── Establishment (posts) ───────────────────────────────────────── */

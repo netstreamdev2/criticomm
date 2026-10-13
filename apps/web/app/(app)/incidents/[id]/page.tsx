@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation';
 import { FileText, Lock } from 'lucide-react';
 import {
   deskTags, featureEnabled, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listBookedOutBodycams,
-  listIncidentAttachments, listIncidentMapZones, listIncidentResponders, searchBodycamBookings, signIncidentMedia,
-  type IncidentResponder,
+  listIncidentAttachments, listIncidentMapZones, listIncidentResponders, partFor, partWords, searchBodycamBookings, signIncidentMedia,
+  statusForPart, type IncidentResponder,
 } from '@criticom/api';
 import {
   DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, STATUS_OVERRIDE_ROLES, departmentName, STATUS_OVERRIDE_STEPS, canAccess, canWatchBodycam, caseStage,
@@ -26,6 +26,7 @@ import { IncidentBodycamsCard, type IncidentBodycamPerson } from './bodycams-car
 import { addUpdateAction, requestCitizenLocationAction } from './actions';
 import { CaseReviewCard } from './case-review-card';
 import { StatusOverride } from './case-forms';
+import { DepartmentsCard } from './departments-card';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Incident · HikTech' };
@@ -69,20 +70,38 @@ export default async function IncidentDetailPage({
   // the case itself stays open to notes until it is closed.
   const isClosed = stage !== 'live';
   const isCaseClosed = stage === 'closed';
-  const canOverride = STATUS_OVERRIDE_ROLES.includes(role) && stage === 'live' && Boolean(incident.dispatch_time);
-  const canDispatch = DISPATCH_DESK_ROLES.includes(role) && stage === 'live' && !incident.accepted_by;
+  // A call shared by departments is dispatched and marked per department, on
+  // the departments card (0073); a call from before 0073 as a whole.
+  const parts = incident.departments ?? [];
+  const canOverride = parts.length === 0 && STATUS_OVERRIDE_ROLES.includes(role) && stage === 'live' && Boolean(incident.dispatch_time);
+  const canDispatch = parts.length === 0 && DISPATCH_DESK_ROLES.includes(role) && stage === 'live' && !incident.accepted_by;
   const canNote = !isCaseClosed && role !== 'Viewer';
   const bodycams = await incidentBodycams(supabase, incident, responders, role, silo);
 
+  // A department's desk, command and crews follow their own department's
+  // part at the top (0073); the other departments are on the departments
+  // card. The control room and the organisation follow the whole call.
+  const myPart = silo !== 'Ethekwini' ? partFor(parts, silo) : null;
+  const myLabel = myPart ? DEPARTMENT_NAMES[myPart.silo] : null;
+
   // Transporting has no column of its own: the crew's status note records it.
   const transportingAt = updates
-    .filter((u) => /^\[STATUS\] Transporting/.test(u.message ?? ''))
+    .filter((u) => /^\[STATUS\] Transporting/.test(u.message ?? '') && (!myLabel || (u.message ?? '').includes(`· ${myLabel}`)))
     .map((u) => u.timestamp)
     .sort()[0] ?? null;
   const resolvedAt = incident.report_filed_at ?? incident.resolved_at;
+  const ladderDone = myPart ? myPart.finished_at : resolvedAt;
 
   // Where the crew is, as the desk follows it live.
-  const ladder = [
+  const ladder = myPart ? [
+    { label: 'Dispatched', at: myPart.dispatched_at },
+    { label: 'En Route', at: myPart.accepted_at },
+    { label: 'On Scene', at: myPart.arrived_at },
+    { label: 'Transporting', at: transportingAt, optional: true },
+    myPart.status === 'Not needed' || myPart.status === 'Cancelled'
+      ? { label: myPart.status, at: myPart.finished_at }
+      : { label: 'Report filed', at: myPart.report_filed_at },
+  ] : [
     { label: 'Dispatched', at: incident.dispatch_time },
     { label: 'En Route', at: incident.accepted_at },
     { label: 'On Scene', at: incident.arrived_timestamp },
@@ -156,7 +175,11 @@ export default async function IncidentDetailPage({
           >
             ⬇ Case PDF
           </a>
-          <span className="status-badge" data-status={incident.status}>{incident.status}</span>
+          {myPart ? (
+            <span className="status-badge" data-status={statusForPart(myPart, incident.status)}>{myLabel} · {partWords(myPart)}</span>
+          ) : (
+            <span className="status-badge" data-status={incident.status}>{incident.status}</span>
+          )}
           <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
             stage === 'review' ? 'border-accent/50 bg-accent/10 text-accent'
               : stage === 'closed' ? 'border-border bg-bg-soft text-muted-foreground'
@@ -171,10 +194,13 @@ export default async function IncidentDetailPage({
       <IncidentLive incidentId={incident.id} />
       <Card>
         <CardContent className="p-4">
+          {myPart ? (
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">{myLabel}</p>
+          ) : null}
           <ol className="grid grid-cols-2 gap-2 sm:grid-cols-5" aria-label="Where the crew is">
             {ladder.map((step, i) => {
               const done = Boolean(step.at);
-              const skipped = !done && step.optional && Boolean(resolvedAt);
+              const skipped = !done && step.optional && Boolean(ladderDone);
               const current = done && ladder.slice(i + 1).every((later) => !later.at);
               return (
                 <li
@@ -192,7 +218,9 @@ export default async function IncidentDetailPage({
             })}
           </ol>
           <p className="mt-2 text-xs text-muted-foreground">
-            {reached === 0 ? 'Not dispatched yet.' : 'Updates by itself as the crew moves — no need to reload.'}
+            {reached === 0
+              ? myPart ? `${myLabel} has not been dispatched yet.` : 'Not dispatched yet.'
+              : 'Updates by itself as the crew moves — no need to reload.'}
             {canDispatch && !incident.dispatch_time ? (
               <>
                 {' '}
@@ -202,6 +230,17 @@ export default async function IncidentDetailPage({
           </p>
         </CardContent>
       </Card>
+
+      {parts.length > 0 ? (
+        <DepartmentsCard
+          incidentId={incident.id}
+          incidentSilo={incident.silo}
+          parts={parts}
+          role={role}
+          silo={silo}
+          live={stage === 'live'}
+        />
+      ) : null}
 
       <CaseReviewCard
         incident={incident}
@@ -266,6 +305,7 @@ export default async function IncidentDetailPage({
                     >
                       <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         {r.role === 'lead' ? 'Lead' : 'Backup'}
+                        {parts.length > 1 ? ` · ${DEPARTMENT_NAMES[r.silo]}` : ''}
                       </span>
                       <span className="font-semibold">{r.name ?? 'Officer'}</span>
                       <span className="status-badge" data-status={r.status}>{r.status}</span>

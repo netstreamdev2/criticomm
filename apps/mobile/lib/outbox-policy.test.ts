@@ -244,3 +244,18 @@ test('photos and voice notes still on the phone are counted for the report', () 
   assert.deepEqual(mediaOnPhone(pending, 'i1'), { photos: 2, voice: 1 });
   assert.deepEqual(mediaOnPhone(pending, 'i5'), { photos: 0, voice: 0 });
 });
+
+test('cancelling leave and swaps queue too; a refusal from the schedule functions is never retried', () => {
+  const cancel: OutboxOp = { kind: 'leave_cancel', leaveId: 'l1', label: 'Annual · 2026-10-20 to 2026-10-22' };
+  const ask: OutboxOp = { kind: 'swap_request', myLine: 'a', theirLine: 'b', note: null, label: 'Day Tue 13 Oct for Sipho\'s Night Thu 15 Oct' };
+  const answer: OutboxOp = { kind: 'swap_respond', swapId: 's1', accept: false, label: 'x' };
+  const withdraw: OutboxOp = { kind: 'swap_withdraw', swapId: 's1', label: 'x' };
+  assert.equal(describe(cancel), 'Cancel leave · Annual · 2026-10-20 to 2026-10-22');
+  assert.match(describe(ask), /^Swap asked · Day Tue 13 Oct/);
+  assert.equal(describe(answer), 'Swap declined · x');
+  assert.equal(describe(withdraw), 'Swap withdrawn · x');
+  for (const op of [cancel, ask, answer, withdraw]) assert.equal(dedupeKeyOf(op), null);
+  assert.equal(isPermanent({ code: '22023', message: 'Say why the leave is cancelled' }), true);
+  assert.equal(isPermanent({ code: 'P0002', message: 'Swap not found' }), true);
+  assert.equal(isPermanent({ code: '', message: 'TypeError: Network request failed' }), false);
+});

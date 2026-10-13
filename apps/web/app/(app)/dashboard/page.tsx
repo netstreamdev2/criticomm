@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import {
   getDispatcherKpis, listActiveIncidents, listPendingIncidents,
@@ -9,6 +10,7 @@ import {
   ADMIN_ROLES, DISPATCH_ROLES, RESPONDER_ROLES, canViewAllFines, canWatchBodycam, departmentName, roleName, type Silo, type UserRole,
 } from '@criticom/db';
 import { CritiTiles } from '@/components/criti/insight-tiles';
+import { AttendanceNow } from '@/components/schedule/attendance-now';
 import { featureEnabled } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
@@ -201,6 +203,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       </section>
 
       <CritiTiles />
+      {/* Who has started their shift, and who is late (0072). */}
+      <Suspense fallback={null}><AttendanceNow viewerRole={role} silo={silo} /></Suspense>
 
       {/* Quick links — "all those links and so forth", tailored per role */}
       <section className="space-y-3">
@@ -233,7 +237,7 @@ async function CaptainDashboard({
     listPersonnel(supabase, sf),
     listActiveIncidents(supabase, sf),
     getUnitCompliance(supabase, sf).catch(() => ({ mentalChecks: [], vehicleChecklists: [] })),
-    listMyCalls(supabase, userId).catch(() => []),
+    listMyCalls(supabase, userId, silo).catch(() => []),
     // Bodycams (0054): none until that migration is run.
     listBookedOutBodycams(supabase).catch(() => []),
   ]);
@@ -258,6 +262,8 @@ async function CaptainDashboard({
       </section>
 
       <CritiTiles />
+      {/* Who has started their shift, and who is late (0072). */}
+      <Suspense fallback={null}><AttendanceNow viewerRole={'Captain'} silo={silo} /></Suspense>
 
       <section aria-label="Team status" className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
         <Tile label="Team members" value={personnel.length} />
@@ -329,6 +335,8 @@ async function EmsAdminDashboard({
       </section>
 
       <CritiTiles />
+      {/* Who has started their shift, and who is late (0072). */}
+      <Suspense fallback={null}><AttendanceNow viewerRole={'Admin'} silo={'Medical'} /></Suspense>
 
       <section aria-label="EMS status" className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         <Tile label="Crew on duty" value={onDuty} accent="text-severity-low-ink" />
@@ -452,7 +460,7 @@ async function ResponderBody({
 
   const me = await getMyPersonnel(supabase, userId).catch(() => null);
   const [mine, shiftDone, perf] = await Promise.all([
-    listMyCalls(supabase, userId).catch(() => []),
+    listMyCalls(supabase, userId, silo).catch(() => []),
     hasCompletedShiftStartToday(supabase).catch(() => false),
     getMyPerformance(supabase, {
       from: cycleStart.toISOString().slice(0, 10),

@@ -1,0 +1,195 @@
+<div class="page">
+
+  <header class="masthead col">
+    <p class="eyebrow">eThekwini Municipality · HikTech · Guide</p>
+    <h1>A disaster call, from first ring to closed case</h1>
+    <p class="lede">Follow one flooding call through HikTech. A call logger sends it to Disaster Management, the Disaster desk sends an officer and records the resources deployed, the officer goes to the scene and files the After-Action Report, and a case manager closes the case.</p>
+    <div class="meta">
+      <span><b>For:</b> anyone reviewing HikTech</span>
+      <span><b>Console:</b> any web browser</span>
+      <span><b>App:</b> HikTech for Android</span>
+      <span><b>Updated:</b> 13 October 2026</span>
+    </div>
+    <nav class="toc" aria-label="Sections">
+      <a href="#people">Who is involved</a>
+      <a href="#journey">The journey</a>
+      <a href="#duty">1 · On duty</a>
+      <a href="#log">2 · Logging the call</a>
+      <a href="#dispatch">3 · Dispatch and resources</a>
+      <a href="#scene">4 · At the scene</a>
+      <a href="#report">5 · After-Action Report</a>
+      <a href="#close">6 · Closing the case</a>
+    </nav>
+  </header>
+
+  <section class="col" style="padding-top:2rem">
+    <div class="howto">
+      <span><span class="pin">1</span> A yellow number on a screen matches the note with the same number below it.</span>
+      <span><span class="example">Example data</span> All names, numbers and addresses are made up.</span>
+    </div>
+  </section>
+
+  <section id="people" class="band">
+    <div class="section-head"><h2>Who is involved</h2></div>
+    <div class="people">
+      <div><span class="where-tag">Console</span><h3>Call logger</h3><p>Logs the call and sends it to Disaster Management, and to other departments if they are needed too.</p></div>
+      <div><span class="where-tag">Console</span><h3>Disaster desk</h3><p>Dispatches officers, records the resources sent (rescue teams, relief supplies, machinery) and logs updates as the situation changes.</p></div>
+      <div><span class="where-tag">Phone app</span><h3>Disaster officer</h3><p>Goes to the scene and files the After-Action Report.</p></div>
+      <div><span class="where-tag">Console</span><h3>Case manager</h3><p>Reads the report and closes the case.</p></div>
+    </div>
+  </section>
+
+  <section id="journey" class="band">
+    <div class="section-head"><h2>The journey, start to finish</h2></div>
+    <ol class="journey">
+      <li><h3>On duty</h3><p>A short readiness check; no vehicle.</p><p class="who">Disaster officer · app</p></li>
+      <li><h3>Log the call</h3><p>The call logger sends it to Disaster Management.</p><p class="who">Call logger · console</p></li>
+      <li><h3>Dispatch</h3><p>The Disaster desk sends an officer and records the resources deployed.</p><p class="who">Disaster desk · console</p></li>
+      <li><h3>At the scene</h3><p>Accept, En Route, On Scene, with periodic updates from the desk.</p><p class="who">Officer and desk</p></li>
+      <li><h3>Report</h3><p>The After-Action Report: impact, cause, lessons.</p><p class="who">Officer · app, or command · console</p></li>
+      <li><h3>Close</h3><p>A case manager reads it and closes the case.</p><p class="who">Case manager · console</p></li>
+    </ol>
+  </section>
+
+  <section id="duty" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 1 · Disaster officer · phone</p>
+      <h2>Going on duty</h2>
+      <p class="muted">Two steps. Disaster officers sign onto no vehicle, so there is no inspection.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone"><div class="phone-top"><span>08:00</span><span>Shift</span></div>
+          <div class="phone-body">
+            <p class="m-help" style="letter-spacing:.08em">DISASTER MANAGEMENT · STEP 1 OF 2</p>
+            <p class="m-title">Start of Shift</p>
+            <p class="m-sub">Begin your start-of-shift readiness check to go on duty.</p>
+            <span class="m-btn ok">Go on Duty — Begin Check</span>
+          </div></div>
+      </figure>
+      <figure>
+        <div class="phone"><div class="phone-top"><span>08:01</span><span>Shift</span></div>
+          <div class="phone-body">
+            <p style="font-weight:700">Readiness Assessment</p>
+            <p class="m-sub">Answer every question honestly.</p>
+            <div class="m-q">Situational Awareness (Aware of surroundings?)<div class="m-yn"><span class="yes">✓ Yes</span><span>✕ No</span></div></div>
+            <span class="m-btn">Submit Readiness Check</span>
+            <p style="font-weight:700;margin-top:.4rem">Ready for duty</p>
+            <p class="m-sub">Your readiness check for today is on record.</p>
+          </div></div>
+        <figcaption><b>Six questions, then on duty.</b> <span class="muted">A No means <i>Readiness check not passed</i>; speak to the supervisor, then retake it.</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="log" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 2 · Call logger · console</p>
+      <h2>Logging the call</h2>
+      <p class="muted">The same form as every call: caller, number, patient question, map pin and region, then the details. For a flood, the Disaster group of incident codes (60-1 Flooding) suggests Disaster Management.</p>
+    </div>
+    <figure class="exhibit">
+      <figcaption><span class="tag">Send to dispatch</span><span class="where">/dispatch/log-call</span><span class="example">Example data</span></figcaption>
+      <div class="screen" style="max-width:46rem">
+        <div class="screen-body">
+          <div class="m-card">
+            <div class="m-field"><span class="m-label"><span class="pin">1</span> Incident type (10-code)</span><div class="m-input">60-1: Flooding <span class="caret">▾</span></div></div>
+            <div class="m-field"><span class="m-label">Call description / narrative</span><div class="m-input">River over the road in Quarry Road informal settlement. About 20 homes flooded, families on roofs.</div></div>
+            <div class="m-part"><span class="m-label"><span class="pin">2</span> Send to dispatch</span><div class="m-dept"><span class="fire on">Fire</span><span class="police">Police</span><span class="med on">Medical</span><span class="dis on">Disaster</span></div>
+              <span class="m-help">Only the Fire &amp; Rescue, EMS, Disaster Management dispatch desks receive this call.</span></div>
+            <span class="m-btn blue full">Send to 3 dispatch desks</span>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>Disaster codes</b> suggest Disaster Management.</span></li>
+        <li><span class="pin">2</span><span><b>Several departments.</b> A flood with people trapped also needs Fire &amp; Rescue for rescue and EMS for the injured. Each department works its own part of the one call.</span></li>
+      </ol>
+    </figure>
+  </section>
+
+  <section id="dispatch" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 3 · Disaster desk · console</p>
+      <h2>Dispatch, and the resources deployed</h2>
+      <p class="muted">The Disaster desk dispatches its officers from the queue, exactly like the other desks. It also records what is being sent to the scene.</p>
+    </div>
+    <figure class="exhibit">
+      <figcaption><span class="tag">Dispatch resources</span><span class="where">/disaster/dispatch</span><span class="example">Example data</span></figcaption>
+      <div class="screen" style="max-width:46rem">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/disaster/dispatch</span></div>
+        <div class="screen-body">
+          <div><p class="m-title">Dispatch resources</p><p class="m-sub">Resources sent to an open incident. Dispatching again updates its deployment.</p></div>
+          <div class="m-card">
+            <div class="m-field"><span class="m-label"><span class="pin">1</span> Incident</span><div class="m-input">INC-20261013-0015 · Flooding · Quarry Road <span class="caret">▾</span></div></div>
+            <div class="m-grid2" style="gap:.6rem">
+              <div class="m-field"><span class="m-label"><span class="pin">2</span> Disaster type</span><div class="m-input">Flood <span class="caret">▾</span></div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">3</span> Resource type</span><div class="m-input">Rescue teams <span class="caret">▾</span></div></div>
+            </div>
+            <div class="m-field"><span class="m-label"><span class="pin">4</span> Situation description</span><div class="m-input">Two rescue teams and a boat to Quarry Road; relief tent at the community hall.</div></div>
+            <span class="m-btn full">Dispatch resources</span>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>Which call.</b> Only open Disaster Management calls are listed.</span></li>
+        <li><span class="pin">2</span><span><b>Disaster type:</b> Flood, Storm / severe weather, Fire — informal settlement, Landslide, Building collapse, Civil unrest, Drought, Epidemic, Coastal / marine, Other.</span></li>
+        <li><span class="pin">3</span><span><b>What is sent:</b> Rescue teams, Relief supplies, Heavy machinery, Medical teams, Shelter &amp; housing, Water &amp; sanitation, Power restoration, Communications.</span></li>
+        <li><span class="pin">4</span><span><b>The situation</b>, in words. Dispatching again updates the same deployment.</span></li>
+      </ol>
+    </figure>
+    <div class="tip"><h3>The Disaster dashboard</h3><p class="muted">Active incidents, people displaced, average response time and resources dispatched; a map of the active incidents; current Durban wind and weather; and the deployment monitor, where the desk logs a periodic update for each deployment. The mutual-aid partner directory lists contacts and radio channels for joint operations.</p></div>
+  </section>
+
+  <section id="scene" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 4 · Disaster officer · phone</p>
+      <h2>At the scene</h2>
+      <p class="muted">The same pop-up as every crew: Accept incident, Acknowledge or Navigate. Then En Route and On Scene, with photos, voice notes and updates. Once On Scene, the button becomes <i>File post-mortem</i>.</p>
+    </div>
+  </section>
+
+  <section id="report" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 5 · Officer · phone, or command · console</p>
+      <h2>The After-Action Report</h2>
+      <p class="muted">Short and focused on impact. The officer leading Disaster Management’s part files it from the scene; a Disaster supervisor or administrator can also file it from the console for a deployed incident.</p>
+    </div>
+    <div class="flow">
+      <figure>
+        <div class="phone"><div class="phone-top"><span>16:30</span><span>Report</span></div>
+          <div class="phone-body">
+            <p style="font-weight:700">Official After-Action Report</p>
+            <p class="m-label"><span class="pin">1</span> Incident Overview</p>
+            <div class="m-grid2" style="gap:.4rem;grid-template-columns:1fr 1fr"><div class="m-input">Start 2026-10-13 09:10</div><div class="m-input">Resolved 2026-10-13 16:20</div></div>
+            <p class="m-label"><span class="pin">2</span> Impact Metrics</p>
+            <dl class="m-dl"><dt>Confirmed Injuries</dt><dd>3</dd><dt>Confirmed Fatalities</dt><dd>0</dd><dt>Displaced Persons (Requiring Shelter)</dt><dd>64</dd></dl>
+            <p class="m-label"><span class="pin">3</span> Operational Analysis</p>
+            <div class="m-input">Root cause: blocked culvert after 80 mm of rain *</div>
+            <div class="m-input">Lessons: clear culverts before the rainy season *</div>
+            <p class="m-label"><span class="pin">4</span> Timeline</p>
+            <span class="m-btn ok"><span class="pin">5</span> File Official Report</span>
+          </div></div>
+      </figure>
+      <ol class="legend" style="align-content:start">
+        <li><span class="pin">1</span><span><b>When it started and when it was resolved.</b> The duration is worked out; the end time can’t be in the future or before the start.</span></li>
+        <li><span class="pin">2</span><span><b>Impact:</b> injuries, deaths, and people displaced who need shelter. Whole numbers only.</span></li>
+        <li><span class="pin">3</span><span><b>Root cause</b> and <b>lessons learned</b> are required, with the reporting officer’s name.</span></li>
+        <li><span class="pin">4</span><span><b>The call’s timeline</b> and the desk’s deployment updates are attached to the report as they stood.</span></li>
+        <li><span class="pin">5</span><span><b>File.</b> Numbered PM-INC-20261013-0015, it finishes Disaster Management’s part of the call. Command can still correct it until the case is closed.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="close" class="band">
+    <div class="section-head">
+      <p class="eyebrow">Step 6 · Case manager · console</p>
+      <h2>Closing the case</h2>
+      <p class="muted">When every department on the call has finished (Disaster Management, and Fire and EMS if they were sent), the call is Resolved. The case manager reads the reports, evidence and history and closes the case. Every post-mortem is also listed on the console under <i>Post-mortem reports</i> and in the case PDF.</p>
+    </div>
+  </section>
+
+  <footer class="col">
+    HikTech · eThekwini Municipality. A guide for reviewers; screens shown with example data. The other departments: <a href="incident-police">Metro Police</a>, <a href="incident-fire">Fire &amp; Rescue</a>, <a href="incident-ems">EMS</a>.
+  </footer>
+</div>

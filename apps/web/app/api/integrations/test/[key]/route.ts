@@ -65,7 +65,7 @@ const PROBES: Record<string, Probe> = {
   async groq() {
     const key = process.env.GROQ_API_KEY;
     if (!key) return missing('GROQ_API_KEY');
-    const model = process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile';
+    const model = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b';
     const res = await ping('https://api.groq.com/openai/v1/models', {
       headers: { Authorization: `Bearer ${key}` },
     });
@@ -84,7 +84,7 @@ const PROBES: Record<string, Probe> = {
   async gemini() {
     const key = process.env.GEMINI_API_KEY;
     if (!key) return missing('GEMINI_API_KEY');
-    const model = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash-lite';
+    const model = process.env.GEMINI_MODEL ?? 'gemini-3.5-flash-lite';
     const res = await ping(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}?key=${key}`,
     );

@@ -1,15 +1,17 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import {
   deniedHrefs, dutyTaskCounts, featureEnabled, getDutySheet, listAccessRules, listAllProfiles,
   listDutyTasks, listLeaveEntries,
 } from '@criticom/api';
-import { canAccess, type Silo } from '@criticom/db';
+import { canAccess, canManageRoster, type Silo } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getFeatures, hiddenHrefs, requireFeaturePage } from '@/lib/features';
 import { getSession, siloFilter } from '@/lib/session';
 import { cn, formatSaTime } from '@/lib/utils';
-import { setLeaveStatusAction } from '../leave/actions';
+import { LeaveDecision } from '@/components/schedule/leave-actions';
 import { CritiTiles } from '@/components/criti/insight-tiles';
+import { AttendanceNow } from '@/components/schedule/attendance-now';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Command · HikTech' };
@@ -83,7 +85,7 @@ export default async function CommandPage({
   searchParams: Promise<{ silo?: string }>;
 }) {
   await requireFeaturePage('web.command');
-  const { supabase, silo, role } = await getSession();
+  const { supabase, silo, role, userId } = await getSession();
   const params = await searchParams;
 
   // The controller and the global tier watch any department; a supervisor
@@ -103,7 +105,7 @@ export default async function CommandPage({
   ]);
 
   const onDuty = profiles.filter((p) => p.is_on_duty).length;
-  const pending = leave.filter((l) => l.status === 'Pending');
+  const pending = leave.filter((l) => l.status === 'Pending' && l.user_id !== userId);
   const weekOut = new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10);
   const urgent = pending.filter((l) => l.eff_from <= weekOut);
   const approved = leave.filter((l) => l.status === 'Approved').length;
@@ -119,7 +121,7 @@ export default async function CommandPage({
   // Feature switches and the SuperAdmin's access rules both subtract from the
   // launcher — a tile that middleware would refuse must never be offered.
   const hidden = [...hiddenHrefs(features), ...deniedHrefs(accessRules, role)];
-  const mayApprove = ['SystemAdmin', 'SuperAdmin', 'Admin', 'Supervisor', 'SystemController'].includes(role);
+  const mayApprove = canManageRoster(role, silo);
 
   const memberStatus = (m: { user_id: string; status: string; acknowledged_at: string | null }) => {
     if (onLeaveIds.has(m.user_id)) return 'ON LEAVE';
@@ -152,6 +154,7 @@ export default async function CommandPage({
 
       {/* Criti: what needs attention now, for this person. */}
       <CritiTiles />
+      <Suspense fallback={null}><AttendanceNow viewerRole={role} silo={silo} /></Suspense>
 
       {/* ── Top stats ── */}
       <div className="grid gap-3 sm:grid-cols-3">
@@ -290,26 +293,11 @@ export default async function CommandPage({
             {pending.slice(0, 6).map((l) => (
               <div key={l.id} className="flex items-center justify-between gap-2 rounded-md border border-border p-3">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">{l.rank ? `${l.rank} ` : ''}{l.service_no ?? ''}</p>
+                  <p className="truncate text-sm font-semibold">{l.applicant_name ?? ([l.rank, l.service_no].filter(Boolean).join(' ') || 'Member')}</p>
                   <p className="text-xs text-muted-foreground">{l.absence} · {formatSaTime(l.eff_from)} → {formatSaTime(l.eff_to)}</p>
                 </div>
                 {mayApprove ? (
-                  <div className="flex shrink-0 gap-1.5">
-                    <form action={setLeaveStatusAction}>
-                      <input type="hidden" name="id" value={l.id} />
-                      <input type="hidden" name="status" value="Approved" />
-                      <button type="submit" className="h-8 rounded-md bg-severity-low/20 px-3 text-xs font-semibold text-severity-low-ink transition-colors hover:bg-severity-low/30">
-                        Approve
-                      </button>
-                    </form>
-                    <form action={setLeaveStatusAction}>
-                      <input type="hidden" name="id" value={l.id} />
-                      <input type="hidden" name="status" value="Rejected" />
-                      <button type="submit" aria-label="Reject" className="h-8 rounded-md bg-severity-critical/15 px-3 text-xs font-semibold text-severity-critical-ink transition-colors hover:bg-severity-critical/25">
-                        ✕
-                      </button>
-                    </form>
-                  </div>
+                  <LeaveDecision id={l.id} compact />
                 ) : (
                   <span className="text-[10px] uppercase text-muted-foreground">Pending</span>
                 )}

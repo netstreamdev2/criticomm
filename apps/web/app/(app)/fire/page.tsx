@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { listActiveIncidents, listFirefighterReports, listHydrants, listPublicIncidentReports } from '@criticom/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,6 +7,7 @@ import { IncidentLive } from '@/components/incident-live';
 import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 import { CritiTiles } from '@/components/criti/insight-tiles';
+import { AttendanceNow } from '@/components/schedule/attendance-now';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Fire & Rescue · HikTech' };
@@ -22,7 +24,7 @@ const STATUS_LABEL: Record<string, string> = {
  * reports that closed them, with hydrants and public releases.
  */
 export default async function FirePage() {
-  const { supabase } = await getSession();
+  const { supabase, role, silo } = await getSession();
   const [active, reports, hydrants, pirs] = await Promise.all([
     listActiveIncidents(supabase, 'MetroFire').catch(() => []),
     listFirefighterReports(supabase),
@@ -51,6 +53,7 @@ export default async function FirePage() {
 
       {/* Criti: what needs attention now, for this person. */}
       <CritiTiles />
+      <Suspense fallback={null}><AttendanceNow viewerRole={role} ownSilo={silo} silo={'MetroFire'} /></Suspense>
 
       <section className="grid grid-cols-2 gap-3 md:grid-cols-5">
         {[

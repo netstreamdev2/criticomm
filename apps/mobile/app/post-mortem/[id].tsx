@@ -5,7 +5,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { getIncident, getIncidentUpdates, getMyPersonnel, noteText } from '@criticom/api';
+import { forDepartment, getIncident, getIncidentUpdates, getMyPersonnel, noteText } from '@criticom/api';
 import {
   POST_MORTEM_SECTIONS, durationHours, postMortemPayload, postMortemProblems, saStamp, type PostMortemField,
 } from '@criticom/db/post-mortem';
@@ -32,9 +32,11 @@ export default function PostMortemScreen() {
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { session, fullName } = useAuth();
+  const { session, fullName, silo } = useAuth();
   const { enqueue, pending, online } = useSync();
-  const [incident, setIncident] = useState<Incident | null>(null);
+  // The call as this crew's department sees it (0073): its own lead, status and report.
+  const [rawIncident, setIncident] = useState<Incident | null>(null);
+  const incident = useMemo(() => (rawIncident ? forDepartment(rawIncident, silo) : null), [rawIncident, silo]);
   const [timeline, setTimeline] = useState<Update[]>([]);
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -97,7 +99,7 @@ export default function PostMortemScreen() {
     try {
       await enqueue({ kind: 'post_mortem', incidentId: incident.id, incidentNumber: incident.incident_number, fields: postMortemPayload(answers) });
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
-      Alert.alert('Post-mortem filed', online ? `${incident.incident_number} is resolved.` : 'Saved. It sends when you have signal.');
+      Alert.alert('Post-mortem filed', online ? `Your post-mortem for ${incident.incident_number} is on record.` : 'Saved. It sends when you have signal.');
       router.replace('/(tabs)/incidents');
     } catch (e) {
       setProblems([(e as Error).message]);
@@ -132,7 +134,7 @@ export default function PostMortemScreen() {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
         <EmptyState icon="lock-closed-outline" title="Post-mortem already filed"
-          body={alreadyQueued ? 'It sends when you have signal.' : 'This incident is resolved.'} />
+          body={alreadyQueued ? 'It sends when you have signal.' : 'Your post-mortem is on record.'} />
       </View>
     );
   }

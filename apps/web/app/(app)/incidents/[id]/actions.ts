@@ -4,7 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import {
-  addIncidentUpdate, closeCase, logAudit, updateResponderStatus,
+  addIncidentUpdate, closeCase, logAudit, setDepartmentStatus, standDownDepartment, updateResponderStatus,
 } from '@criticom/api';
 import { STATUS_OVERRIDE_ROLES, STATUS_OVERRIDE_STEPS, type IncidentStatus, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
@@ -43,20 +43,43 @@ export async function setStatusAction(_prev: FormState, formData: FormData): Pro
   const incidentId = String(formData.get('incident_id'));
   const status = String(formData.get('status')) as IncidentStatus;
   const silo = String(formData.get('silo')) as Silo;
+  // The department whose crew it is, on a call several departments share (0073).
+  const department = String(formData.get('department') ?? '') as Silo | '';
   if (!STATUS_OVERRIDE_ROLES.includes(role) || !(STATUS_OVERRIDE_STEPS as readonly string[]).includes(status)) {
     return { error: 'The crew sets this from the HikTech app.' };
   }
   try {
-    await updateResponderStatus(supabase, { incident_id: incidentId, status });
+    if (department) await setDepartmentStatus(supabase, { incident_id: incidentId, silo: department, status });
+    else await updateResponderStatus(supabase, { incident_id: incidentId, status });
     await logAudit(supabase, {
       silo, action_type: 'StatusChange', entity_type: 'incident', entity_id: incidentId,
-      user_name: fullName, details: `Status → ${status} (set from the console)`,
+      user_name: fullName, details: `Status → ${status}${department ? ` for ${department}` : ''} (set from the console)`,
     });
   } catch (e) {
     return { error: refusal(e) };
   }
   revalidatePath(`/incidents/${incidentId}`);
   return { done: `Marked ${status}.` };
+}
+
+/**
+ * A department is not needed on a shared call (0073). The database decides
+ * who may, records the reason and tells the crew to stand down.
+ */
+export async function standDownAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await getSession();
+  const incidentId = String(formData.get('incident_id'));
+  const department = String(formData.get('department')) as Silo;
+  const reason = String(formData.get('reason') ?? '').trim();
+  try {
+    await standDownDepartment(supabase, { incident_id: incidentId, silo: department, reason });
+  } catch (e) {
+    return { error: refusal(e) };
+  }
+  revalidatePath(`/incidents/${incidentId}`);
+  revalidatePath(`/dispatch/assign/${incidentId}`);
+  revalidatePath('/dispatch/pending');
+  return { done: 'Marked not needed. The crew is told to stand down.' };
 }
 
 /**

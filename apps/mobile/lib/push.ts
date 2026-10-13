@@ -211,6 +211,9 @@ export type PushPayload = {
   severity?: string;
   /** Which button was tapped; undefined for the notification itself. */
   action?: 'open' | 'navigate' | 'acknowledge';
+  /** A screen to open instead of a call: 'schedule' for shifts, leave and swaps (0072). */
+  screen?: 'schedule';
+  kind?: string;
 };
 
 function payloadOf(data: unknown, actionIdentifier?: string): PushPayload {
@@ -222,6 +225,8 @@ function payloadOf(data: unknown, actionIdentifier?: string): PushPayload {
     alertId: typeof d.alertId === 'string' ? d.alertId : undefined,
     severity: typeof d.severity === 'string' ? d.severity : undefined,
     action,
+    screen: d.screen === 'schedule' ? 'schedule' : undefined,
+    kind: typeof d.kind === 'string' ? d.kind : undefined,
   };
 }
 
@@ -290,6 +295,53 @@ export async function presentLocal(args: {
     });
   } catch {
     // A missed local notification is not worth a log line on every alert.
+  }
+}
+
+/* ── Scheduled (on the phone) ───────────────────────────────────────── */
+
+/** Notifications this app has scheduled whose identifier starts with `prefix`. */
+export async function scheduledIds(prefix: string): Promise<string[]> {
+  const N = load();
+  if (!N) return [];
+  try {
+    const all = await N.getAllScheduledNotificationsAsync();
+    return all.map((r) => r.identifier).filter((id) => id.startsWith(prefix));
+  } catch {
+    return [];
+  }
+}
+
+export async function cancelScheduled(ids: readonly string[]): Promise<void> {
+  const N = load();
+  if (!N) return;
+  for (const id of ids) {
+    try { await N.cancelScheduledNotificationAsync(id); } catch { /* already fired or gone */ }
+  }
+}
+
+/**
+ * A notification the phone shows by itself at a time — with no signal, the
+ * screen locked, the app closed. Used for shift reminders.
+ */
+export async function scheduleAt(args: {
+  identifier: string;
+  at: number;
+  title: string;
+  body: string;
+  data?: Record<string, unknown>;
+}): Promise<void> {
+  const N = load();
+  if (!N || args.at <= Date.now()) return;
+  try {
+    await ensureChannels(N);
+    await N.scheduleNotificationAsync({
+      identifier: args.identifier,
+      content: { title: args.title, body: args.body, sound: 'default', data: args.data ?? {} },
+      trigger: { type: N.SchedulableTriggerInputTypes.DATE, date: new Date(args.at), channelId: PUSH_CHANNELS.alerts },
+    });
+  } catch {
+    // No permission, or the platform refused: the in-app schedule still shows it.
   }
 }
 

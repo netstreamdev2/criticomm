@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { listDisasterLogs, listOpenDisasterIncidents, listReliefStocks, listPostMortems } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -7,6 +8,7 @@ import { getSession } from '@/lib/session';
 import { escapeHtml, formatSaTime, timeAgo } from '@/lib/utils';
 import { periodicUpdateAction } from './actions';
 import { CritiTiles } from '@/components/criti/insight-tiles';
+import { AttendanceNow } from '@/components/schedule/attendance-now';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Disaster Management · HikTech' };
@@ -14,7 +16,7 @@ export const metadata = { title: 'Disaster Management · HikTech' };
 type TimelineEntry = { timestamp: string; text: string };
 
 export default async function DisasterPage() {
-  const { supabase } = await getSession();
+  const { supabase, role, silo } = await getSession();
   const [logs, stocks, postMortems, activeIncidents] = await Promise.all([
     listDisasterLogs(supabase),
     listReliefStocks(supabase).catch(() => []),
@@ -53,6 +55,7 @@ export default async function DisasterPage() {
 
       {/* Criti: what needs attention now, for this person. */}
       <CritiTiles />
+      <Suspense fallback={null}><AttendanceNow viewerRole={role} ownSilo={silo} silo={'EthekwiniDisaster'} /></Suspense>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[

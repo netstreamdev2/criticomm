@@ -146,6 +146,33 @@ export type OutboxOp =
       to: string;
       absence: string;
       reason: string | null;
+    }
+  | {
+      /** Cancel your own leave before it starts (0072). */
+      kind: 'leave_cancel';
+      leaveId: string;
+      /** "Annual · 20 Oct to 22 Oct", for the sync tray. */
+      label: string;
+    }
+  | {
+      /** Offer one of your shifts for a colleague's (0072). The entry id is the swap's id. */
+      kind: 'swap_request';
+      myLine: string;
+      theirLine: string;
+      note: string | null;
+      label: string;
+    }
+  | {
+      /** Accept or decline a swap offered to you. */
+      kind: 'swap_respond';
+      swapId: string;
+      accept: boolean;
+      label: string;
+    }
+  | {
+      kind: 'swap_withdraw';
+      swapId: string;
+      label: string;
     };
 
 export type OutboxStatus = 'queued' | 'failed';
@@ -216,6 +243,14 @@ export function describe(op: OutboxOp): string {
       return `Duty acknowledged${op.label ? ` · ${op.label}` : ''}`;
     case 'leave_request':
       return `Leave · ${op.absence} · ${op.from} to ${op.to}`;
+    case 'leave_cancel':
+      return `Cancel leave · ${op.label}`;
+    case 'swap_request':
+      return `Swap asked · ${op.label}`;
+    case 'swap_respond':
+      return `Swap ${op.accept ? 'accepted' : 'declined'} · ${op.label}`;
+    case 'swap_withdraw':
+      return `Swap withdrawn · ${op.label}`;
   }
 }
 
@@ -247,6 +282,10 @@ const PRIORITY: Record<OutboxOp['kind'], number> = {
   alert_read: 3,
   allocation_ack: 4,
   leave_request: 4,
+  leave_cancel: 4,
+  swap_request: 4,
+  swap_respond: 4,
+  swap_withdraw: 4,
   evidence: 5,
 };
 
@@ -284,7 +323,9 @@ export function backoffMs(attempts: number): number {
 // P0001 is a business rule the server raised on purpose ("file the report on
 // INC-… first", "10 photos is the maximum") — the same request will be refused
 // again, so it is surfaced to the officer instead of retried.
-const PERMANENT_CODES = new Set(['42501', '23503', '23505', 'PGRST301', '22P02', 'P0001']);
+// 22023 (a value the server refuses, e.g. "say why") and P0002 (not found)
+// are the schedule functions' refusals (0072).
+const PERMANENT_CODES = new Set(['42501', '23503', '23505', 'PGRST301', '22P02', 'P0001', 'P0002', '22023']);
 
 export function isPermanent(error: unknown): boolean {
   const e = error as { code?: string; status?: number } | null;

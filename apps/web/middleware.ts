@@ -7,7 +7,8 @@ import type { Silo, UserRole } from '@criticom/db/types';
 
 // /invite, /activate and /legal are for people who do not have an account yet;
 // /api/onboarding is the phone app's way into the same steps.
-const PUBLIC_PATHS = ['/login', '/reset-password', '/share-location', '/invite', '/activate', '/legal', '/api/onboarding'];
+// /guide is the reviewers' walkthroughs: example data only.
+const PUBLIC_PATHS = ['/login', '/reset-password', '/share-location', '/invite', '/activate', '/legal', '/api/onboarding', '/guide'];
 const PUBLIC_MARKETING_PATHS = new Set([
   '/why', '/story', '/decisions', '/platform', '/security', '/manual', '/faq',
 ]);

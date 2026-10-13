@@ -61,7 +61,7 @@ export default function IncidentDetailScreen() {
     if (!id) return;
     const sb = getSupabase();
     const [inc, upd, files] = await Promise.all([
-      getFieldIncident(sb, id).catch(() => null),
+      getFieldIncident(sb, id, silo).catch(() => null),
       getIncidentUpdates(sb, id).catch(() => []),
       listIncidentAttachments(sb, id).catch(() => []),
     ]);
@@ -69,7 +69,7 @@ export default function IncidentDetailScreen() {
     setUpdates(upd);
     setPhotosFiled(files.filter((a) => a.kind === 'image').length);
     setLoading(false);
-  }, [id]);
+  }, [id, silo]);
 
   useEffect(() => {
     void load();
@@ -78,10 +78,10 @@ export default function IncidentDetailScreen() {
     // timeline doubles as the signal to refresh the call itself.
     const off = subscribeIncidentTimeline(getSupabase(), id, (u) => {
       setUpdates((cur) => (cur.some((x) => x.id === u.id) ? cur : [u, ...cur]));
-      void getFieldIncident(getSupabase(), id).then(setIncident).catch(() => {});
+      void getFieldIncident(getSupabase(), id, silo).then(setIncident).catch(() => {});
     });
     return off;
-  }, [id, load]);
+  }, [id, load, silo]);
 
   // A recording still running when the screen unmounts would hold the mic and
   // leave a half-written file behind.
@@ -371,7 +371,7 @@ export default function IncidentDetailScreen() {
         {incident.report_filed_at ? (
           <View style={styles.filed}>
             <Ionicons name="lock-closed" size={14} color={colors.low} />
-            <Text style={styles.filedText}>Report filed {timeAgo(incident.report_filed_at)} — incident resolved and on record.</Text>
+            <Text style={styles.filedText}>Report filed {timeAgo(incident.report_filed_at)}. It is on record.</Text>
           </View>
         ) : null}
 

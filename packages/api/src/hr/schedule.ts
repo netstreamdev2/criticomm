@@ -54,10 +54,14 @@ export async function getMySchedule(
   const [rosterRes, leaveRes, balances, endorsementsRes] = await Promise.all([
     client
       .from('rosters')
-      .select('*, shifts:shift_id (id, shift_name, activity_type, start_time, end_time, description)')
+      .select('*, shifts:shift_id (id, shift_name, activity_type, start_time, end_time, description), template:template_id (name)')
       .eq('user_id', args.userId)
-      .order('created_at', { ascending: false })
-      .limit(60),
+      .eq('published', true)
+      .is('cancelled_at', null)
+      .neq('status', 'Leave')
+      .gte('duty_date', new Date(now.getTime() - 2 * 86_400_000).toISOString().slice(0, 10))
+      .order('start_at', { ascending: true })
+      .limit(120),
     client
       .from('leave_entries')
       .select('*')
@@ -77,17 +81,18 @@ export async function getMySchedule(
 
   type RosterWithShift = RosterEntry & {
     shifts: Pick<Shift, 'id' | 'shift_name' | 'activity_type' | 'start_time' | 'end_time'> | null;
+    template: { name: string } | null;
   };
 
   const duties: ScheduledDuty[] = ((rosterRes.data ?? []) as RosterWithShift[])
     .map((r) => ({
       rosterId: r.id,
       shiftId: r.shift_id,
-      shiftName: r.shifts?.shift_name ?? 'Unscheduled duty',
+      shiftName: r.template?.name ?? r.shifts?.shift_name ?? (r.post || 'Duty'),
       activityType: r.shifts?.activity_type ?? r.activity_type,
       station: r.station,
-      startTime: r.shifts?.start_time ?? null,
-      endTime: r.shifts?.end_time ?? null,
+      startTime: r.start_at ?? r.shifts?.start_time ?? null,
+      endTime: r.end_at ?? r.shifts?.end_time ?? null,
       callSign: r.call_sign,
       vehicle: r.vehicle,
       sector: r.sector,

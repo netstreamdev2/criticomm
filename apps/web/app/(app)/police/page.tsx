@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { getReportType, listPoliceReports, POLICE_REPORT_FORMS } from '@criticom/api';
@@ -7,6 +8,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { chatTime } from '@/lib/when';
 import { CritiTiles } from '@/components/criti/insight-tiles';
+import { AttendanceNow } from '@/components/schedule/attendance-now';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Police Operations · HikTech' };
@@ -48,6 +50,7 @@ export default async function PolicePage({ searchParams }: { searchParams: Promi
 
       {/* Criti: what needs attention now, for this person. */}
       <CritiTiles />
+      <Suspense fallback={null}><AttendanceNow viewerRole={role} ownSilo={silo} silo={'MetroPolice'} /></Suspense>
 
       <section className="grid gap-3 sm:grid-cols-3">
         <Card><CardContent className="p-4">

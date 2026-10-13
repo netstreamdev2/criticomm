@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 import { DEPARTMENT_NAMES, canAccess, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
-import { deskTags, listOnDutyOfficers, listQueue, type QueueSort } from '@criticom/api';
+import { deskTags, listOnDutyOfficers, listQueue, partWords, sortParts, type QueueSort } from '@criticom/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { DispatchMapButton } from '@/components/dispatch-map-button';
 import { chatTime } from '@/lib/when';
@@ -26,14 +26,20 @@ const DEPARTMENTS: Array<[string, string]> = [
 ];
 /** A department's dispatch desk, as opposed to the central control room (0068). */
 const DESK_ROLES = ['Dispatcher', 'ControlRoom', 'IncidentLogger'];
+const FIELD: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
 
 export default async function PendingPage({ searchParams }: { searchParams: Promise<QueueParams> }) {
   const { supabase, role, silo } = await getSession();
   const params = await searchParams;
   const sort = (SORTS.find(([s]) => s === params.sort)?.[0] ?? 'newest') as QueueSort;
+  // A department's desk receives only the calls sent to it, and keeps each
+  // in its queue until it dispatches its own crews (0073); it counts its own
+  // crews only. The control room sees every desk and every crew.
+  const deskOf: Silo | null = DESK_ROLES.includes(role) && silo !== 'Ethekwini' ? (silo as Silo) : null;
+  const crews: Silo[] = deskOf ? [deskOf] : silo !== 'Ethekwini' && FIELD.includes(silo as Silo) ? [silo as Silo] : FIELD;
   const [pending, officers] = await Promise.all([
-    listQueue(supabase, { q: params.q, severity: params.severity, region: params.region, department: params.department, sort }),
-    listOnDutyOfficers(supabase, ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster']).catch(() => []),
+    listQueue(supabase, { q: params.q, severity: params.severity, region: params.region, department: deskOf ?? params.department, sort }),
+    listOnDutyOfficers(supabase, crews).catch(() => []),
   ]);
   // Who a dispatch would reach right now; live via the realtime bridge.
   const onDuty = officers.length;
@@ -43,9 +49,6 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
   const canLogCall = canAccess('/dispatch/log-call', role, silo);
   const canAssign = canAccess('/dispatch/assign/x', role, silo);
   const filtered = Boolean(params.q || params.severity || params.region || params.department);
-  // A department's desk receives only the calls sent to it; the database
-  // decides that, the screen just says so.
-  const deskOf: Silo | null = DESK_ROLES.includes(role) && silo !== 'Ethekwini' ? (silo as Silo) : null;
   const now = new Date();
 
   return (
@@ -124,12 +127,27 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
                   <td className="px-4 py-3">{i.incident_type}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
-                      {deskTags(i).map((d) => (
-                        <span key={d} className="whitespace-nowrap rounded-full border border-border bg-bg-soft px-2 py-0.5 text-[11px] font-semibold">
-                          {DEPARTMENT_NAMES[d]}
-                        </span>
-                      ))}
-                      {deskTags(i).length === 0 ? <span className="text-xs text-severity-medium-ink">Control room only</span> : null}
+                      {/* Each department's part: what the others have already done (0073). */}
+                      {i.departments?.length
+                        ? sortParts(i.departments).map((d) => (
+                            <span
+                              key={d.silo}
+                              title={partWords(d)}
+                              className={`whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                                d.status === 'Waiting'
+                                  ? 'border-severity-medium/40 bg-severity-medium/10 text-severity-medium-ink'
+                                  : 'border-severity-low/40 bg-severity-low/10 text-severity-low-ink'
+                              }`}
+                            >
+                              {DEPARTMENT_NAMES[d.silo]} · {partWords(d)}
+                            </span>
+                          ))
+                        : deskTags(i).map((d) => (
+                            <span key={d} className="whitespace-nowrap rounded-full border border-border bg-bg-soft px-2 py-0.5 text-[11px] font-semibold">
+                              {DEPARTMENT_NAMES[d]}
+                            </span>
+                          ))}
+                      {!i.departments?.length && deskTags(i).length === 0 ? <span className="text-xs text-severity-medium-ink">Control room only</span> : null}
                     </div>
                   </td>
                   <td className="px-4 py-3">
