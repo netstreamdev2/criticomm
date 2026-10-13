@@ -63,7 +63,9 @@ export type AlertKind =
   | 'leave_request' | 'leave_decision' | 'swap' | 'swap_waiting'
   // Departments' parts of a call (0073): one department's report filed while
   // others still work it; a department stood down, and its crew told.
-  | 'report_filed' | 'stood_down' | 'stand_down';
+  | 'report_filed' | 'stood_down' | 'stand_down'
+  // An officer closed their department's part on scene (0074).
+  | 'officer_closed';
 
 /** How forcefully an alert interrupts: a corner toast or a modal that blocks. */
 export type AlertPresentation = 'toast' | 'modal';
@@ -1541,6 +1543,16 @@ export type Database = {
           finished_by: string | null;
           finished_by_name: string | null;
           finish_reason: string | null;
+          /** The lead closed this part on scene, after its report (0074). Case review still closes the case. */
+          closed_at: string | null;
+          closed_by: string | null;
+          closed_by_name: string | null;
+          close_note: string | null;
+          /** Filed from the console by this desk user, as radioed in by radioed_by (0075). */
+          radio_filed_by: string | null;
+          radio_filed_by_name: string | null;
+          radioed_by: string | null;
+          radioed_by_name: string | null;
           updated_at: string;
         };
         Insert: never;
@@ -2769,6 +2781,16 @@ export type Database = {
       stand_down_department: {
         Args: { p_incident_id: string; p_silo: Silo; p_reason: string };
         Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      /** The desk closes a department's part on scene for its crew (0075). */
+      close_department_part_from_desk: {
+        Args: { p_incident_id: string; p_silo: Silo; p_note?: string | null };
+        Returns: Database['public']['Tables']['incident_departments']['Row'];
+      };
+      /** The lead closes their own department's part after its report (0074). */
+      close_department_part: {
+        Args: { p_incident_id: string; p_note?: string | null; p_occurred_at?: string | null };
+        Returns: Database['public']['Tables']['incident_departments']['Row'];
       };
       update_responder_status: {
         Args: {

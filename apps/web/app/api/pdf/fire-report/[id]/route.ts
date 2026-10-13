@@ -3,6 +3,7 @@ import { getFirefighterReport } from '@criticom/api';
 import { getServerSupabase } from '@/lib/supabase';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { ReportPdf } from '@/lib/pdf';
+import { loadPdfBrand } from '@/lib/pdf-brand';
 
 /** FirefightersController.DownloadPdf — fire incident report PDF. */
 export const dynamic = 'force-dynamic';
@@ -26,6 +27,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const pdf = await ReportPdf.create(
     `Fire Incident Report — ${r.report_number}`,
     `${r.date_of_incident} ${r.time_of_incident} · ${r.type_of_incident ?? ''} · ${r.fire_department_name ?? ''}`,
+    await loadPdfBrand(supabase),
   );
 
   pdf.section('Incident');

@@ -6,48 +6,42 @@ import { getIncidentOverview, getMyPersonnel, subscribeIncidentUpdates, subscrib
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
-import { useSync } from '@/lib/sync';
-import { useDept } from '@/lib/branding';
+import { useOpenCall, useReportingFor } from '@/lib/open-call';
+import { pickActivity } from '@/lib/response';
 import { useMapPins } from '@/lib/use-map-pins';
-import { colors, radius, space, makeStyles } from '@/lib/theme';
-import { HomeHeader } from './home-header';
-import { HomeKpis } from './home-kpis';
-import { MyIncidents } from './my-incidents';
-import { MyPerformance } from './my-performance';
+import { colors, radius, severityColor, space, makeStyles } from '@/lib/theme';
+import { ACTIVITY, HomeHeader } from './home-header';
+import { FinesQuick } from './fines-card';
 import { IncidentMap } from './incident-map';
 import { FireBackdrop } from './fire-ui';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
-/** What a department's home says; the layout is the same for every one. */
+/** What differs between departments on the home; the layout is the same for every one. */
 export type ServiceHomeContent = {
-  /** Eyebrow on the station panel, e.g. FIRE & RESCUE. */
-  eyebrow: string;
-  icon: IconName;
-  /** e.g. YOUR APPLIANCE / YOUR AMBULANCE. */
-  unitLabel: string;
+  /** Beside the vehicle (or station) on the "no incidents" card. */
   unitIcon: IconName;
-  noUnit: string;
-  unitA11y: string;
-  /** Show how many of the team are on duty (EMS does not). */
-  showTeamOnDuty?: boolean;
-  /** No vehicle in this department (Disaster): the card shows the shift instead. */
+  /** No vehicle in this department (Disaster): the card shows the station instead. */
   noVehicle?: boolean;
+  /** Show how many of the team are on duty under the map. */
+  showTeamOnDuty?: boolean;
+  /** Issue a fine and Check owing under the card (Police). */
+  fines?: boolean;
 };
 
 /**
- * The responder home for Fire and EMS: the Police look (backdrop, panels,
- * blue accent, map card) with the department's own content. Wide screens
- * (tablets) get a taller map; nothing else changes shape.
+ * The responder home, the same for Police, Fire, EMS and Disaster: the time
+ * and duty, one card with the next thing to do, and the live map. Performance
+ * and fines figures are on the profile; everything else is a tab away. Wide
+ * screens (tablets) get a taller map.
  */
 export function ServiceHome({ content }: { content: ServiceHomeContent }) {
   const styles = useStyles();
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { session } = useAuth();
-  const { onDuty, teamOnDuty } = useDuty();
-  const { online, pending, failed } = useSync();
-  const dept = useDept();
+  const { teamOnDuty } = useDuty();
+  const open = useOpenCall();
   const { pins } = useMapPins();
   const [overview, setOverview] = useState<Awaited<ReturnType<typeof getIncidentOverview>> | null>(null);
   const [person, setPerson] = useState<Awaited<ReturnType<typeof getMyPersonnel>>>(null);
@@ -73,6 +67,18 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
     return () => { clearTimeout(timer); offNew(); offUpdates(); offPerson(); };
   }, [load, session?.user.id]));
 
+  const unit = content.noVehicle ? null : person?.apparatus;
+  const where = unit?.unit_number
+    ? [unit.unit_number, unit.name].filter(Boolean).join(' · ')
+    : (person?.station || null);
+
+  // One quiet line under the map instead of a row of tiles.
+  const figures = [
+    overview ? `${overview.live} live` : null,
+    overview ? `${overview.closedToday} closed today` : null,
+    content.showTeamOnDuty !== false && teamOnDuty !== null ? `${teamOnDuty} on duty` : null,
+  ].filter(Boolean).join('  ·  ');
+
   return (
     <View style={styles.screen}>
       <FireBackdrop />
@@ -83,85 +89,185 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
           colors={[colors.accent]}
           progressBackgroundColor={colors.bgCard}
           onRefresh={() => {
-            setRefreshing(true); void load().finally(() => setRefreshing(false));
+            setRefreshing(true);
+            void Promise.all([load(), open.refresh()]).finally(() => setRefreshing(false));
           }}
         />
       }>
-        <HomeHeader />
-        <HomeKpis live={overview?.live} closedToday={overview?.closedToday} />
+        <HomeHeader minimal />
 
-        {/* Station, crew and connection: the same panel as every other card. */}
-        <View style={styles.station}>
-          <View style={styles.stationHead}>
-            <View style={styles.headMark} />
-            <Ionicons name={content.icon} size={14} color={colors.accent} />
-            <Text style={styles.stationEyebrow}>{content.eyebrow}</Text>
-            <View style={{ flex: 1 }} />
-            {content.showTeamOnDuty === false ? null : (
-              <View style={styles.chip}>
-                <Ionicons name="people" size={12} color={colors.textDim} />
-                <Text style={styles.chipText}>{teamOnDuty ?? '—'} on duty</Text>
-              </View>
-            )}
-            <View style={styles.chip}>
-              <Ionicons name={online ? 'cloud-done-outline' : 'cloud-offline-outline'} size={12} color={failed.length ? colors.critical : colors.textDim} />
-              <Text style={[styles.chipText, failed.length ? { color: colors.critical } : null]}>
-                {failed.length ? `${failed.length} need retry` : pending.length ? `${pending.length} queued` : online ? 'Connected' : 'Offline'}
-              </Text>
-            </View>
-          </View>
-          <Text style={styles.stationName}>{person?.station || dept.official_name}</Text>
-        </View>
+        <NowCard open={open} where={where} unitIcon={content.unitIcon} />
 
-        <Pressable accessibilityRole="button" accessibilityLabel={content.unitA11y} onPress={() => router.push('/(tabs)/shift')} style={styles.appliance}>
-          <View style={styles.applianceIcon}><Ionicons name={content.unitIcon} size={24} color={colors.accent} /></View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.smallLabel}>{content.unitLabel}</Text>
-            <Text style={styles.applianceTitle}>
-              {content.noVehicle ? (onDuty ? 'On duty' : content.noUnit) : (person?.apparatus?.unit_number ?? content.noUnit)}
-            </Text>
-            <Text style={styles.sub}>
-              {content.noVehicle
-                ? (onDuty ? 'Readiness checked today' : 'Complete your start-of-shift checks')
-                : (person?.apparatus?.name ?? 'Complete your start-of-shift checks')}
-            </Text>
-          </View>
-          <View style={styles.dutyChip}><View style={[styles.dot, { backgroundColor: onDuty ? colors.low : colors.medium }]} /><Text style={styles.sub}>{onDuty === null ? 'Checking' : onDuty ? 'On duty' : 'Off duty'}</Text></View>
-          <Ionicons name="chevron-forward" size={16} color={colors.muted} />
-        </Pressable>
+        {content.fines ? <FinesQuick /> : null}
 
-        <MyIncidents />
-        <MyPerformance />
-
-        {/* ── Real-time incident map (the Police home's card) ── */}
         <View style={styles.mapCard}>
           <View style={styles.mapHead}>
-            <Ionicons name="planet-outline" size={22} color={colors.cyan} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.mapTitle}>Real-Time{'\n'}Incident Map</Text>
-              <Text style={styles.mapCount}>{pins.length} incident{pins.length === 1 ? '' : 's'} on the map · tap a pin</Text>
-            </View>
-            <View style={{ alignItems: 'flex-end', gap: 8 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
-                <Pressable accessibilityRole="button" accessibilityLabel="Open full screen incident map" hitSlop={8} onPress={() => router.push('/live-map')}>
-                  <Text style={styles.scan}>SCAN AREA</Text>
-                </Pressable>
-                <View style={styles.region}><Text style={styles.regionText}>ETHEKWINI</Text></View>
-              </View>
-              <View style={styles.live}><View style={styles.liveDot} /><Text style={styles.liveText}>LIVE</Text></View>
-            </View>
-          </View>
-          <IncidentMap pins={pins} onOpen={(id) => router.push(`/incident/${id}`)} style={[styles.map, width >= 700 && { height: 520 }]} />
-        </View>
-
-        <View style={styles.shortcuts}>
-          {([['calendar-outline', 'My schedule', '/(tabs)/schedule'], ['clipboard-outline', 'Shift record', '/(tabs)/shift']] as const).map(([icon, label, href]) => (
-            <Pressable key={href} accessibilityRole="button" onPress={() => router.push(href)} style={styles.shortcut}>
-              <Ionicons name={icon} size={18} color={colors.accent} /><Text style={styles.shortcutText}>{label}</Text><Ionicons name="chevron-forward" size={13} color={colors.muted} />
+            <View style={styles.liveDot} />
+            <Text style={styles.mapTitle}>Incident map</Text>
+            <View style={{ flex: 1 }} />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Open full screen incident map"
+              hitSlop={8}
+              onPress={() => router.push('/live-map')}
+              style={styles.fullBtn}
+            >
+              <Text style={styles.full}>Full map</Text>
+              <Ionicons name="expand-outline" size={13} color={colors.accent} />
             </Pressable>
-          ))}
+          </View>
+          <IncidentMap
+            pins={pins}
+            onOpen={(id) => router.push(`/incident/${id}`)}
+            style={[styles.map, width >= 700 && styles.mapWide]}
+          />
+          {figures ? <Text style={styles.figures}>{figures}</Text> : null}
         </View>
       </ScrollView>
+    </View>
+  );
+}
+
+/**
+ * The one thing to do now, most pressing first: the incident in hand (or the
+ * one waiting for a response), then starting the shift, then going on duty.
+ * Nothing to do is a small, calm card. Every button opens a screen the app
+ * already has; the card itself changes nothing.
+ */
+function NowCard({ open, where, unitIcon }: {
+  open: ReturnType<typeof useOpenCall>;
+  where: string | null;
+  unitIcon: IconName;
+}) {
+  const styles = useStyles();
+  const router = useRouter();
+  const { silo } = useAuth();
+  const { shiftStarted, onDuty } = useDuty();
+  const reportingFor = useReportingFor();
+  const { calls, awaiting, reportQueued } = open;
+  const activity = pickActivity(calls, (id) => reportQueued.has(id) || reportingFor === id, awaiting);
+
+  if (activity.kind !== 'idle') {
+    const act = ACTIVITY(silo)[activity.kind];
+    const assigned = activity.kind === 'assigned';
+    const call = calls.find((c) => c.id === activity.incidentId)
+      ?? awaiting.find((a) => a.id === activity.incidentId);
+    const label = assigned && activity.count > 1 ? `${activity.count} assigned to you` : act.label;
+    const more = calls.length + awaiting.length - 1;
+    const sev = call?.incident_severity;
+    // Not responded yet: the drawer, where Responding is one tap away.
+    const go = () => (assigned
+      ? router.push({ pathname: '/(tabs)/incidents', params: { open: activity.incidentId } })
+      : router.push(`/incident/${activity.incidentId}`));
+
+    return (
+      <View style={[styles.card, { borderColor: `${act.tone}66` }]}>
+        <View style={[styles.bar, { backgroundColor: act.tone }]} />
+        <View style={styles.line}>
+          <Ionicons name={act.icon} size={14} color={act.tone} />
+          <Text style={[styles.state, { color: act.tone }]}>{label.toUpperCase()}</Text>
+          <View style={{ flex: 1 }} />
+          {more > 0 ? (
+            <Pressable
+              onPress={() => router.push('/my-incidents')}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={`${more} more of your incidents`}
+              style={styles.more}
+            >
+              <Text style={styles.moreText}>+{more} more</Text>
+            </Pressable>
+          ) : null}
+        </View>
+
+        <View style={[styles.line, { marginTop: space.sm }]}>
+          <Text style={styles.number}>{activity.incidentNumber}</Text>
+          {sev ? (
+            <View style={[styles.sev, { backgroundColor: `${severityColor(sev)}22` }]}>
+              <Text style={[styles.sevText, { color: severityColor(sev) }]}>{sev.toUpperCase()}</Text>
+            </View>
+          ) : null}
+        </View>
+        <Text style={styles.title} numberOfLines={1}>{call?.incident_type ?? 'Incident'}</Text>
+        {call?.location_address ? (
+          <View style={[styles.line, { alignItems: 'flex-start' }]}>
+            <Ionicons name="location-outline" size={13} color={colors.muted} style={{ marginTop: 1 }} />
+            <Text style={styles.sub} numberOfLines={2}>{call.location_address}</Text>
+          </View>
+        ) : null}
+
+        <Pressable
+          onPress={go}
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+        >
+          <Text style={styles.buttonText}>{assigned ? 'Open and respond' : 'Open incident'}</Text>
+          <Ionicons name="arrow-forward" size={18} color="#fff" />
+        </Pressable>
+      </View>
+    );
+  }
+
+  if (shiftStarted === false && onDuty !== true) {
+    return (
+      <Prompt
+        icon="clipboard-outline"
+        title="Your shift has not started"
+        action="Start shift"
+        onPress={() => router.push('/(tabs)/shift')}
+      />
+    );
+  }
+
+  if (onDuty === false) {
+    return (
+      <Prompt
+        icon="moon-outline"
+        title="You are off duty"
+        action="Go on duty"
+        onPress={() => router.push('/(tabs)/profile')}
+      />
+    );
+  }
+
+  return (
+    <View style={[styles.card, styles.calm]} accessible accessibilityLabel={`No incidents for you${where ? `. ${where}` : ''}`}>
+      <View style={styles.calmIcon}>
+        <Ionicons name="checkmark" size={18} color={colors.low} />
+      </View>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Text style={styles.calmTitle}>No incidents for you</Text>
+        {where ? (
+          <View style={styles.line}>
+            <Ionicons name={unitIcon} size={12} color={colors.muted} />
+            <Text style={styles.sub} numberOfLines={1}>{where}</Text>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+/** A card with one thing to do before the day can start. */
+function Prompt({ icon, title, action, onPress }: {
+  icon: IconName; title: string; action: string; onPress: () => void;
+}) {
+  const styles = useStyles();
+  return (
+    <View style={[styles.card, { borderColor: `${colors.medium}66` }]}>
+      <View style={[styles.bar, { backgroundColor: colors.medium }]} />
+      <View style={styles.line}>
+        <Ionicons name={icon} size={18} color={colors.medium} />
+        <Text style={styles.promptTitle}>{title}</Text>
+      </View>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      >
+        <Text style={styles.buttonText}>{action}</Text>
+        <Ionicons name="arrow-forward" size={18} color="#fff" />
+      </Pressable>
     </View>
   );
 }
@@ -170,49 +276,49 @@ const GREEN = '#22c55e';
 
 const useStyles = makeStyles(() => StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
-  container: { padding: space.lg, paddingBottom: space['3xl'], width: '100%', maxWidth: 960, alignSelf: 'center' },
+  // flexGrow lets the map take whatever height is left, so a phone needs no scrolling.
+  container: { flexGrow: 1, padding: space.lg, paddingBottom: space['3xl'], width: '100%', maxWidth: 960, alignSelf: 'center' },
 
-  station: {
-    marginBottom: space.lg, borderRadius: radius.md, borderWidth: 1, borderColor: colors.panelBorder,
-    backgroundColor: colors.panel, paddingHorizontal: space.md, paddingVertical: 10,
+  card: {
+    marginBottom: space.lg, overflow: 'hidden',
+    borderRadius: radius.lg, borderWidth: 1, borderColor: colors.panelBorder,
+    backgroundColor: colors.panel, padding: space.md, paddingLeft: space.md + 3,
   },
-  stationHead: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  headMark: { width: 3, height: 12, borderRadius: 2, backgroundColor: colors.accent },
-  stationEyebrow: { color: colors.text, fontSize: 11, fontWeight: '800', letterSpacing: 1.2 },
-  stationName: { color: colors.textDim, fontSize: 12, marginTop: 6 },
-  chip: {
-    flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 7, paddingVertical: 3,
-    borderRadius: radius.pill, backgroundColor: colors.hairline,
+  bar: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 3 },
+  line: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  state: { fontSize: 11, fontWeight: '800', letterSpacing: 1 },
+  more: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, backgroundColor: colors.accentSoft },
+  moreText: { color: colors.accent, fontSize: 11, fontWeight: '800' },
+  number: { color: colors.accent, fontSize: 12, fontFamily: 'monospace', fontWeight: '700' },
+  sev: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: radius.pill },
+  sevText: { fontSize: 9, fontWeight: '900', letterSpacing: 0.6 },
+  title: { color: colors.text, fontSize: 20, fontWeight: '800', marginTop: 2, marginBottom: 2 },
+  sub: { color: colors.textDim, fontSize: 13, flexShrink: 1 },
+  button: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    minHeight: 50, marginTop: space.md, borderRadius: radius.md, backgroundColor: colors.accent,
   },
-  chipText: { color: colors.textDim, fontSize: 10, fontWeight: '700' },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  pressed: { opacity: 0.85, transform: [{ scale: 0.985 }] },
+  promptTitle: { color: colors.text, fontSize: 17, fontWeight: '800', flexShrink: 1 },
 
-  appliance: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, padding: space.md, backgroundColor: colors.panel, borderWidth: 1, borderColor: colors.panelBorder, borderRadius: radius.md, marginBottom: space.lg },
-  applianceIcon: { width: 44, height: 44, borderRadius: 10, backgroundColor: colors.accentSoft, alignItems: 'center', justifyContent: 'center' },
-  smallLabel: { fontSize: 9, fontWeight: '800', letterSpacing: 1.2, color: colors.muted },
-  applianceTitle: { fontSize: 16, fontWeight: '800', color: colors.text, marginVertical: 2 },
-  sub: { fontSize: 11, color: colors.textDim, lineHeight: 16 },
-  dutyChip: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  dot: { width: 6, height: 6, borderRadius: 3 },
+  calm: { flexDirection: 'row', alignItems: 'center', gap: space.md, paddingLeft: space.md },
+  calmIcon: {
+    width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.lowSoft,
+  },
+  calmTitle: { color: colors.text, fontSize: 15, fontWeight: '800', marginBottom: 2 },
 
   mapCard: {
-    borderRadius: radius.xl, padding: space.md, borderWidth: 1, borderColor: colors.panelBorder,
+    flex: 1, borderRadius: radius.xl, padding: space.md, borderWidth: 1, borderColor: colors.panelBorder,
     backgroundColor: colors.panel,
   },
-  mapHead: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm, marginBottom: space.md },
-  mapTitle: { color: colors.text, fontSize: 17, fontWeight: '800', lineHeight: 21 },
-  mapCount: { color: colors.muted, fontSize: 11, marginTop: 3 },
-  scan: { color: colors.cyan, fontSize: 11, fontWeight: '800', letterSpacing: 0.8 },
-  region: { backgroundColor: '#1e88e5', borderRadius: 5, paddingHorizontal: 8, paddingVertical: 3 },
-  regionText: { color: '#fff', fontSize: 10, fontWeight: '800', letterSpacing: 0.8 },
-  live: {
-    flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: GREEN,
-    borderRadius: 5, paddingHorizontal: 8, paddingVertical: 3,
-  },
-  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#fff' },
-  liveText: { color: '#fff', fontSize: 10, fontWeight: '900', letterSpacing: 0.8 },
-  map: { height: 380, borderRadius: radius.lg, overflow: 'hidden' },
-
-  shortcuts: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: space.md },
-  shortcut: { flexGrow: 1, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', minHeight: 48, borderWidth: 1, borderColor: colors.panelBorder, backgroundColor: colors.panel, borderRadius: radius.md, paddingHorizontal: 12 },
-  shortcutText: { fontSize: 12, fontWeight: '700', color: colors.text },
+  mapHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginBottom: space.sm },
+  liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: GREEN },
+  mapTitle: { color: colors.text, fontSize: 15, fontWeight: '800' },
+  fullBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  full: { color: colors.accent, fontSize: 12, fontWeight: '800' },
+  map: { flex: 1, minHeight: 260, borderRadius: radius.lg, overflow: 'hidden' },
+  mapWide: { minHeight: 480 },
+  figures: { color: colors.muted, fontSize: 12, fontWeight: '600', textAlign: 'center', marginTop: space.sm },
 }));

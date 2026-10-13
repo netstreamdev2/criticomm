@@ -18,6 +18,7 @@ import { Banner, EmptyState, Segmented } from '@/components/ui';
 import { formatDistance, incidentHaystack, matchesQuery } from '@/lib/incident-search';
 import { confirmAccept } from '@/lib/accept';
 import { IncidentSheet } from '@/components/incident-sheet';
+import { ClosedIncidents } from '@/components/closed-incidents';
 
 /** Highest severity first, then newest — the order a crew triages in. */
 const SEVERITY_RANK: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
@@ -64,7 +65,7 @@ const MINE_STATES = ['All', 'Waiting', 'En route', 'On scene'] as const;
 export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
   const styles = useStyles();
   const router = useRouter();
-  const params = useLocalSearchParams<{ open?: string; search?: string }>();
+  const params = useLocalSearchParams<{ open?: string; search?: string; closed?: string }>();
   const searchBox = useRef<TextInput>(null);
   const { session, silo } = useAuth();
   const { onDuty } = useDuty();
@@ -77,12 +78,25 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   // The tab scopes by who holds an incident; My incidents by where I am on it.
+  // Closed is the officer's own finished calls (0074).
   const scopes: readonly string[] = useMemo(
     () => (mineOnly ? MINE_STATES
-      : nearbyOn ? (['All', 'Mine', 'Nearby'] as const) : (['All', 'Mine'] as const)),
+      : nearbyOn ? (['All', 'Mine', 'Nearby', 'Closed'] as const) : (['All', 'Mine', 'Closed'] as const)),
     [nearbyOn, mineOnly],
   );
   const [scope, setScope] = useState<string>('All');
+  const [closedOpen, setClosedOpen] = useState<string | null>(null);
+
+  // Back from filing a report: the Closed tab, with that call's drawer open.
+  useEffect(() => {
+    if (!params.closed || mineOnly) return;
+    setScope('Closed');
+    setClosedOpen(params.closed);
+  }, [params.closed, mineOnly]);
+  const closedOpened = useCallback(() => {
+    setClosedOpen(null);
+    router.setParams({ closed: undefined });
+  }, [router]);
   const [sort, setSort] = useState<Sort>('Newest');
   // Back to newest whenever the tab is opened.
   useFocusEffect(useCallback(() => { setSort('Newest'); }, []));
@@ -248,9 +262,15 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
     const sev = severityColor(item.call.incident_severity);
     const tag = holder(item.view);
     const mine = item.view.role !== null || item.view.assignment.kind === 'you';
+    // My department's part is filed while others still work the call: its drawer is on the Closed tab.
+    const finishedForMe = !mineOnly && item.view.role !== null && item.status === 'Resolved';
     return (
       <Pressable
-        onPress={() => setSelectedId(item.call.id)}
+        onPress={() => {
+          if (!finishedForMe) { setSelectedId(item.call.id); return; }
+          setScope('Closed');
+          setClosedOpen(item.call.id);
+        }}
         accessibilityRole="button"
         accessibilityLabel={`${item.call.incident_severity} ${item.call.incident_type}, ${item.call.incident_number}${item.km !== null ? `, ${formatDistance(item.km)} away` : ''}${tag ? `, ${tag.text}` : ''}`}
         style={({ pressed }) => [styles.row, mine && styles.rowMine, pressed && { opacity: 0.8 }]}
@@ -278,6 +298,46 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
   };
 
   const urgent = scoped.filter((r) => r.call.incident_severity === 'Critical' || r.call.incident_severity === 'High').length;
+
+  const searchAndTabs = (
+    <>
+      <View style={styles.search}>
+        <Ionicons name="search" size={16} color={colors.muted} />
+        <TextInput
+          ref={searchBox}
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search incident, address, severity or date"
+          placeholderTextColor={colors.muted}
+          style={styles.searchInput}
+          autoCapitalize="none"
+          autoCorrect={false}
+          returnKeyType="search"
+          clearButtonMode="never"
+          accessibilityLabel="Search incidents"
+        />
+        {query ? (
+          <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear search">
+            <Ionicons name="close-circle" size={17} color={colors.muted} />
+          </Pressable>
+        ) : null}
+      </View>
+
+      <Segmented options={scopes} value={scope} onChange={setScope} />
+    </>
+  );
+
+  if (scope === 'Closed') {
+    return (
+      <ClosedIncidents
+        header={searchAndTabs}
+        query={query}
+        liveCalls={calls}
+        openId={closedOpen}
+        onOpened={closedOpened}
+      />
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -308,29 +368,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
               </Pressable>
             ) : null}
 
-            <View style={styles.search}>
-              <Ionicons name="search" size={16} color={colors.muted} />
-              <TextInput
-                ref={searchBox}
-                value={query}
-                onChangeText={setQuery}
-                placeholder="Search incident, address, severity or date"
-                placeholderTextColor={colors.muted}
-                style={styles.searchInput}
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="search"
-                clearButtonMode="never"
-                accessibilityLabel="Search incidents"
-              />
-              {query ? (
-                <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear search">
-                  <Ionicons name="close-circle" size={17} color={colors.muted} />
-                </Pressable>
-              ) : null}
-            </View>
-
-            <Segmented options={scopes} value={scope} onChange={setScope} />
+            {searchAndTabs}
 
             <View style={styles.sortRow} accessibilityRole="radiogroup" accessibilityLabel="Sort incidents">
               <Text style={styles.summaryText}>

@@ -5,7 +5,7 @@ import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import * as FileSystem from 'expo-file-system';
 import {
-  addIncidentUpdate, fileFireReport, fileIncidentReport, filePcr, filePostMortem, issueFines, raisePanic, toggleDuty, updateResponderStatus,
+  addIncidentUpdate, closeDepartmentPart, fileFireReport, fileIncidentReport, filePcr, filePostMortem, issueFines, raisePanic, toggleDuty, updateResponderStatus,
   uploadIncidentEvidence,
 } from '@criticom/api';
 import type { CriticomClient, IncidentStatus } from '@criticom/db';
@@ -247,6 +247,15 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
   post_mortem: async (client, entry) => {
     const op = entry.op as Extract<OutboxOp, { kind: 'post_mortem' }>;
     await filePostMortem(client, { incidentId: op.incidentId, fields: op.fields });
+  },
+
+  /**
+   * Idempotent on the server: close_department_part() (0074) returns a part
+   * already closed unchanged. The time recorded is when the officer pressed it.
+   */
+  close_part: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'close_part' }>;
+    await closeDepartmentPart(client, { incidentId: op.incidentId, occurredAt: entry.occurredAt });
   },
 
   /**

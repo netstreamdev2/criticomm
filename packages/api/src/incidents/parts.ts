@@ -92,7 +92,9 @@ export function forDepartment<T extends CallShape>(call: T, silo: Silo | string 
 }
 
 /** A part in a few plain words, for the desks. */
-export function partWords(part: Pick<DepartmentPart, 'status' | 'lead_name' | 'assigned_to_name'>): string {
+export function partWords(
+  part: Pick<DepartmentPart, 'status' | 'lead_name' | 'assigned_to_name'> & { closed_at?: string | null },
+): string {
   switch (part.status) {
     case 'Waiting': return 'Waiting to dispatch';
     case 'Dispatched':
@@ -102,7 +104,7 @@ export function partWords(part: Pick<DepartmentPart, 'status' | 'lead_name' | 'a
     case 'On Scene':
     case 'Transporting':
       return part.lead_name ? `${part.status} · ${part.lead_name}` : part.status;
-    case 'Resolved': return 'Report filed';
+    case 'Resolved': return part.closed_at ? 'Closed on scene' : 'Report filed';
     case 'Not needed': return 'Not needed';
     case 'Cancelled': return 'Cancelled';
   }
@@ -111,4 +113,17 @@ export function partWords(part: Pick<DepartmentPart, 'status' | 'lead_name' | 'a
 /** Departments still on the call, by name. */
 export function openParts<T extends Pick<DepartmentPart, 'silo' | 'status'>>(parts: readonly T[] | null | undefined): T[] {
   return sortParts(parts).filter((p) => partOpen(p.status));
+}
+
+/**
+ * The departments a closed part waits on (0074): still working the call, or
+ * filed and not yet closed by their lead. Stood down and cancelled parts are
+ * done. Mirrors close_department_part().
+ */
+export function waitingParts<T extends Pick<DepartmentPart, 'silo' | 'status'> & { closed_at?: string | null }>(
+  parts: readonly T[] | null | undefined,
+  exceptSilo?: Silo | string | null,
+): T[] {
+  return sortParts(parts).filter((p) => p.silo !== exceptSilo
+    && (partOpen(p.status) || (p.status === 'Resolved' && !p.closed_at)));
 }

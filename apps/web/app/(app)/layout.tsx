@@ -89,7 +89,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <ToastProvider>
       <div className={usesSidebar ? 'min-h-screen lg:grid lg:grid-cols-[264px_1fr]' : 'min-h-screen'}>
-        {usesSidebar ? <Sidebar silo={silo} role={role} dept={dept} tenantName={tenant?.name} hiddenHrefs={hidden} /> : null}
+        {usesSidebar ? <Sidebar silo={silo} role={role} dept={dept} org={branding.Ethekwini} tenantName={tenant?.name} hiddenHrefs={hidden} /> : null}
         <div className="flex min-h-screen min-w-0 flex-col">
           <Topbar fullName={fullName} role={role} silo={silo} hasSidebar={usesSidebar} />
           {/* Role navigation and the external ops links share one bar — two

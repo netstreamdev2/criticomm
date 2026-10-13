@@ -938,3 +938,57 @@ main table td {
   background-size: cover;
   background-attachment: fixed;
 }
+
+/* ── Paper slip ───────────────────────────────────────────────────────
+   A white form on the console, whatever the theme: the report by radio
+   reads like the paper slip the desk fills while the crew talks. Only the
+   slip turns light; the page around it keeps its theme. Everything inside
+   it (the wizard included) takes the light colours below. No transform on
+   the slip, so the wizard's fixed overlay still covers the screen. */
+.paper-slip {
+  color-scheme: light;
+  --c-bg: 246 247 250;
+  --c-bg-soft: 247 248 250;
+  --c-bg-card: 255 255 255;
+  --c-border: 218 223 232;
+  --c-primary: 205 40 55;
+  --c-primary-fg: 255 255 255;
+  --c-accent: 37 99 235;
+  --c-accent-fg: 255 255 255;
+  --c-muted: 236 239 245;
+  --c-muted-fg: 88 98 116;
+  --c-fg: 17 22 33;
+  --c-low: 5 150 105;
+  --c-low-fg: 255 255 255;
+  --c-medium: 217 119 6;
+  --c-medium-fg: 17 24 39;
+  --c-high: 234 88 12;
+  --c-high-fg: 255 255 255;
+  --c-critical: 220 38 38;
+  --c-critical-fg: 255 255 255;
+  --c-low-ink: 4 108 78;
+  --c-medium-ink: 146 74 4;
+  --c-high-ink: 154 52 18;
+  --c-critical-ink: 153 27 27;
+  position: relative;
+  color: rgb(var(--c-fg));
+  background: linear-gradient(180deg, #ffffff, #fcfcfa);
+  border-radius: 6px;
+  box-shadow:
+    0 1px 0 rgb(0 0 0 / 0.04),
+    0 3px 8px rgb(0 0 0 / 0.14),
+    0 28px 60px rgb(0 0 0 / 0.35);
+}
+/* The slip's tear-off edge: a row of punched holes along the top. */
+.paper-slip::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 18px;
+  right: 18px;
+  height: 6px;
+  background: radial-gradient(circle, rgb(var(--c-border)) 2px, transparent 2.5px) 0 0 / 14px 6px repeat-x;
+  pointer-events: none;
+}
+/* The dark themes invert the date picker's icon; on paper it stays dark. */
+:root .paper-slip input::-webkit-calendar-picker-indicator { filter: none; }

@@ -16,6 +16,7 @@ import { useSync } from '@/lib/sync';
 import { leadsOnPhone, statusOnPhone } from '@/lib/outbox';
 import { setReportingFor } from '@/lib/open-call';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
+import { OrgMark } from '@/components/org-mark';
 import { Banner, Button, Card, EmptyState, Input, KeyValue, Muted, SeverityPill } from '@/components/ui';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
@@ -100,7 +101,8 @@ export default function PostMortemScreen() {
       await enqueue({ kind: 'post_mortem', incidentId: incident.id, incidentNumber: incident.incident_number, fields: postMortemPayload(answers) });
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
       Alert.alert('Post-mortem filed', online ? `Your post-mortem for ${incident.incident_number} is on record.` : 'Saved. It sends when you have signal.');
-      router.replace('/(tabs)/incidents');
+      // The Closed tab, with this call's drawer open: Close is the next step (0074).
+      router.replace({ pathname: '/(tabs)/incidents', params: { closed: incident.id } });
     } catch (e) {
       setProblems([(e as Error).message]);
     } finally {
@@ -181,6 +183,7 @@ export default function PostMortemScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <Card accent={colors.accent}>
+          <OrgMark style={{ marginBottom: space.md }} />
           <View style={styles.rowBetween}>
             <View style={styles.titleRow}>
               <Ionicons name="warning" size={18} color={colors.accent} />

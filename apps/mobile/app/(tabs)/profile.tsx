@@ -22,6 +22,8 @@ import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/co
 import { MyIncidents } from '@/components/my-incidents';
 import { MyShiftsCard } from '@/components/my-shifts-card';
 import { MyPerformance } from '@/components/my-performance';
+import { FinesCard } from '@/components/fines-card';
+import { OrgMark } from '@/components/org-mark';
 
 /**
  * Push status in plain words. A supervisor checking a handset before a shift
@@ -235,11 +237,12 @@ export default function ProfileScreen() {
       </Card>
 
       {/* Alerts */}
-      {/* My work — the same cards as Home, each opening its own page */}
+      {/* My work — each card opens its own page; performance and fines live here, not on Home */}
       <SectionLabel>My work</SectionLabel>
       <MyShiftsCard />
       <MyIncidents />
       <MyPerformance />
+      <FinesCard />
 
       <SectionLabel>Dispatch alerts</SectionLabel>
       <Card accent={pushEnabled ? colors.accent : colors.medium}>
@@ -324,6 +327,7 @@ export default function ProfileScreen() {
         </View>
       </Card>
 
+      <OrgMark align="center" size={26} style={{ marginTop: space.xl }} />
       <Text style={styles.version}>HikTech Responder · {dept.official_name}</Text>
     </ScrollView>
   );

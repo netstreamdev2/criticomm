@@ -12,7 +12,7 @@ import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 const GREEN = '#22c55e';
 
 /** Read at render time, so the tones follow the light/dark theme; on the way in the department's own vehicle. */
-const ACTIVITY = (silo: string): Record<Activity['kind'], { label: string; icon: keyof typeof Ionicons.glyphMap; tone: string }> => ({
+export const ACTIVITY = (silo: string): Record<Activity['kind'], { label: string; icon: keyof typeof Ionicons.glyphMap; tone: string }> => ({
   idle: { label: 'Idle', icon: 'pause-circle-outline', tone: colors.idle },
   en_route: { label: 'En route', icon: wordsFor(silo).movingIcon, tone: colors.accent },
   on_scene: { label: 'On scene', icon: 'location', tone: colors.critical },
@@ -45,14 +45,57 @@ const pad = (n: number) => String(n).padStart(2, '0');
 /**
  * Home header: the time, who is signed in, and whether they are on duty.
  * Duty is live from the personnel table, so it flips the moment it changes
- * anywhere; tapping it goes to start of shift until that is done.
+ * anywhere; tapping it goes to start of shift until that is done. `minimal`
+ * drops the activity chip and the greeting: the responder home shows the
+ * incident in its own card.
  */
-export function HomeHeader() {
+export function HomeHeader({ minimal = false }: { minimal?: boolean }) {
   const styles = useStyles();
   const router = useRouter();
   const { fullName, silo } = useAuth();
   const { shiftStarted, onDuty } = useDuty();
   const now = useClock();
+
+  const name = (fullName || '').split('@')[0]?.trim() || personTitle(silo);
+  const live = onDuty === true;
+  const dutyLabel = shiftStarted === false && !live ? 'SHIFT NOT STARTED' : live ? 'ON DUTY' : 'OFF DUTY';
+
+  return (
+    <View style={[styles.wrap, minimal && styles.wrapMinimal]}>
+      <View style={styles.top}>
+        <View>
+          <Text style={styles.time} accessibilityLabel={`Time ${now.getHours()}:${pad(now.getMinutes())}`}>
+            {pad(now.getHours())}:{pad(now.getMinutes())}
+          </Text>
+          <Text style={styles.date}>
+            {DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]}
+          </Text>
+          {minimal ? null : <ActivityChip />}
+        </View>
+        <View style={styles.right}>
+          <Pressable
+            onPress={() => router.push(shiftStarted === false ? '/(tabs)/shift' : '/(tabs)/profile')}
+            accessibilityRole="button"
+            accessibilityLabel={dutyLabel.toLowerCase()}
+            hitSlop={8}
+            style={[styles.duty, !live && styles.dutyWarn]}
+          >
+            <View style={[styles.dot, { backgroundColor: live ? GREEN : colors.medium }]} />
+            <Text style={styles.dutyText}>{dutyLabel}</Text>
+          </Pressable>
+          {minimal ? null : <Text style={styles.welcome}>Welcome back</Text>}
+          <Text style={[styles.name, minimal && styles.nameMinimal]} numberOfLines={1}>{name}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+/** What this officer is doing now; tapping it opens that incident. */
+function ActivityChip() {
+  const styles = useStyles();
+  const router = useRouter();
+  const { silo } = useAuth();
   const { calls, reportQueued, awaiting } = useOpenCall();
   const reportingFor = useReportingFor();
   // Several incidents: show the most pressing (report > on scene > en route);
@@ -73,54 +116,25 @@ export function HomeHeader() {
     router.push(`/incident/${activity.incidentId}`);
   };
 
-  const name = (fullName || '').split('@')[0]?.trim() || personTitle(silo);
-  const live = onDuty === true;
-  const dutyLabel = shiftStarted === false && !live ? 'SHIFT NOT STARTED' : live ? 'ON DUTY' : 'OFF DUTY';
-
   return (
-    <View style={styles.wrap}>
-      <View style={styles.top}>
-        <View>
-          <Text style={styles.time} accessibilityLabel={`Time ${now.getHours()}:${pad(now.getMinutes())}`}>
-            {pad(now.getHours())}:{pad(now.getMinutes())}
-          </Text>
-          <Text style={styles.date}>
-            {DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]}
-          </Text>
-          <Pressable
-            disabled={activity.kind === 'idle'}
-            onPress={openActivity}
-            accessibilityRole={activity.kind === 'idle' ? 'text' : 'button'}
-            accessibilityLabel={activity.kind === 'idle' ? actLabel : `${actLabel}, ${activity.incidentNumber}`}
-            hitSlop={6}
-            style={[styles.activity, { borderColor: `${act.tone}55`, backgroundColor: `${act.tone}1f` }]}
-          >
-            <Ionicons name={act.icon} size={12} color={act.tone} />
-            <Text style={[styles.activityText, { color: act.tone }]}>{actLabel.toUpperCase()}</Text>
-            {activity.kind !== 'idle' ? <Ionicons name="arrow-forward" size={12} color={act.tone} /> : null}
-          </Pressable>
-        </View>
-        <View style={styles.right}>
-          <Pressable
-            onPress={() => router.push(shiftStarted === false ? '/(tabs)/shift' : '/(tabs)/profile')}
-            accessibilityRole="button"
-            accessibilityLabel={dutyLabel.toLowerCase()}
-            hitSlop={8}
-            style={[styles.duty, !live && styles.dutyWarn]}
-          >
-            <View style={[styles.dot, { backgroundColor: live ? GREEN : colors.medium }]} />
-            <Text style={styles.dutyText}>{dutyLabel}</Text>
-          </Pressable>
-          <Text style={styles.welcome}>Welcome back</Text>
-          <Text style={styles.name} numberOfLines={1}>{name}</Text>
-        </View>
-      </View>
-    </View>
+    <Pressable
+      disabled={activity.kind === 'idle'}
+      onPress={openActivity}
+      accessibilityRole={activity.kind === 'idle' ? 'text' : 'button'}
+      accessibilityLabel={activity.kind === 'idle' ? actLabel : `${actLabel}, ${activity.incidentNumber}`}
+      hitSlop={6}
+      style={[styles.activity, { borderColor: `${act.tone}55`, backgroundColor: `${act.tone}1f` }]}
+    >
+      <Ionicons name={act.icon} size={12} color={act.tone} />
+      <Text style={[styles.activityText, { color: act.tone }]}>{actLabel.toUpperCase()}</Text>
+      {activity.kind !== 'idle' ? <Ionicons name="arrow-forward" size={12} color={act.tone} /> : null}
+    </Pressable>
   );
 }
 
 const useStyles = makeStyles(() => StyleSheet.create({
   wrap: { marginBottom: space.xl },
+  wrapMinimal: { marginBottom: space.lg },
   top: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: space.md },
   time: {
     color: colors.text, fontSize: 44, fontWeight: '900', letterSpacing: -1, lineHeight: 48,
@@ -135,6 +149,7 @@ const useStyles = makeStyles(() => StyleSheet.create({
   right: { flex: 1, minWidth: 0, alignItems: 'flex-end' },
   welcome: { ...type.small, fontSize: 12, color: colors.muted, marginTop: space.sm },
   name: { ...type.h2, color: colors.text, marginTop: 1, textAlign: 'right' },
+  nameMinimal: { marginTop: space.sm },
   duty: {
     flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8,
     paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill,

@@ -796,11 +796,29 @@ function Brand({ dept, role, silo, tenantName }: { dept?: DeptIdentity; role: st
   );
 }
 
+/**
+ * The municipality the platform serves (eThekwini), quiet at the foot of the
+ * menu: its crest when an administrator has uploaded one, and its name.
+ * HikTech's mark at the top is untouched.
+ */
+function OrgFooter({ org }: { org?: DeptIdentity }) {
+  if (!org) return null;
+  return (
+    <div className="flex shrink-0 items-center gap-2.5 border-t border-border px-5 py-3 opacity-80">
+      <DeptBadge branding={org} logoUrl={org.logoUrl} size="xs" />
+      <span className="min-w-0 leading-tight">
+        <span className="block text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Serving</span>
+        <span className="block truncate text-[11px] font-semibold text-fg">{org.official_name}</span>
+      </span>
+    </div>
+  );
+}
+
 /** Desktop rail (lg+) + mobile drawer. */
 export function Sidebar({
-  silo, role, dept, tenantName, hiddenHrefs = [],
+  silo, role, dept, org, tenantName, hiddenHrefs = [],
 }: {
-  silo: string; role: string; dept?: DeptIdentity; tenantName?: string; hiddenHrefs?: string[];
+  silo: string; role: string; dept?: DeptIdentity; org?: DeptIdentity; tenantName?: string; hiddenHrefs?: string[];
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -814,6 +832,7 @@ export function Sidebar({
       <aside className="hidden h-screen flex-col border-r border-border bg-bg-soft lg:sticky lg:top-0 lg:flex">
         <Brand dept={dept} role={role} silo={silo} tenantName={tenantName} />
         <NavList silo={silo} role={role} hiddenHrefs={hiddenHrefs} />
+        <OrgFooter org={org} />
       </aside>
 
       <button
@@ -848,6 +867,7 @@ export function Sidebar({
               </div>
             )}
             <NavList silo={silo} role={role} hiddenHrefs={hiddenHrefs} onNavigate={() => setOpen(false)} />
+            <OrgFooter org={org} />
           </div>
         </div>
       )}

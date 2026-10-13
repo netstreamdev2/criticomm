@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View,
+  ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  composeReportType, forDepartment, getIncident, getMyBodycam, listIncidentAttachments, POLICE_REPORT_FORMS, rowCount, rowLabel, rowsKey,
-  sectionFields, splitReportAnswers, suggestFormsFor, validateReportAnswers, type ReportField, type ReportSection,
+  answeredCount, CASE_SECTIONS, checkSections, composeReportType, forDepartment, formSections, getIncident, getMyBodycam,
+  listIncidentAttachments, POLICE_REPORT_FORMS, rowCount, rowsKey, sectionFields, splitReportAnswers, suggestFormsFor,
+  validateReportAnswers, type PoliceReportForm, type ReportSection,
 } from '@criticom/api';
 import type { Database } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
@@ -16,25 +17,36 @@ import { useSync } from '@/lib/sync';
 import { leadsOnPhone, mediaOnPhone, statusOnPhone } from '@/lib/outbox';
 import { setReportingFor } from '@/lib/open-call';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
-import {
-  Banner, Button, Card, EmptyState, Input, Muted, Segmented, SectionLabel, SeverityPill, Title,
-} from '@/components/ui';
+import { Banner, Button, Card, EmptyState, Muted, SectionLabel, SeverityPill, Title } from '@/components/ui';
+import { OrgMark } from '@/components/org-mark';
+import { onTone, ReportWizard, type WizardSpec } from '@/components/report-wizard';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
+type IconName = keyof typeof Ionicons.glyphMap;
 
-const YES_NO = ['Yes', 'No'] as const;
-const CHECK = ['OK', 'Fault', 'NIL'] as const;
 const draftKey = (id: string) => `hiktech.report-draft.${id}`;
 
+/** Each DMPS form's picture on its tile and in its wizard. */
+const FORM_ICON: Record<string, IconName> = {
+  arrest: 'hand-left-outline',
+  accident: 'car-sport-outline',
+  vehicle: 'construct-outline',
+  firearm: 'locate-outline',
+  incident: 'warning-outline',
+  tow: 'trail-sign-outline',
+  dog: 'paw-outline',
+};
+
 /**
- * The officer's case report — the step that closes a police call.
+ * The officer's case report — the step that finishes their part of a call.
  *
- * The case report (response, outcome, evidence, narrative) plus the DMPS
- * forms the call needs: the call type suggests one, and the officer adds or
- * removes forms to match what happened. Answers are kept as a draft on the
- * phone until filed, so a crash or a dead battery does not lose a narrative.
- * Filing goes through the outbox like every other field action; the server
- * resolves the call and tells dispatch and command.
+ * A short page: the case report (response, outcome, evidence, narrative),
+ * which every report needs, and the seven DMPS forms, which are optional.
+ * Each is a coloured tile; tapping one opens it full screen as a step-by-step
+ * wizard, and Done puts a tick on the tile. Only ticked forms are filed, with
+ * the case report, as one report. Answers are kept as a draft on the phone
+ * until filed, so a crash or a dead battery loses nothing. Filing goes
+ * through the outbox like every other field action.
  */
 export default function IncidentReportScreen() {
   const styles = useStyles();
@@ -46,15 +58,16 @@ export default function IncidentReportScreen() {
   const [rawIncident, setIncident] = useState<Incident | null>(null);
   const incident = useMemo(() => (rawIncident ? forDepartment(rawIncident, silo) : null), [rawIncident, silo]);
   const [loading, setLoading] = useState(true);
-  // The DMPS forms in this report; null until the incident has loaded.
+  // The DMPS forms ticked Done; null until the incident has loaded.
   const [forms, setForms] = useState<string[] | null>(null);
   const reportType = useMemo(() => (forms ? composeReportType(forms) : null), [forms]);
+  const [suggested, setSuggested] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [evidenceOnFile, setEvidence] = useState({ photos: 0, voice: 0 });
   const [problems, setProblems] = useState<string[]>([]);
-  // Set once File is pressed: from then on missing answers glow red until fixed.
-  const [tried, setTried] = useState(false);
   const [busy, setBusy] = useState(false);
+  /** The wizard open: 'case' or a form id. */
+  const [open, setOpen] = useState<string | null>(null);
   const draftLoaded = useRef(false);
 
   const load = useCallback(async () => {
@@ -72,8 +85,10 @@ export default function IncidentReportScreen() {
     });
     let saved: { forms?: string[]; answers?: Record<string, string> } = {};
     try { saved = draft ? JSON.parse(draft) : {}; } catch { saved = {}; }
-    const known = (saved.forms ?? []).filter((f) => POLICE_REPORT_FORMS.some((x) => x.id === f));
-    setForms(known.length ? known : inc ? suggestFormsFor(inc) : []);
+    setForms((saved.forms ?? []).filter((f) => POLICE_REPORT_FORMS.some((x) => x.id === f)));
+    // The call type hints at a form; "incident" is only the fallback, so no hint then.
+    const hint = inc ? suggestFormsFor(inc)[0] : undefined;
+    setSuggested(hint && hint !== 'incident' ? hint : null);
     const initial = { ...(saved.answers ?? {}) };
     // A bodycam booked out this shift (0054) was on; the officer can still change it.
     if (!('bodycam_active' in initial)) {
@@ -102,19 +117,15 @@ export default function IncidentReportScreen() {
     return () => clearTimeout(t);
   }, [id, forms, answers]);
 
-  const set = (key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: value }));
-  const toggleForm = (formId: string) => setForms((cur) => {
-    const list = cur ?? [];
-    return list.includes(formId) ? list.filter((f) => f !== formId) : [...list, formId];
-  });
+  const set = useCallback((key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: value })), []);
   /** Add a row to a repeated section, or take the last one off (its answers go with it). */
-  const addRow = (section: ReportSection) => set(rowsKey(section), String(rowCount(section, answers) + 1));
-  const removeRow = (section: ReportSection) => setAnswers((cur) => {
+  const addRow = useCallback((section: ReportSection) => setAnswers((cur) => ({ ...cur, [rowsKey(section)]: String(rowCount(section, cur) + 1) })), []);
+  const removeRow = useCallback((section: ReportSection) => setAnswers((cur) => {
     const n = rowCount(section, cur);
     const next = { ...cur, [rowsKey(section)]: String(n - 1) };
     for (const { key, row } of sectionFields(section, cur)) if (row === n) delete next[key];
     return next;
-  });
+  }), []);
 
   /** The officer's status as they last set it, delivered or not. */
   const status = useMemo(() => statusOnPhone(pending, id ?? '', incident?.status), [pending, id, incident]);
@@ -125,39 +136,65 @@ export default function IncidentReportScreen() {
     return { photos: evidenceOnFile.photos + waiting.photos, voice: evidenceOnFile.voice + waiting.voice };
   }, [pending, id, evidenceOnFile]);
 
-  /** The fields validateReportAnswers() objects to, to mark them in red. */
-  const invalid = useMemo(() => {
-    const out = new Set<string>();
-    if (!tried || !reportType) return out;
-    for (const section of reportType.sections) {
-      for (const { key, field: f, row } of sectionFields(section, answers)) {
-        const v = (answers[key] ?? '').trim();
-        if ((f.required && !row && !v)
-          || (f.kind === 'number' && v && !/^\d+(\.\d+)?$/.test(v))
-          || (f.kind === 'date' && v && !/^\d{4}-\d{2}-\d{2}$/.test(v))
-          || (f.kind === 'time' && v && !/^([01]\d|2[0-3]):[0-5]\d$/.test(v))) out.add(key);
-      }
-    }
-    const narrative = (answers.officer_narrative ?? '').trim();
-    if (narrative && narrative.length < 20) out.add('officer_narrative');
-    return out;
-  }, [tried, reportType, answers]);
+  const caseDone = checkSections(CASE_SECTIONS, answers).length === 0;
+  const caseCount = answeredCount(CASE_SECTIONS, answers);
 
-  // Once fixed, a problem leaves the list by itself.
+  // Once fixed, a problem leaves the list by itself (re-checked only while some are showing).
+  const showing = problems.length > 0;
   useEffect(() => {
-    if (tried && reportType) setProblems(validateReportAnswers(reportType, answers));
-  }, [tried, reportType, answers]);
+    if (showing && reportType) setProblems(validateReportAnswers(reportType, answers));
+  }, [showing, reportType, answers]);
+
+  const spec: WizardSpec | null = useMemo(() => {
+    if (!open) return null;
+    if (open === 'case') {
+      return { code: 'CASE', title: 'Case report', tone: colors.accent, icon: 'document-text-outline', sections: CASE_SECTIONS };
+    }
+    const form = POLICE_REPORT_FORMS.find((f) => f.id === open);
+    if (!form) return null;
+    return { code: form.code, title: form.label, tone: form.tone, icon: FORM_ICON[form.id] ?? 'document-outline', sections: formSections(form.id) };
+  }, [open]);
+
+  const markDone = () => {
+    if (open && open !== 'case') {
+      setForms((cur) => {
+        const next = new Set([...(cur ?? []), open]);
+        return POLICE_REPORT_FORMS.map((f) => f.id).filter((f) => next.has(f));
+      });
+    }
+    setOpen(null);
+  };
+
+  /** Take a form off the report; its answers go with it. */
+  const removeForm = (form: PoliceReportForm) => {
+    Alert.alert(`Remove ${form.code}?`, `${form.label} comes off this report and its answers are cleared.`, [
+      { text: 'Keep it', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: () => {
+          setForms((cur) => (cur ?? []).filter((f) => f !== form.id));
+          setAnswers((cur) => Object.fromEntries(Object.entries(cur).filter(([k]) =>
+            !k.startsWith(`${form.id}_`) && !k.startsWith(`rows_${form.id}_`) && !k.startsWith(`rows_${form.code} · `))));
+          setOpen(null);
+        },
+      },
+    ]);
+  };
 
   const file = () => {
     if (!incident || !reportType) return;
-    setTried(true);
     const found = validateReportAnswers(reportType, answers);
     setProblems(found);
-    if (found.length) return;
+    if (found.length) {
+      // The ticked forms were checked at Done: what is left is the case report.
+      if (checkSections(CASE_SECTIONS, answers).length) setOpen('case');
+      return;
+    }
 
     Alert.alert(
       'File this report?',
-      `It closes ${incident.incident_number} and becomes a permanent record — it cannot be edited or deleted afterwards.`,
+      `The report on ${incident.incident_number} becomes a permanent record — it cannot be edited or deleted afterwards.`,
       [
         { text: 'Keep editing', style: 'cancel' },
         {
@@ -187,7 +224,8 @@ export default function IncidentReportScreen() {
         'Report filed',
         online ? `Your report for ${incident.incident_number} is on record.` : `Saved. It sends when you have signal.`,
       );
-      router.replace('/(tabs)/incidents');
+      // The Closed tab, with this call's drawer open: Close is the next step (0074).
+      router.replace({ pathname: '/(tabs)/incidents', params: { closed: incident.id } });
     } catch (e) {
       setProblems([(e as Error).message]);
     } finally {
@@ -239,15 +277,14 @@ export default function IncidentReportScreen() {
   }
 
   const onScene = status === 'Arrived' || status === 'On Scene' || status === 'Transporting';
+  const done = forms ?? [];
+  const filing = ['Case report', ...POLICE_REPORT_FORMS.filter((f) => done.includes(f.id)).map((f) => f.code)];
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView
-        style={{ backgroundColor: colors.bg }}
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-      >
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <ScrollView contentContainerStyle={styles.container}>
         <Card>
+          <OrgMark style={styles.letterhead} />
           <View style={styles.rowBetween}>
             <Text style={styles.number}>{incident.incident_number}</Text>
             <SeverityPill severity={incident.incident_severity} />
@@ -269,79 +306,81 @@ export default function IncidentReportScreen() {
           <Banner tone="info">Mark yourself On Scene before filing — the report can be drafted now.</Banner>
         ) : null}
 
-        <SectionLabel>Forms</SectionLabel>
-        <Muted style={{ marginBottom: space.sm }}>Select every form this incident needs.</Muted>
-        <View style={styles.formGrid}>
+        {/* The case report: every report has it. */}
+        <Pressable
+          onPress={() => setOpen('case')}
+          accessibilityRole="button"
+          accessibilityLabel={`Case report, ${caseDone ? 'done' : 'required'}`}
+          style={({ pressed }) => [styles.caseCard, caseDone && styles.caseDone, pressed && { opacity: 0.85 }]}
+        >
+          <View style={[styles.caseIcon, { backgroundColor: colors.accent }]}>
+            <Ionicons name="document-text" size={20} color="#fff" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.caseTitle}>Case report</Text>
+            <Text style={styles.caseSub}>
+              {caseDone ? 'Ready' : `Response, outcome, evidence and narrative · ${caseCount.answered} of ${caseCount.total}`}
+            </Text>
+          </View>
+          {caseDone ? (
+            <View style={[styles.tick, { backgroundColor: colors.low }]}><Ionicons name="checkmark" size={16} color="#fff" /></View>
+          ) : (
+            <View style={styles.requiredChip}><Text style={styles.requiredText}>REQUIRED</Text></View>
+          )}
+        </Pressable>
+
+        <SectionLabel>DMPS forms · optional</SectionLabel>
+        <View style={styles.grid}>
           {POLICE_REPORT_FORMS.map((f) => {
-            const active = forms?.includes(f.id) ?? false;
+            const ticked = done.includes(f.id);
+            const { answered } = answeredCount(formSections(f.id), answers);
+            const ink = onTone(f.tone);
             return (
               <Pressable
                 key={f.id}
-                onPress={() => toggleForm(f.id)}
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: active }}
-                accessibilityLabel={`${f.label}, ${f.code}`}
-                style={({ pressed }) => [styles.formTile, active && styles.formTileActive, pressed && { opacity: 0.8 }]}
+                onPress={() => setOpen(f.id)}
+                onLongPress={ticked ? () => removeForm(f) : undefined}
+                accessibilityRole="button"
+                accessibilityLabel={`${f.code} ${f.label}${ticked ? ', done' : answered ? `, ${answered} answered` : ''}`}
+                style={({ pressed }) => [
+                  styles.tile,
+                  { borderColor: ticked ? f.tone : `${f.tone}55`, backgroundColor: ticked ? `${f.tone}2e` : `${f.tone}12` },
+                  pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] },
+                ]}
               >
-                <View style={styles.formTileHead}>
-                  <Text style={[styles.formCode, active && { color: colors.accent }]}>{f.code}</Text>
-                  <Ionicons name={active ? 'checkbox' : 'square-outline'} size={18} color={active ? colors.accent : colors.muted} />
+                <View style={[styles.tileBand, { backgroundColor: f.tone }]} />
+                <View style={styles.tileHead}>
+                  <View style={[styles.tileIcon, { backgroundColor: ticked ? f.tone : `${f.tone}33` }]}>
+                    <Ionicons name={FORM_ICON[f.id] ?? 'document-outline'} size={16} color={ticked ? ink : f.tone} />
+                  </View>
+                  {ticked ? (
+                    <View style={[styles.tick, { backgroundColor: f.tone }]}><Ionicons name="checkmark" size={15} color={ink} /></View>
+                  ) : (
+                    <Ionicons name="add-circle-outline" size={20} color={`${f.tone}cc`} />
+                  )}
                 </View>
-                <Text style={styles.formLabel}>{f.label}</Text>
+                <Text style={[styles.tileCode, { color: f.tone }]}>{f.code}</Text>
+                <Text style={styles.tileLabel} numberOfLines={2}>{f.label}</Text>
+                <Text style={styles.tileState} numberOfLines={1}>
+                  {ticked ? 'Done' : answered ? `${answered} answered · not done` : suggested === f.id ? 'Suggested for this call' : 'Tap to fill'}
+                </Text>
               </Pressable>
             );
           })}
         </View>
 
-        {reportType.sections.map((section) => {
-          const rows = section.repeat ? rowCount(section, answers) : 1;
-          return (
-            <View key={section.key ?? section.title}>
-              <SectionLabel>{section.title}</SectionLabel>
-              {Array.from({ length: rows }, (_, r) => r + 1).map((row) => (
-                <Card key={`${section.key ?? section.title}-${row}`}>
-                  {section.repeat ? (
-                    <View style={styles.rowHead}>
-                      <Text style={styles.rowTitle}>{rowLabel(section, row)}</Text>
-                      {row === rows && rows > section.repeat.min ? (
-                        <Pressable onPress={() => removeRow(section)} accessibilityRole="button" hitSlop={8}>
-                          <Text style={styles.rowRemove}>Remove</Text>
-                        </Pressable>
-                      ) : null}
-                    </View>
-                  ) : null}
-                  {sectionFields(section, answers).filter((x) => (section.repeat ? x.row === row : true)).map(({ key, field }, i) => {
-                    // A missing or wrong answer after File was pressed glows red until it is fixed.
-                    const bad = invalid.has(key);
-                    return (
-                      <View key={key} style={[i > 0 ? { marginTop: space.md } : undefined, bad && styles.fieldBad]}>
-                        {bad ? <Text style={styles.badHint}>{field.required ? 'Required — fill this in' : 'Check this answer'}</Text> : null}
-                        <Field field={field} value={answers[key] ?? ''} onChange={(v) => set(key, v)} />
-                      </View>
-                    );
-                  })}
-                </Card>
-              ))}
-              {section.repeat && rows < section.repeat.max ? (
-                <Button
-                  label={`Add ${section.repeat.noun.toLowerCase()}`}
-                  icon="add-circle-outline"
-                  variant="outline"
-                  onPress={() => addRow(section)}
-                />
-              ) : null}
-            </View>
-          );
-        })}
-
         {problems.length > 0 ? (
           <Banner tone="error" onDismiss={() => setProblems([])}>
-            {`${problems.length === 1 ? 'One thing is' : `${problems.length} things are`} missing — marked in red above:\n• ${problems.join('\n• ')}`}
+            {`${problems.length === 1 ? 'One thing is' : `${problems.length} things are`} missing:\n• ${problems.join('\n• ')}`}
           </Banner>
         ) : null}
 
+        <View style={styles.summary}>
+          <Ionicons name="layers-outline" size={14} color={colors.muted} />
+          <Text style={styles.summaryText}>Filing: {filing.join(' · ')}</Text>
+        </View>
         <Button
-          label="File report & close incident"
+          label="File report"
           icon="lock-closed"
           variant="success"
           size="lg"
@@ -353,93 +392,20 @@ export default function IncidentReportScreen() {
           Filed reports are permanent and visible to dispatch and command.
         </Muted>
       </ScrollView>
-    </KeyboardAvoidingView>
-  );
-}
 
-function Field({ field, value, onChange }: {
-  field: ReportField; value: string; onChange: (v: string) => void;
-}) {
-  const styles = useStyles();
-  const label = `${field.label}${field.required ? ' *' : ''}`;
-  if (field.kind === 'yesno') {
-    return (
-      <View>
-        <Text style={styles.fieldLabel}>{label.toUpperCase()}</Text>
-        <Segmented
-          options={YES_NO}
-          value={value === 'Yes' || value === 'No' ? value : null}
-          onChange={onChange}
-        />
-      </View>
-    );
-  }
-  if (field.kind === 'check') {
-    return (
-      <View>
-        <Text style={styles.fieldLabel}>{label.toUpperCase()}</Text>
-        <Segmented options={CHECK} value={(CHECK as readonly string[]).includes(value) ? (value as (typeof CHECK)[number]) : null} onChange={onChange} />
-      </View>
-    );
-  }
-  if (field.kind === 'multi') {
-    const chosen = value ? value.split('; ').filter(Boolean) : [];
-    return (
-      <View>
-        <Text style={styles.fieldLabel}>{label.toUpperCase()}</Text>
-        <View style={styles.chips}>
-          {(field.options ?? []).map((opt) => {
-            const active = chosen.includes(opt);
-            return (
-              <Pressable
-                key={opt}
-                onPress={() => onChange((active ? chosen.filter((c) => c !== opt) : [...chosen, opt]).join('; '))}
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: active }}
-                style={({ pressed }) => [styles.chip, active && styles.chipActive, pressed && { opacity: 0.75 }]}
-              >
-                <Text style={[styles.chipText, active && { color: '#fff' }]}>{opt}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
-    );
-  }
-  if (field.kind === 'choice') {
-    return (
-      <View>
-        <Text style={styles.fieldLabel}>{label.toUpperCase()}</Text>
-        <View style={styles.chips}>
-          {(field.options ?? []).map((opt) => {
-            const active = opt === value;
-            return (
-              <Pressable
-                key={opt}
-                onPress={() => onChange(active ? '' : opt)}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: active }}
-                style={({ pressed }) => [styles.chip, active && styles.chipActive, pressed && { opacity: 0.75 }]}
-              >
-                <Text style={[styles.chipText, active && { color: '#fff' }]}>{opt}</Text>
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
-    );
-  }
-  return (
-    <Input
-      label={label}
-      value={value}
-      onChangeText={onChange}
-      placeholder={field.placeholder ?? (field.kind === 'date' ? 'YYYY-MM-DD' : field.kind === 'time' ? 'HH:MM' : undefined)}
-      keyboardType={field.kind === 'number' ? 'decimal-pad' : field.kind === 'date' || field.kind === 'time' ? 'numbers-and-punctuation' : 'default'}
-      autoCapitalize={/plate|vin|reg/.test(field.key) ? 'characters' : field.kind === 'date' || field.kind === 'time' ? 'none' : 'sentences'}
-      multiline={field.kind === 'multiline'}
-      style={field.kind === 'multiline' ? styles.multiline : undefined}
-    />
+      <ReportWizard
+        spec={spec}
+        answers={answers}
+        set={set}
+        addRow={addRow}
+        removeRow={removeRow}
+        onDone={markDone}
+        onClose={() => setOpen(null)}
+        onRemove={open && open !== 'case' && done.includes(open)
+          ? () => { const f = POLICE_REPORT_FORMS.find((x) => x.id === open); if (f) removeForm(f); }
+          : undefined}
+      />
+    </View>
   );
 }
 
@@ -449,36 +415,39 @@ const useStyles = makeStyles(() => StyleSheet.create({
     flex: 1, backgroundColor: colors.bg,
     alignItems: 'center', justifyContent: 'center', gap: space.md,
   },
+  letterhead: {
+    marginBottom: space.md, paddingBottom: space.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border,
+  },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   number: { ...type.mono, color: colors.accent, marginBottom: 6 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 5 },
   metaText: { ...type.small, color: colors.muted, flexShrink: 1 },
-  fieldLabel: { ...type.label, fontSize: 11, color: colors.muted, marginBottom: 6 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginBottom: space.sm },
-  chip: {
-    paddingHorizontal: space.md, paddingVertical: 8,
-    borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgSoft,
+
+  caseCard: {
+    flexDirection: 'row', alignItems: 'center', gap: space.md, padding: space.md, marginTop: space.md,
+    borderRadius: radius.lg, borderWidth: 1.5, borderColor: `${colors.accent}88`, backgroundColor: colors.accentSoft,
   },
-  chipActive: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { fontSize: 13, fontWeight: '600', color: colors.textDim },
-  formGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginBottom: space.md },
-  formTile: {
-    width: '48%', flexGrow: 1, padding: space.md, borderRadius: radius.md,
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgCard,
+  caseDone: { borderColor: `${colors.low}aa`, backgroundColor: colors.lowSoft },
+  caseIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  caseTitle: { ...type.bodyStrong, fontSize: 16, color: colors.text, fontWeight: '800' },
+  caseSub: { ...type.small, fontSize: 12, color: colors.textDim, marginTop: 2 },
+  requiredChip: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill, backgroundColor: colors.accent },
+  requiredText: { color: '#fff', fontSize: 9, fontWeight: '900', letterSpacing: 0.8 },
+  tick: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginBottom: space.md },
+  tile: {
+    width: '48%', flexGrow: 1, padding: space.md, paddingLeft: space.md + 4, borderRadius: radius.lg,
+    borderWidth: 1.5, overflow: 'hidden', minHeight: 124,
   },
-  formTileActive: { borderColor: colors.accent, backgroundColor: colors.accentSoft },
-  formTileHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  formCode: { ...type.mono, fontSize: 12, color: colors.muted, fontWeight: '800' },
-  formLabel: { ...type.bodyStrong, color: colors.text, marginTop: 4 },
-  rowHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: space.sm },
-  rowTitle: { ...type.bodyStrong, color: colors.accent },
-  rowRemove: { color: colors.critical, fontWeight: '700', fontSize: 13 },
-  multiline: { minHeight: 110, textAlignVertical: 'top', paddingTop: 12 },
-  // The red glow on a missing answer.
-  fieldBad: {
-    padding: space.sm, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.critical,
-    backgroundColor: colors.criticalSoft,
-    shadowColor: colors.critical, shadowOpacity: 0.7, shadowRadius: 10, shadowOffset: { width: 0, height: 0 }, elevation: 6,
-  },
-  badHint: { color: colors.critical, fontSize: 11, fontWeight: '800', marginBottom: 4 },
+  tileBand: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 4 },
+  tileHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  tileIcon: { width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+  tileCode: { fontSize: 12, fontWeight: '900', letterSpacing: 1, marginTop: space.sm },
+  tileLabel: { ...type.bodyStrong, color: colors.text, marginTop: 1 },
+  tileState: { ...type.small, fontSize: 11, color: colors.muted, marginTop: 4 },
+
+  summary: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: space.sm },
+  summaryText: { ...type.small, color: colors.textDim, fontWeight: '700', flex: 1 },
 }));

@@ -1,12 +1,7 @@
 import { ServiceHome, type ServiceHomeContent } from './service-home';
 
 const DISASTER: ServiceHomeContent = {
-  eyebrow: 'DISASTER MANAGEMENT',
-  icon: 'warning-outline',
-  unitLabel: 'YOUR SHIFT',
-  unitIcon: 'shield-checkmark-outline',
-  noUnit: 'Off duty',
-  unitA11y: 'View your start of shift',
+  unitIcon: 'business-outline',
   noVehicle: true,
 };
 

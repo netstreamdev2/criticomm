@@ -3,7 +3,7 @@ import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import {
   getFieldIncident, getIncident, getIncidentUpdates, getMyBodycam, getMyPersonnel, listAssignedToMe,
-  listIncidentAttachments, listMyActiveIncidents, listMyAlerts,
+  listIncidentAttachments, listMyActiveIncidents, listMyAlerts, listMyWorkedIncidents,
 } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
@@ -61,6 +61,11 @@ export function OfflinePrefetch() {
             getMyBodycam(sb).catch(() => null),
             listMyAlerts(sb, { limit: 60 }).catch(() => null),
           ]);
+        }
+        // The Closed tab: finished calls change slowly, so less often.
+        if (now - (readAt.get('worked') ?? 0) >= 5 * AGAIN_AFTER_MS) {
+          readAt.set('worked', now);
+          await listMyWorkedIncidents(sb, userId).catch(() => null);
         }
       } finally {
         running = false;

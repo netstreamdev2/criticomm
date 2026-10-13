@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Minus, Plus } from 'lucide-react';
 import {
-  composeReportType, POLICE_REPORT_FORMS, rowCount, rowLabel, rowsKey, sectionFields, validateReportAnswers,
+  composeReportType, getReportForm, POLICE_REPORT_FORMS, rowCount, rowLabel, rowsKey, sectionFields, validateReportAnswers,
   type ReportField, type ReportSection,
 } from '@criticom/api';
 import { cn } from '@/lib/utils';
@@ -89,7 +89,7 @@ export function ConsoleReportForm({ initialForms, officerName, bodycamOn }: {
 
       <section className="rounded-lg border border-border bg-bg-card p-4">
         <h2 className="font-semibold">Forms <span className="text-severity-critical-ink">*</span></h2>
-        <p className="text-sm text-muted-foreground">Choose every form this report needs.</p>
+        <p className="text-sm text-muted-foreground">Choose every form this report needs. Each has its own colour on the report and the PDF.</p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {POLICE_REPORT_FORMS.map((f) => {
             const on = forms.includes(f.id);
@@ -101,14 +101,18 @@ export function ConsoleReportForm({ initialForms, officerName, bodycamOn }: {
                 aria-pressed={on}
                 className={cn(
                   'flex items-start gap-3 rounded-lg border px-3 py-2.5 text-left transition-colors',
-                  on ? 'border-accent bg-accent/10' : 'border-border bg-bg-soft hover:bg-muted',
+                  on ? '' : 'border-border bg-bg-soft hover:bg-muted',
                 )}
+                style={{ borderLeft: `4px solid ${f.tone}`, ...(on ? { borderColor: f.tone, backgroundColor: `${f.tone}1f` } : {}) }}
               >
-                <span className={cn('mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border', on ? 'border-accent bg-accent text-white' : 'border-border')}>
+                <span
+                  className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-white"
+                  style={on ? { backgroundColor: f.tone, borderColor: f.tone } : { borderColor: `${f.tone}88` }}
+                >
                   {on ? <Check className="h-3.5 w-3.5" /> : null}
                 </span>
                 <span className="min-w-0">
-                  <span className="block font-mono text-[11px] text-accent">{f.code}</span>
+                  <span className="block font-mono text-[11px] font-bold" style={{ color: f.tone }}>{f.code}</span>
                   <span className="block text-sm font-semibold">{f.label}</span>
                 </span>
               </button>
@@ -163,9 +167,10 @@ function Section({ section, answers, invalid, set, addRow, removeRow }: {
   addRow: (s: ReportSection) => void;
   removeRow: (s: ReportSection) => void;
 }) {
+  const tone = section.form ? getReportForm(section.form)?.tone : undefined;
   if (!section.repeat) {
     return (
-      <section className="rounded-lg border border-border bg-bg-card p-4">
+      <section className="rounded-lg border border-border bg-bg-card p-4" style={tone ? { borderLeft: `4px solid ${tone}` } : undefined}>
         <h2 className="font-semibold">{section.title}</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {section.fields.map((f) => (
@@ -178,7 +183,7 @@ function Section({ section, answers, invalid, set, addRow, removeRow }: {
   const rows = rowCount(section, answers);
   const fields = sectionFields(section, answers);
   return (
-    <section className="rounded-lg border border-border bg-bg-card p-4">
+    <section className="rounded-lg border border-border bg-bg-card p-4" style={tone ? { borderLeft: `4px solid ${tone}` } : undefined}>
       <h2 className="font-semibold">{section.title}</h2>
       <div className="mt-3 space-y-3">
         {Array.from({ length: rows }, (_, i) => i + 1).map((n) => (

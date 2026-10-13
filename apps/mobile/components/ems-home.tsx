@@ -1,12 +1,7 @@
 import { ServiceHome, type ServiceHomeContent } from './service-home';
 
 const EMS: ServiceHomeContent = {
-  eyebrow: 'EMERGENCY MEDICAL SERVICES',
-  icon: 'pulse',
-  unitLabel: 'YOUR AMBULANCE',
   unitIcon: 'medkit-outline',
-  noUnit: 'No ambulance assigned',
-  unitA11y: 'View your EMS shift, ambulance and stock checks',
   showTeamOnDuty: false,
 };
 

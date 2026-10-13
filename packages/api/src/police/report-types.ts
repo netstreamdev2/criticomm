@@ -46,6 +46,8 @@ export type ReportSection = {
   /** A section filled in once per person, vehicle or firearm; `key` names its rows. */
   key?: string;
   repeat?: { noun: string; min: number; max: number; letters?: boolean };
+  /** The DMPS form this section belongs to; none for the case report's own sections. */
+  form?: string;
 };
 
 export type PoliceReportType = {
@@ -75,20 +77,31 @@ export function formIdsOf(reportType: string | null | undefined): string[] {
  */
 export function composeReportType(formIds: readonly string[]): PoliceReportType {
   const forms = POLICE_REPORT_FORMS.filter((f) => formIds.includes(f.id));
-  const formSections: ReportSection[] = forms.flatMap((form) => form.sections.map((s) => ({
-    ...s,
-    title: `${form.code} · ${s.title}`,
-    key: s.key ? `${form.id}_${s.key}` : undefined,
-    fields: s.fields.map((f) => ({ ...f, key: `${form.id}_${f.key}`, column: false })),
-  })));
+  const sectionsOfForms = forms.flatMap((form) => formSections(form.id));
   return {
     id: forms.length ? forms.map((f) => f.id).join('+') : 'case',
     label: forms.length ? forms.map((f) => f.label).join(' · ') : 'Case report',
     summary: forms.length ? forms.map((f) => `${f.code} ${f.label}`).join(', ') : 'The case report, with no DMPS form.',
     match: /$^/,
-    sections: [RESPONSE, ...formSections, OUTCOME, EVIDENCE, NARRATIVE],
+    sections: [RESPONSE, ...sectionsOfForms, OUTCOME, EVIDENCE, NARRATIVE],
     forms,
   };
+}
+
+/** The case report's own sections, around the forms: response, outcome, evidence, narrative. */
+export const CASE_SECTIONS: readonly ReportSection[] = [RESPONSE, OUTCOME, EVIDENCE, NARRATIVE];
+
+/** One form's sections as a report holds them: titled with its code, keys prefixed with its id. */
+export function formSections(formId: string): ReportSection[] {
+  const form = FORMS_BY_ID.get(formId);
+  if (!form) return [];
+  return form.sections.map((s) => ({
+    ...s,
+    title: `${form.code} · ${s.title}`,
+    key: s.key ? `${form.id}_${s.key}` : undefined,
+    fields: s.fields.map((f) => ({ ...f, key: `${form.id}_${f.key}`, column: false })),
+    form: form.id,
+  }));
 }
 
 /**
@@ -197,24 +210,45 @@ export function splitReportAnswers(type: PoliceReportType, answers: Record<strin
   return { fields, details };
 }
 
-/** Problems that stop the report being filed, in form order. */
-export function validateReportAnswers(type: PoliceReportType, answers: Record<string, string>) {
-  const problems: string[] = [];
-  for (const section of type.sections) {
+/**
+ * What is wrong with some sections' answers, field by field, in form order:
+ * required answers missing, numbers, dates and times that are not, and a
+ * narrative too short. One step of a wizard, one form, or the whole report.
+ */
+export function checkSections(sections: readonly ReportSection[], answers: Record<string, string>) {
+  const out: Array<{ key: string; message: string }> = [];
+  for (const section of sections) {
     for (const { key, field, row } of sectionFields(section, answers)) {
       const v = (answers[key] ?? '').trim();
       const name = row ? `${rowLabel(section, row)}: ${field.label}` : field.label;
       // A repeated row's fields are never required: a row may be left out.
-      if (field.required && !row && !v) problems.push(`${name} is required.`);
+      if (field.required && !row && !v) out.push({ key, message: `${name} is required.` });
       if (!v) continue;
-      if (field.kind === 'number' && !/^\d+(\.\d+)?$/.test(v)) problems.push(`${name} must be a number.`);
-      if (field.kind === 'date' && !DATE.test(v)) problems.push(`${name} must be a date (YYYY-MM-DD).`);
-      if (field.kind === 'time' && !TIME.test(v)) problems.push(`${name} must be a time (HH:MM).`);
+      if (field.kind === 'number' && !/^\d+(\.\d+)?$/.test(v)) out.push({ key, message: `${name} must be a number.` });
+      if (field.kind === 'date' && !DATE.test(v)) out.push({ key, message: `${name} must be a date (YYYY-MM-DD).` });
+      if (field.kind === 'time' && !TIME.test(v)) out.push({ key, message: `${name} must be a time (HH:MM).` });
+      if (key === 'officer_narrative' && v.length < 20) out.push({ key, message: 'The narrative needs at least 20 characters.' });
     }
   }
-  const narrative = (answers.officer_narrative ?? '').trim();
-  if (narrative && narrative.length < 20) problems.push('The narrative needs at least 20 characters.');
-  return problems;
+  return out;
+}
+
+/** Problems that stop the report being filed, in form order. */
+export function validateReportAnswers(type: PoliceReportType, answers: Record<string, string>) {
+  return checkSections(type.sections, answers).map((p) => p.message);
+}
+
+/** How much of some sections is answered, for a form's tile: "5 of 12". */
+export function answeredCount(sections: readonly ReportSection[], answers: Record<string, string>) {
+  let answered = 0;
+  let total = 0;
+  for (const section of sections) {
+    for (const { key } of sectionFields(section, answers)) {
+      total += 1;
+      if ((answers[key] ?? '').trim()) answered += 1;
+    }
+  }
+  return { answered, total };
 }
 
 /** Labelled answers kept in `details`, for display (web report card, PDF). */
@@ -257,7 +291,7 @@ function shownAnswer(v: unknown): string | null {
 export function reportReadout(
   type: PoliceReportType,
   report: Record<string, unknown> & { details?: Record<string, unknown> | null },
-): { sections: Array<{ title: string; items: Array<{ label: string; value: string }> }>; extra: Array<{ label: string; value: string }> } {
+): { sections: Array<{ title: string; form?: string; items: Array<{ label: string; value: string }> }>; extra: Array<{ label: string; value: string }> } {
   const details = report.details ?? {};
   const sections = type.sections
     .filter((s) => s.title !== 'Narrative')
@@ -265,6 +299,7 @@ export function reportReadout(
       if (!s.repeat) {
         return [{
           title: s.title,
+          form: s.form,
           items: s.fields.flatMap((f) => {
             const v = shownAnswer(f.column ? report[f.key] : details[f.key]);
             return v ? [{ label: f.label, value: v }] : [];
@@ -273,6 +308,7 @@ export function reportReadout(
       }
       return Array.from({ length: rowCount(s, details) }, (_, i) => i + 1).map((n) => ({
         title: `${s.title} — ${rowLabel(s, n)}`,
+        form: s.form,
         items: s.fields.flatMap((f) => {
           const v = shownAnswer(details[rowFieldKey(s, n, f)]);
           return v ? [{ label: f.label, value: v }] : [];

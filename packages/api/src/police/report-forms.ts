@@ -23,6 +23,8 @@ export type PoliceReportForm = {
   label: string;
   /** One line under the form's name in the picker. */
   summary: string;
+  /** The form's colour (hex), the same on the phone, the console and the PDF. */
+  tone: string;
   sections: readonly ReportSection[];
 };
 
@@ -62,7 +64,7 @@ const RESTRAINT = ['SB available used', 'SB available not used', 'H used', 'H no
 /* ── 12A Arrest Report ────────────────────────────────────────────────────── */
 
 const ARREST: PoliceReportForm = {
-  id: 'arrest', code: '12A', label: 'Arrest Report',
+  id: 'arrest', code: '12A', label: 'Arrest Report', tone: '#ef4444',
   summary: 'DMPS 12(a): the arrest, its references, the suspect and any recovered vehicle.',
   sections: [
     { title: 'Arresting officer', fields: [
@@ -121,7 +123,7 @@ const CR1_VEHICLE_TYPES = [
 ] as const;
 
 const ACCIDENT: PoliceReportForm = {
-  id: 'accident', code: 'CR1', label: 'Crash Report',
+  id: 'accident', code: 'CR1', label: 'Crash Report', tone: '#f97316',
   summary: 'CR1: the crash, every vehicle and driver, casualties and contributory factors.',
   sections: [
     { title: 'Admin', fields: [
@@ -229,7 +231,7 @@ const items = (title: string, keyPrefix: string, labels: readonly string[]): Rep
 });
 
 const VEHICLE_INSPECTION: PoliceReportForm = {
-  id: 'vehicle', code: 'VI', label: 'Vehicle Inspection',
+  id: 'vehicle', code: 'VI', label: 'Vehicle Inspection', tone: '#14b8a6',
   summary: 'The vehicle, item by item: OK, Fault or NIL.',
   sections: [
     { title: 'Vehicle and shift', fields: [
@@ -257,7 +259,7 @@ const VEHICLE_INSPECTION: PoliceReportForm = {
 /* ── 216E Use of Official Firearm ─────────────────────────────────────────── */
 
 const FIREARM: PoliceReportForm = {
-  id: 'firearm', code: '216E', label: 'Use of Official Firearm',
+  id: 'firearm', code: '216E', label: 'Use of Official Firearm', tone: '#a855f7',
   summary: 'DMPS 216(e): the shooting, members, firearms, targets, arrests and trauma counselling.',
   sections: [
     { title: 'Reference numbers', fields: [
@@ -329,7 +331,7 @@ const SERVICES = [
 ] as const;
 
 const INCIDENT: PoliceReportForm = {
-  id: 'incident', code: 'SANRAL', label: 'Incident Report',
+  id: 'incident', code: 'SANRAL', label: 'Incident Report', tone: '#eab308',
   summary: 'SANRAL RIMS: control room, location, injuries, road closure, services on scene and hazmat.',
   sections: [
     { title: 'Control room information', fields: [
@@ -394,7 +396,7 @@ const INCIDENT: PoliceReportForm = {
 /* ── 211A Tow In ──────────────────────────────────────────────────────────── */
 
 const TOW: PoliceReportForm = {
-  id: 'tow', code: '211A', label: 'Tow In',
+  id: 'tow', code: '211A', label: 'Tow In', tone: '#ec4899',
   summary: 'DMPS 211(a): the vehicle towed, its condition, the operator, SAPS notification and release.',
   sections: [
     { title: 'Vehicle details', fields: [
@@ -436,7 +438,7 @@ const TOW: PoliceReportForm = {
 /* ── DOG Capture / Tackle ─────────────────────────────────────────────────── */
 
 const DOG: PoliceReportForm = {
-  id: 'dog', code: 'DOG', label: 'Dog Capture / Tackle',
+  id: 'dog', code: 'DOG', label: 'Dog Capture / Tackle', tone: '#22c55e',
   summary: 'The K9 deployment: the incident, members and dogs, victims, suspects and medical treatment.',
   sections: [
     { title: 'Details of the incident', fields: [

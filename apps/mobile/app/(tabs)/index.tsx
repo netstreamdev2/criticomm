@@ -29,8 +29,8 @@ import { HomeHeader } from '@/components/home-header';
  */
 /**
  * Police (and Ethekwini field officers, who work from the Metro Police
- * armoury and fleet) get the minimal V4-style home; other services keep the
- * module grid.
+ * armoury and fleet), Fire, EMS and Disaster get the minimal responder home;
+ * other services keep the module grid.
  */
 export default function HomeScreen() {
   const { silo, role } = useAuth();

@@ -3,7 +3,10 @@
  * (0068): a call sent to several departments stays in each desk's queue until
  * that desk dispatches it, each department leads and reports its own part,
  * the call is resolved only when every department has finished, a department
- * is stood down with a reason, and a desk reads its own crews only.
+ * is stood down with a reason, and a desk reads its own crews only. Then the
+ * officer's close (0074): the lead closes their own part once its report is
+ * filed, and dispatch hears which departments are still on the call. And
+ * filing by radio (0075): the desk files and closes for a crew without a phone.
  *
  * CASE_PGLITE_MODULE=file:///path/to/@electric-sql/pglite/dist/index.js node scripts/test-department-parts.mjs
  */
@@ -31,6 +34,8 @@ const slice = (from, to) => {
   return init.slice(a, b);
 };
 const migration = read('0073_department_parts.sql');
+const officerClose = read('0074_officer_close.sql');
+const radioFiling = read('0075_desk_radio_filing.sql');
 const m0068 = read('0068_dispatch_desk_tags.sql');
 const wall = m0068.slice(m0068.indexOf('create or replace function public.desk_silo()'), m0068.indexOf('-- ── Intake'));
 
@@ -266,6 +271,10 @@ try {
   // The migration under test, twice: it must be safe to re-run.
   await db.exec(migration);
   await db.exec(migration);
+  await db.exec(officerClose);
+  await db.exec(officerClose);
+  await db.exec(radioFiling);
+  await db.exec(radioFiling);
   // 0039's trigger, on the function 0073 replaces.
   await db.exec('create trigger hold_duty_during_call before update of is_on_duty, assigned_apparatus_id on public.personnel for each row execute function public.hold_duty_during_call()');
   await db.query('begin');
@@ -503,7 +512,193 @@ try {
     await refused(() => db.query('select public.sync_incident_from_departments($1)', [inc(1)]), /permission denied/);
   });
 
-  console.log(`${checks} scenarios passed; 0073 applied twice.`);
+  const closePart = (uid, n) => asDefiner(uid).then(() => db.query('select * from public.close_department_part($1)', [inc(n)]));
+  const closed = (n, silo) => one('select closed_at, closed_by, closed_by_name from public.incident_departments where incident_id = $1 and silo = $2', [inc(n), silo]);
+
+  await scenario('0074: the lead closes their part after the report; dispatch hears who is still on the call', async () => {
+    await newCall(1, '{MetroPolice,MetroFire}');
+    await route(U.policeDesk, 1, '{MetroPolice}');
+    await route(U.fireDesk, 1, '{MetroFire}');
+    await step(U.cop, 1, 'En Route');
+    await step(U.cop, 1, 'On Scene');
+    await step(U.cop2, 1, 'En Route');
+    await step(U.fireman, 1, 'En Route');
+
+    await refused(() => closePart(U.cop, 1), /File the report on INC-0073-1 before you close it/);
+    await policeReport(1);
+    await refused(() => closePart(U.cop2, 1), /Only the lead on INC-0073-1 closes it for Metro Police/, 'backup');
+    await refused(() => closePart(U.fireman, 1), /File the report on INC-0073-1/, 'Fire has not filed');
+    await refused(() => closePart(U.policeDesk, 1), /Not permitted/, 'dispatch does not close for the crew');
+    await refused(() => closePart(U.caseMgr, 1), /Not permitted/);
+
+    await closePart(U.cop, 1);
+    const c = await closed(1, 'MetroPolice');
+    assert.ok(c.closed_at);
+    assert.equal(c.closed_by, U.cop);
+    assert.equal(c.closed_by_name, 'Const. Khumalo');
+    assert.ok(await one("select 1 from public.incident_updates where incident_id = $1 and message = '[CLOSED ON SCENE] Metro Police closed by Const. Khumalo. Waiting on Fire & Rescue.'", [inc(1)]));
+    assert.ok(await one("select 1 from public.sent where kind = 'officer_closed' and title = 'INC-0073-1: Metro Police closed by Const. Khumalo. Waiting on Fire & Rescue'"));
+    // The police dispatcher sent the police crew: told directly. The fire
+    // dispatcher dispatched last, so is the call's dispatcher: told by the chain.
+    assert.ok(await one("select 1 from public.alerts where kind = 'officer_closed' and target_user_id = $1", [U.policeDesk]));
+    assert.ok(!(await one("select 1 as x from public.alerts where kind = 'officer_closed' and target_user_id = $1", [U.fireDesk])));
+    assert.ok(await one("select 1 from public.audit_logs where action_type = 'DEPARTMENT_CLOSED' and entity_id = $1", [inc(1)]));
+    assert.equal((await call(1)).status, 'En Route', 'Fire still works the call');
+
+    // A retry is a no-op.
+    await closePart(U.cop, 1);
+    assert.equal(Number((await one("select count(*)::int as n from public.incident_updates where incident_id = $1 and message like '[CLOSED ON SCENE]%'", [inc(1)])).n), 1);
+
+    await step(U.fireman, 1, 'On Scene');
+    await fireReport(1);
+    assert.equal((await call(1)).status, 'Resolved');
+    await closePart(U.fireman, 1);
+    assert.ok(await one("select 1 from public.incident_updates where incident_id = $1 and message = '[CLOSED ON SCENE] Fire & Rescue closed by FF Naidoo. Every department has closed. Ready for case review.'", [inc(1)]));
+    assert.ok(await one("select 1 from public.sent where kind = 'officer_closed' and title = 'INC-0073-1: closed by every department'"));
+
+    // Case review still closes the case; a late close after that changes nothing.
+    assert.equal((await call(1)).status, 'Resolved', 'the officers do not close the case');
+    await asDefiner(U.caseMgr);
+    assert.equal((await one('select (public.close_case($1)).status as s', [inc(1)])).s, 'Closed');
+    await closePart(U.cop, 1);
+  });
+
+  await scenario('0074: a department still waiting at its desk is waited on; a stood-down one is not', async () => {
+    await newCall(1, '{MetroPolice,MetroFire,Medical}');
+    await route(U.policeDesk, 1, '{MetroPolice}');
+    await standDown(U.emsDesk, 1, 'Medical', 'Caller says nobody is hurt at all');
+    await step(U.cop, 1, 'En Route');
+    await step(U.cop, 1, 'On Scene');
+    await policeReport(1);
+    await closePart(U.cop, 1);
+    assert.ok(await one("select 1 from public.incident_updates where incident_id = $1 and message = '[CLOSED ON SCENE] Metro Police closed by Const. Khumalo. Waiting on Fire & Rescue.'", [inc(1)]));
+  });
+
+  await scenario('0074: the close is written only through the function, never by anon', async () => {
+    await newCall(1, '{MetroPolice}');
+    await as(U.cop);
+    await refused(() => db.query('update public.incident_departments set closed_at = now() where incident_id = $1', [inc(1)]), /permission denied/);
+    await db.query('reset role');
+    assert.equal((await one("select has_function_privilege('anon', 'public.close_department_part(uuid, text, timestamptz)', 'EXECUTE') as ok")).ok, false);
+  });
+
+  const narrative = 'Scene secured, traffic diverted, statements taken from two witnesses.';
+  const radioPolice = (uid, n, officer) => asDefiner(uid).then(() => db.query(
+    'select * from public.file_incident_report($1, $2, $3::jsonb)',
+    [inc(n), 'incident', JSON.stringify({ officer_narrative: narrative, radioed_by: officer })]));
+  const deskMark = (uid, n, silo, status) => asDefiner(uid).then(() =>
+    db.query('select * from public.set_department_status($1, $2, $3)', [inc(n), silo, status]));
+  const deskClose = (uid, n, silo) => asDefiner(uid).then(() =>
+    db.query('select * from public.close_department_part_from_desk($1, $2)', [inc(n), silo]));
+
+  await scenario('0075: the desk files a police report as radioed in, in the member\'s name, and closes it', async () => {
+    await newCall(1, '{MetroPolice}');
+    await route(U.policeDesk, 1, '{MetroPolice}');
+    await refused(() => radioPolice(U.policeDesk, 1, U.cop2), /Mark Metro Police on scene first/);
+    await deskMark(U.policeDesk, 1, 'MetroPolice', 'On Scene');
+    await radioPolice(U.policeDesk, 1, U.cop2);
+
+    const p = await one('select * from public.incident_departments where incident_id = $1 and silo = $2', [inc(1), 'MetroPolice']);
+    assert.equal(p.status, 'Resolved');
+    assert.equal(p.lead_id, U.cop2, 'the member who radioed it in leads');
+    assert.equal(p.radio_filed_by, U.policeDesk);
+    assert.equal(p.radio_filed_by_name, 'Nomsa Metro');
+    assert.equal(p.radioed_by, U.cop2);
+    assert.equal(p.radioed_by_name, 'Const. Dlamini');
+    const r = await one('select officer_name, filed_by from public.metro_reports where incident_id = $1', [inc(1)]);
+    assert.equal(r.officer_name, 'Const. Dlamini', 'the report is in the member\'s name');
+    assert.equal(r.filed_by, U.policeDesk, 'and says who typed it');
+    assert.ok(await one("select 1 from public.incident_updates where incident_id = $1 and message = '[RADIO] Metro Police report filed from the desk by Nomsa Metro, as radioed in by Const. Dlamini.'", [inc(1)]));
+    assert.ok(await one("select 1 from public.audit_logs where action_type = 'REPORT_FILED_BY_RADIO' and user_id = $1", [U.policeDesk]));
+    assert.equal((await call(1)).status, 'Resolved');
+    assert.equal((await call(1)).responding_officer, 'Const. Dlamini');
+
+    await refused(() => deskClose(U.fireDesk, 1, 'MetroPolice'), /Only Metro Police dispatch or command/);
+    await deskClose(U.policeDesk, 1, 'MetroPolice');
+    assert.ok((await one('select closed_at from public.incident_departments where incident_id = $1 and silo = $2', [inc(1), 'MetroPolice'])).closed_at);
+    assert.ok(await one("select 1 from public.incident_updates where incident_id = $1 and message = '[CLOSED ON SCENE] Metro Police closed from the desk by Nomsa Metro. Every department has closed. Ready for case review.'", [inc(1)]));
+    await deskClose(U.policeDesk, 1, 'MetroPolice');
+    assert.equal(Number((await one("select count(*)::int as n from public.incident_updates where incident_id = $1 and message like '[CLOSED ON SCENE]%'", [inc(1)])).n), 1, 'a repeat changes nothing');
+  });
+
+  await scenario('0075: who may file by radio, and for whom', async () => {
+    await newCall(1, '{MetroPolice,MetroFire}');
+    await route(U.central, 1, '{MetroPolice,MetroFire}');
+    await deskMark(U.central, 1, 'MetroPolice', 'On Scene');
+    // Another department's desk, a field officer, a member of another department.
+    await refused(() => radioPolice(U.fireDesk, 1, U.cop2), /Only Metro Police dispatch or command/);
+    await refused(() => radioPolice(U.cop, 1, U.cop2), /Only Metro Police dispatch or command/);
+    await refused(() => radioPolice(U.policeDesk, 1, U.fireman), /Choose a member of Metro Police/);
+    await refused(() => asDefiner(U.policeDesk).then(() => db.query('select * from public.file_incident_report($1, $2, $3::jsonb)',
+      [inc(1), 'incident', JSON.stringify({ officer_narrative: narrative, radioed_by: 'not-a-uuid' })])), /Choose who radioed it in/);
+    // Someone already leads Police from the phone: the desk files only as radioed in by them.
+    await step(U.cop, 1, 'En Route');
+    await step(U.cop, 1, 'On Scene');
+    await refused(() => radioPolice(U.policeDesk, 1, U.cop2), /Const. Khumalo leads INC-0073-1 for Metro Police/);
+    // The control room files for the member who leads.
+    await radioPolice(U.central, 1, U.cop);
+    const p = await parts(1);
+    assert.equal(p.MetroPolice.status, 'Resolved');
+    assert.equal(p.MetroFire.status, 'Dispatched', 'Fire is untouched');
+    // Without radioed_by a desk user is not the lead: the phone's rule stands.
+    await newCall(2, '{MetroPolice}');
+    await route(U.policeDesk, 2, '{MetroPolice}');
+    await deskMark(U.policeDesk, 2, 'MetroPolice', 'On Scene');
+    await refused(() => asDefiner(U.policeDesk).then(() => db.query('select * from public.file_incident_report($1, $2, $3::jsonb)',
+      [inc(2), 'incident', JSON.stringify({ officer_narrative: narrative })])), /Only the officer who accepted/);
+  });
+
+  await scenario('0075: the control room files a patient report by radio, without signatures', async () => {
+    await newCall(1, '{Medical}');
+    await route(U.central, 1, '{Medical}');
+    await deskMark(U.central, 1, 'Medical', 'On Scene');
+    await asDefiner(U.central);
+    await db.query('select * from public.file_pcr($1, $2::jsonb)', [inc(1), JSON.stringify({
+      patient_name: 'Thandi Zulu', chief_complaint: 'Burns to the arm', level_of_care: 'ALS', patient_response: 'Improved',
+      transport_mode: 'Ambulance (Ground)', destination_hospital: 'Addington Hospital', arrival_time: '14:30',
+      handover_doctor_name: 'Dr Dale Naidoo', handover_patient_status: 'Stable, GCS 15', requires_cleaning: 'false',
+      radioed_by: U.medic,
+    })]);
+    const r = await one('select paramedic_names, responder_signature_image_base64, filed_by from public.paramedic_reports where incident_id = $1', [inc(1)]);
+    assert.equal(r.paramedic_names, 'Priya Pillay');
+    assert.equal(r.responder_signature_image_base64, null);
+    assert.equal(r.filed_by, U.central);
+    assert.equal((await parts(1)).Medical.status, 'Resolved');
+    // The phone still needs the signature.
+    await newCall(2, '{Medical}');
+    await route(U.central, 2, '{Medical}');
+    await step(U.medic, 2, 'En Route');
+    await step(U.medic, 2, 'On Scene');
+    await refused(() => asDefiner(U.medic).then(() => db.query('select * from public.file_pcr($1, $2::jsonb)', [inc(2), JSON.stringify({
+      chief_complaint: 'Burns', level_of_care: 'ALS', patient_response: 'Improved', requires_cleaning: 'false',
+    })])), /The lead paramedic must sign/);
+  });
+
+  await scenario('0075: Fire and Disaster by radio; the helpers are not callable directly', async () => {
+    await newCall(1, '{MetroFire,EthekwiniDisaster}');
+    await route(U.central, 1, '{MetroFire,EthekwiniDisaster}');
+    await deskMark(U.central, 1, 'MetroFire', 'On Scene');
+    await deskMark(U.central, 1, 'EthekwiniDisaster', 'On Scene');
+    await asDefiner(U.fireDesk);
+    await db.query('select * from public.file_fire_report($1, $2::jsonb)', [inc(1), JSON.stringify({
+      type_of_incident: 'Vehicle fire', narrative_summary: 'Truck cab fire extinguished, driver extricated and handed to EMS.',
+      fire_cause: 'Electrical fault', no_photo_reason: 'Radio only', radioed_by: U.fireman2,
+    })]);
+    assert.equal((await one('select reporting_officer_name from public.firefighter_reports where incident_id = $1', [inc(1)])).reporting_officer_name, 'FF Mokoena');
+    await asDefiner(U.central);
+    await db.query('select * from public.file_post_mortem($1, $2::jsonb)', [inc(1), JSON.stringify({
+      start_time: '2026-10-12 08:00', end_time: '2026-10-12 09:00', injuries: '1', fatalities: '0', displaced_people: '4',
+      root_cause: 'Electrical fault in the truck', lessons_learned: 'Faster road closure', reporting_officer: 'DM Officer',
+      radioed_by: U.disaster,
+    })]);
+    assert.equal((await call(1)).status, 'Resolved');
+    await as(U.policeDesk);
+    await refused(() => db.query('select public.radio_filer($1, $2, $3::jsonb, null)', [inc(1), 'MetroPolice', '{}']), /permission denied/);
+    await refused(() => db.query('select public.note_radio_filing($1, $2, $3)', [inc(1), 'MetroPolice', U.cop]), /permission denied/);
+    await db.query('reset role');
+  });
+
+  console.log(`${checks} scenarios passed; 0073, 0074 and 0075 applied twice.`);
 } finally {
   await db.close();
 }

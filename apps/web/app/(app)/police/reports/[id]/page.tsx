@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getMetroReport, getReportType, reportReadout } from '@criticom/api';
+import { getMetroReport, getReportForm, getReportType, reportReadout } from '@criticom/api';
+import { ReportFormChips } from '@/components/report-form-chips';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
@@ -51,6 +52,8 @@ export default async function MetroReportDetailPage({
         ) : null}
       </header>
 
+      {r.report_type ? <ReportFormChips forms={getReportType(r.report_type).forms ?? []} /> : null}
+
       <Card>
         <CardHeader><CardTitle>Report</CardTitle></CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3">
@@ -84,7 +87,7 @@ export default async function MetroReportDetailPage({
       </Card>
 
       {formSections.map((s) => (
-        <Card key={s.title}>
+        <Card key={s.title} style={s.form ? { borderLeft: `4px solid ${getReportForm(s.form)?.tone ?? 'transparent'}` } : undefined}>
           <CardHeader><CardTitle>{s.title}</CardTitle></CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-3">
             {s.items.map((i, n) => <Item key={`${i.label}-${n}`} label={i.label} value={i.value} />)}

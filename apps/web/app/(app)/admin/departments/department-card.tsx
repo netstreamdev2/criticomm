@@ -148,6 +148,11 @@ export function DepartmentCard({ branding }: { branding: Branding }) {
               </span>
             )}
           </div>
+          {branding.silo === 'Ethekwini' ? (
+            <p className="mt-2 text-xs text-muted-foreground">
+              The municipality&apos;s crest: it also appears on report PDFs, report screens in the app and the menu. Use a PNG for the PDFs.
+            </p>
+          ) : null}
         </div>
 
         {/* Identity */}

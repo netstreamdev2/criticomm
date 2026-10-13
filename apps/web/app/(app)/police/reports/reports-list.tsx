@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Search } from 'lucide-react';
-import { getReportType, listPoliceReports, POLICE_REPORT_FORMS, type PoliceReportFilters } from '@criticom/api';
+import { listPoliceReports, POLICE_REPORT_FORMS, type PoliceReportFilters } from '@criticom/api';
+import { FormCodes } from '@/components/report-form-chips';
 import { Card, CardContent } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
@@ -9,12 +10,6 @@ import { chatTime } from '@/lib/when';
 export type ReportsParams = { q?: string; form?: string; from?: string; to?: string; officer?: string; arrest?: string };
 
 const field = 'h-9 rounded-md border border-border bg-bg-soft px-2.5 text-sm';
-
-/** What a report is, from its forms; older reports by their category. */
-function formsLabel(r: { report_type: string | null; incident_category: string | null }) {
-  const type = r.report_type ? getReportType(r.report_type) : null;
-  return type?.forms?.length ? type.forms.map((f) => f.code).join(' · ') : (type?.label ?? r.incident_category ?? '—');
-}
 
 /** The police records, one kind at a time, with their filters. */
 export async function ReportsList({ kind, params, basePath }: {
@@ -88,7 +83,7 @@ export async function ReportsList({ kind, params, basePath }: {
                     ? <Link href={`/incidents/${r.incident_id}`} className="text-accent hover:underline">{r.case_number}</Link>
                     : r.case_number}
                 </Td>
-                <Td>{formsLabel(r)}</Td>
+                <Td><FormCodes reportType={r.report_type} fallback={r.incident_category} /></Td>
                 <Td>{kind === 'incident' ? (r.incident_category ?? '—') : r.date_of_offense}</Td>
                 <Td>{r.officer_name ?? '—'}</Td>
                 <Td className="max-w-[220px] truncate">{r.location ?? '—'}</Td>

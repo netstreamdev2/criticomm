@@ -6,7 +6,7 @@ import { headers } from 'next/headers';
 import {
   addIncidentUpdate, closeCase, logAudit, setDepartmentStatus, standDownDepartment, updateResponderStatus,
 } from '@criticom/api';
-import { STATUS_OVERRIDE_ROLES, STATUS_OVERRIDE_STEPS, type IncidentStatus, type Silo } from '@criticom/db';
+import { PART_STATUS_ROLES, STATUS_OVERRIDE_ROLES, STATUS_OVERRIDE_STEPS, type IncidentStatus, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 import { sendSms } from '@/lib/sms';
 
@@ -45,7 +45,9 @@ export async function setStatusAction(_prev: FormState, formData: FormData): Pro
   const silo = String(formData.get('silo')) as Silo;
   // The department whose crew it is, on a call several departments share (0073).
   const department = String(formData.get('department') ?? '') as Silo | '';
-  if (!STATUS_OVERRIDE_ROLES.includes(role) || !(STATUS_OVERRIDE_STEPS as readonly string[]).includes(status)) {
+  // A department's crew (0073) the controller may mark too; a call from before 0073 as a whole, the desk.
+  const allowed = department ? PART_STATUS_ROLES : STATUS_OVERRIDE_ROLES;
+  if (!allowed.includes(role) || !(STATUS_OVERRIDE_STEPS as readonly string[]).includes(status)) {
     return { error: 'The crew sets this from the HikTech app.' };
   }
   try {

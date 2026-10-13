@@ -380,6 +380,27 @@ export const STATUS_OVERRIDE_ROLES: UserRole[] = [
   'SuperAdmin', 'SystemAdmin', 'Admin', 'Supervisor', 'Dispatcher', 'ControlRoom',
 ];
 
+/**
+ * Who marks one department's crew on a shared call (0073's set_department_status),
+ * which the controller may too: the departments card's buttons.
+ */
+export const PART_STATUS_ROLES: UserRole[] = [...STATUS_OVERRIDE_ROLES, 'SystemController'];
+
+/**
+ * Who may file a crew's report from the console as the crew radioed it in,
+ * and close it on scene for them (0075): the department's desk and command,
+ * the control room and the organisation. Mirrors radio_filer().
+ */
+export const RADIO_FILING_ROLES: UserRole[] = [
+  'Dispatcher', 'ControlRoom', 'SystemController', 'System', 'Supervisor',
+  'Captain', 'FireChief', 'Admin', 'SystemAdmin', 'SuperAdmin',
+];
+
+/** Whether this console user files and closes by radio for a department's crew. */
+export function canFileByRadio(role: UserRole, ownSilo: Silo, silo: Silo): boolean {
+  return RADIO_FILING_ROLES.includes(role) && canDirectDepartment(role, ownSilo, silo);
+}
+
 /** The statuses the desk may set on a crew's behalf. */
 export const STATUS_OVERRIDE_STEPS = ['En Route', 'Arrived', 'On Scene', 'Transporting'] as const;
 

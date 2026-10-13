@@ -2,6 +2,7 @@ import { Lock } from 'lucide-react';
 import { getReportType, reportReadout, type getIncidentReport } from '@criticom/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatSaTime } from '@/lib/utils';
+import { FormSectionTitle, ReportFormChips } from '@/components/report-form-chips';
 
 type Report = NonNullable<Awaited<ReturnType<typeof getIncidentReport>>>;
 
@@ -33,6 +34,8 @@ export function PoliceReportCard({ report }: { report: Report }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
+        <ReportFormChips forms={type.forms ?? []} />
+
         <div className="grid gap-3 sm:grid-cols-4">
           <div><p className="text-xs uppercase text-muted-foreground">Case number</p><p className="font-mono">{report.case_number ?? '—'}</p></div>
           <div><p className="text-xs uppercase text-muted-foreground">Dispatched</p><p className="font-mono">{report.dispatch_time ?? '—'}</p></div>
@@ -42,7 +45,7 @@ export function PoliceReportCard({ report }: { report: Report }) {
 
         {sections.map((s) => (
           <div key={s.title}>
-            <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{s.title}</p>
+            <FormSectionTitle title={s.title} form={s.form} />
             <dl className="grid gap-x-4 gap-y-2 rounded-md border border-border/60 bg-bg-soft p-3 sm:grid-cols-2">
               {s.items.map((i) => (
                 <div key={i.label}>

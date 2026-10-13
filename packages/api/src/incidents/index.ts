@@ -442,6 +442,34 @@ export async function standDownDepartment(client: CriticomClient, args: { incide
   return data as Incident;
 }
 
+/**
+ * The lead closes their own department's part on scene, once its report is
+ * filed (0074). Safe to repeat: a part already closed comes back unchanged.
+ * `occurredAt` is when they pressed Close, for a close sent later from the outbox.
+ */
+export async function closeDepartmentPart(
+  client: CriticomClient,
+  args: { incidentId: string; note?: string | null; occurredAt?: string | null },
+) {
+  const { data, error } = await client.rpc('close_department_part', {
+    p_incident_id: args.incidentId, p_note: args.note ?? null, p_occurred_at: args.occurredAt ?? null,
+  });
+  if (error) throw error;
+  return data as DepartmentPart;
+}
+
+/**
+ * The desk closes a department's part on scene for its crew, once its report
+ * is filed (0075): a crew on the radio cannot press Close. Safe to repeat.
+ */
+export async function closeDepartmentPartFromDesk(client: CriticomClient, args: { incidentId: string; silo: Silo; note?: string | null }) {
+  const { data, error } = await client.rpc('close_department_part_from_desk', {
+    p_incident_id: args.incidentId, p_silo: args.silo, p_note: args.note ?? null,
+  });
+  if (error) throw error;
+  return data as DepartmentPart;
+}
+
 /** The desk marking one department's crew when they radio a step in (0073). */
 export async function setDepartmentStatus(client: CriticomClient, args: { incident_id: string; silo: Silo; status: IncidentStatus }) {
   const { data, error } = await client.rpc('set_department_status', {
@@ -727,6 +755,22 @@ export async function listMyActiveIncidents(client: CriticomClient, userId: stri
     .order('updated_at', { ascending: false }), `*, ${RESPONDERS}, mine:incident_responders!inner(user_id)`);
   return seenBy((data ?? []) as unknown as FieldIncident[], silo)
     .filter((c) => c.status !== 'Resolved' && c.status !== 'Closed');
+}
+
+/**
+ * The calls this officer worked, lead or backup, most recently touched first,
+ * each as their department sees it. The phone keeps those finished for them:
+ * their department's part filed, closed, stood down, or the case closed.
+ * Read under the same rules as the open calls (the officer responded to them).
+ */
+export async function listMyWorkedIncidents(client: CriticomClient, userId: string, silo?: Silo | null, limit = 200) {
+  const data = await fieldRead((columns) => client
+    .from('incidents')
+    .select(columns)
+    .eq('mine.user_id', userId)
+    .order('updated_at', { ascending: false })
+    .limit(limit), `*, ${RESPONDERS}, mine:incident_responders!inner(user_id)`);
+  return seenBy((data ?? []) as unknown as FieldIncident[], silo);
 }
 
 /**

@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
-import { getReportType, listPoliceReports, POLICE_REPORT_FORMS } from '@criticom/api';
+import { listPoliceReports, POLICE_REPORT_FORMS } from '@criticom/api';
+import { FormCodes } from '@/components/report-form-chips';
 import { canAccess } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
@@ -78,8 +79,9 @@ export default async function PolicePage({ searchParams }: { searchParams: Promi
               key={f.id}
               href={`/police/reports/new?forms=${f.id}`}
               className="rounded-md border border-border bg-bg-soft px-3 py-2.5 hover:bg-muted"
+              style={{ borderLeft: `4px solid ${f.tone}` }}
             >
-              <span className="block font-mono text-[11px] text-accent">{f.code}</span>
+              <span className="block font-mono text-[11px] font-bold" style={{ color: f.tone }}>{f.code}</span>
               <span className="block text-sm font-semibold">{f.label}</span>
             </Link>
           ))}
@@ -130,12 +132,11 @@ export default async function PolicePage({ searchParams }: { searchParams: Promi
           </form>
           <SimpleTable headers={['Case #', 'Kind', 'Forms', 'Officer', 'Location', 'Filed', '']} empty={filtered ? 'No reports match these filters.' : 'No reports yet.'}>
             {recent.map((r) => {
-              const type = r.report_type ? getReportType(r.report_type) : null;
               return (
                 <Tr key={r.id}>
                   <Td className="font-mono">{r.case_number}</Td>
                   <Td>{r.incident_id ? 'Incident' : 'Police'}</Td>
-                  <Td>{type?.forms?.length ? type.forms.map((f) => f.code).join(' · ') : (type?.label ?? r.incident_category ?? '—')}</Td>
+                  <Td><FormCodes reportType={r.report_type} fallback={r.incident_category} /></Td>
                   <Td>{r.officer_name ?? '—'}</Td>
                   <Td className="max-w-[220px] truncate">{r.location ?? '—'}</Td>
                   <Td className="whitespace-nowrap text-muted-foreground">{chatTime(r.filed_at ?? r.created_at, now)}</Td>

@@ -1,12 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { forDepartment, openParts, partFor, partOpen, partStep, partWords, sortParts, statusForPart, type DepartmentPart } from './parts.ts';
+import { forDepartment, openParts, partFor, partOpen, partStep, partWords, sortParts, statusForPart, waitingParts, type DepartmentPart } from './parts.ts';
 
 const part = (silo: DepartmentPart['silo'], status: DepartmentPart['status'], extra: Partial<DepartmentPart> = {}): DepartmentPart => ({
   id: `${silo}-part`, tenant_id: 't', incident_id: 'i', silo, status, sent_at: '2026-10-12T08:00:00Z',
   dispatched_at: null, dispatched_by: null, dispatched_by_name: null, assigned_to: null, assigned_to_name: null, assigned_at: null,
   lead_id: null, lead_name: null, accepted_at: null, arrived_at: null, report_filed_at: null,
-  finished_at: null, finished_by: null, finished_by_name: null, finish_reason: null, updated_at: '2026-10-12T08:00:00Z',
+  finished_at: null, finished_by: null, finished_by_name: null, finish_reason: null,
+  closed_at: null, closed_by: null, closed_by_name: null, close_note: null,
+  radio_filed_by: null, radio_filed_by_name: null, radioed_by: null, radioed_by_name: null, updated_at: '2026-10-12T08:00:00Z',
   ...extra,
 });
 
@@ -68,4 +70,21 @@ test('parts read in desk order, in plain words', () => {
   assert.equal(partWords(part('Medical', 'Dispatched', { assigned_to_name: 'Priya' })), 'Assigned to Priya');
   assert.equal(partWords(part('MetroFire', 'On Scene', { lead_name: 'FF Naidoo' })), 'On Scene · FF Naidoo');
   assert.equal(partWords(part('MetroPolice', 'Resolved')), 'Report filed');
+  assert.equal(partWords(part('MetroPolice', 'Resolved', { closed_at: '2026-10-12T09:05:00Z' })), 'Closed on scene');
+});
+
+test('a closed part waits on departments still working, or filed and not closed (0074)', () => {
+  const parts = [
+    part('MetroPolice', 'Resolved', { closed_at: '2026-10-12T09:05:00Z' }),
+    part('MetroFire', 'On Scene'),
+    part('Medical', 'Resolved'),
+    part('EthekwiniDisaster', 'Not needed'),
+  ];
+  assert.deepEqual(waitingParts(parts, 'MetroPolice').map((p) => p.silo), ['MetroFire', 'Medical']);
+  assert.deepEqual(
+    waitingParts([part('MetroPolice', 'Resolved'), part('MetroFire', 'Resolved', { closed_at: 'x' }), part('Medical', 'Cancelled')], 'MetroPolice'),
+    [],
+    'every other department has closed or is done',
+  );
+  assert.deepEqual(waitingParts([part('MetroFire', 'Waiting')], 'MetroPolice').map((p) => p.silo), ['MetroFire'], 'not dispatched yet');
 });

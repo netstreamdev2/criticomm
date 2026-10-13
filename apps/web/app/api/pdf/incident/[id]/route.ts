@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import {
   DEPARTMENT_LABELS, departmentsOf, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates,
-  getReportType, listAuditLogs, listIncidentAttachments, listIncidentResponders, reportReadout,
+  getReportForm, getReportType, listAuditLogs, listIncidentAttachments, listIncidentResponders, reportReadout,
 } from '@criticom/api';
 import { pcrReadout } from '@criticom/db/pcr';
 import { defaultsFrom } from '@/lib/pcr-record';
@@ -9,6 +9,7 @@ import { caseStage } from '@criticom/db';
 import { getServerSupabase } from '@/lib/supabase';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { ReportPdf } from '@/lib/pdf';
+import { loadPdfBrand } from '@/lib/pdf-brand';
 import { formatSaTime } from '@/lib/utils';
 
 /**
@@ -56,6 +57,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const pdf = await ReportPdf.create(
     `Case Report — ${incident.incident_number}`,
     `${departments} · ${incident.incident_type} · ${incident.incident_severity} · Status: ${incident.status} · Case: ${caseState}`,
+    await loadPdfBrand(supabase),
   );
 
   pdf.section('Call details');
@@ -81,6 +83,14 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   pdf.field('On scene', sa(incident.arrived_timestamp));
   pdf.field('Report filed', sa(incident.report_filed_at));
   pdf.field('Resolved', sa(incident.resolved_at ?? incident.report_filed_at));
+  // Filed from the desk for a crew on the radio (0075), and closed on scene.
+  for (const part of incident.departments ?? []) {
+    const dept = DEPARTMENT_LABELS[part.silo as keyof typeof DEPARTMENT_LABELS] ?? part.silo;
+    if (part.radio_filed_by_name) {
+      pdf.field(`${dept} filed by radio`, `from the desk by ${part.radio_filed_by_name}${part.radioed_by_name ? `, as radioed in by ${part.radioed_by_name}` : ''}`);
+    }
+    if (part.closed_at) pdf.field(`${dept} closed on scene`, `${sa(part.closed_at)}${part.closed_by_name ? ` by ${part.closed_by_name}` : ''}`);
+  }
   for (const r of responders) {
     pdf.field(r.role === 'lead' ? 'Responder (lead)' : 'Responder (backup)', `${r.name ?? 'Officer'} · ${r.status} · joined ${sa(r.joined_at) ?? '—'}`);
   }
@@ -99,8 +109,13 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
       report.clear_time ? `cleared ${report.clear_time}` : null,
       report.total_time ? `total ${report.total_time}` : null,
     ].filter(Boolean).join(' · '));
+    // The forms on this report, each in its own colour, as the officer ticked them on the phone.
+    pdf.badges([
+      { text: 'Case report', tone: '#3b82f6' },
+      ...(type.forms ?? []).map((f) => ({ text: `${f.code} · ${f.label}`, tone: f.tone })),
+    ]);
     for (const s of sections) {
-      pdf.text(s.title, 9);
+      pdf.subheading(s.title, s.form ? getReportForm(s.form)?.tone : undefined);
       for (const item of s.items) pdf.field(item.label, item.value);
     }
     for (const item of extra) pdf.field(item.label, item.value);

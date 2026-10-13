@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   POLICE_REPORT_FORMS, composeReportType, describeReportDetails, formIdsOf, getReportType, reportReadout, reportTypeFor,
   rowCount, rowFieldKey, rowsKey, sectionFields, splitReportAnswers, suggestFormsFor, validateReportAnswers,
+  CASE_SECTIONS, answeredCount, checkSections, formSections,
 } from './report-types.ts';
 
 /**
@@ -110,4 +111,32 @@ test('an answer no field covers still reads back, under a readable name', () => 
   const t = composeReportType(['arrest']);
   const { extra } = reportReadout(t, { details: { arrest_old_field: 'kept' } });
   assert.deepEqual(extra, [{ label: 'Arrest old field', value: 'kept' }]);
+});
+
+test('each form has its own colour, used on the phone, the console and the PDF', () => {
+  const tones = POLICE_REPORT_FORMS.map((f) => f.tone);
+  assert.equal(new Set(tones).size, POLICE_REPORT_FORMS.length);
+  for (const t of tones) assert.match(t, /^#[0-9a-f]{6}$/);
+});
+
+test("one form's sections stand alone: prefixed, tagged with the form, as the composed report holds them", () => {
+  const tow = formSections('tow');
+  assert.ok(tow.length > 0);
+  assert.ok(tow.every((s) => s.form === 'tow' && s.title.startsWith('211A · ')));
+  const composed = composeReportType(['tow']).sections.filter((s) => s.form === 'tow');
+  assert.deepEqual(composed.map((s) => s.title), tow.map((s) => s.title));
+  assert.ok(CASE_SECTIONS.every((s) => !s.form), 'the case report is no form');
+  assert.deepEqual(formSections('nope'), []);
+});
+
+test('a wizard step is checked on its own; the readout says which form a section is from', () => {
+  const tow = formSections('tow');
+  const missing = checkSections(tow, {});
+  assert.ok(missing.some((p) => p.key === 'tow_reg_no' && p.message === 'Motor vehicle registration No. is required.'));
+  assert.deepEqual(checkSections(CASE_SECTIONS, { officer_narrative: 'Scene secured and statements taken from both drivers.' }), []);
+  const { answered, total } = answeredCount(tow, { tow_reg_no: 'ND 123-456' });
+  assert.equal(answered, 1);
+  assert.ok(total > 1);
+  const { sections } = reportReadout(composeReportType(['tow']), { details: { tow_reg_no: 'ND 123-456' }, officer_narrative: 'x' });
+  assert.equal(sections.find((s) => s.items.some((i) => i.value === 'ND 123-456'))?.form, 'tow');
 });

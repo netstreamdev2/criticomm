@@ -505,3 +505,14 @@ test('who directs a department on a shared call: its desk and command, the contr
   assert.equal(roles.commandsDepartment('Supervisor', 'Medical', 'Medical'), true);
   assert.equal(roles.commandsDepartment('FireChief', 'MetroFire', 'Medical'), false);
 });
+
+test('filing by radio (0075): the desk and command of the department, the control room, never the field', () => {
+  assert.equal(roles.canFileByRadio('Dispatcher', 'MetroPolice', 'MetroPolice'), true);
+  assert.equal(roles.canFileByRadio('Dispatcher', 'MetroFire', 'MetroPolice'), false, "another department's desk");
+  assert.equal(roles.canFileByRadio('Dispatcher', 'Ethekwini', 'Medical'), true, 'the control room');
+  assert.equal(roles.canFileByRadio('SystemController', 'Ethekwini', 'MetroFire'), true);
+  for (const role of ['Police', 'Firefighter', 'Paramedic', 'Disaster', 'CaseManager', 'Viewer', 'IncidentLogger'] as UserRole[]) {
+    assert.equal(roles.canFileByRadio(role, 'MetroPolice', 'MetroPolice'), false, role);
+  }
+  assert.ok(roles.PART_STATUS_ROLES.includes('SystemController'));
+});

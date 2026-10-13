@@ -42,6 +42,7 @@ const KIND_META: Record<AlertKind, { label: string; icon: typeof Info; tone: str
   report_filed: { label: 'Report filed', icon: CheckCircle2, tone: 'text-severity-low-ink' },
   stood_down: { label: 'Not needed', icon: Info, tone: 'text-muted-foreground' },
   stand_down: { label: 'Stand down', icon: Info, tone: 'text-severity-medium-ink' },
+  officer_closed: { label: 'Closed on scene', icon: CheckCircle2, tone: 'text-severity-low-ink' },
 };
 
 export default async function NotificationsPage() {

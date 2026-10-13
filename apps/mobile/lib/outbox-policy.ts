@@ -67,6 +67,12 @@ export type OutboxOp =
       fields: Record<string, string>;
     }
   | {
+      /** The lead closes their department's part after its report (migration 0074). */
+      kind: 'close_part';
+      incidentId: string;
+      incidentNumber: string;
+    }
+  | {
       kind: 'panic';
       silo: Silo;
       lat: number | null;
@@ -229,6 +235,8 @@ export function describe(op: OutboxOp): string {
       return `Patient report · ${op.incidentNumber}`;
     case 'post_mortem':
       return `Post-mortem · ${op.incidentNumber}`;
+    case 'close_part':
+      return `Close · ${op.incidentNumber}`;
     case 'panic':
       return `EMERGENCY — ${wordsFor(op.silo).person} needs assistance`;
     case 'duty_location':
@@ -271,6 +279,8 @@ const PRIORITY: Record<OutboxOp['kind'], number> = {
   pcr: 2,
   post_mortem: 2,
   duty_location: 2,
+  // After the report it closes (the server wants it filed first).
+  close_part: 3,
   incident_note: 3,
   // Armoury paperwork matters, but never ahead of anything an active incident
   // is waiting on — only the attachments queue behind it.

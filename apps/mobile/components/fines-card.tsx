@@ -21,7 +21,7 @@ function short(amount: number): string {
 }
 
 /**
- * Fines on the police home, under My performance: the two things an officer
+ * Fines on the profile, under My performance: the two things an officer
  * does — issue a fine, look up one they issued — and this month's figures.
  * Shown only to those who serve notices.
  */
@@ -30,6 +30,66 @@ export function FinesCard() {
   const enabled = useFeature('mobile.fines');
   if (!enabled || !canIssueFines({ role, silo })) return null;
   return <FinesCardBody />;
+}
+
+/**
+ * Fines on the home, cut to what is done at the roadside: issue a fine, check
+ * what someone owes. A notice not yet sent shows as one line. Same rule as
+ * the card for who sees it.
+ */
+export function FinesQuick() {
+  const { role, silo } = useAuth();
+  const enabled = useFeature('mobile.fines');
+  if (!enabled || !canIssueFines({ role, silo })) return null;
+  return <FinesQuickBody />;
+}
+
+function FinesQuickBody() {
+  const styles = useStyles();
+  const router = useRouter();
+  const { figures, queued } = useMyFines();
+  const waiting = queued.filter((q) => q.status === 'queued').length;
+  const stuck = queued.filter((q) => q.status === 'failed').length;
+
+  return (
+    <View style={styles.quick}>
+      <View style={styles.quickRow}>
+        <Pressable
+          onPress={() => router.push('/fines/new')}
+          accessibilityRole="button"
+          accessibilityLabel={`Issue a fine. ${figures.today} issued today`}
+          style={({ pressed }) => [styles.issue, pressed && styles.pressed]}
+        >
+          <View style={styles.issueIcon}><Ionicons name="receipt" size={20} color="#fff" /></View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.issueTitle}>Issue a fine</Text>
+            <Text style={styles.issueSub}>{figures.today} today</Text>
+          </View>
+          <Ionicons name="arrow-forward" size={18} color="#fff" />
+        </Pressable>
+        <Pressable
+          onPress={() => router.push('/fines/check')}
+          accessibilityRole="button"
+          accessibilityLabel="Check what someone owes"
+          style={({ pressed }) => [styles.quickCheck, pressed && styles.pressed]}
+        >
+          <Ionicons name="search" size={18} color={colors.accent} />
+          <Text style={styles.quickCheckText}>Check owing</Text>
+        </Pressable>
+      </View>
+      {waiting + stuck > 0 ? (
+        <Pressable onPress={() => router.push('/fines')} accessibilityRole="button" style={styles.quickQueue}>
+          <Ionicons name={stuck > 0 ? 'warning' : 'cloud-upload-outline'} size={13} color={stuck > 0 ? colors.critical : colors.medium} />
+          <Text style={[styles.queueText, { color: stuck > 0 ? colors.critical : colors.medium }]}>
+            {stuck > 0
+              ? `${stuck} fine${stuck === 1 ? '' : 's'} not sent`
+              : `${waiting} fine${waiting === 1 ? '' : 's'} waiting for signal`}
+          </Text>
+          <Ionicons name="chevron-forward" size={13} color={colors.muted} />
+        </Pressable>
+      ) : null}
+    </View>
+  );
 }
 
 function FinesCardBody() {
@@ -193,4 +253,13 @@ const useStyles = makeStyles(() => StyleSheet.create({
   },
   queueBad: { backgroundColor: colors.criticalSoft },
   queueText: { fontSize: 11, fontWeight: '700', flex: 1 },
+
+  quick: { marginBottom: space.lg },
+  quickRow: { flexDirection: 'row', gap: space.sm },
+  quickCheck: {
+    width: 96, alignItems: 'center', justifyContent: 'center', gap: 3, borderRadius: radius.md,
+    borderWidth: 1, borderColor: colors.panelBorder, backgroundColor: colors.panel,
+  },
+  quickCheckText: { color: colors.text, fontSize: 11, fontWeight: '800' },
+  quickQueue: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: space.xs, paddingTop: space.sm },
 }));

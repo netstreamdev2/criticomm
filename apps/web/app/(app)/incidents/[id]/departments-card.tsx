@@ -1,12 +1,14 @@
 import Link from 'next/link';
+import { Radio } from 'lucide-react';
 import { partOpen, partWords, sortParts, type DepartmentPart } from '@criticom/api';
 import {
-  DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, STATUS_OVERRIDE_ROLES, STATUS_OVERRIDE_STEPS, canDirectDepartment, commandsDepartment,
+  DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, PART_STATUS_ROLES, STATUS_OVERRIDE_STEPS, canDirectDepartment, canFileByRadio, commandsDepartment,
   type Silo, type UserRole,
 } from '@criticom/db';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatSaTime } from '@/lib/utils';
 import { StandDown, StatusOverride } from './case-forms';
+import { CloseOnSceneButton } from './radio/close-button';
 
 const AT_SCENE = ['Arrived', 'On Scene', 'Transporting'];
 
@@ -16,7 +18,7 @@ const AT_SCENE = ['Arrived', 'On Scene', 'Transporting'];
  * on its own part only; the database has the final word.
  */
 export function DepartmentsCard({
-  incidentId, incidentSilo, parts, role, silo, live,
+  incidentId, incidentSilo, parts, role, silo, live, caseClosed = false,
 }: {
   incidentId: string;
   incidentSilo: Silo;
@@ -25,16 +27,22 @@ export function DepartmentsCard({
   silo: Silo;
   /** The call is still live (not resolved or closed). */
   live: boolean;
+  /** Case review has closed it: nothing more to file or close. */
+  caseClosed?: boolean;
 }) {
   const open = parts.filter((p) => partOpen(p.status)).length;
+  // Filed and not yet closed on scene by their lead (0074).
+  const toClose = sortParts(parts).filter((p) => p.status === 'Resolved' && !p.closed_at).map((p) => DEPARTMENT_NAMES[p.silo]);
   return (
     <Card>
       <CardHeader>
         <CardTitle>Departments on this call</CardTitle>
         <CardDescription>
-          {open === 0
-            ? 'Every department has finished.'
-            : `Each department dispatches, works and reports its own part. The call is resolved when all ${parts.length} have finished.`}
+          {open > 0
+            ? `Each department dispatches, works and reports its own part. The call is resolved when all ${parts.length} have finished.`
+            : toClose.length
+              ? `Every department has finished. Still to close on scene: ${toClose.join(', ')}.`
+              : 'Every department has closed.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
@@ -42,10 +50,14 @@ export function DepartmentsCard({
           {sortParts(parts).map((p) => {
             const directs = live && canDirectDepartment(role, silo, p.silo);
             const mayDispatch = directs && DISPATCH_DESK_ROLES.includes(role) && partOpen(p.status) && !p.lead_id;
-            const mayMark = directs && STATUS_OVERRIDE_ROLES.includes(role) && partOpen(p.status) && p.status !== 'Waiting';
+            const mayMark = directs && PART_STATUS_ROLES.includes(role) && partOpen(p.status) && p.status !== 'Waiting';
             const mayStandDown = directs && partOpen(p.status)
               && (!AT_SCENE.includes(p.status) || commandsDepartment(role, silo, p.silo));
             const finished = !partOpen(p.status);
+            // A crew on the radio (0075): the desk files and closes for them.
+            const radio = !caseClosed && canFileByRadio(role, silo, p.silo);
+            const mayFileByRadio = radio && partOpen(p.status) && p.status !== 'Waiting' && !p.report_filed_at;
+            const mayCloseForCrew = radio && p.status === 'Resolved' && Boolean(p.report_filed_at) && !p.closed_at;
             return (
               <li key={p.silo} className="space-y-2 px-4 py-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -68,11 +80,20 @@ export function DepartmentsCard({
                   ) : null}
                   {p.arrived_at ? <div><dt className="inline">On scene </dt><dd className="inline">{formatSaTime(p.arrived_at)}</dd></div> : null}
                   {p.report_filed_at ? <div><dt className="inline">Report filed </dt><dd className="inline">{formatSaTime(p.report_filed_at)}</dd></div> : null}
+                  {p.closed_at ? (
+                    <div><dt className="inline">Closed on scene </dt><dd className="inline">{formatSaTime(p.closed_at)}{p.closed_by_name ? ` by ${p.closed_by_name}` : ''}</dd></div>
+                  ) : null}
+                  {p.close_note ? (
+                    <div className="sm:col-span-2"><dt className="inline">Closing note </dt><dd className="inline">{p.close_note}</dd></div>
+                  ) : null}
                   {p.finish_reason && p.status !== 'Resolved' ? (
                     <div className="sm:col-span-2"><dt className="inline">Why </dt><dd className="inline">{p.finish_reason}{p.finished_by_name ? ` (${p.finished_by_name})` : ''}</dd></div>
                   ) : null}
                 </dl>
-                {mayDispatch || mayMark || mayStandDown ? (
+                {p.radio_filed_by_name ? (
+                  <p className="text-xs text-muted-foreground">Filed from the desk by {p.radio_filed_by_name}{p.radioed_by_name ? `, as radioed in by ${p.radioed_by_name}` : ''}.</p>
+                ) : null}
+                {mayDispatch || mayMark || mayStandDown || mayFileByRadio || mayCloseForCrew ? (
                   <div className="flex flex-wrap items-start gap-3">
                     {mayDispatch ? (
                       <Link href={`/dispatch/assign/${incidentId}`} className="inline-flex h-8 items-center rounded-md bg-accent px-3 text-xs font-semibold">
@@ -82,6 +103,12 @@ export function DepartmentsCard({
                     {mayMark ? (
                       <StatusOverride incidentId={incidentId} silo={incidentSilo} department={p.silo} steps={STATUS_OVERRIDE_STEPS} current={p.status} />
                     ) : null}
+                    {mayFileByRadio ? (
+                      <Link href={`/incidents/${incidentId}/radio?dept=${p.silo}`} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-accent/50 px-3 text-xs font-semibold text-accent hover:bg-accent/10">
+                        <Radio className="h-3.5 w-3.5" aria-hidden /> Report by radio
+                      </Link>
+                    ) : null}
+                    {mayCloseForCrew ? <CloseOnSceneButton incidentId={incidentId} silo={p.silo} label={DEPARTMENT_NAMES[p.silo]} /> : null}
                     {mayStandDown ? <StandDown incidentId={incidentId} department={p.silo} label={DEPARTMENT_NAMES[p.silo]} /> : null}
                   </div>
                 ) : null}

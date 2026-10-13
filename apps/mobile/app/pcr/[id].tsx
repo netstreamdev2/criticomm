@@ -17,6 +17,7 @@ import { useSync } from '@/lib/sync';
 import { leadsOnPhone, mediaOnPhone, statusOnPhone } from '@/lib/outbox';
 import { setReportingFor } from '@/lib/open-call';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
+import { OrgMark } from '@/components/org-mark';
 import { Banner, Button, Card, EmptyState, Input, KeyValue, Muted, Segmented, SeverityPill } from '@/components/ui';
 import { SignaturePad } from '@/components/signature-pad';
 
@@ -145,7 +146,8 @@ export default function PcrScreen() {
             ? `Your report for ${incident.incident_number} is on record. The ambulance is off road for cleaning.`
             : `Your report for ${incident.incident_number} is on record.`,
       );
-      router.replace('/(tabs)/incidents');
+      // The Closed tab, with this call's drawer open: Close is the next step (0074).
+      router.replace({ pathname: '/(tabs)/incidents', params: { closed: incident.id } });
     } catch (e) {
       setProblems([(e as Error).message]);
     } finally {
@@ -314,6 +316,7 @@ export default function PcrScreen() {
         scrollEnabled={!signing}
       >
         <Card accent={colors.accent}>
+          <OrgMark style={{ marginBottom: space.md }} />
           <View style={styles.rowBetween}>
             <View style={styles.titleRow}>
               <Ionicons name="medkit" size={18} color={colors.accent} />

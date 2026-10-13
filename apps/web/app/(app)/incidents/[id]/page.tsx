@@ -98,9 +98,10 @@ export default async function IncidentDetailPage({
     { label: 'En Route', at: myPart.accepted_at },
     { label: 'On Scene', at: myPart.arrived_at },
     { label: 'Transporting', at: transportingAt, optional: true },
-    myPart.status === 'Not needed' || myPart.status === 'Cancelled'
-      ? { label: myPart.status, at: myPart.finished_at }
-      : { label: 'Report filed', at: myPart.report_filed_at },
+    ...(myPart.status === 'Not needed' || myPart.status === 'Cancelled'
+      ? [{ label: myPart.status, at: myPart.finished_at }]
+      // The lead closes the part on scene after the report (0074).
+      : [{ label: 'Report filed', at: myPart.report_filed_at }, { label: 'Closed on scene', at: myPart.closed_at }]),
   ] : [
     { label: 'Dispatched', at: incident.dispatch_time },
     { label: 'En Route', at: incident.accepted_at },
@@ -197,7 +198,7 @@ export default async function IncidentDetailPage({
           {myPart ? (
             <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">{myLabel}</p>
           ) : null}
-          <ol className="grid grid-cols-2 gap-2 sm:grid-cols-5" aria-label="Where the crew is">
+          <ol className={`grid grid-cols-2 gap-2 ${ladder.length > 5 ? 'sm:grid-cols-3 lg:grid-cols-6' : 'sm:grid-cols-5'}`} aria-label="Where the crew is">
             {ladder.map((step, i) => {
               const done = Boolean(step.at);
               const skipped = !done && step.optional && Boolean(ladderDone);
@@ -239,6 +240,7 @@ export default async function IncidentDetailPage({
           role={role}
           silo={silo}
           live={stage === 'live'}
+          caseClosed={isCaseClosed}
         />
       ) : null}
 
