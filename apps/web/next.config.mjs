@@ -54,6 +54,7 @@ const securityHeaders = [
 ];
 
 /** @type {import('next').NextConfig} */
+// Production project: netstream-integrated-solutions/criticomm-new-web.
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@criticom/api', '@criticom/db', '@criticom/ui'],
