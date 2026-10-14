@@ -48,9 +48,11 @@ export type HikConfig = {
   streamSource: 'hikvision' | 'test';
   testStreamUrl: string;
   /**
-   * Repackage the platform's RTSP into HLS on our own server (ffmpeg) for live
-   * view, instead of using the platform's HLS. On by default: this deployment's
-   * platform does not serve HLS, and it also avoids the mixed-content block.
+   * Opt-in: repackage the platform's RTSP into HLS on our own server with
+   * ffmpeg, for platforms whose own HLS output does not work. Off by default —
+   * the platform now serves HLS, which we pass through our own origin (a proxy,
+   * which unlike ffmpeg also runs on serverless/Vercel). Set relay_live:true
+   * only on a host with ffmpeg where the platform HLS is unavailable.
    */
   relayLive: boolean;
 };
@@ -88,7 +90,7 @@ export async function hikConfig(supabase: Supabase): Promise<HikConfig> {
     enabled: Boolean(row?.enabled),
     streamSource: cfg.stream_source === 'test' ? 'test' : 'hikvision',
     testStreamUrl: /^https:\/\//.test(testUrl) ? testUrl : DEFAULT_TEST_STREAM,
-    relayLive: cfg.relay_live !== false,
+    relayLive: cfg.relay_live === true,
   };
 }
 

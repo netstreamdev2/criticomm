@@ -8,8 +8,10 @@ import { X } from 'lucide-react';
  * A plain modal: dimmed page, a card, a title and a close button. Escape and
  * the close button call onClose unless `busy` holds it open.
  */
-export function Modal({ title, onClose, busy, children, wide }: {
+export function Modal({ title, onClose, busy, children, wide, large }: {
   title: string; onClose: () => void; busy?: boolean; children: React.ReactNode; wide?: boolean;
+  /** Room to work in, e.g. the call description. */
+  large?: boolean;
 }) {
   const id = useId();
   useEffect(() => {
@@ -21,7 +23,7 @@ export function Modal({ title, onClose, busy, children, wide }: {
   return createPortal(
     <div className="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto bg-black/60 p-4 pt-[8vh] backdrop-blur-sm"
       role="dialog" aria-modal="true" aria-labelledby={id}>
-      <div className={`w-full ${wide ? 'max-w-2xl' : 'max-w-lg'} space-y-4 rounded-xl border border-border bg-bg-card p-5 shadow-2xl`}>
+      <div className={`w-full ${large ? 'max-w-4xl' : wide ? 'max-w-2xl' : 'max-w-lg'} space-y-4 rounded-xl border border-border bg-bg-card p-5 shadow-2xl`}>
         <div className="flex items-start justify-between gap-3">
           <h2 id={id} className="text-lg font-semibold">{title}</h2>
           {!busy ? (

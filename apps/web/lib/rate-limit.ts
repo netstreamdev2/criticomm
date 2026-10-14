@@ -31,6 +31,8 @@ export type RateLimitRule = {
 export const RATE_LIMITS = {
   /** Each turn is a model call. A person types maybe 6/min; a loop types 600. */
   chat: { bucket: 'chat', limit: 40, windowSeconds: 60 },
+  /** Criti reading the call form's description as it is typed: one call per pause, never per keystroke. */
+  intake: { bucket: 'intake', limit: 30, windowSeconds: 60 },
   /** Criti's tiles: a refresh on every live change and a 30-second tick, per open screen. No model call. */
   criti: { bucket: 'criti', limit: 150, windowSeconds: 60 },
   /** A task confirmed through Criti. Each is a person pressing Confirm. */

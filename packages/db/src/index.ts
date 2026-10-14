@@ -15,5 +15,6 @@ export * from './fines';
 export * from './fine-slip';
 export * from './fire-report';
 export * from './desks';
+export * from './intake';
 export * from './schemas/index';
 export * as schemas from './schemas/index';

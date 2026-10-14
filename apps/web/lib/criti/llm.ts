@@ -64,9 +64,9 @@ export async function integrationSettings(client: CriticomClient): Promise<Parti
   }
 }
 
-async function timed(url: string, init: RequestInit): Promise<Response> {
+async function timed(url: string, init: RequestInit, ms = TIMEOUT_MS): Promise<Response> {
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  const timer = setTimeout(() => ctrl.abort(), ms);
   try {
     return await fetch(url, { ...init, signal: ctrl.signal, cache: 'no-store' });
   } finally {
@@ -77,6 +77,7 @@ async function timed(url: string, init: RequestInit): Promise<Response> {
 /** Groq and xAI share the OpenAI chat-completions shape. */
 async function chatCompletions(
   p: 'grok' | 'groq', key: string, model: string, system: string, prompt: string, maxTokens: number, temperature: number,
+  ms = TIMEOUT_MS,
 ): Promise<string> {
   const url = p === 'grok' ? 'https://api.x.ai/v1/chat/completions' : 'https://api.groq.com/openai/v1/chat/completions';
   const send = (json: boolean) => timed(url, {
@@ -89,7 +90,7 @@ async function chatCompletions(
       max_tokens: maxTokens,
       ...(json ? { response_format: { type: 'json_object' } } : {}),
     }),
-  });
+  }, ms);
   let res = await send(true);
   // A model that cannot keep to JSON mode is refused with a 400; ask once
   // more without it and read the JSON out of the text.
@@ -101,7 +102,7 @@ async function chatCompletions(
   return text;
 }
 
-async function gemini(key: string, model: string, system: string, prompt: string, maxTokens: number, temperature: number): Promise<string> {
+async function gemini(key: string, model: string, system: string, prompt: string, maxTokens: number, temperature: number, ms = TIMEOUT_MS): Promise<string> {
   const res = await timed(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
     method: 'POST',
     // The key in a header, not the URL, so it never lands in a request log.
@@ -111,7 +112,7 @@ async function gemini(key: string, model: string, system: string, prompt: string
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: { temperature, maxOutputTokens: maxTokens, responseMimeType: 'application/json' },
     }),
-  });
+  }, ms);
   if (!res.ok) throw new Error(`Gemini ${res.status}`);
   const data = (await res.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
   const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text ?? '').join('').trim();
@@ -125,7 +126,12 @@ export type Completion = { text: string; provider: ProviderId };
 export async function complete(
   system: string,
   prompt: string,
-  opts: { maxTokens?: number; settings?: Partial<Record<ProviderId, Integration>> } = {},
+  opts: {
+    maxTokens?: number;
+    settings?: Partial<Record<ProviderId, Integration>>;
+    /** Each attempt waits at most this long (the call-taking form asks for less than the chat). */
+    timeoutMs?: number;
+  } = {},
 ): Promise<Completion> {
   const errors: string[] = [];
   const maxTokens = opts.maxTokens ?? 1400;
@@ -137,8 +143,8 @@ export async function complete(
     const temperature = Math.min(1, Math.max(0, admin?.temperature ?? 0.2));
     try {
       const text = p === 'gemini'
-        ? await gemini(key, model, system, prompt, maxTokens, temperature)
-        : await chatCompletions(p, key, model, system, prompt, maxTokens, temperature);
+        ? await gemini(key, model, system, prompt, maxTokens, temperature, opts.timeoutMs)
+        : await chatCompletions(p, key, model, system, prompt, maxTokens, temperature, opts.timeoutMs);
       return { text, provider: p };
     } catch (e) {
       errors.push((e as Error).name === 'AbortError' ? `${LABEL[p]} took too long` : (e as Error).message);

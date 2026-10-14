@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/external';
-import { reverseLookup, searchAddress } from '@/lib/geocode';
+import { reverseLookup, searchPlaces } from '@/lib/geocode';
 
 /**
  * Address ⇄ coordinate lookup for the dispatch console, proxied server-side
@@ -28,7 +28,7 @@ export async function GET(req: Request) {
 
   try {
     if (lat && lng) return NextResponse.json({ results: await reverseLookup(lat, lng) });
-    if (q && q.trim().length >= 3) return NextResponse.json({ results: await searchAddress(q) });
+    if (q && q.trim().length >= 3) return NextResponse.json({ results: await searchPlaces(q) });
     return NextResponse.json({ results: [] });
   } catch (e) {
     // A geocoder outage must never block logging a call — the operator can

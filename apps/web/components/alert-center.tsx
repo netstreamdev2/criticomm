@@ -8,7 +8,7 @@ import {
   type Alert,
 } from '@criticom/api';
 import {
-  canAccess, DISPATCH_DESK_ROLES, GLOBAL_ROLES, receivesLiveOperations, type Silo, type UserRole,
+  CALLER_NOT_GIVEN, canAccess, DISPATCH_DESK_ROLES, detailsToFollow, GLOBAL_ROLES, receivesLiveOperations, type Silo, type UserRole,
 } from '@criticom/db';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { useToast, type Severity, type ToastTone } from '@/components/toast';
@@ -188,7 +188,9 @@ export function AlertCenter({
             type: incident.incident_type,
             location: incident.location_address,
             meta: [
-              incident.caller_name ? `Caller ${incident.caller_name}` : null,
+              // Sent early on an urgent call (0076): the caller and the rest follow.
+              detailsToFollow(incident) ? 'Details to follow' : null,
+              incident.caller_name && incident.caller_name !== CALLER_NOT_GIVEN ? `Caller ${incident.caller_name}` : null,
               incident.region,
               incident.call_taken_by ? `by ${incident.call_taken_by}` : null,
             ].filter((m): m is string => Boolean(m)),

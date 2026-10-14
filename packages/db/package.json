@@ -25,7 +25,8 @@
     "./fire-report": "./src/fire-report.ts",
     "./pcr": "./src/pcr.ts",
     "./post-mortem": "./src/post-mortem.ts",
-    "./desks": "./src/desks.ts"
+    "./desks": "./src/desks.ts",
+    "./intake": "./src/intake.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

@@ -8,6 +8,20 @@ type Supabase = Awaited<ReturnType<typeof getServerSupabase>>;
 /** Why there is no stream, in words the person watching can act on. */
 export class StreamUnavailable extends Error {}
 
+/**
+ * Turn the platform's HLS address into one on our own origin. The browser then
+ * fetches the playlist and segments from us and we pass them through to the
+ * platform — so an http:// platform stream plays on an HTTPS console without a
+ * mixed-content block, and it needs no ffmpeg, so it works on serverless too.
+ * The platform's session URL (with its short-lived token) is carried in the
+ * path; the proxy checks it points at the configured platform before fetching.
+ */
+function proxyUrlFor(platformUrl: string): string {
+  const i = platformUrl.lastIndexOf('/');
+  const token = Buffer.from(platformUrl.slice(0, i), 'utf8').toString('base64url');
+  return `/api/bodycams/hls-proxy/${token}/${platformUrl.slice(i + 1)}`;
+}
+
 export type BodycamStream = {
   url: string;
   /** The sample video, not the bodycam: the platform is not connected yet. */
@@ -39,9 +53,8 @@ export async function bodycamStream(
     throw new StreamUnavailable('This bodycam has no Hikvision camera code on the register yet. Add it on the bodycam register.');
   }
 
-  // Live view: the platform serves RTSP reliably but not HLS, so repackage
-  // RTSP → HLS on our own server (ffmpeg). The browser plays our same-origin
-  // HLS, which also avoids the mixed-content block an http:// stream would hit.
+  // Opt-in fallback: on a host whose platform HLS does not work, repackage the
+  // RTSP into HLS with ffmpeg (needs a long-lived Node server, not serverless).
   if (args.kind === 'live' && cfg.relayLive) {
     const rtsp = await hikRtspUrl(cfg, args.cameraCode);
     if (!rtsp) throw new StreamUnavailable('The Hikvision platform returned no stream address.');
@@ -49,9 +62,10 @@ export async function bodycamStream(
     return { url: playlistUrl, test: false, insecure: false };
   }
 
-  const url = args.kind === 'live'
+  // Default: the platform's own HLS, served through our origin (see proxyUrlFor).
+  const platformUrl = args.kind === 'live'
     ? await hikPreviewUrl(cfg, args.cameraCode)
     : await hikPlaybackUrl(cfg, { cameraIndexCode: args.cameraCode, beginIso: args.from!, endIso: args.to! });
-  if (!url) throw new StreamUnavailable('The Hikvision platform returned no stream address.');
-  return { url, test: false, insecure: url.startsWith('http://') };
+  if (!platformUrl) throw new StreamUnavailable('The Hikvision platform returned no stream address.');
+  return { url: proxyUrlFor(platformUrl), test: false, insecure: false };
 }

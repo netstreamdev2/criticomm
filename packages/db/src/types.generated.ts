@@ -166,6 +166,10 @@ export type Database = {
           dispatched_silos: Silo[];
           /** Dispatch desks the call was sent to (0068); never shrinks. */
           tagged_silos: Silo[];
+          /** False while an urgent call sent early still has details to follow (0076). */
+          intake_complete: boolean;
+          /** The injuries the call taker ticked (0076). */
+          injuries: string[];
           incident_number: string;
           source: string;
           caller_name: string;
@@ -2685,7 +2689,42 @@ export type Database = {
           p_region?: string | null;
           /** The dispatch desks that receive the call (0068): at least one. */
           p_tagged_silos?: Silo[] | null;
+          /** The injuries ticked in the description (0076). */
+          p_injuries?: string[] | null;
         };
+        Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      /** An urgent call sent before the form is complete (0076); details follow on the same call. */
+      send_call_early: {
+        Args: {
+          p_client_ref: string;
+          p_silo: Silo;
+          p_incident_type: string;
+          p_incident_severity: IncidentSeverity;
+          p_location_address: string;
+          p_location_lat: number;
+          p_location_lng: number;
+          p_tagged_silos: Silo[];
+          p_incident_category?: string | null;
+          p_suburb?: string | null;
+          p_city?: string | null;
+          p_postal_code?: string | null;
+          p_region?: string | null;
+          p_caller_name?: string | null;
+          p_caller_number?: string | null;
+          p_call_description?: string | null;
+          p_is_caller_patient?: boolean | null;
+          p_patient_name?: string | null;
+          p_number_of_victims?: number | null;
+          p_medical_type?: string | null;
+          p_injuries?: string[] | null;
+          p_notes?: string | null;
+        };
+        Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      /** The details added to a call already sent, by the person who logged it or the control room (0076). */
+      complete_call_intake: {
+        Args: { p_incident: string; p_fields: Record<string, unknown> };
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
       /** Send a call to other departments' dispatch desks (0068). */

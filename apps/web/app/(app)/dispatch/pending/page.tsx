@@ -1,11 +1,12 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { MapPin } from 'lucide-react';
-import { DEPARTMENT_NAMES, canAccess, type Silo } from '@criticom/db';
+import { CALLER_NOT_GIVEN, DEPARTMENT_NAMES, canAccess, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 import { deskTags, listOnDutyOfficers, listQueue, partWords, sortParts, type QueueSort } from '@criticom/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { DispatchMapButton } from '@/components/dispatch-map-button';
+import { DetailsToFollow } from '@/components/details-to-follow';
 import { chatTime } from '@/lib/when';
 import { PendingRealtimeBridge } from './realtime-bridge';
 import { IncidentRow, StopClick } from './incident-row';
@@ -124,7 +125,10 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
                   <td className="px-4 py-3">
                     <span className="severity-pill" data-sev={i.incident_severity}>{i.incident_severity}</span>
                   </td>
-                  <td className="px-4 py-3">{i.incident_type}</td>
+                  <td className="px-4 py-3">
+                    {i.incident_type}
+                    <DetailsToFollow incident={i} className="mt-1 flex w-fit" />
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {/* Each department's part: what the others have already done (0073). */}
@@ -151,7 +155,7 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <div>{i.caller_name}</div>
+                    <div className={i.caller_name === CALLER_NOT_GIVEN ? 'text-muted-foreground' : undefined}>{i.caller_name}</div>
                     <div className="text-xs text-muted-foreground">{i.caller_number}</div>
                   </td>
                   <td className="max-w-[300px] px-4 py-3">

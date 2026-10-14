@@ -102,7 +102,7 @@ export default async function CaseDashboardPage() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <CardTitle>Awaiting review</CardTitle>
-                <CardDescription>Longest waiting first. Open one to read its report and close it.</CardDescription>
+                <CardDescription>Newest first. Open one to read its report and close it.</CardDescription>
               </div>
               <Link href="/case-manager/review" className="inline-flex shrink-0 items-center gap-1 text-sm text-accent hover:underline">
                 All {summary.awaitingReview} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
@@ -160,7 +160,7 @@ export default async function CaseDashboardPage() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <CardTitle>Live calls</CardTitle>
-                <CardDescription>Still being worked; oldest first.</CardDescription>
+                <CardDescription>Still being worked; newest first.</CardDescription>
               </div>
               <Link href="/case-manager/open" className="inline-flex shrink-0 items-center gap-1 text-sm text-accent hover:underline">
                 All {summary.live} <ArrowRight className="h-3.5 w-3.5" aria-hidden />

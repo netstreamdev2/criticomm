@@ -6,7 +6,9 @@ import {
 import {
   deskTags, getIncident, getIncidentUpdates, getOperationalSettings, listIncidentAttachments, listOnDutyOfficers,
 } from '@criticom/api';
-import { DEPARTMENT_NAMES, departmentName, type Silo } from '@criticom/db';
+import { DEPARTMENT_NAMES, departmentName, detailsToFollow, type Silo } from '@criticom/db';
+import { DetailsToFollow } from '@/components/details-to-follow';
+import { IncidentLive } from '@/components/incident-live';
 import { LeafletMap } from '@/components/leaflet-map';
 import { DispatchMapButton } from '@/components/dispatch-map-button';
 import { AssignForm } from './assign-form';
@@ -91,6 +93,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
             Incident <span className="font-mono text-fg">{incident.incident_number}</span>
             <span className="severity-pill" data-sev={incident.incident_severity}>{incident.incident_severity}</span>
             <span className="status-badge" data-status={incident.status}>{incident.status}</span>
+            <DetailsToFollow incident={incident} />
             <span>· logged {timeAgo(incident.incident_created_at)}</span>
           </p>
         </div>
@@ -114,9 +117,12 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
                 <span className="inline-flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground" />{incident.caller_name}</span>
               } />
               <Field label="Contact number" value={
-                <a href={`tel:${incident.caller_number.replace(/\s+/g, '')}`} className="inline-flex items-center gap-2 text-accent hover:underline">
-                  <Phone className="h-3.5 w-3.5" />{incident.caller_number}
-                </a>
+                // A call sent early may not have the number yet (0076).
+                incident.caller_number ? (
+                  <a href={`tel:${incident.caller_number.replace(/\s+/g, '')}`} className="inline-flex items-center gap-2 text-accent hover:underline">
+                    <Phone className="h-3.5 w-3.5" />{incident.caller_number}
+                  </a>
+                ) : <span className="text-muted-foreground">Not given yet</span>
               } />
               <Field label="Caller is the patient" value={
                 incident.is_caller_patient === null ? 'Not recorded' : incident.is_caller_patient ? 'Yes' : 'No'
@@ -306,6 +312,9 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
           ? { userId: incident.assigned_to, name: incident.assigned_to_name ?? 'an officer', at: incident.assigned_at }
           : null}
       />
+
+      {/* Sent early: the details arrive here as the call taker adds them. */}
+      {detailsToFollow(incident) ? <IncidentLive incidentId={incident.id} /> : null}
     </div>
   );
 }

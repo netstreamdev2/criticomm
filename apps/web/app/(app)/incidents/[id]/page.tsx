@@ -20,6 +20,7 @@ import { FireReportCard } from './fire-report-card';
 import { PcrCard } from '@/components/pcr-card';
 import { PostMortemCard } from '@/components/post-mortem-card';
 import { IncidentLive } from '@/components/incident-live';
+import { DetailsToFollow } from '@/components/details-to-follow';
 import { VoiceNote } from '@/components/voice-note';
 import { IncidentZonesCard } from './zones-card';
 import { IncidentBodycamsCard, type IncidentBodycamPerson } from './bodycams-card';
@@ -165,8 +166,9 @@ export default async function IncidentDetailPage({
               {incident.incident_severity}
             </span>
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             Sent to dispatch: {deskTags(incident).map((d) => DEPARTMENT_NAMES[d]).join(', ') || 'Control room only'}
+            <DetailsToFollow incident={incident} />
           </p>
         </div>
         <div className="flex items-center gap-2">

@@ -53,8 +53,8 @@ export function OutcomeChip({ row }: { row: CaseRow }) {
 }
 
 const VIEW_COPY: Record<Exclude<CaseView, 'all'>, { empty: string; order: string }> = {
-  review: { empty: 'Nothing waiting. Every filed report has been reviewed.', order: 'Longest waiting first.' },
-  live: { empty: 'No live calls.', order: 'Oldest call first.' },
+  review: { empty: 'Nothing waiting. Every filed report has been reviewed.', order: 'Newest first.' },
+  live: { empty: 'No live calls.', order: 'Newest call first.' },
   closed: { empty: 'No closed cases match.', order: 'Most recently closed first.' },
 };
 

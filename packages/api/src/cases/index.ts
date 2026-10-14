@@ -64,8 +64,8 @@ const isDepartment = (d: string | null | undefined): d is string =>
   Boolean(d) && ([...CASE_DEPARTMENTS, 'Ethekwini'] as string[]).includes(d as string);
 
 /**
- * One register of cases. Review is oldest first (the longest wait is the
- * next to read); live is oldest call first; closed is most recently closed.
+ * One register of cases, newest on top: review by newest report filed, live
+ * by newest call, closed by most recently closed.
  */
 export async function listCases(
   client: CriticomClient,
@@ -76,10 +76,10 @@ export async function listCases(
 
   if (filters.view === 'review') {
     query = query.eq('status', 'Resolved')
-      .order('report_filed_at', { ascending: true, nullsFirst: false })
-      .order('resolved_at', { ascending: true, nullsFirst: false });
+      .order('report_filed_at', { ascending: false, nullsFirst: false })
+      .order('resolved_at', { ascending: false, nullsFirst: false });
   } else if (filters.view === 'live') {
-    query = query.not('status', 'in', LIVE_EXCLUDED).order('call_timestamp', { ascending: true });
+    query = query.not('status', 'in', LIVE_EXCLUDED).order('call_timestamp', { ascending: false });
   } else if (filters.view === 'closed') {
     query = query.eq('status', 'Closed').order('closed_at', { ascending: false, nullsFirst: false });
   } else {

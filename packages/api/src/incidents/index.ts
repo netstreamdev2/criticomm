@@ -6,11 +6,18 @@ import { PARTS, forDepartment, type DepartmentPart } from './parts';
 export { noteText } from './note';
 export * from './parts';
 import type {
+  CompleteCallIntakeInput,
   LogIncomingCallInput,
   DispatchUnitInput,
+  SendCallEarlyInput,
   UpdateResponderStatusInput,
 } from '@criticom/db/schemas';
-import { logIncomingCallSchema } from '@criticom/db/schemas';
+import { completeCallIntakeSchema, logIncomingCallSchema, sendCallEarlySchema } from '@criticom/db/schemas';
+
+/** Until migration 0076 is run the database has no injuries or early send: say so plainly. */
+function before0076(error: { code?: string; message?: string } | null): boolean {
+  return Boolean(error && (error.code === 'PGRST202' || /p_injuries|send_call_early|complete_call_intake/.test(error.message ?? '')));
+}
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 /** A call with each department's part of it (0073); none until 0073 is run. */
@@ -33,7 +40,7 @@ export async function logIncomingCall(
   const parsed = logIncomingCallSchema.safeParse(raw);
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'The call details are incomplete');
   const input = parsed.data;
-  const { data, error } = await client.rpc('log_incoming_call', {
+  const args = {
     p_silo: input.silo,
     p_caller_name: input.caller_name,
     p_caller_number: input.caller_number,
@@ -56,7 +63,71 @@ export async function logIncomingCall(
     p_incident_category: input.incident_category ?? null,
     p_region: input.region ?? null,
     p_tagged_silos: [...new Set(input.tagged_silos)],
+    p_client_ref: input.client_ref ?? null,
+    p_injuries: input.injuries?.length ? input.injuries : null,
+  };
+  let { data, error } = await client.rpc('log_incoming_call', args);
+  if (before0076(error)) {
+    // The call matters more than its injuries: log it the way 0068 does.
+    const { p_injuries: _, ...old } = args;
+    ({ data, error } = await client.rpc('log_incoming_call', old as typeof args));
+  }
+  if (error) throw error;
+  return data as Incident;
+}
+
+/**
+ * Send an urgent call to dispatch before the form is complete (0076): only
+ * the type, the place and a department are needed. The dispatch desks see it
+ * at once; the rest follows with completeCallIntake. The reference is made
+ * once per call on the form, so pressing again returns the same call.
+ */
+export async function sendCallEarly(client: CriticomClient, raw: SendCallEarlyInput): Promise<Incident> {
+  const parsed = sendCallEarlySchema.safeParse(raw);
+  if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'The call is not ready to send');
+  const input = parsed.data;
+  const { data, error } = await client.rpc('send_call_early', {
+    p_client_ref: input.client_ref,
+    p_silo: input.silo,
+    p_incident_type: input.incident_type,
+    p_incident_severity: input.incident_severity,
+    p_location_address: input.location_address,
+    p_location_lat: input.location_lat,
+    p_location_lng: input.location_lng,
+    p_tagged_silos: [...new Set(input.tagged_silos)],
+    p_incident_category: input.incident_category ?? null,
+    p_suburb: input.suburb ?? null,
+    p_city: input.city ?? null,
+    p_postal_code: input.postal_code ?? null,
+    p_region: input.region ?? null,
+    p_caller_name: input.caller_name?.trim() || null,
+    p_caller_number: input.caller_number || null,
+    p_call_description: input.call_description?.trim() || null,
+    p_is_caller_patient: input.is_caller_patient ?? null,
+    p_patient_name: input.patient_name ?? null,
+    p_number_of_victims: input.number_of_victims ?? null,
+    p_medical_type: input.medical_type ?? null,
+    p_injuries: input.injuries?.length ? input.injuries : null,
+    p_notes: input.notes?.trim() || null,
   });
+  if (before0076(error)) throw new Error('Sending early needs the latest database update (0076). Fill in the form and send it the usual way.');
+  if (error) throw error;
+  return data as Incident;
+}
+
+/**
+ * Add the rest to a call already sent (0076): only the fields given change,
+ * and the call's timeline names what was added. Refused for anyone but the
+ * person who logged it (or the control room), and once the call is finished.
+ */
+export async function completeCallIntake(
+  client: CriticomClient,
+  args: { incident_id: string; fields: CompleteCallIntakeInput },
+): Promise<Incident> {
+  const parsed = completeCallIntakeSchema.safeParse(args.fields);
+  if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'Those details cannot be added');
+  const { data, error } = await client.rpc('complete_call_intake', { p_incident: args.incident_id, p_fields: parsed.data });
+  if (before0076(error)) throw new Error('Adding details to a call already sent needs the latest database update (0076).');
   if (error) throw error;
   return data as Incident;
 }
