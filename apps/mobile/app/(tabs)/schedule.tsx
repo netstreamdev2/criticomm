@@ -8,6 +8,7 @@ import {
   type LeaveBalance, type MyMonth, type ScheduleLine, type SwapView, type WhosOnRow,
 } from '@criticom/api';
 import { RESPONDER_ROLES, canManageRoster, roleName, type Database } from '@criticom/db';
+import { tx, type Translate } from '@criticom/db/i18n';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useSync } from '@/lib/sync';
@@ -18,31 +19,32 @@ import { DeptHeader } from '@/components/dept-badge';
 import { BottomSheet } from '@/components/bottom-sheet';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Card, Muted, SectionLabel, Title } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 type Endorsement = Database['public']['Tables']['endorsements']['Row'];
 
 const STATUS_COLOUR = (): Record<string, string> => ({
   Approved: colors.low, Rejected: colors.critical, Pending: colors.medium, Cancelled: colors.muted,
 });
-const LEAVE_WORD: Record<string, string> = { Rejected: 'Not approved' };
-const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+const LEAVE_WORD: Record<string, string> = { Rejected: tx('Not approved') };
 const SWAP_WORD: Record<string, string> = {
-  Requested: 'Waiting for them', Accepted: 'Waiting for your supervisor', Approved: 'Approved',
-  Declined: 'Declined', Refused: 'Not approved', Withdrawn: 'Withdrawn', Expired: 'Expired',
+  Requested: tx('Waiting for them'), Accepted: tx('Waiting for your supervisor'), Approved: tx('Approved'),
+  Declined: tx('Declined'), Refused: tx('Not approved'), Withdrawn: tx('Withdrawn'), Expired: tx('Expired'),
 };
 
-function countdown(ms: number): string {
+function countdown(ms: number, t: Translate): string {
   const mins = Math.round(Math.abs(ms) / 60_000);
-  if (mins < 60) return `${mins} min`;
+  if (mins < 60) return t('{n} min', { n: mins });
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  if (h < 24) return m ? `${h} h ${m} min` : `${h} h`;
+  if (h < 24) return m ? t('{h} h {m} min', { h, m }) : t('{h} h', { h });
   const d = Math.floor(h / 24);
-  return `${d} day${d === 1 ? '' : 's'}`;
+  return d === 1 ? t('1 day') : t('{n} days', { n: d });
 }
 
 /** "When am I working?": the shift now or next, the month, who is on, leave and swaps. */
 export default function ScheduleScreen() {
+  const { t, tc } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { session, silo, fullName, role } = useAuth();
@@ -70,8 +72,8 @@ export default function ScheduleScreen() {
 
   // The countdown moves without a reload.
   useEffect(() => {
-    const t = setInterval(() => tick((n) => n + 1), 30_000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => tick((n) => n + 1), 30_000);
+    return () => clearInterval(timer);
   }, []);
 
   const load = useCallback(async () => {
@@ -106,9 +108,9 @@ export default function ScheduleScreen() {
 
   useEffect(() => { void load(); }, [load]);
 
-  const tpl = useMemo(() => new Map((data?.templates ?? []).map((t) => [t.id, t])), [data]);
+  const tpl = useMemo(() => new Map((data?.templates ?? []).map((item) => [item.id, item])), [data]);
   const nameOf = (l: { template_id: string | null; activity_type?: string | null }) =>
-    (l.template_id ? tpl.get(l.template_id)?.name : null) ?? l.activity_type ?? 'Shift';
+    (l.template_id ? tpl.get(l.template_id)?.name : null) ?? l.activity_type ?? t('Shift');
 
   // What this phone did that the server has not heard yet.
   const confirmedHere = new Set(pending.flatMap((e) => (e.op.kind === 'allocation_ack' ? [e.op.rosterId] : [])));
@@ -118,7 +120,7 @@ export default function ScheduleScreen() {
   const askedHere = pending.filter((e) => e.op.kind === 'swap_request');
 
   const confirm = async (l: ScheduleLine) => {
-    await enqueue({ kind: 'allocation_ack', rosterId: l.id, label: `${dayLabel(l.duty_date ?? today)} · ${nameOf(l)}` });
+    await enqueue({ kind: 'allocation_ack', rosterId: l.id, label: `${dayLabel(l.duty_date ?? today, t)} · ${nameOf(l)}` });
   };
 
   const settings = data?.settings ?? { grace: 10, noshow: 60 };
@@ -160,66 +162,68 @@ export default function ScheduleScreen() {
       </Card>
 
       {/* The shift now, or next */}
-      <SectionLabel>{now && startsIn <= 0 ? 'Your shift now' : 'Your next shift'}</SectionLabel>
+      <SectionLabel>{now && startsIn <= 0 ? t('Your shift now') : t('Your next shift')}</SectionLabel>
       {now && now.start_at && now.end_at ? (
         <Card accent={nowState === 'late' || nowState === 'not_started' ? colors.critical : nowState === 'started' || nowState === 'started_late' ? colors.low : colors.accent}>
           <Title>{nameOf(now)}</Title>
-          <Muted>{dayLabel(now.duty_date ?? today)} · {saTime(now.start_at)}–{saTime(now.end_at)}{now.station ? ` · ${now.station}` : ''}</Muted>
+          <Muted>{dayLabel(now.duty_date ?? today, t)} · {saTime(now.start_at)}–{saTime(now.end_at)}{now.station ? ` · ${now.station}` : ''}</Muted>
           <View style={styles.chips}>
             {now.post ? <Chip icon="flag-outline" text={now.post} /> : null}
             {now.call_sign ? <Chip icon="id-card-outline" text={now.call_sign} /> : null}
             {now.vehicle ? <Chip icon={unitIcon} text={now.vehicle} /> : null}
           </View>
           <Text style={[styles.state, { color: nowState === 'late' || nowState === 'not_started' ? colors.critical : colors.text }]}>
-            {startsIn > 0 ? `Starts in ${countdown(startsIn)}` : nowState ? stateWords(nowState, now.attendance) : ''}
+            {startsIn > 0 ? t('Starts in {countdown}', { countdown: countdown(startsIn, t) }) : nowState ? stateWords(nowState, now.attendance, t) : ''}
           </Text>
           {now.special_instructions ? <Text style={styles.instructions}>{now.special_instructions}</Text> : null}
           {!now.acknowledged_at && !confirmedHere.has(now.id) ? (
             <Pressable accessibilityRole="button" onPress={() => { void confirm(now); }} style={({ pressed }) => [styles.primary, { opacity: pressed ? 0.7 : 1 }]}>
               <Ionicons name="checkmark-circle-outline" size={16} color="#fff" />
-              <Text style={styles.primaryText}>I have read this shift</Text>
+              <Text style={styles.primaryText}>{t('I have read this shift')}</Text>
             </Pressable>
           ) : null}
           {field && !now.attendance?.checked_in_at && startsIn < 3 * 3_600_000 ? (
             <Pressable accessibilityRole="button" onPress={() => router.push('/(tabs)/shift')} style={({ pressed }) => [styles.secondary, { opacity: pressed ? 0.7 : 1 }]}>
               <Ionicons name="play-circle-outline" size={16} color={colors.accent} />
-              <Text style={styles.secondaryText}>Start your shift</Text>
+              <Text style={styles.secondaryText}>{t('Start your shift')}</Text>
             </Pressable>
           ) : null}
         </Card>
       ) : (
-        <Card tight><Muted>Nothing on your roster in the next day.</Muted></Card>
+        <Card tight><Muted>{t('Nothing on your roster in the next day.')}</Muted></Card>
       )}
 
       {/* The month */}
       <View style={styles.monthHead}>
-        <Pressable onPress={() => setMonth((m) => shiftMonth(m, -1))} hitSlop={12} accessibilityLabel="Previous month">
+        <Pressable onPress={() => setMonth((m) => shiftMonth(m, -1))} hitSlop={12} accessibilityLabel={t('Previous month')}>
           <Ionicons name="chevron-back" size={20} color={colors.text} />
         </Pressable>
-        <Text style={styles.monthTitle}>{monthLabel(month)}</Text>
-        <Pressable onPress={() => setMonth((m) => shiftMonth(m, 1))} hitSlop={12} accessibilityLabel="Next month">
+        <Text style={styles.monthTitle}>{monthLabel(month, t)}</Text>
+        <Pressable onPress={() => setMonth((m) => shiftMonth(m, 1))} hitSlop={12} accessibilityLabel={t('Next month')}>
           <Ionicons name="chevron-forward" size={20} color={colors.text} />
         </Pressable>
       </View>
       <Card tight>
-        <Muted>{monthShifts.length} shift{monthShifts.length === 1 ? '' : 's'} this month</Muted>
+        <Muted>{monthShifts.length === 1 ? t('1 shift this month') : t('{n} shifts this month', { n: monthShifts.length })}</Muted>
         <View style={styles.weekRow}>
-          {WEEKDAYS.map((w, i) => <Text key={i} style={styles.weekday}>{w}</Text>)}
+          {[tc('Monday, first letter', 'M'), tc('Tuesday, first letter', 'T'), tc('Wednesday, first letter', 'W'), tc('Thursday, first letter', 'T'),
+            tc('Friday, first letter', 'F'), tc('Saturday, first letter', 'S'), tc('Sunday, first letter', 'S')]
+            .map((w, i) => <Text key={i} style={styles.weekday}>{w}</Text>)}
         </View>
         {monthGrid(month).map((week) => (
           <View key={week[0]!.day} style={styles.weekRow}>
             {week.map(({ day: d, inMonth }) => {
               const lines = byDay.get(d) ?? [];
               const work = lines.find((l) => lineActive(l.status, l.cancelled_at));
-              const t = work?.template_id ? tpl.get(work.template_id) : undefined;
+              const item = work?.template_id ? tpl.get(work.template_id) : undefined;
               const leave = lines.some((l) => l.status === 'Leave') || leaveOn(d);
               return (
-                <Pressable key={d} onPress={() => setDay(d)} accessibilityLabel={dayLabel(d)}
+                <Pressable key={d} onPress={() => setDay(d)} accessibilityLabel={dayLabel(d, t)}
                   style={[styles.dayCell, !inMonth && { opacity: 0.35 }, d === today && styles.today, holiday.has(d) && styles.holiday]}>
                   <Text style={styles.dayNum}>{Number(d.slice(8))}</Text>
                   {work ? (
-                    <Text style={[styles.dayCode, { color: t?.colour ?? colors.accent, backgroundColor: `${t?.colour ?? colors.accent}33` }]}>{t?.code ?? '•'}</Text>
-                  ) : leave ? <Text style={styles.dayLeave}>L</Text> : null}
+                    <Text style={[styles.dayCode, { color: item?.colour ?? colors.accent, backgroundColor: `${item?.colour ?? colors.accent}33` }]}>{item?.code ?? '•'}</Text>
+                  ) : leave ? <Text style={styles.dayLeave}>{t('L')}</Text> : null}
                 </Pressable>
               );
             })}
@@ -228,9 +232,9 @@ export default function ScheduleScreen() {
       </Card>
 
       {/* Who's on */}
-      <SectionLabel>Who&apos;s on today</SectionLabel>
+      <SectionLabel>{t('Who\'s on today')}</SectionLabel>
       <Card tight>
-        {whosOn.length === 0 ? <Muted>Nobody is on the issued roster today.</Muted> : null}
+        {whosOn.length === 0 ? <Muted>{t('Nobody is on the issued roster today.')}</Muted> : null}
         {whosOn.filter((r) => lineActive(r.status, r.cancelled_at)).map((r) => {
           const on = Date.parse(r.start_at!) <= Date.now() && Date.parse(r.end_at!) > Date.now();
           return (
@@ -242,7 +246,7 @@ export default function ScheduleScreen() {
           );
         })}
         {whosOn.some((r) => r.status === 'Leave') ? (
-          <Muted style={{ marginTop: space.sm }}>Off today: {whosOn.filter((r) => r.status === 'Leave').map((r) => r.user_name).join(', ')}</Muted>
+          <Muted style={{ marginTop: space.sm }}>{t('Off today: {map}', { map: whosOn.filter((r) => r.status === 'Leave').map((r) => r.user_name).join(', ') })}</Muted>
         ) : null}
       </Card>
 
@@ -250,29 +254,33 @@ export default function ScheduleScreen() {
       {oversees ? <TeamToday lines={team} settings={settings} nameOf={nameOf} /> : null}
 
       {/* Swaps */}
-      <SectionLabel>Swaps</SectionLabel>
+      <SectionLabel>{t('Swaps')}</SectionLabel>
       <Card tight>
-        {swaps.length === 0 && askedHere.length === 0 ? <Muted>No swaps. Open a day to offer one of your shifts.</Muted> : null}
-        {askedHere.map((e) => <Muted key={e.id}>{e.op.kind === 'swap_request' ? e.op.label : ''} · waiting to send</Muted>)}
+        {swaps.length === 0 && askedHere.length === 0 ? <Muted>{t('No swaps. Open a day to offer one of your shifts.')}</Muted> : null}
+        {askedHere.map((e) => <Muted key={e.id}>{e.op.kind === 'swap_request' ? `${e.op.label} ` : ''}{t('· waiting to send')}</Muted>)}
         {swaps.slice(0, 10).map((s) => {
           const mineSide = s.requester_id === userId ? s.mine : s.theirs;
           const other = s.requester_id === userId ? s.theirs : s.mine;
           const answered = answeredHere.get(s.id);
           const status = withdrawnHere.has(s.id) ? 'Withdrawn' : answered === undefined ? s.status : answered ? 'Accepted' : 'Declined';
-          const label = `${mineSide ? `${nameOf(mineSide)} ${dayLabel(mineSide.duty_date ?? today)}` : 'Your shift'} for ${other?.user_name ?? 'a colleague'}'s ${other ? `${nameOf(other)} ${dayLabel(other.duty_date ?? today)}` : 'shift'}`;
+          const label = t('{mine} for {name}’s {theirs}', {
+            mine: mineSide ? `${nameOf(mineSide)} ${dayLabel(mineSide.duty_date ?? today, t)}` : t('Your shift'),
+            name: other?.user_name ?? t('a colleague'),
+            theirs: other ? `${nameOf(other)} ${dayLabel(other.duty_date ?? today, t)}` : t('shift'),
+          });
           return (
             <View key={s.id} style={styles.swapRow}>
               <Text style={styles.personName}>{label}</Text>
-              <Muted>{SWAP_WORD[status] ?? status}</Muted>
+              <Muted>{t(SWAP_WORD[status] ?? status)}</Muted>
               <View style={styles.rowGap}>
                 {s.partner_id === userId && status === 'Requested' ? (
                   <>
-                    <SmallButton text="Accept" onPress={() => { void enqueue({ kind: 'swap_respond', swapId: s.id, accept: true, label }); }} />
-                    <SmallButton text="Decline" subtle onPress={() => { void enqueue({ kind: 'swap_respond', swapId: s.id, accept: false, label }); }} />
+                    <SmallButton text={t('Accept')} onPress={() => { void enqueue({ kind: 'swap_respond', swapId: s.id, accept: true, label }); }} />
+                    <SmallButton text={t('Decline')} subtle onPress={() => { void enqueue({ kind: 'swap_respond', swapId: s.id, accept: false, label }); }} />
                   </>
                 ) : null}
                 {s.requester_id === userId && (status === 'Requested' || status === 'Accepted') ? (
-                  <SmallButton text="Withdraw" subtle onPress={() => { void enqueue({ kind: 'swap_withdraw', swapId: s.id, label }); }} />
+                  <SmallButton text={t('Withdraw')} subtle onPress={() => { void enqueue({ kind: 'swap_withdraw', swapId: s.id, label }); }} />
                 ) : null}
               </View>
             </View>
@@ -282,20 +290,20 @@ export default function ScheduleScreen() {
 
       {/* Leave */}
       <View style={styles.monthHead}>
-        <SectionLabel>My leave</SectionLabel>
-        <Pressable onPress={() => router.push('/leave')} hitSlop={10}><Text style={styles.link}>Ask for leave</Text></Pressable>
+        <SectionLabel>{t('My leave')}</SectionLabel>
+        <Pressable onPress={() => router.push('/leave')} hitSlop={10}><Text style={styles.link}>{t('Ask for leave')}</Text></Pressable>
       </View>
       {balances.length ? (
         <Card tight>
           {balances.map((b) => (
             <View key={b.type} style={styles.personRow}>
               <Text style={styles.personName}>{b.type}</Text>
-              <Text style={styles.personMeta}>{b.remaining} of {b.entitlement} days left{b.pending ? ` · ${b.pending} pending` : ''}</Text>
+              <Text style={styles.personMeta}>{t('{remaining} of {entitlement} days left', { remaining: b.remaining, entitlement: b.entitlement })}{b.pending ? t(' · {pending} pending', { pending: b.pending }) : ''}</Text>
             </View>
           ))}
         </Card>
       ) : null}
-      {(data?.leave ?? []).length === 0 ? <Card tight><Muted>No leave this month.</Muted></Card> : null}
+      {(data?.leave ?? []).length === 0 ? <Card tight><Muted>{t('No leave this month.')}</Muted></Card> : null}
       {(data?.leave ?? []).map((l) => {
         const status = cancelledHere.has(l.id) ? 'Cancelled' : l.status;
         const canCancel = status === 'Pending' || (status === 'Approved' && l.eff_from > today);
@@ -303,18 +311,18 @@ export default function ScheduleScreen() {
           <Card key={l.id} tight accent={STATUS_COLOUR()[status] ?? colors.border}>
             <View style={styles.rowBetween}>
               <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={styles.personName}>{l.absence ?? 'Leave'}</Text>
-                <Muted>{l.eff_from} to {l.eff_to}{l.days != null ? ` · ${l.days} day${Number(l.days) === 1 ? '' : 's'}` : ''}</Muted>
+                <Text style={styles.personName}>{l.absence ? t(l.absence) : t('Leave')}</Text>
+                <Muted>{t('{from} to {to}', { from: l.eff_from, to: l.eff_to })}{l.days != null ? ` · ${Number(l.days) === 1 ? t('1 day') : t('{n} days', { n: l.days })}` : ''}</Muted>
                 {l.review_comments ? <Muted>{l.review_comments}</Muted> : null}
               </View>
               <Text style={[styles.status, { color: STATUS_COLOUR()[status] ?? colors.muted }]}>
-                {cancelledHere.has(l.id) ? 'Cancelling' : LEAVE_WORD[status] ?? status}
+                {cancelledHere.has(l.id) ? t('Cancelling') : t(LEAVE_WORD[status] ?? status)}
               </Text>
             </View>
             {canCancel && !cancelledHere.has(l.id) ? (
-              <SmallButton text="Cancel leave" subtle onPress={() => Alert.alert('Cancel this leave?', `${l.absence ?? 'Leave'}, ${l.eff_from} to ${l.eff_to}.`, [
-                { text: 'Keep it', style: 'cancel' },
-                { text: 'Cancel leave', style: 'destructive', onPress: () => { void enqueue({ kind: 'leave_cancel', leaveId: l.id, label: `${l.absence ?? 'Leave'} · ${l.eff_from} to ${l.eff_to}` }); } },
+              <SmallButton text={t('Cancel leave')} subtle onPress={() => Alert.alert(t('Cancel this leave?'), t('{type}, {from} to {to}.', { type: l.absence ? t(l.absence) : t('Leave'), from: l.eff_from, to: l.eff_to }), [
+                { text: t('Keep it'), style: 'cancel' },
+                { text: t('Cancel leave'), style: 'destructive', onPress: () => { void enqueue({ kind: 'leave_cancel', leaveId: l.id, label: t('{type} · {from} to {to}', { type: l.absence ? t(l.absence) : t('Leave'), from: l.eff_from, to: l.eff_to }) }); } },
               ])} />
             ) : null}
           </Card>
@@ -323,7 +331,7 @@ export default function ScheduleScreen() {
 
       {endorsements.length ? (
         <>
-          <SectionLabel>Court dates and endorsements</SectionLabel>
+          <SectionLabel>{t('Court dates and endorsements')}</SectionLabel>
           {endorsements.map((e) => (
             <Card key={e.id} tight>
               <Text style={styles.personName}>{e.type}</Text>
@@ -356,7 +364,11 @@ export default function ScheduleScreen() {
           setOffering(null);
           void enqueue({
             kind: 'swap_request', myLine: mine.id, theirLine: theirs.id, note: note || null,
-            label: `${nameOf(mine)} ${dayLabel(mine.duty_date ?? today)} for ${theirs.user_name}'s ${nameOf(theirs)} ${dayLabel(theirs.start_at!.slice(0, 10))}`,
+            label: t('{mine} for {name}’s {theirs}', {
+              mine: `${nameOf(mine)} ${dayLabel(mine.duty_date ?? today, t)}`,
+              name: theirs.user_name,
+              theirs: `${nameOf(theirs)} ${dayLabel(theirs.start_at!.slice(0, 10), t)}`,
+            }),
           });
         }}
       />
@@ -367,6 +379,7 @@ export default function ScheduleScreen() {
 function TeamToday({ lines, settings, nameOf }: {
   lines: ScheduleLine[]; settings: { grace: number; noshow: number }; nameOf: (l: ScheduleLine) => string;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const now = Date.now();
   const current = lines
@@ -377,7 +390,7 @@ function TeamToday({ lines, settings, nameOf }: {
   const order = { not_started: 0, late: 1, due: 2, upcoming: 3, started_late: 4, started: 5, finished: 6, missed: 7, recorded: 8, cancelled: 9, leave: 10 } as const;
   return (
     <>
-      <SectionLabel>My team today</SectionLabel>
+      <SectionLabel>{t('My team today')}</SectionLabel>
       <Card tight>
         {current.sort((a, b) => order[a.s] - order[b.s]).map(({ l, s }) => {
           const bad = s === 'late' || s === 'not_started';
@@ -386,7 +399,7 @@ function TeamToday({ lines, settings, nameOf }: {
               <View style={[styles.dot, { backgroundColor: bad ? colors.critical : s === 'started' || s === 'started_late' ? colors.low : colors.muted }]} />
               <Text style={styles.personName} numberOfLines={1}>{l.user_name}</Text>
               <Text style={[styles.personMeta, bad && { color: colors.critical, fontWeight: '700' }]} numberOfLines={1}>
-                {nameOf(l)} {saTime(l.start_at!)} · {stateWords(s, l.attendance)}
+                {nameOf(l)} {saTime(l.start_at!)} · {stateWords(s, l.attendance, t)}
               </Text>
             </View>
           );
@@ -401,22 +414,27 @@ function DaySheet({ day, lines, holiday, leave, nameOf, confirmedHere, canOffer,
   nameOf: (l: ScheduleLine) => string; confirmedHere: Set<string>; canOffer: boolean;
   onConfirm: (l: ScheduleLine) => void; onOffer: (l: ScheduleLine) => void; onClose: () => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <BottomSheet visible={day !== null} onClose={onClose}
-      header={<View style={{ paddingHorizontal: space.lg }}><Title>{day ? dayLabel(day) : ''}</Title>{holiday ? <Muted>{holiday}</Muted> : null}</View>}>
+      header={<View style={{ paddingHorizontal: space.lg }}><Title>{day ? dayLabel(day, t) : ''}</Title>{holiday ? <Muted>{holiday}</Muted> : null}</View>}>
       <View style={{ padding: space.lg, gap: space.md }}>
-        {lines.length === 0 ? <Muted>{leave ? `${leave.absence ?? 'Leave'} (${leave.status === 'Approved' ? 'approved' : 'asked for'})` : 'Not on the roster.'}</Muted> : null}
+        {lines.length === 0 ? <Muted>{leave
+          ? leave.status === 'Approved'
+            ? t('{type} (approved)', { type: leave.absence ? t(leave.absence) : t('Leave') })
+            : t('{type} (asked for)', { type: leave.absence ? t(leave.absence) : t('Leave') })
+          : t('Not on the roster.')}</Muted> : null}
         {lines.map((l) => (
           <Card key={l.id} tight>
-            <Text style={styles.personName}>{l.status === 'Leave' ? 'On leave' : nameOf(l)}</Text>
+            <Text style={styles.personName}>{l.status === 'Leave' ? t('On leave') : nameOf(l)}</Text>
             <Muted>{saTime(l.start_at!)}–{saTime(l.end_at!)}{l.station ? ` · ${l.station}` : ''}</Muted>
             {[l.post, l.vehicle, l.call_sign].some(Boolean) ? <Muted>{[l.post, l.vehicle, l.call_sign].filter(Boolean).join(' · ')}</Muted> : null}
             {l.special_instructions ? <Text style={styles.instructions}>{l.special_instructions}</Text> : null}
             {lineActive(l.status, l.cancelled_at) && Date.parse(l.end_at!) > Date.now() ? (
               <View style={styles.rowGap}>
-                {!l.acknowledged_at && !confirmedHere.has(l.id) ? <SmallButton text="I have read this shift" onPress={() => onConfirm(l)} /> : <Muted>Confirmed</Muted>}
-                {canOffer && Date.parse(l.start_at!) > Date.now() + 3_600_000 ? <SmallButton text="Offer a swap" subtle onPress={() => onOffer(l)} /> : null}
+                {!l.acknowledged_at && !confirmedHere.has(l.id) ? <SmallButton text={t('I have read this shift')} onPress={() => onConfirm(l)} /> : <Muted>{t('Confirmed')}</Muted>}
+                {canOffer && Date.parse(l.start_at!) > Date.now() + 3_600_000 ? <SmallButton text={t('Offer a swap')} subtle onPress={() => onOffer(l)} /> : null}
               </View>
             ) : null}
           </Card>
@@ -430,6 +448,7 @@ function OfferSheet({ line, options, nameOf, onClose, onSend }: {
   line: ScheduleLine | null; options: WhosOnRow[]; nameOf: (l: { template_id: string | null }) => string;
   onClose: () => void; onSend: (theirs: WhosOnRow, note: string) => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const [note, setNote] = useState('');
   const fit = line
@@ -437,15 +456,15 @@ function OfferSheet({ line, options, nameOf, onClose, onSend }: {
     : [];
   return (
     <BottomSheet visible={line !== null} onClose={onClose}
-      header={<View style={{ paddingHorizontal: space.lg }}><Title>Offer a swap</Title>{line ? <Muted>Your {nameOf(line)} on {dayLabel(line.duty_date ?? '')}</Muted> : null}</View>}>
+      header={<View style={{ paddingHorizontal: space.lg }}><Title>{t('Offer a swap')}</Title>{line ? <Muted>{t('Your {nameOf} on {dayLabel}', { nameOf: nameOf(line), dayLabel: dayLabel(line.duty_date ?? '', t) })}</Muted> : null}</View>}>
       <View style={{ padding: space.lg, gap: space.sm }}>
-        <TextInput value={note} onChangeText={setNote} placeholder="Note (optional)" placeholderTextColor={colors.muted} style={styles.input} />
-        <Muted>Choose the colleague&apos;s shift you would take instead. They accept, then your supervisor approves.</Muted>
-        {fit.length === 0 ? <Muted>No colleague&apos;s shift fits.</Muted> : null}
+        <TextInput value={note} onChangeText={setNote} placeholder={t('Note (optional)')} placeholderTextColor={colors.muted} style={styles.input} />
+        <Muted>{t('Choose the colleague\'s shift you would take instead. They accept, then your supervisor approves.')}</Muted>
+        {fit.length === 0 ? <Muted>{t('No colleague\'s shift fits.')}</Muted> : null}
         {fit.slice(0, 60).map((o) => (
           <Pressable key={o.id} onPress={() => onSend(o, note)} style={({ pressed }) => [styles.option, { opacity: pressed ? 0.7 : 1 }]}>
             <Text style={styles.personName}>{o.user_name}</Text>
-            <Muted>{nameOf(o)} · {dayLabel(o.start_at!.slice(0, 10))} · {saTime(o.start_at!)}–{saTime(o.end_at!)}</Muted>
+            <Muted>{nameOf(o)} · {dayLabel(o.start_at!.slice(0, 10), t)} · {saTime(o.start_at!)}–{saTime(o.end_at!)}</Muted>
           </Pressable>
         ))}
       </View>

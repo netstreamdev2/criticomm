@@ -19,12 +19,14 @@ import { formatDistance, incidentHaystack, matchesQuery } from '@/lib/incident-s
 import { confirmAccept } from '@/lib/accept';
 import { IncidentSheet } from '@/components/incident-sheet';
 import { ClosedIncidents } from '@/components/closed-incidents';
+import { tx, type Translate } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 /** Highest severity first, then newest — the order a crew triages in. */
 const SEVERITY_RANK: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 
 /** List order. Newest is the default every time the tab opens. */
-const SORTS = ['Newest', 'Severity', 'Nearest'] as const;
+const SORTS = [tx('Newest'), tx('Severity'), tx('Nearest')] as const;
 type Sort = (typeof SORTS)[number];
 
 /** "Nearby" is within this straight-line radius of the officer. */
@@ -43,17 +45,17 @@ function distanceKm(from: { lat: number; lng: number }, to: { lat: number; lng: 
 type Row = { call: FieldIncident; view: CallView; status: IncidentStatus; queued: boolean; km: number | null; haystack: string };
 
 /** The right-hand tag on a row: where this officer stands on the call. */
-function holder(v: CallView): { text: string; tone: string; strong: boolean } | null {
-  if (v.ownSos) return { text: 'YOUR SOS', tone: colors.critical, strong: true };
-  if (v.role === 'lead') return { text: 'YOU · LEAD', tone: colors.accent, strong: true };
-  if (v.role === 'backup') return { text: 'YOU · BACKUP', tone: colors.accent, strong: true };
-  if (v.assignment.kind === 'you') return { text: 'ASSIGNED TO YOU', tone: colors.accent, strong: true };
+function holder(v: CallView, t: Translate): { text: string; tone: string; strong: boolean } | null {
+  if (v.ownSos) return { text: t('YOUR SOS'), tone: colors.critical, strong: true };
+  if (v.role === 'lead') return { text: t('YOU · LEAD'), tone: colors.accent, strong: true };
+  if (v.role === 'backup') return { text: t('YOU · BACKUP'), tone: colors.accent, strong: true };
+  if (v.assignment.kind === 'you') return { text: t('ASSIGNED TO YOU'), tone: colors.accent, strong: true };
   if (v.assignment.kind === 'other') return { text: v.assignment.name, tone: colors.muted, strong: false };
   return null;
 }
 
 /** "My incidents" filters on the officer's own place on each incident. */
-const MINE_STATES = ['All', 'Waiting', 'En route', 'On scene'] as const;
+const MINE_STATES = [tx('All'), tx('Waiting'), tx('En route'), tx('On scene')] as const;
 
 /**
  * Incidents — every live incident sent to this officer's department or assigned to
@@ -63,6 +65,7 @@ const MINE_STATES = ['All', 'Waiting', 'En route', 'On scene'] as const;
  * may hold several calls at once.
  */
 export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const params = useLocalSearchParams<{ open?: string; search?: string; closed?: string }>();
@@ -81,7 +84,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
   // Closed is the officer's own finished calls (0074).
   const scopes: readonly string[] = useMemo(
     () => (mineOnly ? MINE_STATES
-      : nearbyOn ? (['All', 'Mine', 'Nearby', 'Closed'] as const) : (['All', 'Mine', 'Closed'] as const)),
+      : nearbyOn ? ([tx('All'), tx('Mine'), tx('Nearby'), tx('Closed')] as const) : ([tx('All'), tx('Mine'), tx('Closed')] as const)),
     [nearbyOn, mineOnly],
   );
   const [scope, setScope] = useState<string>('All');
@@ -142,8 +145,8 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
   // Opened from the header search: the box is ready to type in.
   useEffect(() => {
     if (!params.search) return;
-    const t = setTimeout(() => searchBox.current?.focus(), 250);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => searchBox.current?.focus(), 250);
+    return () => clearTimeout(timer);
   }, [params.search]);
 
   // Live distance on every row: the phone's position is watched while the
@@ -187,7 +190,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
 
   const rows = useMemo<Row[]>(() => calls.map((call) => {
     const queued = queuedStatus.get(call.id) ?? null;
-    const view = callView(call, me, queued);
+    const view = callView(call, me, queued, t);
     const status = (view.role === 'lead' && queued) ? queued : call.status;
     const km = here && (call.location_lat || call.location_lng)
       ? distanceKm(here, { lat: call.location_lat, lng: call.location_lng })
@@ -260,7 +263,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
 
   const renderRow = ({ item }: { item: Row }) => {
     const sev = severityColor(item.call.incident_severity);
-    const tag = holder(item.view);
+    const tag = holder(item.view, t);
     const mine = item.view.role !== null || item.view.assignment.kind === 'you';
     // My department's part is filed while others still work the call: its drawer is on the Closed tab.
     const finishedForMe = !mineOnly && item.view.role !== null && item.status === 'Resolved';
@@ -272,7 +275,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
           setClosedOpen(item.call.id);
         }}
         accessibilityRole="button"
-        accessibilityLabel={`${item.call.incident_severity} ${item.call.incident_type}, ${item.call.incident_number}${item.km !== null ? `, ${formatDistance(item.km)} away` : ''}${tag ? `, ${tag.text}` : ''}`}
+        accessibilityLabel={`${t(item.call.incident_severity)} ${t(item.call.incident_type ?? '')}, ${item.call.incident_number}${item.km !== null ? `, ${t('{distance} away', { distance: formatDistance(item.km) })}` : ''}${tag ? `, ${tag.text}` : ''}`}
         style={({ pressed }) => [styles.row, mine && styles.rowMine, pressed && { opacity: 0.8 }]}
       >
         <View style={[styles.sevBar, { backgroundColor: sev }]} />
@@ -307,17 +310,17 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
           ref={searchBox}
           value={query}
           onChangeText={setQuery}
-          placeholder="Search incident, address, severity or date"
+          placeholder={t('Search incident, address, severity or date')}
           placeholderTextColor={colors.muted}
           style={styles.searchInput}
           autoCapitalize="none"
           autoCorrect={false}
           returnKeyType="search"
           clearButtonMode="never"
-          accessibilityLabel="Search incidents"
+          accessibilityLabel={t('Search incidents')}
         />
         {query ? (
-          <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityRole="button" accessibilityLabel="Clear search">
+          <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityRole="button" accessibilityLabel={t('Clear search')}>
             <Ionicons name="close-circle" size={17} color={colors.muted} />
           </Pressable>
         ) : null}
@@ -364,16 +367,16 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
             {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
             {onDuty === false ? (
               <Pressable onPress={() => router.push('/(tabs)/profile')} accessibilityRole="button">
-                <Banner tone="info">You are off duty — incidents are not sent to you. Tap to go on duty.</Banner>
+                <Banner tone="info">{t('You are off duty — incidents are not sent to you. Tap to go on duty.')}</Banner>
               </Pressable>
             ) : null}
 
             {searchAndTabs}
 
-            <View style={styles.sortRow} accessibilityRole="radiogroup" accessibilityLabel="Sort incidents">
+            <View style={styles.sortRow} accessibilityRole="radiogroup" accessibilityLabel={t('Sort incidents')}>
               <Text style={styles.summaryText}>
                 {list.length}
-                {urgent ? <Text style={{ color: colors.critical }}> · {urgent} urgent</Text> : null}
+                {urgent ? <Text style={{ color: colors.critical }}> · {t('{n} urgent', { n: urgent })}</Text> : null}
               </Text>
               <View style={styles.liveDot} />
               <View style={{ flex: 1 }} />
@@ -388,7 +391,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
                     hitSlop={6}
                     style={[styles.sortPill, on && styles.sortPillOn]}
                   >
-                    <Text style={[styles.sortText, on && styles.sortTextOn]}>{s}</Text>
+                    <Text style={[styles.sortText, on && styles.sortTextOn]}>{t(s)}</Text>
                   </Pressable>
                 );
               })}
@@ -396,7 +399,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
 
             {(scope === 'Nearby' || sort === 'Nearest') && !here ? (
               <Text style={styles.hint}>
-                {locationDenied ? 'Allow location access to see distances.' : 'Finding your location…'}
+                {locationDenied ? t('Allow location access to see distances.') : t('Finding your location…')}
               </Text>
             ) : null}
           </View>
@@ -404,13 +407,13 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
         ListEmptyComponent={loading ? null : (
           <EmptyState
             icon={mineOnly || scope === 'Mine' ? 'person-outline' : 'radio-outline'}
-            title={query.trim() ? 'No incidents match your search'
-              : mineOnly && scope !== 'All' ? `Nothing ${scope.toLowerCase()}`
-              : mineOnly || scope === 'Mine' ? 'Nothing assigned to you' : 'No live incidents'}
-            body={query.trim() ? 'Try an incident number, street, severity or a date such as 05-08-2026.'
+            title={query.trim() ? t('No incidents match your search')
+              : mineOnly && scope !== 'All' ? t('Nothing {scope}', { scope: t(scope).toLowerCase() })
+              : mineOnly || scope === 'Mine' ? t('Nothing assigned to you') : t('No live incidents')}
+            body={query.trim() ? t('Try an incident number, street, severity or a date such as 05-08-2026.')
               : mineOnly || scope === 'Mine'
-              ? 'Incidents you respond to, or that dispatch assigns to you, show here.'
-              : 'Incidents appear here the moment dispatch sends them to your department or assigns them to you.'}
+              ? t('Incidents you respond to, or that dispatch assigns to you, show here.')
+              : t('Incidents appear here the moment dispatch sends them to your department or assigns them to you.')}
           />
         )}
       />

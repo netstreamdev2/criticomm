@@ -20,6 +20,8 @@ import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { OrgMark } from '@/components/org-mark';
 import { Banner, Button, Card, EmptyState, Input, KeyValue, Muted, Segmented, SeverityPill } from '@/components/ui';
 import { SignaturePad } from '@/components/signature-pad';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 type Draft = { answers: Record<string, string>; casualties: SecondaryPatient[] };
@@ -40,6 +42,7 @@ const svgImage = (svg: string) => `data:image/svg+xml;utf8,${encodeURIComponent(
  * kept on the phone until filed; filing goes through the outbox.
  */
 export default function PcrScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -105,10 +108,10 @@ export default function PcrScreen() {
   // Keep the draft on the phone as the crew types.
   useEffect(() => {
     if (!id || !draftLoaded.current) return;
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       void AsyncStorage.setItem(draftKey(id), JSON.stringify({ answers, casualties } satisfies Draft)).catch(() => {});
     }, 400);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [id, answers, casualties]);
 
   const set = (key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: value }));
@@ -139,12 +142,12 @@ export default function PcrScreen() {
       await enqueue({ kind: 'pcr', incidentId: incident.id, incidentNumber: incident.incident_number, fields });
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
       Alert.alert(
-        'Patient report filed',
+        t('Patient report filed'),
         !online
-          ? 'Saved. It sends when you have signal.'
+          ? t('Saved. It sends when you have signal.')
           : requiresCleaning
-            ? `Your report for ${incident.incident_number} is on record. The ambulance is off road for cleaning.`
-            : `Your report for ${incident.incident_number} is on record.`,
+            ? t('Your report for {incident_number} is on record. The ambulance is off road for cleaning.', { incident_number: incident.incident_number })
+            : t('Your report for {incident_number} is on record.', { incident_number: incident.incident_number }),
       );
       // The Closed tab, with this call's drawer open: Close is the next step (0074).
       router.replace({ pathname: '/(tabs)/incidents', params: { closed: incident.id } });
@@ -169,10 +172,10 @@ export default function PcrScreen() {
       ]));
       return;
     }
-    Alert.alert('Post-Incident Vehicle Status', 'Does the vehicle require cleaning?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Yes - mark as off road', style: 'destructive', onPress: () => void submit(true) },
-      { text: 'No - ready for next call', onPress: () => void submit(false) },
+    Alert.alert(t('Post-Incident Vehicle Status'), t('Does the vehicle require cleaning?'), [
+      { text: t('Cancel'), style: 'cancel' },
+      { text: t('Yes - mark as off road'), style: 'destructive', onPress: () => void submit(true) },
+      { text: t('No - ready for next call'), onPress: () => void submit(false) },
     ]);
   };
 
@@ -186,7 +189,7 @@ export default function PcrScreen() {
   if (!incident) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
-        <EmptyState icon="alert-circle-outline" title="Incident not available" body="It may have been reassigned." />
+        <EmptyState icon="alert-circle-outline" title={t('Incident not available')} body={t('It may have been reassigned.')} />
       </View>
     );
   }
@@ -195,8 +198,8 @@ export default function PcrScreen() {
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
         <EmptyState
           icon="lock-closed-outline"
-          title="Patient report already filed"
-          body={alreadyQueued ? 'It sends when you have signal.' : 'Your patient report is on record.'}
+          title={t('Patient report already filed')}
+          body={alreadyQueued ? t('It sends when you have signal.') : t('Your patient report is on record.')}
         />
       </View>
     );
@@ -204,7 +207,7 @@ export default function PcrScreen() {
   if (!leadsOnPhone(incident, session?.user.id, pending, incident.id)) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
-        <EmptyState icon="person-outline" title="Not your incident" body="Only the paramedic leading this incident files its patient report." />
+        <EmptyState icon="person-outline" title={t('Not your incident')} body={t('Only the paramedic leading this incident files its patient report.')} />
       </View>
     );
   }
@@ -215,9 +218,9 @@ export default function PcrScreen() {
   const renderField = (f: PcrField) => {
     if (!pcrFieldShown(f, answers)) return null;
     const value = answers[f.key] ?? '';
-    const label = `${f.label}${f.required ? ' *' : ''}`;
+    const label = `${t(f.label)}${f.required ? ' *' : ''}`;
     const bad = invalid.has(f.key);
-    const heading = f.group ? <Text key={`${f.key}-g`} style={styles.group}>{f.group}</Text> : null;
+    const heading = f.group ? <Text key={`${f.key}-g`} style={styles.group}>{t(f.group)}</Text> : null;
     let body: React.ReactNode;
     if (f.kind === 'select') {
       body = (
@@ -234,12 +237,12 @@ export default function PcrScreen() {
                   accessibilityState={{ selected: on }}
                   style={({ pressed }) => [styles.chip, on && styles.chipOn, pressed && { opacity: 0.75 }]}
                 >
-                  <Text style={[styles.chipText, on && styles.chipTextOn]}>{o}</Text>
+                  <Text style={[styles.chipText, on && styles.chipTextOn]}>{t(o)}</Text>
                 </Pressable>
               );
             })}
           </View>
-          {f.key === 'gcs_motor' ? <Text style={styles.gcs}>GCS total: {gcs ?? '—'}{gcs !== null ? ' / 15' : ''}</Text> : null}
+          {f.key === 'gcs_motor' ? <Text style={styles.gcs}>{t('GCS total:')}{' '}{gcs ?? '—'}{gcs !== null ? ' / 15' : ''}</Text> : null}
         </View>
       );
     } else if (f.kind === 'yesno') {
@@ -259,7 +262,7 @@ export default function PcrScreen() {
           style={({ pressed }) => [styles.flag, pressed && { opacity: 0.75 }]}
         >
           <Ionicons name={on ? 'checkbox' : 'square-outline'} size={22} color={on ? colors.accent : colors.muted} />
-          <Text style={styles.flagText}>{f.label}</Text>
+          <Text style={styles.flagText}>{t(f.label)}</Text>
         </Pressable>
       );
     } else {
@@ -272,15 +275,15 @@ export default function PcrScreen() {
                 label={label}
                 value={value}
                 onChangeText={(v) => set(f.key, f.kind === 'count' ? v.replace(/[^0-9]/g, '') : v)}
-                placeholder={f.placeholder ?? (f.kind === 'time' ? 'HH:MM' : f.kind === 'date' ? 'YYYY-MM-DD' : undefined)}
+                placeholder={f.placeholder ?? (f.kind === 'time' ? t('HH:MM') : f.kind === 'date' ? t('YYYY-MM-DD') : undefined)}
                 keyboardType={keyboard}
                 multiline={f.kind === 'multiline'}
                 style={f.kind === 'multiline' ? { minHeight: 96, textAlignVertical: 'top' } : undefined}
               />
             </View>
             {f.kind === 'time' ? (
-              <Pressable onPress={() => set(f.key, nowHHMM())} style={styles.nowBtn} accessibilityRole="button" accessibilityLabel={`${f.label}: now`}>
-                <Text style={styles.nowText}>Now</Text>
+              <Pressable onPress={() => set(f.key, nowHHMM())} style={styles.nowBtn} accessibilityRole="button" accessibilityLabel={t('{label}: now', { label: t(f.label) })}>
+                <Text style={styles.nowText}>{t('Now')}</Text>
               </Pressable>
             ) : null}
           </View>
@@ -298,7 +301,7 @@ export default function PcrScreen() {
       style={styles.sectionHead}
     >
       <Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={16} color={colors.accent} />
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={styles.sectionTitle}>{t(title)}</Text>
       {count ? <Text style={styles.count}>{count}</Text> : null}
       <Ionicons name={open.has(sid) ? 'chevron-up' : 'chevron-down'} size={16} color={colors.muted} />
     </Pressable>
@@ -324,11 +327,11 @@ export default function PcrScreen() {
             </View>
             <SeverityPill severity={incident.incident_severity} />
           </View>
-          <Text style={styles.type}>ePCR: Medical Incident Report</Text>
+          <Text style={styles.type}>{t('ePCR: Medical Incident Report')}</Text>
           <Muted>{incident.incident_type} · {incident.location_address}</Muted>
         </Card>
 
-        {!onScene ? <Banner tone="info">Mark yourself on scene before filing. The draft is kept.</Banner> : null}
+        {!onScene ? <Banner tone="info">{t('Mark yourself on scene before filing. The draft is kept.')}</Banner> : null}
 
         {PCR_SECTIONS.map((section, idx) => (
           <View key={section.id}>
@@ -340,12 +343,12 @@ export default function PcrScreen() {
                   <Card>
                     {section.id === 'scene' ? (
                       <View style={{ marginBottom: space.md }}>
-                        <KeyValue label="Time on Scene" value={sast(incident.arrived_timestamp)} />
+                        <KeyValue label={t('Time on Scene')} value={sast(incident.arrived_timestamp)} />
                       </View>
                     ) : null}
                     {section.id === 'handover' ? (
                       <View style={{ marginBottom: space.md }}>
-                        <KeyValue label="Receiving Hospital" value={answers.destination_hospital || '—'} />
+                        <KeyValue label={t('Receiving Hospital')} value={answers.destination_hospital || '—'} />
                       </View>
                     ) : null}
                     {section.fields.map(renderField)}
@@ -357,45 +360,45 @@ export default function PcrScreen() {
             {/* V4 asks about further patients after the crew. */}
             {PCR_SECTIONS[idx]?.id === 'crew' ? (
               <>
-                {sectionHead('casualties', 'Multiple Casualties?', 'people-circle-outline', casualties.length)}
+                {sectionHead('casualties', tx('Multiple Casualties?'), 'people-circle-outline', casualties.length)}
                 {open.has('casualties') ? (
                   <Card>
                     {casualties.map((c, i) => (
                       <View key={`cas-${i}`} style={styles.casualty}>
                         <View style={styles.rowBetween}>
-                          <Text style={styles.casualtyTitle}>Patient {i + 2}</Text>
-                          <Pressable onPress={() => setCasualties((cur) => cur.filter((_, j) => j !== i))} hitSlop={8} accessibilityRole="button" accessibilityLabel={`Remove patient ${i + 2}`}>
+                          <Text style={styles.casualtyTitle}>{t('Patient {n}', { n: i + 2 })}</Text>
+                          <Pressable onPress={() => setCasualties((cur) => cur.filter((_, j) => j !== i))} hitSlop={8} accessibilityRole="button" accessibilityLabel={t('Remove patient {n}', { n: i + 2 })}>
                             <Ionicons name="close-circle" size={20} color={colors.critical} />
                           </Pressable>
                         </View>
-                        <Input label="Name / Identifier" value={c.name} onChangeText={(v) => setCasualty(i, { name: v })} placeholder="John Doe or 'Driver'" />
+                        <Input label={t('Name / Identifier')} value={c.name} onChangeText={(v) => setCasualty(i, { name: v })} placeholder={t('John Doe or \'Driver\'')} />
                         <View style={styles.timeRow}>
                           <View style={{ flex: 1 }}>
-                            <Input label="Age" value={c.age} onChangeText={(v) => setCasualty(i, { age: v.replace(/[^0-9]/g, '') })} keyboardType="number-pad" placeholder="Yrs" />
+                            <Input label={t('Age')} value={c.age} onChangeText={(v) => setCasualty(i, { age: v.replace(/[^0-9]/g, '') })} keyboardType="number-pad" placeholder={t('Yrs')} />
                           </View>
                           <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>SEX</Text>
+                            <Text style={styles.label}>{t('SEX')}</Text>
                             <View style={styles.chips}>
                               {(['Male', 'Female'] as const).map((g) => (
                                 <Pressable key={g} onPress={() => setCasualty(i, { gender: c.gender === g ? '' : g })} style={[styles.chip, c.gender === g && styles.chipOn]}>
-                                  <Text style={[styles.chipText, c.gender === g && styles.chipTextOn]}>{g === 'Male' ? 'M' : 'F'}</Text>
+                                  <Text style={[styles.chipText, c.gender === g && styles.chipTextOn]}>{g === 'Male' ? t('M') : t('F')}</Text>
                                 </Pressable>
                               ))}
                             </View>
                           </View>
                         </View>
-                        <Text style={styles.label}>TRIAGE PRIORITY</Text>
+                        <Text style={styles.label}>{t('TRIAGE PRIORITY')}</Text>
                         <View style={[styles.chips, { marginBottom: space.sm }]}>
-                          {TRIAGE.map((t) => (
-                            <Pressable key={t} onPress={() => setCasualty(i, { triage: c.triage === t ? '' : t })} style={[styles.chip, c.triage === t && styles.chipOn]}>
-                              <Text style={[styles.chipText, c.triage === t && styles.chipTextOn]}>{t}</Text>
+                          {TRIAGE.map((item) => (
+                            <Pressable key={item} onPress={() => setCasualty(i, { triage: c.triage === item ? '' : item })} style={[styles.chip, c.triage === item && styles.chipOn]}>
+                              <Text style={[styles.chipText, c.triage === item && styles.chipTextOn]}>{t(item)}</Text>
                             </Pressable>
                           ))}
                         </View>
-                        <Input label="Primary Injuries / Treatment" value={c.injuries} onChangeText={(v) => setCasualty(i, { injuries: v })} />
+                        <Input label={t('Primary Injuries / Treatment')} value={c.injuries} onChangeText={(v) => setCasualty(i, { injuries: v })} />
                       </View>
                     ))}
-                    <Button label="Add patient" icon="add-circle-outline" variant="outline" onPress={() => setCasualties((cur) => [...cur, blankCasualty()])} />
+                    <Button label={t('Add patient')} icon="add-circle-outline" variant="outline" onPress={() => setCasualties((cur) => [...cur, blankCasualty()])} />
                   </Card>
                 ) : null}
               </>
@@ -403,14 +406,14 @@ export default function PcrScreen() {
           </View>
         ))}
 
-        {sectionHead('signoff', 'Sign Off & Handover', 'create-outline')}
+        {sectionHead('signoff', tx('Sign Off & Handover'), 'create-outline')}
         {open.has('signoff') || invalid.has('responder_signature_image_base64') || invalid.has('doctor_signature_image_base64') ? (
           <Card>
             {PCR_SIGNATURES.map((s) => {
               const bad = invalid.has(s.key);
               const signed = Boolean(answers[s.key]);
               const required = pcrSignatureRequired(s.key, answers);
-              const label = s.handover && pcrTransported(answers) ? 'Receiving Doctor Signature' : s.label;
+              const label = s.handover && pcrTransported(answers) ? t('Receiving Doctor Signature') : t(s.label);
               return (
                 <View key={s.key} style={[styles.field, bad && styles.fieldBad]}>
                   <Text style={[styles.label, bad && styles.labelBad]}>
@@ -426,14 +429,14 @@ export default function PcrScreen() {
           </Card>
         ) : null}
 
-        {sectionHead('media', 'Site Media & Audio Log', 'camera-outline')}
+        {sectionHead('media', tx('Site Media & Audio Log'), 'camera-outline')}
         {open.has('media') ? (
           <Card>
             <Muted>
-              {`${media.photos} photo${media.photos === 1 ? '' : 's'} · ${media.voice} voice note${media.voice === 1 ? '' : 's'} on file`}
+              {`${media.photos === 1 ? t('1 photo') : t('{n} photos', { n: media.photos })} · ${media.voice === 1 ? t('1 voice note on file') : t('{n} voice notes on file', { n: media.voice })}`}
             </Muted>
             <View style={{ marginTop: space.md }}>
-              <Button label="Add photos or a voice note" icon="open-outline" variant="outline" onPress={() => router.push(`/incident/${incident.id}`)} />
+              <Button label={t('Add photos or a voice note')} icon="open-outline" variant="outline" onPress={() => router.push(`/incident/${incident.id}`)} />
             </View>
           </Card>
         ) : null}
@@ -447,7 +450,7 @@ export default function PcrScreen() {
             </View>
           ) : null}
           <Button
-            label="Submit final ePCR report"
+            label={t('Submit final ePCR report')}
             icon="document-text"
             variant="success"
             size="lg"

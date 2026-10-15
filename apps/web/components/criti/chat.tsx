@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { ChevronRight, Loader2, Send, Sparkles, User } from 'lucide-react';
+import { ChevronRight, Loader2, Send, User } from 'lucide-react';
 import type { ProposalView } from '@criticom/api';
 import { cn } from '@/lib/utils';
 import { ProposalCard, type CardState } from './proposal-card';
+import { CritiMascot } from './mascot';
 import { RichText } from './shared';
 
 type Card = { view: ProposalView; state: CardState };
@@ -163,7 +164,7 @@ export function CritiChat({
         {messages.length === 0 ? (
           <div className="py-4">
             <div className="text-center">
-              <Sparkles className="mx-auto h-8 w-8 text-accent" />
+              <CritiMascot variant="full" className="mx-auto h-20 w-20" />
               <p className="mt-3 text-sm font-semibold">Hello {fullName.split(' ')[0]}</p>
               <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
                 I know how your department works and I can read the live board your role can see. Ask me anything,
@@ -196,9 +197,9 @@ export function CritiChat({
           <div key={mi} className={cn('flex gap-2.5', m.role === 'user' && 'flex-row-reverse')}>
             <span className={cn(
               'flex h-7 w-7 shrink-0 items-center justify-center rounded-full',
-              m.role === 'user' ? 'bg-muted text-fg' : 'bg-primary text-primary-foreground',
+              m.role === 'user' ? 'bg-muted text-fg' : 'border border-border bg-bg-soft',
             )}>
-              {m.role === 'user' ? <User className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
+              {m.role === 'user' ? <User className="h-3.5 w-3.5" /> : <CritiMascot className="h-6 w-6" />}
             </span>
             <div className={cn('min-w-0 space-y-2', compact ? 'max-w-[85%]' : 'max-w-[75%]')}>
               <div className={cn(
@@ -221,8 +222,8 @@ export function CritiChat({
 
         {busy ? (
           <div className="flex gap-2.5">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <Sparkles className="h-3.5 w-3.5" />
+            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-border bg-bg-soft">
+              <CritiMascot className="h-6 w-6" />
             </span>
             <div className="flex items-center gap-2 rounded-xl border border-border bg-bg-soft px-3 py-2 text-[13px] text-muted-foreground">
               <Loader2 className="h-3.5 w-3.5 animate-spin" /> Reading the board…

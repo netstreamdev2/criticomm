@@ -12,6 +12,7 @@ import { printSlip, provisionalRef, shareSlipPdf, slipFromQueued, statusTone, ty
 import type { OutboxEntry } from '@/lib/outbox';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, EmptyState, KeyValue, Muted, SectionLabel } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -22,6 +23,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * delivers it: provisional slip first, the register's numbers once sent.
  */
 export default function FineScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -82,7 +84,7 @@ export default function FineScreen() {
       if (kind === 'print') await printSlip(html);
       else await shareSlipPdf(html, name);
     } catch (e) {
-      setMessage({ tone: 'error', text: (e as Error).message ?? 'Could not prepare the slip.' });
+      setMessage({ tone: 'error', text: (e as Error).message ?? t('Could not prepare the slip.') });
     } finally {
       setWorking(null);
     }
@@ -94,7 +96,7 @@ export default function FineScreen() {
   if (!slip) {
     return (
       <View style={styles.center}>
-        <EmptyState icon="receipt-outline" title="Fine not found" body="It may belong to another officer, or the link is out of date." />
+        <EmptyState icon="receipt-outline" title={t('Fine not found')} body={t('It may belong to another officer, or the link is out of date.')} />
       </View>
     );
   }
@@ -114,13 +116,13 @@ export default function FineScreen() {
 
       {queued?.status === 'failed' ? (
         <Banner tone="error">
-          {`The register refused this notice: ${queued.lastError ?? 'unknown reason'}. Fix it by issuing a corrected notice; this one stays in the sync tray until you discard it.`}
+          {t('The register refused this notice: {reason}. Fix it by issuing a corrected notice; this one stays in the sync tray until you discard it.', { reason: queued.lastError ?? t('unknown reason') })}
         </Banner>
       ) : queued ? (
         <Banner tone="info">
           {online
-            ? 'Sending to the register… The slip below is ready to print now.'
-            : 'No signal. The notice is safe on this phone and sends itself when there is signal. Print the provisional slip now.'}
+            ? t('Sending to the register… The slip below is ready to print now.')
+            : t('No signal. The notice is safe on this phone and sends itself when there is signal. Print the provisional slip now.')}
         </Banner>
       ) : null}
 
@@ -129,18 +131,18 @@ export default function FineScreen() {
         <View style={styles.band}>
           <View style={{ flex: 1 }}>
             <Text style={styles.authority}>{slip.issuingAuthority.toUpperCase()}</Text>
-            <Text style={styles.noticeTitle}>{info.label}</Text>
+            <Text style={styles.noticeTitle}>{t(info.label)}</Text>
           </View>
           <View style={[styles.status, { borderColor: `${tone}88`, backgroundColor: `${tone}22` }]}>
-            <Text style={[styles.statusText, { color: tone }]}>{status ?? (queued?.status === 'failed' ? 'REFUSED' : 'QUEUED')}</Text>
+            <Text style={[styles.statusText, { color: tone }]}>{status ?? (queued?.status === 'failed' ? t('REFUSED') : t('QUEUED'))}</Text>
           </View>
         </View>
         <View style={styles.refs}>
           {slip.charges.map((c) => (
-            <Text key={c.ref} style={styles.ref}>{c.ref}{c.noticeNumber ? `  ·  No. ${c.noticeNumber}` : ''}</Text>
+            <Text key={c.ref} style={styles.ref}>{c.ref}{c.noticeNumber ? t('  ·  No. {noticeNumber}', { noticeNumber: c.noticeNumber }) : ''}</Text>
           ))}
           <Text style={styles.served}>
-            Served {new Date(slip.issuedAt).toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' })}
+            {t('Served')}{' '}{new Date(slip.issuedAt).toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' })}
           </Text>
         </View>
 
@@ -148,59 +150,63 @@ export default function FineScreen() {
 
         <View style={styles.amountBox}>
           <Text style={styles.amountLabel}>
-            {status === 'Paid' ? 'Paid in full' : status === 'Cancelled' ? 'Cancelled' : slip.noticeType === 'Section 56' ? 'Admission of guilt' : 'Amount due now'}
+            {status === 'Paid' ? t('Paid in full') : status === 'Cancelled' ? t('Cancelled') : slip.noticeType === 'Section 56' ? t('Admission of guilt') : t('Amount due now')}
           </Text>
           <Text style={[styles.amount, status === 'Cancelled' && styles.struck]}>{rand(status === 'Paid' ? total : due)}</Text>
           <Text style={styles.amountNote}>
             {slip.noticeType === 'Section 56'
-              ? `Or appear at ${slip.courtName ?? 'court'} on ${slip.courtDate ?? '—'}`
+              ? slip.courtName
+                ? t('Or appear at {court} on {date}', { court: slip.courtName, date: slip.courtDate ?? '—' })
+                : t('Or appear at court on {date}', { date: slip.courtDate ?? '—' })
               : slip.noticeType === 'AARTO 01'
-                ? `Discounted until ${slip.payBy ?? '—'} · full amount ${rand(total)}`
-                : `Pay by ${slip.payBy ?? '—'}`}
+                ? t('Discounted until {date} · full amount {amount}', { date: slip.payBy ?? '—', amount: rand(total) })
+                : t('Pay by {date}', { date: slip.payBy ?? '—' })}
           </Text>
         </View>
       </View>
 
       {first && fineStage(first) !== 'Cancelled' ? (() => {
         const stage = fineStage(first);
-        const t = STAGE_INFO[stage].tone;
-        const c = t === 'bad' ? colors.critical : t === 'warn' ? colors.medium : t === 'done' ? colors.low : colors.accent;
+        const item = STAGE_INFO[stage].tone;
+        const c = item === 'bad' ? colors.critical : item === 'warn' ? colors.medium : item === 'done' ? colors.low : colors.accent;
         return (
           <View style={[styles.stageBox, { borderColor: `${c}66`, backgroundColor: `${c}14` }]}>
-            <Text style={[styles.stageTitle, { color: c }]}>{stage}</Text>
-            <Text style={styles.stageText}>{STAGE_INFO[stage].means}</Text>
+            <Text style={[styles.stageTitle, { color: c }]}>{t(stage)}</Text>
+            <Text style={styles.stageText}>{t(STAGE_INFO[stage].means)}</Text>
           </View>
         );
       })() : null}
 
       {first?.status === 'Cancelled' && first.cancel_reason ? (
-        <Banner tone="error">{`Cancelled by ${first.cancelled_by_name ?? 'command'}: ${first.cancel_reason}`}</Banner>
+        <Banner tone="error">{first.cancelled_by_name
+          ? t('Cancelled by {name}: {reason}', { name: first.cancelled_by_name, reason: first.cancel_reason })
+          : t('Cancelled by command: {reason}', { reason: first.cancel_reason })}</Banner>
       ) : null}
 
       <View style={styles.actions}>
         <View style={{ flex: 1 }}>
-          <Button label="Print slip" icon="print-outline" busy={working === 'print'} onPress={() => void run('print')} />
+          <Button label={t('Print slip')} icon="print-outline" busy={working === 'print'} onPress={() => void run('print')} />
         </View>
         <View style={{ flex: 1 }}>
-          <Button label="Share PDF" icon="share-outline" variant="subtle" busy={working === 'pdf'} onPress={() => void run('pdf')} />
+          <Button label={t('Share PDF')} icon="share-outline" variant="subtle" busy={working === 'pdf'} onPress={() => void run('pdf')} />
         </View>
       </View>
       {queued?.status === 'failed' ? (
-        <Button label="Try sending again" icon="refresh" variant="outline" onPress={() => void retryAll()} />
+        <Button label={t('Try sending again')} icon="refresh" variant="outline" onPress={() => void retryAll()} />
       ) : null}
 
-      <SectionLabel>{info.personPresent ? 'Infringer' : 'Owner'}</SectionLabel>
+      <SectionLabel>{info.personPresent ? t('Infringer') : t('Owner')}</SectionLabel>
       <Card>
-        <KeyValue label="Name" value={slip.infringer.name} />
-        {info.personPresent ? <KeyValue label={slip.infringer.idType ?? 'ID'} value={maskId(slip.infringer.idNumber)} /> : null}
-        {slip.infringer.licenceCode ? <KeyValue label="Licence code" value={slip.infringer.licenceCode} /> : null}
+        <KeyValue label={t('Name')} value={slip.infringer.name} />
+        {info.personPresent ? <KeyValue label={slip.infringer.idType ?? t('ID')} value={maskId(slip.infringer.idNumber)} /> : null}
+        {slip.infringer.licenceCode ? <KeyValue label={t('Licence code')} value={slip.infringer.licenceCode} /> : null}
       </Card>
 
-      <SectionLabel>Vehicle and place</SectionLabel>
+      <SectionLabel>{t('Vehicle and place')}</SectionLabel>
       <Card>
-        <KeyValue label="Registration" value={slip.vehicle.reg ?? '—'} />
-        {slip.vehicle.makeModel ? <KeyValue label="Make / model" value={[slip.vehicle.makeModel, slip.vehicle.colour].filter(Boolean).join(' · ')} /> : null}
-        <KeyValue label="Where" value={[slip.place.street, slip.place.suburb].filter(Boolean).join(', ') || slip.place.description || '—'} />
+        <KeyValue label={t('Registration')} value={slip.vehicle.reg ?? '—'} />
+        {slip.vehicle.makeModel ? <KeyValue label={t('Make / model')} value={[slip.vehicle.makeModel, slip.vehicle.colour].filter(Boolean).join(' · ')} /> : null}
+        <KeyValue label={t('Where')} value={[slip.place.street, slip.place.suburb].filter(Boolean).join(', ') || slip.place.description || '—'} />
         {slip.place.lat ? (
           <View style={styles.gps}>
             <Ionicons name="location" size={12} color={colors.cyan} />
@@ -209,7 +215,7 @@ export default function FineScreen() {
         ) : null}
       </Card>
 
-      <SectionLabel>{slip.charges.length > 1 ? `Charges (${slip.charges.length})` : 'Charge'}</SectionLabel>
+      <SectionLabel>{slip.charges.length > 1 ? t('Charges ({length})', { length: slip.charges.length }) : t('Charge')}</SectionLabel>
       {slip.charges.map((c) => (
         <Card key={c.ref} tight>
           <View style={styles.chargeRow}>
@@ -223,11 +229,11 @@ export default function FineScreen() {
       ))}
 
       {first?.amount_source === 'officer' ? (
-        <Muted>The amount was entered by the officer: the charge book had none for this offence.</Muted>
+        <Muted>{t('The amount was entered by the officer: the charge book had none for this offence.')}</Muted>
       ) : null}
 
       <View style={{ marginTop: space.lg }}>
-        <Button label="Issue another fine" icon="add" variant="outline" onPress={() => router.replace('/fines/new')} />
+        <Button label={t('Issue another fine')} icon="add" variant="outline" onPress={() => router.replace('/fines/new')} />
       </View>
     </ScrollView>
   );

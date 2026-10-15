@@ -8,13 +8,15 @@ import { getSupabase } from '@/lib/supabase';
 import { uploadShiftPhoto } from '@/lib/shift-files';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { paper } from '@/components/shift-form';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 type DocumentsRow = Database['public']['Tables']['shift_identity_documents']['Row'];
 type Kind = 'licence' | 'id';
 
 const LABEL: Record<Kind, { title: string; hint: string; icon: keyof typeof Ionicons.glyphMap }> = {
-  licence: { title: "Driver's licence", hint: 'Scan the front of the card', icon: 'card-outline' },
-  id: { title: 'ID document', hint: 'Take a photo or upload one', icon: 'person-circle-outline' },
+  licence: { title: tx('Driver’s licence'), hint: tx('Scan the front of the card'), icon: 'card-outline' },
+  id: { title: tx('ID document'), hint: tx('Take a photo or upload one'), icon: 'person-circle-outline' },
 };
 
 function saDay() {
@@ -28,6 +30,7 @@ function saDay() {
  * Each photo is saved the moment it is taken; nothing here holds up the shift.
  */
 export function ShiftDocuments({ initial }: { initial: DocumentsRow | null }) {
+  const { t } = useT();
   const styles = useStyles();
   const [saved, setSaved] = useState<Record<Kind, boolean>>({
     licence: Boolean(initial?.licence_path), id: Boolean(initial?.id_document_path),
@@ -40,7 +43,7 @@ export function ShiftDocuments({ initial }: { initial: DocumentsRow | null }) {
     setError(null);
     if (source === 'camera') {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') { setError('Allow camera access to scan the card.'); return; }
+      if (status !== 'granted') { setError(t('Allow camera access to scan the card.')); return; }
     }
     const launch = source === 'camera' ? ImagePicker.launchCameraAsync : ImagePicker.launchImageLibraryAsync;
     // A card-shaped crop for the licence, so the scan is the card and nothing else.
@@ -59,7 +62,7 @@ export function ShiftDocuments({ initial }: { initial: DocumentsRow | null }) {
       setSaved((s) => ({ ...s, [kind]: true }));
       setPreview((p) => ({ ...p, [kind]: uri }));
     } catch (e) {
-      setError((e as { message?: string })?.message ?? 'The photo was not saved. Try again.');
+      setError((e as { message?: string })?.message ?? t('The photo was not saved. Try again.'));
     } finally {
       setBusy(null);
     }
@@ -67,16 +70,16 @@ export function ShiftDocuments({ initial }: { initial: DocumentsRow | null }) {
 
   const start = (kind: Kind) => {
     if (kind === 'licence') { void capture('licence', 'camera'); return; }
-    Alert.alert('ID document', undefined, [
-      { text: 'Take photo', onPress: () => void capture('id', 'camera') },
-      { text: 'Choose from library', onPress: () => void capture('id', 'library') },
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('ID document'), undefined, [
+      { text: t('Take photo'), onPress: () => void capture('id', 'camera') },
+      { text: t('Choose from library'), onPress: () => void capture('id', 'library') },
+      { text: t('Cancel'), style: 'cancel' },
     ]);
   };
 
   return (
     <View style={styles.box}>
-      <Text style={styles.title}>Licence and ID <Text style={styles.optional}>(optional)</Text></Text>
+      <Text style={styles.title}>{t('Licence and ID')}{' '}<Text style={styles.optional}>{t('(optional)')}</Text></Text>
       {(['licence', 'id'] as const).map((kind) => {
         const l = LABEL[kind];
         const done = saved[kind];
@@ -86,7 +89,7 @@ export function ShiftDocuments({ initial }: { initial: DocumentsRow | null }) {
             onPress={() => start(kind)}
             disabled={busy !== null}
             accessibilityRole="button"
-            accessibilityLabel={`${done ? 'Replace' : 'Add'} ${l.title}`}
+            accessibilityLabel={done ? t('Replace {document}', { document: t(l.title) }) : t('Add {document}', { document: t(l.title) })}
             style={[styles.row, done && styles.rowDone]}
           >
             {preview[kind] ? (
@@ -95,8 +98,8 @@ export function ShiftDocuments({ initial }: { initial: DocumentsRow | null }) {
               <View style={styles.icon}><Ionicons name={l.icon} size={22} color={done ? paper.green : paper.blue} /></View>
             )}
             <View style={{ flex: 1 }}>
-              <Text style={styles.rowTitle}>{l.title}</Text>
-              <Text style={styles.rowHint}>{done ? 'Saved to today’s record · tap to replace' : l.hint}</Text>
+              <Text style={styles.rowTitle}>{t(l.title)}</Text>
+              <Text style={styles.rowHint}>{done ? t('Saved to today’s record · tap to replace') : t(l.hint)}</Text>
             </View>
             {busy === kind ? (
               <ActivityIndicator color={paper.blue} />

@@ -6,10 +6,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSync } from '@/lib/sync';
 import { useShowingSaved } from '@/lib/offline-cache';
 import { useAuth } from '@/lib/auth';
-import { wordsFor } from '@/lib/department';
+import { wordsIn } from '@/lib/department';
 import { colors, radius, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { Button } from '@/components/ui';
 import { CENTRE_RISE, useTabBarHeight } from '@/components/tab-bar';
+import { useT } from '@/lib/i18n';
 
 /**
  * The sync tray — the app's answer to "did that actually send?".
@@ -24,6 +25,7 @@ import { CENTRE_RISE, useTabBarHeight } from '@/components/tab-bar';
  * is empty and the phone is online.
  */
 export function SyncTray() {
+  const { t } = useT();
   const styles = useStyles();
   const tabBar = useTabBarHeight();
   const { pending, failed, online, syncing, retryAll, discard, describeOp } = useSync();
@@ -41,18 +43,18 @@ export function SyncTray() {
       : colors.accent;
 
   const label = failed.length > 0
-    ? `${failed.length} not sent`
+    ? t('{n} not sent', { n: failed.length })
     : total > 0
-      ? `${total} waiting${online ? '' : ' · offline'}`
-      : 'Offline';
+      ? online ? t('{n} waiting', { n: total }) : t('{n} waiting · offline', { n: total })
+      : t('Offline');
 
   const confirmDiscard = (id: string, what: string) => {
     Alert.alert(
-      'Discard this update?',
-      `"${what}" will be deleted and never reaches the ${wordsFor(silo).file}. Only do this if you are certain it is no longer needed.`,
+      t('Discard this update?'),
+      t('"{what}" will be deleted and never reaches the {file}. Only do this if you are certain it is no longer needed.', { what, file: wordsIn(silo, t).file }),
       [
-        { text: 'Keep it', style: 'cancel' },
-        { text: 'Discard', style: 'destructive', onPress: () => void discard(id) },
+        { text: t('Keep it'), style: 'cancel' },
+        { text: t('Discard'), style: 'destructive', onPress: () => void discard(id) },
       ],
     );
   };
@@ -62,7 +64,7 @@ export function SyncTray() {
       <Pressable
         onPress={() => setOpen(true)}
         accessibilityRole="button"
-        accessibilityLabel={`Sync status: ${label}`}
+        accessibilityLabel={t('Sync status: {label}', { label })}
         style={({ pressed }) => [
           styles.pill,
           { bottom: tabBar + CENTRE_RISE + space.md },
@@ -87,23 +89,23 @@ export function SyncTray() {
           <View style={styles.sheet}>
             <View style={styles.sheetHead}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.sheetTitle}>Waiting to send</Text>
+                <Text style={styles.sheetTitle}>{t('Waiting to send')}</Text>
                 <Text style={styles.sheetSub}>
                   {online
-                    ? 'Connected — these are being delivered now.'
-                    : `No connection. Keep working: what you do is kept on this phone and sends itself when signal returns.${
-                        savedAt ? ` Screens show what was saved at ${new Date(savedAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}.` : ''
+                    ? t('Connected — these are being delivered now.')
+                    : `${t('No connection. Keep working: what you do is kept on this phone and sends itself when signal returns.')}${
+                        savedAt ? ` ${t('Screens show what was saved at {time}.', { time: new Date(savedAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' }) })}` : ''
                       }`}
                 </Text>
               </View>
-              <Pressable onPress={() => setOpen(false)} hitSlop={12} accessibilityLabel="Close">
+              <Pressable onPress={() => setOpen(false)} hitSlop={12} accessibilityLabel={t('Close')}>
                 <Ionicons name="close" size={22} color={colors.muted} />
               </Pressable>
             </View>
 
             <ScrollView style={styles.list} contentContainerStyle={{ paddingBottom: space.lg }}>
               {total === 0 ? (
-                <Text style={styles.empty}>Everything has been delivered.</Text>
+                <Text style={styles.empty}>{t('Everything has been delivered.')}</Text>
               ) : null}
 
               {[...failed, ...pending].map((entry) => {
@@ -120,10 +122,10 @@ export function SyncTray() {
                       style={{ marginTop: 2 }}
                     />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.rowTitle}>{describeOp(entry.op)}</Text>
+                      <Text style={styles.rowTitle}>{describeOp(entry.op, t)}</Text>
                       <Text style={styles.rowMeta}>
-                        Captured {timeAgo(entry.occurredAt)}
-                        {entry.attempts > 0 ? ` · ${entry.attempts} attempt${entry.attempts === 1 ? '' : 's'}` : ''}
+                        {t('Captured {timeAgo}', { timeAgo: timeAgo(entry.occurredAt) })}
+                        {entry.attempts > 0 ? ` · ${entry.attempts === 1 ? t('1 attempt') : t('{n} attempts', { n: entry.attempts })}` : ''}
                       </Text>
                       {isFailed && entry.lastError ? (
                         <Text style={styles.rowError} numberOfLines={3}>{entry.lastError}</Text>
@@ -131,9 +133,9 @@ export function SyncTray() {
                     </View>
                     {isFailed ? (
                       <Pressable
-                        onPress={() => confirmDiscard(entry.id, describeOp(entry.op))}
+                        onPress={() => confirmDiscard(entry.id, describeOp(entry.op, t))}
                         hitSlop={10}
-                        accessibilityLabel="Discard this update"
+                        accessibilityLabel={t('Discard this update')}
                       >
                         <Ionicons name="trash-outline" size={16} color={colors.muted} />
                       </Pressable>
@@ -145,7 +147,7 @@ export function SyncTray() {
 
             <View style={styles.sheetFoot}>
               <Button
-                label={syncing ? 'Sending…' : 'Try again now'}
+                label={syncing ? t('Sending…') : t('Try again now')}
                 icon="refresh"
                 variant="outline"
                 busy={syncing}

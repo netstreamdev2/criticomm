@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { intakeSystemPrompt, intakeUserPrompt, readIntakeSuggestion } from './intake.ts';
+import {
+  intakeSystemPrompt, intakeUserPrompt, readIntakeSuggestion, readWriteup, writeupSystemPrompt, writeupUserPrompt,
+} from './intake.ts';
 
 const TYPES = ['Shooting / gunshot wound', 'Armed robbery', 'Burglary', 'Heart attack / chest pain'];
 
@@ -47,4 +49,32 @@ test('made-up types, odd numbers and no answer at all are dropped', () => {
   assert.equal(s.isCallerPatient, null);
   assert.deepEqual(readIntakeSuggestion(null, TYPES).injuries, []);
   assert.equal(readIntakeSuggestion({ victims: 2.5 }, TYPES).victims, null);
+});
+
+test('the details: only the type’s own, with allowed answers', () => {
+  const s = readIntakeSuggestion({
+    details: { premises: 'A home', taken: ['Cellphone', 'TV', 'A spaceship'], suspectThere: 'No', breathing: 'Yes', made_up: 'x' },
+  }, TYPES, 'Burglary');
+  assert.deepEqual(s.details, { premises: 'A home', taken: ['Cellphone', 'TV'], suspectThere: 'No' }, 'breathing is not a burglary detail');
+  assert.deepEqual(readIntakeSuggestion({ details: ['nope'] }, TYPES, 'Burglary').details, {});
+  // No type chosen yet: the details of the type it suggests.
+  assert.deepEqual(readIntakeSuggestion({ incident_type: 'Burglary', details: { premises: 'A shop' } }, TYPES).details, { premises: 'A shop' });
+  const user = intakeUserPrompt({
+    incidentType: 'Burglary', group: 'Crime', injuries: [], victims: null, isCallerPatient: null,
+    description: 'They broke in and took my phone and TV', details: { premises: 'A home' },
+  }, TYPES);
+  assert.ok(user.includes('taken (What was taken): any of Cellphone | TV'), 'the model is told the answers allowed');
+  assert.ok(user.includes('Details already filled in: Where: A home'));
+});
+
+test('a written-up description is one plain paragraph, never sent the caller’s name or number', () => {
+  assert.match(writeupSystemPrompt(), /Never invent names, numbers, places/);
+  const user = writeupUserPrompt({
+    incidentType: 'Burglary', group: 'Crime', injuries: [], victims: null, isCallerPatient: null,
+    description: 'They took my phone', details: { taken: ['Cellphone'] },
+  });
+  assert.ok(user.includes('Details: What was taken: Cellphone'));
+  assert.ok(!/caller name|caller number|phone number/i.test(user));
+  assert.equal(readWriteup('Description: "Break-in at a home.\n\nA cellphone   taken."'), 'Break-in at a home. A cellphone taken.');
+  assert.equal(readWriteup('x'.repeat(5000)).length, 1200);
 });

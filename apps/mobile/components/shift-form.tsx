@@ -9,6 +9,7 @@ import type { DeptIdentity } from '@/lib/branding';
 import { DeptBadge } from '@/components/dept-badge';
 import { saLongDate } from '@/lib/inspection-187c';
 import { paper, makeStyles } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 /**
  * The start-of-shift paperwork: the department crest on top, numbered tabs,
@@ -34,6 +35,7 @@ export function Sheet({ children, style }: { children: React.ReactNode; style?: 
 }
 
 export function CrestHeader({ dept, subtitle }: { dept: DeptIdentity; subtitle: string }) {
+  const { t } = useT();
   const styles = useStyles();
   const policeInspection = subtitle === 'Vehicle Inspection 187(c)'
     && (dept.silo === 'MetroPolice' || dept.silo === 'Ethekwini');
@@ -51,12 +53,12 @@ export function CrestHeader({ dept, subtitle }: { dept: DeptIdentity; subtitle: 
             source={require('../assets/dmps-inspection-badge.png')}
             style={styles.inspectionBadge}
             resizeMode="contain"
-            accessibilityLabel="Metro Police inspection badge"
+            accessibilityLabel={t('Metro Police inspection badge')}
           />
         ) : <DeptBadge dept={dept} size={56} />}
       </View>
       <Text style={styles.crestName} numberOfLines={2}>
-        {policeInspection ? 'Durban Metropolitan Police Service' : dept.official_name}
+        {policeInspection ? t('Durban Metropolitan Police Service') : dept.official_name}
       </Text>
       <View style={styles.crestSubPill}>
         <Text style={styles.crestSub}>{subtitle.toUpperCase()}</Text>
@@ -76,6 +78,7 @@ export function TabStrip({
   reached: number;
   onSelect: (i: number) => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const scroller = useRef<ScrollView>(null);
   const offsets = useRef<number[]>([]);
@@ -92,13 +95,13 @@ export function TabStrip({
       style={styles.tabs}
       contentContainerStyle={{ paddingHorizontal: 8, paddingVertical: 8, gap: 6 }}
     >
-      {tabs.map((t, i) => {
+      {tabs.map((tab, i) => {
         const done = i < current;
         const active = i === current;
         const tone = active ? paper.blue : done ? paper.green : paper.faint;
         return (
           <Pressable
-            key={t.id}
+            key={tab.id}
             disabled={i > reached}
             onPress={() => onSelect(i)}
             onLayout={(e) => { offsets.current[i] = e.nativeEvent.layout.x; }}
@@ -112,7 +115,7 @@ export function TabStrip({
                 : <Text style={[styles.tabNum, { color: active ? '#fff' : paper.faint }]}>{i + 1}</Text>}
             </View>
             <Text style={[styles.tabLabel, { color: active ? paper.ink : done ? paper.green : paper.faint }]}>
-              {t.label.toUpperCase()}
+              {t(tab.label).toUpperCase()}
             </Text>
           </Pressable>
         );
@@ -126,12 +129,13 @@ export function TabStrip({
 export function Group({
   title, children, right,
 }: { title: string; children: React.ReactNode; right?: React.ReactNode }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.group}>
       <View style={styles.groupHead}>
         <View style={styles.groupMark} />
-        <Text style={styles.groupTitle}>{title.toUpperCase()}</Text>
+        <Text style={styles.groupTitle}>{t(title).toUpperCase()}</Text>
         <View style={styles.groupLine} />
         {right}
       </View>
@@ -143,10 +147,11 @@ export function Group({
 export function FieldLabel({
   label, required, invalid,
 }: { label: string; required?: boolean; invalid?: boolean }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <Text style={[styles.fieldLabel, invalid && { color: paper.red }]}>
-      {label.toUpperCase()}
+      {t(label).toUpperCase()}
       {required ? <Text style={styles.star}> *</Text> : null}
     </Text>
   );
@@ -155,6 +160,7 @@ export function FieldLabel({
 export function PaperInput({
   label, required, invalid, hint, ...props
 }: TextInputProps & { label: string; required?: boolean; invalid?: boolean; hint?: string }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={{ marginBottom: 14 }}>
@@ -170,7 +176,7 @@ export function PaperInput({
           invalid && styles.inputInvalid,
         ]}
       />
-      {invalid ? <Text style={styles.invalidText}>Required</Text> : hint ? <Text style={styles.hint}>{hint}</Text> : null}
+      {invalid ? <Text style={styles.invalidText}>{t('Required')}</Text> : hint ? <Text style={styles.hint}>{hint}</Text> : null}
     </View>
   );
 }
@@ -184,6 +190,7 @@ export function ChoiceChips<T extends string>({
   onChange: (v: T) => void;
   invalid?: boolean;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.chips}>
@@ -200,7 +207,7 @@ export function ChoiceChips<T extends string>({
             <View style={[styles.chipRadio, active && { borderColor: paper.blue }]}>
               {active ? <View style={styles.chipRadioDot} /> : null}
             </View>
-            <Text style={[styles.chipText, active && { color: paper.ink }]}>{label}</Text>
+            <Text style={[styles.chipText, active && { color: paper.ink }]}>{t(label)}</Text>
             {active ? <Ionicons name="checkmark-circle" size={16} color={paper.blue} /> : null}
           </Pressable>
         );
@@ -222,6 +229,7 @@ const FUEL_TONE = (): Record<string, [string, string]> => ({
 export function FuelPicker<T extends string>({
   options, value, onChange, invalid,
 }: { options: readonly T[]; value: T | null; onChange: (v: T) => void; invalid?: boolean }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.fuelRow}>
@@ -234,7 +242,7 @@ export function FuelPicker<T extends string>({
             onPress={() => onChange(opt)}
             accessibilityRole="radio"
             accessibilityState={{ selected: active }}
-            accessibilityLabel={`Fuel ${opt}`}
+            accessibilityLabel={t('Fuel {level}', { level: t(opt) })}
             style={[
               styles.fuel,
               {
@@ -244,7 +252,7 @@ export function FuelPicker<T extends string>({
             ]}
           >
             <Ionicons name="speedometer-outline" size={13} color={active ? '#fff' : tone} />
-            <Text style={[styles.fuelText, { color: active ? '#fff' : tone }]}>{opt}</Text>
+            <Text style={[styles.fuelText, { color: active ? '#fff' : tone }]}>{t(opt)}</Text>
           </Pressable>
         );
       })}
@@ -263,11 +271,12 @@ export function YesNo({
   required?: boolean;
   invalid?: boolean;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.yesNo}>
       <Text style={[styles.yesNoLabel, invalid && value === undefined && { color: paper.red }]}>
-        {label}{required ? <Text style={styles.star}> *</Text> : null}
+        {t(label)}{required ? <Text style={styles.star}> *</Text> : null}
       </Text>
       <View style={styles.segment}>
         {([true, false] as const).map((answer) => {
@@ -280,7 +289,7 @@ export function YesNo({
               hitSlop={4}
               accessibilityRole="radio"
               accessibilityState={{ selected: active }}
-              accessibilityLabel={`${label}: ${answer ? 'Yes' : 'No'}`}
+              accessibilityLabel={`${t(label)}: ${answer ? t('Yes') : t('No')}`}
               style={[
                 styles.segmentBtn,
                 invalid && value === undefined && { borderColor: paper.red },
@@ -288,7 +297,7 @@ export function YesNo({
               ]}
             >
               <Ionicons name={answer ? 'checkmark' : 'close'} size={16} color={active ? '#fff' : tone} />
-              <Text style={[styles.segmentText, active && { color: '#fff' }]}>{answer ? 'Yes' : 'No'}</Text>
+              <Text style={[styles.segmentText, active && { color: '#fff' }]}>{answer ? t('Yes') : t('No')}</Text>
             </Pressable>
           );
         })}
@@ -300,21 +309,22 @@ export function YesNo({
 /* ── 187(c) items ─────────────────────────────────────────────────── */
 
 export function QuickFill({ onFill }: { onFill: (status: InspectionItemStatus) => void }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.quick}>
       <Ionicons name="flash-outline" size={12} color={paper.muted} />
-      <Text style={styles.quickLabel}>QUICK FILL</Text>
+      <Text style={styles.quickLabel}>{t('QUICK FILL')}</Text>
       <Pressable onPress={() => onFill('ok')} style={[styles.quickBtn, { borderColor: `${paper.green}66`, backgroundColor: paper.greenSoft }]}>
         <Ionicons name="checkmark" size={13} color={paper.green} />
-        <Text style={[styles.quickText, { color: paper.green }]}>All working</Text>
+        <Text style={[styles.quickText, { color: paper.green }]}>{t('All working')}</Text>
       </Pressable>
       <Pressable onPress={() => onFill('fault')} style={[styles.quickBtn, { borderColor: `${paper.red}66`, backgroundColor: paper.redSoft }]}>
         <Ionicons name="close" size={13} color={paper.red} />
-        <Text style={[styles.quickText, { color: paper.red }]}>All fault</Text>
+        <Text style={[styles.quickText, { color: paper.red }]}>{t('All fault')}</Text>
       </Pressable>
       <Pressable onPress={() => onFill('nil')} style={[styles.quickBtn, { borderColor: paper.lineStrong, backgroundColor: paper.raised }]}>
-        <Text style={[styles.quickText, { color: paper.inkDim }]}>NIL all</Text>
+        <Text style={[styles.quickText, { color: paper.inkDim }]}>{t('NIL all')}</Text>
       </Pressable>
     </View>
   );
@@ -331,12 +341,13 @@ export function ItemRow({
   onChange: (v: InspectionItemStatus) => void;
   missing?: boolean;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const accent = value ? ITEM_TONE()[value] : missing ? paper.red : 'transparent';
   return (
     <View style={[styles.item, missing && { borderColor: `${paper.red}88`, backgroundColor: paper.redSoft }]}>
       <View style={[styles.itemAccent, { backgroundColor: accent }]} />
-      <Text style={styles.itemLabel} numberOfLines={2}>{label}</Text>
+      <Text style={styles.itemLabel} numberOfLines={2}>{t(label)}</Text>
       <View style={styles.itemGroup}>
         {(['ok', 'fault', 'nil'] as const).map((s, i) => {
           const active = value === s;
@@ -347,11 +358,11 @@ export function ItemRow({
               hitSlop={4}
               accessibilityRole="radio"
               accessibilityState={{ selected: active }}
-              accessibilityLabel={`${label}: ${s === 'ok' ? 'working' : s === 'fault' ? 'fault' : 'not applicable'}`}
+              accessibilityLabel={`${t(label)}: ${s === 'ok' ? t('working') : s === 'fault' ? t('fault') : t('not applicable')}`}
               style={[styles.itemBtn, i > 0 && styles.itemBtnDivider, active && { backgroundColor: ITEM_TONE()[s] }]}
             >
               {s === 'nil'
-                ? <Text style={[styles.itemBtnText, { fontSize: 10 }, active && { color: '#fff' }]}>NIL</Text>
+                ? <Text style={[styles.itemBtnText, { fontSize: 10 }, active && { color: '#fff' }]}>{t('NIL')}</Text>
                 : <Ionicons name={s === 'ok' ? 'checkmark' : 'close'} size={18} color={active ? '#fff' : ITEM_TONE()[s]} />}
             </Pressable>
           );
@@ -398,12 +409,13 @@ export function TickBox({
 /* ── Stats + buttons ──────────────────────────────────────────────── */
 
 export function Stat({ value, label, tone }: { value: number; label: string; tone: string }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.stat}>
       <View style={[styles.statAccent, { backgroundColor: tone }]} />
       <Text style={[styles.statValue, { color: tone }]}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={styles.statLabel}>{t(label)}</Text>
     </View>
   );
 }
@@ -464,12 +476,13 @@ export function FooterNav({
   busy?: boolean;
   nextTone?: 'outline' | 'primary';
 }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.footer}>
       {onBack ? (
         <Pressable onPress={onBack} style={styles.backBtn} accessibilityRole="button">
-          <Text style={styles.backText}>← Back</Text>
+          <Text style={styles.backText}>{t('← Back')}</Text>
         </Pressable>
       ) : <View style={{ width: 84 }} />}
       <View style={styles.progress}>
@@ -486,7 +499,7 @@ export function FooterNav({
       >
         {busy
           ? <ActivityIndicator size="small" color={nextTone === 'primary' ? '#fff' : paper.blue} />
-          : <Text style={[styles.nextText, nextTone === 'primary' && { color: '#fff' }]}>{nextLabel}</Text>}
+          : <Text style={[styles.nextText, nextTone === 'primary' && { color: '#fff' }]}>{t(nextLabel)}</Text>}
       </Pressable>
     </View>
   );

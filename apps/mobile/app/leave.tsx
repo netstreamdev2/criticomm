@@ -16,6 +16,8 @@ import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import {
   Banner, Button, Card, Input, KeyValue, Muted, SectionLabel, Title,
 } from '@/components/ui';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 /**
  * Apply for leave from the phone.
@@ -46,6 +48,7 @@ const STATUS_TONE = (): Record<string, string> => ({
 });
 
 export default function LeaveScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const { session, silo } = useAuth();
   const { enqueue, online } = useSync();
@@ -76,7 +79,7 @@ export default function LeaveScreen() {
     const names = configured
       .map((c) => c.name)
       .filter((n): n is string => Boolean(n));
-    const options = names.length > 0 ? names : ['Annual', 'Sick', 'Family Responsibility', 'Unpaid'];
+    const options = names.length > 0 ? names : [tx('Annual'), tx('Sick'), tx('Family Responsibility'), tx('Unpaid')];
     setTypes(options);
     setAbsence((cur) => cur || (options[0] ?? ''));
     setBalances(bal);
@@ -97,12 +100,12 @@ export default function LeaveScreen() {
     if (!session) return;
     if (!VALID_DATE.test(from) || !VALID_DATE.test(to)) {
       setTone('error');
-      setMessage('Dates must be in YYYY-MM-DD format.');
+      setMessage(t('Dates must be in YYYY-MM-DD format.'));
       return;
     }
     if (days === 0) {
       setTone('error');
-      setMessage('The end date must not be before the start date.');
+      setMessage(t('The end date must not be before the start date.'));
       return;
     }
 
@@ -125,8 +128,8 @@ export default function LeaveScreen() {
       setReason('');
       setTone('success');
       setMessage(online
-        ? 'Request submitted. Your supervisor sees it on the approvals board, and you get an alert when they decide.'
-        : 'Saved. It sends when you have signal.');
+        ? t('Request submitted. Your supervisor sees it on the approvals board, and you get an alert when they decide.')
+        : t('Saved. It sends when you have signal.'));
       if (online) setTimeout(() => { void load(); }, 1500);
     } catch (e) {
       setTone('error');
@@ -140,7 +143,7 @@ export default function LeaveScreen() {
     return (
       <View style={styles.center}>
         <ActivityIndicator color={colors.accent} />
-        <Muted>Loading your leave…</Muted>
+        <Muted>{t('Loading your leave…')}</Muted>
       </View>
     );
   }
@@ -155,10 +158,10 @@ export default function LeaveScreen() {
         <Banner tone={tone} onDismiss={() => setMessage(null)}>{message}</Banner>
       ) : null}
 
-      <SectionLabel>Your balances</SectionLabel>
+      <SectionLabel>{t('Your balances')}</SectionLabel>
       <Card>
         {balances.length === 0 ? (
-          <Muted>No entitlements are configured for your department yet.</Muted>
+          <Muted>{t('No entitlements are configured for your department yet.')}</Muted>
         ) : (
           balances.map((b) => (
             <KeyValue
@@ -170,16 +173,16 @@ export default function LeaveScreen() {
         )}
       </Card>
 
-      <SectionLabel>Apply</SectionLabel>
+      <SectionLabel>{t('Apply')}</SectionLabel>
       <Card>
-        <Text style={styles.fieldLabel}>TYPE</Text>
+        <Text style={styles.fieldLabel}>{t('TYPE')}</Text>
         <View style={styles.chips}>
-          {types.map((t) => {
-            const active = t === absence;
+          {types.map((item) => {
+            const active = item === absence;
             return (
               <Pressable
-                key={t}
-                onPress={() => setAbsence(t)}
+                key={item}
+                onPress={() => setAbsence(item)}
                 accessibilityRole="radio"
                 accessibilityState={{ selected: active }}
                 style={({ pressed }) => [
@@ -188,7 +191,7 @@ export default function LeaveScreen() {
                   pressed && { opacity: 0.8 },
                 ]}
               >
-                <Text style={[styles.chipText, active && { color: '#fff' }]}>{t}</Text>
+                <Text style={[styles.chipText, active && { color: '#fff' }]}>{t(item)}</Text>
               </Pressable>
             );
           })}
@@ -197,20 +200,20 @@ export default function LeaveScreen() {
         <View style={styles.dates}>
           <View style={{ flex: 1 }}>
             <Input
-              label="From"
+              label={t('From')}
               value={from}
               onChangeText={setFrom}
-              placeholder="YYYY-MM-DD"
+              placeholder={t('YYYY-MM-DD')}
               autoCapitalize="none"
               keyboardType={undefined}
             />
           </View>
           <View style={{ flex: 1 }}>
             <Input
-              label="To"
+              label={t('To')}
               value={to}
               onChangeText={setTo}
-              placeholder="YYYY-MM-DD"
+              placeholder={t('YYYY-MM-DD')}
               autoCapitalize="none"
             />
           </View>
@@ -218,10 +221,10 @@ export default function LeaveScreen() {
 
         <View style={{ marginTop: space.md }}>
           <Input
-            label="Reason"
+            label={t('Reason')}
             value={reason}
             onChangeText={setReason}
-            placeholder="Optional — helps your supervisor decide"
+            placeholder={t('Optional — helps your supervisor decide')}
             multiline
           />
         </View>
@@ -234,11 +237,11 @@ export default function LeaveScreen() {
               color={selectedBalance && days > selectedBalance.remaining ? colors.medium : colors.accent}
             />
             <Text style={styles.summaryText}>
-              {days} day{days === 1 ? '' : 's'}
+              {days === 1 ? t('1 day') : t('{n} days', { n: days })}
               {selectedBalance
                 ? days > selectedBalance.remaining
-                  ? ` — ${selectedBalance.remaining} remaining, so this exceeds your balance. It can still be submitted; your supervisor decides.`
-                  : ` — ${selectedBalance.remaining - days} would remain.`
+                  ? t(' — {remaining} remaining, so this exceeds your balance. It can still be submitted; your supervisor decides.', { remaining: selectedBalance.remaining })
+                  : t(' — {n} would remain.', { n: selectedBalance.remaining - days })
                 : ''}
             </Text>
           </View>
@@ -246,7 +249,7 @@ export default function LeaveScreen() {
 
         <View style={{ marginTop: space.lg }}>
           <Button
-            label="Submit request"
+            label={t('Submit request')}
             icon="paper-plane-outline"
             size="lg"
             busy={busy}
@@ -256,27 +259,26 @@ export default function LeaveScreen() {
         </View>
       </Card>
 
-      <SectionLabel>Your requests</SectionLabel>
+      <SectionLabel>{t('Your requests')}</SectionLabel>
       {history.length === 0 ? (
-        <Card><Muted>You have not applied for leave yet.</Muted></Card>
+        <Card><Muted>{t('You have not applied for leave yet.')}</Muted></Card>
       ) : (
         history.slice(0, 20).map((row) => {
           const statusTone = STATUS_TONE()[row.status] ?? colors.muted;
           return (
             <Card key={row.id} accent={statusTone} tight>
               <View style={styles.rowBetween}>
-                <Title style={{ fontSize: 16 }}>{row.absence ?? 'Leave'}</Title>
+                <Title style={{ fontSize: 16 }}>{row.absence ? t(row.absence) : t('Leave')}</Title>
                 <View style={[styles.status, { borderColor: `${statusTone}66`, backgroundColor: `${statusTone}1f` }]}>
-                  <Text style={[styles.statusText, { color: statusTone }]}>{row.status}</Text>
+                  <Text style={[styles.statusText, { color: statusTone }]}>{t(row.status)}</Text>
                 </View>
               </View>
               <Muted>
-                {row.eff_from} → {row.eff_to} · {inclusiveDays(row.eff_from, row.eff_to)} day
-                {inclusiveDays(row.eff_from, row.eff_to) === 1 ? '' : 's'}
+                {row.eff_from} → {row.eff_to} · {inclusiveDays(row.eff_from, row.eff_to) === 1 ? t('1 day') : t('{n} days', { n: inclusiveDays(row.eff_from, row.eff_to) })}
               </Muted>
               {row.reason ? <Muted>{row.reason}</Muted> : null}
               {row.approved_by ? (
-                <Muted>Decided by {row.approved_by}</Muted>
+                <Muted>{t('Decided by {approved_by}', { approved_by: row.approved_by })}</Muted>
               ) : null}
             </Card>
           );

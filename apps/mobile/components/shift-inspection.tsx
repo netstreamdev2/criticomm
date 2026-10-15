@@ -16,6 +16,8 @@ import {
   QuickFill, Sheet, Stat, TabStrip, TickBox, YesNo, paper,
 } from '@/components/shift-form';
 import { colors, makeStyles } from '@/lib/theme';
+import { english, type Translate } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 type Vehicle = Database['public']['Tables']['apparatus']['Row'];
 type VehicleChecklist = Database['public']['Tables']['vehicle_checklists']['Row'];
@@ -58,34 +60,36 @@ export const emptyInspection = (vehicle?: Vehicle | null): InspectionForm => ({
 const MAX_PHOTOS = 6;
 
 /** Why the officer cannot leave this tab yet, or null. */
-export function inspectionTabError(form: InspectionForm, tab: number): string | null {
-  const t = TABS[tab];
-  if (!t) return null;
-  switch (t.id) {
+export function inspectionTabError(form: InspectionForm, tab: number, t: Translate = english.t): string | null {
+  const item2 = TABS[tab];
+  if (!item2) return null;
+  switch (item2.id) {
     case 'check':
-      if (!form.fuel) return 'Select the fuel level.';
-      if (ESSENTIALS.some(([k]) => form.essentials[k] === undefined)) return 'Answer Yes or No for every essential check.';
+      if (!form.fuel) return t('Select the fuel level.');
+      if (ESSENTIALS.some(([k]) => form.essentials[k] === undefined)) return t('Answer Yes or No for every essential check.');
       return null;
     case 'details': {
-      if (!form.ndm.trim()) return 'Enter the NDM number.';
+      if (!form.ndm.trim()) return t('Enter the NDM number.');
       const km = Number(form.mileage);
       if (!form.mileage.trim() || !Number.isInteger(km) || km < 0 || km > 2_000_000) {
-        return 'Enter the current mileage in whole kilometres.';
+        return t('Enter the current mileage in whole kilometres.');
       }
-      if (!form.shiftType) return 'Select the shift.';
+      if (!form.shiftType) return t('Select the shift.');
       return null;
     }
     case 'review':
-      if (countItems(form.items).fault > 0 && !form.faultRemarks.trim()) return 'Describe the faults found.';
+      if (countItems(form.items).fault > 0 && !form.faultRemarks.trim()) return t('Describe the faults found.');
       return null;
     case 'signoff':
-      if (!form.signature) return 'Sign in the signature box.';
-      if (!form.signatureConfirmed) return 'Tap Confirm Signature.';
-      if (!form.declaration) return 'Accept the inspection declaration.';
+      if (!form.signature) return t('Sign in the signature box.');
+      if (!form.signatureConfirmed) return t('Tap Confirm Signature.');
+      if (!form.declaration) return t('Accept the inspection declaration.');
       return null;
     default: {
-      const missing = t.sections.flatMap((s) => sectionKeys(s)).filter((k) => !form.items[k]).length;
-      return missing ? `Mark ${missing} remaining item${missing === 1 ? '' : 's'} as ✓, × or NIL.` : null;
+      const missing = item2.sections.flatMap((s) => sectionKeys(s)).filter((k) => !form.items[k]).length;
+      return missing
+        ? missing === 1 ? t('Mark the remaining item as ✓, × or NIL.') : t('Mark {n} remaining items as ✓, × or NIL.', { n: missing })
+        : null;
     }
   }
 }
@@ -119,8 +123,9 @@ export function InspectionSheet({
   busy: boolean;
   onDrawingChange: (drawing: boolean) => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
-  const t = TABS[tab] ?? TABS[0];
+  const item2 = TABS[tab] ?? TABS[0];
   const setItem = (key: string, v: InspectionItemStatus) => patch({ items: { ...form.items, [key]: v } });
   const fillSection = (s: Section, v: InspectionItemStatus) => {
     const next = { ...form.items };
@@ -168,23 +173,23 @@ export function InspectionSheet({
 
   return (
     <Sheet>
-      <CrestHeader dept={dept} subtitle="Vehicle Inspection 187(c)" />
+      <CrestHeader dept={dept} subtitle={t('Vehicle Inspection 187(c)')} />
       <TabStrip tabs={TABS} current={tab} reached={reached} onSelect={onTab} />
 
       <View style={styles.body}>
-        {t.id === 'check' ? (
+        {item2.id === 'check' ? (
           <>
             <View style={styles.heading}>
-              <Text style={styles.headingTitle}>🚐 Checklist for Vehicle</Text>
-              <Text style={styles.headingSub}>Complete all pre-shift essential checks before proceeding.</Text>
+              <Text style={styles.headingTitle}>{t('🚐 Checklist for Vehicle')}</Text>
+              <Text style={styles.headingSub}>{t('Complete all pre-shift essential checks before proceeding.')}</Text>
               {vehicle ? (
                 <Text style={styles.unitLine}>
                   {vehicle.unit_number} — {vehicle.name}{vehicle.license_plate ? ` · ${vehicle.license_plate}` : ''}
                 </Text>
               ) : null}
             </View>
-            <Group title="☑ Essential checks">
-              <FieldLabel label="Fuel level" required invalid={invalid && !form.fuel} />
+            <Group title={t('☑ Essential checks')}>
+              <FieldLabel label={t('Fuel level')} required invalid={invalid && !form.fuel} />
               <FuelPicker options={FUEL_LEVELS} value={form.fuel} onChange={(fuel) => patch({ fuel })} invalid={invalid} />
               <View style={{ height: 6 }} />
               {ESSENTIALS.map(([key, label]) => (
@@ -202,49 +207,48 @@ export function InspectionSheet({
               <View style={styles.warn}>
                 <Ionicons name="warning" size={16} color={paper.red} />
                 <Text style={styles.warnText}>
-                  A “No” here is recorded, but the vehicle will not be cleared for duty. Report it to fleet control.
+                  {t('A “No” here is recorded, but the vehicle will not be cleared for duty. Report it to fleet control.')}
                 </Text>
               </View>
             ) : null}
           </>
         ) : null}
 
-        {t.id === 'details' ? (
+        {item2.id === 'details' ? (
           <>
             {lastInspection && canCopyLast ? (
               <TickBox checked={form.sameAsLast} onToggle={toggleSameAsLast} tone={paper.green} style={{ marginBottom: 12 }}>
-                <Text style={styles.tickTitle}>Same as last inspection</Text>
+                <Text style={styles.tickTitle}>{t('Same as last inspection')}</Text>
                 <Text style={styles.tickBody}>
-                  Copies the NDM number and all {TOTAL_ITEMS} item results from{' '}
-                  {saShortDate(lastInspection.checked_at)}
-                  {lastInspection.inspector_name ? ` (${lastInspection.inspector_name})` : ''}.
-                  Check anything that has changed before you sign.
+                  {lastInspection.inspector_name
+                    ? t('Copies the NDM number and all {n} item results from {date} ({name}). Check anything that has changed before you sign.', { n: TOTAL_ITEMS, date: saShortDate(lastInspection.checked_at), name: lastInspection.inspector_name })
+                    : t('Copies the NDM number and all {n} item results from {date}. Check anything that has changed before you sign.', { n: TOTAL_ITEMS, date: saShortDate(lastInspection.checked_at) })}
                 </Text>
               </TickBox>
             ) : null}
-            <Group title="Vehicle details">
+            <Group title={t('Vehicle details')}>
               <PaperInput
-                label="NDM number"
+                label={t('NDM number')}
                 required
                 invalid={invalid && !form.ndm.trim()}
-                placeholder="NDM-"
+                placeholder={t('NDM-')}
                 autoCapitalize="characters"
                 value={form.ndm}
                 onChangeText={(ndm) => patch({ ndm })}
               />
               <PaperInput
-                label="Current mileage (km)"
+                label={t('Current mileage (km)')}
                 required
                 invalid={invalid && !/^\d+$/.test(form.mileage.trim())}
                 placeholder="km"
                 keyboardType="number-pad"
                 value={form.mileage}
                 onChangeText={(m) => patch({ mileage: m.replace(/[^\d]/g, '') })}
-                hint={vehicle?.mileage ? `Last recorded on the fleet register: ${vehicle.mileage.toLocaleString('en-ZA')} km` : undefined}
+                hint={vehicle?.mileage ? t('Last recorded on the fleet register: {mileage} km', { mileage: vehicle.mileage.toLocaleString('en-ZA') }) : undefined}
               />
             </Group>
-            <Group title="Shift details">
-              <FieldLabel label="Shift" required invalid={invalid && !form.shiftType} />
+            <Group title={t('Shift details')}>
+              <FieldLabel label={t('Shift')} required invalid={invalid && !form.shiftType} />
               <View style={styles.shiftRow}>
                 {SHIFT_TYPES.map(([value, label]) => {
                   const active = form.shiftType === value;
@@ -266,7 +270,7 @@ export function InspectionSheet({
                 })}
               </View>
               <View style={{ marginTop: 14 }}>
-                <FieldLabel label="Date" />
+                <FieldLabel label={t('Date')} />
                 <View style={styles.readonly}>
                   <Text style={styles.readonlyText}>{saShortDate()}</Text>
                   <Ionicons name="calendar-outline" size={18} color={paper.muted} />
@@ -276,7 +280,7 @@ export function InspectionSheet({
           </>
         ) : null}
 
-        {t.sections.length > 0 ? t.sections.map((s) => (
+        {item2.sections.length > 0 ? item2.sections.map((s) => (
           <Group key={s.id} title={s.title}>
             <QuickFill onFill={(v) => fillSection(s, v)} />
             {s.items.map(([k, label]) => {
@@ -294,36 +298,34 @@ export function InspectionSheet({
           </Group>
         )) : null}
 
-        {t.id === 'review' ? (
+        {item2.id === 'review' ? (
           <>
             <View style={styles.stats}>
-              <Stat value={TOTAL_ITEMS} label="TOTAL ITEMS" tone={paper.blue} />
-              <Stat value={counts.ok} label="WORKING" tone={paper.green} />
-              <Stat value={counts.fault} label="FAULTS" tone={paper.red} />
-              <Stat value={counts.nil} label="NIL / N/A" tone={paper.faint} />
+              <Stat value={TOTAL_ITEMS} label={t('TOTAL ITEMS')} tone={paper.blue} />
+              <Stat value={counts.ok} label={t('WORKING')} tone={paper.green} />
+              <Stat value={counts.fault} label={t('FAULTS')} tone={paper.red} />
+              <Stat value={counts.nil} label={t('NIL / N/A')} tone={paper.faint} />
             </View>
             {counts.fault > 0 ? (
               <View style={[styles.banner, { borderColor: `${paper.red}66`, backgroundColor: paper.redSoft }]}>
                 <Text style={[styles.bannerText, { color: paper.red }]}>
-                  × {counts.fault} fault{counts.fault === 1 ? '' : 's'}: {faultLabels(form.items).join(', ')}
+                  × {counts.fault === 1 ? t('1 fault: {list}', { list: faultLabels(form.items, t).join(', ') }) : t('{n} faults: {list}', { n: counts.fault, list: faultLabels(form.items, t).join(', ') })}
                 </Text>
               </View>
             ) : (
               <View style={[styles.banner, { borderColor: `${paper.green}66`, backgroundColor: paper.greenSoft }]}>
-                <Text style={[styles.bannerText, { color: paper.green }]}>✓ No faults detected</Text>
+                <Text style={[styles.bannerText, { color: paper.green }]}>{t('✓ No faults detected')}</Text>
               </View>
             )}
-            <Text style={styles.completion}>
-              Completion: {counts.done}/{TOTAL_ITEMS} ({Math.round((counts.done / TOTAL_ITEMS) * 100)}%)
-            </Text>
+            <Text style={styles.completion}>{t('Completion: {done}/{TOTAL_ITEMS} ({round}%)', { done: counts.done, TOTAL_ITEMS, round: Math.round((counts.done / TOTAL_ITEMS) * 100) })}</Text>
             {counts.fault > 0 ? (
-              <Group title="Fault remarks">
+              <Group title={t('Fault remarks')}>
                 <PaperInput
-                  label="Describe the faults found"
+                  label={t('Describe the faults found')}
                   required
                   invalid={invalid && !form.faultRemarks.trim()}
                   multiline
-                  placeholder="What is wrong, where, and whether it affects safe driving…"
+                  placeholder={t('What is wrong, where, and whether it affects safe driving…')}
                   value={form.faultRemarks}
                   onChangeText={(faultRemarks) => patch({ faultRemarks })}
                 />
@@ -346,23 +348,23 @@ export function InspectionSheet({
           </>
         ) : null}
 
-        {t.id === 'signoff' ? (
+        {item2.id === 'signoff' ? (
           <>
-            <Group title="Inspector details">
-              <FieldLabel label="Inspected by" />
+            <Group title={t('Inspector details')}>
+              <FieldLabel label={t('Inspected by')} />
               <View style={styles.readonly}>
                 <Ionicons name="person" size={16} color={colors.purple} />
                 <Text style={[styles.readonlyText, { flex: 1 }]}>{inspectorName}</Text>
               </View>
               <View style={{ height: 12 }} />
-              <FieldLabel label="Inspection date" />
+              <FieldLabel label={t('Inspection date')} />
               <View style={styles.readonly}>
                 <Text style={styles.readonlyText}>{saShortDate()}</Text>
                 <Ionicons name="calendar-outline" size={18} color={paper.muted} />
               </View>
             </Group>
 
-            <Group title="Inspector signature *">
+            <Group title={t('Inspector signature *')}>
               <SignaturePad
                 onChange={onSignature}
                 onDrawingChange={onDrawingChange}
@@ -370,25 +372,25 @@ export function InspectionSheet({
               />
               {form.signatureConfirmed ? (
                 <View style={styles.sigDone}>
-                  <Text style={styles.sigDoneText}>✓ Signature confirmed</Text>
+                  <Text style={styles.sigDoneText}>{t('✓ Signature confirmed')}</Text>
                   <Pressable onPress={() => patch({ signatureConfirmed: false })} hitSlop={8}>
-                    <Text style={styles.sigRedo}>Re-sign</Text>
+                    <Text style={styles.sigRedo}>{t('Re-sign')}</Text>
                   </Pressable>
                 </View>
               ) : (
                 <PaperButton
-                  label="✓ Confirm Signature"
+                  label={t('✓ Confirm Signature')}
                   onPress={() => patch({ signatureConfirmed: true })}
                   disabled={!form.signature}
                   style={{ marginTop: 10, alignSelf: 'flex-start', minHeight: 44 }}
                 />
               )}
               {invalid && (!form.signature || !form.signatureConfirmed) ? (
-                <Text style={styles.required}>Sign and confirm your signature.</Text>
+                <Text style={styles.required}>{t('Sign and confirm your signature.')}</Text>
               ) : null}
             </Group>
 
-            <Group title="Inspection photos">
+            <Group title={t('Inspection photos')}>
               {form.photos.length ? (
                 <View style={styles.thumbs}>
                   {form.photos.map((uri, i) => (
@@ -397,7 +399,7 @@ export function InspectionSheet({
                       <Pressable
                         onPress={() => patch({ photos: form.photos.filter((_, j) => j !== i) })}
                         style={styles.thumbRemove}
-                        accessibilityLabel="Remove photo"
+                        accessibilityLabel={t('Remove photo')}
                       >
                         <Ionicons name="close" size={14} color="#fff" />
                       </Pressable>
@@ -407,27 +409,27 @@ export function InspectionSheet({
               ) : (
                 <View style={styles.drop}>
                   <Text style={{ fontSize: 26 }}>🖼️</Text>
-                  <Text style={styles.dropTitle}>Attach inspection photos</Text>
-                  <Text style={styles.dropSub}>Optional · up to {MAX_PHOTOS}</Text>
+                  <Text style={styles.dropTitle}>{t('Attach inspection photos')}</Text>
+                  <Text style={styles.dropSub}>{t('Optional · up to {MAX_PHOTOS}', { MAX_PHOTOS })}</Text>
                 </View>
               )}
               <View style={styles.photoBtns}>
-                <PaperButton label="📷 Take Photo" tone="outline" onPress={() => void addPhoto('camera')} disabled={form.photos.length >= MAX_PHOTOS} style={styles.photoBtn} />
-                <PaperButton label="Choose from Gallery" tone="outline" onPress={() => void addPhoto('library')} disabled={form.photos.length >= MAX_PHOTOS} style={styles.photoBtn} />
+                <PaperButton label={t('📷 Take Photo')} tone="outline" onPress={() => void addPhoto('camera')} disabled={form.photos.length >= MAX_PHOTOS} style={styles.photoBtn} />
+                <PaperButton label={t('Choose from Gallery')} tone="outline" onPress={() => void addPhoto('library')} disabled={form.photos.length >= MAX_PHOTOS} style={styles.photoBtn} />
               </View>
             </Group>
 
-            <Group title="Licence documents">
+            <Group title={t('Licence documents')}>
               <View style={styles.docs}>
                 <DocSlot
-                  title="Licence disk"
+                  title={t('Licence disk')}
                   emoji="📋"
                   uri={form.licenceDisk}
                   onPick={async (src) => { const uri = await pick(src); if (uri) patch({ licenceDisk: uri }); }}
                   onClear={() => patch({ licenceDisk: null })}
                 />
                 <DocSlot
-                  title="Licence photo"
+                  title={t('Licence photo')}
                   emoji="🪪"
                   uri={form.licencePhoto}
                   onPick={async (src) => { const uri = await pick(src); if (uri) patch({ licencePhoto: uri }); }}
@@ -442,11 +444,9 @@ export function InspectionSheet({
               invalid={invalid}
             >
               <Text style={styles.declaration}>
-                I confirm that I have physically inspected the above vehicle and that the information recorded is
-                accurate to the best of my knowledge. Any faults noted must be reported to the immediate supervisor
-                and recorded in the official pocket book.{' '}
+                {t('I confirm that I have physically inspected the above vehicle and that the information recorded is accurate to the best of my knowledge. Any faults noted must be reported to the immediate supervisor and recorded in the official pocket book.')}{' '}
                 <Text style={{ fontWeight: '800' }}>
-                  By signing above and checking this box I accept full responsibility for this declaration.
+                  {t('By signing above and checking this box I accept full responsibility for this declaration.')}
                 </Text>
                 <Text style={{ color: paper.red, fontWeight: '800' }}> *</Text>
               </Text>
@@ -458,7 +458,7 @@ export function InspectionSheet({
       <FooterNav
         onBack={onBack}
         onNext={onNext}
-        nextLabel={isLast ? 'Generate Report' : 'Next →'}
+        nextLabel={isLast ? t('Generate Report') : t('Next →')}
         nextTone={isLast ? 'primary' : 'outline'}
         percent={completion(form)}
         position={`${tab + 1}/${TABS.length}`}
@@ -477,6 +477,7 @@ function DocSlot({
   onPick: (src: 'camera' | 'library') => Promise<void>;
   onClear: () => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.doc}>
@@ -485,23 +486,23 @@ function DocSlot({
         {uri ? (
           <>
             <Image source={{ uri }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
-            <Pressable onPress={onClear} style={styles.thumbRemove} accessibilityLabel={`Remove ${title}`}>
+            <Pressable onPress={onClear} style={styles.thumbRemove} accessibilityLabel={t('Remove {title}', { title })}>
               <Ionicons name="close" size={14} color="#fff" />
             </Pressable>
           </>
         ) : (
           <>
             <Text style={{ fontSize: 22 }}>{emoji}</Text>
-            <Text style={styles.docEmpty}>No {title.toLowerCase()} captured</Text>
+            <Text style={styles.docEmpty}>{t('No {title} captured', { title: title.toLowerCase() })}</Text>
           </>
         )}
       </View>
       <View style={styles.docBtns}>
         <Pressable onPress={() => void onPick('camera')} style={[styles.docBtn, { borderColor: paper.blue }]}>
-          <Text style={[styles.docBtnText, { color: paper.blue }]}>📷 Capture</Text>
+          <Text style={[styles.docBtnText, { color: paper.blue }]}>{t('📷 Capture')}</Text>
         </Pressable>
         <Pressable onPress={() => void onPick('library')} style={[styles.docBtn, { borderColor: paper.green }]}>
-          <Text style={[styles.docBtnText, { color: paper.green }]}>Photo</Text>
+          <Text style={[styles.docBtnText, { color: paper.green }]}>{t('Photo')}</Text>
         </Pressable>
       </View>
     </View>

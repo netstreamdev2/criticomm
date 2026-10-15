@@ -4,6 +4,7 @@ import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import type { MapPin } from '@/lib/map-pins';
 import type { CrimeCircle, ZoneShape } from '@/lib/police-overlays';
 import { colors, space, type, makeStyles, useTheme } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 /**
  * The real-time incident map.
@@ -352,6 +353,7 @@ export const IncidentMap = forwardRef<IncidentMapHandle, {
   zoomButtons?: boolean;
   style?: StyleProp<ViewStyle>;
 }>(function IncidentMap({ pins, onOpen, onSelect, me, crime, zones, rainUrl, zoomButtons = true, style }, ref) {
+  const { t } = useT();
   const styles = useStyles();
   const { mode } = useTheme();
   // The theme the page is first drawn in; later switches go through setTheme.
@@ -408,12 +410,12 @@ export const IncidentMap = forwardRef<IncidentMapHandle, {
       {!ready && !failed ? (
         <View style={styles.overlay} pointerEvents="none">
           <ActivityIndicator color={colors.accent} />
-          <Text style={styles.text}>Loading map…</Text>
+          <Text style={styles.text}>{t('Loading map…')}</Text>
         </View>
       ) : null}
       {failed ? (
         <View style={styles.overlay}>
-          <Text style={styles.text}>The map could not load. Check your connection.</Text>
+          <Text style={styles.text}>{t('The map could not load. Check your connection.')}</Text>
         </View>
       ) : null}
     </View>

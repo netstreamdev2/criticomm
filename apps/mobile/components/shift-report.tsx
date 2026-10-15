@@ -5,6 +5,7 @@ import {
 import { StatusPill } from '@/components/shift-inspection';
 import { PaperButton, Sheet, Stat, paper } from '@/components/shift-form';
 import { makeStyles } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 /**
  * The electronic inspection report, as the officer will file it. Shown before
@@ -29,6 +30,7 @@ export function ReportPreview({
   onSubmit: () => void;
   busy: boolean;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const counts = countItems(items);
   const pct = Math.round((counts.done / TOTAL_ITEMS) * 100);
@@ -38,7 +40,7 @@ export function ReportPreview({
       <View style={styles.topbar}>
         <View style={styles.topIcon}><Text>📋</Text></View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.topTitle}>Electronic Inspection Report</Text>
+          <Text style={styles.topTitle}>{t('Electronic Inspection Report')}</Text>
           <Text style={styles.topRef}>{inspectionRef}</Text>
         </View>
       </View>
@@ -46,60 +48,59 @@ export function ReportPreview({
       <View style={styles.band}>
         <View style={styles.bandCircle} />
         <Text style={styles.bandRef}>{inspectionRef}</Text>
-        <Text style={styles.bandTitle}>DMPS <Text style={{ color: paper.blue }}>187(c)</Text></Text>
-        <Text style={styles.bandSub}>VEHICLE INSPECTION REPORT · ELECTRONIC RECORD</Text>
+        <Text style={styles.bandTitle}>{t('DMPS')}{' '}<Text style={{ color: paper.blue }}>{t('187(c)')}</Text></Text>
+        <Text style={styles.bandSub}>{t('VEHICLE INSPECTION REPORT · ELECTRONIC RECORD')}</Text>
         <View style={styles.bandGrid}>
-          <Fact label="NDM number" value={ndm} />
-          <Fact label="Mileage" value={`${mileage} km`} />
-          <Fact label="Shift" value={shift} />
-          <Fact label="Date" value={date} />
-          <Fact label="Unit" value={unit} />
-          <Fact label="Inspector" value={inspector} />
+          <Fact label={t('NDM number')} value={ndm} />
+          <Fact label={t('Mileage')} value={`${mileage} km`} />
+          <Fact label={t('Shift')} value={shift} />
+          <Fact label={t('Date')} value={date} />
+          <Fact label={t('Unit')} value={unit} />
+          <Fact label={t('Inspector')} value={inspector} />
         </View>
         <View style={[styles.badge, { backgroundColor: passed ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', borderColor: passed ? '#10b98155' : '#ef444455' }]}>
           <Text style={[styles.badgeText, { color: passed ? paper.green : paper.red }]}>
-            ● {passed ? 'VEHICLE PASSED INSPECTION' : 'VEHICLE NOT CLEARED FOR DUTY'}
+            ● {passed ? t('VEHICLE PASSED INSPECTION') : t('VEHICLE NOT CLEARED FOR DUTY')}
           </Text>
         </View>
       </View>
 
       <View style={{ padding: 14 }}>
         <View style={styles.completionRow}>
-          <Text style={styles.mono}>Inspection Completion</Text>
-          <Text style={styles.mono}>{counts.done}/{TOTAL_ITEMS} items · {pct}%</Text>
+          <Text style={styles.mono}>{t('Inspection Completion')}</Text>
+          <Text style={styles.mono}>{t('{done}/{TOTAL_ITEMS} items · {pct}%', { done: counts.done, TOTAL_ITEMS, pct })}</Text>
         </View>
         <View style={styles.track}><View style={[styles.fill, { width: `${pct}%` }]} /></View>
 
         <View style={styles.stats}>
-          <Stat value={TOTAL_ITEMS} label="TOTAL ITEMS" tone={paper.blue} />
-          <Stat value={counts.ok} label="WORKING" tone={paper.green} />
-          <Stat value={counts.fault} label="FAULTS" tone={paper.red} />
-          <Stat value={counts.nil} label="NIL / N/A" tone={paper.faint} />
+          <Stat value={TOTAL_ITEMS} label={t('TOTAL ITEMS')} tone={paper.blue} />
+          <Stat value={counts.ok} label={t('WORKING')} tone={paper.green} />
+          <Stat value={counts.fault} label={t('FAULTS')} tone={paper.red} />
+          <Stat value={counts.nil} label={t('NIL / N/A')} tone={paper.faint} />
         </View>
 
         {counts.fault > 0 ? (
           <View style={[styles.note, { borderLeftColor: paper.red, backgroundColor: paper.redSoft }]}>
-            <Text style={[styles.noteText, { color: paper.red }]}>
-              × Faults: {faultLabels(items).join(', ')}
+            <Text style={[styles.noteText, { color: paper.red }]}>{t('× Faults: {faultLabels}', { faultLabels: faultLabels(items).join(', ') })}
             </Text>
             {faultRemarks ? <Text style={styles.remarks}>{faultRemarks}</Text> : null}
           </View>
         ) : (
           <View style={[styles.note, { borderLeftColor: paper.green, backgroundColor: paper.greenSoft }]}>
             <Text style={[styles.noteText, { color: paper.green }]}>
-              ✓ All inspected items are in working order — no faults detected.
+              {t('✓ All inspected items are in working order — no faults detected.')}
             </Text>
           </View>
         )}
 
-        <Text style={styles.detailHead}>INSPECTION DETAIL</Text>
+        <Text style={styles.detailHead}>{t('INSPECTION DETAIL')}</Text>
         {SECTION_ORDER.map((s) => {
           const ok = sectionKeys(s).filter((k) => items[k] === 'ok').length;
           return (
             <View key={s.id} style={styles.section}>
               <View style={styles.sectionHead}>
                 <Text style={styles.sectionTitle}>{s.title.toUpperCase()}</Text>
-                <Text style={styles.sectionCount}>{ok}/{s.items.length} OK</Text>
+                <Text style={styles.sectionCount}>{t('{ok}/{length} OK', { ok, length: s.items.length })}</Text>
               </View>
               {s.items.map(([k, label]) => (
                 <View key={k} style={styles.row}>
@@ -113,8 +114,8 @@ export function ReportPreview({
       </View>
 
       <View style={styles.actions}>
-        <PaperButton label="← Back to Form" tone="outline" onPress={onBack} disabled={busy} style={{ flex: 1 }} />
-        <PaperButton label="✓ Submit & Finalise" onPress={onSubmit} busy={busy} style={{ flex: 1.3 }} />
+        <PaperButton label={t('← Back to Form')} tone="outline" onPress={onBack} disabled={busy} style={{ flex: 1 }} />
+        <PaperButton label={t('✓ Submit & Finalise')} onPress={onSubmit} busy={busy} style={{ flex: 1.3 }} />
       </View>
     </Sheet>
   );

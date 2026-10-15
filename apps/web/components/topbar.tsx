@@ -6,6 +6,7 @@ import { ChevronRight, Search, LogOut, User } from 'lucide-react';
 import { breadcrumbsFor } from '@/lib/nav';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { ThemePicker } from '@/components/theme-picker';
+import { LanguageMenu } from '@/components/language-menu';
 import { AlertBell } from '@/components/alert-bell';
 import { cn } from '@/lib/utils';
 
@@ -14,9 +15,11 @@ function openPalette() {
 }
 
 export function Topbar({
-  fullName, role, silo, hasSidebar = true,
+  fullName, role, silo, hasSidebar = true, canTranslate = false,
 }: {
   fullName: string; role: string; silo: string;
+  /** A translator or administrator: the language menu links to Translations. */
+  canTranslate?: boolean;
   /** When false there is no sidebar trigger, so the left gutter is reclaimed. */
   hasSidebar?: boolean;
 }) {
@@ -80,6 +83,8 @@ export function Topbar({
       >
         <Search className="h-4 w-4" />
       </button>
+
+      <LanguageMenu canTranslate={canTranslate} />
 
       <ThemePicker />
 

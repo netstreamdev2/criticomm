@@ -1,5 +1,6 @@
 import type { Silo } from '@criticom/db/types';
-import { wordsFor } from './department.ts';
+import { english, type Translate } from '@criticom/db/i18n';
+import { wordsIn } from './department.ts';
 
 /**
  * The outbox's rules, with no dependencies.
@@ -219,46 +220,47 @@ export function dedupeKeyOf(op: OutboxOp): string | null {
   return op.kind === 'duty_location' ? 'duty_location' : null;
 }
 
-export function describe(op: OutboxOp): string {
+export function describe(op: OutboxOp, t: Translate = english.t): string {
+  const tail = (s: string | null | undefined) => (s ? ` · ${s}` : '');
   switch (op.kind) {
     case 'incident_status':
-      return `Status → ${op.status}${op.incidentNumber ? ` · ${op.incidentNumber}` : ''}`;
+      return `${t('Status → {status}', { status: t(op.status) })}${tail(op.incidentNumber)}`;
     case 'incident_note':
-      return `Update · ${op.message.slice(0, 40)}${op.message.length > 40 ? '…' : ''}`;
+      return `${t('Update')} · ${op.message.slice(0, 40)}${op.message.length > 40 ? '…' : ''}`;
     case 'evidence':
-      return `${op.mediaKind === 'audio' ? 'Voice note' : 'Photo'} · ${op.filename}`;
+      return `${op.mediaKind === 'audio' ? t('Voice note') : t('Photo')} · ${op.filename}`;
     case 'incident_report':
-      return `Incident report · ${op.incidentNumber}`;
+      return `${t('Incident report')} · ${op.incidentNumber}`;
     case 'fire_report':
-      return `Fire report · ${op.incidentNumber}`;
+      return `${t('Fire report')} · ${op.incidentNumber}`;
     case 'pcr':
-      return `Patient report · ${op.incidentNumber}`;
+      return `${t('Patient report')} · ${op.incidentNumber}`;
     case 'post_mortem':
-      return `Post-mortem · ${op.incidentNumber}`;
+      return `${t('Post-mortem')} · ${op.incidentNumber}`;
     case 'close_part':
-      return `Close · ${op.incidentNumber}`;
+      return `${t('Close')} · ${op.incidentNumber}`;
     case 'panic':
-      return `EMERGENCY — ${wordsFor(op.silo).person} needs assistance`;
+      return t('EMERGENCY — {person} needs assistance', { person: wordsIn(op.silo, t).person });
     case 'duty_location':
-      return 'Position update';
+      return t('Position update');
     case 'firearm_check':
-      return `Firearm ${op.checkKind.toLowerCase()} · ${op.serialNumber}`;
+      return `${op.checkKind === 'Issue' ? t('Firearm issue') : op.checkKind === 'Return' ? t('Firearm return') : t('Firearm inspection')} · ${op.serialNumber}`;
     case 'issue_fine':
-      return `Fine · ${op.noticeType} · ${op.label}`;
+      return `${t('Fine')} · ${op.noticeType} · ${op.label}`;
     case 'alert_read':
-      return `Alert ${op.acknowledged ? 'acknowledged' : 'read'}${op.title ? ` · ${op.title.slice(0, 40)}` : ''}`;
+      return `${op.acknowledged ? t('Alert acknowledged') : t('Alert read')}${tail(op.title?.slice(0, 40))}`;
     case 'allocation_ack':
-      return `Duty acknowledged${op.label ? ` · ${op.label}` : ''}`;
+      return `${t('Duty acknowledged')}${tail(op.label)}`;
     case 'leave_request':
-      return `Leave · ${op.absence} · ${op.from} to ${op.to}`;
+      return `${t('Leave')} · ${t(op.absence)} · ${t('{from} to {to}', { from: op.from, to: op.to })}`;
     case 'leave_cancel':
-      return `Cancel leave · ${op.label}`;
+      return `${t('Cancel leave')} · ${op.label}`;
     case 'swap_request':
-      return `Swap asked · ${op.label}`;
+      return `${t('Swap asked')} · ${op.label}`;
     case 'swap_respond':
-      return `Swap ${op.accept ? 'accepted' : 'declined'} · ${op.label}`;
+      return `${op.accept ? t('Swap accepted') : t('Swap declined')} · ${op.label}`;
     case 'swap_withdraw':
-      return `Swap withdrawn · ${op.label}`;
+      return `${t('Swap withdrawn')} · ${op.label}`;
   }
 }
 

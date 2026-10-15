@@ -10,19 +10,23 @@ import { errorWords } from '@/lib/offline-cache-policy';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { HikTechLogo } from '@/components/hiktech-logo';
 import { Banner, Button, Input } from '@/components/ui';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 /** Each in its own department colour (Admin → Departments' defaults). */
 const DEPARTMENTS = [
-  { label: 'Metro Police', colour: '#3b82f6' },
-  { label: 'Fire & Rescue', colour: '#dc3545' },
-  { label: 'EMS', colour: '#10b981' },
-  { label: 'Disaster Management', colour: '#f59e0b' },
+  { label: tx('Metro Police'), colour: '#3b82f6' },
+  { label: tx('Fire & Rescue'), colour: '#dc3545' },
+  { label: tx('EMS'), colour: '#10b981' },
+  { label: tx('Disaster Management'), colour: '#f59e0b' },
 ];
 
-const DEACTIVATED = 'This account has been deactivated. If you think this is a mistake, speak to your station commander or system administrator.';
-const NO_MATCH = 'That email or badge number and password do not match an account.';
+// The Banner translates them.
+const DEACTIVATED = tx('This account has been deactivated. If you think this is a mistake, speak to your station commander or system administrator.');
+const NO_MATCH = tx('That email or badge number and password do not match an account.');
 
 export default function LoginScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -68,9 +72,9 @@ export default function LoginScreen() {
             <Ionicons name="shield-half" size={26} color={colors.primary} />
           </View>
           <View style={{ marginVertical: 10 }}><HikTechLogo height={18} /></View>
-          <Text style={styles.heading}>Responder sign in</Text>
+          <Text style={styles.heading}>{t('Responder sign in')}</Text>
           <Text style={styles.sub}>
-            eThekwini Emergency Services. Authorised personnel only — all access is audited.
+            {t('eThekwini Emergency Services. Authorised personnel only — all access is audited.')}
           </Text>
 
           {/* Departments served */}
@@ -78,7 +82,7 @@ export default function LoginScreen() {
             {DEPARTMENTS.map((d) => (
               <View key={d.label} style={styles.chip}>
                 <View style={[styles.chipDot, { backgroundColor: d.colour }]} />
-                <Text style={styles.chipText}>{d.label}</Text>
+                <Text style={styles.chipText}>{t(d.label)}</Text>
               </View>
             ))}
           </View>
@@ -88,9 +92,9 @@ export default function LoginScreen() {
             {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
 
             <Input
-              label="Email or badge number"
+              label={t('Email or badge number')}
               icon="person-outline"
-              placeholder="Your email address or badge number"
+              placeholder={t('Your email address or badge number')}
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
@@ -103,7 +107,7 @@ export default function LoginScreen() {
 
             <View>
               <Input
-                label="Password"
+                label={t('Password')}
                 icon="lock-closed-outline"
                 placeholder="••••••••"
                 secureTextEntry={!show}
@@ -120,12 +124,12 @@ export default function LoginScreen() {
                 accessibilityRole="button"
                 style={styles.reveal}
               >
-                {show ? 'Hide' : 'Show'}
+                {show ? t('Hide') : t('Show')}
               </Text>
             </View>
 
             <Button
-              label="Sign in"
+              label={t('Sign in')}
               icon="log-in-outline"
               size="lg"
               busy={busy}
@@ -138,13 +142,13 @@ export default function LoginScreen() {
               accessibilityRole="link"
               style={styles.activate}
             >
-              I have an activation code
+              {t('I have an activation code')}
             </Text>
           </View>
 
           <View style={styles.footer}>
             <View style={styles.pulse} />
-            <Text style={styles.footerText}>Secure connection · session audited</Text>
+            <Text style={styles.footerText}>{t('Secure connection · session audited')}</Text>
           </View>
         </View>
       </ScrollView>

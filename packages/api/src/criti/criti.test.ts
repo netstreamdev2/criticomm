@@ -351,3 +351,12 @@ test('a confirmation is checked again before it runs', () => {
     'never Resolved or Closed');
   assert.equal(proposalSchema.safeParse({ kind: 'delete_everything' }).success, false);
 });
+
+test('the new numbers are found whole, or by their number of the day', () => {
+  const a = call({ incident_number: 'MPFD-MD-20261010-1115-0034' });
+  const b = call({ incident_number: 'MP-20261010-1116-0035' });
+  assert.equal(findByNumber([a, b], 'mpfd-md-20261010-1115-0034'), a);
+  assert.equal(findByNumber([a, b], '34'), a);
+  assert.equal(findByNumber([a, b], 'call 35'), b);
+  assert.equal(findByNumber([a, b], '36'), null);
+});

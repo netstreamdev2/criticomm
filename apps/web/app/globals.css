@@ -28,6 +28,17 @@ button, input, select, textarea {
 *::-webkit-scrollbar-thumb { background: rgb(var(--c-border)); border-radius: 4px; }
 *::-webkit-scrollbar-track { background: transparent; }
 
+/* A long window (the call description, editing a call): a scroll bar wide and plain enough to find. */
+.modal-scroll {
+  scrollbar-width: auto;
+  scrollbar-color: rgb(var(--c-muted-fg) / 0.7) rgb(var(--c-muted) / 0.6);
+  overscroll-behavior: contain;
+}
+.modal-scroll::-webkit-scrollbar { width: 14px; }
+.modal-scroll::-webkit-scrollbar-track { background: rgb(var(--c-muted) / 0.6); border-radius: 7px; }
+.modal-scroll::-webkit-scrollbar-thumb { background: rgb(var(--c-muted-fg) / 0.7); border-radius: 7px; border: 3px solid transparent; background-clip: padding-box; }
+.modal-scroll::-webkit-scrollbar-thumb:hover { background-color: rgb(var(--c-muted-fg)); }
+
 /* ── Focus rings (keyboard a11y) ────────────────────────────── */
 :focus-visible {
   outline: 2px solid rgb(var(--c-accent));

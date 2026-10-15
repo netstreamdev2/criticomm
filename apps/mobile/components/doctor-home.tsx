@@ -7,6 +7,7 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, EmptyState, KeyValue, Muted } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 type Handover = Awaited<ReturnType<typeof listHandovers>>[number];
 
@@ -19,6 +20,7 @@ const when = (iso: string) => new Date(iso).toLocaleString('en-ZA', {
  * newest first. Read only; the doctor signs on the crew's phone at handover.
  */
 export function DoctorHome() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { fullName } = useAuth();
@@ -58,17 +60,17 @@ export function DoctorHome() {
         style={({ pressed }) => [styles.row, pressed && { opacity: 0.85 }]}
       >
         <View style={styles.rowTop}>
-          <Text style={styles.patient} numberOfLines={1}>{h.pcr?.patient_name || 'Unknown Patient'}</Text>
+          <Text style={styles.patient} numberOfLines={1}>{h.pcr?.patient_name || t('Unknown Patient')}</Text>
           <Text style={styles.time}>{when(h.time_of_handover)}</Text>
         </View>
         <Text style={styles.sub} numberOfLines={1}>{h.receiving_hosp} · {h.doctor_name}</Text>
         <Text style={styles.status} numberOfLines={open ? undefined : 2}>{h.patient_status_at_handover ?? '—'}</Text>
         {open ? (
           <View style={styles.more}>
-            <KeyValue label="Report" value={h.pcr?.report_number ?? '—'} />
-            <KeyValue label="Chief Complaint" value={h.pcr?.chief_complaint ?? '—'} />
-            <KeyValue label="Care Level" value={h.pcr?.level_of_care ?? '—'} />
-            <KeyValue label="Crew" value={h.pcr?.paramedic_names ?? '—'} />
+            <KeyValue label={t('Report')} value={h.pcr?.report_number ?? '—'} />
+            <KeyValue label={t('Chief Complaint')} value={h.pcr?.chief_complaint ?? '—'} />
+            <KeyValue label={t('Care Level')} value={h.pcr?.level_of_care ?? '—'} />
+            <KeyValue label={t('Crew')} value={h.pcr?.paramedic_names ?? '—'} />
           </View>
         ) : null}
       </Pressable>
@@ -93,8 +95,8 @@ export function DoctorHome() {
         )}
         ListHeaderComponent={(
           <View style={{ marginBottom: space.md, gap: space.sm }}>
-            <Text style={styles.eyebrow}>EMERGENCY MEDICAL SERVICES · DOCTOR</Text>
-            <Text style={styles.title}>Patient handovers</Text>
+            <Text style={styles.eyebrow}>{t('EMERGENCY MEDICAL SERVICES · DOCTOR')}</Text>
+            <Text style={styles.title}>{t('Patient handovers')}</Text>
             <Muted>{fullName}</Muted>
             {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
             <View style={styles.search}>
@@ -102,22 +104,22 @@ export function DoctorHome() {
               <TextInput
                 value={query}
                 onChangeText={setQuery}
-                placeholder="Search patient, hospital or doctor"
+                placeholder={t('Search patient, hospital or doctor')}
                 placeholderTextColor={colors.muted}
                 style={styles.searchInput}
                 autoCorrect={false}
-                accessibilityLabel="Search handovers"
+                accessibilityLabel={t('Search handovers')}
               />
             </View>
           </View>
         )}
         ListEmptyComponent={loading ? null : (
-          <EmptyState icon="business-outline" title={query ? 'No handovers match' : 'No handovers yet'} body="" />
+          <EmptyState icon="business-outline" title={query ? t('No handovers match') : t('No handovers yet')} body="" />
         )}
         ListFooterComponent={(
           <View style={{ marginTop: space.lg }}>
             <Button
-              label="Sign out"
+              label={t('Sign out')}
               icon="log-out-outline"
               variant="outline"
               onPress={() => void (async () => {

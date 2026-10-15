@@ -7,6 +7,7 @@ import {
 import { usePerformance } from '@/lib/use-performance';
 import { colors, radius, space, makeStyles, useTheme } from '@/lib/theme';
 import { Segmented } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 const BLUE = '#3b82f6';
 const CYAN = '#22d3ee';
@@ -37,6 +38,7 @@ function Section({ title, tone, right, children }: {
  * responded to (lead or backup), by period, plus this cycle's appraisal.
  */
 export default function MyPerformanceScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const { isDark } = useTheme();
   const { rows, appraisal, loading, refresh } = usePerformance();
@@ -45,17 +47,17 @@ export default function MyPerformanceScreen() {
 
   const s = useMemo(() => summarise(rows, periodStart(period)), [rows, period]);
   const trend = useMemo(() => monthlyAttended(rows, 6), [rows]);
-  const peak = Math.max(1, ...trend.map((t) => t.count));
-  const topPeak = Math.max(1, ...s.topTypes.map((t) => t.count));
+  const peak = Math.max(1, ...trend.map((item) => item.count));
+  const topPeak = Math.max(1, ...s.topTypes.map((item) => item.count));
   const resolvedPct = s.attended ? Math.round((s.resolved / s.attended) * 100) : null;
 
   const tiles = [
-    { label: 'Attended', value: String(s.attended), sub: 'lead + backup', icon: 'shield-checkmark' as const, tone: BLUE },
-    { label: 'Led', value: String(s.led), sub: 'as lead', icon: 'star' as const, tone: CYAN },
-    { label: 'Backup', value: String(s.backup), sub: 'joined others', icon: 'people' as const, tone: PURPLE },
-    { label: 'Reports filed', value: String(s.reportsFiled), sub: 'as lead', icon: 'document-text' as const, tone: GREEN },
-    { label: 'To scene', value: formatMinutes(s.avgToScene), sub: 'avg, responding → arrived', icon: 'speedometer' as const, tone: AMBER },
-    { label: 'On scene', value: formatMinutes(s.avgOnScene), sub: 'avg, arrived → resolved', icon: 'time' as const, tone: RED },
+    { label: t('Attended'), value: String(s.attended), sub: t('lead + backup'), icon: 'shield-checkmark' as const, tone: BLUE },
+    { label: t('Led'), value: String(s.led), sub: t('as lead'), icon: 'star' as const, tone: CYAN },
+    { label: t('Backup'), value: String(s.backup), sub: t('joined others'), icon: 'people' as const, tone: PURPLE },
+    { label: t('Reports filed'), value: String(s.reportsFiled), sub: t('as lead'), icon: 'document-text' as const, tone: GREEN },
+    { label: t('To scene'), value: formatMinutes(s.avgToScene), sub: t('avg, responding → arrived'), icon: 'speedometer' as const, tone: AMBER },
+    { label: t('On scene'), value: formatMinutes(s.avgOnScene), sub: t('avg, arrived → resolved'), icon: 'time' as const, tone: RED },
   ];
 
   const score = appraisal?.finalAverage ?? appraisal?.midYearAverage ?? null;
@@ -81,22 +83,22 @@ export default function MyPerformanceScreen() {
 
       {/* ── Figures ── */}
       <View style={styles.grid}>
-        {tiles.map((t) => (
-          <View key={t.label} style={styles.tile} accessible accessibilityLabel={`${t.label}: ${t.value}. ${t.sub}`}>
-            <View style={[styles.accent, { backgroundColor: t.tone }]} />
+        {tiles.map((item) => (
+          <View key={item.label} style={styles.tile} accessible accessibilityLabel={`${item.label}: ${item.value}. ${item.sub}`}>
+            <View style={[styles.accent, { backgroundColor: item.tone }]} />
             <View style={styles.tileTop}>
-              <Ionicons name={t.icon} size={12} color={t.tone} />
-              <Text style={styles.tileLabel} numberOfLines={1}>{t.label.toUpperCase()}</Text>
+              <Ionicons name={item.icon} size={12} color={item.tone} />
+              <Text style={styles.tileLabel} numberOfLines={1}>{item.label.toUpperCase()}</Text>
             </View>
-            <Text style={[styles.tileValue, { textShadowColor: isDark ? `${t.tone}99` : 'transparent' }]}>{loading ? '—' : t.value}</Text>
-            <Text style={styles.tileSub} numberOfLines={1}>{t.sub}</Text>
+            <Text style={[styles.tileValue, { textShadowColor: isDark ? `${item.tone}99` : 'transparent' }]}>{loading ? '—' : item.value}</Text>
+            <Text style={styles.tileSub} numberOfLines={1}>{item.sub}</Text>
           </View>
         ))}
       </View>
 
       {/* ── Resolution ── */}
       <Section
-        title="Resolved"
+        title={t('Resolved')}
         tone={GREEN}
         right={<Text style={styles.headValue}>{resolvedPct === null ? '—' : `${resolvedPct}%`}</Text>}
       >
@@ -105,28 +107,30 @@ export default function MyPerformanceScreen() {
             <View style={[styles.trackFill, { width: `${resolvedPct ?? 0}%`, backgroundColor: GREEN }]} />
           </View>
           <Text style={styles.note}>
-            {s.resolved} of {s.attended} attended incident{s.attended === 1 ? '' : 's'} resolved or closed ({period.toLowerCase()}).
+            {s.attended === 1
+              ? t('{resolved} of 1 attended incident resolved or closed ({period}).', { resolved: s.resolved, period: t(period).toLowerCase() })
+              : t('{resolved} of {attended} attended incidents resolved or closed ({period}).', { resolved: s.resolved, attended: s.attended, period: t(period).toLowerCase() })}
           </Text>
         </View>
       </Section>
 
       {/* ── Trend ── */}
-      <Section title="Attended by month" tone={BLUE} right={<Text style={styles.headHint}>last 6 months</Text>}>
+      <Section title={t('Attended by month')} tone={BLUE} right={<Text style={styles.headHint}>{t('last 6 months')}</Text>}>
         <View style={styles.chart}>
-          {trend.map((t, i) => {
+          {trend.map((item, i) => {
             const current = i === trend.length - 1;
             return (
-              <View key={`${t.label}-${i}`} style={styles.barCol}>
-                <Text style={styles.barValue}>{t.count || ''}</Text>
+              <View key={`${item.label}-${i}`} style={styles.barCol}>
+                <Text style={styles.barValue}>{item.count || ''}</Text>
                 <View style={styles.barTrack}>
                   <View
                     style={[styles.bar, {
-                      height: `${Math.max(4, (t.count / peak) * 100)}%`,
+                      height: `${Math.max(4, (item.count / peak) * 100)}%`,
                       backgroundColor: current ? BLUE : `${BLUE}66`,
                     }]}
                   />
                 </View>
-                <Text style={[styles.barLabel, current && { color: colors.text }]}>{t.label}</Text>
+                <Text style={[styles.barLabel, current && { color: colors.text }]}>{t(item.label)}</Text>
               </View>
             );
           })}
@@ -134,17 +138,17 @@ export default function MyPerformanceScreen() {
       </Section>
 
       {/* ── What they attend ── */}
-      <Section title="What you attend most" tone={PURPLE}>
+      <Section title={t('What you attend most')} tone={PURPLE}>
         <View style={styles.body}>
           {s.topTypes.length === 0 ? (
-            <Text style={styles.empty}>Nothing attended {period === 'Today' ? 'today' : `in ${period.toLowerCase()}`}.</Text>
-          ) : s.topTypes.map((t) => (
-            <View key={t.type} style={styles.typeRow}>
-              <Text style={styles.typeName} numberOfLines={1}>{t.type}</Text>
+            <Text style={styles.empty}>{period === 'Today' ? t('Nothing attended today.') : t('Nothing attended in {period}.', { period: t(period).toLowerCase() })}</Text>
+          ) : s.topTypes.map((item) => (
+            <View key={item.type} style={styles.typeRow}>
+              <Text style={styles.typeName} numberOfLines={1}>{t(item.type)}</Text>
               <View style={styles.typeTrack}>
-                <View style={[styles.typeFill, { width: `${(t.count / topPeak) * 100}%` }]} />
+                <View style={[styles.typeFill, { width: `${(item.count / topPeak) * 100}%` }]} />
               </View>
-              <Text style={styles.typeCount}>{t.count}</Text>
+              <Text style={styles.typeCount}>{item.count}</Text>
             </View>
           ))}
         </View>
@@ -160,15 +164,15 @@ export default function MyPerformanceScreen() {
       >
         <View style={styles.body}>
           {!appraisal?.hasPlan ? (
-            <Text style={styles.empty}>No appraisal plan has been created for you this cycle yet.</Text>
+            <Text style={styles.empty}>{t('No appraisal plan has been created for you this cycle yet.')}</Text>
           ) : appraisal.appraisal.length === 0 ? (
-            <Text style={styles.empty}>Plan {appraisal.planStatus?.toLowerCase() ?? 'created'} — no scores yet.</Text>
+            <Text style={styles.empty}>{t('Plan {status} — no scores yet.', { status: appraisal.planStatus?.toLowerCase() ?? t('created') })}</Text>
           ) : (
             <>
               <View style={styles.kpiHead}>
-                <Text style={[styles.kpiCell, { flex: 1 }]}>KPI</Text>
-                <Text style={styles.kpiCell}>MID</Text>
-                <Text style={styles.kpiCell}>FINAL</Text>
+                <Text style={[styles.kpiCell, { flex: 1 }]}>{t('KPI')}</Text>
+                <Text style={styles.kpiCell}>{t('MID')}</Text>
+                <Text style={styles.kpiCell}>{t('FINAL')}</Text>
                 <View style={{ width: 18 }} />
               </View>
               {appraisal.appraisal.map((a) => (
@@ -180,7 +184,7 @@ export default function MyPerformanceScreen() {
                     name={a.approved ? 'checkmark-circle' : 'ellipse-outline'}
                     size={14}
                     color={a.approved ? GREEN : colors.muted}
-                    accessibilityLabel={a.approved ? 'Approved' : 'Pending'}
+                    accessibilityLabel={a.approved ? t('Approved') : t('Pending')}
                   />
                 </View>
               ))}
@@ -190,7 +194,7 @@ export default function MyPerformanceScreen() {
       </Section>
 
       <Text style={styles.foot}>
-        Figures come from incidents you responded to in the app, as lead or backup. Times are measured on incidents you led.
+        {t('Figures come from incidents you responded to in the app, as lead or backup. Times are measured on incidents you led.')}
       </Text>
     </ScrollView>
   );

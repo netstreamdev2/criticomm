@@ -14,7 +14,7 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { callView, isPoliceCall, MAX_PHOTOS, photosRemaining, reportPathFor } from '@/lib/response';
-import { departmentOf, personTitle, wordsFor } from '@/lib/department';
+import { departmentOf, personTitle, wordsIn } from '@/lib/department';
 import { openDirections } from '@/lib/navigate';
 import { useSync } from '@/lib/sync';
 import { useFeature } from '@/lib/features';
@@ -25,6 +25,8 @@ import {
   Banner, Button, Card, EmptyState, Input, KeyValue, Muted, SectionLabel,
   SeverityPill, StatusBadge, Title,
 } from '@/components/ui';
+import { useT } from '@/lib/i18n';
+import { CallDetails } from '@/components/call-details';
 
 type Update = Database['public']['Tables']['incident_updates']['Row'];
 
@@ -35,13 +37,14 @@ const clockOf = (ms: number) => {
 };
 
 export default function IncidentDetailScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { session, silo } = useAuth();
   const { onDuty } = useDuty();
   const { enqueue, pending } = useSync();
-  const words = wordsFor(silo);
+  const words = wordsIn(silo, t);
   const police = departmentOf(silo) === 'police';
   const [photosFiled, setPhotosFiled] = useState(0);
   const voiceOn = useFeature('mobile.voice_notes');
@@ -129,12 +132,12 @@ export default function IncidentDetailScreen() {
 
   const advance = async (which: 'action' | 'secondary' = 'action') => {
     if (!incident || !session) return;
-    const current = callView(incident, { userId: session.user.id, silo, onDuty }, queued.status);
+    const current = callView(incident, { userId: session.user.id, silo, onDuty }, queued.status, t);
     const action = which === 'secondary' ? current.secondary : current.action;
     if (!action) return;
     if (action.kind === 'report') { router.push(reportPathFor(incident.id, silo) as never); return; }
     if (action.kind === 'respond' && onDuty === false) {
-      notify('You are off duty. Go on duty to respond to incidents.');
+      notify(t('You are off duty. Go on duty to respond to incidents.'));
       return;
     }
     if (action.kind === 'respond' && !(await confirmAccept(incident.incident_number))) return;
@@ -158,12 +161,12 @@ export default function IncidentDetailScreen() {
     if (!incident) return;
     setMessage(null);
     if (photosRemaining(photosFiled, queued.photos) === 0) {
-      notify(`This ${words.file} already holds ${MAX_PHOTOS} photos — the maximum.`);
+      notify(t('This {file} already holds {MAX_PHOTOS} photos — the maximum.', { file: words.file, MAX_PHOTOS }));
       return;
     }
     if (source === 'camera') {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== 'granted') { notify('Camera permission denied.'); return; }
+      if (status !== 'granted') { notify(t('Camera permission denied.')); return; }
     }
     const picker = source === 'camera'
       ? ImagePicker.launchCameraAsync
@@ -187,7 +190,7 @@ export default function IncidentDetailScreen() {
         mimeType: asset.mimeType ?? 'image/jpeg',
         mediaKind: 'image',
       });
-      notify(`Photo saved to the ${words.file}.`, 'success');
+      notify(t('Photo saved to the {file}.', { file: words.file }), 'success');
     } catch (e) {
       notify((e as Error).message);
     } finally {
@@ -199,7 +202,7 @@ export default function IncidentDetailScreen() {
     setMessage(null);
     try {
       const { granted } = await Audio.requestPermissionsAsync();
-      if (!granted) { notify('Microphone permission denied.'); return; }
+      if (!granted) { notify(t('Microphone permission denied.')); return; }
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true, playsInSilentModeIOS: true, shouldDuckAndroid: true, staysActiveInBackground: false,
       });
@@ -214,7 +217,7 @@ export default function IncidentDetailScreen() {
       recordingRef.current = rec;
       setRecording(rec);
     } catch (e) {
-      notify(`Could not start recording: ${(e as Error).message}`);
+      notify(t('Could not start recording: {message}', { message: (e as Error).message }));
     }
   };
 
@@ -230,10 +233,10 @@ export default function IncidentDetailScreen() {
       recordingRef.current = null;
       setRecording(null);
       setRecordedMs(0);
-      if (!uri) { notify('The recording produced no audio.'); return; }
+      if (!uri) { notify(t('The recording produced no audio.')); return; }
       // A note under a second is a tap, not a recording: filing it would put
       // an empty clip on a case file that can never be deleted.
-      if (ms < 1000) { notify('Nothing was recorded. Hold Record voice note, speak, then tap to stop.'); return; }
+      if (ms < 1000) { notify(t('Nothing was recorded. Hold Record voice note, speak, then tap to stop.')); return; }
 
       // Phones record AAC in an MP4 container (.m4a), whose type is audio/mp4;
       // "audio/m4a" is not a real type and browsers refuse to play it. The web
@@ -252,7 +255,7 @@ export default function IncidentDetailScreen() {
         // The length goes on the record with the note.
         caption: `Voice note · ${clockOf(ms)}`,
       });
-      notify(`Voice note (${clockOf(ms)}) saved to the ${words.file}.`, 'success');
+      notify(t('Voice note ({clockOf}) saved to the {file}.', { clockOf: clockOf(ms), file: words.file }), 'success');
     } catch (e) {
       notify((e as Error).message);
     } finally {
@@ -264,11 +267,11 @@ export default function IncidentDetailScreen() {
   const navigateToScene = () => {
     if (!incident) return;
     if (incident.location_lat || incident.location_lng) { router.push(`/route/${incident.id}`); return; }
-    if (!openDirections(incident)) notify('No location recorded for this incident.');
+    if (!openDirections(incident)) notify(t('No location recorded for this incident.'));
   };
 
   const callCaller = () => {
-    if (!incident?.caller_number) { notify('No caller number recorded.'); return; }
+    if (!incident?.caller_number) { notify(t('No caller number recorded.')); return; }
     void Linking.openURL(`tel:${incident.caller_number.replace(/\s/g, '')}`);
   };
 
@@ -276,7 +279,7 @@ export default function IncidentDetailScreen() {
     return (
       <View style={styles.center}>
         <ActivityIndicator color={colors.accent} />
-        <Muted>Loading incident…</Muted>
+        <Muted>{t('Loading incident…')}</Muted>
       </View>
     );
   }
@@ -286,8 +289,8 @@ export default function IncidentDetailScreen() {
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
         <EmptyState
           icon="alert-circle-outline"
-          title="Incident not available"
-          body="It may have been closed or reassigned, or it is not for your department."
+          title={t('Incident not available')}
+          body={t('It may have been closed or reassigned, or it is not for your department.')}
         />
       </View>
     );
@@ -295,7 +298,7 @@ export default function IncidentDetailScreen() {
 
   const sev = severityColor(incident.incident_severity);
   // Lead or backup, assigned or open — the same rules as the Calls list (0042).
-  const view = callView(incident, { userId: session?.user.id ?? '', silo, onDuty }, queued.status);
+  const view = callView(incident, { userId: session?.user.id ?? '', silo, onDuty }, queued.status, t);
   const status = view.role === 'lead' && queued.status ? queued.status : incident.status;
   const mine = view.role !== null;
   const action = view.action;
@@ -327,7 +330,7 @@ export default function IncidentDetailScreen() {
         </View>
         <View style={styles.metaRow}>
           <Ionicons name="time-outline" size={14} color={colors.muted} />
-          <Text style={styles.metaText}>Reported {timeAgo(incident.incident_created_at)}</Text>
+          <Text style={styles.metaText}>{t('Reported {timeAgo}', { timeAgo: timeAgo(incident.incident_created_at) })}</Text>
         </View>
 
         <View style={styles.statusRow}>
@@ -335,7 +338,7 @@ export default function IncidentDetailScreen() {
           {queued.status ? (
             <View style={styles.queuedChip}>
               <Ionicons name="time-outline" size={11} color={colors.medium} />
-              <Text style={styles.queuedText}>Waiting to send</Text>
+              <Text style={styles.queuedText}>{t('Waiting to send')}</Text>
             </View>
           ) : null}
         </View>
@@ -343,27 +346,28 @@ export default function IncidentDetailScreen() {
         {incident.call_description ? (
           <Text style={styles.desc}>{incident.call_description}</Text>
         ) : null}
+        <CallDetails incident={incident} />
 
         <View style={{ marginTop: space.sm }}>
-          <KeyValue label="Caller" value={incident.caller_name || '—'} />
-          <KeyValue label="Contact" value={incident.caller_number || '—'} />
-          {incident.dispatched_by ? <KeyValue label="Dispatched by" value={incident.dispatched_by} /> : null}
+          <KeyValue label={t('Caller')} value={incident.caller_name || '—'} />
+          <KeyValue label={t('Contact')} value={incident.caller_number || '—'} />
+          {incident.dispatched_by ? <KeyValue label={t('Dispatched by')} value={incident.dispatched_by} /> : null}
           {incident.assigned_to_name ? (
             <KeyValue
-              label="Assigned to"
-              value={incident.assigned_to === session?.user.id ? 'You' : incident.assigned_to_name}
+              label={t('Assigned to')}
+              value={incident.assigned_to === session?.user.id ? t('You') : incident.assigned_to_name}
             />
           ) : null}
           {view.lead ? (
             <KeyValue
-              label="Lead"
-              value={`${view.lead.user_id === session?.user.id ? 'You' : (view.lead.name ?? personTitle(silo))} · ${view.lead.status}`}
+              label={t('Lead')}
+              value={`${view.lead.user_id === session?.user.id ? t('You') : (view.lead.name ?? personTitle(silo, t))} · ${t(view.lead.status)}`}
             />
           ) : null}
           {view.backups.length ? (
             <KeyValue
-              label="Backup"
-              value={view.backups.map((b) => `${b.user_id === session?.user.id ? 'You' : (b.name ?? personTitle(silo))} (${b.status})`).join(', ')}
+              label={t('Backup')}
+              value={view.backups.map((b) => `${b.user_id === session?.user.id ? t('You') : (b.name ?? personTitle(silo, t))} (${t(b.status)})`).join(', ')}
             />
           ) : null}
         </View>
@@ -371,7 +375,7 @@ export default function IncidentDetailScreen() {
         {incident.report_filed_at ? (
           <View style={styles.filed}>
             <Ionicons name="lock-closed" size={14} color={colors.low} />
-            <Text style={styles.filedText}>Report filed {timeAgo(incident.report_filed_at)}. It is on record.</Text>
+            <Text style={styles.filedText}>{t('Report filed {timeAgo}. It is on record.', { timeAgo: timeAgo(incident.report_filed_at) })}</Text>
           </View>
         ) : null}
 
@@ -381,11 +385,11 @@ export default function IncidentDetailScreen() {
               <Text style={styles.blocked}>{view.blocked}</Text>
             ) : action.kind === 'respond' ? (
               <Text style={styles.viewOnly}>
-                {action.asLead ? 'You will lead this incident.' : 'You will join as backup.'} Dispatch is told at once.
+                {action.asLead ? t('You will lead this incident.') : t('You will join as backup.')}{' '}{t('Dispatch is told at once.')}
               </Text>
             ) : null}
             <Button
-              label={action.kind === 'respond' ? 'Accept' : action.label}
+              label={action.kind === 'respond' ? t('Accept') : action.label}
               icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'checkmark-circle' : 'arrow-forward-circle'}
               variant={action.kind === 'report' ? 'success' : 'primary'}
               size="lg"
@@ -412,34 +416,30 @@ export default function IncidentDetailScreen() {
 
         <View style={styles.actions}>
           <View style={{ flex: 1 }}>
-            <Button label="Navigate" icon="navigate" variant="outline" onPress={navigateToScene} />
+            <Button label={t('Navigate')} icon="navigate" variant="outline" onPress={navigateToScene} />
           </View>
           <View style={{ flex: 1 }}>
-            <Button label="Call caller" icon="call" variant="outline" onPress={callCaller} />
+            <Button label={t('Call caller')} icon="call" variant="outline" onPress={callCaller} />
           </View>
         </View>
       </Card>
 
       {/* Photos and voice notes — captured while the call is worked; permanent once filed. */}
-      <SectionLabel>{police ? 'Scene evidence' : 'Scene photos'}</SectionLabel>
+      <SectionLabel>{police ? t('Scene evidence') : t('Scene photos')}</SectionLabel>
       {canCapture ? (
       <Card accent={recording ? colors.critical : undefined}>
-        <Muted>
-          Photos and voice notes are stored on the phone first and filed into the {words.file} the
-          moment there is signal — capture them whether or not you have coverage. Filed {words.media} cannot
-          be deleted.
-        </Muted>
+        <Muted>{t('Photos and voice notes are stored on the phone first and filed into the {file} the moment there is signal — capture them whether or not you have coverage. Filed {media} cannot be deleted.', { file: words.file, media: words.media })}</Muted>
 
         <Text style={styles.photoCount}>
-          Photos {MAX_PHOTOS - photosLeft}/{MAX_PHOTOS}{photosLeft === 0 ? ' — limit reached' : ''}
+          {t('Photos')}{' '}{MAX_PHOTOS - photosLeft}/{MAX_PHOTOS}{photosLeft === 0 ? t(' — limit reached') : ''}
         </Text>
 
         <View style={styles.actions}>
           <View style={{ flex: 1 }}>
-            <Button label="Camera" icon="camera" busy={busy === 'upload'} disabled={photosLeft === 0} onPress={() => void capture('camera')} />
+            <Button label={t('Camera')} icon="camera" busy={busy === 'upload'} disabled={photosLeft === 0} onPress={() => void capture('camera')} />
           </View>
           <View style={{ flex: 1 }}>
-            <Button label="Library" icon="images-outline" variant="outline" busy={busy === 'upload'} disabled={photosLeft === 0} onPress={() => void capture('library')} />
+            <Button label={t('Library')} icon="images-outline" variant="outline" busy={busy === 'upload'} disabled={photosLeft === 0} onPress={() => void capture('library')} />
           </View>
         </View>
 
@@ -449,18 +449,16 @@ export default function IncidentDetailScreen() {
               <Pressable
                 onPress={() => void stopRecording()}
                 accessibilityRole="button"
-                accessibilityLabel="Stop recording and file the voice note"
+                accessibilityLabel={t('Stop recording and file the voice note')}
                 style={({ pressed }) => [styles.recording, pressed && { opacity: 0.85 }]}
               >
                 <View style={styles.recordingDot} />
-                <Text style={styles.recordingText}>
-                  Recording · {clockOf(recordedMs)} — tap to stop
-                </Text>
+                <Text style={styles.recordingText}>{t('Recording · {clockOf} — tap to stop', { clockOf: clockOf(recordedMs) })}</Text>
                 <Ionicons name="stop-circle" size={20} color={colors.critical} />
               </Pressable>
             ) : (
               <Button
-                label="Record voice note"
+                label={t('Record voice note')}
                 icon="mic-outline"
                 variant="subtle"
                 disabled={busy === 'upload'}
@@ -472,7 +470,7 @@ export default function IncidentDetailScreen() {
 
         {queued.media > 0 ? (
           <Text style={styles.queuedNote}>
-            {queued.media} attachment{queued.media === 1 ? '' : 's'} waiting to upload.
+            {queued.media === 1 ? t('1 attachment waiting to upload.') : t('{n} attachments waiting to upload.', { n: queued.media })}
           </Text>
         ) : null}
       </Card>
@@ -480,19 +478,19 @@ export default function IncidentDetailScreen() {
         <Card>
           <Muted>
             {closed
-              ? `The ${words.file} is closed. ${photosFiled} photo${photosFiled === 1 ? '' : 's'} on record.`
-              : police ? 'Evidence is captured by the crew working this incident.' : 'Photos are taken by the crew working this incident.'}
+              ? `${police ? t('The case file is closed.') : t('The incident record is closed.')} ${photosFiled === 1 ? t('1 photo on record.') : t('{n} photos on record.', { n: photosFiled })}`
+              : police ? t('Evidence is captured by the crew working this incident.') : t('Photos are taken by the crew working this incident.')}
           </Muted>
         </Card>
       )}
 
       {/* Timeline */}
-      <SectionLabel>Updates ({updates.length})</SectionLabel>
+      <SectionLabel>{t('Updates ({length})', { length: updates.length })}</SectionLabel>
       <Card>
         <View style={styles.noteRow}>
           <View style={{ flex: 1 }}>
             <Input
-              placeholder="Add an update…"
+              placeholder={t('Add an update…')}
               value={note}
               onChangeText={setNote}
               onSubmitEditing={() => void postUpdate()}
@@ -500,7 +498,7 @@ export default function IncidentDetailScreen() {
             />
           </View>
           <Button
-            label="Post"
+            label={t('Post')}
             icon="send"
             busy={busy === 'note'}
             disabled={!note.trim()}
@@ -510,13 +508,13 @@ export default function IncidentDetailScreen() {
 
         {queued.notes > 0 ? (
           <Text style={styles.queuedNote}>
-            {queued.notes} update{queued.notes === 1 ? '' : 's'} waiting to send.
+            {queued.notes === 1 ? t('1 update waiting to send.') : t('{n} updates waiting to send.', { n: queued.notes })}
           </Text>
         ) : null}
 
         <View style={{ marginTop: space.lg }}>
           {updates.length === 0 ? (
-            <Muted>No updates logged yet — the first entry appears here in real time.</Muted>
+            <Muted>{t('No updates logged yet — the first entry appears here in real time.')}</Muted>
           ) : null}
           {updates.map((u, i) => (
             <View key={u.id} style={styles.timelineRow}>
@@ -527,7 +525,7 @@ export default function IncidentDetailScreen() {
               <View style={styles.timelineBody}>
                 <Text style={styles.updateText}>{noteText(u.message)}</Text>
                 <Text style={styles.updateMeta}>
-                  {u.created_by_name ?? 'System'} · {timeAgo(u.timestamp)}
+                  {u.created_by_name ?? t('System')} · {timeAgo(u.timestamp)}
                 </Text>
               </View>
             </View>

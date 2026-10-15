@@ -1,4 +1,5 @@
 import { Alert } from 'react-native';
+import { tNow } from './translator';
 
 /**
  * Accepting an incident puts the officer en route and tells dispatch, so it is
@@ -7,11 +8,11 @@ import { Alert } from 'react-native';
 export function confirmAccept(incidentNumber?: string | null): Promise<boolean> {
   return new Promise((resolve) => {
     Alert.alert(
-      incidentNumber ? `Accept ${incidentNumber}` : 'Accept incident',
-      'Are you sure you want to accept this incident?',
+      incidentNumber ? tNow('Accept {number}', { number: incidentNumber }) : tNow('Accept incident'),
+      tNow('Are you sure you want to accept this incident?'),
       [
-        { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-        { text: 'Accept', onPress: () => resolve(true) },
+        { text: tNow('Cancel'), style: 'cancel', onPress: () => resolve(false) },
+        { text: tNow('Accept'), onPress: () => resolve(true) },
       ],
       { cancelable: true, onDismiss: () => resolve(false) },
     );

@@ -1,3 +1,5 @@
+import { english, type Translate } from '@criticom/db/i18n';
+
 /**
  * Which shift reminders the phone schedules for itself, with no dependencies.
  *
@@ -50,7 +52,7 @@ export function eveningBefore(startMs: number): number {
   return d - 86_400_000;
 }
 
-export function reminderPlan(lines: readonly ReminderLine[], now: number = Date.now()): Reminder[] {
+export function reminderPlan(lines: readonly ReminderLine[], now: number = Date.now(), t: Translate = english.t): Reminder[] {
   const out: Reminder[] = [];
   const horizon = now + HORIZON_DAYS * 86_400_000;
   for (const l of lines) {
@@ -65,14 +67,14 @@ export function reminderPlan(lines: readonly ReminderLine[], now: number = Date.
     // Not when the shift starts within two hours of it (an evening shift the
     // next day is reminded an hour before instead).
     if (eve > now && start - eve > 2 * 3_600_000) {
-      out.push({ id: `${PREFIX}${l.id}:eve`, at: eve, lineId: l.id, title: `Tomorrow: ${l.name} ${saClock(start)}`, body: `${when}${where}. Open My Schedule to confirm.` });
+      out.push({ id: `${PREFIX}${l.id}:eve`, at: eve, lineId: l.id, title: t('Tomorrow: {shift} {time}', { shift: l.name, time: saClock(start) }), body: `${when}${where}. ${t('Open My Schedule to confirm.')}` });
     }
     const hour = start - 3_600_000;
     if (hour > now && !l.started) {
-      out.push({ id: `${PREFIX}${l.id}:hour`, at: hour, lineId: l.id, title: 'Your shift starts in 1 hour', body: `${when}${where}` });
+      out.push({ id: `${PREFIX}${l.id}:hour`, at: hour, lineId: l.id, title: t('Your shift starts in 1 hour'), body: `${when}${where}` });
     }
     if (start > now && !l.started) {
-      out.push({ id: `${PREFIX}${l.id}:start`, at: start, lineId: l.id, title: 'Your shift has started', body: `${when}${where}. Start your shift.` });
+      out.push({ id: `${PREFIX}${l.id}:start`, at: start, lineId: l.id, title: t('Your shift has started'), body: `${when}${where}. ${t('Start your shift.')}` });
     }
   }
   return out.sort((a, b) => a.at - b.at).slice(0, MAX_REMINDERS);

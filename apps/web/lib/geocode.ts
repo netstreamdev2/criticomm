@@ -49,6 +49,9 @@ async function timed(url: string, ms = 6000) {
 /** Map tags that name a road, an area or a boundary rather than a place someone can stand at. */
 const NOT_A_PLACE = new Set(['highway', 'place', 'boundary', 'landuse', 'waterway']);
 
+/** The suburb, not the ward: the maps give "eThekwini Ward 35" beside "Somerset Park". */
+const suburbOf = (...names: Array<string | undefined>) => names.find((n) => n && !/\bward\s+\d+/i.test(n)) ?? null;
+
 /** "Gateway Theatre of Shopping, Sugar Road, Somerset Park, Umhlanga": short, place first. */
 function shortLabel(name: string | null, street: string | null, suburb: string | null, town: string | null) {
   const parts: string[] = [];
@@ -72,7 +75,7 @@ function fromPhoton(f: PhotonFeature): GeoResult {
   const p = f.properties;
   const isPlace = Boolean(p.name) && Boolean(p.osm_key) && !NOT_A_PLACE.has(p.osm_key!);
   const street = p.housenumber && p.street ? `${p.housenumber} ${p.street}` : p.street ?? null;
-  const suburb = p.district ?? p.locality ?? null;
+  const suburb = suburbOf(p.locality, p.district);
   const city = p.city ?? p.town ?? 'Durban';
   return {
     label: shortLabel(isPlace ? p.name! : street ?? p.name ?? null, isPlace ? street : null, suburb, city),
@@ -139,7 +142,7 @@ function fromNominatim(p: NominatimPlace): GeoResult {
   const a = p.address ?? {};
   const isPlace = Boolean(p.name) && Boolean(p.category) && !NOT_A_PLACE.has(p.category!);
   const street = a.road ? (a.house_number ? `${a.house_number} ${a.road}` : a.road) : null;
-  const suburb = a.suburb ?? a.neighbourhood ?? a.city_district ?? a.village ?? null;
+  const suburb = suburbOf(a.suburb, a.neighbourhood, a.city_district, a.village);
   const town = a.town ?? a.city ?? a.village ?? null;
   const label = shortLabel(isPlace ? p.name! : street ?? p.name ?? null, isPlace ? street : null, suburb, town);
   return {
@@ -231,15 +234,15 @@ const merge = (...lists: GeoResult[][]) => {
   }
   return out.slice(0, 8);
 };
-/** About 150 km: the metro and its edges, not a namesake street in Johannesburg. */
-const nearDurban = (r: GeoResult) => Math.abs(r.lat - DURBAN.lat) < 1.4 && Math.abs(r.lng - DURBAN.lng) < 1.4;
+/** In eThekwini or just over its edge: not a namesake in Pietermaritzburg or Johannesburg. */
+const inMetro = (r: GeoResult) => r.lat < -29.35 && r.lat > -30.35 && r.lng > 30.45 && r.lng < 31.35;
 
 /** About 4 km each way around the place named. */
 const NEAR_BOX = 0.04;
 
 /** What is asked for, around a place: "Engen" around "Pavilion Shopping Centre". */
 async function searchAround(what: string, place: string, kind: string | null): Promise<GeoResult[]> {
-  const anchor = (await lookup(place)).filter(nearDurban)[0];
+  const anchor = (await lookup(place)).filter(inMetro)[0];
   if (!anchor) return [];
   const at = { lat: anchor.lat, lng: anchor.lng, box: NEAR_BOX };
   // Taxi ranks are mapped as bus stations, taxi stands or neither: no tag filter for them.
@@ -282,8 +285,8 @@ export async function searchPlaces(q: string): Promise<GeoResult[]> {
   if (results.length === 0 && query.around && query.kind) {
     results = await searchAround(query.asked ?? kindSearchWord(query.kind) ?? query.what, query.around, query.kind);
   }
-  if (results.length === 0 && photonUp()) results = await nominatimSearch(text).catch(() => []);
-  const local = results.filter(nearDurban);
+  if (results.length === 0 && photonUp()) results = merge(await nominatimSearch(text).catch(() => [] as GeoResult[]));
+  const local = results.filter(inMetro);
   return local.length ? local : results;
 }
 

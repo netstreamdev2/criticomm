@@ -120,28 +120,51 @@
     <div class="section-head">
       <p class="eyebrow">Step 2 · Call logger · console</p>
       <h2>Logging the call</h2>
-      <p class="muted">The same call form as every department. For a medical call, the triage box matters most.</p>
+      <p class="muted">The same call form as every department. For a medical call, the injuries, the patient question and the triage box matter most, and Criti fills in what it can from them.</p>
     </div>
     <figure class="exhibit">
-      <figcaption><span class="tag">Log incoming call · the right half</span><span class="where">/dispatch/log-call</span><span class="example">Example data</span></figcaption>
-      <div class="screen" style="max-width:46rem">
+      <figcaption><span class="tag">Log incoming call · a medical call</span><span class="where">/dispatch/log-call</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
         <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/dispatch/log-call</span></div>
         <div class="screen-body">
-          <div class="m-card">
-            <p class="m-head">Incident details &amp; routing</p>
-            <div class="m-field"><span class="m-label"><span class="pin">1</span> Incident type (10-code)</span><div class="m-input">40-2: Trauma <span class="caret">▾</span></div></div>
-            <div class="m-field"><span class="m-label">Call description / narrative</span><div class="m-input">Man fell from scaffolding, about 4 metres. Conscious, bleeding from the head.</div></div>
-            <div class="m-part"><span class="m-label"><span class="pin">2</span> EMS / medical triage</span><div class="m-row"><span class="m-switch off"></span><span class="m-sub">No injuries / EMS not required</span></div>
-              <div class="m-grid2" style="gap:.5rem"><div class="m-field"><span class="m-sub">Number of victims</span><div class="m-input">1</div></div><div class="m-field"><span class="m-sub">Medical severity code</span><div class="m-input">P1 - RED: Critical / Life Threatening</div></div></div></div>
-            <div class="m-part"><span class="m-label"><span class="pin">3</span> Send to dispatch</span><div class="m-dept"><span class="fire">Fire</span><span class="police">Police</span><span class="med on">Medical</span><span class="dis">Disaster</span></div></div>
-            <span class="m-btn blue full">Send to dispatch</span>
+          <div class="m-criti">
+            <p class="hd"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti <em>Read the description</em><span class="all">View all</span></p>
+            <p><span class="dot"></span><span class="grow"><span class="faint">Ask: </span>Where is the person hurt? · Is there heavy bleeding?</span></p>
+          </div>
+          <div class="m-grid2" style="grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))">
+            <div class="m-card">
+              <p class="m-head">What and where</p>
+              <div class="m-field"><span class="m-label"><span class="pin">1</span> Incident type</span>
+                <div class="m-input"><span class="m-dots"><i class="med"></i></span> ME-02 · Trauma <span class="caret">▾</span></div>
+                <span class="m-help">Medical · Goes to <b>EMS</b> · Usually High</span></div>
+              <div class="m-field"><span class="m-label"><span class="pin">2</span> Description</span>
+                <div class="m-desc"><span>Man fell from scaffolding, about 4 metres. Conscious, bleeding from the head.</span>
+                  <span class="m-chips"><span><span class="m-dots"><i class="med"></i></span> Head injury</span><span><span class="m-dots"><i class="med"></i></span> Severe bleeding</span><span class="m-sub">1 hurt, not the caller · Patient: High</span></span></div></div>
+              <div class="m-field"><span class="m-label">Location</span><div class="m-input">📍 40 Smith Street, Durban</div></div>
+            </div>
+            <div class="m-card">
+              <p class="m-head">Caller and dispatch</p>
+              <div class="m-field"><span class="m-label"><span class="pin">3</span> How the call came in</span>
+                <div class="m-segs"><span class="on">Phone call</span><span>WhatsApp</span><span>In person</span><span>Other</span></div></div>
+              <div class="m-field"><span class="m-label">Severity <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span></span>
+                <div class="m-segs"><span>Low</span><span>Medium</span><span>High</span><span class="on crit">Critical</span></div></div>
+              <div class="m-part"><span class="m-row between"><span class="m-label"><span class="pin">4</span> EMS</span><span class="m-row"><span class="m-switch off"></span><span class="m-sub">No one hurt</span></span></span>
+                <span class="m-label" style="font-size:.62rem">People hurt <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span></span>
+                <div class="m-segs six"><span>0</span><span class="on">1</span><span>2</span><span>3</span><span>4</span><span>5+</span></div>
+                <span class="m-label" style="font-size:.62rem">Medical code <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span></span>
+                <div class="m-input">P1 - RED: Critical / Life Threatening <span class="caret">▾</span></div></div>
+              <div class="m-part"><span class="m-label"><span class="pin">5</span> Send to dispatch</span><div class="m-dept"><span class="fire">Fire</span><span class="police">Police</span><span class="med on">Medical</span><span class="dis">Disaster</span></div></div>
+              <span class="m-btn blue full">Send to dispatch</span>
+            </div>
           </div>
         </div>
       </div>
       <ol class="legend">
-        <li><span class="pin">1</span><span><b>Incident type</b> from the Medical group (40-1 Cardiac, 40-2 Trauma). It suggests EMS.</span></li>
-        <li><span class="pin">2</span><span><b>Triage:</b> how many victims (1 to Multiple 5+) and the code: P1 red critical, P2 orange urgent, P3 yellow minor, P4 blue deceased. Both are required unless <i>No injuries</i> is switched on.</span></li>
-        <li><span class="pin">3</span><span><b>EMS receives it.</b> The left half (caller, number, patient, map, region) is the same as every call; the Police guide explains each field.</span></li>
+        <li><span class="pin">1</span><span><b>Incident type</b> from the Medical group: 40-1 Cardiac, 40-2 Trauma, and the others (chest pain, stroke, choking, overdose and more). The red dot means EMS.</span></li>
+        <li><span class="pin">2</span><span><b>Injuries,</b> ticked in the Description window or heard there by Criti: here a head injury and severe bleeding. Each adds the questions EMS needs asked.</span></li>
+        <li><span class="pin">3</span><span><b>How the call came in:</b> phone call, WhatsApp, in person, or Other with a few words. <b>Is the caller the patient?</b> is asked in the Description window, near the top, on every call that goes to EMS. A co-worker called, so No; Criti read that from the description. Each patient then gets a name if known and their own severity (Critical, High, Medium, Low or Unknown), apart from the incident’s: here the man who fell is High.</span></li>
+        <li><span class="pin">4</span><span><b>Triage:</b> how many are hurt (0 to 5+) and the code, from the worst injury: P1 red critical, P2 orange urgent, P3 yellow minor, P4 blue deceased. Both are required unless <i>No one hurt</i> is switched on.</span></li>
+        <li><span class="pin">5</span><span><b>EMS receives it.</b> The caller, number, map and region work as on every call; the Police guide explains each field.</span></li>
       </ol>
     </figure>
   </section>
@@ -168,7 +191,7 @@
           <div class="phone-body">
             <div class="m-alert" style="border-color:#EF4444">
               <div class="m-alert-head" style="background:#EF4444">⚠<span><small>CRITICAL · EMS</small><b>Incident assigned</b></span></div>
-              <div class="m-alert-body"><b>INC-20261013-0011 assigned to you</b><span class="m-sub">📍 Trauma · 40 Smith Street, Durban</span><span class="m-btn">Accept incident</span><span class="m-btn ghost">Acknowledge</span><span class="m-btn ghost">Navigate</span></div>
+              <div class="m-alert-body"><b>MD-20261013-1003-0011 assigned to you</b><span class="m-sub">📍 Trauma · 40 Smith Street, Durban</span><span class="m-btn">Accept incident</span><span class="m-btn ghost">Acknowledge</span><span class="m-btn ghost">Navigate</span></div>
             </div>
           </div></div>
         <figcaption><b>Assigned to this paramedic.</b> <span class="muted">They lead EMS’s part.</span></figcaption>
@@ -176,7 +199,7 @@
       <figure>
         <div class="phone"><div class="phone-top"><span>10:26</span><span>Incident</span></div>
           <div class="phone-body">
-            <div class="m-row between"><b class="mono">INC-20261013-0011</b><span class="m-sev crit">Critical</span></div>
+            <div class="m-row between"><b class="mono">MD-20261013-1003-0011</b><span class="m-sev crit">Critical</span></div>
             <p style="font-weight:700">Trauma</p>
             <span class="m-chip info">On Scene</span>
             <span class="m-btn ok"><span class="pin">1</span> File patient report</span>
@@ -228,7 +251,7 @@
       <li><span class="pin">2</span><span><b>More than one patient?</b> Each extra casualty is added with a triage colour: Green, Yellow, Red or Black.</span></li>
       <li><span class="pin">3</span><span><b>Handover at hospital.</b> The receiving doctor’s name, the patient’s condition, and both signatures, drawn on the paramedic’s phone. The handover is kept as its own record.</span></li>
       <li><span class="pin">4</span><span><b>Photos and voice notes</b> from the call go with the report.</span></li>
-      <li><span class="pin">5</span><span><b>Submit.</b> The report is numbered PCR-INC-20261013-0011. EMS’s part of the call is finished. With signal missing, it is saved and sends itself later.</span></li>
+      <li><span class="pin">5</span><span><b>Submit.</b> The report is numbered PCR-MD-20261013-1003-0011. EMS’s part of the call is finished. With signal missing, it is saved and sends itself later.</span></li>
     </ol>
   </section>
 
@@ -250,7 +273,7 @@
     <div class="section-head">
       <p class="eyebrow">Step 7 · Case manager · console</p>
       <h2>Closing the case</h2>
-      <p class="muted">The call is Resolved once every department on it has finished. The case manager sees <i>Awaiting review · Patient care report PCR-INC-20261013-0011 by P. Pillay</i>, reads the report, evidence and history, adds an optional note, and closes it. If Police or Fire were also on the call, each files its own report and the case closes when all are in.</p>
+      <p class="muted">The call is Resolved once every department on it has finished. The case manager sees <i>Awaiting review · Patient care report PCR-MD-20261013-1003-0011 by P. Pillay</i>, reads the report, evidence and history, adds an optional note, and closes it. If Police or Fire were also on the call, each files its own report and the case closes when all are in.</p>
     </div>
   </section>
 

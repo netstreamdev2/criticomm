@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/auth';
 import { departmentOf } from '@/lib/department';
 import { getSupabase } from '@/lib/supabase';
 import { makeStyles } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 /** Checked often while a bodycam is booked out; rarely otherwise. */
 const WITH_CAMERA_MS = 15_000;
@@ -18,6 +19,7 @@ const WITHOUT_CAMERA_MS = 60_000;
  * other departments never ask.
  */
 export function BodycamWatchNotice() {
+  const { t } = useT();
   const styles = useStyles();
   const { session, silo } = useAuth();
   const insets = useSafeAreaInsets();
@@ -58,9 +60,9 @@ export function BodycamWatchNotice() {
   if (!watching) return null;
   return (
     <View pointerEvents="none" style={[styles.wrap, { top: insets.top + 4 }]}>
-      <View style={styles.pill} accessibilityLiveRegion="polite" accessibilityLabel="The control room is viewing your bodycam">
+      <View style={styles.pill} accessibilityLiveRegion="polite" accessibilityLabel={t('The control room is viewing your bodycam')}>
         <View style={styles.dot} />
-        <Text style={styles.text}>Control room is viewing your camera</Text>
+        <Text style={styles.text}>{t('Control room is viewing your camera')}</Text>
       </View>
     </View>
   );

@@ -16,14 +16,17 @@ import { Banner, Input, KeyValue, Stepper } from './ui';
 import { HikTechLogo } from './hiktech-logo';
 import { SignaturePad } from './signature-pad';
 import { FireButton, FireCheck } from './fire-ui';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
-const STEPS = ['Welcome', 'Readiness', 'Appliance', 'Checks', 'Sign on'];
+const STEPS = [tx('Welcome'), tx('Readiness'), tx('Appliance'), tx('Checks'), tx('Sign on')];
 const STEP_NUMBER: Record<FireShiftStep, number> = { intro: 0, readiness: 1, stood_down: 1, appliance: 2, checks: 3, sign: 4, appliance_failed: 3, complete: 4 };
 type ReadinessKey = (typeof READINESS_ITEMS)[number][0];
 type FireState = Awaited<ReturnType<typeof getFireShiftState>>;
-const errorText = (error: unknown) => errorWords(error, 'Unable to connect. Check your connection and retry.');
+const errorText = (error: unknown) => errorWords(error, tx('Unable to connect. Check your connection and retry.'));
 
 export function FireShift({ gated = false }: { gated?: boolean }) {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -103,10 +106,10 @@ export function FireShift({ gated = false }: { gated?: boolean }) {
   });
   const submitReadiness = () => {
     if (READINESS_ITEMS.some(([key]) => typeof mental[key] !== 'boolean')) {
-      setInvalid(true); setError('Answer all six readiness questions.'); return;
+      setInvalid(true); setError(t('Answer all six readiness questions.')); return;
     }
     if (READINESS_ITEMS.some(([key]) => !mental[key]) && !comments.trim()) {
-      setInvalid(true); setError('Add a note about the readiness concern for your station officer.'); return;
+      setInvalid(true); setError(t('Add a note about the readiness concern for your station officer.')); return;
     }
     void run(async () => {
       const { passed } = await submitMentalCheck(getSupabase(), {
@@ -133,7 +136,7 @@ export function FireShift({ gated = false }: { gated?: boolean }) {
     if (!state?.appliance || !fuel) return;
     const problem = fireChecklistError(answers, fuel, notes);
     if (problem) { setError(problem); return; }
-    if (!declared || !signature) { setError('Confirm your declaration and add your signature.'); return; }
+    if (!declared || !signature) { setError(t('Confirm your declaration and add your signature.')); return; }
     void run(async () => {
       // If a previous response was lost, resume the existing signed record before submitting again.
       const current = await getFireShiftState(getSupabase());
@@ -167,98 +170,98 @@ export function FireShift({ gated = false }: { gated?: boolean }) {
         contentContainerStyle={[styles.container, gated && { paddingTop: insets.top + space.lg }, { paddingBottom: Math.max(insets.bottom, 16) + 32 }]}>
         <View style={styles.topbar}>
           <HikTechLogo height={15} />
-          {gated ? <Pressable accessibilityRole="button" onPress={signOut} disabled={busy} hitSlop={8} style={styles.headerAction}><Text style={styles.headerActionText}>Sign out</Text><Ionicons name="log-out-outline" size={16} color={colors.textDim} /></Pressable>
-            : <Pressable accessibilityRole="button" onPress={() => router.replace('/')} hitSlop={8} style={styles.headerAction}><Ionicons name="arrow-back" size={16} color={colors.textDim} /><Text style={styles.headerActionText}>Dashboard</Text></Pressable>}
+          {gated ? <Pressable accessibilityRole="button" onPress={signOut} disabled={busy} hitSlop={8} style={styles.headerAction}><Text style={styles.headerActionText}>{t('Sign out')}</Text><Ionicons name="log-out-outline" size={16} color={colors.textDim} /></Pressable>
+            : <Pressable accessibilityRole="button" onPress={() => router.replace('/')} hitSlop={8} style={styles.headerAction}><Ionicons name="arrow-back" size={16} color={colors.textDim} /><Text style={styles.headerActionText}>{t('Dashboard')}</Text></Pressable>}
         </View>
-        <View style={styles.identity}><Ionicons name="flame" size={18} color={colors.accent} /><Text style={styles.identityText}>METRO FIRE & RESCUE</Text></View>
-        {step && step !== 'intro' ? <View style={styles.progress} accessible accessibilityLabel={`Step ${index + 1} of 5: ${STEPS[index]}`}>
-          <Stepper steps={STEPS} current={index} />
+        <View style={styles.identity}><Ionicons name="flame" size={18} color={colors.accent} /><Text style={styles.identityText}>{t('METRO FIRE & RESCUE')}</Text></View>
+        {step && step !== 'intro' ? <View style={styles.progress} accessible accessibilityLabel={t('Step {n} of {total}: {step}', { n: index + 1, total: STEPS.length, step: t(STEPS[index] ?? '') })}>
+          <Stepper steps={STEPS.map((s) => t(s))} current={index} />
         </View> : null}
 
         {!step ? <View style={styles.panel}>
-          {error ? <><Banner tone="error">{error}</Banner><FireButton label="Retry shift status" onPress={() => void run(load)} busy={busy} icon="refresh" /></> : <><ActivityIndicator color={colors.accent} /><Text style={styles.body}>Checking your Fire shift…</Text></>}
+          {error ? <><Banner tone="error">{error}</Banner><FireButton label={t('Retry shift status')} onPress={() => void run(load)} busy={busy} icon="refresh" /></> : <><ActivityIndicator color={colors.accent} /><Text style={styles.body}>{t('Checking your Fire shift…')}</Text></>}
         </View> : null}
 
         {step === 'intro' ? <View style={styles.panel}>
           <View style={styles.introIcon}><Ionicons name="flame" size={34} color={colors.accent} /></View>
-          <Text style={styles.eyebrow}>STEP 1 OF 5 · START OF SHIFT</Text>
-          <Text style={styles.title}>Ready to respond.</Text>
-          <Text style={styles.body}>Begin your shift with a readiness assessment, sign onto an appliance, and check your fire equipment.</Text>
-          <View style={styles.introList}>{[['person-outline', 'Personal readiness'], ['bus-outline', 'Appliance & equipment'], ['create-outline', 'Confirm & sign on']].map(([icon, label]) => <View key={label} style={styles.introItem}><Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={20} color={colors.accent} /><Text style={styles.introLabel}>{label}</Text></View>)}</View>
-          <Text style={styles.caption}>You go on duty once your checks are complete.</Text>
-          <FireButton label="Begin shift checks" onPress={() => go('readiness')} icon="play-circle-outline" />
+          <Text style={styles.eyebrow}>{t('STEP 1 OF 5 · START OF SHIFT')}</Text>
+          <Text style={styles.title}>{t('Ready to respond.')}</Text>
+          <Text style={styles.body}>{t('Begin your shift with a readiness assessment, sign onto an appliance, and check your fire equipment.')}</Text>
+          <View style={styles.introList}>{[['person-outline', tx('Personal readiness')], ['bus-outline', tx('Appliance & equipment')], ['create-outline', tx('Confirm & sign on')]].map(([icon, label]) => <View key={label} style={styles.introItem}><Ionicons name={icon as keyof typeof Ionicons.glyphMap} size={20} color={colors.accent} /><Text style={styles.introLabel}>{t(label ?? '')}</Text></View>)}</View>
+          <Text style={styles.caption}>{t('You go on duty once your checks are complete.')}</Text>
+          <FireButton label={t('Begin shift checks')} onPress={() => go('readiness')} icon="play-circle-outline" />
         </View> : null}
 
         {step === 'readiness' ? <View style={styles.panel}>
-          <Text style={styles.eyebrow}>STEP 2 OF 5 · YOU</Text><Text style={styles.title}>Readiness assessment</Text>
-          <Text style={styles.body}>Take a moment to check in. Answer each question honestly before starting operational duty.</Text>
+          <Text style={styles.eyebrow}>{t('STEP 2 OF 5 · YOU')}</Text><Text style={styles.title}>{t('Readiness assessment')}</Text>
+          <Text style={styles.body}>{t('Take a moment to check in. Answer each question honestly before starting operational duty.')}</Text>
           {READINESS_ITEMS.map(([key, label]) => <FireCheck key={key} label={label} value={mental[key]} onChange={(value) => setMental((m) => ({ ...m, [key]: value }))} disabled={busy} invalid={invalid} />)}
-          <Input label="Readiness notes" accessibilityLabel="Readiness notes" hint="Required if you answer No. Your declaration is recorded for command review." multiline maxLength={4000} value={comments} onChangeText={setComments} editable={!busy} />
-          <FireButton label="Confirm readiness" onPress={submitReadiness} busy={busy} />
+          <Input label={t('Readiness notes')} accessibilityLabel={t('Readiness notes')} hint={t('Required if you answer No. Your declaration is recorded for command review.')} multiline maxLength={4000} value={comments} onChangeText={setComments} editable={!busy} />
+          <FireButton label={t('Confirm readiness')} onPress={submitReadiness} busy={busy} />
         </View> : null}
 
         {step === 'stood_down' ? <View style={styles.panel}>
-          <Ionicons name="heart-outline" size={40} color={colors.medium} /><Text style={styles.title}>Readiness needs attention</Text>
-          <Text style={styles.body}>Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.</Text>
-          <FireButton label="Check clearance again" secondary onPress={() => void run(load)} busy={busy} icon="refresh" />
+          <Ionicons name="heart-outline" size={40} color={colors.medium} /><Text style={styles.title}>{t('Readiness needs attention')}</Text>
+          <Text style={styles.body}>{t('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.')}</Text>
+          <FireButton label={t('Check clearance again')} secondary onPress={() => void run(load)} busy={busy} icon="refresh" />
         </View> : null}
 
         {step === 'appliance' ? <View style={styles.panel}>
-          <Text style={styles.eyebrow}>STEP 3 OF 5 · YOUR UNIT</Text><Text style={styles.title}>Select appliance</Text><Text style={styles.body}>Choose the available Fire & Rescue appliance you are signing onto.</Text>
-          {appliances.length === 0 ? <View style={styles.empty}><Ionicons name="bus-outline" size={34} color={colors.muted} /><Text style={styles.body}>No appliances are available. Ask your station officer to release or register an appliance.</Text></View> : appliances.map((a) => <Pressable key={a.id} disabled={busy} accessibilityRole="radio" accessibilityLabel={`${a.unit_number} — ${a.name}`} accessibilityState={{ checked: picked === a.id }} aria-checked={picked === a.id} onPress={() => setPicked(a.id)} style={[styles.unit, picked === a.id && styles.selectedUnit]}>
+          <Text style={styles.eyebrow}>{t('STEP 3 OF 5 · YOUR UNIT')}</Text><Text style={styles.title}>{t('Select appliance')}</Text><Text style={styles.body}>{t('Choose the available Fire & Rescue appliance you are signing onto.')}</Text>
+          {appliances.length === 0 ? <View style={styles.empty}><Ionicons name="bus-outline" size={34} color={colors.muted} /><Text style={styles.body}>{t('No appliances are available. Ask your station officer to release or register an appliance.')}</Text></View> : appliances.map((a) => <Pressable key={a.id} disabled={busy} accessibilityRole="radio" accessibilityLabel={`${a.unit_number} — ${a.name}`} accessibilityState={{ checked: picked === a.id }} aria-checked={picked === a.id} onPress={() => setPicked(a.id)} style={[styles.unit, picked === a.id && styles.selectedUnit]}>
             <View style={styles.unitIcon}><Ionicons name="bus-outline" size={28} color={colors.accent} /></View><View style={{ flex: 1 }}><Text style={styles.unitNumber}>{a.unit_number}</Text><Text style={styles.unitName}>{a.name}</Text><Text style={styles.caption}>{[a.type, a.license_plate, a.station_number].filter(Boolean).join(' · ')}</Text></View><Ionicons name={picked === a.id ? 'checkmark-circle' : 'ellipse-outline'} size={23} color={picked === a.id ? colors.accent : colors.muted} />
           </Pressable>)}
-          <FireButton label="Confirm appliance" onPress={confirmAppliance} disabled={!picked} busy={busy} />
-          <FireButton label="Refresh available appliances" secondary icon="refresh" onPress={() => void run(load)} busy={busy} />
+          <FireButton label={t('Confirm appliance')} onPress={confirmAppliance} disabled={!picked} busy={busy} />
+          <FireButton label={t('Refresh available appliances')} secondary icon="refresh" onPress={() => void run(load)} busy={busy} />
         </View> : null}
 
         {step === 'checks' ? <View style={styles.panel}>
-          <Text style={styles.eyebrow}>STEP 4 OF 5 · {state?.appliance?.unit_number}</Text><Text style={styles.title}>Appliance & equipment</Text><Text style={styles.body}>{state?.appliance?.name} · {completed} of 11 checks answered</Text>
-          {restored ? <Text style={styles.caption}>Your saved draft has been restored. Verify every answer before signing.</Text> : null}
-          <Text style={styles.sectionTitle}>Fuel level</Text>
-          <View style={styles.fuelRow}>{FIRE_FUEL_LEVELS.map((level) => <Pressable key={level} accessibilityRole="radio" accessibilityLabel={`Fuel ${level}`} accessibilityState={{ checked: fuel === level }} aria-checked={fuel === level} disabled={busy} onPress={() => setFuel(level)} style={[styles.fuel, fuel === level && styles.selectedUnit]}><Ionicons name="speedometer-outline" size={17} color={fuel === level ? colors.accent : colors.muted} /><Text style={styles.unitName}>{level}</Text></Pressable>)}</View>
-          {fuel === '1/4' ? <Text style={styles.warning}>Low fuel recorded. Arrange refuelling with your station officer.</Text> : null}
-          <Text style={styles.sectionTitle}>Essential checks</Text>
+          <Text style={styles.eyebrow}>{t('STEP 4 OF 5 · {unit_number}', { unit_number: state?.appliance?.unit_number })}</Text><Text style={styles.title}>{t('Appliance & equipment')}</Text><Text style={styles.body}>{t('{name} · {completed} of 11 checks answered', { name: state?.appliance?.name, completed })}</Text>
+          {restored ? <Text style={styles.caption}>{t('Your saved draft has been restored. Verify every answer before signing.')}</Text> : null}
+          <Text style={styles.sectionTitle}>{t('Fuel level')}</Text>
+          <View style={styles.fuelRow}>{FIRE_FUEL_LEVELS.map((level) => <Pressable key={level} accessibilityRole="radio" accessibilityLabel={t('Fuel {level}', { level })} accessibilityState={{ checked: fuel === level }} aria-checked={fuel === level} disabled={busy} onPress={() => setFuel(level)} style={[styles.fuel, fuel === level && styles.selectedUnit]}><Ionicons name="speedometer-outline" size={17} color={fuel === level ? colors.accent : colors.muted} /><Text style={styles.unitName}>{level}</Text></Pressable>)}</View>
+          {fuel === '1/4' ? <Text style={styles.warning}>{t('Low fuel recorded. Arrange refuelling with your station officer.')}</Text> : null}
+          <Text style={styles.sectionTitle}>{t('Essential checks')}</Text>
           {FIRE_ESSENTIALS.map(([key, label]) => <FireCheck key={key} label={label} value={answers[key]} onChange={(value) => setAnswers((a) => ({ ...a, [key]: value }))} disabled={busy} invalid={invalid} />)}
-          <View style={styles.equipmentTitle}><Ionicons name="flame" size={22} color={colors.accent} /><Text style={styles.sectionTitle}>Fire equipment</Text></View>
+          <View style={styles.equipmentTitle}><Ionicons name="flame" size={22} color={colors.accent} /><Text style={styles.sectionTitle}>{t('Fire equipment')}</Text></View>
           {FIRE_EQUIPMENT.map(([key, label, hint]) => <FireCheck key={key} label={label} hint={hint} value={answers[key]} onChange={(value) => setAnswers((a) => ({ ...a, [key]: value }))} disabled={busy} invalid={invalid} />)}
-          <Input label={failed.length ? 'Fault details — required' : 'Inspection notes'} accessibilityLabel="Inspection notes" multiline maxLength={4000} value={notes} onChangeText={setNotes} editable={!busy} placeholder="Describe any defects or equipment concerns" />
-          {failed.length ? <Text style={styles.warning}>A failed check prevents sign-on. Filing this inspection will take the appliance out of service and notify command.</Text> : null}
-          <FireButton label="Review & sign" onPress={review} busy={busy} />
+          <Input label={failed.length ? t('Fault details — required') : t('Inspection notes')} accessibilityLabel={t('Inspection notes')} multiline maxLength={4000} value={notes} onChangeText={setNotes} editable={!busy} placeholder={t('Describe any defects or equipment concerns')} />
+          {failed.length ? <Text style={styles.warning}>{t('A failed check prevents sign-on. Filing this inspection will take the appliance out of service and notify command.')}</Text> : null}
+          <FireButton label={t('Review & sign')} onPress={review} busy={busy} />
         </View> : null}
 
         {step === 'sign' ? <View style={styles.panel}>
-          <Text style={styles.eyebrow}>STEP 5 OF 5 · SIGN-OFF</Text><Text style={styles.title}>Confirm & sign on</Text>
-          <Text style={styles.body}>Review the record before you sign. Your name and the filing time are recorded with these checks.</Text>
-          <KeyValue label="Firefighter" value={officerName} /><KeyValue label="Appliance" value={state?.appliance?.unit_number} /><KeyValue label="Fuel" value={fuel} /><KeyValue label="Checks passed" value={`${11 - failed.length} / 11`} />
-          {failed.length ? <View style={styles.failureBox}><Text style={styles.warning}>Appliance will not be cleared</Text>{failed.map((label) => <Text key={label} style={styles.body}>• {label}</Text>)}</View> : <Text style={styles.success}>All appliance and equipment checks passed.</Text>}
+          <Text style={styles.eyebrow}>{t('STEP 5 OF 5 · SIGN-OFF')}</Text><Text style={styles.title}>{t('Confirm & sign on')}</Text>
+          <Text style={styles.body}>{t('Review the record before you sign. Your name and the filing time are recorded with these checks.')}</Text>
+          <KeyValue label={t('Firefighter')} value={officerName} /><KeyValue label={t('Appliance')} value={state?.appliance?.unit_number} /><KeyValue label={t('Fuel')} value={fuel} /><KeyValue label={t('Checks passed')} value={`${11 - failed.length} / 11`} />
+          {failed.length ? <View style={styles.failureBox}><Text style={styles.warning}>{t('Appliance will not be cleared')}</Text>{failed.map((label) => <Text key={label} style={styles.body}>• {t(label)}</Text>)}</View> : <Text style={styles.success}>{t('All appliance and equipment checks passed.')}</Text>}
           {notes.trim() ? <Text style={styles.body}>{notes.trim()}</Text> : null}
           <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: declared }} aria-checked={declared} disabled={busy} onPress={() => setDeclared((d) => !d)} style={styles.declaration}>
-            <Ionicons name={declared ? 'checkbox' : 'square-outline'} size={25} color={declared ? colors.accent : colors.muted} /><Text style={styles.declarationText}>I personally completed these checks and confirm that the answers and any defects recorded are accurate.</Text>
+            <Ionicons name={declared ? 'checkbox' : 'square-outline'} size={25} color={declared ? colors.accent : colors.muted} /><Text style={styles.declarationText}>{t('I personally completed these checks and confirm that the answers and any defects recorded are accurate.')}</Text>
           </Pressable>
           <SignaturePad onChange={setSignature} onDrawingChange={setDrawing} disabled={busy} />
-          <FireButton label={failed.length ? 'Sign & report defects' : 'Sign & file shift checks'} icon="create-outline" onPress={fileInspection} busy={busy} />
-          <FireButton label="Back to checks" secondary icon="arrow-back" onPress={() => { setSignature(null); go('checks'); }} disabled={busy} />
+          <FireButton label={failed.length ? t('Sign & report defects') : t('Sign & file shift checks')} icon="create-outline" onPress={fileInspection} busy={busy} />
+          <FireButton label={t('Back to checks')} secondary icon="arrow-back" onPress={() => { setSignature(null); go('checks'); }} disabled={busy} />
         </View> : null}
 
         {step === 'appliance_failed' ? <View style={styles.panel}>
-          <Ionicons name="warning-outline" size={42} color={colors.critical} /><Text style={styles.title}>Appliance not cleared</Text>
-          <Text style={styles.body}>Inspection {record?.inspection_ref} is filed. The appliance is out of service and command has been notified. You remain off duty.</Text>
-          <Text style={styles.body}>Speak to your station officer about the reported defects, then choose another available appliance and repeat its checks.</Text>
-          <FireButton label="Choose another appliance" icon="bus-outline" onPress={() => void run(load)} busy={busy} />
+          <Ionicons name="warning-outline" size={42} color={colors.critical} /><Text style={styles.title}>{t('Appliance not cleared')}</Text>
+          <Text style={styles.body}>{t('Inspection {inspection_ref} is filed. The appliance is out of service and command has been notified. You remain off duty.', { inspection_ref: record?.inspection_ref })}</Text>
+          <Text style={styles.body}>{t('Speak to your station officer about the reported defects, then choose another available appliance and repeat its checks.')}</Text>
+          <FireButton label={t('Choose another appliance')} icon="bus-outline" onPress={() => void run(load)} busy={busy} />
         </View> : null}
 
         {step === 'complete' ? <View style={styles.panel}>
           <View style={styles.completeIcon}><Ionicons name="shield-checkmark" size={36} color={colors.low} /></View>
-          <Text style={styles.eyebrow}>START OF SHIFT · FILED</Text><Text style={styles.title}>Your checks are complete.</Text>
-          <Text style={styles.body}>Your readiness assessment and signed Fire appliance inspection are on record.</Text>
-          <KeyValue label="Reference" value={record?.inspection_ref ?? '—'} /><KeyValue label="Firefighter" value={record?.inspector_name ?? officerName} /><KeyValue label="Appliance" value={state?.appliance?.unit_number ?? '—'} /><KeyValue label="Fuel" value={record?.fuel_level ?? '—'} />
-          {record ? <KeyValue label="Filed (SAST)" value={new Intl.DateTimeFormat('en-ZA', { timeZone: 'Africa/Johannesburg', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(record.checked_at))} /> : null}
-          <Text style={styles.success}>6 readiness checks · 11 appliance & equipment checks</Text>
-          <FireButton label={state?.personnel.is_on_duty ? 'Go to dashboard' : 'Go on duty & open dashboard'} icon="flame" onPress={goOnDuty} busy={busy} />
+          <Text style={styles.eyebrow}>{t('START OF SHIFT · FILED')}</Text><Text style={styles.title}>{t('Your checks are complete.')}</Text>
+          <Text style={styles.body}>{t('Your readiness assessment and signed Fire appliance inspection are on record.')}</Text>
+          <KeyValue label={t('Reference')} value={record?.inspection_ref ?? '—'} /><KeyValue label={t('Firefighter')} value={record?.inspector_name ?? officerName} /><KeyValue label={t('Appliance')} value={state?.appliance?.unit_number ?? '—'} /><KeyValue label={t('Fuel')} value={record?.fuel_level ?? '—'} />
+          {record ? <KeyValue label={t('Filed (SAST)')} value={new Intl.DateTimeFormat('en-ZA', { timeZone: 'Africa/Johannesburg', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(record.checked_at))} /> : null}
+          <Text style={styles.success}>{t('6 readiness checks · 11 appliance & equipment checks')}</Text>
+          <FireButton label={state?.personnel.is_on_duty ? t('Go to dashboard') : t('Go on duty & open dashboard')} icon="flame" onPress={goOnDuty} busy={busy} />
         </View> : null}
-        {step && error ? <View style={{ gap: 10 }}><Banner tone="error">{error}</Banner><FireButton label="Reload saved shift progress" secondary icon="refresh" onPress={() => void run(load)} busy={busy} /></View> : null}
-        <Text style={styles.footer}>METRO FIRE & RESCUE · START OF SHIFT</Text>
+        {step && error ? <View style={{ gap: 10 }}><Banner tone="error">{error}</Banner><FireButton label={t('Reload saved shift progress')} secondary icon="refresh" onPress={() => void run(load)} busy={busy} /></View> : null}
+        <Text style={styles.footer}>{t('METRO FIRE & RESCUE · START OF SHIFT')}</Text>
       </ScrollView>
     </View>
   );

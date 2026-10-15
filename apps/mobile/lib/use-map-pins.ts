@@ -4,6 +4,7 @@ import { useDuty } from '@/lib/duty';
 import { useLiveIncidents } from '@/lib/use-live-incidents';
 import { hasLocation, toPins } from '@/lib/map-pins';
 import { severityColor, useTheme } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 /**
  * Live incidents as map pins, for the Home map and the Live Map page.
@@ -16,10 +17,11 @@ export function useMapPins() {
   const { incidents, loading, error, refresh, queued, freshIds } = useLiveIncidents();
   // Pin colours come from the theme: rebuild them when it switches.
   const { mode } = useTheme();
+  const { t } = useT();
 
   const pins = useMemo(
-    () => toPins(incidents, { userId: session?.user.id ?? '', silo, onDuty }, severityColor, { queued, fresh: freshIds }),
-    [incidents, session, silo, onDuty, queued, freshIds, mode],
+    () => toPins(incidents, { userId: session?.user.id ?? '', silo, onDuty }, severityColor, { queued, fresh: freshIds, t }),
+    [incidents, session, silo, onDuty, queued, freshIds, mode, t],
   );
   const unlocated = useMemo(
     () => incidents.filter((i) => !hasLocation(i.location_lat, i.location_lng)).length,

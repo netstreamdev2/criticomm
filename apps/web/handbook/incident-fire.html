@@ -505,8 +505,64 @@ footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--l
 .phone-body .m-map { height: 11rem; }
 .m-filed { display: flex; gap: .4rem; align-items: center; font-size: .74rem; color: var(--m-ok); }
 
+/* Logging a call: Criti's strip, department dots, the description pop-up, sending early */
+.m-criti { border-radius: 8px; border: 1px solid rgba(255, 255, 255, .1); background: #070B16; font-size: .74rem; overflow: hidden; }
+.m-criti > p { display: flex; align-items: center; gap: .5rem; padding: .4rem .7rem; border-top: 1px solid rgba(255, 255, 255, .08); min-width: 0; }
+.m-criti > p.hd { border-top: 0; font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255, 255, 255, .62); }
+.m-criti > p.hd em { font-style: normal; font-weight: 400; letter-spacing: 0; text-transform: none; }
+.m-criti > p.hd .all { margin-left: auto; color: #7DD3FC; letter-spacing: 0; text-transform: none; }
+.m-criti .dot { width: .5rem; height: .5rem; border-radius: 50%; flex: 0 0 auto; background: #38BDF8; }
+.m-criti .dot.crit { background: var(--m-crit); }
+.m-criti .dot.warn { background: var(--m-warn); }
+.m-criti .dot.ok { background: var(--m-ok); }
+.m-criti .grow { flex: 1; min-width: 0; }
+.m-criti .faint { color: rgba(255, 255, 255, .6); }
+.m-criti .act { margin-left: auto; border-radius: 5px; padding: .15rem .5rem; font-size: .66rem; font-weight: 700; background: var(--m-crit); white-space: nowrap; }
+.m-dots { display: inline-flex; gap: .15rem; flex: 0 0 auto; vertical-align: middle; }
+.m-dots i { width: .5rem; height: .5rem; border-radius: 50%; display: block; }
+.m-dots i.police { background: #3B82F6; }
+.m-dots i.fire { background: #F59E0B; }
+.m-dots i.med { background: #DC3545; }
+.m-dots i.dis { background: #8B5CF6; }
+.m-mark { display: inline-flex; align-items: center; gap: .15rem; border-radius: 4px; padding: 0 .3rem; font-size: .6rem; font-weight: 700;
+  letter-spacing: 0; text-transform: none; background: rgba(59, 130, 246, .18); color: #8FB6FF; vertical-align: middle; }
+.m-list { border: 1px solid var(--m-line); border-radius: 8px; overflow: hidden; font-size: .76rem; background: var(--m-card); }
+.m-list p { display: flex; align-items: center; gap: .55rem; padding: .35rem .6rem; }
+.m-list p.grp { font-size: .58rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--m-muted); padding-block: .35rem .1rem; }
+.m-list p.hi { background: rgba(255, 255, 255, .07); font-weight: 600; }
+.m-list p small { margin-left: auto; color: var(--m-muted); font-family: var(--font-mono); }
+.m-list p .kind { border-radius: 4px; padding: 0 .35rem; font-size: .6rem; font-weight: 600; background: rgba(156, 163, 175, .16); color: var(--m-muted); }
+.m-segs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .35rem; }
+.m-segs.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.m-segs.six { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.m-segs span { text-align: center; border: 1px solid var(--m-line); border-radius: 7px; padding: .4rem .2rem; font-size: .64rem; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase; color: var(--m-muted); white-space: nowrap; }
+.m-segs span.on { color: #FFFFFF; border-color: var(--m-accent); background: rgba(59, 130, 246, .18); }
+.m-segs span.on.crit { background: var(--m-crit); border-color: transparent; }
+.m-segs span.on.high { background: #F97316; border-color: transparent; }
+.m-segs span.on.med { background: var(--m-warn); border-color: transparent; color: #14161C; }
+.m-segs span.on.low { background: var(--m-ok); border-color: transparent; }
+.m-chips { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; }
+.m-chips > span { display: inline-flex; align-items: center; gap: .3rem; border: 1px solid var(--m-line); border-radius: 999px; padding: .15rem .55rem; font-size: .68rem; font-weight: 600; }
+.m-chips > span.add { border-color: rgba(59, 130, 246, .5); color: #8FB6FF; }
+.m-desc { border: 1px solid var(--m-line); border-radius: 8px; padding: .55rem .65rem; display: grid; gap: .45rem; font-size: .78rem; background: var(--m-soft); }
+.m-desc.empty { border-style: dashed; color: var(--m-muted); }
+.m-hold { display: inline-flex; align-items: center; gap: .25rem; border-radius: 999px; padding: .05rem .5rem; font-size: .64rem; font-weight: 700;
+  border: 1px solid rgba(245, 158, 11, .5); background: rgba(245, 158, 11, .12); color: #FBBF24; white-space: nowrap; }
+.m-banner { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; border-radius: 8px; padding: .5rem .7rem; font-size: .76rem;
+  border: 1px solid rgba(16, 185, 129, .45); background: rgba(16, 185, 129, .1); }
+.m-banner .grow { flex: 1; min-width: 12rem; }
+.m-popup { border: 1px solid var(--m-line); background: var(--m-card); border-radius: 12px; padding: .9rem 1rem; display: grid; gap: .55rem;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .55); max-width: 27rem; font-size: .8rem; }
+.m-popup .t { font-size: .95rem; font-weight: 700; }
+.m-popup .btns { display: flex; justify-content: flex-end; gap: .5rem; }
+.m-btn.crit { background: var(--m-crit); }
+.m-btn.outline-crit { background: transparent; border: 2px solid var(--m-crit); color: #F87171; }
+.m-details summary, .m-more { font-size: .72rem; color: var(--m-muted); font-weight: 600; }
+
 @media (max-width: 40rem) {
   .m-dept { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .m-segs.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 /* Tables keep the screen's colours even when the file is opened on its own. */
@@ -655,7 +711,7 @@ footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--l
     <div class="section-head">
       <p class="eyebrow">Step 2 · Call logger · console</p>
       <h2>Logging the call</h2>
-      <p class="muted">The same form as every call. For a fire, the incident type suggests Fire &amp; Rescue; with people hurt, the call logger adds EMS.</p>
+      <p class="muted">The same form as every call. For a fire, the incident type suggests Fire &amp; Rescue. When someone is hurt, Criti adds EMS and the medical questions appear.</p>
     </div>
     <figure class="exhibit">
       <figcaption><span class="tag">Log incoming call</span><span class="where">/dispatch/log-call</span><span class="example">Example data</span></figcaption>
@@ -664,45 +720,60 @@ footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--l
         <div class="m-top"><span class="crumb">Dispatch › <b>Log incoming call</b></span><span class="who"><span class="m-avatar">LL</span><span>Lerato Logger<small>Call logger · Control Room</small></span></span></div>
         <div class="screen-body">
           <div class="m-row between"><span class="m-clock warn"><span class="pin">1</span> Response clock <span>01:42</span></span><span class="m-btn ghost small">← Back to dashboard</span></div>
+          <div class="m-criti">
+            <p class="hd"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti <em>Read the description</em><span class="all">View all</span></p>
+            <p><span class="dot"></span><span class="grow"><span class="faint">Ask: </span>Is anyone inside? · Which floor, and how big is the fire?</span></p>
+          </div>
           <div class="m-grid2" style="grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))">
             <div class="m-card">
-              <p class="m-head">Caller &amp; location info</p>
-              <div class="m-field"><span class="m-label"><span class="pin">2</span> Caller name</span><div class="m-input">Ayanda Zulu</div></div>
-              <div class="m-field"><span class="m-label"><span class="pin">3</span> Contact citizen</span><div class="m-row"><div class="m-input" style="width:6.5rem">ZA +27 <span class="caret">▾</span></div><div class="m-input" style="flex:1">073 918 2204</div><span class="m-btn small ok">Call</span></div><span class="m-help ok">Saved as +27 73 918 2204</span></div>
-              <div class="m-input" style="gap:1rem;flex-wrap:wrap"><span class="pin">4</span><span class="m-sub">Is the caller the patient? *</span><span class="m-radio"><i></i>Yes</span><span class="m-radio on"><i></i>No</span></div>
-              <div class="m-field"><span class="m-label"><span class="pin">5</span> Incident location</span><div class="m-input focus">23 Sydney Road, Umbilo, Durban</div><div class="m-map"><span class="drop"></span></div></div>
-              <div class="m-field"><span class="m-label"><span class="pin">6</span> Region</span><div class="m-input ok">Central <span class="caret">▾</span></div><span class="m-help">Set from the map pin</span></div>
+              <p class="m-head">What and where</p>
+              <div class="m-field"><span class="m-label"><span class="pin">2</span> Incident type</span>
+                <div class="m-input"><span class="m-dots"><i class="fire"></i></span> FI-01 · Structure Fire <span class="caret">▾</span></div>
+                <span class="m-help">Fire · Goes to <b>Fire &amp; Rescue</b> · Usually High</span></div>
+              <div class="m-field"><span class="m-label"><span class="pin">3</span> Description</span>
+                <div class="m-desc"><span>Flats on fire, smoke from the second floor. A neighbour has burns to the arm.</span>
+                  <span class="m-chips"><span><span class="m-dots"><i class="fire"></i><i class="med"></i></span> Burns</span><span class="m-sub">1 hurt, not the caller</span></span></div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">4</span> Location</span><div class="m-input focus">📍 23 Sydney Road, Umbilo, Durban</div><div class="m-map"><span class="drop"></span></div></div>
+              <div class="m-field"><span class="m-label">Region</span><div class="m-input ok">Central <span class="caret">▾</span></div><span class="m-help">Set from the map pin</span></div>
             </div>
             <div class="m-card">
-              <p class="m-head">Incident details &amp; routing</p>
-              <div class="m-field"><span class="m-label"><span class="pin">7</span> Incident type (10-code)</span><div class="m-input">30-1: Structure Fire <span class="caret">▾</span></div></div>
-              <div class="m-field"><span class="m-label"><span class="pin">8</span> Call description / narrative</span><div class="m-input" style="min-height:3rem;align-items:flex-start">Flats on fire, smoke from the second floor. A neighbour has burns to the arm.</div></div>
-              <div class="m-part"><span class="m-label"><span class="pin">9</span> EMS / medical triage</span><div class="m-row"><span class="m-switch off"></span><span class="m-sub">No injuries / EMS not required</span></div>
-                <div class="m-grid2" style="gap:.5rem"><div class="m-input">1</div><div class="m-input">P2 - ORANGE: Urgent / Serious</div></div></div>
-              <div class="m-field"><span class="m-label"><span class="pin">10</span> Incident severity</span><div class="m-input">Critical <span class="caret">▾</span></div></div>
-              <div class="m-part"><span class="m-label"><span class="pin">11</span> Send to dispatch</span>
+              <p class="m-head">Caller and dispatch</p>
+              <div class="m-field"><span class="m-label"><span class="pin">5</span> Caller name</span><div class="m-input">Ayanda Zulu</div></div>
+              <div class="m-field"><span class="m-label">Caller number</span><div class="m-row"><div class="m-input" style="width:6.5rem">ZA +27 <span class="caret">▾</span></div><div class="m-input" style="flex:1">073 918 2204</div><span class="m-btn small ok">Call</span></div><span class="m-help ok">Saved as +27 73 918 2204</span></div>
+              <div class="m-field"><span class="m-label"><span class="pin">6</span> How the call came in</span>
+                <div class="m-segs"><span class="on">Phone call</span><span>WhatsApp</span><span>In person</span><span>Other</span></div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">7</span> Severity <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span></span>
+                <div class="m-segs"><span>Low</span><span>Medium</span><span>High</span><span class="on crit">Critical</span></div></div>
+              <div class="m-part"><span class="m-row between"><span class="m-label"><span class="pin">8</span> EMS</span><span class="m-row"><span class="m-switch off"></span><span class="m-sub">No one hurt</span></span></span>
+                <span class="m-label" style="font-size:.62rem">People hurt <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span></span>
+                <div class="m-segs six"><span>0</span><span class="on">1</span><span>2</span><span>3</span><span>4</span><span>5+</span></div>
+                <span class="m-label" style="font-size:.62rem">Medical code <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span></span>
+                <div class="m-input">P2 - ORANGE: Urgent / Serious <span class="caret">▾</span></div></div>
+              <div class="m-part"><span class="m-row between"><span class="m-label"><span class="pin">9</span> Send to dispatch</span><span class="m-help">Suggested by Criti: change if needed</span></span>
                 <div class="m-dept"><span class="fire on">Fire</span><span class="police">Police</span><span class="med on">Medical</span><span class="dis">Disaster</span></div>
                 <span class="m-help">Only the Fire &amp; Rescue, EMS dispatch desks receive this call.</span></div>
-              <span class="m-btn blue full"><span class="pin">12</span> Send to 2 dispatch desks</span>
+              <span class="m-btn blue full"><span class="pin">10</span> Send to 2 dispatch desks</span>
             </div>
           </div>
         </div>
       </div>
       <ol class="legend">
         <li><span class="pin">1</span><span><b>Response clock.</b> Amber after 1 minute 30, flashing red after 3 minutes.</span></li>
-        <li><span class="pin">2</span><span><b>Caller name.</b> Required.</span></li>
-        <li><span class="pin">3</span><span><b>Contact number</b> with its country; checked, and <b>Call</b> rings back. A repeat caller is flagged as a possible duplicate.</span></li>
-        <li><span class="pin">4</span><span><b>Is the caller the patient?</b> Required. Here it is the neighbour, so No.</span></li>
-        <li><span class="pin">5</span><span><b>Where.</b> Pick an address suggestion or click the map. The pin is where the appliance is sent.</span></li>
-        <li><span class="pin">6</span><span><b>Region</b>, from the pin.</span></li>
-        <li><span class="pin">7</span><span><b>Incident type:</b> the Fire group (30-1 Structure Fire, 30-2 Veld/Wildland Fire). It suggests Fire &amp; Rescue below.</span></li>
-        <li><span class="pin">8</span><span><b>What the caller said.</b> Required.</span></li>
-        <li><span class="pin">9</span><span><b>Someone is hurt:</b> the number of victims and the medical code, here P2 orange.</span></li>
-        <li><span class="pin">10</span><span><b>Severity.</b> A Critical call is flagged <i>Priority 1</i> on the phone.</span></li>
-        <li><span class="pin">11</span><span><b>Fire and Medical.</b> Each department gets the call at its own desk, and each works its own part of it.</span></li>
-        <li><span class="pin">12</span><span><b>Send.</b> The call gets its number and appears in the Fire queue and the EMS queue at once.</span></li>
+        <li><span class="pin">2</span><span><b>Incident type:</b> type “fire”, “smoke” or “shack” and pick from the Fire group (30-1 Structure Fire, 30-2 Veld/Wildland Fire, House fire, Vehicle fire and more). The orange dot means Fire &amp; Rescue.</span></li>
+        <li><span class="pin">3</span><span><b>Description</b>, with the injury ticked in the Description window: <i>Burns</i>. A ticked injury brings in EMS and the medical questions.</span></li>
+        <li><span class="pin">4</span><span><b>Where.</b> An address or a place, or click the map. The pin is where the appliance is sent.</span></li>
+        <li><span class="pin">5</span><span><b>Caller name and number.</b> Required. A repeat caller is flagged as a possible duplicate.</span></li>
+        <li><span class="pin">6</span><span><b>How the call came in:</b> phone call, WhatsApp, in person, or Other with a few words. <b>Is the caller the patient?</b> is asked in the Description window because EMS is on the call. The neighbour is hurt, not the caller, so No. Each patient has their own severity, apart from the incident’s: the house fire is Critical, the neighbour’s minor burns are Low.</span></li>
+        <li><span class="pin">7</span><span><b>Severity.</b> Criti chose Critical after reading the description, so it is marked <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span>. The call logger can change it. A Critical call is flagged <i>Priority 1</i> on the phone.</span></li>
+        <li><span class="pin">8</span><span><b>Triage.</b> Criti filled in 1 person hurt and P2 orange from the burns. The call logger checks them with the caller.</span></li>
+        <li><span class="pin">9</span><span><b>Fire and Medical,</b> suggested by Criti. Each department gets the call at its own desk, and each works its own part of it.</span></li>
+        <li><span class="pin">10</span><span><b>Send.</b> The call gets its number and appears in the Fire queue and the EMS queue at once.</span></li>
       </ol>
     </figure>
+    <div class="tip">
+      <h3>People trapped? Send it now</h3>
+      <p class="muted">A High or Critical call can go to dispatch as soon as it has a type, a place on the map and a department, before the caller’s details are in. The Police guide shows it under <i>An urgent call</i>.</p>
+    </div>
   </section>
 
   <!-- ── 3 Dispatch ─────────────────── -->
@@ -721,7 +792,7 @@ footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--l
           <div class="table-wrap">
             <table class="m-table">
               <thead><tr><th>Incident #</th><th>Severity</th><th>Type</th><th>Sent to <span class="pin">1</span></th><th>Location</th><th>Received</th><th></th></tr></thead>
-              <tbody><tr><td class="mono">INC-20261013-0007</td><td><span class="m-sev crit">Critical</span></td><td>Structure Fire</td><td><span class="m-chip warn">Fire &amp; Rescue · Waiting to dispatch</span> <span class="m-chip ok">EMS · Dispatched</span></td><td>📍 23 Sydney Road<small>Central</small></td><td>Just now</td><td><span class="m-btn small blue">Dispatch</span></td></tr></tbody>
+              <tbody><tr><td class="mono">FDMD-20261013-0951-0007</td><td><span class="m-sev crit">Critical</span></td><td>Structure Fire</td><td><span class="m-chip warn">Fire &amp; Rescue · Waiting to dispatch</span> <span class="m-chip ok">EMS · Dispatched</span></td><td>📍 23 Sydney Road<small>Central</small></td><td>Just now</td><td><span class="m-btn small blue">Dispatch</span></td></tr></tbody>
             </table>
           </div>
           <div class="m-card">
@@ -755,7 +826,7 @@ footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--l
             <div class="m-alert" style="border-color:#EF4444">
               <div class="m-alert-head" style="background:#EF4444">⚠<span><small>CRITICAL · FIRE &amp; RESCUE</small><b>New incident</b></span></div>
               <div class="m-alert-body">
-                <b>New incident INC-20261013-0007</b>
+                <b>New incident FDMD-20261013-0951-0007</b>
                 <span class="m-sub">📍 Structure Fire · 23 Sydney Road, Umbilo</span>
                 <span class="m-sub">📻 Dispatched by Fire Control</span>
                 <span class="m-btn">Accept incident</span><span class="m-btn ghost">Acknowledge</span><span class="m-btn ghost">Navigate</span>
@@ -787,7 +858,7 @@ footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--l
       <figure>
         <div class="phone"><div class="phone-top"><span>13:29</span><span>Incident</span></div>
           <div class="phone-body">
-            <div class="m-row between"><b class="mono">INC-20261013-0007</b><span class="m-sev crit">Critical</span></div>
+            <div class="m-row between"><b class="mono">FDMD-20261013-0951-0007</b><span class="m-sev crit">Critical</span></div>
             <p style="font-weight:700">Structure Fire</p>
             <span class="m-chip info">On Scene</span>
             <dl class="m-dl"><dt>Lead</dt><dd>You · On Scene</dd><dt>Backup</dt><dd>FF M. Mokoena (En Route)</dd></dl>
@@ -809,13 +880,13 @@ footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--l
     <div class="section-head">
       <p class="eyebrow">Step 6 · Firefighter · phone</p>
       <h2>The fire report</h2>
-      <p class="muted">The report is numbered from the call (FR-INC-20261013-0007). The times fill themselves in from the call; the firefighter writes what happened.</p>
+      <p class="muted">The report is numbered from the call (FR-FDMD-20261013-0951-0007). The times fill themselves in from the call; the firefighter writes what happened.</p>
     </div>
     <div class="flow">
       <figure>
         <div class="phone"><div class="phone-top"><span>14:30</span><span>Fire report</span></div>
           <div class="phone-body">
-            <dl class="m-dl"><dt>Report number</dt><dd>FR-INC-20261013-0007</dd></dl>
+            <dl class="m-dl"><dt>Report number</dt><dd>FR-FDMD-20261013-0951-0007</dd></dl>
             <p class="m-label"><span class="pin">1</span> Response timeline</p>
             <dl class="m-dl"><dt>Dispatched</dt><dd>13:21</dd><dt>Responding</dt><dd>13:22</dd><dt>Arrived on scene</dt><dd>13:29</dd><dt>Total time on scene</dt><dd>1 h 1 min</dd></dl>
             <p class="m-label"><span class="pin">2</span> Incident details</p>
@@ -853,7 +924,7 @@ footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--l
       <p class="muted">One call, one number, one page. Each department works its own part.</p>
     </div>
     <figure class="exhibit">
-      <figcaption><span class="tag">Departments on this call</span><span class="where">/incidents/INC-20261013-0007</span><span class="example">Example data</span></figcaption>
+      <figcaption><span class="tag">Departments on this call</span><span class="where">/incidents/FDMD-20261013-0951-0007</span><span class="example">Example data</span></figcaption>
       <div class="screen" style="max-width:46rem">
         <div class="screen-body">
           <p style="font-weight:700">Departments on this call</p>

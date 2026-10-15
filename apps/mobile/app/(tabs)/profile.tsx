@@ -15,15 +15,19 @@ import { useDept } from '@/lib/branding';
 import { useRouteStatus } from '@/lib/tracker';
 import { errorWords } from '@/lib/offline-cache-policy';
 import { roleName } from '@criticom/db';
-import { departmentOf, wordsFor } from '@/lib/department';
+import { tx } from '@criticom/db/i18n';
+import { departmentOf, wordsIn } from '@/lib/department';
 import { DeptBadge } from '@/components/dept-badge';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/components/ui';
 import { MyIncidents } from '@/components/my-incidents';
 import { MyShiftsCard } from '@/components/my-shifts-card';
 import { MyPerformance } from '@/components/my-performance';
+import { CritiHead } from '@/components/criti-head';
 import { FinesCard } from '@/components/fines-card';
 import { OrgMark } from '@/components/org-mark';
+import { LanguagePicker } from '@/components/language-picker';
+import { useT } from '@/lib/i18n';
 
 /**
  * Push status in plain words. A supervisor checking a handset before a shift
@@ -33,32 +37,33 @@ import { OrgMark } from '@/components/org-mark';
  */
 const PUSH_COPY: Record<PushStatus, { heading: string; detail: string }> = {
   checking: {
-    heading: 'Checking push…',
-    detail: 'Registering this handset for dispatch notifications.',
+    heading: tx('Checking push…'),
+    detail: tx('Registering this handset for dispatch notifications.'),
   },
   enabled: {
-    heading: 'Push enabled',
-    detail: 'Incidents routed to your department reach this phone even when the screen is locked. High and Critical incidents open a full-screen alert you must acknowledge.',
+    heading: tx('Push enabled'),
+    detail: tx('Incidents routed to your department reach this phone even when the screen is locked. High and Critical incidents open a full-screen alert you must acknowledge.'),
   },
   denied: {
-    heading: 'Notifications blocked',
-    detail: 'This phone will not ring for a dispatch. Turn notifications on for HikTech in the device settings. Alerts still arrive instantly while the app is open.',
+    heading: tx('Notifications blocked'),
+    detail: tx('This phone will not ring for a dispatch. Turn notifications on for HikTech in the device settings. Alerts still arrive instantly while the app is open.'),
   },
   unsupported: {
-    heading: 'Push not in this build',
-    detail: 'This build has no push service configured, so alerts arrive only while the app is open. Report it to your system administrator before carrying this handset on shift.',
+    heading: tx('Push not in this build'),
+    detail: tx('This build has no push service configured, so alerts arrive only while the app is open. Report it to your system administrator before carrying this handset on shift.'),
   },
   simulator: {
-    heading: 'Push unavailable on this device',
-    detail: 'Emulators and simulators cannot register for push. Alerts still arrive while the app is open.',
+    heading: tx('Push unavailable on this device'),
+    detail: tx('Emulators and simulators cannot register for push. Alerts still arrive while the app is open.'),
   },
   error: {
-    heading: 'Push registration failed',
-    detail: 'This phone could not be registered for dispatch notifications. Alerts still arrive while the app is open — report this so the handset can be checked.',
+    heading: tx('Push registration failed'),
+    detail: tx('This phone could not be registered for dispatch notifications. Alerts still arrive while the app is open — report this so the handset can be checked.'),
   },
 };
 
 export default function ProfileScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { session, fullName, role, silo } = useAuth();
@@ -68,7 +73,7 @@ export default function ProfileScreen() {
   const route = useRouteStatus();
   const { enabled: featureOn } = useFeatures();
   const dept = useDept();
-  const words = wordsFor(silo);
+  const words = wordsIn(silo, t);
   const police = departmentOf(silo) === 'police';
   const { refresh: refreshOpenCall } = useOpenCall();
   const [onDuty, setOnDuty] = useState(false);
@@ -104,18 +109,18 @@ export default function ProfileScreen() {
     const open = await refreshOpenCall();
     if (!open) return false;
     Alert.alert(
-      `You are on ${open.incident_number}`,
-      `File its ${words.report} before you ${action}.`,
+      t('You are on {incident_number}', { incident_number: open.incident_number }),
+      t('File its {report} before you {action}.', { report: words.report, action }),
       [
-        { text: 'OK', style: 'cancel' },
-        { text: 'Open incident', onPress: () => router.push(`/incident/${open.id}`) },
+        { text: t('OK'), style: 'cancel' },
+        { text: t('Open incident'), onPress: () => router.push(`/incident/${open.id}`) },
       ],
     );
     return true;
   };
 
   const flipDuty = async (value: boolean) => {
-    if (!value && (await stillOnCall('go off duty'))) return;
+    if (!value && (await stillOnCall(t('go off duty')))) return;
     setOnDuty(value);
     setError(null);
     try {
@@ -127,19 +132,19 @@ export default function ProfileScreen() {
   };
 
   const confirmSignOut = async () => {
-    if (await stillOnCall('sign out')) return;
+    if (await stillOnCall(t('sign out'))) return;
     // A firearm still booked out is handed back before the officer leaves: the
     // end of shift does that. Signing out anyway tells command (0051). Only
     // police draw firearms.
     const kit = police ? await getMyShiftKit(getSupabase()).catch(() => null) : null;
     if (kit?.firearm) {
       Alert.alert(
-        'Firearm still booked out',
-        `${kit.firearm.make} ${kit.firearm.model} (${kit.firearm.serial_number}) is booked out to you. Hand it back with End shift before you sign out.`,
+        t('Firearm still booked out'),
+        t('{make} {model} ({serial_number}) is booked out to you. Hand it back with End shift before you sign out.', { make: kit.firearm.make, model: kit.firearm.model, serial_number: kit.firearm.serial_number }),
         [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'End shift', onPress: () => router.push('/end-shift') },
-          { text: 'Sign out anyway', style: 'destructive', onPress: () => void signOut() },
+          { text: t('Cancel'), style: 'cancel' },
+          { text: t('End shift'), onPress: () => router.push('/end-shift') },
+          { text: t('Sign out anyway'), style: 'destructive', onPress: () => void signOut() },
         ],
       );
       return;
@@ -150,19 +155,19 @@ export default function ProfileScreen() {
     // it will sit until this officer signs in again. Say so plainly rather than
     // letting them find out at the inquiry.
     const warning = undelivered > 0
-      ? `\n\n${undelivered} update${undelivered === 1 ? '' : 's'} ${undelivered === 1 ? 'has' : 'have'} not reached the server yet. ${
+      ? `\n\n${undelivered === 1 ? t('1 update has not reached the server yet.') : t('{n} updates have not reached the server yet.', { n: undelivered })} ${
           online
-            ? 'Give it a moment and check the sync tray before signing out.'
-            : 'It stays on this phone under your account and sends the next time you sign in with signal.'
+            ? t('Give it a moment and check the sync tray before signing out.')
+            : t('It stays on this phone under your account and sends the next time you sign in with signal.')
         }`
       : '';
 
     Alert.alert(
-      'Sign out?',
-      `${words.unit ? `Your ${words.unit} will be released and your duty status cleared.` : 'Your duty status will be cleared.'}${warning}`,
+      t('Sign out?'),
+      `${words.unit ? t('Your {unit} will be released and your duty status cleared.', { unit: words.unit }) : t('Your duty status will be cleared.')}${warning}`,
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign out', style: 'destructive', onPress: () => void signOut() },
+        { text: t('Cancel'), style: 'cancel' },
+        { text: t('Sign out'), style: 'destructive', onPress: () => void signOut() },
       ],
     );
   };
@@ -184,30 +189,30 @@ export default function ProfileScreen() {
         </View>
         <Muted style={{ marginTop: space.sm }}>{dept.official_name}</Muted>
         <View style={{ marginTop: space.md }}>
-          <KeyValue label="Assigned unit" value={unit ?? 'None'} />
-          <KeyValue label="Account" value={session?.user.email ?? '—'} />
+          <KeyValue label={t('Assigned unit')} value={unit ?? 'None'} />
+          <KeyValue label={t('Account')} value={session?.user.email ?? '—'} />
         </View>
       </Card>
 
       {/* Duty */}
-      <SectionLabel>Duty status</SectionLabel>
+      <SectionLabel>{t('Duty status')}</SectionLabel>
       <Card accent={onDuty ? colors.low : colors.border}>
         <View style={styles.rowBetween}>
           <View style={{ flex: 1, paddingRight: space.md }}>
             <View style={styles.dutyHeading}>
               <View style={[styles.dutyDot, { backgroundColor: onDuty ? colors.low : colors.muted }]} />
-              <Title>{onDuty ? 'On duty' : 'Off duty'}</Title>
+              <Title>{onDuty ? t('On duty') : t('Off duty')}</Title>
             </View>
             <Muted>
               {!onDuty
-                ? 'Going on duty shares your route with dispatch.'
+                ? t('Going on duty shares your route with dispatch.')
                 : route.mode === 'denied'
-                  ? 'Location is off. Dispatch cannot see where you are.'
+                  ? t('Location is off. Dispatch cannot see where you are.')
                   : route.waiting > 0 && !online
-                    ? 'No signal. Your route is kept on this phone and sends when signal returns.'
+                    ? t('No signal. Your route is kept on this phone and sends when signal returns.')
                     : route.lastFixAt
-                      ? `Last position ${new Date(route.lastFixAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}`
-                      : 'Finding your position…'}
+                      ? t('Last position {time}', { time: new Date(route.lastFixAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' }) })
+                      : t('Finding your position…')}
             </Muted>
           </View>
           <Switch
@@ -215,36 +220,36 @@ export default function ProfileScreen() {
             onValueChange={(v) => void flipDuty(v)}
             trackColor={{ true: colors.low, false: colors.borderStrong }}
             thumbColor="#fff"
-            accessibilityLabel="Toggle duty status"
+            accessibilityLabel={t('Toggle duty status')}
           />
         </View>
         {onDuty && route.mode !== 'denied' ? (
           <View style={styles.gpsNote}>
             <Ionicons name="navigate" size={13} color={colors.low} />
             <Text style={styles.gpsText}>
-              {route.mode === 'foreground' ? 'Dispatch sees your route while the app is open' : 'Dispatch sees your route'}
+              {route.mode === 'foreground' ? t('Dispatch sees your route while the app is open') : t('Dispatch sees your route')}
             </Text>
           </View>
         ) : null}
         {error ? <View style={{ marginTop: space.md }}><Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner></View> : null}
         <View style={styles.endShift}>
-          <Button label="End shift" icon="moon-outline" variant="subtle" onPress={() => router.push('/end-shift')} />
+          <Button label={t('End shift')} icon="moon-outline" variant="subtle" onPress={() => router.push('/end-shift')} />
           <Muted style={{ marginTop: space.xs }}>
-            {police ? 'Hand back your firearm and vehicle, then go off duty.'
-              : words.unit ? `Hand back your ${words.unit}, then go off duty.` : 'End your shift and go off duty.'}
+            {police ? t('Hand back your firearm and vehicle, then go off duty.')
+              : words.unit ? t('Hand back your {unit}, then go off duty.', { unit: words.unit }) : t('End your shift and go off duty.')}
           </Muted>
         </View>
       </Card>
 
       {/* Alerts */}
       {/* My work — each card opens its own page; performance and fines live here, not on Home */}
-      <SectionLabel>My work</SectionLabel>
+      <SectionLabel>{t('My work')}</SectionLabel>
       <MyShiftsCard />
       <MyIncidents />
       <MyPerformance />
       <FinesCard />
 
-      <SectionLabel>Dispatch alerts</SectionLabel>
+      <SectionLabel>{t('Dispatch alerts')}</SectionLabel>
       <Card accent={pushEnabled ? colors.accent : colors.medium}>
         <View style={styles.rowBetween}>
           <View style={{ flex: 1, paddingRight: space.md }}>
@@ -254,15 +259,15 @@ export default function ProfileScreen() {
                 size={17}
                 color={pushEnabled ? colors.accent : colors.medium}
               />
-              <Title>{PUSH_COPY[pushStatus].heading}</Title>
+              <Title>{t(PUSH_COPY[pushStatus].heading)}</Title>
             </View>
-            <Muted>{PUSH_COPY[pushStatus].detail}</Muted>
+            <Muted>{t(PUSH_COPY[pushStatus].detail)}</Muted>
           </View>
         </View>
       </Card>
 
       {/* Sync */}
-      <SectionLabel>Delivery</SectionLabel>
+      <SectionLabel>{t('Delivery')}</SectionLabel>
       <Card accent={failed.length > 0 ? colors.critical : online ? colors.low : colors.medium}>
         <View style={styles.dutyHeading}>
           <Ionicons
@@ -272,30 +277,30 @@ export default function ProfileScreen() {
           />
           <Title>
             {failed.length > 0
-              ? `${failed.length} not sent`
+              ? t('{length} not sent', { length: failed.length })
               : pending.length > 0
-                ? `${pending.length} waiting to send`
-                : online ? 'Everything delivered' : 'Offline'}
+                ? t('{length} waiting to send', { length: pending.length })
+                : online ? t('Everything delivered') : t('Offline')}
           </Title>
         </View>
         <Muted>
           {failed.length > 0
-            ? 'Some updates could not be delivered. Open the sync tray at the bottom of the screen to retry or review them.'
+            ? t('Some updates could not be delivered. Open the sync tray at the bottom of the screen to retry or review them.')
             : pending.length > 0
-              ? 'Updates you captured are stored on this phone and send themselves as soon as there is signal.'
+              ? t('Updates you captured are stored on this phone and send themselves as soon as there is signal.')
               : online
-                ? `Status changes, notes and ${words.media} are reaching the server as you capture them.`
-                : 'Anything you capture is stored on this phone and sends itself when signal returns.'}
+                ? t('Status changes, notes and {media} are reaching the server as you capture them.', { media: words.media })
+                : t('Anything you capture is stored on this phone and sends itself when signal returns.')}
         </Muted>
       </Card>
 
       {/* Self-service */}
-      <SectionLabel>Self-service</SectionLabel>
+      <SectionLabel>{t('Self-service')}</SectionLabel>
       <Card>
         <View style={{ gap: space.sm }}>
           {featureOn('mobile.leave') ? (
             <Button
-              label="Apply for leave"
+              label={t('Apply for leave')}
               icon="calendar-outline"
               variant="subtle"
               onPress={() => router.push('/leave')}
@@ -303,8 +308,8 @@ export default function ProfileScreen() {
           ) : null}
           {featureOn('mobile.assistant') ? (
             <Button
-              label="Ask Criti"
-              icon="sparkles-outline"
+              label={t('Ask Criti')}
+              iconNode={<CritiHead size={18} />}
               variant="subtle"
               onPress={() => router.push('/assistant')}
             />
@@ -312,23 +317,29 @@ export default function ProfileScreen() {
         </View>
       </Card>
 
+      {/* Language */}
+      <SectionLabel>{t('Language')}</SectionLabel>
+      <Card>
+        <LanguagePicker />
+      </Card>
+
       {/* Account */}
-      <SectionLabel>Account</SectionLabel>
+      <SectionLabel>{t('Account')}</SectionLabel>
       <Card>
         <Muted>
           {police
-            ? 'Signing out frees your vehicle and clears duty status. At the end of a shift, use End shift first so your firearm is handed back.'
+            ? t('Signing out frees your vehicle and clears duty status. At the end of a shift, use End shift first so your firearm is handed back.')
             : words.unit
-              ? `Signing out frees your ${words.unit} and clears duty status. At the end of a shift, use End shift first.`
-              : 'Signing out clears your duty status. At the end of a shift, use End shift first.'}
+              ? t('Signing out frees your {unit} and clears duty status. At the end of a shift, use End shift first.', { unit: words.unit })
+              : t('Signing out clears your duty status. At the end of a shift, use End shift first.')}
         </Muted>
         <View style={{ marginTop: space.md }}>
-          <Button label="Sign out" icon="log-out-outline" variant="danger" onPress={() => void confirmSignOut()} />
+          <Button label={t('Sign out')} icon="log-out-outline" variant="danger" onPress={() => void confirmSignOut()} />
         </View>
       </Card>
 
       <OrgMark align="center" size={26} style={{ marginTop: space.xl }} />
-      <Text style={styles.version}>HikTech Responder · {dept.official_name}</Text>
+      <Text style={styles.version}>{t('HikTech Responder · {official_name}', { official_name: dept.official_name })}</Text>
     </ScrollView>
   );
 }

@@ -1,4 +1,5 @@
 import type { Ionicons } from '@expo/vector-icons';
+import { tx } from '@criticom/db/i18n';
 import type { Silo } from '@criticom/db/types';
 
 /**
@@ -19,7 +20,7 @@ export type AppModule = {
   title: string;
   /** One line under the title on the Home card — what the crew does with it. */
   blurb: string;
-  icon: IconName;
+  icon?: IconName;
   href: string;
   /** Feature flag that must be on; undefined = always available. */
   feature?: string;
@@ -32,37 +33,37 @@ export type AppModule = {
 export const MODULES: AppModule[] = [
   {
     key: 'incidents',
-    title: 'My Incidents',
-    blurb: 'Your incidents, live. Respond and advance status as things happen.',
+    title: tx('My Incidents'),
+    blurb: tx('Your incidents, live. Respond and advance status as things happen.'),
     icon: 'radio-outline',
     href: '/(tabs)/incidents',
   },
   {
     key: 'alerts',
-    title: 'Alerts',
-    blurb: 'Everything that came in while you were busy, with what still needs your acknowledgement.',
+    title: tx('Alerts'),
+    blurb: tx('Everything that came in while you were busy, with what still needs your acknowledgement.'),
     icon: 'notifications-outline',
     href: '/alerts',
     feature: 'mobile.alerts_inbox',
   },
   {
     key: 'schedule',
-    title: 'My Schedule',
-    blurb: 'Current duty, next duty, allocations, balances and endorsements.',
+    title: tx('My Schedule'),
+    blurb: tx('Current duty, next duty, allocations, balances and endorsements.'),
     icon: 'calendar-outline',
     href: '/(tabs)/schedule',
   },
   {
     key: 'shift',
-    title: 'Start of Shift',
-    blurb: 'Mental readiness, vehicle selection and inspection — the gate to responding to incidents.',
+    title: tx('Start of Shift'),
+    blurb: tx('Mental readiness, vehicle selection and inspection — the gate to responding to incidents.'),
     icon: 'clipboard-outline',
     href: '/(tabs)/shift',
   },
   {
     key: 'leave',
-    title: 'Leave',
-    blurb: 'Apply from the field; balances shown before the form.',
+    title: tx('Leave'),
+    blurb: tx('Apply from the field; balances shown before the form.'),
     icon: 'airplane-outline',
     href: '/leave',
     feature: 'mobile.leave',
@@ -70,8 +71,8 @@ export const MODULES: AppModule[] = [
   },
   {
     key: 'firearm',
-    title: 'Firearm Check',
-    blurb: 'The armoury checklist — issue, return or inspect, safety items first.',
+    title: tx('Firearm Check'),
+    blurb: tx('The armoury checklist — issue, return or inspect, safety items first.'),
     icon: 'shield-checkmark-outline',
     href: '/firearm-check',
     feature: 'mobile.firearm_check',
@@ -80,8 +81,8 @@ export const MODULES: AppModule[] = [
   },
   {
     key: 'fines',
-    title: 'Fines',
-    blurb: 'Issue an AARTO 01 or by-law notice at the roadside and print the slip — works with no signal.',
+    title: tx('Fines'),
+    blurb: tx('Issue an AARTO 01 or by-law notice at the roadside and print the slip — works with no signal.'),
     icon: 'receipt-outline',
     href: '/fines',
     feature: 'mobile.fines',
@@ -91,8 +92,7 @@ export const MODULES: AppModule[] = [
   {
     key: 'assistant',
     title: 'Criti',
-    blurb: 'Ask about your incidents, your crew, your shift — scoped to what you can already see.',
-    icon: 'sparkles-outline',
+    blurb: tx('Ask about your incidents, your crew, your shift — scoped to what you can already see.'),
     href: '/assistant',
     feature: 'mobile.assistant',
     tone: 'accent',

@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import {
   DEPARTMENT_LABELS, departmentsOf, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates,
-  getReportForm, getReportType, listAuditLogs, listIncidentAttachments, listIncidentResponders, reportReadout,
+  getReportForm, getReportType, listAuditLogs, listIncidentAttachments, listIncidentEdits, listIncidentResponders, reportReadout,
 } from '@criticom/api';
 import { pcrReadout } from '@criticom/db/pcr';
+import { callChannelText, patientText, readPatients } from '@criticom/db/call-facts';
 import { defaultsFrom } from '@/lib/pcr-record';
-import { caseStage } from '@criticom/db';
+import { asLogged, caseStage, catalogueType, detailLines, dispatchEditors, editKindName, editLines, sapsCategories } from '@criticom/db';
 import { getServerSupabase } from '@/lib/supabase';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { ReportPdf } from '@/lib/pdf';
@@ -35,7 +36,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  const [updates, attachments, audit, report, fireReport, responders, pcr, postMortem] = await Promise.all([
+  const [updates, attachments, audit, report, fireReport, responders, pcr, postMortem, edits] = await Promise.all([
     getIncidentUpdates(supabase, id),
     listIncidentAttachments(supabase, id),
     // Console actions audit as 'incident', database functions as 'incidents':
@@ -46,6 +47,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     listIncidentResponders(supabase, id).catch(() => []),
     getPcrForIncident(supabase, id).catch(() => null),
     getPostMortemForIncident(supabase, id).catch(() => null),
+    // Each change since the call was logged, before and after (0079).
+    listIncidentEdits(supabase, id),
   ]);
 
   const stage = caseStage(incident.status);
@@ -64,14 +67,43 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   pdf.field('Caller', `${incident.caller_name} (${incident.caller_number})`);
   pdf.field('Received', sa(incident.call_timestamp));
   pdf.field('Taken by', incident.call_taken_by);
+  pdf.field('How the call came in', callChannelText(incident.call_channel, incident.call_channel_other));
   pdf.field('Category', [incident.incident_category, incident.incident_type].filter(Boolean).join(' · '));
+  // The type's code and SAPS category, and the details the call taker filled in (0077).
+  pdf.field('Incident code', incident.incident_code ?? null);
+  pdf.field('SAPS category', sapsCategories(incident.incident_type, incident.details ?? {}).join(' or ') || null);
+  pdf.field('Injuries', incident.injuries?.length ? incident.injuries.join(', ') : null);
+  for (const line of detailLines(incident.details ?? {}, catalogueType(incident.incident_type)?.details ?? [])) {
+    pdf.field(line.label, line.value);
+  }
   pdf.field('Location', incident.location_address);
   pdf.field('Suburb / city', [incident.suburb, incident.city].filter(Boolean).join(', '));
   pdf.field('Region', incident.region);
   pdf.field('Coordinates', `${incident.location_lat}, ${incident.location_lng}`);
   pdf.field('Victims', incident.number_of_victims);
+  // Each patient's own severity, apart from the incident's (0080).
+  readPatients(incident.patients).forEach((p, i) => pdf.field(`Patient ${i + 1}`, patientText(p)));
   pdf.paragraph('Description', incident.call_description);
   pdf.paragraph('Notes', incident.notes);
+
+  // Who logged the call and who changed it before dispatch, with both versions (0079).
+  // The call details above are the call as it stands; here is what it said before.
+  if (edits.length) {
+    const editors = dispatchEditors(edits);
+    pdf.section('Changes since it was logged');
+    pdf.field('Logged by', incident.call_taken_by ?? 'the call taker');
+    pdf.field('Edited before dispatch by', editors.length ? editors.join(', ') : 'No one');
+    pdf.subheading('As logged');
+    for (const line of asLogged(edits)) pdf.field(line.label, line.value);
+    for (const e of edits) {
+      pdf.subheading(`${editKindName(e.kind)} · ${e.edited_by_name ?? 'Unknown'}${e.edited_by_role ? ` (${e.edited_by_role})` : ''} · ${sa(e.edited_at)}`);
+      pdf.field('Why', e.reason);
+      for (const line of editLines(e.changes)) {
+        pdf.field(`${line.label}: before`, line.before);
+        pdf.field(`${line.label}: after`, line.after);
+      }
+    }
+  }
 
   pdf.section('Dispatch and response');
   pdf.field('Dispatched', sa(incident.dispatch_time));

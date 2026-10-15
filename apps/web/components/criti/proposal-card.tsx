@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, Check, ClipboardList, Loader2, Sparkles, X } from 'lucide-react';
+import { AlertTriangle, Check, ClipboardList, Loader2, X } from 'lucide-react';
 import type { ProposalView } from '@criticom/api';
 import { cn } from '@/lib/utils';
+import { CritiMascot } from './mascot';
 import { runProposal, saveCallDraft } from './shared';
 
 export type CardState = 'open' | 'working' | 'done' | 'cancelled' | 'failed';
@@ -76,7 +77,7 @@ export function ProposalCard({
     >
       <p className="flex items-start gap-2 font-semibold">
         {state === 'done' ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-severity-low-ink" />
-          : <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-accent" />}
+          : <CritiMascot className="mt-0.5 h-4 w-4" />}
         <span className="min-w-0 break-words">{view.title}</span>
       </p>
 

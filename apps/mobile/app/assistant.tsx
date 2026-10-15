@@ -3,10 +3,12 @@ import {
   ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView,
   StyleSheet, Text, View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { callApi } from '@/lib/api-host';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, EmptyState, Input, Muted } from '@/components/ui';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
+import { CritiHead } from '@/components/criti-head';
 
 /**
  * Criti on the phone.
@@ -21,13 +23,14 @@ import { Banner, Button, EmptyState, Input, Muted } from '@/components/ui';
 type Message = { role: 'user' | 'assistant'; text: string };
 
 const SUGGESTIONS = [
-  'What are my open incidents?',
-  'Who else is on duty in my department?',
-  'What is the status of the last incident I attended?',
-  'When is my next shift?',
+  tx('What are my open incidents?'),
+  tx('Who else is on duty in my department?'),
+  tx('What is the status of the last incident I attended?'),
+  tx('When is my next shift?'),
 ];
 
 export default function AssistantScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -80,13 +83,13 @@ export default function AssistantScreen() {
 
         {messages.length === 0 ? (
           <EmptyState
-            icon="sparkles-outline"
-            title="Ask Criti"
-            body="Criti can see the same board you can — your incidents, your crew, your shift. It cannot see another department's records."
+            iconNode={<CritiHead size={30} />}
+            title={t('Ask Criti')}
+            body={t('Criti can see the same board you can — your incidents, your crew, your shift. It cannot see another department\'s records.')}
             action={
               <View style={{ gap: space.sm }}>
                 {SUGGESTIONS.map((s) => (
-                  <Button key={s} label={s} variant="subtle" size="sm" onPress={() => void send(s)} />
+                  <Button key={s} label={t(s)} variant="subtle" size="sm" onPress={() => void send(t(s))} />
                 ))}
               </View>
             }
@@ -100,8 +103,8 @@ export default function AssistantScreen() {
           >
             {m.role === 'assistant' ? (
               <View style={styles.botHead}>
-                <Ionicons name="sparkles" size={12} color={colors.accent} />
-                <Text style={styles.botName}>CRITI</Text>
+                <CritiHead size={16} />
+                <Text style={styles.botName}>{t('CRITI')}</Text>
               </View>
             ) : null}
             <Text style={m.role === 'user' ? styles.userText : styles.botText}>{m.text}</Text>
@@ -111,7 +114,7 @@ export default function AssistantScreen() {
         {busy ? (
           <View style={[styles.bubble, styles.bubbleBot, styles.thinking]}>
             <ActivityIndicator size="small" color={colors.accent} />
-            <Muted>Reading the board…</Muted>
+            <Muted>{t('Reading the board…')}</Muted>
           </View>
         ) : null}
       </ScrollView>
@@ -119,7 +122,7 @@ export default function AssistantScreen() {
       <View style={styles.composer}>
         <View style={{ flex: 1 }}>
           <Input
-            placeholder="Ask about your incidents, crew or shift…"
+            placeholder={t('Ask about your incidents, crew or shift…')}
             value={input}
             onChangeText={setInput}
             onSubmitEditing={() => void send(input)}
@@ -128,7 +131,7 @@ export default function AssistantScreen() {
           />
         </View>
         <Button
-          label="Send"
+          label={t('Send')}
           icon="send"
           busy={busy}
           disabled={!input.trim()}

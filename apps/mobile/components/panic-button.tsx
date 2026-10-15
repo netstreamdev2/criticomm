@@ -14,6 +14,7 @@ import { useSync } from '@/lib/sync';
 import { useFeature } from '@/lib/features';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { useTabBarHeight } from '@/components/tab-bar';
+import { useT } from '@/lib/i18n';
 
 /**
  * Officer-down.
@@ -57,6 +58,7 @@ const HOLD_MS = 2500;
 const GPS_TIMEOUT_MS = 4000;
 
 export function PanicButton() {
+  const { t } = useT();
   const styles = useStyles();
   const tabBar = useTabBarHeight();
   const panicOn = useFeature('mobile.panic');
@@ -83,7 +85,7 @@ export function PanicButton() {
   }, [pulse]);
 
   const clearNudges = () => {
-    for (const t of nudges.current) clearTimeout(t);
+    for (const item of nudges.current) clearTimeout(item);
     nudges.current = [];
   };
 
@@ -217,8 +219,8 @@ export function PanicButton() {
         onPressIn={startHold}
         onPressOut={cancelHold}
         accessibilityRole="button"
-        accessibilityLabel="Emergency — hold to call for assistance"
-        accessibilityHint="Press and hold for two and a half seconds to alert your department and the control room"
+        accessibilityLabel={t('Emergency — hold to call for assistance')}
+        accessibilityHint={t('Press and hold for two and a half seconds to alert your department and the control room')}
         style={[styles.anchor, { bottom: tabBar + space.lg }]}
       >
         <Animated.View
@@ -241,7 +243,7 @@ export function PanicButton() {
             ]}
           />
           <Ionicons name="warning" size={20} color="#fff" />
-          <Text style={styles.buttonText}>{holding ? 'HOLD…' : 'SOS'}</Text>
+          <Text style={styles.buttonText}>{holding ? t('HOLD…') : t('SOS')}</Text>
         </Animated.View>
       </Pressable>
 
@@ -254,25 +256,27 @@ export function PanicButton() {
                 : <Ionicons name={delivery === 'delivered' ? 'checkmark' : delivery === 'offline' ? 'cloud-offline' : 'megaphone'} size={26} color="#fff" />}
             </View>
             <Text style={styles.cardTitle}>
-              {delivery === 'sending' ? 'Sending SOS…'
-                : delivery === 'delivered' ? 'SOS delivered'
-                  : delivery === 'offline' ? 'No signal — SOS saved'
-                    : 'SOS could not be sent'}
+              {delivery === 'sending' ? t('Sending SOS…')
+                : delivery === 'delivered' ? t('SOS delivered')
+                  : delivery === 'offline' ? t('No signal — SOS saved')
+                    : t('SOS could not be sent')}
             </Text>
             <Text style={styles.cardBody}>
-              {delivery === 'sending' ? 'Reaching dispatch now.'
+              {delivery === 'sending' ? t('Reaching dispatch now.')
                 : delivery === 'delivered'
-                  ? `Dispatch and command have been alerted${incidentNumber ? ` (${incidentNumber})` : ''} and will send help. Stay on the radio.`
+                  ? incidentNumber
+                    ? t('Dispatch and command have been alerted ({number}) and will send help. Stay on the radio.', { number: incidentNumber })
+                    : t('Dispatch and command have been alerted and will send help. Stay on the radio.')
                   : delivery === 'offline'
-                    ? 'It is held on this phone and sends automatically, ahead of everything else, the moment you have signal. Do not wait — SMS or call the control room now.'
-                    : 'The server refused it. SMS or call the control room now.'}
+                    ? t('It is held on this phone and sends automatically, ahead of everything else, the moment you have signal. Do not wait — SMS or call the control room now.')
+                    : t('The server refused it. SMS or call the control room now.')}
             </Text>
             <View style={styles.fixRow}>
               <Ionicons name="location" size={13} color={sent?.fix === 'none' ? colors.medium : colors.textDim} />
               <Text style={[styles.fixText, sent?.fix === 'none' && { color: colors.medium }]}>
-                {sent?.fix === 'live' ? `Live GPS position${sent.coords?.accuracy ? ` (±${Math.round(sent.coords.accuracy)}m)` : ''}`
-                  : sent?.fix === 'last' ? 'Last known GPS position sent — say where you are on the radio'
-                    : 'No position — say where you are on the radio'}
+                {sent?.fix === 'live' ? (sent.coords?.accuracy ? t('Live GPS position (±{m}m)', { m: Math.round(sent.coords.accuracy) }) : t('Live GPS position'))
+                  : sent?.fix === 'last' ? t('Last known GPS position sent — say where you are on the radio')
+                    : t('No position — say where you are on the radio')}
               </Text>
             </View>
             {delivery !== 'delivered' ? (
@@ -283,7 +287,7 @@ export function PanicButton() {
                   style={({ pressed }) => [styles.fallback, styles.fallbackPrimary, pressed && { opacity: 0.85 }]}
                 >
                   <Ionicons name="chatbox-ellipses" size={18} color="#fff" />
-                  <Text style={styles.fallbackText}>Send SOS by SMS</Text>
+                  <Text style={styles.fallbackText}>{t('Send SOS by SMS')}</Text>
                 </Pressable>
                 {CONTROL_ROOM ? (
                   <Pressable
@@ -292,7 +296,7 @@ export function PanicButton() {
                     style={({ pressed }) => [styles.fallback, pressed && { opacity: 0.85 }]}
                   >
                     <Ionicons name="call" size={18} color={colors.text} />
-                    <Text style={[styles.fallbackText, { color: colors.text }]}>Call control room</Text>
+                    <Text style={[styles.fallbackText, { color: colors.text }]}>{t('Call control room')}</Text>
                   </Pressable>
                 ) : null}
               </View>
@@ -302,7 +306,7 @@ export function PanicButton() {
               accessibilityRole="button"
               style={({ pressed }) => [styles.cardButton, pressed && { opacity: 0.8 }]}
             >
-              <Text style={styles.cardButtonText}>Close</Text>
+              <Text style={styles.cardButtonText}>{t('Close')}</Text>
             </Pressable>
           </View>
         </View>

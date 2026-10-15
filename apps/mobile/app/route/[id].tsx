@@ -12,6 +12,7 @@ import { openDirections } from '@/lib/navigate';
 import { formatDistance } from '@/lib/incident-search';
 import { colors, radius, severityColor, space, type, makeStyles, useTheme } from '@/lib/theme';
 import { Button } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 type Point = { lat: number; lng: number };
@@ -151,6 +152,7 @@ const HTML = `<!doctype html><html><head>
  * hands off to the phone's own map app.
  */
 export default function RouteScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const { mode } = useTheme();
   const insets = useSafeAreaInsets();
@@ -238,7 +240,7 @@ export default function RouteScreen() {
 
   return (
     <View style={styles.screen}>
-      <Stack.Screen options={{ title: incident?.incident_number ?? 'Route' }} />
+      <Stack.Screen options={{ title: incident?.incident_number ?? t('Route') }} />
       {scene ? (
         <WebView
           ref={web}
@@ -258,15 +260,15 @@ export default function RouteScreen() {
         <View style={styles.overlay}><ActivityIndicator color={colors.accent} /></View>
       ) : loadError || (incident && !scene) ? (
         <View style={styles.overlay}>
-          <Text style={styles.overlayText}>{loadError ?? 'No map pin was recorded for this incident.'}</Text>
+          <Text style={styles.overlayText}>{loadError ?? t('No map pin was recorded for this incident.')}</Text>
           {incident?.location_address ? (
             <View style={{ marginTop: space.lg, alignSelf: 'stretch' }}>
-              <Button label="Search the address in Maps" icon="navigate" onPress={() => { openDirections(incident); }} />
+              <Button label={t('Search the address in Maps')} icon="navigate" onPress={() => { openDirections(incident); }} />
             </View>
           ) : null}
         </View>
       ) : mapFailed ? (
-        <View style={styles.overlay}><Text style={styles.overlayText}>The map could not load. Check your connection.</Text></View>
+        <View style={styles.overlay}><Text style={styles.overlayText}>{t('The map could not load. Check your connection.')}</Text></View>
       ) : null}
 
       {scene ? (
@@ -275,7 +277,7 @@ export default function RouteScreen() {
             onPress={() => { setFollowing(true); run('window.__map.follow();'); }}
             style={[styles.roundBtn, following && { borderColor: colors.accent }]}
             accessibilityRole="button"
-            accessibilityLabel="Follow my position"
+            accessibilityLabel={t('Follow my position')}
           >
             <Ionicons name="locate" size={20} color={following ? colors.accent : colors.text} />
           </Pressable>
@@ -283,7 +285,7 @@ export default function RouteScreen() {
             onPress={() => { setFollowing(false); run('window.__map.frame();'); }}
             style={styles.roundBtn}
             accessibilityRole="button"
-            accessibilityLabel="Show the whole route"
+            accessibilityLabel={t('Show the whole route')}
           >
             <Ionicons name="scan-outline" size={20} color={colors.text} />
           </Pressable>
@@ -294,21 +296,21 @@ export default function RouteScreen() {
         <View style={[styles.panel, { paddingBottom: insets.bottom + space.md }]}>
           <View style={styles.etaRow}>
             {arrived ? (
-              <Text style={[styles.eta, { color: colors.low }]}>You have arrived</Text>
+              <Text style={[styles.eta, { color: colors.low }]}>{t('You have arrived')}</Text>
             ) : left ? (
               <>
-                <Text style={styles.eta}>{left.minutes} min</Text>
+                <Text style={styles.eta}>{t('{n} min', { n: left.minutes })}</Text>
                 <Text style={styles.etaKm}>{formatDistance(left.km)}</Text>
               </>
             ) : straight !== null ? (
               <>
                 <Text style={styles.eta}>{formatDistance(straight)}</Text>
-                <Text style={styles.etaKm}>finding the road route…</Text>
+                <Text style={styles.etaKm}>{t('finding the road route…')}</Text>
               </>
             ) : (
-              <Text style={styles.etaKm}>{denied ? 'Allow location access to see your route.' : 'Finding your location…'}</Text>
+              <Text style={styles.etaKm}>{denied ? t('Allow location access to see your route.') : t('Finding your location…')}</Text>
             )}
-            <View style={styles.live}><View style={styles.liveDot} /><Text style={styles.liveText}>Live</Text></View>
+            <View style={styles.live}><View style={styles.liveDot} /><Text style={styles.liveText}>{t('Live')}</Text></View>
           </View>
           <View style={styles.incidentRow}>
             <View style={[styles.sevDot, { backgroundColor: sev }]} />
@@ -316,7 +318,7 @@ export default function RouteScreen() {
           </View>
           <Text style={styles.address} numberOfLines={2}>{incident.location_address}</Text>
           <View style={{ marginTop: space.md }}>
-            <Button label="Turn-by-turn in Maps" icon="navigate" onPress={() => { openDirections(incident); }} />
+            <Button label={t('Turn-by-turn in Maps')} icon="navigate" onPress={() => { openDirections(incident); }} />
           </View>
         </View>
       ) : null}

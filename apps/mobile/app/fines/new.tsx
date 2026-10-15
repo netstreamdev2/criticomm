@@ -24,6 +24,8 @@ import {
 } from '@/components/ui';
 import { SignaturePad } from '@/components/signature-pad';
 import { OwingPanel } from '@/components/owing-check';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 /**
  * Issue a fine — the roadside notice, step by step.
@@ -100,7 +102,7 @@ const emptyDraft = (): Draft => ({
 });
 
 const STEP_LABEL: Record<DraftStep, string> = {
-  notice: 'Notice', infringer: 'Infringer', vehicle: 'Vehicle', offence: 'Offence', sign: 'Sign',
+  notice: tx('Notice'), infringer: tx('Infringer'), vehicle: tx('Vehicle'), offence: tx('Offence'), sign: tx('Sign'),
 };
 
 function stepsFor(type: FineNoticeType): DraftStep[] {
@@ -120,6 +122,7 @@ const addDays = (date: string, days: number) => {
 function Chips<T extends string>({
   options, value, onChange, clearable,
 }: { options: readonly T[]; value: T | null; onChange: (v: T | null) => void; clearable?: boolean }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.chips}>
@@ -133,7 +136,7 @@ function Chips<T extends string>({
             accessibilityState={{ selected: on }}
             style={({ pressed }) => [styles.chip, on && styles.chipOn, pressed && { opacity: 0.75 }]}
           >
-            <Text style={[styles.chipText, on && styles.chipTextOn]}>{o}</Text>
+            <Text style={[styles.chipText, on && styles.chipTextOn]}>{t(o)}</Text>
           </Pressable>
         );
       })}
@@ -159,6 +162,7 @@ function OffencePicker({
   onPick: (o: FineOffence) => void;
   onOther: () => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const [q, setQ] = useState('');
   const list = useMemo(() => {
@@ -171,7 +175,7 @@ function OffencePicker({
 
   return (
     <View>
-      <Input value={q} onChangeText={setQ} placeholder="Search offence or charge code" icon="search-outline" autoCorrect={false} />
+      <Input value={q} onChangeText={setQ} placeholder={t('Search offence or charge code')} icon="search-outline" autoCorrect={false} />
       <View style={styles.pickList}>
         {list.map((o) => (
           <Pressable
@@ -183,18 +187,18 @@ function OffencePicker({
             <View style={{ flex: 1 }}>
               <Text style={styles.pickTitle}>{o.description}</Text>
               <Text style={styles.pickMeta}>
-                {[o.code ? `Code ${o.code}` : null, o.legal_ref].filter(Boolean).join(' · ') || 'No code yet'}
+                {[o.code ? `Code ${o.code}` : null, o.legal_ref].filter(Boolean).join(' · ') || t('No code yet')}
               </Text>
             </View>
             <Text style={[styles.pickAmount, o.penalty_amount === null && { color: colors.medium }]}>
-              {o.penalty_amount === null ? 'Enter R' : rand(o.penalty_amount)}
+              {o.penalty_amount === null ? t('Enter R') : rand(o.penalty_amount)}
             </Text>
           </Pressable>
         ))}
-        {list.length === 0 ? <Muted>No offence matches. Describe it below.</Muted> : null}
+        {list.length === 0 ? <Muted>{t('No offence matches. Describe it below.')}</Muted> : null}
         <Pressable onPress={onOther} accessibilityRole="button" style={({ pressed }) => [styles.pickRow, styles.pickOther, pressed && { opacity: 0.75 }]}>
           <Ionicons name="create-outline" size={16} color={colors.accent} />
-          <Text style={[styles.pickTitle, { color: colors.accent }]}>Not in the list — describe the offence</Text>
+          <Text style={[styles.pickTitle, { color: colors.accent }]}>{t('Not in the list — describe the offence')}</Text>
         </Pressable>
       </View>
     </View>
@@ -204,6 +208,7 @@ function OffencePicker({
 /* ── Screen ─────────────────────────────────────────────────────────── */
 
 export default function IssueFineScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { role, silo, fullName } = useAuth();
@@ -329,7 +334,7 @@ export default function IssueFineScreen() {
     setLocNote(null);
     try {
       const perm = await Location.requestForegroundPermissionsAsync();
-      if (perm.status !== 'granted') { setLocNote('Location permission was refused. Type the place instead.'); return; }
+      if (perm.status !== 'granted') { setLocNote(t('Location permission was refused. Type the place instead.')); return; }
       const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
@@ -344,12 +349,12 @@ export default function IssueFineScreen() {
             suburb: cur.suburb || a.district || a.subregion || '',
           }));
         }
-        setLocNote(`GPS ${lat.toFixed(5)}, ${lng.toFixed(5)} captured.`);
+        setLocNote(t('GPS {lat}, {lng} captured.', { lat: lat.toFixed(5), lng: lng.toFixed(5) }));
       } catch {
-        setLocNote(`GPS ${lat.toFixed(5)}, ${lng.toFixed(5)} captured. No signal for the street name — type it.`);
+        setLocNote(t('GPS {lat}, {lng} captured. No signal for the street name — type it.', { lat: lat.toFixed(5), lng: lng.toFixed(5) }));
       }
     } catch {
-      setLocNote('Could not get a GPS fix. Type the place instead.');
+      setLocNote(t('Could not get a GPS fix. Type the place instead.'));
     } finally {
       setLocating(false);
     }
@@ -434,7 +439,7 @@ export default function IssueFineScreen() {
       await AsyncStorage.removeItem(DRAFT_KEY).catch(() => {});
       router.replace(`/fines/${id}`);
     } catch (e) {
-      setErrors([(e as Error).message ?? 'The notice could not be saved on this phone.']);
+      setErrors([(e as Error).message ?? t('The notice could not be saved on this phone.')]);
     } finally {
       setBusy(false);
     }
@@ -443,14 +448,14 @@ export default function IssueFineScreen() {
   if (!featureOn) {
     return (
       <View style={styles.center}>
-        <EmptyState icon="receipt-outline" title="Not enabled" body="Issuing fines from the phone is not enabled for your organisation." />
+        <EmptyState icon="receipt-outline" title={t('Not enabled')} body={t('Issuing fines from the phone is not enabled for your organisation.')} />
       </View>
     );
   }
   if (!canIssueFines({ role, silo })) {
     return (
       <View style={styles.center}>
-        <EmptyState icon="receipt-outline" title="Not for your role" body="Fines are issued by Metro Police officers, supervisors and captains." />
+        <EmptyState icon="receipt-outline" title={t('Not for your role')} body={t('Fines are issued by Metro Police officers, supervisors and captains.')} />
       </View>
     );
   }
@@ -460,7 +465,7 @@ export default function IssueFineScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.top}>
-        <Stepper steps={steps.map((s) => STEP_LABEL[s])} current={stepIndex} />
+        <Stepper steps={steps.map((s) => t(STEP_LABEL[s]))} current={stepIndex} />
       </View>
       <ScrollView
         ref={scroll}
@@ -470,11 +475,11 @@ export default function IssueFineScreen() {
       >
         {restored ? (
           <Banner tone="info" onDismiss={() => setRestored(false)}>
-            Your unfinished notice was kept. Carry on, or tap Start over below.
+            {t('Your unfinished notice was kept. Carry on, or tap Start over below.')}
           </Banner>
         ) : null}
         {!online ? (
-          <Banner tone="info">No signal. You can still issue the fine: it sends itself when the phone finds a signal, and the slip prints now.</Banner>
+          <Banner tone="info">{t('No signal. You can still issue the fine: it sends itself when the phone finds a signal, and the slip prints now.')}</Banner>
         ) : null}
         {errors.length ? (
           <Banner tone="error" onDismiss={() => setErrors([])}>{errors.join('\n')}</Banner>
@@ -483,7 +488,7 @@ export default function IssueFineScreen() {
         {/* ── 1. Notice ─────────────────────────────────────────── */}
         {step === 'notice' ? (
           <>
-            <SectionLabel>What are you issuing?</SectionLabel>
+            <SectionLabel>{t('What are you issuing?')}</SectionLabel>
             {NOTICE_TYPES.map((n) => {
               const on = n.type === d.noticeType;
               return (
@@ -502,8 +507,8 @@ export default function IssueFineScreen() {
                     />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.typeTitle}>{n.label}</Text>
-                    <Text style={styles.typeUse}>{n.use}</Text>
+                    <Text style={styles.typeTitle}>{t(n.label)}</Text>
+                    <Text style={styles.typeUse}>{t(n.use)}</Text>
                     <Text style={styles.typeLaw}>{n.law}</Text>
                   </View>
                   <Ionicons name={on ? 'radio-button-on' : 'radio-button-off'} size={20} color={on ? colors.primary : colors.muted} />
@@ -511,21 +516,21 @@ export default function IssueFineScreen() {
               );
             })}
 
-            <SectionLabel>Book number (optional)</SectionLabel>
+            <SectionLabel>{t('Book number (optional)')}</SectionLabel>
             <Card>
               <Input
-                label="Official notice number"
+                label={t('Official notice number')}
                 value={d.noticeNumber}
                 onChangeText={(v) => set('noticeNumber', v.toUpperCase())}
-                placeholder="As printed, if you also write in a notice book"
+                placeholder={t('As printed, if you also write in a notice book')}
                 autoCapitalize="characters"
-                hint="Leave empty if this phone is the only notice. The register gives every charge an FN- number."
+                hint={t('Leave empty if this phone is the only notice. The register gives every charge an FN- number.')}
               />
             </Card>
 
             {calls.length ? (
               <>
-                <SectionLabel>Link to an incident (optional)</SectionLabel>
+                <SectionLabel>{t('Link to an incident (optional)')}</SectionLabel>
                 <Card>
                   <View style={styles.chips}>
                     {calls.map((c) => {
@@ -543,7 +548,7 @@ export default function IssueFineScreen() {
                       );
                     })}
                   </View>
-                  <Muted>The fine shows on that incident’s record.</Muted>
+                  <Muted>{t('The fine shows on that incident’s record.')}</Muted>
                 </Card>
               </>
             ) : null}
@@ -553,17 +558,17 @@ export default function IssueFineScreen() {
         {/* ── 2. Infringer ──────────────────────────────────────── */}
         {step === 'infringer' ? (
           <>
-            <SectionLabel>Infringer</SectionLabel>
+            <SectionLabel>{t('Infringer')}</SectionLabel>
             <Card>
-              <Field><Input label="Surname" value={d.surname} onChangeText={(v) => set('surname', v)} autoCapitalize="words" /></Field>
-              <Field><Input label="First names" value={d.firstNames} onChangeText={(v) => set('firstNames', v)} autoCapitalize="words" /></Field>
-              <Label>Identification</Label>
+              <Field><Input label={t('Surname')} value={d.surname} onChangeText={(v) => set('surname', v)} autoCapitalize="words" /></Field>
+              <Field><Input label={t('First names')} value={d.firstNames} onChangeText={(v) => set('firstNames', v)} autoCapitalize="words" /></Field>
+              <Label>{t('Identification')}</Label>
               <Chips options={ID_TYPES} value={d.idType} onChange={(v) => set('idType', v)} />
               <Field>
                 <Input
                   value={d.idNumber}
                   onChangeText={setIdNumber}
-                  placeholder={d.idType === 'RSA ID' ? '13-digit ID number' : 'Number as on the document'}
+                  placeholder={d.idType === 'RSA ID' ? t('13-digit ID number') : t('Number as on the document')}
                   keyboardType={d.idType === 'RSA ID' ? 'number-pad' : 'default'}
                   autoCapitalize="characters"
                   maxLength={d.idType === 'RSA ID' ? 13 : 30}
@@ -572,7 +577,7 @@ export default function IssueFineScreen() {
                   }}
                   icon="id-card-outline"
                   hint={d.idType === 'RSA ID' && d.idNumber.length === 13
-                    ? (isValidRsaId(d.idNumber) ? '✓ Valid ID — date of birth and sex filled in.' : '✕ Not a valid ID number. Check each digit.')
+                    ? (isValidRsaId(d.idNumber) ? t('✓ Valid ID — date of birth and sex filled in.') : t('✕ Not a valid ID number. Check each digit.'))
                     : undefined}
                 />
               </Field>
@@ -582,32 +587,32 @@ export default function IssueFineScreen() {
               ) : null}
               <View style={styles.row}>
                 <View style={{ flex: 1 }}>
-                  <Input label="Date of birth" value={d.dob} onChangeText={(v) => set('dob', v)} placeholder="YYYY-MM-DD" keyboardType="numbers-and-punctuation" maxLength={10} />
+                  <Input label={t('Date of birth')} value={d.dob} onChangeText={(v) => set('dob', v)} placeholder={t('YYYY-MM-DD')} keyboardType="numbers-and-punctuation" maxLength={10} />
                 </View>
               </View>
               <View style={{ marginTop: space.md }}>
-                <Label>Sex</Label>
-                <Chips options={['Male', 'Female'] as const} value={d.gender} onChange={(v) => set('gender', v)} clearable />
+                <Label>{t('Sex')}</Label>
+                <Chips options={[tx('Male'), tx('Female')] as const} value={d.gender} onChange={(v) => set('gender', v)} clearable />
               </View>
             </Card>
 
             {d.noticeType === 'AARTO 01' ? (
               <>
-                <SectionLabel>Driving licence</SectionLabel>
+                <SectionLabel>{t('Driving licence')}</SectionLabel>
                 <Card>
-                  <Label>Licence code</Label>
+                  <Label>{t('Licence code')}</Label>
                   <Chips options={LICENCE_CODES} value={d.licenceCode as (typeof LICENCE_CODES)[number] | null} onChange={(v) => set('licenceCode', v)} clearable />
-                  <Label>PrDP (if any)</Label>
+                  <Label>{t('PrDP (if any)')}</Label>
                   <Chips options={PRDP_CODES} value={d.prdp as (typeof PRDP_CODES)[number] | null} onChange={(v) => set('prdp', v)} clearable />
-                  <Muted>G goods · P passengers · D dangerous goods</Muted>
+                  <Muted>{t('G goods · P passengers · D dangerous goods')}</Muted>
                 </Card>
               </>
             ) : null}
 
-            <SectionLabel>Contact</SectionLabel>
+            <SectionLabel>{t('Contact')}</SectionLabel>
             <Card>
-              <Field><Input label="Cell number" value={d.phone} onChangeText={(v) => set('phone', v)} keyboardType="phone-pad" icon="call-outline" /></Field>
-              <Input label="Residential address" value={d.address} onChangeText={(v) => set('address', v)} multiline placeholder="Street, suburb, code" />
+              <Field><Input label={t('Cell number')} value={d.phone} onChangeText={(v) => set('phone', v)} keyboardType="phone-pad" icon="call-outline" /></Field>
+              <Input label={t('Residential address')} value={d.address} onChangeText={(v) => set('address', v)} multiline placeholder={t('Street, suburb, code')} />
             </Card>
           </>
         ) : null}
@@ -615,14 +620,14 @@ export default function IssueFineScreen() {
         {/* ── 3. Vehicle ────────────────────────────────────────── */}
         {step === 'vehicle' ? (
           <>
-            <SectionLabel>{d.noticeType === 'Section 56' ? 'Vehicle (if one was involved)' : 'Vehicle'}</SectionLabel>
+            <SectionLabel>{d.noticeType === 'Section 56' ? t('Vehicle (if one was involved)') : t('Vehicle')}</SectionLabel>
             <Card>
               <Field>
                 <Input
-                  label="Registration"
+                  label={t('Registration')}
                   value={d.reg}
                   onChangeText={(v) => set('reg', v.toUpperCase())}
-                  placeholder="e.g. ND 123-456"
+                  placeholder={t('e.g. ND 123-456')}
                   autoCapitalize="characters"
                   autoCorrect={false}
                   icon="car-outline"
@@ -631,15 +636,15 @@ export default function IssueFineScreen() {
                 />
                 {lookupReg && lookupReg === normaliseReg(d.reg) ? <OwingPanel vehicleReg={lookupReg} compact /> : null}
               </Field>
-              <Field><Input label="Licence disc number" value={d.disc} onChangeText={(v) => set('disc', v.toUpperCase())} autoCapitalize="characters" /></Field>
-              <Label>Type</Label>
+              <Field><Input label={t('Licence disc number')} value={d.disc} onChangeText={(v) => set('disc', v.toUpperCase())} autoCapitalize="characters" /></Field>
+              <Label>{t('Type')}</Label>
               <Chips options={FINE_VEHICLE_TYPES} value={d.vehicleType as (typeof FINE_VEHICLE_TYPES)[number] | null} onChange={(v) => set('vehicleType', v)} clearable />
               <View style={styles.row}>
-                <View style={{ flex: 1 }}><Input label="Make" value={d.make} onChangeText={(v) => set('make', v)} autoCapitalize="words" /></View>
-                <View style={{ flex: 1 }}><Input label="Model" value={d.model} onChangeText={(v) => set('model', v)} autoCapitalize="words" /></View>
+                <View style={{ flex: 1 }}><Input label={t('Make')} value={d.make} onChangeText={(v) => set('make', v)} autoCapitalize="words" /></View>
+                <View style={{ flex: 1 }}><Input label={t('Model')} value={d.model} onChangeText={(v) => set('model', v)} autoCapitalize="words" /></View>
               </View>
               <View style={{ marginTop: space.md }}>
-                <Input label="Colour" value={d.colour} onChangeText={(v) => set('colour', v)} autoCapitalize="words" />
+                <Input label={t('Colour')} value={d.colour} onChangeText={(v) => set('colour', v)} autoCapitalize="words" />
               </View>
             </Card>
           </>
@@ -654,15 +659,15 @@ export default function IssueFineScreen() {
               return (
                 <View key={`charge-${i}`}>
                   <View style={styles.chargeHead}>
-                    <SectionLabel>{d.charges.length > 1 ? `Charge ${i + 1}` : 'Offence'}</SectionLabel>
+                    <SectionLabel>{d.charges.length > 1 ? t('Charge {n}', { n: i + 1 }) : t('Offence')}</SectionLabel>
                     {d.charges.length > 1 ? (
                       <Pressable
                         onPress={() => setD((cur) => ({ ...cur, charges: cur.charges.filter((_, j) => j !== i) }))}
                         hitSlop={8}
                         accessibilityRole="button"
-                        accessibilityLabel={`Remove charge ${i + 1}`}
+                        accessibilityLabel={t('Remove charge {n}', { n: i + 1 })}
                       >
-                        <Text style={styles.remove}>Remove</Text>
+                        <Text style={styles.remove}>{t('Remove')}</Text>
                       </Pressable>
                     ) : null}
                   </View>
@@ -671,38 +676,38 @@ export default function IssueFineScreen() {
                       <>
                         <Text style={styles.offTitle}>{off.description}</Text>
                         <Text style={styles.pickMeta}>
-                          {[off.code ? `Code ${off.code}` : null, off.legal_ref, off.demerit_points ? `${off.demerit_points} demerit point${off.demerit_points === 1 ? '' : 's'}` : null].filter(Boolean).join(' · ') || 'No code in the charge book yet'}
+                          {[off.code ? t('Code {code}', { code: off.code }) : null, off.legal_ref, off.demerit_points ? (off.demerit_points === 1 ? t('1 demerit point') : t('{n} demerit points', { n: off.demerit_points })) : null].filter(Boolean).join(' · ') || t('No code in the charge book yet')}
                         </Text>
                         {off.penalty_amount === null ? (
                           <View style={{ marginTop: space.md }}>
                             <Input
-                              label="Penalty amount (R)"
+                              label={t('Penalty amount (R)')}
                               value={c.amount}
                               onChangeText={(v) => setCharge(i, { amount: v.replace(/[^0-9.]/g, '') })}
                               keyboardType="decimal-pad"
-                              hint="The charge book has no amount for this offence yet. The record notes that you entered it."
+                              hint={t('The charge book has no amount for this offence yet. The record notes that you entered it.')}
                             />
                           </View>
                         ) : null}
                         <Pressable onPress={() => setCharge(i, blankCharge())} style={{ marginTop: space.sm }} accessibilityRole="button">
-                          <Text style={styles.change}>Change offence</Text>
+                          <Text style={styles.change}>{t('Change offence')}</Text>
                         </Pressable>
                       </>
                     ) : c.other ? (
                       <>
                         <Field>
-                          <Input label="Describe the offence" value={c.description} onChangeText={(v) => setCharge(i, { description: v })} multiline />
+                          <Input label={t('Describe the offence')} value={c.description} onChangeText={(v) => setCharge(i, { description: v })} multiline />
                         </Field>
                         <View style={styles.row}>
                           <View style={{ flex: 1 }}>
-                            <Input label="Charge code" value={c.code} onChangeText={(v) => setCharge(i, { code: v.toUpperCase() })} autoCapitalize="characters" />
+                            <Input label={t('Charge code')} value={c.code} onChangeText={(v) => setCharge(i, { code: v.toUpperCase() })} autoCapitalize="characters" />
                           </View>
                           <View style={{ flex: 1 }}>
-                            <Input label="Amount (R)" value={c.amount} onChangeText={(v) => setCharge(i, { amount: v.replace(/[^0-9.]/g, '') })} keyboardType="decimal-pad" />
+                            <Input label={t('Amount (R)')} value={c.amount} onChangeText={(v) => setCharge(i, { amount: v.replace(/[^0-9.]/g, '') })} keyboardType="decimal-pad" />
                           </View>
                         </View>
                         <Pressable onPress={() => setCharge(i, blankCharge())} style={{ marginTop: space.sm }} accessibilityRole="button">
-                          <Text style={styles.change}>Pick from the charge book instead</Text>
+                          <Text style={styles.change}>{t('Pick from the charge book instead')}</Text>
                         </Pressable>
                       </>
                     ) : (
@@ -717,7 +722,7 @@ export default function IssueFineScreen() {
                       <View style={styles.amountRow}>
                         <Text style={styles.amount}>{rand(amount)}</Text>
                         {d.noticeType === 'AARTO 01' ? (
-                          <Text style={styles.amountNote}>{rand(amount - discountFor('AARTO 01', amount))} if paid within 32 days</Text>
+                          <Text style={styles.amountNote}>{t('{rand} if paid within 32 days', { rand: rand(amount - discountFor('AARTO 01', amount)) })}</Text>
                         ) : null}
                       </View>
                     ) : null}
@@ -727,17 +732,17 @@ export default function IssueFineScreen() {
             })}
             {d.charges.length < MAX_CHARGES ? (
               <Button
-                label="Add another charge"
+                label={t('Add another charge')}
                 variant="outline"
                 icon="add"
                 onPress={() => setD((cur) => ({ ...cur, charges: [...cur.charges, blankCharge()] }))}
               />
             ) : null}
 
-            <SectionLabel>Where</SectionLabel>
+            <SectionLabel>{t('Where')}</SectionLabel>
             <Card>
               <Button
-                label={d.lat !== null ? 'Update my location' : 'Use my location'}
+                label={d.lat !== null ? t('Update my location') : t('Use my location')}
                 icon="locate-outline"
                 variant="subtle"
                 busy={locating}
@@ -745,19 +750,19 @@ export default function IssueFineScreen() {
               />
               {locNote ? <Muted>{locNote}</Muted> : null}
               <View style={{ marginTop: space.md }}>
-                <Field><Input label="Street" value={d.street} onChangeText={(v) => set('street', v)} autoCapitalize="words" /></Field>
-                <Field><Input label="Cross street / between" value={d.streetB} onChangeText={(v) => set('streetB', v)} autoCapitalize="words" /></Field>
-                <Field><Input label="Suburb" value={d.suburb} onChangeText={(v) => set('suburb', v)} autoCapitalize="words" /></Field>
+                <Field><Input label={t('Street')} value={d.street} onChangeText={(v) => set('street', v)} autoCapitalize="words" /></Field>
+                <Field><Input label={t('Cross street / between')} value={d.streetB} onChangeText={(v) => set('streetB', v)} autoCapitalize="words" /></Field>
+                <Field><Input label={t('Suburb')} value={d.suburb} onChangeText={(v) => set('suburb', v)} autoCapitalize="words" /></Field>
                 <Input
-                  label={d.noticeType === 'Section 341' ? 'Where the vehicle stood' : 'Landmark / description'}
+                  label={d.noticeType === 'Section 341' ? t('Where the vehicle stood') : t('Landmark / description')}
                   value={d.place}
                   onChangeText={(v) => set('place', v)}
-                  placeholder={d.noticeType === 'Section 341' ? 'e.g. Bay 14 outside 120 Florida Rd' : 'Optional'}
+                  placeholder={d.noticeType === 'Section 341' ? t('e.g. Bay 14 outside 120 Florida Rd') : t('Optional')}
                 />
               </View>
               {d.noticeType === 'AARTO 01' ? (
                 <View style={{ marginTop: space.md }}>
-                  <Label>Direction travelled</Label>
+                  <Label>{t('Direction travelled')}</Label>
                   <Chips options={DIRECTIONS} value={d.direction as (typeof DIRECTIONS)[number] | null} onChange={(v) => set('direction', v)} clearable />
                 </View>
               ) : null}
@@ -765,16 +770,16 @@ export default function IssueFineScreen() {
 
             {d.noticeType === 'Section 56' ? (
               <>
-                <SectionLabel>Court</SectionLabel>
+                <SectionLabel>{t('Court')}</SectionLabel>
                 <Card>
-                  <Field><Input label="Court" value={d.courtName} onChangeText={(v) => set('courtName', v)} /></Field>
-                  <Input label="Date to appear" value={d.courtDate} onChangeText={(v) => set('courtDate', v)} placeholder="YYYY-MM-DD" keyboardType="numbers-and-punctuation" maxLength={10} />
+                  <Field><Input label={t('Court')} value={d.courtName} onChangeText={(v) => set('courtName', v)} /></Field>
+                  <Input label={t('Date to appear')} value={d.courtDate} onChangeText={(v) => set('courtDate', v)} placeholder={t('YYYY-MM-DD')} keyboardType="numbers-and-punctuation" maxLength={10} />
                   <View style={[styles.chips, { marginTop: space.sm }]}>
                     {[14, 30, 60].map((n) => {
                       const date = addDays(saDate(new Date()), n);
                       return (
                         <Pressable key={n} onPress={() => set('courtDate', date)} style={({ pressed }) => [styles.chip, d.courtDate === date && styles.chipOn, pressed && { opacity: 0.75 }]}>
-                          <Text style={[styles.chipText, d.courtDate === date && styles.chipTextOn]}>In {n} days</Text>
+                          <Text style={[styles.chipText, d.courtDate === date && styles.chipTextOn]}>{t('In {n} days', { n })}</Text>
                         </Pressable>
                       );
                     })}
@@ -783,7 +788,7 @@ export default function IssueFineScreen() {
               </>
             ) : null}
 
-            <SectionLabel>Notes (optional)</SectionLabel>
+            <SectionLabel>{t('Notes (optional)')}</SectionLabel>
             <Card>
               {OBSERVATION_FIELDS.filter((f) => info.personPresent || !['driver_description', 'passengers'].includes(f.key)).map((f) => (
                 <Field key={f.key}>
@@ -802,39 +807,43 @@ export default function IssueFineScreen() {
         {/* ── 5. Sign ───────────────────────────────────────────── */}
         {step === 'sign' ? (
           <>
-            <SectionLabel>Check before signing</SectionLabel>
+            <SectionLabel>{t('Check before signing')}</SectionLabel>
             <Card accent={colors.primary}>
-              <KeyValue label="Notice" value={info.label} />
-              {info.personPresent ? <KeyValue label="Infringer" value={`${d.firstNames} ${d.surname}`.trim() || '—'} /> : null}
-              {info.personPresent ? <KeyValue label={d.idType ?? 'ID'} value={d.idNumber || '—'} /> : null}
-              <KeyValue label="Vehicle" value={normaliseReg(d.reg) || '—'} />
-              <KeyValue label="Where" value={[d.street, d.suburb].filter(Boolean).join(', ') || d.place || '—'} />
+              <KeyValue label={t('Notice')} value={t(info.label)} />
+              {info.personPresent ? <KeyValue label={t('Infringer')} value={`${d.firstNames} ${d.surname}`.trim() || '—'} /> : null}
+              {info.personPresent ? <KeyValue label={d.idType ?? t('ID')} value={d.idNumber || '—'} /> : null}
+              <KeyValue label={t('Vehicle')} value={normaliseReg(d.reg) || '—'} />
+              <KeyValue label={t('Where')} value={[d.street, d.suburb].filter(Boolean).join(', ') || d.place || '—'} />
               {d.charges.map((c, i) => (
                 <KeyValue
                   key={`rev-${i}`}
-                  label={d.charges.length > 1 ? `Charge ${i + 1}` : 'Offence'}
+                  label={d.charges.length > 1 ? t('Charge {n}', { n: i + 1 }) : t('Offence')}
                   value={`${offences.find((o) => o.id === c.offenceId)?.description ?? c.description} · ${rand(chargeAmount(c) ?? 0)}`}
                 />
               ))}
               <View style={styles.totalBox}>
-                <Text style={styles.totalLabel}>{d.noticeType === 'AARTO 01' ? 'To pay within 32 days' : d.noticeType === 'Section 56' ? 'Admission of guilt' : 'To pay'}</Text>
+                <Text style={styles.totalLabel}>{d.noticeType === 'AARTO 01' ? t('To pay within 32 days') : d.noticeType === 'Section 56' ? t('Admission of guilt') : t('To pay')}</Text>
                 <Text style={styles.totalValue}>{rand(d.noticeType === 'AARTO 01' ? discounted : total)}</Text>
                 <Text style={styles.totalNote}>
                   {d.noticeType === 'Section 56'
-                    ? `Or appear at ${d.courtName || 'court'} on ${d.courtDate || '—'}`
-                    : `By ${payBy ?? '—'}${d.noticeType === 'AARTO 01' ? ` · full amount ${rand(total)}` : ''}`}
+                    ? d.courtName
+                      ? t('Or appear at {court} on {date}', { court: d.courtName, date: d.courtDate || '—' })
+                      : t('Or appear at court on {date}', { date: d.courtDate || '—' })
+                    : d.noticeType === 'AARTO 01'
+                      ? t('By {date} · full amount {amount}', { date: payBy ?? '—', amount: rand(total) })
+                      : t('By {date}', { date: payBy ?? '—' })}
                 </Text>
               </View>
             </Card>
 
             {info.personPresent ? (
               <>
-                <SectionLabel>Explained to the infringer</SectionLabel>
+                <SectionLabel>{t('Explained to the infringer')}</SectionLabel>
                 <Card>
                   <CheckRow
                     label={d.noticeType === 'AARTO 01'
-                      ? 'I explained the notice and the options: pay within 32 days for the discount, apply to pay in instalments (AARTO 04), or make a representation (AARTO 08).'
-                      : 'I explained the court date, and that paying the admission of guilt is a conviction and may give a criminal record.'}
+                      ? t('I explained the notice and the options: pay within 32 days for the discount, apply to pay in instalments (AARTO 04), or make a representation (AARTO 08).')
+                      : t('I explained the court date, and that paying the admission of guilt is a conviction and may give a criminal record.')}
                     checked={d.explained}
                     onToggle={() => set('explained', !d.explained)}
                   />
@@ -842,14 +851,14 @@ export default function IssueFineScreen() {
               </>
             ) : null}
 
-            <SectionLabel>{`Officer signature · ${fullName || 'you'}`}</SectionLabel>
+            <SectionLabel>{fullName ? t('Officer signature · {name}', { name: fullName }) : t('Officer signature')}</SectionLabel>
             <Card>
               <SignaturePad onChange={(svg) => set('officerSig', svg)} onDrawingChange={(on) => setScrollOn(!on)} />
             </Card>
 
             {info.personPresent ? (
               <>
-                <SectionLabel>Infringer signature</SectionLabel>
+                <SectionLabel>{t('Infringer signature')}</SectionLabel>
                 <Card>
                   <SignaturePad
                     onChange={(svg) => set('infringerSig', svg)}
@@ -857,32 +866,32 @@ export default function IssueFineScreen() {
                     disabled={d.refused}
                   />
                   <View style={{ marginTop: space.sm }}>
-                    <CheckRow label="The infringer refused to sign" checked={d.refused} onToggle={() => set('refused', !d.refused)} />
+                    <CheckRow label={t('The infringer refused to sign')} checked={d.refused} onToggle={() => set('refused', !d.refused)} />
                   </View>
                 </Card>
               </>
             ) : (
-              <Muted>Leave the slip on the vehicle. There is no signature from the owner.</Muted>
+              <Muted>{t('Leave the slip on the vehicle. There is no signature from the owner.')}</Muted>
             )}
           </>
         ) : null}
 
         <Pressable onPress={startOver} style={styles.startOver} accessibilityRole="button">
-          <Text style={styles.startOverText}>Start over</Text>
+          <Text style={styles.startOverText}>{t('Start over')}</Text>
         </Pressable>
       </ScrollView>
 
       <View style={styles.footer}>
         {stepIndex > 0 ? (
           <View style={{ flex: 1 }}>
-            <Button label="Back" variant="outline" icon="arrow-back" onPress={() => go(stepIndex - 1)} />
+            <Button label={t('Back')} variant="outline" icon="arrow-back" onPress={() => go(stepIndex - 1)} />
           </View>
         ) : null}
         <View style={{ flex: 2 }}>
           {step === 'sign' ? (
-            <Button label="Issue fine" icon="receipt-outline" busy={busy} onPress={() => void submit()} />
+            <Button label={t('Issue fine')} icon="receipt-outline" busy={busy} onPress={() => void submit()} />
           ) : (
-            <Button label={`Next · ${STEP_LABEL[steps[stepIndex + 1] ?? 'sign']}`} onPress={onNext} />
+            <Button label={t('Next · {step}', { step: t(STEP_LABEL[steps[stepIndex + 1] ?? 'sign']) })} onPress={onNext} />
           )}
         </View>
       </View>

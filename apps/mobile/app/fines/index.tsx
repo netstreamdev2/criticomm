@@ -8,9 +8,11 @@ import { useAuth } from '@/lib/auth';
 import { provisionalRef, statusTone, useMyFines, type NoticeGroup } from '@/lib/fines';
 import { colors, radius, space, timeAgo, makeStyles } from '@/lib/theme';
 import { Banner, Button, EmptyState, Input, SectionLabel } from '@/components/ui';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 type Filter = 'All' | 'Today' | 'Overdue' | FineStatus;
-const FILTERS: Filter[] = ['All', 'Today', 'Overdue', 'Unpaid', 'Partially Paid', 'Paid', 'Disputed', 'Cancelled'];
+const FILTERS: Filter[] = [tx('All'), tx('Today'), tx('Overdue'), 'Unpaid', 'Partially Paid', 'Paid', 'Disputed', 'Cancelled'];
 
 /**
  * My fines — every notice this officer served, newest first, with the
@@ -18,6 +20,7 @@ const FILTERS: Filter[] = ['All', 'Today', 'Overdue', 'Unpaid', 'Partially Paid'
  * the list. Tapping one opens its slip.
  */
 export default function MyFinesScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { role, silo } = useAuth();
@@ -45,10 +48,10 @@ export default function MyFinesScreen() {
   }, [notices, filter, q]);
 
   const stats = [
-    { label: 'TODAY', value: String(figures.today), tone: '#ef4444' },
-    { label: 'THIS MONTH', value: String(figures.thisMonth), tone: '#3b82f6' },
-    { label: 'OUTSTANDING', value: rand(figures.outstanding).replace(/\.00$/, ''), tone: '#a855f7' },
-    { label: 'OVERDUE', value: String(figures.overdue), tone: '#dc2626' },
+    { label: t('TODAY'), value: String(figures.today), tone: '#ef4444' },
+    { label: t('THIS MONTH'), value: String(figures.thisMonth), tone: '#3b82f6' },
+    { label: t('OUTSTANDING'), value: rand(figures.outstanding).replace(/\.00$/, ''), tone: '#a855f7' },
+    { label: t('OVERDUE'), value: String(figures.overdue), tone: '#dc2626' },
   ];
 
   return (
@@ -67,7 +70,7 @@ export default function MyFinesScreen() {
       )}
     >
       {canIssueFines({ role, silo }) ? (
-        <Button label="Issue a fine" icon="receipt-outline" size="lg" onPress={() => router.push('/fines/new')} />
+        <Button label={t('Issue a fine')} icon="receipt-outline" size="lg" onPress={() => router.push('/fines/new')} />
       ) : null}
 
       <View style={styles.stats}>
@@ -86,7 +89,7 @@ export default function MyFinesScreen() {
 
       {queued.length ? (
         <>
-          <SectionLabel>Waiting to send</SectionLabel>
+          <SectionLabel>{t('Waiting to send')}</SectionLabel>
           {queued.map((e) => (
             <Pressable
               key={e.id}
@@ -102,7 +105,7 @@ export default function MyFinesScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={styles.rowTitle}>{provisionalRef(e.id)} · {e.op.label}</Text>
                 <Text style={styles.rowMeta} numberOfLines={1}>
-                  {e.status === 'failed' ? `Refused: ${e.lastError ?? 'see the slip'}` : `${e.op.noticeType} · ${timeAgo(e.occurredAt)} · prints now, numbers later`}
+                  {e.status === 'failed' ? (e.lastError ? t('Refused: {reason}', { reason: e.lastError }) : t('Refused: see the slip')) : t('{noticeType} · {timeAgo} · prints now, numbers later', { noticeType: e.op.noticeType, timeAgo: timeAgo(e.occurredAt) })}
                 </Text>
               </View>
               <Ionicons name="chevron-forward" size={16} color={colors.muted} />
@@ -112,14 +115,14 @@ export default function MyFinesScreen() {
       ) : null}
 
       <View style={{ marginTop: space.md }}>
-        <Input value={q} onChangeText={setQ} placeholder="Search number, registration, name, offence" icon="search-outline" autoCorrect={false} />
+        <Input value={q} onChangeText={setQ} placeholder={t('Search number, registration, name, offence')} icon="search-outline" autoCorrect={false} />
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>
         {FILTERS.map((f) => {
           const on = f === filter;
           return (
             <Pressable key={f} onPress={() => setFilter(f)} style={[styles.filter, on && styles.filterOn]} accessibilityRole="radio" accessibilityState={{ selected: on }}>
-              <Text style={[styles.filterText, on && { color: '#fff' }]}>{f}</Text>
+              <Text style={[styles.filterText, on && { color: '#fff' }]}>{t(f)}</Text>
             </Pressable>
           );
         })}
@@ -129,8 +132,8 @@ export default function MyFinesScreen() {
       {!loading && shown.length === 0 ? (
         <EmptyState
           icon="receipt-outline"
-          title={notices.length ? 'Nothing matches' : 'No fines yet'}
-          body={notices.length ? 'Try another filter or search.' : 'Fines you issue appear here, with their slips.'}
+          title={notices.length ? t('Nothing matches') : t('No fines yet')}
+          body={notices.length ? t('Try another filter or search.') : t('Fines you issue appear here, with their slips.')}
         />
       ) : null}
       {shown.map((n) => <NoticeRow key={n.key} n={n} onOpen={() => router.push(`/fines/${n.first.id}`)} />)}
@@ -139,6 +142,7 @@ export default function MyFinesScreen() {
 }
 
 function NoticeRow({ n, onOpen }: { n: NoticeGroup; onOpen: () => void }) {
+  const { t } = useT();
   const styles = useStyles();
   const status = n.fines.some((f) => f.status === 'Unpaid') ? 'Unpaid' : n.first.status;
   const tone = statusTone(status, colors);
@@ -157,13 +161,13 @@ function NoticeRow({ n, onOpen }: { n: NoticeGroup; onOpen: () => void }) {
         <Text style={styles.rowOffence} numberOfLines={1}>{n.fines.map((f) => f.offence_description).join(' · ')}</Text>
         <Text style={styles.rowMeta} numberOfLines={1}>{n.first.offender_name} · {timeAgo(n.first.issued_at)}</Text>
         <Text style={[styles.stage, late && { color: colors.critical }]} numberOfLines={1}>
-          {late ? '⚠ ' : ''}{stage}{STAGE_INFO[stage].tone === 'ok' && n.first.due_date ? ` · pay by ${n.first.due_date}` : ''}
+          {late ? '⚠ ' : ''}{t(stage)}{STAGE_INFO[stage].tone === 'ok' && n.first.due_date ? t(' · pay by {due_date}', { due_date: n.first.due_date }) : ''}
         </Text>
       </View>
       <View style={{ alignItems: 'flex-end', gap: 4 }}>
         <Text style={[styles.amount, status === 'Cancelled' && styles.struck]}>{rand(n.total)}</Text>
         <View style={[styles.pill, { borderColor: `${tone}88`, backgroundColor: `${tone}1f` }]}>
-          <Text style={[styles.pillText, { color: tone }]}>{status}</Text>
+          <Text style={[styles.pillText, { color: tone }]}>{t(status)}</Text>
         </View>
       </View>
     </Pressable>

@@ -171,7 +171,7 @@
     <div class="section-head">
       <p class="eyebrow">Step 2 · Call logger · console</p>
       <h2>Logging the call</h2>
-      <p class="muted">One screen, two halves: who is calling and where on the left, what happened and who must receive it on the right. The call logger can’t skip a step that matters; the form says exactly what is missing.</p>
+      <p class="muted">What and where come first: the type, the description and the place. Then the caller, and who must receive the call. Criti, at the top, says what to ask and fills in what it can. The call logger checks it and decides.</p>
     </div>
 
     <figure class="exhibit">
@@ -181,67 +181,173 @@
         <div class="m-top"><span class="crumb">Dispatch › <b>Log incoming call</b></span><span class="who"><span class="m-avatar">LL</span><span>Lerato Logger<small>Call logger · Control Room</small></span></span></div>
         <div class="screen-body">
           <div class="m-row between"><span class="m-clock ok"><span class="pin">1</span> Response clock <span>00:48</span></span><span class="m-btn ghost small">← Back to dashboard</span></div>
+          <div class="m-criti">
+            <p class="hd"><span class="pin">2</span> <img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti <em>Read the description</em><span class="all">View all</span></p>
+            <p><span class="dot"></span><span class="grow"><span class="faint">Ask: </span>Are the suspects still inside? · Is anyone home?</span></p>
+          </div>
           <div class="m-grid2" style="grid-template-columns:repeat(auto-fit,minmax(20rem,1fr))">
             <div class="m-card">
-              <p class="m-head">Caller &amp; location info</p>
-              <div class="m-field"><span class="m-label"><span class="pin">2</span> Caller name</span><div class="m-input">Thabo Mkhize</div></div>
-              <div class="m-field"><span class="m-label"><span class="pin">3</span> Contact citizen</span>
-                <div class="m-row"><div class="m-input" style="width:6.5rem">ZA +27 <span class="caret">▾</span></div><div class="m-input" style="flex:1">082 555 0143</div><span class="m-btn small ok">Call</span></div>
-                <span class="m-help ok">Saved as +27 82 555 0143</span></div>
-              <div class="m-input" style="gap:1rem;flex-wrap:wrap"><span class="pin">4</span><span class="m-sub">Is the caller the patient? *</span><span class="m-radio"><i></i>Yes</span><span class="m-radio on"><i></i>No</span></div>
-              <div class="m-field"><span class="m-label"><span class="pin">5</span> Incident location</span><div class="m-input focus">112 Florida Road, Morningside, Durban</div>
+              <p class="m-head">What and where</p>
+              <div class="m-field"><span class="m-label"><span class="pin">3</span> Incident type</span>
+                <div class="m-input"><span class="m-dots"><i class="police"></i></span> CR-03 · Burglary <span class="caret">▾</span></div>
+                <span class="m-help">Crime · Goes to <b>Metro Police</b> · Usually Medium</span></div>
+              <div class="m-field"><span class="m-label"><span class="pin">4</span> Description</span>
+                <div class="m-desc">Break-in at a home. No one is at home. Two suspects. The suspects are still there. Caller hears breaking glass at the neighbour’s house.</div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">5</span> Location</span><div class="m-input focus">📍 112 Florida Road, Morningside, Durban</div>
                 <div class="m-map"><span class="drop"></span></div></div>
               <div class="m-grid2" style="gap:.6rem">
                 <div class="m-field"><span class="m-label">Suburb</span><div class="m-input">Morningside</div></div>
                 <div class="m-field"><span class="m-label"><span class="pin">6</span> Region</span><div class="m-input ok">Central <span class="caret">▾</span></div><span class="m-help">Set from the map pin</span></div>
               </div>
+              <span class="m-more">▸ City, postal code and exact point</span>
             </div>
             <div class="m-card">
-              <p class="m-head">Incident details &amp; routing</p>
-              <div class="m-field"><span class="m-label"><span class="pin">7</span> Incident type (10-code)</span><div class="m-input">10-3: Burglary <span class="caret">▾</span></div></div>
-              <div class="m-field"><span class="m-label"><span class="pin">8</span> Call description / narrative</span><div class="m-input" style="min-height:3.2rem;align-items:flex-start">Caller hears breaking glass at the neighbour’s house. Owners are away. Two men seen at the back door.</div></div>
-              <div class="m-part"><span class="m-label"><span class="pin">9</span> EMS / medical triage</span><div class="m-row"><span class="m-switch"></span><span class="m-sub">No injuries / EMS not required</span></div>
-                <div class="m-grid2 m-dim" style="gap:.5rem"><div class="m-input">Number of victims</div><div class="m-input">Medical severity code</div></div></div>
-              <div class="m-grid2" style="gap:.6rem">
-                <div class="m-field"><span class="m-label"><span class="pin">10</span> Incident severity</span><div class="m-input">High <span class="caret">▾</span></div></div>
-                <div class="m-field"><span class="m-label"><span class="pin">11</span> Attachment (optional)</span><div class="m-input m-sub">Choose a photo, recording or document…</div></div>
-              </div>
-              <div class="m-field"><span class="m-label"><span class="pin">12</span> Internal dispatch notes</span><div class="m-input">Gate code 4471. Dog in the yard.</div></div>
-              <div class="m-part"><span class="m-row between"><span class="m-label"><span class="pin">13</span> Send to dispatch</span><span class="m-help">Suggested from the incident type: change if needed</span></span>
+              <p class="m-head">Caller and dispatch</p>
+              <div class="m-field"><span class="m-label"><span class="pin">7</span> Caller name</span><div class="m-input">Thabo Mkhize</div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">8</span> Caller number</span>
+                <div class="m-row"><div class="m-input" style="width:6.5rem">ZA +27 <span class="caret">▾</span></div><div class="m-input" style="flex:1">082 555 0143</div><span class="m-btn small ok">Call</span></div>
+                <span class="m-help ok">Saved as +27 82 555 0143</span></div>
+              <div class="m-field"><span class="m-label"><span class="pin">9</span> Severity</span>
+                <div class="m-segs"><span>Low</span><span>Medium</span><span class="on high">High</span><span>Critical</span></div>
+                <span class="m-help">Criti suggests Medium.</span></div>
+              <div class="m-field"><span class="m-label"><span class="pin">10</span> Internal dispatch notes</span><div class="m-input">Gate code 4471. Dog in the yard.</div></div>
+              <div class="m-field"><span class="m-label">Attachment (optional)</span><div class="m-input m-sub">Choose a photo, recording or document…</div></div>
+              <div class="m-part"><span class="m-row between"><span class="m-label"><span class="pin">11</span> Send to dispatch</span><span class="m-help">Suggested by Criti: change if needed</span></span>
                 <div class="m-dept"><span class="fire">Fire</span><span class="police on">Police</span><span class="med">Medical</span><span class="dis">Disaster</span></div>
                 <span class="m-bcast">Broadcast all (emergency)</span>
                 <span class="m-help">Only the Metro Police dispatch desk receives this call.</span></div>
-              <span class="m-btn blue full"><span class="pin">14</span> Send to dispatch</span>
+              <span class="m-btn blue full"><span class="pin">12</span> Send to dispatch</span>
             </div>
           </div>
         </div>
       </div>
       <ol class="legend">
         <li><span class="pin">1</span><span><b>Response clock.</b> Starts when the screen opens. It turns amber after 1 minute 30 and flashes red after 3 minutes, so a long call is never forgotten. The times are set in Admin.</span></li>
-        <li><span class="pin">2</span><span><b>Caller name</b>, as the caller gives it. Required.</span></li>
-        <li><span class="pin">3</span><span><b>Contact number.</b> South Africa (+27) is chosen; other countries are in the list, and a number typed with + or 00 picks its own country. A wrong number is refused with the reason. <b>Call</b> rings the caller back. If the same number or address called in the last 12 hours, a <i>Possible duplicate</i> note appears.</span></li>
-        <li><span class="pin">4</span><span><b>Is the caller the patient?</b> Required. With No, the patient names can be added, one row per person.</span></li>
-        <li><span class="pin">5</span><span><b>Incident location.</b> Type an address and pick a suggestion, or click the map. The red pin is where crews are sent.</span></li>
+        <li><span class="pin">2</span><span><b>Criti.</b> Up to three short lines: warnings, what to ask the caller next, and what is still missing. <b>View all</b> shows everything. Criti fills in only empty fields and marks them <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span>. It never changes what the call logger chose, and it is never sent the caller’s name or number.</span></li>
+        <li><span class="pin">3</span><span><b>Incident type.</b> Type a word (gun, crash, chest, fire) or a code (10-50) and pick. Each type shows its code first: V4’s radio code where V4 had the type (<i>10-50 PI · Crash with injuries</i>), or ours (<i>CR-03 · Burglary</i>). The dots show who each type goes to: blue Police, orange Fire, red EMS, purple Disaster. Two dots mean two departments. Required.</span></li>
+        <li><span class="pin">4</span><span><b>Description.</b> Locked until the type is chosen; then click it to open the Description window for that type (next picture). Required.</span></li>
+        <li><span class="pin">5</span><span><b>Location.</b> An address, or a place the caller names: “Gateway”, “Engen near Pavilion”, “the Shell in Pinetown”. Or click the map. The red pin is where crews are sent.</span></li>
         <li><span class="pin">6</span><span><b>Region</b> is filled in from the pin (Central, North, South, West, Outer). It can be changed by hand.</span></li>
-        <li><span class="pin">7</span><span><b>Incident type</b>, from eThekwini’s 10-codes, grouped: Crime, Traffic, Fire, Medical, Public Order, Disaster.</span></li>
-        <li><span class="pin">8</span><span><b>What the caller said</b>, in their words where possible. Required.</span></li>
-        <li><span class="pin">9</span><span><b>Medical triage.</b> Switch on <i>No injuries</i>, or give the number of victims and a medical code (P1 red to P4 blue).</span></li>
-        <li><span class="pin">10</span><span><b>Severity:</b> Low, Medium, High or Critical. It colours the call everywhere, and a Critical call is flagged <i>Priority 1 — respond immediately</i> on the phone.</span></li>
-        <li><span class="pin">11</span><span><b>Attachment</b>: a photo, recording or document the caller sent. Optional.</span></li>
-        <li><span class="pin">12</span><span><b>Dispatch notes</b> for the crew only: access, hazards, instructions.</span></li>
-        <li><span class="pin">13</span><span><b>Who receives the call.</b> The departments are suggested from the incident type. Only the departments chosen here get the call. <b>Broadcast all</b> sends it to every department at once.</span></li>
-        <li><span class="pin">14</span><span><b>Send to dispatch.</b> The call gets its number (for example INC-20261013-0004) and lands in the Metro Police queue at once. The call logger is taken to the call’s page.</span></li>
+        <li><span class="pin">7</span><span><b>Caller name</b>, as the caller gives it. Required.</span></li>
+        <li><span class="pin">8</span><span><b>Caller number.</b> South Africa (+27) is chosen; other countries are in the list, and a number typed with + or 00 picks its own country. A wrong number is refused with the reason. <b>Call</b> rings the caller back. If the same number or address called in the last 12 hours, a <i>Possible duplicate</i> note appears.</span></li>
+        <li><span class="pin">9</span><span><b>Severity:</b> Low, Medium, High or Critical. Criti fills it in from the type and the injuries. Here the call logger chose High, so Criti only says what it would choose. A Critical call is flagged <i>Priority 1 — respond immediately</i> on the phone.</span></li>
+        <li><span class="pin">10</span><span><b>Dispatch notes</b> for the crew only: access, hazards, instructions. An attachment the caller sent can be added below.</span></li>
+        <li><span class="pin">11</span><span><b>Who receives the call.</b> Criti suggests the departments from the type and anyone hurt. Only the departments chosen here get the call. <b>Broadcast all</b> sends it to every department at once.</span></li>
+        <li><span class="pin">12</span><span><b>Send to dispatch.</b> The call gets its number now, never before, and lands in the Metro Police queue at once. The call logger is taken to the call’s page.</span></li>
+      </ol>
+    </figure>
+
+    <div class="tip">
+      <h3>Only when someone is hurt</h3>
+      <p class="muted">The EMS box, and in the Description window the question <i>Is the caller the patient?</i> with each patient’s own severity, appear only when EMS is on the call: a medical type, an injury ticked, or EMS chosen. A burglary has none of them. The EMS guide shows them.</p>
+    </div>
+
+    <div class="tip">
+      <h3>Reading the incident number</h3>
+      <p class="muted"><b class="mono">MP-20261013-0938-0004</b> is the departments it was sent to, the date, the time it was sent, and the call of the day: Metro Police, 13 October 2026, 09:38, the 4th call that day. <b>MP</b> Metro Police, <b>FD</b> Fire, <b>MD</b> EMS, <b>DM</b> Disaster Management, always in that order and joined in pairs: <span class="mono">MPFD-…</span>, <span class="mono">MPFD-MD-…</span>. The number never changes, even if a department is added later. Calls from before keep their INC- numbers.</p>
+    </div>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">Description</span><span class="where">Opens from the form, once the type is chosen</span><span class="example">Example data</span></figcaption>
+      <div class="screen" style="max-width:58rem">
+        <div class="screen-body">
+          <div class="m-row between"><p class="m-title" style="font-size:1.05rem">Description: Burglary</p><span class="m-sub">✕</span></div>
+          <div class="m-grid2" style="grid-template-columns:repeat(auto-fit,minmax(18rem,1fr))">
+            <div style="display:grid;gap:.7rem;align-content:start">
+              <div class="m-field"><span class="m-label"><span class="pin">1</span> Starts with</span>
+                <div class="m-desc">Break-in at <b>a home ▾</b>.</div>
+                <span class="m-help">It is in the description, and follows your answers until you type.</span></div>
+              <div class="m-field"><span class="m-label"><span class="pin">2</span> What the caller says</span>
+                <div class="m-input focus" style="min-height:5.5rem;align-items:flex-start">Break-in at a home. No one is at home. Two suspects. The suspects are still there. Caller hears breaking glass at the neighbour’s house.</div>
+                <span class="m-help" style="text-align:right">136/2000</span></div>
+              <div class="m-criti">
+                <p class="hd"><span class="pin">3</span> <img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti <em>Read the description</em></p>
+                <p><span class="dot crit"></span><span class="grow" style="color:#FCA5A5;font-weight:600">Suspects may still be on the property</span></p>
+                <p><span class="dot"></span><span class="grow">Criti heard: <b>2 suspects</b> <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span></span></p>
+                <p><span class="act">Write it up</span></p>
+              </div>
+            </div>
+            <div style="display:grid;gap:.8rem;align-content:start">
+              <div class="m-field"><span class="m-label"><span class="pin">4</span> Ask the caller</span>
+                <span class="m-sub">Are the suspects still inside?</span>
+                <div class="m-segs three"><span class="on">Yes</span><span>No</span><span>Not known</span></div>
+                <span class="m-sub">Is anyone home?</span>
+                <div class="m-segs three"><span>Yes</span><span class="on">No</span><span>Not known</span></div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">5</span> Details</span>
+                <span class="m-sub">Where</span>
+                <div class="m-segs three"><span class="on">A home</span><span>A business</span><span>A shop</span></div>
+                <span class="m-sub">What was taken</span>
+                <div class="m-segs"><span>Cellphone</span><span>TV</span><span>Laptop</span><span>Cash</span></div>
+                <span class="m-sub">Suspects</span>
+                <div class="m-segs six"><span>1</span><span class="on">2</span><span>3</span><span>4</span><span>5+</span><span>?</span></div></div>
+              <div class="m-field"><span class="m-label"><span class="pin">6</span> Is anyone hurt?</span>
+                <div class="m-segs three"><span>Yes</span><span class="on">No</span><span>Not known</span></div>
+                <span class="m-help">The injuries list shows only after a Yes.</span></div>
+            </div>
+          </div>
+          <div class="m-row" style="justify-content:flex-end"><span class="m-btn blue small">Done</span></div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>Starts with.</b> A short sentence for the type. The blank is a button: click it to choose (a home, a business), or type over it. It follows the answers until the call logger types.</span></li>
+        <li><span class="pin">2</span><span><b>The caller’s words</b>, up to 2000 characters, after the starting sentence.</span></li>
+        <li><span class="pin">3</span><span><b>Criti reads it as it is typed:</b> warnings in red, and the details it heard, filled in where still empty and marked <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span>. <b>Write it up</b> turns the details and answers into a short description to check. It uses only what was said.</span></li>
+        <li><span class="pin">4</span><span><b>Ask the caller.</b> The questions for the type, with one-tap answers. An answer fills the matching detail, and a question already answered isn’t asked again.</span></li>
+        <li><span class="pin">5</span><span><b>Details for the type:</b> where, what was taken, how many suspects, what they look like, their vehicle. They are saved apart from the description, so reports can count them, and dispatch and the crew see them.</span></li>
+        <li><span class="pin">6</span><span><b>Injuries only when someone is hurt.</b> For a burglary the list stays hidden until <i>Is anyone hurt?</i> is Yes. Medical types show it at once.</span></li>
+      </ol>
+    </figure>
+
+    <figure class="exhibit">
+      <figcaption><span class="tag">An urgent call · Send to dispatch now</span><span class="where">/dispatch/log-call · /dispatch/pending</span><span class="example">Example data</span></figcaption>
+      <div class="screen">
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/dispatch/log-call</span></div>
+        <div class="screen-body">
+          <div class="m-criti">
+            <p class="hd"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti <em>Read the description</em><span class="all">View all</span></p>
+            <p><span class="dot crit"></span><span class="grow" style="color:#FCA5A5;font-weight:600">Shooter may still be there</span></p>
+            <p><span class="dot crit"></span><span class="grow"><b>Critical call: dispatch can start now.</b> <span class="faint">Add the rest after.</span></span><span class="act"><span class="pin">1</span> Send to dispatch now</span></p>
+          </div>
+          <div class="m-grid2" style="grid-template-columns:repeat(auto-fit,minmax(19rem,1fr));align-items:start">
+            <div class="m-card">
+              <div class="m-field"><span class="m-label">Incident type</span><div class="m-input"><span class="m-dots"><i class="police"></i><i class="med"></i></span> Shooting / gunshot wound <span class="caret">▾</span></div></div>
+              <div class="m-field"><span class="m-label">Location</span><div class="m-input">📍 Engen, 171 Main Road, Queensburgh</div><span class="m-help">Found by typing “Engen near Pavilion”</span></div>
+              <div class="m-field"><span class="m-label">Description</span><div class="m-desc">Man shot outside the Engen. The gunman ran towards the taxi rank.</div></div>
+              <div class="m-field"><span class="m-label">Severity <span class="m-mark"><img src="/criti-head.png" alt="" style="width:1.2em;height:1.2em;vertical-align:-.15em"> Criti</span></span><div class="m-segs"><span>Low</span><span>Medium</span><span>High</span><span class="on crit">Critical</span></div></div>
+            </div>
+            <div class="m-popup">
+              <span class="t"><span class="pin">2</span> Send to dispatch now?</span>
+              <span>This is a <b>Critical</b> call. The <b>Metro Police, EMS</b> dispatch desks can start now with what you have.</span>
+              <span class="m-sub">Still to add: Caller name, Caller number, Is the caller the patient?. You keep filling in on this screen, and each detail is added to the call.</span>
+              <div class="btns"><span class="m-btn ghost small">Not yet</span><span class="m-btn crit small">Send now</span></div>
+            </div>
+          </div>
+          <div class="m-banner"><span class="pin">3</span><span>✓</span><span class="grow"><b class="mono">MPMD-20261013-1041-0021</b> is with the <b>Metro Police, EMS</b> dispatch desks. Keep filling in: each change is added to the call.</span><span class="m-sub">Added 10:42</span><span class="m-sub" style="color:#8FB6FF">Open the call ↗</span></div>
+          <div class="m-card" style="padding:.6rem .8rem">
+            <table>
+              <tr><th>Incident</th><th>Severity</th><th>Type</th><th>Caller</th><th>Location</th></tr>
+              <tr><td class="mono">MPMD-20261013-1041-0021</td><td><span class="m-sev crit">Critical</span></td><td>Shooting / gunshot wound<br><span class="m-hold"><span class="pin">4</span> ⧗ Details to follow</span></td><td><span class="m-sub">Not given yet</span></td><td>📍 Engen, 171 Main Road<small>Queensburgh</small></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <ol class="legend">
+        <li><span class="pin">1</span><span><b>It can go now</b> when the call has a type, a place on the map and a department, and it is High or Critical. The button stays in the Criti strip and above <i>Send to dispatch</i>.</span></li>
+        <li><span class="pin">2</span><span><b>The pop-up asks once.</b> <i>Send now</i> sends the call with what is known. <i>Not yet</i> carries on with the form.</span></li>
+        <li><span class="pin">3</span><span><b>The call stays on the screen.</b> Each change (caller, number, description, injuries) is added to the call within seconds, and the call’s timeline says what was added. A department can still be added; one already sent stays. <b>Done · open the call</b> finishes.</span></li>
+        <li><span class="pin">4</span><span><b>The desks see it at once,</b> marked <span class="m-hold">⧗ Details to follow</span> until the caller’s name, number and the description are in (and, for EMS, whether the caller is the patient). The dispatcher can send crews straight away.</span></li>
       </ol>
     </figure>
 
     <div class="tip warn">
       <h3>If something is missing</h3>
-      <p class="muted">Nothing is sent until the form is complete. The message says exactly what to fix, for example:</p>
+      <p class="muted">A normal send waits until the form is complete. The message says exactly what to fix, for example:</p>
       <ul class="muted">
-        <li>Say whether the caller is the patient.</li>
-        <li>Place the scene on the map — pick an address suggestion or click the map.</li>
+        <li>Choose the incident type.</li>
+        <li>Place the incident on the map: pick a search result or click the map.</li>
         <li>Choose the department this call is for: who must receive it.</li>
       </ul>
+      <p class="muted">Details added to a call already sent can be added only by the person who logged it, or the control room. Once a crew has accepted the call, only the dispatcher changes its type; once a crew is on scene, only the dispatcher changes the place.</p>
     </div>
   </section>
 
@@ -268,9 +374,9 @@
             <table class="m-table">
               <thead><tr><th>Incident #</th><th>Severity</th><th>Type</th><th>Sent to <span class="pin">4</span></th><th>Caller</th><th>Location <span class="pin">5</span></th><th>Received <span class="pin">6</span></th><th></th></tr></thead>
               <tbody>
-                <tr><td class="mono">INC-20261013-0004</td><td><span class="m-sev high">High</span></td><td>Burglary</td><td><span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Thabo Mkhize<small>+27 82 555 0143</small></td><td>📍 112 Florida Road<small>Central</small></td><td>2 min</td><td><span class="m-btn small blue"><span class="pin">7</span> Dispatch</span></td></tr>
-                <tr><td class="mono">INC-20261013-0003</td><td><span class="m-sev med">Medium</span></td><td>Motor Vehicle Accident</td><td><span class="m-chip ok">Fire &amp; Rescue · Dispatched</span> <span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Ayesha Khan<small>+27 83 410 2290</small></td><td>📍 N3, Westville off-ramp<small>West</small></td><td>14 min</td><td><span class="m-btn small blue">Dispatch</span></td></tr>
-                <tr><td class="mono">INC-20261012-0061</td><td><span class="m-sev low">Low</span></td><td>Traffic Violation</td><td><span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Sipho Ndlovu<small>+27 72 118 4410</small></td><td>📍 Umgeni Road<small>Central</small></td><td>Yesterday</td><td><span class="m-btn small blue">Dispatch</span></td></tr>
+                <tr><td class="mono">MP-20261013-0938-0004</td><td><span class="m-sev high">High</span></td><td>Burglary</td><td><span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Thabo Mkhize<small>+27 82 555 0143</small></td><td>📍 112 Florida Road<small>Central</small></td><td>2 min</td><td><span class="m-btn small blue"><span class="pin">7</span> Dispatch</span></td></tr>
+                <tr><td class="mono">MPFD-20261013-0926-0003</td><td><span class="m-sev med">Medium</span></td><td>Motor Vehicle Accident</td><td><span class="m-chip ok">Fire &amp; Rescue · Dispatched</span> <span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Ayesha Khan<small>+27 83 410 2290</small></td><td>📍 N3, Westville off-ramp<small>West</small></td><td>14 min</td><td><span class="m-btn small blue">Dispatch</span></td></tr>
+                <tr><td class="mono">MP-20261012-1647-0061</td><td><span class="m-sev low">Low</span></td><td>Traffic Violation</td><td><span class="m-chip warn">Metro Police · Waiting to dispatch</span></td><td>Sipho Ndlovu<small>+27 72 118 4410</small></td><td>📍 Umgeni Road<small>Central</small></td><td>Yesterday</td><td><span class="m-btn small blue">Dispatch</span></td></tr>
               </tbody>
             </table>
           </div>
@@ -290,10 +396,10 @@
     <figure class="exhibit">
       <figcaption><span class="tag">Dispatch &amp; routing</span><span class="where">/dispatch/assign/…</span><span class="example">Example data</span></figcaption>
       <div class="screen">
-        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/dispatch/assign/INC-20261013-0004</span></div>
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/dispatch/assign/MP-20261013-0938-0004</span></div>
         <div class="screen-body">
-          <div class="m-row between"><div><p class="m-title">Dispatch call</p><p class="m-sub">Incident INC-20261013-0004 <span class="m-sev high">High</span> · logged 2 minutes ago</p></div><span class="m-btn ghost small">Full lifecycle ↗</span></div>
-          <p class="m-sub"><span class="pin">1</span> Above this, everything the call logger captured is shown read-only: caller, map, description, triage, notes and attachments.</p>
+          <div class="m-row between"><div><p class="m-title">Dispatch call</p><p class="m-sub">Incident MP-20261013-0938-0004 <span class="m-sev high">High</span> · logged 2 minutes ago</p></div><span class="m-row"><span class="m-btn small blue"><span class="pin">5</span> Edit before dispatch</span><span class="m-btn ghost small">Full lifecycle ↗</span></span></div>
+          <p class="m-sub"><span class="pin">1</span> Above this, everything the call logger captured: caller, map, description, triage, notes and attachments.</p>
           <div class="m-card">
             <p class="m-head">Dispatch &amp; routing</p>
             <div class="m-grid2" style="gap:.6rem">
@@ -313,6 +419,7 @@
         <li><span class="pin">2</span><span><b>Two ways to send it.</b> To everyone on duty: the first officer to accept leads. Or to one chosen officer: they lead. Either way, others can join as backup.</span></li>
         <li><span class="pin">3</span><span><b>Who is on duty</b>, nearest first, with the distance and minutes from their phone’s last position. <i>Available</i> means not on a call. Searchable by name, badge, vehicle or station.</span></li>
         <li><span class="pin">4</span><span><b>Dispatch.</b> Every chosen officer’s phone gets the call at once, even locked. The dispatcher is then taken to the call’s page to follow it.</span></li>
+        <li><span class="pin">5</span><span><b>Edit before dispatch.</b> The dispatcher can correct the call before sending crews: type, severity, description and details, caller, place, patient and notes, with an optional reason. Each change is kept with the dispatcher’s name and role, what it was and what it became. It shows on the call page, in the audit trail and on the case PDF, beside who logged the call. Once the department’s crews are sent, it can no longer be edited here.</span></li>
       </ol>
     </figure>
   </section>
@@ -331,7 +438,7 @@
             <div class="m-alert">
               <div class="m-alert-head">⚠<span><small>HIGH · METRO POLICE</small><b>New incident</b></span></div>
               <div class="m-alert-body">
-                <b>New incident INC-20261013-0004</b>
+                <b>New incident MP-20261013-0938-0004</b>
                 <span class="m-sub">📍 Burglary · 112 Florida Road, Morningside</span>
                 <span class="m-sub">📻 Dispatched by Nomsa Metro</span>
                 <span class="m-sub">🕑 14:06:12</span>
@@ -348,7 +455,7 @@
         <div class="phone"><div class="phone-top"><span>14:06</span><span>HikTech</span></div>
           <div class="phone-body">
             <div class="m-scrim">
-              <div class="m-dialog"><b>Accept INC-20261013-0004</b><span class="m-sub">Are you sure you want to accept this incident?</span><div class="btns"><span>Cancel</span><span>Accept</span></div></div>
+              <div class="m-dialog"><b>Accept MP-20261013-0938-0004</b><span class="m-sub">Are you sure you want to accept this incident?</span><div class="btns"><span>Cancel</span><span>Accept</span></div></div>
             </div>
           </div></div>
         <figcaption><b>Asked once.</b> <span class="muted">Accepting puts the officer En Route and tells the dispatcher straight away.</span></figcaption>
@@ -377,8 +484,8 @@
           <div class="phone-body">
             <div class="m-input"><span class="pin">1</span> ⌕ Search incident, address, severity or date</div>
             <div class="m-seg"><span class="on">All</span><span>Mine</span><span>Nearby</span></div>
-            <div class="m-callrow"><div class="top"><span>INC-20261013-0004</span><span class="tagline"><span class="pin">2</span> YOU · LEAD</span></div><span>Burglary · En Route</span><span class="sub">112 Florida Road · 1.2 km <span class="pin">3</span></span></div>
-            <div class="m-callrow" style="border-left-color:#FBBF24"><div class="top"><span>INC-20261013-0003</span><span class="sub">Sgt. P. Naidoo</span></div><span>Motor Vehicle Accident · On Scene</span><span class="sub">N3, Westville · 9.4 km</span></div>
+            <div class="m-callrow"><div class="top"><span>MP-20261013-0938-0004</span><span class="tagline"><span class="pin">2</span> YOU · LEAD</span></div><span>Burglary · En Route</span><span class="sub">112 Florida Road · 1.2 km <span class="pin">3</span></span></div>
+            <div class="m-callrow" style="border-left-color:#FBBF24"><div class="top"><span>MPFD-20261013-0926-0003</span><span class="sub">Sgt. P. Naidoo</span></div><span>Motor Vehicle Accident · On Scene</span><span class="sub">N3, Westville · 9.4 km</span></div>
           </div></div>
         <ol class="legend" style="align-content:start">
           <li><span class="pin">1</span><span><b>Search</b> by number, address, severity, or a date such as “today” or 13-10-2026.</span></li>
@@ -400,7 +507,7 @@
       <figure>
         <div class="phone"><div class="phone-top"><span>14:11</span><span>Incident</span></div>
           <div class="phone-body">
-            <div class="m-row between"><b class="mono">INC-20261013-0004</b><span class="m-sev high">High</span></div>
+            <div class="m-row between"><b class="mono">MP-20261013-0938-0004</b><span class="m-sev high">High</span></div>
             <p style="font-weight:700;font-size:1.05rem">Burglary</p>
             <span class="m-sub">📍 112 Florida Road · Reported 5 minutes ago</span>
             <span class="m-chip info">En Route</span>
@@ -416,9 +523,9 @@
       </figure>
       <figure style="grid-column:span 2">
         <div class="screen">
-          <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/incidents/INC-20261013-0004</span></div>
+          <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/incidents/MP-20261013-0938-0004</span></div>
           <div class="screen-body">
-            <div class="m-row between"><p class="m-title mono">INC-20261013-0004</p><span class="m-row"><span class="m-chip info">Metro Police · On Scene · Const. S. Khumalo</span><span class="m-chip warn">Live call</span></span></div>
+            <div class="m-row between"><p class="m-title mono">MP-20261013-0938-0004</p><span class="m-row"><span class="m-chip info">Metro Police · On Scene · Const. S. Khumalo</span><span class="m-chip warn">Live call</span></span></div>
             <p class="m-label"><span class="pin">4</span> Where the crew is</p>
             <div class="m-ladder">
               <span class="m-step done">✓ Dispatched<small>14:06</small></span><span class="m-step done">✓ En Route<small>14:07</small></span><span class="m-step now">✓ On Scene<small>14:11</small></span><span class="m-step">Transporting<small>If needed</small></span><span class="m-step">Report filed<small>Waiting</small></span>
@@ -502,7 +609,7 @@
     <figure class="exhibit">
       <figcaption><span class="tag">The case file</span><span class="where">/incidents/… and /case-manager/review</span><span class="example">Example data</span></figcaption>
       <div class="screen">
-        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/incidents/INC-20261013-0004</span></div>
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/incidents/MP-20261013-0938-0004</span></div>
         <div class="m-top"><span class="crumb">Case Management › <b>Awaiting review</b></span><span class="who"><span class="m-avatar">LC</span><span>Lindiwe Case<small>Case manager</small></span></span></div>
         <div class="screen-body">
           <div class="m-card" style="border-color:var(--m-accent);grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))">
@@ -515,7 +622,7 @@
             <div style="display:grid;gap:.45rem">
               <span class="m-label"><span class="pin">3</span> Review note (optional, goes on the record and to the officer)</span>
               <div class="m-input">Report complete; statement and photos on file.</div>
-              <span class="m-btn ok"><span class="pin">4</span> Close INC-20261013-0004</span>
+              <span class="m-btn ok"><span class="pin">4</span> Close MP-20261013-0938-0004</span>
             </div>
           </div>
         </div>

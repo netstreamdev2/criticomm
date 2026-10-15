@@ -9,6 +9,7 @@ import {
 } from '@criticom/api';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Input, Segmented } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -40,9 +41,10 @@ const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.ge
 export function ReportFieldInput({ field, value, onChange, tone = colors.accent }: {
   field: ReportField; value: string; onChange: (v: string) => void; tone?: string;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const [picking, setPicking] = useState(false);
-  const label = `${field.label}${field.required ? ' *' : ''}`;
+  const label = `${t(field.label)}${field.required ? ' *' : ''}`;
 
   if (field.kind === 'yesno' || field.kind === 'check') {
     const opts = field.kind === 'yesno' ? YES_NO : CHECK;
@@ -70,17 +72,17 @@ export function ReportFieldInput({ field, value, onChange, tone = colors.accent 
           <Pressable
             onPress={() => setPicking(true)}
             accessibilityRole="button"
-            accessibilityLabel={`${field.label}: ${chosen.length ? chosen.join(', ') : 'not chosen'}`}
+            accessibilityLabel={`${t(field.label)}: ${chosen.length ? chosen.map((c) => t(c)).join(', ') : t('not chosen')}`}
             style={({ pressed }) => [styles.select, chosen.length > 0 && { borderColor: `${tone}88` }, pressed && { opacity: 0.8 }]}
           >
             <Text style={[styles.selectText, !chosen.length && { color: colors.muted }]} numberOfLines={2}>
-              {chosen.length ? chosen.join(', ') : multi ? 'Choose all that apply' : 'Choose…'}
+              {chosen.length ? chosen.map((c) => t(c)).join(', ') : multi ? t('Choose all that apply') : t('Choose…')}
             </Text>
             <Ionicons name="chevron-down" size={18} color={colors.muted} />
           </Pressable>
           <OptionPicker
             visible={picking}
-            title={field.label}
+            title={t(field.label)}
             options={options}
             chosen={chosen}
             multi={multi}
@@ -106,7 +108,7 @@ export function ReportFieldInput({ field, value, onChange, tone = colors.accent 
                 accessibilityState={multi ? { checked: active } : { selected: active }}
                 style={({ pressed }) => [styles.chip, active && { backgroundColor: tone, borderColor: tone }, pressed && { opacity: 0.75 }]}
               >
-                <Text style={[styles.chipText, active && { color: onTone(tone) }]}>{opt}</Text>
+                <Text style={[styles.chipText, active && { color: onTone(tone) }]}>{t(opt)}</Text>
               </Pressable>
             );
           })}
@@ -116,9 +118,9 @@ export function ReportFieldInput({ field, value, onChange, tone = colors.accent 
   }
 
   const quick = field.kind === 'date'
-    ? [['Today', ymd(new Date())], ['Yesterday', ymd(new Date(Date.now() - 86_400_000))]]
+    ? [[t('Today'), ymd(new Date())], [t('Yesterday'), ymd(new Date(Date.now() - 86_400_000))]]
     : field.kind === 'time'
-      ? [['Now', (() => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; })()]]
+      ? [[t('Now'), (() => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; })()]]
       : [];
 
   return (
@@ -127,7 +129,7 @@ export function ReportFieldInput({ field, value, onChange, tone = colors.accent 
         label={label}
         value={value}
         onChangeText={onChange}
-        placeholder={field.placeholder ?? (field.kind === 'date' ? 'YYYY-MM-DD' : field.kind === 'time' ? 'HH:MM' : undefined)}
+        placeholder={field.placeholder ?? (field.kind === 'date' ? t('YYYY-MM-DD') : field.kind === 'time' ? t('HH:MM') : undefined)}
         keyboardType={field.kind === 'number' ? 'decimal-pad' : field.kind === 'date' || field.kind === 'time' ? 'numbers-and-punctuation' : 'default'}
         autoCapitalize={/plate|vin|reg/.test(field.key) ? 'characters' : field.kind === 'date' || field.kind === 'time' ? 'none' : 'sentences'}
         multiline={field.kind === 'multiline'}
@@ -151,21 +153,22 @@ function OptionPicker({ visible, title, options, chosen, multi, tone, onToggle, 
   visible: boolean; title: string; options: readonly string[]; chosen: string[]; multi: boolean; tone: string;
   onToggle: (opt: string) => void; onClose: () => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const insets = useSafeAreaInsets();
   const [q, setQ] = useState('');
   useEffect(() => { if (visible) setQ(''); }, [visible]);
-  const shown = q.trim() ? options.filter((o) => o.toLowerCase().includes(q.trim().toLowerCase())) : options;
+  const shown = q.trim() ? options.filter((o) => t(o).toLowerCase().includes(q.trim().toLowerCase())) : options;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable style={styles.pickerBackdrop} onPress={onClose} accessibilityLabel="Close list" />
+      <Pressable style={styles.pickerBackdrop} onPress={onClose} accessibilityLabel={t('Close list')} />
       <View style={[styles.picker, { paddingBottom: Math.max(insets.bottom, 12) }]}>
         <View style={styles.pickerHandle} />
         <View style={styles.pickerHead}>
           <Text style={styles.pickerTitle} numberOfLines={2}>{title}</Text>
           <Pressable onPress={onClose} accessibilityRole="button" hitSlop={8} style={[styles.pickerDone, { backgroundColor: tone }]}>
-            <Text style={[styles.pickerDoneText, { color: onTone(tone) }]}>Done</Text>
+            <Text style={[styles.pickerDoneText, { color: onTone(tone) }]}>{t('Done')}</Text>
           </Pressable>
         </View>
         {options.length > 10 ? (
@@ -174,7 +177,7 @@ function OptionPicker({ visible, title, options, chosen, multi, tone, onToggle, 
             <TextInput
               value={q}
               onChangeText={setQ}
-              placeholder="Search"
+              placeholder={t('Search')}
               placeholderTextColor={colors.muted}
               style={styles.pickerSearchInput}
               autoCorrect={false}
@@ -197,7 +200,7 @@ function OptionPicker({ visible, title, options, chosen, multi, tone, onToggle, 
                   size={20}
                   color={on ? tone : colors.muted}
                 />
-                <Text style={[styles.optionText, on && { fontWeight: '800' }]}>{opt}</Text>
+                <Text style={[styles.optionText, on && { fontWeight: '800' }]}>{t(opt)}</Text>
               </Pressable>
             );
           })}
@@ -236,6 +239,7 @@ export function ReportWizard({
   /** Take a ticked form back off the report. */
   onRemove?: () => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const insets = useSafeAreaInsets();
   const [step, setStep] = useState(0);
@@ -263,7 +267,7 @@ export function ReportWizard({
   if (!spec || !section) return null;
   const tone = spec.tone;
   const ink = onTone(tone);
-  const stepTitle = section.title.startsWith(`${spec.code} · `) ? section.title.slice(spec.code.length + 3) : section.title;
+  const stepTitle = t(section.title.startsWith(`${spec.code} · `) ? section.title.slice(spec.code.length + 3) : section.title);
 
   const go = (to: number) => {
     setStep(to);
@@ -293,7 +297,7 @@ export function ReportWizard({
     <Modal visible animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView style={[styles.wizard, { paddingTop: insets.top }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.wHead}>
-          <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close, keep answers" hitSlop={10} style={styles.wIconBtn}>
+          <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel={t('Close, keep answers')} hitSlop={10} style={styles.wIconBtn}>
             <Ionicons name="close" size={24} color={colors.text} />
           </Pressable>
           <View style={[styles.wBadge, { backgroundColor: tone }]}>
@@ -301,11 +305,11 @@ export function ReportWizard({
           </View>
           <View style={{ flex: 1, minWidth: 0 }}>
             <Text style={[styles.wCode, { color: tone }]}>{spec.code}</Text>
-            <Text style={styles.wTitle} numberOfLines={1}>{spec.title}</Text>
+            <Text style={styles.wTitle} numberOfLines={1}>{t(spec.title)}</Text>
           </View>
           {onRemove ? (
             <Pressable onPress={onRemove} accessibilityRole="button" hitSlop={8}>
-              <Text style={styles.wRemove}>Remove</Text>
+              <Text style={styles.wRemove}>{t('Remove')}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -316,13 +320,13 @@ export function ReportWizard({
               key={s.key ?? s.title}
               onPress={() => go(i)}
               hitSlop={{ top: 10, bottom: 10 }}
-              accessibilityLabel={`Step ${i + 1}`}
+              accessibilityLabel={t('Step {n}', { n: i + 1 })}
               style={[styles.wSeg, { backgroundColor: i <= step ? tone : colors.track }]}
             />
           ))}
         </View>
         <Text style={styles.wStep}>
-          Step {step + 1} of {sections.length} · <Text style={{ color: colors.text }}>{stepTitle}</Text>
+          {t('Step {n} of {total}', { n: step + 1, total: sections.length })} · <Text style={{ color: colors.text }}>{stepTitle}</Text>
         </Text>
 
         <ScrollView ref={scroll} style={{ flex: 1 }} contentContainerStyle={styles.wBody} keyboardShouldPersistTaps="handled">
@@ -330,10 +334,10 @@ export function ReportWizard({
             <View key={row} style={section.repeat ? styles.wRow : undefined}>
               {section.repeat ? (
                 <View style={styles.wRowHead}>
-                  <Text style={[styles.wRowTitle, { color: tone }]}>{rowLabel(section, row)}</Text>
+                  <Text style={[styles.wRowTitle, { color: tone }]}>{`${t(section.repeat.noun)} ${rowLabel(section, row).slice(section.repeat.noun.length + 1)}`}</Text>
                   {row === rows && rows > section.repeat.min ? (
                     <Pressable onPress={() => removeRow(section)} accessibilityRole="button" hitSlop={8}>
-                      <Text style={styles.wRemove}>Remove</Text>
+                      <Text style={styles.wRemove}>{t('Remove')}</Text>
                     </Pressable>
                   ) : null}
                 </View>
@@ -342,7 +346,7 @@ export function ReportWizard({
                 const isBad = stillBad.has(key);
                 return (
                   <View key={key} style={[styles.wField, isBad && styles.fieldBad]}>
-                    {isBad ? <Text style={styles.badHint}>{field.required && !(answers[key] ?? '').trim() ? 'Required — fill this in' : 'Check this answer'}</Text> : null}
+                    {isBad ? <Text style={styles.badHint}>{field.required && !(answers[key] ?? '').trim() ? t('Required — fill this in') : t('Check this answer')}</Text> : null}
                     <ReportFieldInput field={field} value={answers[key] ?? ''} onChange={(v) => set(key, v)} tone={tone} />
                   </View>
                 );
@@ -352,14 +356,14 @@ export function ReportWizard({
           {section.repeat && rows < section.repeat.max ? (
             <Pressable onPress={() => addRow(section)} accessibilityRole="button" style={[styles.wAdd, { borderColor: `${tone}88` }]}>
               <Ionicons name="add-circle-outline" size={18} color={tone} />
-              <Text style={[styles.wAddText, { color: tone }]}>Add {section.repeat.noun.toLowerCase()}</Text>
+              <Text style={[styles.wAddText, { color: tone }]}>{t('Add {noun}', { noun: t(section.repeat.noun).toLowerCase() })}</Text>
             </Pressable>
           ) : null}
         </ScrollView>
 
         <View style={[styles.wFoot, { paddingBottom: Math.max(insets.bottom, 12) }]}>
           {stepProblems ? (
-            <Text style={styles.wFootWarn}>{stepProblems === 1 ? 'One answer needs fixing' : `${stepProblems} answers need fixing`} — marked in red.</Text>
+            <Text style={styles.wFootWarn}>{stepProblems === 1 ? t('One answer needs fixing') : t('{stepProblems} answers need fixing', { stepProblems })}{' '}{t('— marked in red.')}</Text>
           ) : null}
           <View style={styles.wFootRow}>
             <Pressable
@@ -368,14 +372,14 @@ export function ReportWizard({
               style={({ pressed }) => [styles.wBack, pressed && { opacity: 0.8 }]}
             >
               <Ionicons name="chevron-back" size={18} color={colors.text} />
-              <Text style={styles.wBackText}>{step === 0 ? 'Close' : 'Back'}</Text>
+              <Text style={styles.wBackText}>{step === 0 ? t('Close') : t('Back')}</Text>
             </Pressable>
             <Pressable
               onPress={next}
               accessibilityRole="button"
               style={({ pressed }) => [styles.wNext, { backgroundColor: tone }, pressed && { opacity: 0.85 }]}
             >
-              <Text style={[styles.wNextText, { color: ink }]}>{last ? 'Done' : 'Next'}</Text>
+              <Text style={[styles.wNextText, { color: ink }]}>{last ? t('Done') : t('Next')}</Text>
               <Ionicons name={last ? 'checkmark-circle' : 'chevron-forward'} size={20} color={ink} />
             </Pressable>
           </View>

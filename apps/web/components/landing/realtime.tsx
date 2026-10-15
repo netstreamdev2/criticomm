@@ -44,9 +44,9 @@ export function Realtime() {
       >
         <div className="space-y-3">
           {[
-            { ref: 'INC-…-0114', label: 'Taxi rollover — M4', anim: true },
-            { ref: 'INC-…-0115', label: 'Structure fire — Sydenham', anim: false, pct: 62, hex: '#f59e0b' },
-            { ref: 'INC-…-0116', label: 'Assault — West St', anim: false, pct: 88, hex: '#22c55e' },
+            { ref: 'MPFD-MD-…-0114', label: 'Taxi rollover — M4', anim: true },
+            { ref: 'FD-…-0115', label: 'Structure fire — Sydenham', anim: false, pct: 62, hex: '#f59e0b' },
+            { ref: 'MP-…-0116', label: 'Assault — West St', anim: false, pct: 88, hex: '#22c55e' },
           ].map((r) => (
             <div key={r.ref}>
               <div className="flex items-baseline justify-between text-[11px]">
@@ -110,7 +110,7 @@ export function Realtime() {
           {['Control room', 'Responder app'].map((surface) => (
             <div key={surface} className="rounded-lg border border-white/10 p-3.5">
               <p className="text-[9px] font-bold uppercase tracking-wider text-white/40">{surface}</p>
-              <p className="mt-1.5 truncate text-[11px] text-white/60">INC-…-0114</p>
+              <p className="mt-1.5 truncate text-[11px] text-white/60">MPFD-MD-…-0114</p>
               <div className="relative mt-2 h-6">
                 <span className="lp-swap-out absolute inset-0 inline-flex items-center rounded-md bg-[#f59e0b]/15 px-2.5 text-[11px] font-bold text-[#fbbf24]">
                   ● Dispatched

@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { tNow } from './translator';
 import { Alert } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { cleanupOnLogout } from '@criticom/api';
@@ -22,7 +23,7 @@ export function useSignOut() {
   return useCallback(async () => {
     const net = await NetInfo.fetch().catch(() => null);
     if (net && (net.isConnected === false || net.isInternetReachable === false)) {
-      Alert.alert('No connection', 'Sign out when you have signal, so dispatch knows you are off duty.');
+      Alert.alert(tNow('No connection'), tNow('Sign out when you have signal, so dispatch knows you are off duty.'));
       return;
     }
     const sb = getSupabase();

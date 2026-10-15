@@ -7,9 +7,11 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { colors, space, type, makeStyles } from '@/lib/theme';
 import { Card, Muted } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 /** On the profile: the next shift, and this month at a glance. Opens My Schedule. */
 export function MyShiftsCard() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { session, silo } = useAuth();
@@ -32,24 +34,25 @@ export function MyShiftsCard() {
   const done = thisMonth.filter((l) => l.end_at && Date.parse(l.end_at) < Date.now());
   const late = done.filter((l) => (l.attendance?.late_minutes ?? 0) > (month?.settings.grace ?? 10)).length;
   const missed = done.filter((l) => !l.attendance?.checked_in_at && !l.attendance?.outcome).length;
-  const name = (l: ScheduleLine) => (l.template_id && month?.templates.find((t) => t.id === l.template_id)?.name) || l.activity_type || 'Shift';
+  const shiftLine = (l: ScheduleLine) => `${name(l)} · ${dayLabel(l.duty_date ?? saDay(), t)} · ${saTime(l.start_at!)}–${saTime(l.end_at!)}`;
+  const name = (l: ScheduleLine) => (l.template_id && month?.templates.find((item) => item.id === l.template_id)?.name) || l.activity_type || t('Shift');
 
   return (
-    <Pressable onPress={() => router.push('/(tabs)/schedule')} accessibilityRole="button" accessibilityLabel="My schedule">
+    <Pressable onPress={() => router.push('/(tabs)/schedule')} accessibilityRole="button" accessibilityLabel={t('My schedule')}>
       <Card>
         <View style={styles.row}>
           <Ionicons name="calendar-outline" size={18} color={colors.accent} />
-          <Text style={styles.title}>My shifts</Text>
+          <Text style={styles.title}>{t('My shifts')}</Text>
           <Ionicons name="chevron-forward" size={16} color={colors.muted} style={{ marginLeft: 'auto' }} />
         </View>
         <Muted>
           {next?.start_at && next.end_at
-            ? `${Date.parse(next.start_at) <= Date.now() ? 'Now' : 'Next'}: ${name(next)} · ${dayLabel(next.duty_date ?? saDay())} · ${saTime(next.start_at)}–${saTime(next.end_at)}`
-            : 'Nothing on your roster in the next day.'}
+            ? (Date.parse(next.start_at) <= Date.now() ? t('Now: {shift}', { shift: shiftLine(next) }) : t('Next: {shift}', { shift: shiftLine(next) }))
+            : t('Nothing on your roster in the next day.')}
         </Muted>
         <Muted>
-          This month: {thisMonth.length} shift{thisMonth.length === 1 ? '' : 's'}
-          {late ? ` · ${late} late` : ''}{missed ? ` · ${missed} not started` : ''}
+          {thisMonth.length === 1 ? t('This month: 1 shift') : t('This month: {n} shifts', { n: thisMonth.length })}
+          {late ? t(' · {late} late', { late }) : ''}{missed ? t(' · {missed} not started', { missed }) : ''}
         </Muted>
       </Card>
     </Pressable>

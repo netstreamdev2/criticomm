@@ -3,11 +3,13 @@ import { Ionicons } from '@expo/vector-icons';
 import type { BodycamRow } from '@criticom/api';
 import { FieldLabel, Group, PaperButton, PaperInput, Sheet, TickBox, paper } from '@/components/shift-form';
 import { makeStyles } from '@/lib/theme';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 export const BODYCAM_CHECKS = [
-  ['battery', 'Battery charged for the shift'],
-  ['recording', 'A test recording plays back'],
-  ['mounted', 'Mounted firmly, lens clean and facing forward'],
+  ['battery', tx('Battery charged for the shift')],
+  ['recording', tx('A test recording plays back')],
+  ['mounted', tx('Mounted firmly, lens clean and facing forward')],
 ] as const;
 export type BodycamCheckKey = (typeof BODYCAM_CHECKS)[number][0];
 
@@ -23,10 +25,10 @@ export type BodycamForm = {
 export const emptyBodycam = (): BodycamForm => ({ bodycamId: null, checks: {}, notes: '', none: false, noneReason: '' });
 
 export function bodycamFormError(form: BodycamForm): string | null {
-  if (form.none) return form.noneReason.trim().length < 3 ? 'Say why you have no bodycam today.' : null;
-  if (!form.bodycamId) return 'Select the bodycam you are wearing.';
+  if (form.none) return form.noneReason.trim().length < 3 ? tx('Say why you have no bodycam today.') : null;
+  if (!form.bodycamId) return tx('Select the bodycam you are wearing.');
   const allOk = BODYCAM_CHECKS.every(([k]) => form.checks[k]);
-  if (!allOk && !form.notes.trim()) return 'Say what is wrong with the bodycam in the notes.';
+  if (!allOk && !form.notes.trim()) return tx('Say what is wrong with the bodycam in the notes.');
   return null;
 }
 
@@ -46,6 +48,7 @@ export function BodycamSheet({
   busy: boolean;
   userId: string | null;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const invalid = invalidProp && !form.none;
   const allChecks = BODYCAM_CHECKS.every(([k]) => form.checks[k]);
@@ -53,8 +56,8 @@ export function BodycamSheet({
   return (
     <Sheet>
       <View style={styles.head}>
-        <Text style={styles.title}>Select Your Bodycam</Text>
-        <Text style={styles.sub}>Choose the bodycam you are wearing this shift and check it works.</Text>
+        <Text style={styles.title}>{t('Select Your Bodycam')}</Text>
+        <Text style={styles.sub}>{t('Choose the bodycam you are wearing this shift and check it works.')}</Text>
       </View>
 
       <View style={{ paddingHorizontal: 14 }}>
@@ -64,17 +67,17 @@ export function BodycamSheet({
           tone={paper.red}
           style={[styles.none, form.none && styles.noneOn]}
         >
-          <Text style={styles.tickTitle}>No bodycam today</Text>
+          <Text style={styles.tickTitle}>{t('No bodycam today')}</Text>
           <Text style={styles.tickBody}>
-            I am not wearing a bodycam this shift. My reason is on my start-of-shift record and my supervisor sees it.
+            {t('I am not wearing a bodycam this shift. My reason is on my start-of-shift record and my supervisor sees it.')}
           </Text>
         </TickBox>
         {form.none ? (
           <PaperInput
-            label="Reason"
+            label={t('Reason')}
             required
             invalid={invalidProp && form.noneReason.trim().length < 3}
-            placeholder="e.g. None left at the station, mine is in for repair…"
+            placeholder={t('e.g. None left at the station, mine is in for repair…')}
             value={form.noneReason}
             onChangeText={(noneReason) => patch({ noneReason })}
           />
@@ -85,12 +88,12 @@ export function BodycamSheet({
           importantForAccessibility={form.none ? 'no-hide-descendants' : 'auto'}
           style={form.none ? styles.cancelled : undefined}
         >
-          <FieldLabel label="Bodycam" required invalid={invalid && !form.bodycamId} />
+          <FieldLabel label={t('Bodycam')} required invalid={invalid && !form.bodycamId} />
           {bodycams.length === 0 ? (
             <View style={styles.empty}>
               <Ionicons name="videocam-off-outline" size={22} color={paper.muted} />
               <Text style={styles.emptyText}>
-                No bodycam is available on your register. Ask your supervisor, or tick No bodycam today above.
+                {t('No bodycam is available on your register. Ask your supervisor, or tick No bodycam today above.')}
               </Text>
             </View>
           ) : (
@@ -104,13 +107,13 @@ export function BodycamSheet({
                     onPress={() => patch({ bodycamId: c.id })}
                     accessibilityRole="radio"
                     accessibilityState={{ selected: active }}
-                    accessibilityLabel={`Bodycam ${c.serial_number}${c.model ? `, ${c.model}` : ''}`}
+                    accessibilityLabel={c.model ? t('Bodycam {serial}, {model}', { serial: c.serial_number, model: c.model }) : t('Bodycam {serial}', { serial: c.serial_number })}
                     style={[styles.card, invalid && !form.bodycamId && { borderColor: paper.red }, active && styles.cardActive]}
                   >
                     <Ionicons name="videocam" size={28} color={active ? paper.blue : paper.muted} />
                     <Text style={styles.cardSerial} numberOfLines={1}>{c.serial_number}</Text>
-                    <Text style={styles.cardSub} numberOfLines={1}>{[c.model, c.station].filter(Boolean).join(' · ') || 'Bodycam'}</Text>
-                    {mine ? <Text style={styles.mine}>BOOKED OUT TO YOU</Text> : null}
+                    <Text style={styles.cardSub} numberOfLines={1}>{[c.model, c.station].filter(Boolean).join(' · ') || t('Bodycam')}</Text>
+                    {mine ? <Text style={styles.mine}>{t('BOOKED OUT TO YOU')}</Text> : null}
                   </Pressable>
                 );
               })}
@@ -119,7 +122,7 @@ export function BodycamSheet({
 
           <View style={{ height: 14 }} />
           <Group
-            title="Checks"
+            title={t('Checks')}
             right={(
               <Pressable
                 onPress={() => patch({
@@ -127,7 +130,7 @@ export function BodycamSheet({
                 })}
                 hitSlop={6}
               >
-                <Text style={styles.allChecks}>{allChecks ? 'Clear all' : '✓ All passed'}</Text>
+                <Text style={styles.allChecks}>{allChecks ? t('Clear all') : t('✓ All passed')}</Text>
               </Pressable>
             )}
           >
@@ -144,17 +147,17 @@ export function BodycamSheet({
             ))}
             {!allChecks ? (
               <Text style={styles.checkWarn}>
-                Any unticked check sends the bodycam for repair. You will choose another one.
+                {t('Any unticked check sends the bodycam for repair. You will choose another one.')}
               </Text>
             ) : null}
           </Group>
 
           <PaperInput
-            label="Notes"
+            label={t('Notes')}
             required={!allChecks}
             invalid={invalid && !allChecks && !form.notes.trim()}
             multiline
-            placeholder="Anything wrong with it: battery, mount, lens…"
+            placeholder={t('Anything wrong with it: battery, mount, lens…')}
             value={form.notes}
             onChangeText={(notes) => patch({ notes })}
             style={styles.darkInput}
@@ -162,7 +165,7 @@ export function BodycamSheet({
         </View>
 
         <PaperButton
-          label={form.none ? 'Confirm No Bodycam & Start Shift' : 'Confirm Bodycam & Start Shift'}
+          label={form.none ? t('Confirm No Bodycam & Start Shift') : t('Confirm Bodycam & Start Shift')}
           icon="videocam-outline"
           tone="success"
           onPress={onSubmit}

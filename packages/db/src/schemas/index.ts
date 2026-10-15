@@ -3,6 +3,7 @@
  */
 
 import { z } from 'zod';
+import { CALL_CHANNELS, MAX_PATIENTS, PATIENT_SEVERITIES } from '../call-facts.ts';
 
 export const siloEnum = z.enum([
   'Ethekwini',
@@ -26,6 +27,16 @@ const NUMBER_RULE = 'Enter the caller number with its country code, e.g. +27 82 
 const DESKS_RULE = 'Choose the department this call is for: Police, Fire & Rescue, EMS or Disaster Management';
 /** The injuries the call taker ticked (0076). */
 const injuriesList = z.array(z.string().min(1).max(60)).max(12);
+/** The details filled in for the type (0077): short answers, or lists of them. */
+const detailsMap = z.record(z.union([z.string().max(200), z.array(z.string().max(60)).max(20)]));
+/** How the call came in (0080). */
+const callChannel = z.enum(CALL_CHANNELS);
+/** Each patient with their own severity (0080). */
+const patientsList = z.array(z.object({
+  name: z.string().max(200).nullable(),
+  severity: z.enum(PATIENT_SEVERITIES),
+  caller: z.boolean(),
+})).max(MAX_PATIENTS);
 
 /** Incoming-call form (ControlRoomController.LogNew). */
 const logIncomingCallObject = z.object({
@@ -59,6 +70,10 @@ const logIncomingCallObject = z.object({
    */
   tagged_silos: z.array(siloEnum.exclude(['Ethekwini'])).min(1, DESKS_RULE),
   injuries: injuriesList.optional().nullable(),
+  details: detailsMap.optional().nullable(),
+  call_channel: callChannel.optional().nullable(),
+  call_channel_other: z.string().max(60).optional().nullable(),
+  patients: patientsList.optional().nullable(),
   /** Made once per call on the form, so a second press never logs it twice. */
   client_ref: z.string().uuid().optional().nullable(),
 });
@@ -66,6 +81,9 @@ const logIncomingCallObject = z.object({
 export const logIncomingCallSchema = logIncomingCallObject.refine(
   (v) => !v.tagged_silos.includes('Medical') || typeof v.is_caller_patient === 'boolean',
   { message: 'Say whether the caller is the patient', path: ['is_caller_patient'] },
+).refine(
+  (v) => v.call_channel !== 'Other' || Boolean(v.call_channel_other?.trim()),
+  { message: 'Say how the call came in', path: ['call_channel_other'] },
 );
 
 export type LogIncomingCallInput = z.infer<typeof logIncomingCallSchema>;
@@ -98,6 +116,10 @@ export const sendCallEarlySchema = z.object({
   number_of_victims: z.number().int().nonnegative().optional().nullable(),
   medical_type: z.string().optional().nullable(),
   injuries: injuriesList.optional().nullable(),
+  details: detailsMap.optional().nullable(),
+  call_channel: callChannel.optional().nullable(),
+  call_channel_other: z.string().max(60).optional().nullable(),
+  patients: patientsList.optional().nullable(),
   notes: z.string().optional().nullable(),
   client_ref: z.string().uuid(),
 });
@@ -116,6 +138,10 @@ export const completeCallIntakeSchema = z.object({
   number_of_victims: z.number().int().nonnegative().optional(),
   medical_type: z.string().max(100).optional(),
   injuries: injuriesList.optional(),
+  details: detailsMap.optional(),
+  call_channel: callChannel.optional(),
+  call_channel_other: z.string().max(60).optional(),
+  patients: patientsList.optional(),
   notes: z.string().max(2000).optional(),
   incident_severity: severityEnum.optional(),
   incident_type: z.string().min(1).max(100).optional(),

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { tx } from '@criticom/db/i18n';
+import { tNow } from './translator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { listCrimeZones, listLiveMapZones, subscribeMapZones, type LiveMapZone } from '@criticom/api';
 import {
@@ -59,9 +61,9 @@ export type CrimeCircle = {
 };
 
 const CATEGORY_WORDS: Record<CrimeKind, string> = {
-  all: 'all six categories', murder: 'murder', carjacking: 'carjacking',
-  burglary_residential: 'burglary at homes', robbery_residential: 'robbery at homes',
-  drug_crime: 'drug-related crime', dui: 'driving under the influence',
+  all: tx('all six categories'), murder: tx('murder'), carjacking: tx('carjacking'),
+  burglary_residential: tx('burglary at homes'), robbery_residential: tx('robbery at homes'),
+  drug_crime: tx('drug-related crime'), dui: tx('driving under the influence'),
 };
 
 /** SAPS spells stations in lower case: "durban central" → "Durban Central". */
@@ -83,7 +85,7 @@ export function useCrimeCircles(enabled: boolean, kind: CrimeKind) {
     let alive = true;
     listCrimeZones(getSupabase())
       .then((r) => { if (alive) { setData(r as { year: string | null; stations: CrimeStation[] }); setError(null); } })
-      .catch(() => { if (alive) setError('Crime zones could not be loaded.'); });
+      .catch(() => { if (alive) setError(tNow('Crime zones could not be loaded.')); });
     return () => { alive = false; };
   }, [enabled, data]);
 
@@ -93,12 +95,12 @@ export function useCrimeCircles(enabled: boolean, kind: CrimeKind) {
     return zones.map((z) => ({
       id: String(z.station.id), lat: z.lat, lng: z.lng, radius: z.radius, colour: z.colour,
       station: titleCase(z.station.station_name), count: z.count, countText: groupThousands(z.count), rank: z.rank, of: zones.length,
-      year: data.year, category: CATEGORY_WORDS[kind],
+      year: data.year, category: tNow(CATEGORY_WORDS[kind]),
     }));
   }, [enabled, data, kind]);
 
   const empty = enabled && data !== null && data.stations.length === 0;
-  return { circles, year: data?.year ?? null, error: error ?? (empty ? 'No crime statistics are loaded yet.' : null) };
+  return { circles, year: data?.year ?? null, error: error ?? (empty ? tNow('No crime statistics are loaded yet.') : null) };
 }
 
 /* ── Perimeters and zones ───────────────────────────────────────────── */
@@ -132,8 +134,8 @@ export function toZoneShape(z: LiveMapZone): ZoneShape | null {
   const k = zoneKind(z.kind);
   return {
     id: z.id, shape: z.shape, points, radius: z.shape === 'circle' ? z.radius_m : null,
-    colour: k.colour, mark: k.mark, kind: k.label, name: z.name, reason: z.reason,
-    setBy: [z.created_by_name, z.created_by_role].filter(Boolean).join(' · ') || 'Command',
+    colour: k.colour, mark: k.mark, kind: tNow(k.label), name: z.name, reason: z.reason,
+    setBy: [z.created_by_name, z.created_by_role].filter(Boolean).join(' · ') || tNow('Command'),
     incident: z.incident ? `${z.incident.incident_number} · ${z.incident.incident_type}` : null,
   };
 }

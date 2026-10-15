@@ -1,3 +1,5 @@
+import { tx } from '@criticom/db/i18n';
+
 /**
  * A field officer's performance, worked out on the phone from their own
  * response history (incident_responders, migration 0042). No dependencies, so
@@ -12,7 +14,7 @@
  */
 
 export type PerfPeriod = 'Today' | 'This month' | 'This cycle';
-export const PERF_PERIODS: readonly PerfPeriod[] = ['Today', 'This month', 'This cycle'];
+export const PERF_PERIODS: readonly PerfPeriod[] = [tx('Today'), tx('This month'), tx('This cycle')];
 
 export type ResponseRow = {
   role: 'lead' | 'backup';
@@ -68,8 +70,8 @@ export function summarise(rows: readonly ResponseRow[], since: Date): PerfSummar
 
   const types = new Map<string, number>();
   for (const r of inRange) {
-    const t = r.incident.incident_type?.trim() || 'Other';
-    types.set(t, (types.get(t) ?? 0) + 1);
+    const type = r.incident.incident_type?.trim() || tx('Other');
+    types.set(type, (types.get(type) ?? 0) + 1);
   }
 
   return {
@@ -87,7 +89,7 @@ export function summarise(rows: readonly ResponseRow[], since: Date): PerfSummar
   };
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS = [tx('Jan'), tx('Feb'), tx('Mar'), tx('Apr'), tx('May'), tx('Jun'), tx('Jul'), tx('Aug'), tx('Sep'), tx('Oct'), tx('Nov'), tx('Dec')];
 
 /** Incidents attended in each of the last `months` months, oldest first. */
 export function monthlyAttended(rows: readonly ResponseRow[], months = 6, now = new Date()) {

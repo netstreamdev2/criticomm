@@ -18,6 +18,7 @@ import { setReportingFor } from '@/lib/open-call';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { OrgMark } from '@/components/org-mark';
 import { Banner, Button, Card, EmptyState, Input, KeyValue, Muted, SeverityPill } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 type Update = { id: string; message: string; timestamp: string };
@@ -30,6 +31,7 @@ const draftKey = (id: string) => `hiktech.post-mortem-draft.${id}`;
  * The draft is kept on the phone; filing goes through the outbox.
  */
 export default function PostMortemScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -80,8 +82,8 @@ export default function PostMortemScreen() {
 
   useEffect(() => {
     if (!id || !draftLoaded.current) return;
-    const t = setTimeout(() => { void AsyncStorage.setItem(draftKey(id), JSON.stringify(answers)).catch(() => {}); }, 400);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => { void AsyncStorage.setItem(draftKey(id), JSON.stringify(answers)).catch(() => {}); }, 400);
+    return () => clearTimeout(timer);
   }, [id, answers]);
 
   const set = (key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: value }));
@@ -100,7 +102,7 @@ export default function PostMortemScreen() {
     try {
       await enqueue({ kind: 'post_mortem', incidentId: incident.id, incidentNumber: incident.incident_number, fields: postMortemPayload(answers) });
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
-      Alert.alert('Post-mortem filed', online ? `Your post-mortem for ${incident.incident_number} is on record.` : 'Saved. It sends when you have signal.');
+      Alert.alert(t('Post-mortem filed'), online ? t('Your post-mortem for {incident_number} is on record.', { incident_number: incident.incident_number }) : t('Saved. It sends when you have signal.'));
       // The Closed tab, with this call's drawer open: Close is the next step (0074).
       router.replace({ pathname: '/(tabs)/incidents', params: { closed: incident.id } });
     } catch (e) {
@@ -116,9 +118,9 @@ export default function PostMortemScreen() {
     const found = missing.map((p) => p.message);
     setProblems(found);
     if (found.length) return;
-    Alert.alert('File Official Report?', `It resolves ${incident.incident_number}.`, [
-      { text: 'Keep editing', style: 'cancel' },
-      { text: 'File report', onPress: () => void submit() },
+    Alert.alert(t('File Official Report?'), t('It resolves {incident_number}.', { incident_number: incident.incident_number }), [
+      { text: t('Keep editing'), style: 'cancel' },
+      { text: t('File report'), onPress: () => void submit() },
     ]);
   };
 
@@ -128,22 +130,22 @@ export default function PostMortemScreen() {
   if (!incident) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
-        <EmptyState icon="alert-circle-outline" title="Incident not available" body="It may have been reassigned." />
+        <EmptyState icon="alert-circle-outline" title={t('Incident not available')} body={t('It may have been reassigned.')} />
       </View>
     );
   }
   if (incident.report_filed_at || alreadyQueued) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
-        <EmptyState icon="lock-closed-outline" title="Post-mortem already filed"
-          body={alreadyQueued ? 'It sends when you have signal.' : 'Your post-mortem is on record.'} />
+        <EmptyState icon="lock-closed-outline" title={t('Post-mortem already filed')}
+          body={alreadyQueued ? t('It sends when you have signal.') : t('Your post-mortem is on record.')} />
       </View>
     );
   }
   if (!leadsOnPhone(incident, session?.user.id, pending, incident.id)) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
-        <EmptyState icon="person-outline" title="Not your incident" body="Only the officer leading this incident files its post-mortem." />
+        <EmptyState icon="person-outline" title={t('Not your incident')} body={t('Only the officer leading this incident files its post-mortem.')} />
       </View>
     );
   }
@@ -153,7 +155,7 @@ export default function PostMortemScreen() {
 
   const renderField = (f: PostMortemField) => {
     const bad = invalid.has(f.key);
-    const label = `${f.label}${f.required ? ' *' : ''}`;
+    const label = `${t(f.label)}${f.required ? ' *' : ''}`;
     const value = answers[f.key] ?? '';
     return (
       <View key={f.key} style={[styles.field, bad && styles.fieldBad]}>
@@ -163,15 +165,15 @@ export default function PostMortemScreen() {
               label={label}
               value={value}
               onChangeText={(v) => set(f.key, f.kind === 'count' ? v.replace(/[^0-9]/g, '') : v)}
-              placeholder={f.placeholder ?? (f.kind === 'datetime' ? 'YYYY-MM-DD HH:MM' : f.kind === 'count' ? '0' : undefined)}
+              placeholder={f.placeholder ?? (f.kind === 'datetime' ? t('YYYY-MM-DD HH:MM') : f.kind === 'count' ? '0' : undefined)}
               keyboardType={f.kind === 'count' ? 'number-pad' : f.kind === 'datetime' ? 'numbers-and-punctuation' : 'default'}
               multiline={f.kind === 'multiline'}
               style={f.kind === 'multiline' ? { minHeight: 96, textAlignVertical: 'top' } : undefined}
             />
           </View>
           {f.kind === 'datetime' ? (
-            <Pressable onPress={() => set(f.key, saStamp(new Date()))} style={styles.nowBtn} accessibilityRole="button" accessibilityLabel={`${f.label}: now`}>
-              <Text style={styles.nowText}>Now</Text>
+            <Pressable onPress={() => set(f.key, saStamp(new Date()))} style={styles.nowBtn} accessibilityRole="button" accessibilityLabel={t('{label}: now', { label: t(f.label) })}>
+              <Text style={styles.nowText}>{t('Now')}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -191,28 +193,28 @@ export default function PostMortemScreen() {
             </View>
             <SeverityPill severity={incident.incident_severity} />
           </View>
-          <Text style={styles.type}>Official After-Action Report</Text>
+          <Text style={styles.type}>{t('Official After-Action Report')}</Text>
           <Muted>{incident.disaster_type || incident.incident_type} · {incident.location_address}</Muted>
         </Card>
 
-        {!onScene ? <Banner tone="info">Mark yourself on scene before filing. The draft is kept.</Banner> : null}
+        {!onScene ? <Banner tone="info">{t('Mark yourself on scene before filing. The draft is kept.')}</Banner> : null}
 
         {POST_MORTEM_SECTIONS.map((section) => (
           <View key={section.id}>
             <View style={styles.sectionHead}>
               <Ionicons name={section.icon as keyof typeof Ionicons.glyphMap} size={16} color={colors.accent} />
-              <Text style={styles.sectionTitle}>{section.title}</Text>
+              <Text style={styles.sectionTitle}>{t(section.title)}</Text>
             </View>
             <Card>
               {section.id === 'overview' ? (
                 <View style={{ marginBottom: space.md }}>
-                  <KeyValue label="Type" value={incident.disaster_type || incident.incident_type} />
-                  <KeyValue label="Location" value={incident.location_address} />
+                  <KeyValue label={t('Type')} value={incident.disaster_type || incident.incident_type} />
+                  <KeyValue label={t('Location')} value={incident.location_address} />
                 </View>
               ) : null}
               {section.fields.map(renderField)}
               {section.id === 'overview' && hours !== null ? (
-                <Text style={styles.duration}>Duration: {hours} hours</Text>
+                <Text style={styles.duration}>{t('Duration: {hours} hours', { hours })}</Text>
               ) : null}
             </Card>
           </View>
@@ -220,7 +222,7 @@ export default function PostMortemScreen() {
 
         <View style={styles.sectionHead}>
           <Ionicons name="time-outline" size={16} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Timeline</Text>
+          <Text style={styles.sectionTitle}>{t('Timeline')}</Text>
         </View>
         <Card>
           {timeline.length ? timeline.map((u) => (
@@ -228,7 +230,7 @@ export default function PostMortemScreen() {
               <Text style={styles.timelineTime}>{saStamp(u.timestamp).slice(5)}</Text>
               <Text style={styles.timelineText}>{noteText(u.message)}</Text>
             </View>
-          )) : <Muted>No updates yet.</Muted>}
+          )) : <Muted>{t('No updates yet.')}</Muted>}
         </Card>
 
         <View style={{ marginTop: space.lg }}>
@@ -237,7 +239,7 @@ export default function PostMortemScreen() {
               <Banner tone="error" onDismiss={() => setProblems([])}>{`• ${problems.join('\n• ')}`}</Banner>
             </View>
           ) : null}
-          <Button label="File Official Report" icon="document-text" variant="success" size="lg" busy={busy} disabled={!onScene} onPress={file} />
+          <Button label={t('File Official Report')} icon="document-text" variant="success" size="lg" busy={busy} disabled={!onScene} onPress={file} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

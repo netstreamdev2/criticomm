@@ -9,6 +9,8 @@ import { colors, space, makeStyles } from '@/lib/theme';
 import {
   Banner, Button, Card, CheckRow, EmptyState, Input, KeyValue, Muted, SectionLabel, Segmented, Title,
 } from '@/components/ui';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 /**
  * The armoury checklist — completed at the counter when a firearm is issued,
@@ -24,14 +26,14 @@ import {
  *     officer sees exactly what the record will say before submitting.
  */
 
-const KINDS = ['Issue', 'Return', 'Inspection'] as const;
+const KINDS = [tx('Issue'), tx('Return'), tx('Inspection')] as const;
 
 const SAFETY_CHECKS = [
-  ['serialVerified', 'Serial number verified against the register'],
-  ['barrelClear', 'Barrel clear — no obstruction'],
-  ['actionFunctional', 'Action cycles correctly'],
-  ['safetyFunctional', 'Safety catch functional'],
-  ['sightsSecure', 'Sights present and secure'],
+  ['serialVerified', tx('Serial number verified against the register')],
+  ['barrelClear', tx('Barrel clear — no obstruction')],
+  ['actionFunctional', tx('Action cycles correctly')],
+  ['safetyFunctional', tx('Safety catch functional')],
+  ['sightsSecure', tx('Sights present and secure')],
 ] as const;
 
 type ChecklistRow = Awaited<ReturnType<typeof listFirearmChecklists>>[number];
@@ -43,6 +45,7 @@ const uuid = () =>
   });
 
 export default function FirearmCheckScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const { session, fullName } = useAuth();
   const { enqueue, online } = useSync();
@@ -80,7 +83,7 @@ export default function FirearmCheckScreen() {
   const submit = async () => {
     if (!serial.trim()) {
       setTone('error');
-      setMessage('The firearm serial number is required.');
+      setMessage(t('The firearm serial number is required.'));
       return;
     }
     await enqueue({
@@ -106,8 +109,8 @@ export default function FirearmCheckScreen() {
     setRoundsReturned('');
     setTone('success');
     setMessage(online
-      ? 'Checklist submitted. It is on the armoury register now.'
-      : 'Checklist captured. No signal here — it delivers itself the moment the phone finds one.');
+      ? t('Checklist submitted. It is on the armoury register now.')
+      : t('Checklist captured. No signal here — it delivers itself the moment the phone finds one.'));
     // Give the outbox a beat to deliver before refreshing the register.
     setTimeout(() => { void load(); }, 1500);
   };
@@ -117,8 +120,8 @@ export default function FirearmCheckScreen() {
       <View style={styles.center}>
         <EmptyState
           icon="shield-outline"
-          title="Not enabled"
-          body="The firearm checklist is not enabled for your organisation."
+          title={t('Not enabled')}
+          body={t('The firearm checklist is not enabled for your organisation.')}
         />
       </View>
     );
@@ -134,30 +137,30 @@ export default function FirearmCheckScreen() {
         <Banner tone={tone} onDismiss={() => setMessage(null)}>{message}</Banner>
       ) : null}
 
-      <SectionLabel>Checklist type</SectionLabel>
+      <SectionLabel>{t('Checklist type')}</SectionLabel>
       <Segmented options={KINDS} value={kind} onChange={setKind} />
 
-      <SectionLabel>Firearm</SectionLabel>
+      <SectionLabel>{t('Firearm')}</SectionLabel>
       <Card>
         <Input
-          label="Serial number"
+          label={t('Serial number')}
           value={serial}
           onChangeText={setSerial}
-          placeholder="e.g. Z88-104477"
+          placeholder={t('e.g. Z88-104477')}
           autoCapitalize="characters"
           icon="barcode-outline"
         />
         <View style={{ marginTop: space.md }}>
           <Input
-            label="Make / model"
+            label={t('Make / model')}
             value={makeModel}
             onChangeText={setMakeModel}
-            placeholder="e.g. Vektor Z88 9mm"
+            placeholder={t('e.g. Vektor Z88 9mm')}
           />
         </View>
       </Card>
 
-      <SectionLabel>Safety checks</SectionLabel>
+      <SectionLabel>{t('Safety checks')}</SectionLabel>
       <Card>
         {SAFETY_CHECKS.map(([key, label]) => (
           <CheckRow
@@ -168,62 +171,62 @@ export default function FirearmCheckScreen() {
           />
         ))}
         <CheckRow
-          label="Cleaned and lightly oiled"
+          label={t('Cleaned and lightly oiled')}
           checked={cleaned}
           onToggle={() => setCleaned((c) => !c)}
         />
         <Muted>
           {passed
-            ? 'All safety items ticked — this checklist will file as PASSED.'
-            : 'This checklist will file as NOT PASSED until every safety item above is ticked. The record cannot claim otherwise.'}
+            ? t('All safety items ticked — this checklist will file as PASSED.')
+            : t('This checklist will file as NOT PASSED until every safety item above is ticked. The record cannot claim otherwise.')}
         </Muted>
       </Card>
 
-      <SectionLabel>Ammunition</SectionLabel>
+      <SectionLabel>{t('Ammunition')}</SectionLabel>
       <Card>
         <View style={styles.row}>
           <View style={{ flex: 1 }}>
-            <Input label="Magazines" value={magazines} onChangeText={setMagazines} keyboardType="number-pad" />
+            <Input label={t('Magazines')} value={magazines} onChangeText={setMagazines} keyboardType="number-pad" />
           </View>
           <View style={{ flex: 1 }}>
             <Input
-              label={kind === 'Return' ? 'Rounds issued' : 'Rounds'}
+              label={kind === 'Return' ? t('Rounds issued') : t('Rounds')}
               value={roundsIssued} onChangeText={setRoundsIssued} keyboardType="number-pad"
             />
           </View>
           {kind === 'Return' ? (
             <View style={{ flex: 1 }}>
-              <Input label="Rounds back" value={roundsReturned} onChangeText={setRoundsReturned} keyboardType="number-pad" />
+              <Input label={t('Rounds back')} value={roundsReturned} onChangeText={setRoundsReturned} keyboardType="number-pad" />
             </View>
           ) : null}
         </View>
         <View style={{ marginTop: space.md }}>
           <Input
-            label="Defects / remarks"
+            label={t('Defects / remarks')}
             value={defects}
             onChangeText={setDefects}
-            placeholder="Anything the armourer must know"
+            placeholder={t('Anything the armourer must know')}
             multiline
           />
         </View>
       </Card>
 
       <Button
-        label={`Submit ${kind.toLowerCase()} checklist`}
+        label={t('Submit {kind} checklist', { kind: kind.toLowerCase() })}
         icon="shield-checkmark-outline"
         size="lg"
         onPress={() => void submit()}
       />
 
-      <SectionLabel>Your recent checks</SectionLabel>
+      <SectionLabel>{t('Your recent checks')}</SectionLabel>
       {history.length === 0 ? (
-        <Card><Muted>No checklists on the register yet.</Muted></Card>
+        <Card><Muted>{t('No checklists on the register yet.')}</Muted></Card>
       ) : (
         history.map((row) => (
           <Card key={row.id} accent={row.passed ? colors.low : colors.critical} tight>
             <View style={styles.rowBetween}>
               <Title style={{ fontSize: 15 }}>{row.serial_number}</Title>
-              <Muted>{row.kind} · {row.passed ? 'Passed' : 'Not passed'}</Muted>
+              <Muted>{row.kind} · {row.passed ? t('Passed') : t('Not passed')}</Muted>
             </View>
             <KeyValue
               label={new Date(row.created_at).toLocaleString('en-ZA', { dateStyle: 'medium', timeStyle: 'short' })}

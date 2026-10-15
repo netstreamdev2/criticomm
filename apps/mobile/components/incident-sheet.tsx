@@ -9,26 +9,28 @@ import { openDirections } from '@/lib/navigate';
 import { colors, radius, severityColor, severityTint, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { BottomSheet } from '@/components/bottom-sheet';
 import { Button, SeverityPill, StatusBadge } from '@/components/ui';
+import type { Translate } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 const formatDistance = (km: number) =>
   km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(km < 10 ? 1 : 0)} km`;
 
 /** Who holds the call, in one line, from this officer's point of view. */
-function assignmentLine(v: CallView, dispatchedBy: string | null) {
-  if (v.ownSos) return { icon: 'alert-circle' as const, tone: colors.critical, text: 'Your SOS — dispatch is sending help to you' };
-  if (v.role === 'lead') return { icon: 'star' as const, tone: colors.accent, text: 'You are leading this incident' };
+function assignmentLine(v: CallView, dispatchedBy: string | null, t: Translate) {
+  if (v.ownSos) return { icon: 'alert-circle' as const, tone: colors.critical, text: t('Your SOS — dispatch is sending help to you') };
+  if (v.role === 'lead') return { icon: 'star' as const, tone: colors.accent, text: t('You are leading this incident') };
   if (v.role === 'backup') {
-    return { icon: 'people' as const, tone: colors.accent, text: `You are backup · lead: ${v.lead?.name ?? 'not yet responding'}` };
+    return { icon: 'people' as const, tone: colors.accent, text: v.lead?.name ? t('You are backup · lead: {name}', { name: v.lead.name }) : t('You are backup · lead: not yet responding') };
   }
   switch (v.assignment.kind) {
     case 'you':
-      return { icon: 'person' as const, tone: colors.accent, text: `Assigned to you${dispatchedBy ? ` by ${dispatchedBy}` : ''}` };
+      return { icon: 'person' as const, tone: colors.accent, text: dispatchedBy ? t('Assigned to you by {name}', { name: dispatchedBy }) : t('Assigned to you') };
     case 'other':
       return v.lead
-        ? { icon: 'person' as const, tone: colors.textDim, text: `Led by ${v.assignment.name}` }
-        : { icon: 'person' as const, tone: colors.textDim, text: `Assigned to ${v.assignment.name} — not responding yet` };
+        ? { icon: 'person' as const, tone: colors.textDim, text: t('Led by {name}', { name: v.assignment.name }) }
+        : { icon: 'person' as const, tone: colors.textDim, text: t('Assigned to {name} — not responding yet', { name: v.assignment.name }) };
     default:
-      return { icon: 'radio' as const, tone: colors.low, text: 'Sent to all on duty — the first to respond leads' };
+      return { icon: 'radio' as const, tone: colors.low, text: t('Sent to all on duty — the first to respond leads') };
   }
 }
 
@@ -52,13 +54,14 @@ export function IncidentSheet({
   onSecondary?: () => void;
   onOpenFull: () => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { silo } = useAuth();
   if (!incident || !view) return <BottomSheet visible={false} onClose={onClose}>{null}</BottomSheet>;
 
   const sev = severityColor(incident.incident_severity);
-  const who = assignmentLine(view, incident.dispatched_by);
+  const who = assignmentLine(view, incident.dispatched_by, t);
   const responders = [...(view.lead ? [view.lead] : []), ...view.backups];
 
   // The route map in the app; with no pin, the phone's maps search the address.
@@ -71,7 +74,7 @@ export function IncidentSheet({
 
   const action = view.action;
   const actionLabel = !action ? null
-    : action.kind === 'respond' ? 'Accept'
+    : action.kind === 'respond' ? t('Accept')
         : action.label;
 
   return (
@@ -92,7 +95,7 @@ export function IncidentSheet({
               {queued ? (
                 <View style={styles.queuedChip}>
                   <Ionicons name="time-outline" size={11} color={colors.medium} />
-                  <Text style={styles.queuedText}>Waiting to send</Text>
+                  <Text style={styles.queuedText}>{t('Waiting to send')}</Text>
                 </View>
               ) : null}
             </View>
@@ -128,17 +131,17 @@ export function IncidentSheet({
               ) : null}
               {action.kind === 'respond' ? (
                 <Text style={styles.respondHint}>
-                  {action.asLead ? 'You will lead this incident.' : 'You will join as backup.'} Dispatch is told at once.
+                  {action.asLead ? t('You will lead this incident.') : t('You will join as backup.')}{' '}{t('Dispatch is told at once.')}
                 </Text>
               ) : null}
             </View>
           ) : null}
           <View style={styles.row2}>
             <View style={{ flex: 1 }}>
-              <Button label="Navigate" icon="navigate" variant="outline" onPress={navigate} />
+              <Button label={t('Navigate')} icon="navigate" variant="outline" onPress={navigate} />
             </View>
             <View style={{ flex: 1 }}>
-              <Button label="Full details" icon="open-outline" variant="outline" onPress={onOpenFull} />
+              <Button label={t('Full details')} icon="open-outline" variant="outline" onPress={onOpenFull} />
             </View>
           </View>
         </View>
@@ -148,7 +151,7 @@ export function IncidentSheet({
         {incident.incident_severity === 'Critical' ? (
           <View style={[styles.urgent, { backgroundColor: severityTint(incident.incident_severity) }]}>
             <Ionicons name="warning" size={14} color={sev} />
-            <Text style={[styles.urgentText, { color: sev }]}>Priority 1 — respond immediately</Text>
+            <Text style={[styles.urgentText, { color: sev }]}>{t('Priority 1 — respond immediately')}</Text>
           </View>
         ) : null}
 
@@ -165,35 +168,35 @@ export function IncidentSheet({
         <View style={styles.meta}>
           <Ionicons name="radio-outline" size={15} color={colors.muted} />
           <Text style={styles.metaText}>
-            Sent {timeAgo(incident.dispatch_time ?? incident.incident_created_at)}
+            {t('Sent')}{' '}{timeAgo(incident.dispatch_time ?? incident.incident_created_at)}
             {incident.dispatched_by ? ` by ${incident.dispatched_by}` : ''}
           </Text>
         </View>
         {incident.caller_name ? (
           <View style={styles.meta}>
             <Ionicons name="call-outline" size={15} color={colors.muted} />
-            <Text style={styles.metaText}>Caller: {incident.caller_name}</Text>
+            <Text style={styles.metaText}>{t('Caller: {caller_name}', { caller_name: incident.caller_name })}</Text>
           </View>
         ) : null}
 
         {incident.call_description ? (
           <>
-            <Text style={styles.section}>DESCRIPTION</Text>
+            <Text style={styles.section}>{t('DESCRIPTION')}</Text>
             <Text style={styles.desc}>{incident.call_description}</Text>
           </>
         ) : null}
 
-        <Text style={styles.section}>RESPONDING ({responders.length})</Text>
+        <Text style={styles.section}>{t('RESPONDING ({length})', { length: responders.length })}</Text>
         {responders.length === 0 ? (
-          <Text style={styles.empty}>Nobody yet.</Text>
+          <Text style={styles.empty}>{t('Nobody yet.')}</Text>
         ) : responders.map((r) => (
           <View key={r.user_id} style={styles.responder}>
             <View style={[styles.roleTag, r.role === 'lead' && styles.roleLead]}>
               <Text style={[styles.roleText, r.role === 'lead' && { color: '#fff' }]}>
-                {r.role === 'lead' ? 'LEAD' : 'BACKUP'}
+                {r.role === 'lead' ? t('LEAD') : t('BACKUP')}
               </Text>
             </View>
-            <Text style={styles.responderName} numberOfLines={1}>{r.name ?? personTitle(silo)}</Text>
+            <Text style={styles.responderName} numberOfLines={1}>{r.name ?? personTitle(silo, t)}</Text>
             <StatusBadge status={r.status} />
           </View>
         ))}

@@ -67,16 +67,17 @@ const text = (v: unknown, max = 500) => (typeof v === 'string' ? v.trim().slice(
 const sameNumber = (a: string, b: string) => a.trim().toUpperCase() === b.trim().toUpperCase();
 
 /**
- * A call by its number. Numbers restart each day in each department, so one
- * number can name two calls: then every match comes back and nothing is
- * guessed. "0012" or "INC-0012" finds the open call ending -0012 when only
- * one does.
+ * A call by its number. Numbers from before 0077 (INC-…) restarted each day
+ * in each department, so one number can name two calls: then every match
+ * comes back and nothing is guessed. "0012", "INC-0012" or "call 12" finds
+ * the open call ending -0012 when only one does, in either form
+ * (MP-20261010-1115-0012 too).
  */
 export function findByNumber(incidents: CritiIncident[], wanted: string): CritiIncident | CritiIncident[] | null {
   const exact = incidents.filter((i) => sameNumber(i.incident_number, wanted));
   if (exact.length === 1) return exact[0]!;
   if (exact.length > 1) return exact;
-  const seq = /^(?:INC-)?(\d{1,4})$/i.exec(wanted.trim())?.[1];
+  const seq = /^(?:INC-|call\s*|no\.?\s*)?(\d{1,6})$/i.exec(wanted.trim())?.[1];
   if (!seq) return null;
   const tail = `-${seq.padStart(4, '0')}`;
   const short = incidents.filter((i) => i.incident_number.endsWith(tail));

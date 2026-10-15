@@ -6,7 +6,7 @@ import { endShift, getMyShiftKit, returnBodycam, returnShiftFirearm, roundsShort
 import { getSupabase } from '@/lib/supabase';
 import { errorWords } from '@/lib/offline-cache-policy';
 import { useAuth } from '@/lib/auth';
-import { wordsFor } from '@/lib/department';
+import { wordsIn } from '@/lib/department';
 import { useDuty } from '@/lib/duty';
 import { useOpenCall } from '@/lib/open-call';
 import { useSignOut } from '@/lib/sign-out';
@@ -14,6 +14,8 @@ import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import {
   Banner, Button, Card, CheckRow, Input, KeyValue, Muted, SectionLabel, Segmented, Stepper, Title,
 } from '@/components/ui';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 /**
  * The end of a shift (migrations 0051 and 0054), in the order it happens at
@@ -25,16 +27,16 @@ import {
 
 type Step = 'loading' | 'firearm' | 'bodycam' | 'vehicle' | 'confirm' | 'done';
 type CamCondition = 'In order' | 'Damaged' | 'Lost';
-const CAM_CONDITIONS: readonly CamCondition[] = ['In order', 'Damaged', 'Lost'];
+const CAM_CONDITIONS: readonly CamCondition[] = [tx('In order'), tx('Damaged'), tx('Lost')];
 const CAM_CONDITION_VALUE = { 'In order': 'ok', Damaged: 'damaged', Lost: 'lost' } as const;
 type Condition = 'Clean' | 'Needs cleaning' | 'Damaged';
-const CONDITIONS: readonly Condition[] = ['Clean', 'Needs cleaning', 'Damaged'];
+const CONDITIONS: readonly Condition[] = [tx('Clean'), tx('Needs cleaning'), tx('Damaged')];
 const CONDITION_VALUE = { Clean: 'clean', 'Needs cleaning': 'requires_cleaning', Damaged: 'damaged' } as const;
 
 function errorText(e: unknown) {
   const err = e as { code?: string; message?: string };
   if (err?.code === 'PGRST202') {
-    return 'Ending a shift in the app is not switched on for this server yet. Hand your kit in at the counter and tell your supervisor.';
+    return tx('Ending a shift in the app is not switched on for this server yet. Hand your kit in at the counter and tell your supervisor.');
   }
   return errorWords(e, String(e));
 }
@@ -45,15 +47,16 @@ const saTime = (iso: string | null | undefined) => (iso
   : '—');
 
 export default function EndShiftScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { refresh: refreshDuty } = useDuty();
   const { refresh: refreshOpenCall } = useOpenCall();
   const signOut = useSignOut();
   const { silo } = useAuth();
-  const words = wordsFor(silo);
+  const words = wordsIn(silo, t);
   // What this department calls the vehicle it signs onto.
-  const unitWord = words.unit ?? 'vehicle';
+  const unitWord = words.unit ?? t('vehicle');
   const UnitWord = unitWord.charAt(0).toUpperCase() + unitWord.slice(1);
   const scroller = useRef<ScrollView>(null);
 
@@ -113,13 +116,15 @@ export default function EndShiftScreen() {
   const needsNotes = short > 0 || (condition !== null && condition !== 'Clean') || !checksOk;
 
   const firearmError = (): string | null => {
-    if (r === null) return 'Count the rounds you are handing back.';
-    if (issued !== null && r > issued) return `That is more than the ${issued} rounds issued. Count again.`;
-    if (mags === '') return 'Enter how many magazines you are handing back.';
-    if (!unloaded) return 'Unload the firearm and clear the chamber first.';
-    if (!condition) return 'Choose the firearm’s condition.';
+    if (r === null) return t('Count the rounds you are handing back.');
+    if (issued !== null && r > issued) return t('That is more than the {n} rounds issued. Count again.', { n: issued });
+    if (mags === '') return t('Enter how many magazines you are handing back.');
+    if (!unloaded) return t('Unload the firearm and clear the chamber first.');
+    if (!condition) return t('Choose the firearm’s condition.');
     if (needsNotes && firearmNotes.trim().length < 3) {
-      return short > 0 ? `Say what happened to the ${short} missing ${short === 1 ? 'round' : 'rounds'}.` : 'Say what is wrong in the notes.';
+      return short > 0
+        ? short === 1 ? t('Say what happened to the missing round.') : t('Say what happened to the {n} missing rounds.', { n: short })
+        : t('Say what is wrong in the notes.');
     }
     return null;
   };
@@ -138,8 +143,8 @@ export default function EndShiftScreen() {
     if (short > 0) {
       Alert.alert(
         `${short} ${short === 1 ? 'round' : 'rounds'} short`,
-        'Your supervisor is told straight away, with your note. Hand the firearm back now?',
-        [{ text: 'Count again', style: 'cancel' }, { text: 'Hand it back', style: 'destructive', onPress: send }],
+        t('Your supervisor is told straight away, with your note. Hand the firearm back now?'),
+        [{ text: t('Count again'), style: 'cancel' }, { text: t('Hand it back'), style: 'destructive', onPress: send }],
       );
       return;
     }
@@ -153,8 +158,8 @@ export default function EndShiftScreen() {
 
   const submitBodycam = () => {
     if (!bodycam) return;
-    if (!camCondition) { setError('Choose the bodycam’s condition.'); return; }
-    if (camNeedsNotes && camNotes.trim().length < 5) { setError('Say what happened to the bodycam.'); return; }
+    if (!camCondition) { setError(t('Choose the bodycam’s condition.')); return; }
+    if (camNeedsNotes && camNotes.trim().length < 5) { setError(t('Say what happened to the bodycam.')); return; }
     const send = () => void run(async () => {
       const res = await returnBodycam(getSupabase(), {
         bodycamId: bodycam.id, condition: CAM_CONDITION_VALUE[camCondition], notes: camNotes.trim() || null,
@@ -164,9 +169,9 @@ export default function EndShiftScreen() {
     });
     if (camCondition === 'Lost') {
       Alert.alert(
-        'Report the bodycam lost?',
-        'Your supervisor is told straight away, with your note.',
-        [{ text: 'Cancel', style: 'cancel' }, { text: 'Report lost', style: 'destructive', onPress: send }],
+        t('Report the bodycam lost?'),
+        t('Your supervisor is told straight away, with your note.'),
+        [{ text: t('Cancel'), style: 'cancel' }, { text: t('Report lost'), style: 'destructive', onPress: send }],
       );
       return;
     }
@@ -180,9 +185,9 @@ export default function EndShiftScreen() {
 
   const vehicleError = (): string | null => {
     if (!vehicle) return null;
-    if (km === null) return 'Enter the odometer reading.';
-    if (km < (vehicle.mileage ?? 0)) return `The last reading was ${vehicle.mileage} km. Check the odometer.`;
-    if (fault && faultNote.trim().length < 5) return 'Describe the fault so the workshop knows what to look at.';
+    if (km === null) return t('Enter the odometer reading.');
+    if (km < (vehicle.mileage ?? 0)) return t('The last reading was {km} km. Check the odometer.', { km: vehicle.mileage });
+    if (fault && faultNote.trim().length < 5) return t('Describe the fault so the workshop knows what to look at.');
     return null;
   };
 
@@ -195,7 +200,7 @@ export default function EndShiftScreen() {
   const finish = () => void run(async () => {
     const open = await refreshOpenCall();
     if (open) {
-      setError(`You are still on ${open.incident_number}. File its ${words.report} before you end your shift.`);
+      setError(t('You are still on {incident_number}. File its {report} before you end your shift.', { incident_number: open.incident_number, report: words.report }));
       return;
     }
     const res = await endShift(getSupabase(), { mileageKm: vehicle ? km : null, vehicleNote: fault ? faultNote.trim() : null });
@@ -206,8 +211,9 @@ export default function EndShiftScreen() {
 
   /* ── Render ──────────────────────────────────────────────────────── */
 
-  const steps = [firearm ? 'Firearm' : null, bodycam ? 'Bodycam' : null, vehicle ? UnitWord : null, 'End'].filter(Boolean) as string[];
-  const stepName = { firearm: 'Firearm', bodycam: 'Bodycam', vehicle: UnitWord } as const;
+  // The Stepper translates them.
+  const steps = [firearm ? tx('Firearm') : null, bodycam ? tx('Bodycam') : null, vehicle ? UnitWord : null, tx('End')].filter(Boolean) as string[];
+  const stepName = { firearm: tx('Firearm'), bodycam: tx('Bodycam'), vehicle: UnitWord } as const;
   const current = step === 'firearm' || step === 'bodycam' || step === 'vehicle'
     ? Math.max(0, steps.indexOf(stepName[step]))
     : steps.length - (step === 'done' ? 0 : 1);
@@ -223,45 +229,45 @@ export default function EndShiftScreen() {
       {step === 'firearm' && firearm ? (
         <>
           <Card accent={colors.medium}>
-            <Title>Hand back your firearm</Title>
-            <Muted>At the counter, with the armourer or the officer in charge. Count the rounds before you enter them.</Muted>
+            <Title>{t('Hand back your firearm')}</Title>
+            <Muted>{t('At the counter, with the armourer or the officer in charge. Count the rounds before you enter them.')}</Muted>
             <View style={{ marginTop: space.md }}>
-              <KeyValue label="Firearm" value={`${firearm.make} ${firearm.model}`} />
-              <KeyValue label="Serial" value={firearm.serial_number} />
-              <KeyValue label="Booked out" value={saTime(firearm.issued_on)} />
-              <KeyValue label="Issued" value={`${issued ?? '—'} rounds · ${firearm.magazines ?? '—'} magazines`} />
+              <KeyValue label={t('Firearm')} value={`${firearm.make} ${firearm.model}`} />
+              <KeyValue label={t('Serial')} value={firearm.serial_number} />
+              <KeyValue label={t('Booked out')} value={saTime(firearm.issued_on)} />
+              <KeyValue label={t('Issued')} value={`${issued ?? '—'} rounds · ${firearm.magazines ?? '—'} magazines`} />
             </View>
           </Card>
 
-          <SectionLabel>Rounds and magazines</SectionLabel>
+          <SectionLabel>{t('Rounds and magazines')}</SectionLabel>
           <Card>
             <View style={{ gap: space.md }}>
-              <Input label="Rounds handed back" keyboardType="number-pad" value={rounds} onChangeText={(t) => setRounds(digits(t))} maxLength={3}
-                hint={short > 0 ? `${short} short of the ${issued} issued: say why below.` : issued !== null ? `${issued} were issued.` : undefined} />
-              <Input label="Magazines handed back" keyboardType="number-pad" value={mags} onChangeText={(t) => setMags(digits(t))} maxLength={2} />
+              <Input label={t('Rounds handed back')} keyboardType="number-pad" value={rounds} onChangeText={(value) => setRounds(digits(value))} maxLength={3}
+                hint={short > 0 ? t('{short} short of the {issued} issued: say why below.', { short, issued }) : issued !== null ? t('{issued} were issued.', { issued }) : undefined} />
+              <Input label={t('Magazines handed back')} keyboardType="number-pad" value={mags} onChangeText={(value) => setMags(digits(value))} maxLength={2} />
             </View>
           </Card>
 
-          <SectionLabel>Safety and condition</SectionLabel>
+          <SectionLabel>{t('Safety and condition')}</SectionLabel>
           <Card>
             <View style={{ gap: space.sm }}>
-              <CheckRow label="Unloaded and chamber cleared" checked={unloaded} onToggle={() => setUnloaded((v) => !v)} />
-              <CheckRow label="Serial checked; action, safety and sights work" checked={checksOk} onToggle={() => setChecksOk((v) => !v)} />
+              <CheckRow label={t('Unloaded and chamber cleared')} checked={unloaded} onToggle={() => setUnloaded((v) => !v)} />
+              <CheckRow label={t('Serial checked; action, safety and sights work')} checked={checksOk} onToggle={() => setChecksOk((v) => !v)} />
             </View>
-            <Text style={styles.fieldLabel}>CONDITION</Text>
+            <Text style={styles.fieldLabel}>{t('CONDITION')}</Text>
             <Segmented options={CONDITIONS} value={condition} onChange={setCondition} />
             {condition === 'Damaged' || (condition && !checksOk) ? (
-              <Muted style={{ marginTop: space.sm, color: colors.medium }}>It goes to the armourer for repair instead of back into service.</Muted>
+              <Muted style={{ marginTop: space.sm, color: colors.medium }}>{t('It goes to the armourer for repair instead of back into service.')}</Muted>
             ) : null}
             <View style={{ marginTop: space.md }}>
-              <Input label={needsNotes ? 'Notes (required)' : 'Notes'} value={firearmNotes} onChangeText={setFirearmNotes} multiline maxLength={500}
-                placeholder={short > 0 ? 'e.g. 2 rounds discharged at the scene, case CAS 123/10/2026' : 'Anything the armourer should know'}
+              <Input label={needsNotes ? t('Notes (required)') : t('Notes')} value={firearmNotes} onChangeText={setFirearmNotes} multiline maxLength={500}
+                placeholder={short > 0 ? t('e.g. 2 rounds discharged at the scene, case CAS 123/10/2026') : t('Anything the armourer should know')}
                 style={{ minHeight: 72, textAlignVertical: 'top' }} />
             </View>
           </Card>
 
           {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
-          <Button label="Hand back firearm" icon="shield-checkmark-outline" size="lg" busy={busy} onPress={submitFirearm} />
+          <Button label={t('Hand back firearm')} icon="shield-checkmark-outline" size="lg" busy={busy} onPress={submitFirearm} />
         </>
       ) : null}
 
@@ -269,29 +275,29 @@ export default function EndShiftScreen() {
         <>
           {returned ? <Returned returned={returned} /> : null}
           <Card accent={colors.medium}>
-            <Title>Hand back your bodycam</Title>
-            <Muted>Put it on its dock to charge and upload today’s footage.</Muted>
+            <Title>{t('Hand back your bodycam')}</Title>
+            <Muted>{t('Put it on its dock to charge and upload today’s footage.')}</Muted>
             <View style={{ marginTop: space.md }}>
-              <KeyValue label="Bodycam" value={bodycam.serial_number} />
-              <KeyValue label="Booked out" value={saTime(bodycam.booked_at)} />
+              <KeyValue label={t('Bodycam')} value={bodycam.serial_number} />
+              <KeyValue label={t('Booked out')} value={saTime(bodycam.booked_at)} />
             </View>
           </Card>
-          <SectionLabel>Condition</SectionLabel>
+          <SectionLabel>{t('Condition')}</SectionLabel>
           <Card>
             <Segmented options={CAM_CONDITIONS} value={camCondition} onChange={setCamCondition} />
             {camCondition === 'Damaged' ? (
-              <Muted style={{ marginTop: space.sm, color: colors.medium }}>It goes for repair and your supervisor is told.</Muted>
+              <Muted style={{ marginTop: space.sm, color: colors.medium }}>{t('It goes for repair and your supervisor is told.')}</Muted>
             ) : camCondition === 'Lost' ? (
-              <Muted style={{ marginTop: space.sm, color: colors.critical }}>Your supervisor is told straight away.</Muted>
+              <Muted style={{ marginTop: space.sm, color: colors.critical }}>{t('Your supervisor is told straight away.')}</Muted>
             ) : null}
             <View style={{ marginTop: space.md }}>
-              <Input label={camNeedsNotes ? 'What happened (required)' : 'Notes'} value={camNotes} onChangeText={setCamNotes} multiline maxLength={500}
-                placeholder={camCondition === 'Lost' ? 'e.g. Lost during a foot chase on Smith Street, CAS 45/10/2026' : 'Anything the keeper should know'}
+              <Input label={camNeedsNotes ? t('What happened (required)') : t('Notes')} value={camNotes} onChangeText={setCamNotes} multiline maxLength={500}
+                placeholder={camCondition === 'Lost' ? t('e.g. Lost during a foot chase on Smith Street, CAS 45/10/2026') : t('Anything the keeper should know')}
                 style={{ minHeight: 72, textAlignVertical: 'top' }} />
             </View>
           </Card>
           {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
-          <Button label="Hand back bodycam" icon="videocam-outline" size="lg" busy={busy} onPress={submitBodycam} />
+          <Button label={t('Hand back bodycam')} icon="videocam-outline" size="lg" busy={busy} onPress={submitBodycam} />
         </>
       ) : null}
 
@@ -300,21 +306,21 @@ export default function EndShiftScreen() {
           {returned && !bodycam ? <Returned returned={returned} /> : null}
           {camReturned ? <CamReturned returned={camReturned} /> : null}
           <Card accent={colors.accent}>
-            <Title>Hand back {vehicle.unit_number}</Title>
-            <Muted>{vehicle.name}. Read the odometer before you leave the {unitWord}.</Muted>
+            <Title>{t('Hand back {unit_number}', { unit_number: vehicle.unit_number })}</Title>
+            <Muted>{t('{name}. Read the odometer before you leave the {unitWord}.', { name: vehicle.name, unitWord })}</Muted>
             <View style={{ marginTop: space.md, gap: space.md }}>
-              <Input label="Odometer (km)" keyboardType="number-pad" value={mileage} onChangeText={(t) => setMileage(digits(t))} maxLength={7}
-                hint={vehicle.mileage ? `Last reading ${vehicle.mileage} km.` : undefined} />
-              <CheckRow label={`Something is wrong with the ${unitWord}`} checked={fault} onToggle={() => setFault((v) => !v)} />
+              <Input label={t('Odometer (km)')} keyboardType="number-pad" value={mileage} onChangeText={(value) => setMileage(digits(value))} maxLength={7}
+                hint={vehicle.mileage ? t('Last reading {mileage} km.', { mileage: vehicle.mileage }) : undefined} />
+              <CheckRow label={t('Something is wrong with the {unitWord}', { unitWord })} checked={fault} onToggle={() => setFault((v) => !v)} />
               {fault ? (
-                <Input label="What is wrong" value={faultNote} onChangeText={setFaultNote} multiline maxLength={500}
-                  placeholder="e.g. Left indicator out; brakes pulling right" style={{ minHeight: 72, textAlignVertical: 'top' }}
-                  hint={`The ${unitWord} goes for maintenance and your supervisor is told.`} />
+                <Input label={t('What is wrong')} value={faultNote} onChangeText={setFaultNote} multiline maxLength={500}
+                  placeholder={t('e.g. Left indicator out; brakes pulling right')} style={{ minHeight: 72, textAlignVertical: 'top' }}
+                  hint={t('The {unitWord} goes for maintenance and your supervisor is told.', { unitWord })} />
               ) : null}
             </View>
           </Card>
           {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
-          <Button label="Continue" icon="arrow-forward" size="lg" onPress={toConfirm} />
+          <Button label={t('Continue')} icon="arrow-forward" size="lg" onPress={toConfirm} />
         </>
       ) : null}
 
@@ -323,18 +329,20 @@ export default function EndShiftScreen() {
           {returned && !vehicle && !bodycam ? <Returned returned={returned} /> : null}
           {camReturned && !vehicle ? <CamReturned returned={camReturned} /> : null}
           <Card accent={colors.low}>
-            <Title>End your shift</Title>
+            <Title>{t('End your shift')}</Title>
             <Muted>
-              You go off duty and stop receiving dispatches.
-              {vehicle ? ` ${vehicle.unit_number} is handed back${fault ? ' for maintenance' : ''}${km !== null ? ` at ${km} km` : ''}.` : ''}
+              {t('You go off duty and stop receiving dispatches.')}
+              {vehicle ? ` ${fault
+                ? km !== null ? t('{unit} is handed back for maintenance at {km} km.', { unit: vehicle.unit_number, km }) : t('{unit} is handed back for maintenance.', { unit: vehicle.unit_number })
+                : km !== null ? t('{unit} is handed back at {km} km.', { unit: vehicle.unit_number, km }) : t('{unit} is handed back.', { unit: vehicle.unit_number })}` : ''}
             </Muted>
-            {!kit ? <Muted style={{ marginTop: space.sm }}>Your kit could not be checked. You can still try to end the shift.</Muted> : null}
+            {!kit ? <Muted style={{ marginTop: space.sm }}>{t('Your kit could not be checked. You can still try to end the shift.')}</Muted> : null}
           </Card>
           {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
           <View style={{ gap: space.sm }}>
-            <Button label="End shift" icon="moon-outline" variant="success" size="lg" busy={busy} onPress={finish} />
-            {vehicle ? <Button label="Back" variant="outline" disabled={busy} onPress={() => go('vehicle')} /> : null}
-            {error && !kit ? <Button label="Try again" variant="outline" onPress={() => { setStep('loading'); void load(); }} /> : null}
+            <Button label={t('End shift')} icon="moon-outline" variant="success" size="lg" busy={busy} onPress={finish} />
+            {vehicle ? <Button label={t('Back')} variant="outline" disabled={busy} onPress={() => go('vehicle')} /> : null}
+            {error && !kit ? <Button label={t('Try again')} variant="outline" onPress={() => { setStep('loading'); void load(); }} /> : null}
           </View>
         </>
       ) : null}
@@ -342,17 +350,17 @@ export default function EndShiftScreen() {
       {step === 'done' ? (
         <Card accent={colors.low}>
           <View style={styles.doneIcon}><Ionicons name="checkmark" size={32} color="#fff" /></View>
-          <Title style={{ textAlign: 'center' }}>Shift ended</Title>
+          <Title style={{ textAlign: 'center' }}>{t('Shift ended')}</Title>
           <Muted style={{ textAlign: 'center' }}>
-            You are off duty.
-            {returned ? ` Firearm ${returned.serial} handed back.` : ''}
-            {camReturned ? ` Bodycam ${camReturned.serial} handed back.` : ''}
-            {ended?.vehicle ? ` ${ended.vehicle} ${ended.vehicleStatus === 'Maintenance' ? 'is booked for maintenance' : 'is back in the pool'}.` : ''}
-            {' '}Go well.
+            {t('You are off duty.')}
+            {returned ? t(' Firearm {serial} handed back.', { serial: returned.serial }) : ''}
+            {camReturned ? t(' Bodycam {serial} handed back.', { serial: camReturned.serial }) : ''}
+            {ended?.vehicle ? ` ${ended.vehicleStatus === 'Maintenance' ? t('{unit} is booked for maintenance.', { unit: ended.vehicle }) : t('{unit} is back in the pool.', { unit: ended.vehicle })}` : ''}
+            {' '}{t('Go well.')}
           </Muted>
           <View style={{ marginTop: space.lg, gap: space.sm }}>
-            <Button label="Done" onPress={() => router.replace('/(tabs)/profile')} />
-            <Button label="Sign out of this phone" icon="log-out-outline" variant="outline" onPress={() => void signOut()} />
+            <Button label={t('Done')} onPress={() => router.replace('/(tabs)/profile')} />
+            <Button label={t('Sign out of this phone')} icon="log-out-outline" variant="outline" onPress={() => void signOut()} />
           </View>
         </Card>
       ) : null}
@@ -361,20 +369,22 @@ export default function EndShiftScreen() {
 }
 
 function Returned({ returned }: { returned: { serial: string; status: string; short: number } }) {
+  const { t } = useT();
   return (
     <Banner tone={returned.short > 0 || returned.status !== 'Available' ? 'info' : 'success'}>
-      {`Firearm ${returned.serial} handed back.`}
-      {returned.status === 'Maintenance' ? ' It goes to the armourer.' : ''}
-      {returned.short > 0 ? ` ${returned.short} rounds short: your supervisor has been told.` : ''}
+      {t('Firearm {serial} handed back.', { serial: returned.serial })}
+      {returned.status === 'Maintenance' ? t(' It goes to the armourer.') : ''}
+      {returned.short > 0 ? t(' {short} rounds short: your supervisor has been told.', { short: returned.short }) : ''}
     </Banner>
   );
 }
 
 function CamReturned({ returned }: { returned: { serial: string; status: string } }) {
+  const { t } = useT();
   return (
     <Banner tone={returned.status === 'Available' ? 'success' : 'info'}>
-      {`Bodycam ${returned.serial} handed back.`}
-      {returned.status === 'In repair' ? ' It goes for repair.' : returned.status === 'Lost' ? ' Reported lost: your supervisor has been told.' : ''}
+      {t('Bodycam {serial} handed back.', { serial: returned.serial })}
+      {returned.status === 'In repair' ? t(' It goes for repair.') : returned.status === 'Lost' ? t(' Reported lost: your supervisor has been told.') : ''}
     </Banner>
   );
 }

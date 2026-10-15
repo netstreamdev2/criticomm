@@ -127,3 +127,21 @@ export function waitingParts<T extends Pick<DepartmentPart, 'silo' | 'status'> &
   return sortParts(parts).filter((p) => p.silo !== exceptSilo
     && (partOpen(p.status) || (p.status === 'Resolved' && !p.closed_at)));
 }
+
+const BEFORE_DISPATCH: readonly string[] = ['New', 'Pending', 'Pending Dispatch', 'Pending Analysis'];
+
+/**
+ * Whether a dispatch desk may still edit the call (0079, dispatcher_edit_call):
+ * a department's desk until its own department's crews are sent, the control
+ * room (no desk) until any are. A call from before 0073 has no parts: its
+ * status says. The database makes the same check.
+ */
+export function editableBeforeDispatch(
+  call: { status: IncidentStatus; departments?: readonly Pick<DepartmentPart, 'silo' | 'dispatched_at'>[] | null },
+  desk: Silo | null,
+): boolean {
+  if (call.status === 'Resolved' || call.status === 'Closed') return false;
+  const parts = call.departments ?? [];
+  if (parts.length === 0) return BEFORE_DISPATCH.includes(call.status);
+  return !parts.some((p) => p.dispatched_at && (desk === null || p.silo === desk));
+}

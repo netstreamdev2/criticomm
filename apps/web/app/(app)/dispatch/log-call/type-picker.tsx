@@ -3,8 +3,9 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
 import { searchTypes, type DeskSilo, type IncidentSeverity } from '@criticom/db';
+import { useT } from '@/components/i18n';
 import { cn } from '@/lib/utils';
-import { CritiMark, DeptDots, deskList, fieldCls } from './intake-ui';
+import { CritiMark, DeptDots, deskList, fieldCls, severityWord } from './intake-ui';
 
 export type TypeOption = {
   id: string;
@@ -18,7 +19,8 @@ export type TypeOption = {
 
 /**
  * The incident type: type a word ("gun", "crash", "chest") and pick. Each type
- * shows the departments it goes to as coloured dots. Arrow keys and Enter work.
+ * shows its code and the departments it goes to as coloured dots. Arrow keys
+ * and Enter work. A name translated into the reader's language is searched too.
  */
 export function TypePicker({
   types, value, onChange, byCriti, invalid,
@@ -30,6 +32,7 @@ export function TypePicker({
   byCriti?: boolean;
   invalid?: boolean;
 }) {
+  const { t } = useT();
   const id = useId();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -37,8 +40,15 @@ export function TypePicker({
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const results = useMemo(() => searchTypes(types, query), [types, query]);
-  const chosen = types.find((t) => t.name === value) ?? null;
+  const results = useMemo(() => {
+    const found = searchTypes(types, query);
+    const words = query.trim().toLowerCase();
+    if (!words) return found;
+    // The reader's own language: a translated name that holds the words typed.
+    const translated = types.filter((ty) => !found.includes(ty) && t(ty.name).toLowerCase().includes(words));
+    return [...found, ...translated];
+  }, [types, query, t]);
+  const chosen = types.find((ty) => ty.name === value) ?? null;
 
   useEffect(() => setHi(0), [query]);
   useEffect(() => {
@@ -46,8 +56,8 @@ export function TypePicker({
     listRef.current?.querySelector<HTMLElement>(`[data-i="${hi}"]`)?.scrollIntoView({ block: 'nearest' });
   }, [hi, open]);
 
-  const pick = (t: TypeOption) => {
-    onChange(t.name);
+  const pick = (ty: TypeOption) => {
+    onChange(ty.name);
     setOpen(false);
     setQuery('');
     inputRef.current?.blur();
@@ -59,8 +69,8 @@ export function TypePicker({
     else if (e.key === 'Enter') {
       // Never submits the form from here.
       e.preventDefault();
-      const t = results[hi];
-      if (open && t) pick(t);
+      const ty = results[hi];
+      if (open && ty) pick(ty);
     } else if (e.key === 'Escape') { setOpen(false); setQuery(''); }
   };
 
@@ -83,9 +93,11 @@ export function TypePicker({
           aria-autocomplete="list"
           aria-invalid={invalid}
           autoComplete="off"
-          className={cn(fieldCls, 'pl-9 pr-9 font-medium', invalid && 'border-severity-critical')}
-          placeholder="Search: gun, crash, fire, chest pain…"
-          value={open ? query : chosen ? `${chosen.code ? `${chosen.code} · ` : ''}${chosen.name}` : value}
+          className={cn(fieldCls, 'pr-9 font-medium', invalid && 'border-severity-critical')}
+          // Room for the dots: up to four departments.
+          style={{ paddingLeft: chosen && !open ? `${1.25 + chosen.departments.length * 0.625}rem` : '2.25rem' }}
+          placeholder={t('Search: gun, crash, fire, chest pain…')}
+          value={open ? query : chosen ? `${chosen.code ? `${chosen.code} · ` : ''}${t(chosen.name)}` : value}
           onFocus={() => { setOpen(true); setQuery(''); }}
           onBlur={() => setOpen(false)}
           onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
@@ -101,38 +113,38 @@ export function TypePicker({
           // biome-ignore lint/a11y/useSemanticElements: ARIA combobox list; a <select> cannot filter or show the department dots
           role="listbox"
           tabIndex={-1}
-          aria-label="Incident types"
+          aria-label={t('Incident types')}
           className="absolute z-40 mt-1 max-h-80 w-full overflow-y-auto rounded-lg border border-border bg-bg-card py-1 shadow-2xl"
         >
           {results.length === 0 ? (
-            <p className="px-3 py-2.5 text-xs text-muted-foreground">No type matches “{query}”. Try another word.</p>
-          ) : results.map((t, i) => {
-            const header = grouped && t.group !== lastGroup ? t.group : null;
-            lastGroup = t.group;
+            <p className="px-3 py-2.5 text-xs text-muted-foreground">{t('No type matches “{query}”. Try another word.', { query })}</p>
+          ) : results.map((ty, i) => {
+            const header = grouped && ty.group !== lastGroup ? ty.group : null;
+            lastGroup = ty.group;
             return (
-              <div key={t.id} role="presentation">
+              <div key={ty.id} role="presentation">
                 {header ? (
-                  <p className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{header}</p>
+                  <p className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{t(header)}</p>
                 ) : null}
                 <div
                   // biome-ignore lint/a11y/useSemanticElements: option of the ARIA combobox list above
                   role="option"
                   tabIndex={-1}
-                  aria-selected={t.name === value}
+                  aria-selected={ty.name === value}
                   data-i={i}
                   // On press, so the box keeps the focus and the list does not close first.
-                  onMouseDown={(e) => { e.preventDefault(); pick(t); }}
+                  onMouseDown={(e) => { e.preventDefault(); pick(ty); }}
                   onMouseEnter={() => setHi(i)}
                   className={cn(
                     'flex w-full cursor-pointer items-center gap-2.5 px-3 py-2 text-left text-sm',
                     i === hi ? 'bg-muted' : 'hover:bg-muted/60',
-                    t.name === value && 'font-semibold',
+                    ty.name === value && 'font-semibold',
                   )}
                 >
-                  <DeptDots departments={t.departments} className="w-9 justify-start" />
-                  <span className="min-w-0 flex-1 truncate">{t.name}</span>
-                  {!grouped ? <span className="shrink-0 text-[11px] text-muted-foreground">{t.group}</span> : null}
-                  {t.code ? <span className="shrink-0 font-mono text-[11px] text-muted-foreground">{t.code}</span> : null}
+                  <DeptDots departments={ty.departments} className="w-9 justify-start" />
+                  <span className="min-w-0 flex-1 truncate">{t(ty.name)}</span>
+                  {!grouped ? <span className="shrink-0 text-[11px] text-muted-foreground">{t(ty.group)}</span> : null}
+                  {ty.code ? <span className="shrink-0 font-mono text-[11px] text-muted-foreground">{ty.code}</span> : null}
                 </div>
               </div>
             );
@@ -143,10 +155,10 @@ export function TypePicker({
       {chosen ? (
         <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
           {byCriti ? <CritiMark /> : null}
-          <span>{chosen.group}</span>
+          <span>{t(chosen.group)}</span>
           <span aria-hidden>·</span>
-          <span>Goes to <span className="font-semibold text-fg">{deskList(chosen.departments) || 'the department you choose'}</span></span>
-          {chosen.severity ? <><span aria-hidden>·</span><span>Usually {chosen.severity}</span></> : null}
+          <span>{t('Goes to')} <span className="font-semibold text-fg">{deskList(chosen.departments, t) || t('the department you choose')}</span></span>
+          {chosen.severity ? <><span aria-hidden>·</span><span>{t('Usually {severity}', { severity: severityWord(chosen.severity, t) })}</span></> : null}
         </p>
       ) : null}
     </div>

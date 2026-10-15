@@ -26,7 +26,15 @@
     "./pcr": "./src/pcr.ts",
     "./post-mortem": "./src/post-mortem.ts",
     "./desks": "./src/desks.ts",
-    "./intake": "./src/intake.ts"
+    "./intake": "./src/intake.ts",
+    "./intake-details": "./src/intake-details.ts",
+    "./incident-number": "./src/incident-number.ts",
+    "./incident-edits": "./src/incident-edits.ts",
+    "./call-facts": "./src/call-facts.ts",
+    "./i18n": "./src/i18n/index.ts",
+    "./i18n/locales": "./src/i18n/locales/index.ts",
+    "./i18n/source": "./src/i18n/source.ts",
+    "./i18n/glossary": "./src/i18n/glossary.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

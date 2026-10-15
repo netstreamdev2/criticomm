@@ -27,7 +27,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ path: s
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
   const [token, file] = path;
-  if (!FILE_RE.test(file)) {
+  if (!token || !file || !FILE_RE.test(file)) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 

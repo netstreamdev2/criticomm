@@ -11,6 +11,7 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useSync } from '@/lib/sync';
 import type { OutboxEntry, OutboxOp } from '@/lib/outbox';
+import { useT } from '@/lib/i18n';
 
 /**
  * Fines on the phone (migration 0057).
@@ -82,6 +83,7 @@ export function groupNotices(fines: Fine[]): NoticeGroup[] {
 
 /** The fines this officer issued, the money paid against them, and the figures. */
 export function useMyFines() {
+  const { t } = useT();
   const { session } = useAuth();
   const { pending, failed } = useSync();
   const [fines, setFines] = useState<Fine[]>([]);
@@ -98,7 +100,7 @@ export function useMyFines() {
       setPaid(await paidByFine(sb, rows.map((r) => r.id)).catch(() => new Map()));
       setError(null);
     } catch (e) {
-      setError((e as Error).message ?? 'Could not load your fines.');
+      setError((e as Error).message ?? t('Could not load your fines.'));
     } finally {
       setLoading(false);
     }

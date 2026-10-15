@@ -1,6 +1,7 @@
+import { english, type Translate } from '@criticom/db/i18n';
 import type { IncidentStatus } from '@criticom/db/types';
 import { callView, type FieldCall } from './response.ts';
-import { wordsFor } from './department.ts';
+import { wordsIn } from './department.ts';
 
 /**
  * What the live map draws for each incident: a pin at the coordinates the
@@ -56,19 +57,20 @@ export function toPins(
   incidents: readonly PinSource[],
   me: { userId: string; silo: string; onDuty: boolean | null },
   colorOf: (severity: string) => string,
-  opts: { queued?: ReadonlyMap<string, IncidentStatus>; fresh?: ReadonlySet<string> } = {},
+  opts: { queued?: ReadonlyMap<string, IncidentStatus>; fresh?: ReadonlySet<string>; t?: Translate } = {},
 ): MapPin[] {
+  const t = opts.t ?? english.t;
   const pins: MapPin[] = [];
   for (const i of incidents) {
     if (!hasLocation(i.location_lat, i.location_lng)) continue;
     const queued = opts.queued?.get(i.id) ?? null;
-    const v = callView(i, me, queued);
-    const holder = v.ownSos ? 'Your SOS — help is being sent'
-      : v.role === 'lead' ? 'You are leading'
-      : v.role === 'backup' ? 'You are backup'
-        : v.assignment.kind === 'you' ? 'Assigned to you'
-          : v.assignment.kind === 'other' ? (v.lead ? `Led by ${v.assignment.name}` : `Assigned to ${v.assignment.name}`)
-            : 'Open — first to respond leads';
+    const v = callView(i, me, queued, t);
+    const holder = v.ownSos ? t('Your SOS — help is being sent')
+      : v.role === 'lead' ? t('You are leading')
+      : v.role === 'backup' ? t('You are backup')
+        : v.assignment.kind === 'you' ? t('Assigned to you')
+          : v.assignment.kind === 'other' ? (v.lead ? t('Led by {name}', { name: v.assignment.name }) : t('Assigned to {name}', { name: v.assignment.name }))
+            : t('Open — first to respond leads');
     pins.push({
       id: i.id,
       number: i.incident_number,
@@ -85,7 +87,7 @@ export function toPins(
       fresh: opts.fresh?.has(i.id) ?? false,
       sos: i.source === 'Responder-Panic',
       // The SOS incident is logged under the department of whoever pressed it.
-      sosLabel: i.source === 'Responder-Panic' ? `SOS · ${wordsFor(i.silo).person.toUpperCase()} EMERGENCY` : null,
+      sosLabel: i.source === 'Responder-Panic' ? t('SOS · {person} EMERGENCY', { person: wordsIn(i.silo, t).person.toUpperCase() }) : null,
     });
   }
   return pins;

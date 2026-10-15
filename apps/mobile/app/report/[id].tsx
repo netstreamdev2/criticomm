@@ -20,6 +20,7 @@ import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, EmptyState, Muted, SectionLabel, SeverityPill, Title } from '@/components/ui';
 import { OrgMark } from '@/components/org-mark';
 import { onTone, ReportWizard, type WizardSpec } from '@/components/report-wizard';
+import { useT } from '@/lib/i18n';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -49,6 +50,7 @@ const FORM_ICON: Record<string, IconName> = {
  * through the outbox like every other field action.
  */
 export default function IncidentReportScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -111,10 +113,10 @@ export default function IncidentReportScreen() {
   // Keep the draft on the phone as the officer types.
   useEffect(() => {
     if (!id || !draftLoaded.current || !forms) return;
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       void AsyncStorage.setItem(draftKey(id), JSON.stringify({ forms, answers })).catch(() => {});
     }, 400);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [id, forms, answers]);
 
   const set = useCallback((key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: value })), []);
@@ -167,10 +169,10 @@ export default function IncidentReportScreen() {
 
   /** Take a form off the report; its answers go with it. */
   const removeForm = (form: PoliceReportForm) => {
-    Alert.alert(`Remove ${form.code}?`, `${form.label} comes off this report and its answers are cleared.`, [
-      { text: 'Keep it', style: 'cancel' },
+    Alert.alert(t('Remove {code}?', { code: form.code }), t('{label} comes off this report and its answers are cleared.', { label: t(form.label) }), [
+      { text: t('Keep it'), style: 'cancel' },
       {
-        text: 'Remove',
+        text: t('Remove'),
         style: 'destructive',
         onPress: () => {
           setForms((cur) => (cur ?? []).filter((f) => f !== form.id));
@@ -193,12 +195,12 @@ export default function IncidentReportScreen() {
     }
 
     Alert.alert(
-      'File this report?',
-      `The report on ${incident.incident_number} becomes a permanent record — it cannot be edited or deleted afterwards.`,
+      t('File this report?'),
+      t('The report on {incident_number} becomes a permanent record — it cannot be edited or deleted afterwards.', { incident_number: incident.incident_number }),
       [
-        { text: 'Keep editing', style: 'cancel' },
+        { text: t('Keep editing'), style: 'cancel' },
         {
-          text: 'File report',
+          text: t('File report'),
           style: 'destructive',
           onPress: () => void submit(),
         },
@@ -221,8 +223,8 @@ export default function IncidentReportScreen() {
       });
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
       Alert.alert(
-        'Report filed',
-        online ? `Your report for ${incident.incident_number} is on record.` : `Saved. It sends when you have signal.`,
+        t('Report filed'),
+        online ? t('Your report for {incident_number} is on record.', { incident_number: incident.incident_number }) : t('Saved. It sends when you have signal.'),
       );
       // The Closed tab, with this call's drawer open: Close is the next step (0074).
       router.replace({ pathname: '/(tabs)/incidents', params: { closed: incident.id } });
@@ -237,7 +239,7 @@ export default function IncidentReportScreen() {
     return (
       <View style={styles.center}>
         <ActivityIndicator color={colors.accent} />
-        <Muted>Preparing the report…</Muted>
+        <Muted>{t('Preparing the report…')}</Muted>
       </View>
     );
   }
@@ -245,7 +247,7 @@ export default function IncidentReportScreen() {
   if (!incident || !reportType) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
-        <EmptyState icon="alert-circle-outline" title="Incident not available" body="It may have been reassigned, or you no longer have access to it." />
+        <EmptyState icon="alert-circle-outline" title={t('Incident not available')} body={t('It may have been reassigned, or you no longer have access to it.')} />
       </View>
     );
   }
@@ -255,10 +257,10 @@ export default function IncidentReportScreen() {
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
         <EmptyState
           icon="lock-closed-outline"
-          title="Report already filed"
+          title={t('Report already filed')}
           body={alreadyQueued
-            ? 'It is waiting for signal and sends automatically.'
-            : 'Your report is on record.'}
+            ? t('It is waiting for signal and sends automatically.')
+            : t('Your report is on record.')}
         />
       </View>
     );
@@ -269,8 +271,8 @@ export default function IncidentReportScreen() {
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
         <EmptyState
           icon="person-outline"
-          title="Not your incident"
-          body="Only the lead officer on this incident can file its report."
+          title={t('Not your incident')}
+          body={t('Only the lead officer on this incident can file its report.')}
         />
       </View>
     );
@@ -278,7 +280,7 @@ export default function IncidentReportScreen() {
 
   const onScene = status === 'Arrived' || status === 'On Scene' || status === 'Transporting';
   const done = forms ?? [];
-  const filing = ['Case report', ...POLICE_REPORT_FORMS.filter((f) => done.includes(f.id)).map((f) => f.code)];
+  const filing = [t('Case report'), ...POLICE_REPORT_FORMS.filter((f) => done.includes(f.id)).map((f) => f.code)];
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -297,39 +299,39 @@ export default function IncidentReportScreen() {
           <View style={styles.metaRow}>
             <Ionicons name="attach-outline" size={13} color={colors.muted} />
             <Text style={styles.metaText}>
-              {evidence.photos} photo{evidence.photos === 1 ? '' : 's'} · {evidence.voice} voice note{evidence.voice === 1 ? '' : 's'} on file
+              {evidence.photos === 1 ? t('1 photo') : t('{n} photos', { n: evidence.photos })} · {evidence.voice === 1 ? t('1 voice note on file') : t('{n} voice notes on file', { n: evidence.voice })}
             </Text>
           </View>
         </Card>
 
         {!onScene ? (
-          <Banner tone="info">Mark yourself On Scene before filing — the report can be drafted now.</Banner>
+          <Banner tone="info">{t('Mark yourself On Scene before filing — the report can be drafted now.')}</Banner>
         ) : null}
 
         {/* The case report: every report has it. */}
         <Pressable
           onPress={() => setOpen('case')}
           accessibilityRole="button"
-          accessibilityLabel={`Case report, ${caseDone ? 'done' : 'required'}`}
+          accessibilityLabel={caseDone ? t('Case report, done') : t('Case report, required')}
           style={({ pressed }) => [styles.caseCard, caseDone && styles.caseDone, pressed && { opacity: 0.85 }]}
         >
           <View style={[styles.caseIcon, { backgroundColor: colors.accent }]}>
             <Ionicons name="document-text" size={20} color="#fff" />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.caseTitle}>Case report</Text>
+            <Text style={styles.caseTitle}>{t('Case report')}</Text>
             <Text style={styles.caseSub}>
-              {caseDone ? 'Ready' : `Response, outcome, evidence and narrative · ${caseCount.answered} of ${caseCount.total}`}
+              {caseDone ? t('Ready') : t('Response, outcome, evidence and narrative · {answered} of {total}', { answered: caseCount.answered, total: caseCount.total })}
             </Text>
           </View>
           {caseDone ? (
             <View style={[styles.tick, { backgroundColor: colors.low }]}><Ionicons name="checkmark" size={16} color="#fff" /></View>
           ) : (
-            <View style={styles.requiredChip}><Text style={styles.requiredText}>REQUIRED</Text></View>
+            <View style={styles.requiredChip}><Text style={styles.requiredText}>{t('REQUIRED')}</Text></View>
           )}
         </Pressable>
 
-        <SectionLabel>DMPS forms · optional</SectionLabel>
+        <SectionLabel>{t('DMPS forms · optional')}</SectionLabel>
         <View style={styles.grid}>
           {POLICE_REPORT_FORMS.map((f) => {
             const ticked = done.includes(f.id);
@@ -341,7 +343,7 @@ export default function IncidentReportScreen() {
                 onPress={() => setOpen(f.id)}
                 onLongPress={ticked ? () => removeForm(f) : undefined}
                 accessibilityRole="button"
-                accessibilityLabel={`${f.code} ${f.label}${ticked ? ', done' : answered ? `, ${answered} answered` : ''}`}
+                accessibilityLabel={`${f.code} ${t(f.label)}${ticked ? `, ${t('done')}` : answered ? `, ${t('{n} answered', { n: answered })}` : ''}`}
                 style={({ pressed }) => [
                   styles.tile,
                   { borderColor: ticked ? f.tone : `${f.tone}55`, backgroundColor: ticked ? `${f.tone}2e` : `${f.tone}12` },
@@ -360,9 +362,9 @@ export default function IncidentReportScreen() {
                   )}
                 </View>
                 <Text style={[styles.tileCode, { color: f.tone }]}>{f.code}</Text>
-                <Text style={styles.tileLabel} numberOfLines={2}>{f.label}</Text>
+                <Text style={styles.tileLabel} numberOfLines={2}>{t(f.label)}</Text>
                 <Text style={styles.tileState} numberOfLines={1}>
-                  {ticked ? 'Done' : answered ? `${answered} answered · not done` : suggested === f.id ? 'Suggested for this call' : 'Tap to fill'}
+                  {ticked ? t('Done') : answered ? t('{answered} answered · not done', { answered }) : suggested === f.id ? t('Suggested for this call') : t('Tap to fill')}
                 </Text>
               </Pressable>
             );
@@ -371,16 +373,16 @@ export default function IncidentReportScreen() {
 
         {problems.length > 0 ? (
           <Banner tone="error" onDismiss={() => setProblems([])}>
-            {`${problems.length === 1 ? 'One thing is' : `${problems.length} things are`} missing:\n• ${problems.join('\n• ')}`}
+            {`${problems.length === 1 ? t('One thing is missing:') : t('{n} things are missing:', { n: problems.length })}\n• ${problems.join('\n• ')}`}
           </Banner>
         ) : null}
 
         <View style={styles.summary}>
           <Ionicons name="layers-outline" size={14} color={colors.muted} />
-          <Text style={styles.summaryText}>Filing: {filing.join(' · ')}</Text>
+          <Text style={styles.summaryText}>{t('Filing: {filing}', { filing: filing.join(' · ') })}</Text>
         </View>
         <Button
-          label="File report"
+          label={t('File report')}
           icon="lock-closed"
           variant="success"
           size="lg"
@@ -389,7 +391,7 @@ export default function IncidentReportScreen() {
           onPress={file}
         />
         <Muted style={{ marginTop: space.sm, textAlign: 'center' }}>
-          Filed reports are permanent and visible to dispatch and command.
+          {t('Filed reports are permanent and visible to dispatch and command.')}
         </Muted>
       </ScrollView>
 

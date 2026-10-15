@@ -145,7 +145,9 @@ export function LocationPicker({
   };
 
   return (
-    <div className="relative overflow-hidden rounded-lg border border-border">
+    // isolate: the map's own buttons (z-[400]) stay above the map only, so a
+    // drop-down opened over it (the address search) covers them too.
+    <div className="relative isolate overflow-hidden rounded-lg border border-border">
       <div ref={el} style={{ height }} className="w-full" />
 
       {interactive ? (

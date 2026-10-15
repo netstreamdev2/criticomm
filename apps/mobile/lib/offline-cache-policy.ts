@@ -1,3 +1,5 @@
+import { tx } from '@criticom/db/i18n';
+
 /**
  * The offline read cache's rules, with no dependencies.
  *
@@ -164,8 +166,8 @@ export function isNetworkFailure(error: unknown): boolean {
 }
 
 /** The words a screen shows for an error: "No connection" for a dead network, the server's reason otherwise. */
-export function errorWords(error: unknown, fallback = 'Something went wrong. Try again.'): string {
-  if (isNetworkFailure(error)) return 'No connection. Try again when you have signal.';
+export function errorWords(error: unknown, fallback: string = tx('Something went wrong. Try again.')): string {
+  if (isNetworkFailure(error)) return tx('No connection. Try again when you have signal.');
   const message = (error as { message?: string } | null)?.message?.trim();
   return message || fallback;
 }

@@ -1,10 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Maximize2, MessageSquare, Minimize2, Sparkles, X } from 'lucide-react';
+import { Maximize2, MessageSquare, Minimize2, X } from 'lucide-react';
 import { departmentName, roleName } from '@criticom/db';
 import { cn } from '@/lib/utils';
 import { CritiChat } from '@/components/criti/chat';
+import { CritiMascot } from '@/components/criti/mascot';
 import { CritiTiles } from '@/components/criti/insight-tiles';
 import { ASK_EVENT, COUNT_EVENT, OPEN_EVENT, type DockTab } from '@/components/criti/shared';
 
@@ -89,9 +90,9 @@ export function AssistantDock({
           onClick={() => setOpen(true)}
           aria-label={urgent ? `Open Criti: ${urgent} urgent suggestion${urgent === 1 ? '' : 's'}` : 'Open Criti'}
           title="Ask Criti  (Ctrl+J)"
-          className="group fixed bottom-4 right-4 z-[65] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-2xl transition-transform hover:scale-105 active:scale-95"
+          className="group fixed bottom-4 right-4 z-[65] flex h-16 w-16 items-center justify-center rounded-full border border-border bg-bg-card shadow-2xl transition-transform hover:scale-105 active:scale-95"
         >
-          <Sparkles className="h-6 w-6" />
+          <CritiMascot className="h-14 w-14" />
           {urgent > 0 ? (
             <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-severity-critical px-1 text-[11px] font-bold text-severity-critical-fg">
               {urgent > 9 ? '9+' : urgent}
@@ -120,8 +121,8 @@ export function AssistantDock({
             )}
           >
             <header className="flex items-center gap-2 border-b border-border px-4 py-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <Sparkles className="h-4 w-4" />
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-bg-soft">
+                <CritiMascot className="h-8 w-8" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold">Criti</p>
@@ -150,7 +151,7 @@ export function AssistantDock({
 
             {tiles ? (
               <div role="tablist" aria-label="Criti" className="flex border-b border-border px-2">
-                {([['chat', 'Chat', MessageSquare], ['suggestions', 'Suggestions', Sparkles]] as const).map(([id, label, Icon]) => (
+                {([['chat', 'Chat'], ['suggestions', 'Suggestions']] as const).map(([id, label]) => (
                   <button
                     key={id}
                     type="button"
@@ -162,7 +163,7 @@ export function AssistantDock({
                       tab === id ? 'border-accent text-fg' : 'border-transparent text-muted-foreground hover:text-fg',
                     )}
                   >
-                    <Icon className="h-3.5 w-3.5" /> {label}
+                    {id === 'chat' ? <MessageSquare className="h-3.5 w-3.5" /> : <CritiMascot className="h-4 w-4" />} {label}
                     {id === 'suggestions' && urgent > 0 ? (
                       <span className="rounded-full bg-severity-critical px-1.5 text-[10px] font-bold text-severity-critical-fg">{urgent}</span>
                     ) : null}

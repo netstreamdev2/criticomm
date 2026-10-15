@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radius, makeStyles } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 /**
  * A swipeable bottom drawer, built on React Native's own Animated and
@@ -26,6 +27,7 @@ export function BottomSheet({
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -86,7 +88,7 @@ export function BottomSheet({
   return (
     <Modal visible={visible} transparent animationType="none" statusBarTranslucent onRequestClose={close}>
       <Animated.View style={[StyleSheet.absoluteFill, styles.backdrop, { opacity: backdrop }]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel="Close details" />
+        <Pressable style={StyleSheet.absoluteFill} onPress={close} accessibilityLabel={t('Close details')} />
       </Animated.View>
 
       <Animated.View style={[styles.sheet, { height: full, transform: [{ translateY: y }] }]}>

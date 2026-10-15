@@ -9,6 +9,7 @@ import { useDuty } from '@/lib/duty';
 import { useSync } from '@/lib/sync';
 import { useFeatures } from '@/lib/features';
 import { homeModules } from '@/lib/modules';
+import { CritiHead } from '@/components/criti-head';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Card } from '@/components/ui';
 import { PoliceHome } from '@/components/police-home';
@@ -17,6 +18,7 @@ import { EmsHome } from '@/components/ems-home';
 import { DisasterHome } from '@/components/disaster-home';
 import { DoctorHome } from '@/components/doctor-home';
 import { HomeHeader } from '@/components/home-header';
+import { useT } from '@/lib/i18n';
 
 /**
  * Home — the modular front door.
@@ -42,6 +44,7 @@ export default function HomeScreen() {
 }
 
 function ModuleHome() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { session, silo } = useAuth();
@@ -100,14 +103,14 @@ function ModuleHome() {
             color={shiftStarted === false ? colors.medium : colors.low}
           />
           <Text style={styles.statusLabel}>
-            {shiftStarted === false ? 'Shift not started' : 'Cleared for duty'}
+            {shiftStarted === false ? t('Shift not started') : t('Cleared for duty')}
           </Text>
         </Pressable>
 
         <Pressable style={styles.status} onPress={() => router.push('/(tabs)/incidents')}>
           <Ionicons name="radio" size={16} color={colors.accent} />
           <Text style={styles.statusLabel}>
-            {assigned === null ? '—' : assigned} assigned
+            {assigned === null ? t('— assigned') : t('{n} assigned', { n: assigned })}
           </Text>
         </Pressable>
 
@@ -120,7 +123,7 @@ function ModuleHome() {
           <Text style={styles.statusLabel}>
             {failed.length > 0
               ? `${failed.length} failed`
-              : undelivered > 0 ? `${undelivered} sending` : online ? 'Synced' : 'Offline'}
+              : undelivered > 0 ? `${undelivered} sending` : online ? t('Synced') : t('Offline')}
           </Text>
         </View>
       </View>
@@ -133,14 +136,14 @@ function ModuleHome() {
             <Pressable
               key={m.key}
               accessibilityRole="button"
-              accessibilityLabel={m.title}
+              accessibilityLabel={t(m.title)}
               onPress={() => router.push(m.href as never)}
               style={({ pressed }) => [styles.cardWrap, pressed && { opacity: 0.85 }]}
             >
               <Card tight style={styles.card}>
                 <View style={styles.cardHead}>
                   <View style={styles.cardIcon}>
-                    <Ionicons name={m.icon} size={20} color={colors.accent} />
+                    {m.key === 'assistant' ? <CritiHead size={24} /> : m.icon ? <Ionicons name={m.icon} size={20} color={colors.accent} /> : null}
                   </View>
                   {badge ? (
                     <View style={styles.badge}>
@@ -148,8 +151,8 @@ function ModuleHome() {
                     </View>
                   ) : null}
                 </View>
-                <Text style={styles.cardTitle}>{m.title}</Text>
-                <Text style={styles.cardBlurb} numberOfLines={2}>{m.blurb}</Text>
+                <Text style={styles.cardTitle}>{t(m.title)}</Text>
+                <Text style={styles.cardBlurb} numberOfLines={2}>{t(m.blurb)}</Text>
               </Card>
             </Pressable>
           );
@@ -157,8 +160,7 @@ function ModuleHome() {
       </View>
 
       <Text style={styles.footer}>
-        {silo} · modules are set by your organisation
-      </Text>
+        {t('{silo} · modules are set by your organisation', { silo })}</Text>
     </ScrollView>
   );
 }

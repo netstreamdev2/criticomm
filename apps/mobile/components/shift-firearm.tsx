@@ -9,6 +9,8 @@ import {
   ChoiceChips, FieldLabel, Group, PaperButton, PaperInput, Sheet, TickBox, paper,
 } from '@/components/shift-form';
 import { makeStyles } from '@/lib/theme';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 type FirearmChecklist = Database['public']['Tables']['firearm_checklists']['Row'];
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -42,18 +44,18 @@ export const emptyFirearm = (): FirearmForm => ({
 
 export function firearmFormError(form: FirearmForm): string | null {
   if (form.noFirearm) return null;
-  if (!form.firearmId) return 'Select the firearm you are drawing.';
+  if (!form.firearmId) return tx('Select the firearm you are drawing.');
   const rounds = Number(form.rounds);
   if (!form.rounds.trim() || !Number.isInteger(rounds) || rounds < 0 || rounds > 500) {
-    return 'Rounds issued must be a whole number between 0 and 500.';
+    return tx('Rounds issued must be a whole number between 0 and 500.');
   }
   const mags = Number(form.magazines);
   if (!form.magazines.trim() || !Number.isInteger(mags) || mags < 0 || mags > 20) {
-    return 'Magazines must be a whole number between 0 and 20.';
+    return tx('Magazines must be a whole number between 0 and 20.');
   }
-  if (!form.chamber) return 'Select the chamber status.';
-  if (!form.condition) return 'Select the firearm condition.';
-  if (form.condition !== 'clean' && !form.notes.trim()) return 'Describe the firearm condition in the notes.';
+  if (!form.chamber) return tx('Select the chamber status.');
+  if (!form.condition) return tx('Select the firearm condition.');
+  if (form.condition !== 'clean' && !form.notes.trim()) return tx('Describe the firearm condition in the notes.');
   return null;
 }
 
@@ -77,6 +79,7 @@ export function FirearmSheet({
   busy: boolean;
   userId: string | null;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   // A cancelled form has nothing to flag.
   const invalid = invalidProp && !form.noFirearm;
@@ -101,8 +104,8 @@ export function FirearmSheet({
   return (
     <Sheet>
       <View style={styles.head}>
-        <Text style={styles.title}>Select Firearm &amp; Checklist</Text>
-        <Text style={styles.sub}>Select your issued weapon and complete the mandatory SAPS inspection.</Text>
+        <Text style={styles.title}>{t('Select Firearm & Checklist')}</Text>
+        <Text style={styles.sub}>{t('Select your issued weapon and complete the mandatory SAPS inspection.')}</Text>
       </View>
 
       <View style={{ paddingHorizontal: 14 }}>
@@ -112,16 +115,15 @@ export function FirearmSheet({
           tone={paper.red}
           style={[styles.noFirearm, form.noFirearm && styles.noFirearmOn]}
         >
-          <Text style={styles.tickTitle}>No firearm</Text>
+          <Text style={styles.tickTitle}>{t('No firearm')}</Text>
           <Text style={styles.tickBody}>
-            I am not drawing a firearm this shift (e.g. mine is not on the armoury register). This is recorded on
-            my start-of-shift record.
+            {t('I am not drawing a firearm this shift (e.g. mine is not on the armoury register). This is recorded on my start-of-shift record.')}
           </Text>
         </TickBox>
         {form.noFirearm ? (
           <PaperInput
-            label="Reason (optional)"
-            placeholder="e.g. Firearm not on the register, unarmed duty…"
+            label={t('Reason (optional)')}
+            placeholder={t('e.g. Firearm not on the register, unarmed duty…')}
             value={form.noFirearmReason}
             onChangeText={(noFirearmReason) => patch({ noFirearmReason })}
           />
@@ -134,22 +136,23 @@ export function FirearmSheet({
         >
         {lastLoadout ? (
           <TickBox checked={form.sameAsLast} onToggle={toggleSameAsLast} tone={paper.green} style={{ marginBottom: 12 }}>
-            <Text style={styles.tickTitle}>Same loadout as last shift</Text>
+            <Text style={styles.tickTitle}>{t('Same loadout as last shift')}</Text>
             <Text style={styles.tickBody}>
-              {lastLoadout.make_model} · S/N {lastLoadout.serial_number} · {lastLoadout.rounds_issued} rounds ·{' '}
-              {lastLoadout.magazines} magazines ({saShortDate(lastLoadout.created_at)})
-              {lastAvailable ? '' : ' — that firearm is not available today, select another.'}
+              {t('{firearm} · S/N {serial} · {rounds} rounds · {magazines} magazines ({date})', {
+                firearm: lastLoadout.make_model, serial: lastLoadout.serial_number, rounds: lastLoadout.rounds_issued,
+                magazines: lastLoadout.magazines, date: saShortDate(lastLoadout.created_at),
+              })}
+              {lastAvailable ? '' : t(' — that firearm is not available today, select another.')}
             </Text>
           </TickBox>
         ) : null}
 
-        <FieldLabel label="Firearm" required invalid={invalid && !form.firearmId} />
+        <FieldLabel label={t('Firearm')} required invalid={invalid && !form.firearmId} />
         {firearms.length === 0 ? (
           <View style={styles.empty}>
             <Ionicons name="lock-closed-outline" size={22} color={paper.muted} />
             <Text style={styles.emptyText}>
-              No firearms are available on your armoury register. Ask your supervisor to log or return one,
-              or tick No firearm above.
+              {t('No firearms are available on your armoury register. Ask your supervisor to log or return one, or tick No firearm above.')}
             </Text>
           </View>
         ) : (
@@ -163,7 +166,7 @@ export function FirearmSheet({
                   onPress={() => patch({ firearmId: f.id })}
                   accessibilityRole="radio"
                   accessibilityState={{ selected: active }}
-                  accessibilityLabel={`${f.make} ${f.model}, serial ${f.serial_number}`}
+                  accessibilityLabel={t('{make} {model}, serial {serial_number}', { make: f.make, model: f.model, serial_number: f.serial_number })}
                   style={[
                     styles.card,
                     invalid && !form.firearmId && { borderColor: paper.red },
@@ -175,8 +178,8 @@ export function FirearmSheet({
                   <Text style={styles.cardSub} numberOfLines={1}>
                     {[f.calibre, f.firearm_type].filter(Boolean).join(' ')}
                   </Text>
-                  <Text style={styles.cardSerial} numberOfLines={1}>S/N {f.serial_number}</Text>
-                  {mine ? <Text style={styles.mine}>BOOKED OUT TO YOU</Text> : null}
+                  <Text style={styles.cardSerial} numberOfLines={1}>{t('S/N {serial_number}', { serial_number: f.serial_number })}</Text>
+                  {mine ? <Text style={styles.mine}>{t('BOOKED OUT TO YOU')}</Text> : null}
                 </Pressable>
               );
             })}
@@ -185,10 +188,10 @@ export function FirearmSheet({
 
         <View style={styles.divider} />
 
-        <FieldLabel label="Serial number" />
+        <FieldLabel label={t('Serial number')} />
         <View style={[styles.dark, { marginBottom: 14 }]}>
           <Text style={[styles.darkText, !selected && { color: paper.faint }]}>
-            {selected ? selected.serial_number : 'Select a firearm above'}
+            {selected ? selected.serial_number : t('Select a firearm above')}
           </Text>
           {selected ? <Ionicons name="lock-closed" size={14} color={paper.faint} /> : null}
         </View>
@@ -196,7 +199,7 @@ export function FirearmSheet({
         <View style={styles.pair}>
           <View style={{ flex: 1 }}>
             <PaperInput
-              label="Ammunition issued (rounds)"
+              label={t('Ammunition issued (rounds)')}
               required
               invalid={invalid && !/^\d+$/.test(form.rounds.trim())}
               keyboardType="number-pad"
@@ -207,7 +210,7 @@ export function FirearmSheet({
           </View>
           <View style={{ flex: 1 }}>
             <PaperInput
-              label="Magazines"
+              label={t('Magazines')}
               required
               invalid={invalid && !/^\d+$/.test(form.magazines.trim())}
               keyboardType="number-pad"
@@ -218,16 +221,16 @@ export function FirearmSheet({
           </View>
         </View>
 
-        <FieldLabel label="Chamber status" required invalid={invalid && !form.chamber} />
+        <FieldLabel label={t('Chamber status')} required invalid={invalid && !form.chamber} />
         <ChoiceChips options={CHAMBER_STATUSES} value={form.chamber} onChange={(chamber) => patch({ chamber })} invalid={invalid} />
         <View style={{ height: 14 }} />
 
-        <FieldLabel label="Condition & functionality" required invalid={invalid && !form.condition} />
+        <FieldLabel label={t('Condition & functionality')} required invalid={invalid && !form.condition} />
         <ChoiceChips options={FIREARM_CONDITIONS} value={form.condition} onChange={(condition) => patch({ condition })} invalid={invalid} />
         <View style={{ height: 14 }} />
 
         <Group
-          title="Safety checks"
+          title={t('Safety checks')}
           right={(
             <Pressable
               onPress={() => patch({
@@ -235,7 +238,7 @@ export function FirearmSheet({
               })}
               hitSlop={6}
             >
-              <Text style={styles.allChecks}>{allChecks ? 'Clear all' : '✓ All passed'}</Text>
+              <Text style={styles.allChecks}>{allChecks ? t('Clear all') : t('✓ All passed')}</Text>
             </Pressable>
           )}
         >
@@ -252,17 +255,17 @@ export function FirearmSheet({
           ))}
           {!allChecks ? (
             <Text style={styles.checkWarn}>
-              Any unticked check fails the inspection and the firearm is sent to the armourer.
+              {t('Any unticked check fails the inspection and the firearm is sent to the armourer.')}
             </Text>
           ) : null}
         </Group>
 
         <PaperInput
-          label="Inspection notes / defect report"
+          label={t('Inspection notes / defect report')}
           required={Boolean(form.condition && form.condition !== 'clean')}
           invalid={invalid && Boolean(form.condition && form.condition !== 'clean') && !form.notes.trim()}
           multiline
-          placeholder="Note any scratches, missing parts, or mechanical stiffness…"
+          placeholder={t('Note any scratches, missing parts, or mechanical stiffness…')}
           value={form.notes}
           onChangeText={(notes) => patch({ notes })}
           style={styles.darkInput}
@@ -270,7 +273,7 @@ export function FirearmSheet({
         </View>
 
         <PaperButton
-          label={form.noFirearm ? 'Confirm No Firearm & Start Shift' : 'Confirm Loadout & Start Shift'}
+          label={form.noFirearm ? t('Confirm No Firearm & Start Shift') : t('Confirm Loadout & Start Shift')}
           icon="shield-checkmark-outline"
           tone="success"
           onPress={onSubmit}

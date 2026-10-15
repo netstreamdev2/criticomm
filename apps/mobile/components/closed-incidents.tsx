@@ -16,6 +16,9 @@ import { errorWords } from '@/lib/offline-cache-policy';
 import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { BottomSheet } from '@/components/bottom-sheet';
 import { Banner, Button, EmptyState, SeverityPill } from '@/components/ui';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
+import { tNow } from '@/lib/translator';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -32,24 +35,24 @@ type Row = {
 /** Read at render time, so the tones follow the light/dark theme. */
 const LOOK = (f: Finish): { label: string; tone: string; icon: IconName } => {
   switch (f.kind) {
-    case 'to_close': return { label: 'To close', tone: colors.medium, icon: 'time-outline' };
-    case 'closing': return { label: 'Closing', tone: colors.medium, icon: 'cloud-upload-outline' };
-    case 'closed': return { label: 'Closed', tone: colors.low, icon: 'checkmark-circle' };
-    case 'filed': return { label: 'Report filed', tone: colors.accent, icon: 'document-text-outline' };
-    case 'not_needed': return { label: 'Not needed', tone: colors.muted, icon: 'remove-circle-outline' };
-    case 'cancelled': return { label: 'Cancelled', tone: colors.muted, icon: 'close-circle-outline' };
-    case 'case_closed': return { label: 'Case closed', tone: colors.low, icon: 'lock-closed-outline' };
+    case 'to_close': return { label: tx('To close'), tone: colors.medium, icon: 'time-outline' };
+    case 'closing': return { label: tx('Closing'), tone: colors.medium, icon: 'cloud-upload-outline' };
+    case 'closed': return { label: tx('Closed'), tone: colors.low, icon: 'checkmark-circle' };
+    case 'filed': return { label: tx('Report filed'), tone: colors.accent, icon: 'document-text-outline' };
+    case 'not_needed': return { label: tx('Not needed'), tone: colors.muted, icon: 'remove-circle-outline' };
+    case 'cancelled': return { label: tx('Cancelled'), tone: colors.muted, icon: 'close-circle-outline' };
+    case 'case_closed': return { label: tx('Case closed'), tone: colors.low, icon: 'lock-closed-outline' };
   }
 };
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTHS = [tx('Jan'), tx('Feb'), tx('Mar'), tx('Apr'), tx('May'), tx('Jun'), tx('Jul'), tx('Aug'), tx('Sep'), tx('Oct'), tx('Nov'), tx('Dec')];
 const pad = (n: number) => String(n).padStart(2, '0');
 /** "13 Oct · 14:32", on the phone's clock. */
 function when(iso: string | null | undefined) {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
-  return `${d.getDate()} ${MONTHS[d.getMonth()]} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getDate()} ${tNow(MONTHS[d.getMonth()] ?? '')} · ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 /**
@@ -68,6 +71,7 @@ export function ClosedIncidents({ header, query, liveCalls, openId, onOpened }: 
   openId?: string | null;
   onOpened?: () => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { session, silo, fullName } = useAuth();
@@ -176,13 +180,13 @@ export function ClosedIncidents({ header, query, liveCalls, openId, onOpened }: 
 
   const confirmClose = (row: Row) => {
     Alert.alert(
-      `Close ${row.call.incident_number}?`,
+      t('Close {incident_number}?', { incident_number: row.call.incident_number }),
       row.waiting.length
-        ? `Dispatch is told you have closed. Still on the call: ${row.waiting.join(', ')}.`
-        : 'Dispatch is told you have closed.',
+        ? t('Dispatch is told you have closed. Still on the call: {waiting}.', { waiting: row.waiting.join(', ') })
+        : t('Dispatch is told you have closed.'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Close incident', onPress: () => void send(row) },
+        { text: t('Cancel'), style: 'cancel' },
+        { text: t('Close incident'), onPress: () => void send(row) },
       ],
     );
   };
@@ -193,7 +197,7 @@ export function ClosedIncidents({ header, query, liveCalls, openId, onOpened }: 
       <Pressable
         onPress={() => setSelectedId(item.call.id)}
         accessibilityRole="button"
-        accessibilityLabel={`${item.call.incident_type}, ${item.call.incident_number}, ${look.label}${item.waiting.length ? `, waiting on ${item.waiting.join(', ')}` : ''}`}
+        accessibilityLabel={`${t(item.call.incident_type ?? '')}, ${item.call.incident_number}, ${t(look.label)}${item.waiting.length ? `, ${t('waiting on {list}', { list: item.waiting.join(', ') })}` : ''}`}
         style={({ pressed }) => [styles.row, item.finish.kind === 'to_close' && styles.rowToClose, pressed && { opacity: 0.8 }]}
       >
         <View style={[styles.sevBar, { backgroundColor: severityColor(item.call.incident_severity) }]} />
@@ -209,10 +213,10 @@ export function ClosedIncidents({ header, query, liveCalls, openId, onOpened }: 
           <View style={styles.rowLine}>
             <View style={[styles.chip, { backgroundColor: `${look.tone}1f`, borderColor: `${look.tone}55` }]}>
               <Ionicons name={look.icon} size={11} color={look.tone} />
-              <Text style={[styles.chipText, { color: look.tone }]}>{look.label.toUpperCase()}</Text>
+              <Text style={[styles.chipText, { color: look.tone }]}>{t(look.label).toUpperCase()}</Text>
             </View>
             {item.waiting.length ? (
-              <Text style={styles.waiting} numberOfLines={1}>Waiting on {item.waiting.join(', ')}</Text>
+              <Text style={styles.waiting} numberOfLines={1}>{t('Waiting on {waiting}', { waiting: item.waiting.join(', ') })}</Text>
             ) : null}
           </View>
         </View>
@@ -246,15 +250,15 @@ export function ClosedIncidents({ header, query, liveCalls, openId, onOpened }: 
             {header}
             <Text style={styles.summary}>
               {list.length}
-              {toClose ? <Text style={{ color: colors.medium }}> · {toClose} to close</Text> : null}
+              {toClose ? <Text style={{ color: colors.medium }}>{' '}{t('· {toClose} to close', { toClose })}</Text> : null}
             </Text>
           </View>
         )}
         ListEmptyComponent={loading ? null : (
           <EmptyState
             icon="checkmark-done-outline"
-            title={query.trim() ? 'No incidents match your search' : 'No closed incidents yet'}
-            body={query.trim() ? undefined : 'Incidents you worked show here once your part is done.'}
+            title={query.trim() ? t('No incidents match your search') : t('No closed incidents yet')}
+            body={query.trim() ? undefined : t('Incidents you worked show here once your part is done.')}
           />
         )}
       />
@@ -290,6 +294,7 @@ function ClosedSheet({ row, silo, userId, myName, online, busy, onClose, onClose
   onCloseIncident: () => void;
   onOpenFull: () => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   if (!row) return <BottomSheet visible={false} onClose={onClose}>{null}</BottomSheet>;
 
@@ -302,29 +307,29 @@ function ClosedSheet({ row, silo, userId, myName, online, busy, onClose, onClose
 
   const headline = (() => {
     switch (finish.kind) {
-      case 'to_close': return finish.reportSending ? 'Report saved. It sends first.' : 'Report filed. Close when you leave the scene.';
-      case 'closing': return online ? 'Closing…' : 'Closing. Sends when you have signal.';
+      case 'to_close': return finish.reportSending ? t('Report saved. It sends first.') : t('Report filed. Close when you leave the scene.');
+      case 'closing': return online ? t('Closing…') : t('Closing. Sends when you have signal.');
       case 'closed': {
-        const by = finish.by && finish.by !== myName ? ` by ${finish.by}` : '';
-        return `Closed ${when(finish.at) ?? ''}${by}`;
+        const at = when(finish.at) ?? '';
+        return finish.by && finish.by !== myName ? t('Closed {when} by {name}', { when: at, name: finish.by }) : t('Closed {when}', { when: at });
       }
-      case 'filed': return mine?.role === 'backup' ? 'The lead filed the report.' : 'Report filed.';
-      case 'not_needed': return `Your department was stood down.${part?.finish_reason ? ` ${part.finish_reason}` : ''}`;
-      case 'cancelled': return `Cancelled.${call.close_reason ? ` ${call.close_reason}` : ''}`;
-      case 'case_closed': return 'Case closed.';
+      case 'filed': return mine?.role === 'backup' ? t('The lead filed the report.') : t('Report filed.');
+      case 'not_needed': return `${t('Your department was stood down.')}${part?.finish_reason ? ` ${part.finish_reason}` : ''}`;
+      case 'cancelled': return `${t('Cancelled.')}${call.close_reason ? ` ${call.close_reason}` : ''}`;
+      case 'case_closed': return t('Case closed.');
     }
   })();
 
   const caseLine = call.close_kind === 'Reviewed'
-    ? `Case closed after review${call.closed_by_name ? ` by ${call.closed_by_name}` : ''}`
+    ? call.closed_by_name ? t('Case closed after review by {name}', { name: call.closed_by_name }) : t('Case closed after review')
     : call.close_kind === 'Cancelled' ? null
-      : allDone ? 'Waiting for case review' : null;
+      : allDone ? t('Waiting for case review') : null;
 
   const times: [string, string | null][] = [
-    ['Dispatched', when(part?.dispatched_at ?? call.dispatch_time)],
-    ['On scene', when(part?.arrived_at ?? call.arrived_timestamp)],
-    ['Report filed', when(part?.report_filed_at ?? call.report_filed_at)],
-    ['Closed', when(part?.closed_at)],
+    [t('Dispatched'), when(part?.dispatched_at ?? call.dispatch_time)],
+    [t('On scene'), when(part?.arrived_at ?? call.arrived_timestamp)],
+    [t('Report filed'), when(part?.report_filed_at ?? call.report_filed_at)],
+    [t('Closed'), when(part?.closed_at)],
   ];
 
   return (
@@ -342,7 +347,7 @@ function ClosedSheet({ row, silo, userId, myName, online, busy, onClose, onClose
             <Text style={styles.title} numberOfLines={2}>{call.incident_type}</Text>
             <View style={[styles.chip, styles.chipLg, { backgroundColor: `${look.tone}1f`, borderColor: `${look.tone}55` }]}>
               <Ionicons name={look.icon} size={13} color={look.tone} />
-              <Text style={[styles.chipText, styles.chipTextLg, { color: look.tone }]}>{look.label.toUpperCase()}</Text>
+              <Text style={[styles.chipText, styles.chipTextLg, { color: look.tone }]}>{t(look.label).toUpperCase()}</Text>
             </View>
           </View>
         </View>
@@ -351,7 +356,7 @@ function ClosedSheet({ row, silo, userId, myName, online, busy, onClose, onClose
         <View style={{ gap: space.sm }}>
           {finish.kind === 'to_close' ? (
             <Button
-              label="Close incident"
+              label={t('Close incident')}
               icon="checkmark-done"
               variant="success"
               size="lg"
@@ -359,7 +364,7 @@ function ClosedSheet({ row, silo, userId, myName, online, busy, onClose, onClose
               onPress={onCloseIncident}
             />
           ) : null}
-          <Button label="Full details" icon="open-outline" variant="outline" onPress={onOpenFull} />
+          <Button label={t('Full details')} icon="open-outline" variant="outline" onPress={onOpenFull} />
         </View>
       )}
     >
@@ -371,7 +376,7 @@ function ClosedSheet({ row, silo, userId, myName, online, busy, onClose, onClose
         {waiting.length ? (
           <View style={styles.waitingBox}>
             <Ionicons name="hourglass-outline" size={14} color={colors.medium} />
-            <Text style={styles.waitingText}>Waiting on {waiting.join(', ')}</Text>
+            <Text style={styles.waitingText}>{t('Waiting on {waiting}', { waiting: waiting.join(', ') })}</Text>
           </View>
         ) : null}
 
@@ -382,28 +387,28 @@ function ClosedSheet({ row, silo, userId, myName, online, busy, onClose, onClose
         {mine ? (
           <View style={styles.meta}>
             <Ionicons name={mine.role === 'lead' ? 'star-outline' : 'people-outline'} size={15} color={colors.muted} />
-            <Text style={styles.metaText}>{mine.role === 'lead' ? 'You led' : 'You were backup'}</Text>
+            <Text style={styles.metaText}>{mine.role === 'lead' ? t('You led') : t('You were backup')}</Text>
           </View>
         ) : null}
 
-        <Text style={styles.section}>YOUR PART</Text>
-        {times.filter(([, t]) => t).map(([label, t]) => (
+        <Text style={styles.section}>{t('YOUR PART')}</Text>
+        {times.filter(([, value]) => value).map(([label, value]) => (
           <View key={label} style={styles.timeRow}>
             <Text style={styles.timeLabel}>{label}</Text>
-            <Text style={styles.timeValue}>{t}</Text>
+            <Text style={styles.timeValue}>{value}</Text>
           </View>
         ))}
 
         {parts.length > 1 ? (
           <>
-            <Text style={styles.section}>DEPARTMENTS</Text>
+            <Text style={styles.section}>{t('DEPARTMENTS')}</Text>
             {parts.map((p) => <PartLine key={p.silo} part={p} />)}
           </>
         ) : null}
 
         {caseLine ? (
           <>
-            <Text style={styles.section}>CASE</Text>
+            <Text style={styles.section}>{t('CASE')}</Text>
             <Text style={styles.caseText}>{caseLine}</Text>
           </>
         ) : null}

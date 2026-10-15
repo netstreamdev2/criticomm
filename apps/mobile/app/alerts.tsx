@@ -13,6 +13,7 @@ import { useSync } from '@/lib/sync';
 import { clearBadge } from '@/lib/push';
 import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, EmptyState, Muted } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 type AlertRow = Awaited<ReturnType<typeof listMyAlerts>>[number];
 
@@ -29,6 +30,7 @@ type AlertRow = Awaited<ReturnType<typeof listMyAlerts>>[number];
  * glance that something is still waiting on them.
  */
 export default function AlertsScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { session, silo } = useAuth();
@@ -115,17 +117,17 @@ export default function AlertsScreen() {
           {error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null}
           {awaitingAck > 0 ? (
             <Banner tone="error">
-              {awaitingAck} alert{awaitingAck === 1 ? '' : 's'} still waiting on your acknowledgement.
+              {awaitingAck === 1 ? t('1 alert still waiting on your acknowledgement.') : t('{n} alerts still waiting on your acknowledgement.', { n: awaitingAck })}
             </Banner>
           ) : null}
           {alerts.length > 0 ? (
             <View style={styles.head}>
               <Muted>
-                {unread > 0 ? `${unread} unread of ${alerts.length}` : `${alerts.length} alerts`}
+                {unread > 0 ? t('{unread} unread of {length}', { unread, length: alerts.length }) : `${alerts.length} alerts`}
               </Muted>
               {unread > 0 ? (
                 <Button
-                  label="Mark all read"
+                  label={t('Mark all read')}
                   variant="subtle"
                   size="sm"
                   onPress={() => {
@@ -145,8 +147,8 @@ export default function AlertsScreen() {
         loading ? null : (
           <EmptyState
             icon="notifications-outline"
-            title="No alerts"
-            body="Dispatch assignments and department broadcasts land here. High and Critical incidents also open a full-screen alert you have to acknowledge."
+            title={t('No alerts')}
+            body={t('Dispatch assignments and department broadcasts land here. High and Critical incidents also open a full-screen alert you have to acknowledge.')}
           />
         )
       }
@@ -157,7 +159,7 @@ export default function AlertsScreen() {
           <Pressable
             onPress={() => void open(item)}
             accessibilityRole="button"
-            accessibilityLabel={`Alert: ${item.title}`}
+            accessibilityLabel={t('Alert: {title}', { title: item.title })}
             style={({ pressed }) => [
               styles.row,
               { borderLeftColor: tone },
@@ -186,11 +188,11 @@ export default function AlertsScreen() {
               <Text style={styles.meta}>
                 {item.created_by_name ? `${item.created_by_name} · ` : ''}{timeAgo(item.created_at)}
               </Text>
-              {needsAck ? <Text style={styles.ackPending}>Acknowledgement needed</Text> : null}
+              {needsAck ? <Text style={styles.ackPending}>{t('Acknowledgement needed')}</Text> : null}
               {item.acknowledged ? (
                 <View style={styles.ackDone}>
                   <Ionicons name="checkmark-circle" size={12} color={colors.low} />
-                  <Text style={styles.ackDoneText}>Acknowledged</Text>
+                  <Text style={styles.ackDoneText}>{t('Acknowledged')}</Text>
                 </View>
               ) : null}
             </View>

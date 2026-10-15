@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { Loader2, MapPin, Store } from 'lucide-react';
+import { useT } from '@/components/i18n';
 import { cn } from '@/lib/utils';
 import { fieldCls } from './intake-ui';
 
@@ -32,6 +33,7 @@ export function PlaceSearch({
   onBlur?: () => void;
   invalid?: boolean;
 }) {
+  const { t } = useT();
   const id = useId();
   const [results, setResults] = useState<Place[]>([]);
   const [open, setOpen] = useState(false);
@@ -98,7 +100,7 @@ export function PlaceSearch({
         aria-invalid={invalid}
         autoComplete="off"
         className={cn(fieldCls, 'pl-9 pr-9', invalid && 'border-severity-critical')}
-        placeholder="An address or a place, e.g. Gateway, Engen near Pavilion"
+        placeholder={t('An address or a place, e.g. Gateway, Engen near Pavilion')}
         value={value}
         onChange={(e) => { typed.current = e.target.value; onChange(e.target.value); }}
         onFocus={() => setOpen(true)}
@@ -113,7 +115,7 @@ export function PlaceSearch({
           // biome-ignore lint/a11y/useSemanticElements: ARIA combobox list; a <select> cannot show the place details
           role="listbox"
           tabIndex={-1}
-          aria-label="Places found"
+          aria-label={t('Places found')}
           className="absolute z-40 mt-1 max-h-72 w-full overflow-y-auto rounded-lg border border-border bg-bg-card py-1 shadow-2xl"
         >
           {results.map((p, i) => {
@@ -137,8 +139,8 @@ export function PlaceSearch({
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-x-1.5 text-sm">
                     <span className="font-semibold">{name}</span>
-                    {p.kind ? <span className="rounded bg-muted px-1.5 text-[10px] font-semibold text-muted-foreground">{p.kind}</span> : null}
-                    {p.near ? <span className="text-[11px] text-muted-foreground">near {p.near}</span> : null}
+                    {p.kind ? <span className="rounded bg-muted px-1.5 text-[10px] font-semibold text-muted-foreground">{t(p.kind)}</span> : null}
+                    {p.near ? <span className="text-[11px] text-muted-foreground">{t('near {place}', { place: p.near })}</span> : null}
                   </span>
                   {rest ? <span className="block truncate text-xs text-muted-foreground">{rest}</span> : null}
                 </span>
@@ -149,7 +151,7 @@ export function PlaceSearch({
       ) : null}
       {nothing ? (
         <p className="absolute z-40 mt-1 w-full rounded-lg border border-border bg-bg-card px-3 py-2.5 text-xs text-muted-foreground shadow-2xl">
-          Nothing found for “{value}”. Try a street or a nearby place, or click the map.
+          {t('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', { value })}
         </p>
       ) : null}
     </div>

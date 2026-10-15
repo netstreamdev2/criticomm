@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   AlertTriangle, Bell, CheckCircle2, Clock, Copy, Hourglass, Layers, MapPin, MessageSquare, Navigation,
-  PhoneMissed, Send, Siren, Sparkles, Timer, UserX, X,
+  PhoneMissed, Send, Siren, Timer, UserX, X,
 } from 'lucide-react';
 import { onDutyFlip, subscribeIncidentUpdates, subscribeNewIncidents, subscribePersonnel } from '@criticom/api';
 import type { Insight, InsightKind, InsightTone, ProposalView } from '@criticom/api';
@@ -13,6 +13,7 @@ import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { cn } from '@/lib/utils';
 import { ProposalCard } from './proposal-card';
 import { COUNT_EVENT, askCriti, openCriti, standing } from './shared';
+import { CritiMascot } from './mascot';
 
 /**
  * Criti's suggestion tiles: what needs attention now, for this person.
@@ -154,7 +155,7 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
   }
 
   const fullCard = (x: Insight) => {
-    const Icon = ICON[x.kind] ?? Sparkles;
+    const Icon = ICON[x.kind] ?? CritiMascot;
     const tone = TONE[x.tone];
     return (
       <article
@@ -248,7 +249,7 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
   return (
     <section aria-label="Criti suggestions" className="overflow-hidden rounded-lg border border-white/10 bg-slate-950/90 text-white shadow-sm">
       <div className="flex items-center gap-2 px-3 py-1.5">
-        <Sparkles className="h-3.5 w-3.5 text-sky-400" />
+        <CritiMascot className="h-5 w-5" />
         <span className="text-[11px] font-bold uppercase tracking-wider text-white/70">Criti</span>
         {visible.length === 0 ? (
           <span className="flex items-center gap-1 text-[11px] text-white/60">
@@ -268,7 +269,7 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
         </div>
       </div>
       {visible.slice(0, SHOWN).map((x) => {
-        const Icon = ICON[x.kind] ?? Sparkles;
+        const Icon = ICON[x.kind] ?? CritiMascot;
         return (
           <div key={x.id} className="flex h-9 items-center gap-2 border-t border-white/10 px-3">
             <span className={cn('h-2 w-2 shrink-0 rounded-full', DOT[x.tone], x.kind === 'sos' && 'animate-pulse')} />

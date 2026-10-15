@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import { SvgXml } from 'react-native-svg';
+import { useT } from '@/lib/i18n';
 
 /**
  * The HIKTECH brand mark — the same file the console landing page shows
@@ -14,6 +15,7 @@ const RATIO = 3647.84 / 490.52;
 export function HikTechLogo({ height = 14 }: { height?: number }) {
   // A small white card behind the mark: the grey TECH would otherwise sink
   // into the dark app background.
+  const { t } = useT();
   return (
     <View
       style={{
@@ -24,7 +26,7 @@ export function HikTechLogo({ height = 14 }: { height?: number }) {
         paddingHorizontal: height * 0.85,
       }}
     >
-      <SvgXml xml={XML} height={height} width={height * RATIO} accessibilityLabel="HikTech" />
+      <SvgXml xml={XML} height={height} width={height * RATIO} accessibilityLabel={t('HikTech')} />
     </View>
   );
 }

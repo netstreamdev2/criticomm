@@ -15,6 +15,7 @@ import { departmentName } from '@criticom/db';
 import { personTitle } from '@/lib/department';
 import { colors, radius, severityColor, space, type, makeStyles } from '@/lib/theme';
 import { Button } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 /** "INC-POL-0042" from a title such as "INC-POL-0042 · 10-57 Robbery", when it carries one. */
 const incidentNumberOf = (title: string) => /\b[A-Z]{2,5}(?:-[A-Z0-9]+)+\b/.exec(title)?.[0] ?? null;
@@ -82,6 +83,7 @@ function SlideIn({ children }: { children: React.ReactNode }) {
  * press a button, which is recorded against the alert.
  */
 export function AssignmentAlert() {
+  const { t } = useT();
   const styles = useStyles();
   const { assignments, clearAssignment } = useNotifications();
   const { session } = useAuth();
@@ -158,7 +160,7 @@ export function AssignmentAlert() {
     const incidentId = current.incident_id;
     if (!incidentId) return;
     if (onDuty === false) {
-      Alert.alert('You are off duty', 'Go on duty to accept incidents.');
+      Alert.alert(t('You are off duty'), t('Go on duty to accept incidents.'));
       return;
     }
     if (!(await confirmAccept(incidentNumberOf(current.title)))) return;
@@ -167,7 +169,7 @@ export function AssignmentAlert() {
       await enqueue({ kind: 'incident_status', incidentId, status: 'En Route', incidentNumber: incidentNumberOf(current.title) ?? undefined });
       acknowledge(true);
     } catch (e) {
-      Alert.alert('Not accepted', (e as Error).message);
+      Alert.alert(t('Not accepted'), (e as Error).message);
     } finally {
       setAccepting(false);
     }
@@ -194,8 +196,8 @@ export function AssignmentAlert() {
               </Text>
               <Text style={styles.cardHeading}>
                 {sos
-                  ? (sosSilo && sosSilo.incidentId === current.incident_id ? `${personTitle(sosSilo.silo).toUpperCase()} SOS` : 'SOS')
-                  : open ? 'New incident' : 'Incident assigned'}
+                  ? (sosSilo && sosSilo.incidentId === current.incident_id ? t('{personTitle} SOS', { personTitle: personTitle(sosSilo.silo).toUpperCase() }) : t('SOS'))
+                  : open ? t('New incident') : t('Incident assigned')}
               </Text>
             </View>
           </View>
@@ -211,7 +213,7 @@ export function AssignmentAlert() {
             {current.created_by_name ? (
               <View style={styles.metaRow}>
                 <Ionicons name="radio-outline" size={15} color={colors.muted} />
-                <Text style={styles.metaText}>Dispatched by {current.created_by_name}</Text>
+                <Text style={styles.metaText}>{t('Dispatched by {created_by_name}', { created_by_name: current.created_by_name })}</Text>
               </View>
             ) : null}
             <View style={styles.metaRow}>
@@ -225,27 +227,27 @@ export function AssignmentAlert() {
 
             {open ? (
               <Text style={styles.open}>
-                Sent to everyone on duty. The first to respond leads; others can join as backup.
+                {t('Sent to everyone on duty. The first to respond leads; others can join as backup.')}
               </Text>
             ) : null}
 
             {assignments.length > 1 ? (
-              <Text style={styles.queued}>+{assignments.length - 1} more waiting</Text>
+              <Text style={styles.queued}>{t('+{n} more waiting', { n: assignments.length - 1 })}</Text>
             ) : null}
 
             <View style={{ gap: space.sm, marginTop: space.xl }}>
               {current.incident_id && current.kind !== 'sos' ? (
                 <>
-                  <Button label="Accept incident" icon="checkmark-circle" size="lg" busy={accepting} onPress={() => void accept()} />
-                  <Button label="Acknowledge" icon="eye-outline" variant="outline" size="lg" onPress={() => acknowledge(true)} />
-                  <Button label="Navigate" icon="navigate" variant="outline" size="lg" onPress={navigate} />
+                  <Button label={t('Accept incident')} icon="checkmark-circle" size="lg" busy={accepting} onPress={() => void accept()} />
+                  <Button label={t('Acknowledge')} icon="eye-outline" variant="outline" size="lg" onPress={() => acknowledge(true)} />
+                  <Button label={t('Navigate')} icon="navigate" variant="outline" size="lg" onPress={navigate} />
                 </>
               ) : (
                 <>
                   {current.incident_id ? (
-                    <Button label="View incident" icon="arrow-forward-circle" size="lg" onPress={() => acknowledge(true)} />
+                    <Button label={t('View incident')} icon="arrow-forward-circle" size="lg" onPress={() => acknowledge(true)} />
                   ) : null}
-                  <Button label="Acknowledge" variant="outline" onPress={() => acknowledge(false)} />
+                  <Button label={t('Acknowledge')} variant="outline" onPress={() => acknowledge(false)} />
                 </>
               )}
             </View>

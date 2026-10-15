@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { colors, makeStyles } from '@/lib/theme';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 type TabBarProps = Parameters<NonNullable<React.ComponentProps<typeof Tabs>['tabBar']>>[0];
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -25,10 +27,10 @@ export const CENTRE_RISE = BUTTON / 2 - 4;
 const CENTRE_SLOT = 96;
 
 const SIDE_TABS: Record<string, { label: string; icon: IconName; active: IconName }> = {
-  index: { label: 'Home', icon: 'home-outline', active: 'home' },
-  shift: { label: 'Shift', icon: 'clipboard-outline', active: 'clipboard' },
-  schedule: { label: 'Schedule', icon: 'calendar-outline', active: 'calendar' },
-  profile: { label: 'Profile', icon: 'person-outline', active: 'person' },
+  index: { label: tx('Home'), icon: 'home-outline', active: 'home' },
+  shift: { label: tx('Shift'), icon: 'clipboard-outline', active: 'clipboard' },
+  schedule: { label: tx('Schedule'), icon: 'calendar-outline', active: 'calendar' },
+  profile: { label: tx('Profile'), icon: 'person-outline', active: 'person' },
 };
 const LEFT = ['index', 'shift'];
 const RIGHT = ['schedule', 'profile'];
@@ -59,6 +61,7 @@ function edgePath(w: number) {
 }
 
 export function CurvedTabBar({ state, navigation }: TabBarProps) {
+  const { t } = useT();
   const styles = useStyles();
   const { width } = useWindowDimensions();
   const height = useTabBarHeight();
@@ -84,11 +87,11 @@ export function CurvedTabBar({ state, navigation }: TabBarProps) {
         onPress={() => press(name)}
         accessibilityRole="tab"
         accessibilityState={{ selected: focused }}
-        accessibilityLabel={meta.label}
+        accessibilityLabel={t(meta.label)}
         style={styles.tab}
       >
         <Ionicons name={focused ? meta.active : meta.icon} size={22} color={tone} />
-        <Text style={[styles.label, { color: tone }, focused && styles.labelActive]}>{meta.label}</Text>
+        <Text style={[styles.label, { color: tone }, focused && styles.labelActive]}>{t(meta.label)}</Text>
       </Pressable>
     );
   };
@@ -113,7 +116,7 @@ export function CurvedTabBar({ state, navigation }: TabBarProps) {
         >
           <View style={{ height: 22 }} />
           <Text style={[styles.label, { color: centreFocused ? colors.text : colors.muted }, centreFocused && styles.labelActive]}>
-            Incidents
+            {t('Incidents')}
           </Text>
         </Pressable>
         {RIGHT.map(side)}
@@ -123,7 +126,7 @@ export function CurvedTabBar({ state, navigation }: TabBarProps) {
         onPress={() => press(CENTRE)}
         accessibilityRole="tab"
         accessibilityState={{ selected: centreFocused }}
-        accessibilityLabel="Incidents"
+        accessibilityLabel={t('Incidents')}
         style={({ pressed }) => [
           styles.centre,
           { left: width / 2 - BUTTON / 2 },

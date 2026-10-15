@@ -4,7 +4,7 @@ import {
   loadCritiBoard, proposalSchema, readModelJson, resolveProposals, sastTime, systemPrompt,
   type CritiBoard, type CritiIncident, type Insight, type ProposalView,
 } from '@criticom/api';
-import { roleName, type CriticomClient } from '@criticom/db';
+import { INCIDENT_NUMBER, roleName, type CriticomClient } from '@criticom/db';
 import { complete, configuredProviders, integrationSettings } from '@/lib/criti/llm';
 import { callDetail, critiSession, finishDraft, loadCodes, personLine } from '@/lib/criti/server';
 
@@ -28,7 +28,8 @@ export const dynamic = 'force-dynamic';
 
 type Turn = { role: 'user' | 'assistant'; text: string; proposals?: Array<{ proposal?: unknown; state?: string }> };
 
-const NUMBER = /\bINC-\d{8}-\d{4}\b/gi;
+/** A call number in either form: MP-20261010-1115-0034, or INC-20261013-0004 from before 0077. */
+const NUMBER = INCIDENT_NUMBER;
 const ON_SCREEN = /\/(?:incidents|dispatch\/assign)\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
 
 /** Screens by name, so "how do I do this here?" needs no explaining. */

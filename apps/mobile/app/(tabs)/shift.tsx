@@ -34,6 +34,8 @@ import { FireShift } from '@/components/fire-shift';
 import { EmsShift } from '@/components/ems-shift';
 import { DisasterShift } from '@/components/disaster-shift';
 import { ShiftDocuments } from '@/components/shift-documents';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 type Vehicle = Database['public']['Tables']['apparatus']['Row'];
 type VehicleChecklist = Database['public']['Tables']['vehicle_checklists']['Row'];
@@ -83,6 +85,7 @@ export default function ShiftScreen({ gated = false }: { gated?: boolean }) {
 }
 
 function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
+  const { t } = useT();
   const styles = useStyles();
   const { session, silo, fullName } = useAuth();
   const dept = useDept();
@@ -271,7 +274,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
   const submitMental = () => {
     if (answered !== READINESS_ITEMS.length) {
       setInvalid(true);
-      setError('Answer Yes or No for every readiness question.');
+      setError(t('Answer Yes or No for every readiness question.'));
       return;
     }
     void run(async () => {
@@ -323,7 +326,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
   };
 
   const nextTab = () => {
-    const err = inspectionTabError(form, tab);
+    const err = inspectionTabError(form, tab, t);
     if (err) { setInvalid(true); setError(err); return; }
     if (tab < TABS.length - 1) {
       const n = tab + 1;
@@ -337,7 +340,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
     if (broken >= 0) {
       setTab(broken);
       setInvalid(true);
-      setError(inspectionTabError(form, broken));
+      setError(inspectionTabError(form, broken, t));
       scrollTop();
       return;
     }
@@ -436,9 +439,9 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
 
     if (!allChecks || f.condition === 'damaged') {
       Alert.alert(
-        'This firearm will not be issued',
-        'A failed safety check or damage sends the firearm to the armourer. You will need to select another one.',
-        [{ text: 'Cancel', style: 'cancel' }, { text: 'Submit anyway', style: 'destructive', onPress: send }],
+        t('This firearm will not be issued'),
+        t('A failed safety check or damage sends the firearm to the armourer. You will need to select another one.'),
+        [{ text: t('Cancel'), style: 'cancel' }, { text: t('Submit anyway'), style: 'destructive', onPress: send }],
       );
     } else {
       send();
@@ -479,9 +482,9 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
 
     if (!allChecks) {
       Alert.alert(
-        'This bodycam will not be issued',
-        'A failed check sends the bodycam for repair. You will need to choose another one, or say why you have none.',
-        [{ text: 'Cancel', style: 'cancel' }, { text: 'Submit anyway', style: 'destructive', onPress: send }],
+        t('This bodycam will not be issued'),
+        t('A failed check sends the bodycam for repair. You will need to choose another one, or say why you have none.'),
+        [{ text: t('Cancel'), style: 'cancel' }, { text: t('Submit anyway'), style: 'destructive', onPress: send }],
       );
     } else {
       send();
@@ -542,21 +545,22 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
     return (
       <View style={styles.center}>
         <ActivityIndicator color={colors.accent} />
-        <Muted>Checking today&apos;s shift status…</Muted>
+        <Muted>{t('Checking today\'s shift status…')}</Muted>
       </View>
     );
   }
 
   // The last stage holds the firearm and the bodycam, where each applies.
-  const kitStep = requiresFirearm && requiresBodycam ? 'Loadout' : requiresFirearm ? 'Firearm' : requiresBodycam ? 'Bodycam' : null;
-  const wizardSteps = kitStep ? ['Readiness', 'Unit', 'Inspection', kitStep] : ['Readiness', 'Unit', 'Inspection'];
+  const kitStep = requiresFirearm && requiresBodycam ? tx('Loadout') : requiresFirearm ? tx('Firearm') : requiresBodycam ? tx('Bodycam') : null;
+  // The Stepper translates them.
+  const wizardSteps = kitStep ? [tx('Readiness'), tx('Unit'), tx('Inspection'), kitStep] : [tx('Readiness'), tx('Unit'), tx('Inspection')];
   const filedParts = [
-    'readiness assessment',
-    record?.noVehicle && !record.inspection ? 'no-vehicle declaration' : 'vehicle inspection',
-    record?.firearm ? 'firearm book-out' : record?.noFirearm ? 'no-firearm declaration' : null,
-    record?.bodycam ? 'bodycam book-out' : record?.noBodycam ? 'no-bodycam reason' : null,
+    t('readiness assessment'),
+    record?.noVehicle && !record.inspection ? t('no-vehicle declaration') : t('vehicle inspection'),
+    record?.firearm ? t('firearm book-out') : record?.noFirearm ? t('no-firearm declaration') : null,
+    record?.bodycam ? t('bodycam book-out') : record?.noBodycam ? t('no-bodycam reason') : null,
   ].filter(Boolean) as string[];
-  const filedList = `${filedParts.slice(0, -1).join(', ')} and ${filedParts[filedParts.length - 1]}`;
+  const filedList = t('{list} and {last}', { list: filedParts.slice(0, -1).join(', '), last: filedParts[filedParts.length - 1] });
   const errorBanner = error ? <Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner> : null;
   const errorBelow = FORM_STEPS.includes(step);
   const record187 = record?.inspection ?? null;
@@ -586,9 +590,9 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
         <View style={styles.gateHeader}>
           <View style={{ gap: 4 }}>
             <HikTechLogo height={14} />
-            <Text style={styles.gateEyebrow}>START OF SHIFT</Text>
+            <Text style={styles.gateEyebrow}>{t('START OF SHIFT')}</Text>
           </View>
-          <Button label="Sign out" variant="subtle" size="sm" disabled={busy} onPress={signOut} />
+          <Button label={t('Sign out')} variant="subtle" size="sm" disabled={busy} onPress={signOut} />
         </View>
       ) : null}
 
@@ -601,13 +605,13 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
       {step === 'intro' ? (
         <View style={styles.introCard}>
           <Text style={styles.introEyebrow}>
-            {dept.short_name.toUpperCase()} · STEP 1 OF {wizardSteps.length}
+            {t('{short_name} · STEP 1 OF {length}', { short_name: dept.short_name.toUpperCase(), length: wizardSteps.length })}
           </Text>
           <Ionicons name="shield-half" size={40} color={paper.blue} style={{ marginVertical: space.md }} />
-          <Text style={styles.introTitle}>Start of Shift</Text>
-          <Text style={styles.introBody}>Begin your start-of-shift readiness checks to go on duty.</Text>
+          <Text style={styles.introTitle}>{t('Start of Shift')}</Text>
+          <Text style={styles.introBody}>{t('Begin your start-of-shift readiness checks to go on duty.')}</Text>
           <PaperButton
-            label="Go on Duty — Begin Checks"
+            label={t('Go on Duty — Begin Checks')}
             icon="play-circle-outline"
             tone="success"
             onPress={() => go('mental')}
@@ -618,22 +622,20 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
 
       {step === 'mental' ? (
         <Card>
-          <Text style={styles.cognitiveTitle}>
-            Cognitive Testing for {dept.short_name}
+          <Text style={styles.cognitiveTitle}>{t('Cognitive Testing for {short_name}', { short_name: dept.short_name })}
           </Text>
           <View style={styles.assessmentHeading}>
             <Ionicons name="person-circle-outline" size={26} color={colors.accent} />
-            <Title>Readiness Assessment</Title>
+            <Title>{t('Readiness Assessment')}</Title>
           </View>
           <Muted>
-            Answer every question honestly. Your answers and submission time are recorded for supervisor review.
-            Questions marked <Text style={{ color: colors.critical }}>*</Text> are required.
+            {t('Answer every question honestly. Your answers and submission time are recorded for supervisor review. Questions marked')}{' '}<Text style={{ color: colors.critical }}>*</Text>{' '}{t('are required.')}
           </Muted>
           <View style={{ marginTop: space.md }}>
             {READINESS_ITEMS.map(([key, label]) => (
               <View key={key} style={styles.question}>
                 <Text style={[styles.questionLabel, invalid && mental[key] === undefined && { color: colors.critical }]}>
-                  {label}<Text style={{ color: colors.critical }}> *</Text>
+                  {t(label)}<Text style={{ color: colors.critical }}> *</Text>
                 </Text>
                 <View style={styles.answerRow}>
                   {([true, false] as const).map((answer) => {
@@ -644,7 +646,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
                         key={String(answer)}
                         accessibilityRole="radio"
                         accessibilityState={{ selected: active }}
-                        accessibilityLabel={`${label}: ${answer ? 'Yes' : 'No'}`}
+                        accessibilityLabel={`${t(label)}: ${answer ? t('Yes') : t('No')}`}
                         onPress={() => setMental((m) => ({ ...m, [key]: answer }))}
                         style={[
                           styles.answer,
@@ -654,7 +656,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
                         hitSlop={4}
                       >
                         <Ionicons name={answer ? 'checkmark' : 'close'} size={17} color={active ? '#fff' : tone} />
-                        <Text style={[styles.answerText, active && { color: '#fff' }]}>{answer ? 'Yes' : 'No'}</Text>
+                        <Text style={[styles.answerText, active && { color: '#fff' }]}>{answer ? t('Yes') : t('No')}</Text>
                       </Pressable>
                     );
                   })}
@@ -663,15 +665,15 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
             ))}
             <View style={{ marginTop: space.md, marginBottom: space.lg }}>
               <Input
-                label="Comments"
-                placeholder="Anything your supervisor should know (optional)"
+                label={t('Comments')}
+                placeholder={t('Anything your supervisor should know (optional)')}
                 value={comments}
                 onChangeText={setComments}
                 multiline
               />
             </View>
             <Button
-              label="Submit Readiness Check"
+              label={t('Submit Readiness Check')}
               icon="checkmark-done"
               size="lg"
               busy={busy}
@@ -686,13 +688,12 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
           <View style={[styles.doneIcon, { backgroundColor: colors.criticalSoft }]}>
             <Ionicons name="alert-circle" size={26} color={colors.critical} />
           </View>
-          <Title>Readiness check not passed</Title>
+          <Title>{t('Readiness check not passed')}</Title>
           <Muted>
-            You have not been placed on duty. Your answers were saved for supervisor review.
-            Speak to your supervisor, then retake the check when your situation changes.
+            {t('You have not been placed on duty. Your answers were saved for supervisor review. Speak to your supervisor, then retake the check when your situation changes.')}
           </Muted>
           <View style={{ marginTop: space.lg }}>
-            <Button label="Retake check" icon="refresh" variant="outline" onPress={() => { setMental({}); go('mental'); }} />
+            <Button label={t('Retake check')} icon="refresh" variant="outline" onPress={() => { setMental({}); go('mental'); }} />
           </View>
         </Card>
       ) : null}
@@ -701,24 +702,26 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
         <Card style={styles.unitPanel}>
           <View style={styles.unitHeading}>
             <Ionicons name="bus-outline" size={26} color={colors.text} />
-            <Text style={styles.unitTitle}>Select Your Unit</Text>
+            <Text style={styles.unitTitle}>{t('Select Your Unit')}</Text>
           </View>
           <Muted style={{ textAlign: 'center' }}>
-            Please select the apparatus you will be operating for this shift.
+            {t('Please select the apparatus you will be operating for this shift.')}
           </Muted>
           {vehicles.length === 0 ? (
             <View style={styles.noVehicles}>
               <Ionicons name="car-outline" size={26} color={colors.muted} />
-              <Text style={styles.noVehiclesTitle}>No available cars</Text>
+              <Text style={styles.noVehiclesTitle}>{t('No available cars')}</Text>
               <Muted style={{ textAlign: 'center' }}>
                 {takenVehicles.length
-                  ? `All ${takenVehicles.length} ${takenVehicles.length === 1 ? 'vehicle is' : 'vehicles are'} taken. You can continue your shift without one.`
-                  : 'No vehicles are on the fleet register. You can continue your shift without one.'}
+                  ? takenVehicles.length === 1
+                    ? t('The only vehicle is taken. You can continue your shift without one.')
+                    : t('All {n} vehicles are taken. You can continue your shift without one.', { n: takenVehicles.length })
+                  : t('No vehicles are on the fleet register. You can continue your shift without one.')}
               </Muted>
               <View style={{ alignSelf: 'stretch', paddingHorizontal: space.md, marginTop: space.sm }}>
                 <Input
-                  label="Note (optional)"
-                  placeholder="e.g. On foot patrol, sharing with a partner"
+                  label={t('Note (optional)')}
+                  placeholder={t('e.g. On foot patrol, sharing with a partner')}
                   value={noVehicleReason}
                   onChangeText={setNoVehicleReason}
                 />
@@ -756,7 +759,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
           )}
           {vehicles.length === 0 ? (
             <Button
-              label="Continue without a vehicle"
+              label={t('Continue without a vehicle')}
               icon="arrow-forward-circle-outline"
               size="lg"
               busy={busy}
@@ -764,7 +767,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
             />
           ) : (
             <Button
-              label="Confirm Assignment"
+              label={t('Confirm Assignment')}
               icon="checkmark-circle-outline"
               variant="success"
               size="lg"
@@ -775,17 +778,17 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
           )}
           {takenVehicles.length ? (
             <View style={{ marginTop: space.xl }}>
-              <Text style={styles.takenHeading}>Taken ({takenVehicles.length})</Text>
+              <Text style={styles.takenHeading}>{t('Taken ({length})', { length: takenVehicles.length })}</Text>
               <View style={styles.unitGrid}>
                 {takenVehicles.map((v) => (
                   <View
                     key={v.id}
                     accessible
-                    accessibilityLabel={`${v.unit_number} ${v.name}, taken`}
+                    accessibilityLabel={t('{unit_number} {name}, taken', { unit_number: v.unit_number, name: v.name })}
                     accessibilityState={{ disabled: true }}
                     style={[styles.unitCard, styles.unitCardTaken]}
                   >
-                    <View style={styles.takenBadge}><Text style={styles.takenBadgeText}>TAKEN</Text></View>
+                    <View style={styles.takenBadge}><Text style={styles.takenBadgeText}>{t('TAKEN')}</Text></View>
                     <Ionicons name="shield-half" size={30} color={colors.muted} />
                     <Text style={[styles.unitNumber, { color: colors.muted }]}>{v.unit_number}</Text>
                     <Text style={styles.unitName} numberOfLines={1}>{v.name}</Text>
@@ -840,15 +843,15 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
           <View style={[styles.doneIcon, { backgroundColor: colors.criticalSoft }]}>
             <Ionicons name="car-outline" size={26} color={colors.critical} />
           </View>
-          <Title>Vehicle not cleared for duty</Title>
+          <Title>{t('Vehicle not cleared for duty')}</Title>
           <Muted>
-            The inspection was filed. One or more essential checks failed, so {vehicle?.unit_number ?? 'the vehicle'} is
-            off the road and your supervisor has been told. Choose another vehicle; this one comes back once fleet
-            control returns it to service.
+            {vehicle?.unit_number
+              ? t('The inspection was filed. One or more essential checks failed, so {unit} is off the road and your supervisor has been told. Choose another vehicle; this one comes back once fleet control returns it to service.', { unit: vehicle.unit_number })
+              : t('The inspection was filed. One or more essential checks failed, so the vehicle is off the road and your supervisor has been told. Choose another vehicle; this one comes back once fleet control returns it to service.')}
           </Muted>
           <View style={{ marginTop: space.lg, gap: space.sm }}>
             <Button
-              label="Choose another vehicle"
+              label={t('Choose another vehicle')}
               icon="car-outline"
               busy={busy}
               onPress={() => void run(async () => {
@@ -862,18 +865,18 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
 
       {step === 'submitted' ? (
         <Sheet>
-          <CrestHeader dept={dept} subtitle="Vehicle Inspection 187(c)" />
+          <CrestHeader dept={dept} subtitle={t('Vehicle Inspection 187(c)')} />
           <View style={styles.doneBody}>
             <View style={styles.bigCheck}><Ionicons name="checkmark" size={40} color="#fff" /></View>
-            <Text style={styles.doneTitle}>Inspection Submitted</Text>
-            <Text style={styles.doneSub}>The electronic vehicle inspection report has been finalised.</Text>
+            <Text style={styles.doneTitle}>{t('Inspection Submitted')}</Text>
+            <Text style={styles.doneSub}>{t('The electronic vehicle inspection report has been finalised.')}</Text>
             <SummaryBox record={record} officerName={officer.name} />
             <View style={styles.doneActions}>
-              <PaperButton label="View Report" icon="document-text-outline" tone="teal" busy={exporting === 'print'} onPress={() => void doExport('print')} style={styles.halfBtn} />
-              <PaperButton label="Export PDF" icon="download-outline" tone="teal" busy={exporting === 'pdf'} onPress={() => void doExport('pdf')} style={styles.halfBtn} />
+              <PaperButton label={t('View Report')} icon="document-text-outline" tone="teal" busy={exporting === 'print'} onPress={() => void doExport('print')} style={styles.halfBtn} />
+              <PaperButton label={t('Export PDF')} icon="download-outline" tone="teal" busy={exporting === 'pdf'} onPress={() => void doExport('pdf')} style={styles.halfBtn} />
             </View>
             <PaperButton
-              label="Continue to Firearm Checklist →"
+              label={t('Continue to Firearm Checklist →')}
               onPress={() => void run(openFirearm)}
               busy={busy}
               style={{ alignSelf: 'stretch', marginTop: space.sm }}
@@ -900,14 +903,14 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
           <View style={[styles.doneIcon, { backgroundColor: colors.criticalSoft }]}>
             <Ionicons name="warning-outline" size={26} color={colors.critical} />
           </View>
-          <Title>Firearm sent to the armourer</Title>
+          <Title>{t('Firearm sent to the armourer')}</Title>
           <Muted>
-            {failedFirearm ? `${failedFirearm.make_model ?? 'The firearm'} (S/N ${failedFirearm.serial_number}) ` : 'The firearm '}
-            did not pass its inspection and has been marked for maintenance. Your inspection is on record.
-            Select another firearm, or tick No firearm, to complete your start of shift.
+            {failedFirearm
+              ? t('{firearm} (S/N {serial}) did not pass its inspection and has been marked for maintenance. Your inspection is on record. Select another firearm, or tick No firearm, to complete your start of shift.', { firearm: failedFirearm.make_model ?? t('The firearm'), serial: failedFirearm.serial_number })
+              : t('The firearm did not pass its inspection and has been marked for maintenance. Your inspection is on record. Select another firearm, or tick No firearm, to complete your start of shift.')}
           </Muted>
           <View style={{ marginTop: space.lg }}>
-            <Button label="Back to firearm checklist" icon="refresh" variant="outline" busy={busy} onPress={() => void run(openFirearm)} />
+            <Button label={t('Back to firearm checklist')} icon="refresh" variant="outline" busy={busy} onPress={() => void run(openFirearm)} />
           </View>
         </Card>
       ) : null}
@@ -929,35 +932,32 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
           <View style={[styles.doneIcon, { backgroundColor: colors.criticalSoft }]}>
             <Ionicons name="videocam-off-outline" size={26} color={colors.critical} />
           </View>
-          <Title>Bodycam sent for repair</Title>
+          <Title>{t('Bodycam sent for repair')}</Title>
           <Muted>
-            {failedBodycam ? `Bodycam ${failedBodycam.serial} failed its check (${failedBodycam.failed}) ` : 'The bodycam failed its check '}
-            and your supervisor has been told. Choose another one, or tick No bodycam today, to complete your start of shift.
+            {failedBodycam ? t('Bodycam {serial} failed its check ({failed}) ', { serial: failedBodycam.serial, failed: failedBodycam.failed }) : t('The bodycam failed its check ')}
+            {t('and your supervisor has been told. Choose another one, or tick No bodycam today, to complete your start of shift.')}
           </Muted>
           <View style={{ marginTop: space.lg }}>
-            <Button label="Back to bodycams" icon="refresh" variant="outline" busy={busy} onPress={() => void run(openBodycam)} />
+            <Button label={t('Back to bodycams')} icon="refresh" variant="outline" busy={busy} onPress={() => void run(openBodycam)} />
           </View>
         </Card>
       ) : null}
 
       {step === 'complete' ? (
         <Sheet>
-          <CrestHeader dept={dept} subtitle="Start of shift record" />
+          <CrestHeader dept={dept} subtitle={t('Start of shift record')} />
           <View style={styles.doneBody}>
             <View style={styles.bigCheck}><Ionicons name="shield-checkmark" size={36} color="#fff" /></View>
-            <Text style={styles.doneTitle}>Shift Start Complete</Text>
-            <Text style={styles.doneSub}>
-              Your {filedList} are signed and filed for today. Export a copy for your records, then continue to your
-              dashboard.
-            </Text>
+            <Text style={styles.doneTitle}>{t('Shift Start Complete')}</Text>
+            <Text style={styles.doneSub}>{t('Your {filedList} are signed and filed for today. Export a copy for your records, then continue to your dashboard.', { filedList })}</Text>
             <SummaryBox record={record} officerName={officer.name} />
             <ShiftDocuments initial={record?.documents ?? null} />
             <View style={styles.doneActions}>
-              <PaperButton label="Export PDF" icon="document-outline" tone="teal" busy={exporting === 'pdf'} disabled={!record187} onPress={() => void doExport('pdf')} style={styles.halfBtn} />
-              <PaperButton label="Export CSV" icon="grid-outline" tone="outline" busy={exporting === 'csv'} disabled={!record187} onPress={() => void doExport('csv')} style={styles.halfBtn} />
+              <PaperButton label={t('Export PDF')} icon="document-outline" tone="teal" busy={exporting === 'pdf'} disabled={!record187} onPress={() => void doExport('pdf')} style={styles.halfBtn} />
+              <PaperButton label={t('Export CSV')} icon="grid-outline" tone="outline" busy={exporting === 'csv'} disabled={!record187} onPress={() => void doExport('csv')} style={styles.halfBtn} />
             </View>
             <PaperButton
-              label="Print / Preview"
+              label={t('Print / Preview')}
               icon="print-outline"
               tone="outline"
               busy={exporting === 'print'}
@@ -966,7 +966,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
               style={{ alignSelf: 'stretch', marginTop: space.sm }}
             />
             <PaperButton
-              label={gated ? 'Go to Dashboard →' : 'View my incidents →'}
+              label={gated ? t('Go to Dashboard →') : t('View my incidents →')}
               tone="primary"
               busy={busy}
               onPress={goDashboard}
@@ -983,6 +983,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
 }
 
 function SummaryBox({ record, officerName }: { record: ShiftStartRecord | null; officerName: string }) {
+  const { t } = useT();
   const styles = useStyles();
   const v = record?.inspection;
   const f = record?.firearm;
@@ -990,43 +991,45 @@ function SummaryBox({ record, officerName }: { record: ShiftStartRecord | null; 
   if (!v && !nv) return null;
   const faults = v ? countItems((v.items ?? {}) as Parameters<typeof countItems>[0]).fault : 0;
   const shift = v ? SHIFT_TYPES.find(([k]) => k === v.shift_type)?.[0] ?? '—' : '—';
+  // The keys are English (Faults is matched below); SummaryLine translates them.
   return (
     <View style={styles.summary}>
       {v ? (
         <>
-          <SummaryLine parts={[['NDM', v.ndm_number ?? '—'], ['Mileage', v.mileage_km != null ? String(v.mileage_km) : '—'], ['Shift', shift]]} />
-          <SummaryLine parts={[['Date', saShortDate(v.checked_at)], ['Unit', v.apparatus?.unit_number ?? '—']]} />
-          <SummaryLine parts={[['Inspector', v.inspector_name ?? officerName], ['Faults', String(faults)]]} faults={faults} />
-          <SummaryLine parts={[['Ref', v.inspection_ref ?? '—']]} />
+          <SummaryLine parts={[['NDM', v.ndm_number ?? '—'], [tx('Mileage'), v.mileage_km != null ? String(v.mileage_km) : '—'], [tx('Shift'), shift]]} />
+          <SummaryLine parts={[[tx('Date'), saShortDate(v.checked_at)], [tx('Unit'), v.apparatus?.unit_number ?? '—']]} />
+          <SummaryLine parts={[[tx('Inspector'), v.inspector_name ?? officerName], [tx('Faults'), String(faults)]]} faults={faults} />
+          <SummaryLine parts={[[tx('Ref'), v.inspection_ref ?? '—']]} />
         </>
       ) : nv ? (
         <>
-          <SummaryLine parts={[['Date', saShortDate(nv.created_at)], ['Officer', nv.user_name ?? officerName]]} />
-          <SummaryLine parts={[['Vehicle', `None available${nv.reason ? ` — ${nv.reason}` : ''}`]]} />
+          <SummaryLine parts={[[tx('Date'), saShortDate(nv.created_at)], [tx('Officer'), nv.user_name ?? officerName]]} />
+          <SummaryLine parts={[[tx('Vehicle'), nv.reason ? t('None available — {reason}', { reason: nv.reason }) : t('None available')]]} />
         </>
       ) : null}
       {f ? (
-        <SummaryLine parts={[['Firearm', `${f.make_model ?? ''} · ${f.serial_number}`], ['Rounds', String(f.rounds_issued)]]} />
+        <SummaryLine parts={[[tx('Firearm'), `${f.make_model ?? ''} · ${f.serial_number}`], [tx('Rounds'), String(f.rounds_issued)]]} />
       ) : record?.noFirearm ? (
-        <SummaryLine parts={[['Firearm', `None drawn${record.noFirearm.reason ? ` — ${record.noFirearm.reason}` : ''}`]]} />
+        <SummaryLine parts={[[tx('Firearm'), record.noFirearm.reason ? t('None drawn — {reason}', { reason: record.noFirearm.reason }) : t('None drawn')]]} />
       ) : null}
       {record?.bodycam ? (
-        <SummaryLine parts={[['Bodycam', record.bodycam.serial_number]]} />
+        <SummaryLine parts={[[tx('Bodycam'), record.bodycam.serial_number]]} />
       ) : record?.noBodycam ? (
-        <SummaryLine parts={[['Bodycam', `None — ${record.noBodycam.reason}`]]} />
+        <SummaryLine parts={[[tx('Bodycam'), t('None — {reason}', { reason: record.noBodycam.reason })]]} />
       ) : null}
     </View>
   );
 }
 
 function SummaryLine({ parts, faults }: { parts: [string, string][]; faults?: number }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <Text style={styles.summaryLine}>
       {parts.map(([k, val], i) => (
         <Text key={k}>
           {i > 0 ? <Text style={styles.summaryKey}>{'  |  '}</Text> : null}
-          <Text style={styles.summaryKey}>{k}: </Text>
+          <Text style={styles.summaryKey}>{t(k)}: </Text>
           <Text style={[styles.summaryVal, k === 'Faults' && { color: faults ? paper.red : paper.green }]}>{val}</Text>
         </Text>
       ))}

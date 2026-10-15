@@ -154,6 +154,10 @@ export type Database = {
           deactivated_by: string | null;
           created_at: string;
           updated_at: string;
+          /** The language chosen for the screens (0078); null is English. */
+          language: string | null;
+          /** The languages the person translates and approves (0078). */
+          translator_langs: string[];
         };
         Insert: Partial<Database['public']['Tables']['profiles']['Row']> & { id: string };
         Update: Partial<Database['public']['Tables']['profiles']['Row']>;
@@ -170,6 +174,15 @@ export type Database = {
           intake_complete: boolean;
           /** The injuries the call taker ticked (0076). */
           injuries: string[];
+          /** The details filled in for the type: what was taken, the suspects… (0077). */
+          details: Record<string, string | string[]>;
+          /** How the call came in (0080): Phone call, WhatsApp, In person or Other. */
+          call_channel: string | null;
+          call_channel_other: string | null;
+          /** Each patient with their own severity (0080). */
+          patients: Array<{ name: string | null; severity: string; caller: boolean }>;
+          /** The type's code when the call was logged, e.g. 10-50 PI (0077). */
+          incident_code: string | null;
           incident_number: string;
           source: string;
           caller_name: string;
@@ -2526,6 +2539,44 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['crime_stats']['Row']>;
         Relationships: [];
       };
+      /** Each change to a call after it was sent, before and after (0079). Written only by apply_call_edit(). */
+      incident_edits: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          kind: 'intake' | 'dispatch';
+          edited_by: string | null;
+          edited_by_name: string | null;
+          edited_by_role: string | null;
+          reason: string | null;
+          changes: Record<string, { before: unknown; after: unknown }>;
+          edited_at: string;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** Each sentence's translation per language (0078). Written only by save_translation(s). */
+      translations: {
+        Row: {
+          key: string;
+          lang: string;
+          text: string;
+          status: 'draft' | 'approved';
+          drafted_by: 'person' | 'criti';
+          updated_by: string | null;
+          updated_by_name: string | null;
+          updated_at: string;
+          approved_by: string | null;
+          approved_by_name: string | null;
+          approved_at: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       command_records: {
         Row: {
           id: string;
@@ -2691,6 +2742,11 @@ export type Database = {
           p_tagged_silos?: Silo[] | null;
           /** The injuries ticked in the description (0076). */
           p_injuries?: string[] | null;
+          /** The details filled in for the type (0077). */
+          p_details?: Record<string, string | string[]> | null;
+          p_call_channel?: string | null;
+          p_call_channel_other?: string | null;
+          p_patients?: Array<{ name: string | null; severity: string; caller: boolean }> | null;
         };
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
@@ -2719,12 +2775,34 @@ export type Database = {
           p_medical_type?: string | null;
           p_injuries?: string[] | null;
           p_notes?: string | null;
+          p_details?: Record<string, string | string[]> | null;
+          p_call_channel?: string | null;
+          p_call_channel_other?: string | null;
+          p_patients?: Array<{ name: string | null; severity: string; caller: boolean }> | null;
         };
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
       /** The details added to a call already sent, by the person who logged it or the control room (0076). */
+      /** The signed-in person may draft or approve this language (0078). */
+      can_edit_translations: { Args: { p_lang: string }; Returns: boolean };
+      /** The language the signed-in person sees the screens in (0078). */
+      set_my_language: { Args: { p_lang: string | null }; Returns: undefined };
+      /** Who translates which language; an administrator, for their organisation (0078). */
+      set_translator_langs: { Args: { p_user: string; p_langs: string[] }; Returns: Database['public']['Tables']['profiles']['Row'] };
+      /** Save one translation; a translator for the language may approve it (0078). */
+      save_translation: {
+        Args: { p_key: string; p_lang: string; p_text: string; p_approve?: boolean };
+        Returns: Database['public']['Tables']['translations']['Row'];
+      };
+      /** Criti's drafts for one language: never over a person's draft or an approved one (0078). */
+      save_translation_drafts: { Args: { p_lang: string; p_rows: Array<{ key: string; text: string }> }; Returns: number };
       complete_call_intake: {
         Args: { p_incident: string; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['incidents']['Row'];
+      };
+      /** A dispatcher edits a call before dispatching it; every change is kept (0079). */
+      dispatcher_edit_call: {
+        Args: { p_incident: string; p_fields: Record<string, unknown>; p_reason?: string | null };
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
       /** Send a call to other departments' dispatch desks (0068). */
@@ -2853,7 +2931,7 @@ export type Database = {
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
       next_incident_number: {
-        Args: { p_silo: Silo };
+        Args: { p_silo: Silo; p_tags?: Silo[]; p_at?: string };
         Returns: string;
       };
       /** Serve a notice: one to three charges, idempotent on p_client_ref (migration 0057). */

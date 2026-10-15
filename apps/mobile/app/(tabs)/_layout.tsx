@@ -11,6 +11,7 @@ import { CurvedTabBar } from '@/components/tab-bar';
 import { HikTechLogo } from '@/components/hiktech-logo';
 import { AlertsBell, HeaderSearch } from '@/components/alerts-bell';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useT } from '@/lib/i18n';
 
 /**
  * Live unread count for the Alerts bell in the header.
@@ -47,6 +48,7 @@ function useUnreadAlerts(): number {
 }
 
 export default function TabsLayout() {
+  const { t } = useT();
   useTheme();
   const unread = useUnreadAlerts();
   const alertsOn = useFeature('mobile.alerts_inbox');
@@ -82,15 +84,15 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'HikTech',
+          title: t('HikTech'),
           headerTitle: '',
           headerLeft: () => <View style={{ marginLeft: 16 }}><HikTechLogo height={14} /></View>,
         }}
       />
-      <Tabs.Screen name="shift" options={{ title: 'Shift' }} />
-      <Tabs.Screen name="incidents" options={{ title: 'Incidents' }} />
-      <Tabs.Screen name="schedule" options={{ title: 'My Schedule' }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+      <Tabs.Screen name="shift" options={{ title: t('Shift') }} />
+      <Tabs.Screen name="incidents" options={{ title: t('Incidents') }} />
+      <Tabs.Screen name="schedule" options={{ title: t('My Schedule') }} />
+      <Tabs.Screen name="profile" options={{ title: t('Profile') }} />
     </Tabs>
   );
 }

@@ -6,6 +6,8 @@ import { rand, STAGE_INFO, type OwingCheck } from '@criticom/db/fines';
 import { getSupabase } from '@/lib/supabase';
 import { useSync } from '@/lib/sync';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 /**
  * What a person or vehicle owes on the register, at the roadside (0058).
@@ -27,6 +29,7 @@ type State =
   | { kind: 'done'; result: OwingCheck };
 
 export function OwingPanel({ idNumber, vehicleReg, compact }: { idNumber?: string; vehicleReg?: string; compact?: boolean }) {
+  const { t } = useT();
   const styles = useStyles();
   const { online } = useSync();
   const [state, setState] = useState<State>({ kind: 'idle' });
@@ -49,7 +52,7 @@ export function OwingPanel({ idNumber, vehicleReg, compact }: { idNumber?: strin
           if (latest.current === key) setState({ kind: 'done', result });
         })
         .catch((e: { message?: string }) => {
-          if (latest.current === key) setState({ kind: 'error', message: e?.message ?? 'The check did not work.' });
+          if (latest.current === key) setState({ kind: 'error', message: e?.message ?? tx('The check did not work.') });
         });
     }, 600);
     return () => clearTimeout(timer);
@@ -60,7 +63,7 @@ export function OwingPanel({ idNumber, vehicleReg, compact }: { idNumber?: strin
     return (
       <View style={[styles.box, styles.neutral]}>
         <ActivityIndicator size="small" color={colors.accent} />
-        <Text style={styles.neutralText}>Checking the register…</Text>
+        <Text style={styles.neutralText}>{t('Checking the register…')}</Text>
       </View>
     );
   }
@@ -68,7 +71,7 @@ export function OwingPanel({ idNumber, vehicleReg, compact }: { idNumber?: strin
     return (
       <View style={[styles.box, styles.neutral]}>
         <Ionicons name="cloud-offline-outline" size={16} color={colors.muted} />
-        <Text style={styles.neutralText}>No signal: what is owed can be checked when the phone has signal.</Text>
+        <Text style={styles.neutralText}>{t('No signal: what is owed can be checked when the phone has signal.')}</Text>
       </View>
     );
   }
@@ -76,18 +79,18 @@ export function OwingPanel({ idNumber, vehicleReg, compact }: { idNumber?: strin
     return (
       <View style={[styles.box, styles.neutral]}>
         <Ionicons name="alert-circle-outline" size={16} color={colors.medium} />
-        <Text style={styles.neutralText}>{state.message}</Text>
+        <Text style={styles.neutralText}>{t(state.message)}</Text>
       </View>
     );
   }
 
   const r = state.result;
-  const who = r.id_checked && r.reg_checked ? 'this person or vehicle' : r.id_checked ? 'this ID number' : 'this vehicle';
+  const who = r.id_checked && r.reg_checked ? t('this person or vehicle') : r.id_checked ? t('this ID number') : t('this vehicle');
   if (r.open_count === 0) {
     return (
       <View style={[styles.box, styles.clear]}>
         <Ionicons name="checkmark-circle" size={18} color={colors.low} />
-        <Text style={[styles.title, { color: colors.low }]}>No unpaid fines for {who}.</Text>
+        <Text style={[styles.title, { color: colors.low }]}>{t('No unpaid fines for {who}.', { who })}</Text>
       </View>
     );
   }
@@ -100,7 +103,9 @@ export function OwingPanel({ idNumber, vehicleReg, compact }: { idNumber?: strin
         <Ionicons name={bad ? 'warning' : 'alert-circle'} size={18} color={tone} />
         <View style={{ flex: 1 }}>
           <Text style={[styles.title, { color: tone }]}>
-            Owes {rand(r.total_owing)} on {r.open_count} unpaid fine{r.open_count === 1 ? '' : 's'}
+            {r.open_count === 1
+              ? t('Owes {amount} on 1 unpaid fine', { amount: rand(r.total_owing) })
+              : t('Owes {amount} on {n} unpaid fines', { amount: rand(r.total_owing), n: r.open_count })}
           </Text>
           <Text style={styles.sub}>
             {[
@@ -117,14 +122,14 @@ export function OwingPanel({ idNumber, vehicleReg, compact }: { idNumber?: strin
           <View style={{ flex: 1 }}>
             <Text style={styles.rowTitle}>{f.fine_number} · {f.offence}</Text>
             <Text style={[styles.rowMeta, f.overdue && { color: colors.critical, fontWeight: '800' }]}>
-              {f.stage}{f.matched_on === 'reg' && r.id_checked ? ' · same vehicle' : ''}{f.vehicle_reg ? ` · ${f.vehicle_reg}` : ''}
+              {t(f.stage)}{f.matched_on === 'reg' && r.id_checked ? t(' · same vehicle') : ''}{f.vehicle_reg ? ` · ${f.vehicle_reg}` : ''}
             </Text>
-            <Text style={styles.rowHint} numberOfLines={2}>{STAGE_INFO[f.stage]?.means}</Text>
+            <Text style={styles.rowHint} numberOfLines={2}>{STAGE_INFO[f.stage] ? t(STAGE_INFO[f.stage].means) : null}</Text>
           </View>
           <Text style={styles.rowAmount}>{rand(f.owing)}</Text>
         </View>
       )) : null}
-      {open && r.fines.length > 8 ? <Text style={styles.more}>and {r.fines.length - 8} more on the register</Text> : null}
+      {open && r.fines.length > 8 ? <Text style={styles.more}>{t('and {n} more on the register', { n: r.fines.length - 8 })}</Text> : null}
     </View>
   );
 }

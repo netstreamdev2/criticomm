@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { tNow } from './translator';
 import { getSupabase } from '@/lib/supabase';
 
 /**
@@ -41,8 +42,7 @@ export function webUrl(path: string): string | null {
 export async function callPublicApi<T>(path: string, body: unknown): Promise<T> {
   if (!HOST) {
     throw new ApiUnavailableError(
-      'This build has no web address configured, so accounts cannot be activated in the app. '
-      + 'Use the link on the HikTech website, or ask an administrator to set EXPO_PUBLIC_APP_URL.',
+      tNow('This build has no web address configured, so accounts cannot be activated in the app. Use the link on the HikTech website, or ask an administrator to set EXPO_PUBLIC_APP_URL.'),
     );
   }
   const abort = new AbortController();
@@ -60,7 +60,7 @@ export async function callPublicApi<T>(path: string, body: unknown): Promise<T> 
     }
     return await res.json() as T;
   } catch (e) {
-    if ((e as Error).name === 'AbortError') throw new Error('The server took too long to answer. Check your connection and try again.');
+    if ((e as Error).name === 'AbortError') throw new Error(tNow('The server took too long to answer. Check your connection and try again.'));
     throw e;
   } finally {
     clearTimeout(timer);
@@ -69,9 +69,9 @@ export async function callPublicApi<T>(path: string, body: unknown): Promise<T> 
 
 /** A signed-in read from the web API (weather, say); the same bearer rules as callApi. */
 export async function getApi<T>(path: string): Promise<T> {
-  if (!HOST) throw new ApiUnavailableError('This build has no web address configured.');
+  if (!HOST) throw new ApiUnavailableError(tNow('This build has no web address configured.'));
   const { data: { session } } = await getSupabase().auth.getSession();
-  if (!session) throw new ApiUnavailableError('Your session has expired — sign in again.');
+  if (!session) throw new ApiUnavailableError(tNow('Your session has expired — sign in again.'));
   const res = await fetch(`${HOST}${path}`, { headers: { Authorization: `Bearer ${session.access_token}` } });
   if (!res.ok) {
     const detail = await res.json().catch(() => null) as { error?: string } | null;
@@ -83,13 +83,12 @@ export async function getApi<T>(path: string): Promise<T> {
 export async function callApi<T>(path: string, body: unknown): Promise<T> {
   if (!HOST) {
     throw new ApiUnavailableError(
-      'This build has no web address configured, so features that run on the server are '
-      + 'unavailable. An administrator needs to set EXPO_PUBLIC_APP_URL.',
+      tNow('This build has no web address configured, so features that run on the server are unavailable. An administrator needs to set EXPO_PUBLIC_APP_URL.'),
     );
   }
 
   const { data: { session } } = await getSupabase().auth.getSession();
-  if (!session) throw new ApiUnavailableError('Your session has expired — sign in again.');
+  if (!session) throw new ApiUnavailableError(tNow('Your session has expired — sign in again.'));
 
   const res = await fetch(`${HOST}${path}`, {
     method: 'POST',

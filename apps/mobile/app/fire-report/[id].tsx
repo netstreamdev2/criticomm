@@ -19,6 +19,7 @@ import { setReportingFor } from '@/lib/open-call';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { OrgMark } from '@/components/org-mark';
 import { Banner, Button, Card, EmptyState, Input, KeyValue, Muted, Segmented, SeverityPill } from '@/components/ui';
+import { useT } from '@/lib/i18n';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 
@@ -37,6 +38,7 @@ const sast = (iso: string | null | undefined) =>
  * resolves the incident and tells dispatch and command.
  */
 export default function FireReportScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -100,15 +102,15 @@ export default function FireReportScreen() {
 
   // Time on scene keeps counting while the report is written.
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 30_000);
-    return () => clearInterval(t);
+    const timer = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(timer);
   }, []);
 
   // Keep the draft on the phone as the firefighter types.
   useEffect(() => {
     if (!id || !draftLoaded.current) return;
-    const t = setTimeout(() => { void AsyncStorage.setItem(draftKey(id), JSON.stringify(answers)).catch(() => {}); }, 400);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => { void AsyncStorage.setItem(draftKey(id), JSON.stringify(answers)).catch(() => {}); }, 400);
+    return () => clearTimeout(timer);
   }, [id, answers]);
 
   const set = (key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: value }));
@@ -141,11 +143,11 @@ export default function FireReportScreen() {
     setProblems(found);
     if (found.length) return;
     Alert.alert(
-      'File this fire report?',
-      `It resolves ${incident.incident_number} and becomes a permanent record — it cannot be edited or deleted afterwards.`,
+      t('File this fire report?'),
+      t('It resolves {incident_number} and becomes a permanent record — it cannot be edited or deleted afterwards.', { incident_number: incident.incident_number }),
       [
-        { text: 'Keep editing', style: 'cancel' },
-        { text: 'File report', style: 'destructive', onPress: () => void submit() },
+        { text: t('Keep editing'), style: 'cancel' },
+        { text: t('File report'), style: 'destructive', onPress: () => void submit() },
       ],
     );
   };
@@ -159,8 +161,8 @@ export default function FireReportScreen() {
       await enqueue({ kind: 'fire_report', incidentId: incident.id, incidentNumber: incident.incident_number, fields });
       await AsyncStorage.removeItem(draftKey(incident.id)).catch(() => {});
       Alert.alert(
-        'Fire report filed',
-        online ? `Your report for ${incident.incident_number} is on record.` : 'Saved. It sends when you have signal.',
+        t('Fire report filed'),
+        online ? t('Your report for {incident_number} is on record.', { incident_number: incident.incident_number }) : t('Saved. It sends when you have signal.'),
       );
       // The Closed tab, with this call's drawer open: Close is the next step (0074).
       router.replace({ pathname: '/(tabs)/incidents', params: { closed: incident.id } });
@@ -175,14 +177,14 @@ export default function FireReportScreen() {
     return (
       <View style={styles.center}>
         <ActivityIndicator color={colors.accent} />
-        <Muted>Preparing the fire report…</Muted>
+        <Muted>{t('Preparing the fire report…')}</Muted>
       </View>
     );
   }
   if (!incident) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
-        <EmptyState icon="alert-circle-outline" title="Incident not available" body="It may have been reassigned, or you no longer have access to it." />
+        <EmptyState icon="alert-circle-outline" title={t('Incident not available')} body={t('It may have been reassigned, or you no longer have access to it.')} />
       </View>
     );
   }
@@ -191,8 +193,8 @@ export default function FireReportScreen() {
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
         <EmptyState
           icon="lock-closed-outline"
-          title="Fire report already filed"
-          body={alreadyQueued ? 'It is waiting for signal and sends automatically.' : 'Your fire report is on record.'}
+          title={t('Fire report already filed')}
+          body={alreadyQueued ? t('It is waiting for signal and sends automatically.') : t('Your fire report is on record.')}
         />
       </View>
     );
@@ -200,7 +202,7 @@ export default function FireReportScreen() {
   if (!leadsOnPhone(incident, session?.user.id, pending, incident.id)) {
     return (
       <View style={[styles.center, { paddingHorizontal: space.lg }]}>
-        <EmptyState icon="person-outline" title="Not your incident" body="Only the firefighter leading this incident files its fire report." />
+        <EmptyState icon="person-outline" title={t('Not your incident')} body={t('Only the firefighter leading this incident files its fire report.')} />
       </View>
     );
   }
@@ -212,14 +214,14 @@ export default function FireReportScreen() {
   const renderField = (f: FireField) => {
     if (!fireFieldShown(f, answers)) return null;
     const value = answers[f.key] ?? '';
-    const label = `${f.label}${f.required ? ' *' : ''}`;
+    const label = `${t(f.label)}${f.required ? ' *' : ''}`;
     // A missing answer after File was pressed: the field glows red until it is filled.
     const bad = invalid.has(f.key);
     const fieldStyle = [styles.field, bad && styles.fieldBad];
     if (f.kind === 'select') {
       return (
         <View key={f.key} style={fieldStyle}>
-          <Text style={[styles.label, bad && styles.labelBad]}>{label.toUpperCase()}{bad ? ' — REQUIRED' : ''}</Text>
+          <Text style={[styles.label, bad && styles.labelBad]}>{label.toUpperCase()}{bad ? t(' — REQUIRED') : ''}</Text>
           <View style={styles.chips}>
             {(f.options ?? []).map((o) => {
               const on = value === o;
@@ -231,7 +233,7 @@ export default function FireReportScreen() {
                   accessibilityState={{ selected: on }}
                   style={({ pressed }) => [styles.chip, on && styles.chipOn, pressed && { opacity: 0.75 }]}
                 >
-                  <Text style={[styles.chipText, on && styles.chipTextOn]}>{o}</Text>
+                  <Text style={[styles.chipText, on && styles.chipTextOn]}>{t(o)}</Text>
                 </Pressable>
               );
             })}
@@ -249,7 +251,7 @@ export default function FireReportScreen() {
     }
     return (
       <View key={f.key} style={fieldStyle}>
-        {bad ? <Text style={styles.badHint}>Required — fill this in</Text> : null}
+        {bad ? <Text style={styles.badHint}>{t('Required — fill this in')}</Text> : null}
         <Input
           label={label}
           value={value}
@@ -279,20 +281,20 @@ export default function FireReportScreen() {
           <Muted>{incident.location_address}</Muted>
         </Card>
 
-        {!onScene ? <Banner tone="info">Mark yourself on scene before filing. You can start writing now; the draft is kept.</Banner> : null}
+        {!onScene ? <Banner tone="info">{t('Mark yourself on scene before filing. You can start writing now; the draft is kept.')}</Banner> : null}
 
         {sections.map((section) => (
           <View key={section.id}>
             <View style={styles.sectionHead}>
               <Ionicons name={section.icon as keyof typeof Ionicons.glyphMap} size={16} color={colors.accent} />
-              <Text style={styles.sectionTitle}>{section.title}</Text>
+              <Text style={styles.sectionTitle}>{t(section.title)}</Text>
             </View>
             <Card>
               {section.id === 'incident' ? (
                 <View style={{ marginBottom: space.md }}>
-                  <KeyValue label="Report number" value={`FR-${incident.incident_number}`} />
-                  <KeyValue label="Date" value={new Date(incident.call_timestamp ?? incident.incident_created_at).toLocaleDateString('en-ZA', { timeZone: 'Africa/Johannesburg' })} />
-                  <KeyValue label="Time of call" value={sast(incident.call_timestamp ?? incident.incident_created_at)} />
+                  <KeyValue label={t('Report number')} value={`FR-${incident.incident_number}`} />
+                  <KeyValue label={t('Date')} value={new Date(incident.call_timestamp ?? incident.incident_created_at).toLocaleDateString('en-ZA', { timeZone: 'Africa/Johannesburg' })} />
+                  <KeyValue label={t('Time of call')} value={sast(incident.call_timestamp ?? incident.incident_created_at)} />
                 </View>
               ) : null}
               {section.fields.map(renderField)}
@@ -303,18 +305,18 @@ export default function FireReportScreen() {
               <>
                 <View style={styles.sectionHead}>
                   <Ionicons name="time-outline" size={16} color={colors.accent} />
-                  <Text style={styles.sectionTitle}>Response timeline</Text>
+                  <Text style={styles.sectionTitle}>{t('Response timeline')}</Text>
                 </View>
                 <Card>
                   <View style={styles.synced}>
                     <Ionicons name="lock-closed" size={12} color={colors.cyan} />
-                    <Text style={styles.syncedText}>Timestamps auto-synced from the incident</Text>
+                    <Text style={styles.syncedText}>{t('Timestamps auto-synced from the incident')}</Text>
                   </View>
-                  <KeyValue label="Dispatched" value={sast(incident.dispatch_time)} />
-                  <KeyValue label="Responding" value={sast(incident.accepted_at)} />
-                  <KeyValue label="Arrived on scene" value={sast(incident.arrived_timestamp)} />
+                  <KeyValue label={t('Dispatched')} value={sast(incident.dispatch_time)} />
+                  <KeyValue label={t('Responding')} value={sast(incident.accepted_at)} />
+                  <KeyValue label={t('Arrived on scene')} value={sast(incident.arrived_timestamp)} />
                   <View style={styles.total}>
-                    <Text style={styles.totalLabel}>TOTAL TIME ON SCENE</Text>
+                    <Text style={styles.totalLabel}>{t('TOTAL TIME ON SCENE')}</Text>
                     <Text style={styles.totalValue}>{arrived ? formatDuration((now - arrived) / 1000) : '—'}</Text>
                   </View>
                 </Card>
@@ -325,22 +327,24 @@ export default function FireReportScreen() {
 
         <View style={styles.sectionHead}>
           <Ionicons name="camera-outline" size={16} color={colors.accent} />
-          <Text style={styles.sectionTitle}>Photos</Text>
+          <Text style={styles.sectionTitle}>{t('Photos')}</Text>
         </View>
         <Card>
           <Muted>
             {photos
-              ? `${photos} photo${photos === 1 ? '' : 's'} on the incident are filed with this report.`
-              : 'No photos on the incident yet. Add them from the incident screen, or say why there are none.'}
+              ? photos === 1
+                ? t('The photo on the incident is filed with this report.')
+                : t('{n} photos on the incident are filed with this report.', { n: photos })
+              : t('No photos on the incident yet. Add them from the incident screen, or say why there are none.')}
           </Muted>
           {photos === 0 ? (
             <View style={[{ marginTop: space.md }, invalid.has('no_photo_reason') && styles.fieldBad]}>
-              {invalid.has('no_photo_reason') ? <Text style={styles.badHint}>Required — fill this in</Text> : null}
-              <Input label="Why no photos *" value={answers.no_photo_reason ?? ''} onChangeText={(v) => set('no_photo_reason', v)} placeholder="e.g. Night, no safe vantage point" />
+              {invalid.has('no_photo_reason') ? <Text style={styles.badHint}>{t('Required — fill this in')}</Text> : null}
+              <Input label={t('Why no photos *')} value={answers.no_photo_reason ?? ''} onChangeText={(v) => set('no_photo_reason', v)} placeholder={t('e.g. Night, no safe vantage point')} />
             </View>
           ) : null}
           <View style={{ marginTop: space.md }}>
-            <Button label="Open the incident" icon="open-outline" variant="outline" onPress={() => router.push(`/incident/${incident.id}`)} />
+            <Button label={t('Open the incident')} icon="open-outline" variant="outline" onPress={() => router.push(`/incident/${incident.id}`)} />
           </View>
         </Card>
 
@@ -349,12 +353,12 @@ export default function FireReportScreen() {
           {problems.length ? (
             <View style={{ marginBottom: space.sm }}>
               <Banner tone="error" onDismiss={() => setProblems([])}>
-                {`${problems.length === 1 ? 'One thing is' : `${problems.length} things are`} missing — marked in red above:\n• ${problems.join('\n• ')}`}
+                {`${problems.length === 1 ? t('One thing is missing — marked in red above:') : t('{n} things are missing — marked in red above:', { n: problems.length })}\n• ${problems.join('\n• ')}`}
               </Banner>
             </View>
           ) : null}
           <Button
-            label="File fire report"
+            label={t('File fire report')}
             icon="document-text"
             variant="success"
             size="lg"
@@ -363,7 +367,7 @@ export default function FireReportScreen() {
             onPress={file}
           />
           <Muted style={{ textAlign: 'center', marginTop: space.sm }}>
-            Filing resolves the incident. The report is permanent and visible to command and case managers.
+            {t('Filing resolves the incident. The report is permanent and visible to command and case managers.')}
           </Muted>
         </View>
       </ScrollView>

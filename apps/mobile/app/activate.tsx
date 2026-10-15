@@ -12,6 +12,8 @@ import { callPublicApi, webUrl } from '@/lib/api-host';
 import { getSupabase } from '@/lib/supabase';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, CheckRow, Input, KeyValue, Stepper } from '@/components/ui';
+import { tx, type Translate } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 /** What the server says about a code and badge number (web: app/api/onboarding/check). */
 type Checked =
@@ -26,7 +28,15 @@ type Activated =
   | { ok: true; loginEmail: string; signIn: 'email' | 'badge'; signInAs: string; role: UserRole; silo: Silo; fullName: string }
   | { ok: false; message: string; state?: string };
 
-const STEPS = ['Code', 'Password', 'Terms'];
+const STEPS = [tx('Code'), tx('Password'), tx('Terms')];
+
+/** A password rule in the person's language; the shared rules are written in English. */
+function ruleWords(rule: string, t: Translate) {
+  const least = /^At least (\d+) characters$/.exec(rule);
+  if (least) return t('At least {n} characters', { n: Number(least[1]) });
+  // tx() so the translators get the shared rules.
+  return t(rule === 'Not your name' ? tx('Not your name') : rule === 'Not your badge number' ? tx('Not your badge number') : rule);
+}
 
 /** Answers that end the journey: there is nothing to retry. */
 const FINAL = new Set(['expired', 'used', 'locked', 'closed']);
@@ -39,6 +49,7 @@ const FINAL = new Set(['expired', 'used', 'locked', 'closed']);
  * lockout is the server's, exactly as on the web page.
  */
 export default function ActivateScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -59,7 +70,7 @@ export default function ActivateScreen() {
   const codeOk = normaliseActivationCode(code).length === 8;
   const checklist = [
     ...passwordChecklist(password, { name: who?.fullName, badge }),
-    { rule: 'Both entries match', ok: password.length > 0 && password === again },
+    { rule: tx('Both entries match'), ok: password.length > 0 && password === again },
   ];
   const passwordOk = checklist.every((c) => c.ok);
   const first = who?.fullName.trim().split(/\s+/)[0] ?? '';
@@ -109,14 +120,16 @@ export default function ActivateScreen() {
           <View style={[styles.mark, { backgroundColor: made ? colors.lowSoft : colors.criticalSoft }]}>
             <Ionicons name={made ? 'checkmark-circle' : 'close-circle'} size={28} color={made ? colors.low : colors.critical} />
           </View>
-          <Text style={styles.heading}>{made ? 'Your account is ready' : 'This code can’t be used'}</Text>
+          <Text style={styles.heading}>{made ? t('Your account is ready') : t('This code can’t be used')}</Text>
           <Text style={styles.sub}>
             {made
-              ? `Sign in with ${who?.signIn === 'badge' ? 'your badge number' : 'your email address'}, ${made}, and the password you just chose.`
+              ? who?.signIn === 'badge'
+                ? t('Sign in with your badge number, {made}, and the password you just chose.', { made })
+                : t('Sign in with your email address, {made}, and the password you just chose.', { made })
               : ended!.message}
           </Text>
           <View style={{ marginTop: space['2xl'] }}>
-            <Button label={made || ended?.used ? 'Sign in' : 'Back to sign in'} icon="log-in-outline" size="lg"
+            <Button label={made || ended?.used ? t('Sign in') : t('Back to sign in')} icon="log-in-outline" size="lg"
               onPress={() => router.replace('/login')} />
           </View>
         </View>
@@ -129,10 +142,10 @@ export default function ActivateScreen() {
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
         <View style={styles.box}>
           <Pressable onPress={() => (step > 0 ? setStep(step - 1) : router.replace('/login'))} hitSlop={12}
-            accessibilityRole="button" accessibilityLabel={step > 0 ? 'Back' : 'Back to sign in'} style={styles.back}
+            accessibilityRole="button" accessibilityLabel={step > 0 ? t('Back') : t('Back to sign in')} style={styles.back}
             disabled={busy}>
             <Ionicons name="chevron-back" size={18} color={colors.accent} />
-            <Text style={styles.backText}>{step > 0 ? 'Back' : 'Sign in'}</Text>
+            <Text style={styles.backText}>{step > 0 ? t('Back') : t('Sign in')}</Text>
           </Pressable>
 
           <Stepper steps={STEPS} current={step} />
@@ -141,15 +154,15 @@ export default function ActivateScreen() {
           {step === 0 ? (
             <View style={styles.form}>
               <View>
-                <Text style={styles.heading}>Activate your account</Text>
-                <Text style={styles.sub}>Enter the code on the activation slip your administrator gave you, and your badge number.</Text>
+                <Text style={styles.heading}>{t('Activate your account')}</Text>
+                <Text style={styles.sub}>{t('Enter the code on the activation slip your administrator gave you, and your badge number.')}</Text>
               </View>
               <Input
-                label="Activation code"
+                label={t('Activation code')}
                 icon="key-outline"
-                placeholder="XXXX-XXXX"
+                placeholder={t('XXXX-XXXX')}
                 value={code}
-                onChangeText={(t) => { setCode(formatActivationCode(t)); setError(null); }}
+                onChangeText={(value) => { setCode(formatActivationCode(value)); setError(null); }}
                 autoCapitalize="characters"
                 autoCorrect={false}
                 autoComplete="off"
@@ -158,19 +171,19 @@ export default function ActivateScreen() {
                 returnKeyType="next"
               />
               <Input
-                label="Badge number"
+                label={t('Badge number')}
                 icon="id-card-outline"
-                placeholder="Your badge number"
+                placeholder={t('Your badge number')}
                 value={badge}
-                onChangeText={(t) => { setBadge(t); setError(null); }}
+                onChangeText={(value) => { setBadge(value); setError(null); }}
                 autoCapitalize="characters"
                 autoCorrect={false}
                 autoComplete="off"
-                hint={`As on your appointment letter or ID card. ${INVITATION_ATTEMPTS} wrong tries lock the code.`}
+                hint={t('As on your appointment letter or ID card. {INVITATION_ATTEMPTS} wrong tries lock the code.', { INVITATION_ATTEMPTS })}
                 returnKeyType="go"
                 onSubmitEditing={() => void check()}
               />
-              <Button label="Continue" icon="arrow-forward" size="lg" busy={busy}
+              <Button label={t('Continue')} icon="arrow-forward" size="lg" busy={busy}
                 disabled={!codeOk || !badge.trim()} onPress={() => void check()} />
             </View>
           ) : null}
@@ -178,18 +191,18 @@ export default function ActivateScreen() {
           {step === 1 && who ? (
             <View style={styles.form}>
               <View>
-                <Text style={styles.heading}>Welcome, {first}</Text>
-                <Text style={styles.sub}>Choose a password. Only you will know it: administrators never see or set passwords.</Text>
+                <Text style={styles.heading}>{t('Welcome, {first}', { first })}</Text>
+                <Text style={styles.sub}>{t('Choose a password. Only you will know it: administrators never see or set passwords.')}</Text>
               </View>
               <Card tight>
-                <KeyValue label="Role" value={`${who.role}, ${DEPARTMENT_NAMES[who.silo] ?? who.silo}`} />
-                {who.organisation ? <KeyValue label="Organisation" value={who.organisation} /> : null}
-                {who.invitedBy ? <KeyValue label="Invited by" value={who.invitedBy} /> : null}
-                <KeyValue label="You sign in with" value={who.signIn === 'badge' ? `Badge ${who.signInAs}` : who.signInAs} />
+                <KeyValue label={t('Role')} value={`${who.role}, ${DEPARTMENT_NAMES[who.silo] ?? who.silo}`} />
+                {who.organisation ? <KeyValue label={t('Organisation')} value={who.organisation} /> : null}
+                {who.invitedBy ? <KeyValue label={t('Invited by')} value={who.invitedBy} /> : null}
+                <KeyValue label={t('You sign in with')} value={who.signIn === 'badge' ? `Badge ${who.signInAs}` : who.signInAs} />
               </Card>
               <View>
                 <Input
-                  label="Password"
+                  label={t('Password')}
                   icon="lock-closed-outline"
                   secureTextEntry={!show}
                   autoCapitalize="none"
@@ -201,11 +214,11 @@ export default function ActivateScreen() {
                   returnKeyType="next"
                 />
                 <Text onPress={() => setShow((s) => !s)} accessibilityRole="button" style={styles.reveal}>
-                  {show ? 'Hide' : 'Show'}
+                  {show ? t('Hide') : t('Show')}
                 </Text>
               </View>
               <Input
-                label="Type it again"
+                label={t('Type it again')}
                 icon="lock-closed-outline"
                 secureTextEntry={!show}
                 autoCapitalize="none"
@@ -217,38 +230,37 @@ export default function ActivateScreen() {
                 returnKeyType="done"
                 onSubmitEditing={() => { if (passwordOk) setStep(2); }}
               />
-              <View style={styles.rules} accessibilityLabel="Password rules">
+              <View style={styles.rules} accessibilityLabel={t('Password rules')}>
                 {checklist.map((c) => (
                   <View key={c.rule} style={styles.rule}>
                     <Ionicons name={c.ok ? 'checkmark-circle' : 'ellipse-outline'} size={16} color={c.ok ? colors.low : colors.muted} />
-                    <Text style={[styles.ruleText, c.ok && { color: colors.text }]}>{c.rule}</Text>
+                    <Text style={[styles.ruleText, c.ok && { color: colors.text }]}>{ruleWords(c.rule, t)}</Text>
                   </View>
                 ))}
-                <Text style={styles.note}>Passwords known from data breaches elsewhere are refused.</Text>
+                <Text style={styles.note}>{t('Passwords known from data breaches elsewhere are refused.')}</Text>
               </View>
-              <Button label="Next" icon="arrow-forward" size="lg" disabled={!passwordOk} onPress={() => setStep(2)} />
+              <Button label={t('Next')} icon="arrow-forward" size="lg" disabled={!passwordOk} onPress={() => setStep(2)} />
             </View>
           ) : null}
 
           {step === 2 ? (
             <View style={styles.form}>
               <View>
-                <Text style={styles.heading}>Before you start</Text>
+                <Text style={styles.heading}>{t('Before you start')}</Text>
                 <Text style={styles.sub}>
-                  HikTech holds personal information about members of the public and about staff. The POPIA notice
-                  explains what is kept, why, who can see it and for how long.
+                  {t('HikTech holds personal information about members of the public and about staff. The POPIA notice explains what is kept, why, who can see it and for how long.')}
                 </Text>
                 {popia ? (
                   <Text style={styles.link} accessibilityRole="link" onPress={() => void Linking.openURL(popia)}>
-                    Read the POPIA notice
+                    {t('Read the POPIA notice')}
                   </Text>
                 ) : null}
               </View>
-              <CheckRow label={`I have read the POPIA notice (version ${POPIA_NOTICE_VERSION})`}
+              <CheckRow label={t('I have read the POPIA notice (version {POPIA_NOTICE_VERSION})', { POPIA_NOTICE_VERSION })}
                 checked={readNotice} onToggle={() => setReadNotice((v) => !v)} />
-              <CheckRow label="I will use HikTech only for official duties and keep my password private"
+              <CheckRow label={t('I will use HikTech only for official duties and keep my password private')}
                 checked={agreeUse} onToggle={() => setAgreeUse((v) => !v)} />
-              <Button label="Activate my account" icon="checkmark-circle-outline" size="lg" busy={busy}
+              <Button label={t('Activate my account')} icon="checkmark-circle-outline" size="lg" busy={busy}
                 disabled={!readNotice || !agreeUse} onPress={() => void activate()} />
             </View>
           ) : null}

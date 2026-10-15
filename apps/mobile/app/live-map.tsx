@@ -15,6 +15,8 @@ import {
 } from '@/lib/police-overlays';
 import { useMapPins } from '@/lib/use-map-pins';
 import { colors, radius, severityColor, space, makeStyles } from '@/lib/theme';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 const SEVERITIES = ['Critical', 'High', 'Medium', 'Low'] as const;
 type Severity = (typeof SEVERITIES)[number];
@@ -22,8 +24,8 @@ type Scope = 'All' | 'Mine';
 
 /** Short names for the crime categories, to fit a chip. */
 const CRIME_CHIP: Record<string, string> = {
-  all: 'All', murder: 'Murder', carjacking: 'Carjacking', burglary_residential: 'Burglary',
-  robbery_residential: 'Robbery', drug_crime: 'Drugs', dui: 'DUI',
+  all: tx('All'), murder: tx('Murder'), carjacking: tx('Carjacking'), burglary_residential: tx('Burglary'),
+  robbery_residential: tx('Robbery'), drug_crime: tx('Drugs'), dui: tx('DUI'),
 };
 
 function weatherIcon(w: WeatherNow | null): keyof typeof Ionicons.glyphMap {
@@ -48,6 +50,7 @@ const sentence = (s: string | null | undefined) => (s ? s.charAt(0).toUpperCase(
  * now. Layers opens the switches; the choice is remembered on the phone.
  */
 export default function LiveMapScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -140,12 +143,12 @@ export default function LiveMapScreen() {
       <View style={[styles.top, { top: insets.top + space.sm }]} pointerEvents="box-none">
         {/* ── Back, what this is, the weather ── */}
         <View style={styles.bar} pointerEvents="box-none">
-          <Pressable onPress={() => router.back()} style={styles.round} accessibilityRole="button" accessibilityLabel="Back">
+          <Pressable onPress={() => router.back()} style={styles.round} accessibilityRole="button" accessibilityLabel={t('Back')}>
             <Ionicons name="chevron-back" size={20} color={colors.text} />
           </Pressable>
           <View style={styles.titlePill}>
             <View style={styles.liveDot} />
-            <Text style={styles.titleText}>LIVE MAP</Text>
+            <Text style={styles.titleText}>{t('LIVE MAP')}</Text>
             <Text style={styles.titleCount}>{shown.length}</Text>
           </View>
           <View style={{ flex: 1 }} />
@@ -154,7 +157,7 @@ export default function LiveMapScreen() {
               onPress={() => (police ? setLayersOpen(true) : undefined)}
               style={styles.chipBox}
               accessibilityRole={police ? 'button' : 'text'}
-              accessibilityLabel={`Weather now: ${sentence(weather?.description)}, ${weatherNow}`}
+              accessibilityLabel={t('Weather now: {sentence}, {weatherNow}', { sentence: sentence(weather?.description), weatherNow })}
             >
               <Ionicons name={weatherIcon(weather)} size={16} color={colors.text} />
               <Text style={styles.weatherText}>{weatherNow}</Text>
@@ -165,7 +168,7 @@ export default function LiveMapScreen() {
         {/* ── Filters ── */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filters}>
           <View style={styles.scope}>
-            {(['All', 'Mine'] as const).map((s) => (
+            {([tx('All'), tx('Mine')] as const).map((s) => (
               <Pressable
                 key={s}
                 onPress={() => setScope(s)}
@@ -173,7 +176,7 @@ export default function LiveMapScreen() {
                 accessibilityState={{ selected: scope === s }}
                 style={[styles.scopeBtn, scope === s && styles.scopeOn]}
               >
-                <Text style={[styles.scopeText, scope === s && { color: '#fff' }]}>{s}</Text>
+                <Text style={[styles.scopeText, scope === s && { color: '#fff' }]}>{t(s)}</Text>
               </Pressable>
             ))}
           </View>
@@ -186,11 +189,11 @@ export default function LiveMapScreen() {
                 onPress={() => toggleSeverity(s)}
                 accessibilityRole="checkbox"
                 accessibilityState={{ checked: on }}
-                accessibilityLabel={`${s} severity`}
+                accessibilityLabel={t('{severity} severity', { severity: t(s) })}
                 style={[styles.chip, { borderColor: on ? tone : colors.panelBorder }, on && { backgroundColor: `${tone}33` }]}
               >
                 <View style={[styles.dot, { backgroundColor: tone }]} />
-                <Text style={[styles.chipText, on && { color: colors.text }]}>{s}</Text>
+                <Text style={[styles.chipText, on && { color: colors.text }]}>{t(s)}</Text>
                 <Text style={styles.chipCount}>{counts[s] ?? 0}</Text>
               </Pressable>
             );
@@ -205,19 +208,19 @@ export default function LiveMapScreen() {
               setDismissed((d) => new Set(d).add(arrival.id));
             }}
             accessibilityRole="button"
-            accessibilityLabel={`New incident ${arrival.number}, ${arrival.type}. Show on map`}
+            accessibilityLabel={t('New incident {number}, {type}. Show on map', { number: arrival.number, type: arrival.type })}
             style={[styles.banner, { borderColor: `${arrival.color}88` }]}
           >
             <View style={[styles.bannerDot, { backgroundColor: arrival.color }]} />
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.bannerKicker}>NEW INCIDENT · {arrival.severity.toUpperCase()}</Text>
+              <Text style={styles.bannerKicker}>{t('NEW INCIDENT · {severity}', { severity: arrival.severity.toUpperCase() })}</Text>
               <Text style={styles.bannerTitle} numberOfLines={1}>{arrival.number} · {arrival.type}</Text>
             </View>
-            <Text style={styles.bannerAction}>Show</Text>
+            <Text style={styles.bannerAction}>{t('Show')}</Text>
             <Pressable
               onPress={() => setDismissed((d) => new Set(d).add(arrival.id))}
               hitSlop={10}
-              accessibilityLabel="Dismiss"
+              accessibilityLabel={t('Dismiss')}
             >
               <Ionicons name="close" size={16} color={colors.muted} />
             </Pressable>
@@ -232,15 +235,15 @@ export default function LiveMapScreen() {
             onPress={() => setLayersOpen(true)}
             style={[styles.ctrl, choice.on.length > 0 && styles.ctrlOn]}
             accessibilityRole="button"
-            accessibilityLabel="Map layers"
+            accessibilityLabel={t('Map layers')}
           >
             <Ionicons name="layers-outline" size={20} color={choice.on.length > 0 ? colors.accent : colors.text} />
           </Pressable>
         ) : null}
-        <Pressable onPress={() => map.current?.fitAll()} style={styles.ctrl} accessibilityRole="button" accessibilityLabel="Show all incidents">
+        <Pressable onPress={() => map.current?.fitAll()} style={styles.ctrl} accessibilityRole="button" accessibilityLabel={t('Show all incidents')}>
           <Ionicons name="scan-outline" size={20} color={colors.text} />
         </Pressable>
-        <Pressable onPress={() => void locate()} style={styles.ctrl} accessibilityRole="button" accessibilityLabel="My location">
+        <Pressable onPress={() => void locate()} style={styles.ctrl} accessibilityRole="button" accessibilityLabel={t('My location')}>
           <Ionicons name={me ? 'locate' : 'locate-outline'} size={20} color={me ? colors.accent : colors.text} />
         </Pressable>
       </View>
@@ -251,35 +254,35 @@ export default function LiveMapScreen() {
           {SEVERITIES.map((s) => (
             <View key={s} style={styles.legendItem}>
               <View style={[styles.dot, { backgroundColor: severityColor(s) }]} />
-              <Text style={styles.legendText}>{s}</Text>
+              <Text style={styles.legendText}>{t(s)}</Text>
             </View>
           ))}
           <View style={styles.legendItem}>
-            <View style={styles.sosTag}><Text style={styles.sosTagText}>SOS</Text></View>
-            <Text style={styles.legendText}>{personTitle(silo)}</Text>
+            <View style={styles.sosTag}><Text style={styles.sosTagText}>{t('SOS')}</Text></View>
+            <Text style={styles.legendText}>{personTitle(silo, t)}</Text>
           </View>
           <View style={styles.legendItem}>
             <View style={styles.mineRing} />
-            <Text style={styles.legendText}>Mine</Text>
+            <Text style={styles.legendText}>{t('Mine')}</Text>
           </View>
         </View>
         {isOn('crime') && crime.circles.length > 0 ? (
           <View style={styles.scaleRow}>
-            <Text style={styles.legendText}>Crime</Text>
+            <Text style={styles.legendText}>{t('Crime')}</Text>
             <View style={styles.scale}>
               {[0, 0.25, 0.5, 0.75, 1].map((s) => <View key={s} style={[styles.scaleStep, { backgroundColor: heatColour(s) }]} />)}
             </View>
-            <Text style={styles.legendText}>more cases{crime.year ? ` · ${crime.year}` : ''}</Text>
+            <Text style={styles.legendText}>{t('more cases')}{crime.year ? ` · ${crime.year}` : ''}</Text>
           </View>
         ) : null}
         {isOn('zones') && zones.length > 0 ? (
           <Text style={styles.legendText}>
-            {zones.length} perimeter{zones.length === 1 ? '' : 's'} or zone{zones.length === 1 ? '' : 's'} in force · tap one for details
+            {zones.length === 1 ? t('1 perimeter or zone in force · tap it for details') : t('{n} perimeters or zones in force · tap one for details', { n: zones.length })}
           </Text>
         ) : null}
         {unlocated > 0 ? (
           <Text style={styles.unlocated}>
-            {unlocated} incident{unlocated === 1 ? ' has' : 's have'} no location from dispatch and {unlocated === 1 ? 'is' : 'are'} not pinned.
+            {unlocated === 1 ? t('1 incident has no location from dispatch and is not pinned.') : t('{n} incidents have no location from dispatch and are not pinned.', { n: unlocated })}
           </Text>
         ) : null}
       </View>
@@ -291,8 +294,8 @@ export default function LiveMapScreen() {
           onClose={() => setLayersOpen(false)}
           header={(
             <View style={styles.sheetHead}>
-              <Text style={styles.sheetTitle}>Map layers</Text>
-              <Text style={styles.sheetSub}>Shown with live incidents. Remembered on this phone.</Text>
+              <Text style={styles.sheetTitle}>{t('Map layers')}</Text>
+              <Text style={styles.sheetSub}>{t('Shown with live incidents. Remembered on this phone.')}</Text>
             </View>
           )}
         >
@@ -302,17 +305,17 @@ export default function LiveMapScreen() {
                 <Ionicons name={weatherIcon(weather)} size={30} color={colors.accent} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.wxTemp}>
-                    {weather.tempC != null ? `${Math.round(weather.tempC)}°C` : '—'}
+                    {weather.tempC != null ? t('{round}°C', { round: Math.round(weather.tempC) }) : '—'}
                     <Text style={styles.wxDesc}>  {sentence(weather.description)}</Text>
                   </Text>
                   <Text style={styles.wxMeta}>
                     {[
-                      weather.windSpeedMs != null ? `Wind ${compass(weather.windDeg)} ${Math.round(weather.windSpeedMs * 3.6)} km/h` : null,
-                      weather.windGustMs != null ? `gusts ${Math.round(weather.windGustMs * 3.6)}` : null,
-                      weather.humidity != null ? `humidity ${weather.humidity}%` : null,
+                      weather.windSpeedMs != null ? t('Wind {from} {speed} km/h', { from: compass(weather.windDeg), speed: Math.round(weather.windSpeedMs * 3.6) }) : null,
+                      weather.windGustMs != null ? t('gusts {speed}', { speed: Math.round(weather.windGustMs * 3.6) }) : null,
+                      weather.humidity != null ? t('humidity {n}%', { n: weather.humidity }) : null,
                     ].filter(Boolean).join(' · ')}
                   </Text>
-                  <Text style={styles.wxSource}>Durban now · OpenWeather</Text>
+                  <Text style={styles.wxSource}>{t('Durban now · OpenWeather')}</Text>
                 </View>
               </View>
             ) : null}
@@ -320,8 +323,10 @@ export default function LiveMapScreen() {
             <LayerRow
               icon="flame-outline"
               tint="#f97316"
-              title="Crime zones"
-              hint={crime.error ?? `SAPS station statistics${crime.year ? `, ${crime.year}` : ''}. Bigger and redder means more cases.`}
+              title={t('Crime zones')}
+              hint={crime.error ?? (crime.year
+                ? t('SAPS station statistics, {year}. Bigger and redder means more cases.', { year: crime.year })
+                : t('SAPS station statistics. Bigger and redder means more cases.'))}
               on={isOn('crime')}
               onToggle={() => toggle('crime')}
             />
@@ -338,7 +343,7 @@ export default function LiveMapScreen() {
                       accessibilityLabel={k.label}
                       style={[styles.kind, on && styles.kindOn]}
                     >
-                      <Text style={[styles.kindText, on && { color: '#fff' }]}>{CRIME_CHIP[k.key] ?? k.label}</Text>
+                      <Text style={[styles.kindText, on && { color: '#fff' }]}>{t(CRIME_CHIP[k.key] ?? k.label)}</Text>
                     </Pressable>
                   );
                 })}
@@ -348,10 +353,10 @@ export default function LiveMapScreen() {
             <LayerRow
               icon="git-commit-outline"
               tint="#ef4444"
-              title="Perimeters & zones"
+              title={t('Perimeters & zones')}
               hint={isOn('zones')
-                ? (zones.length ? `${zones.length} in force: cordons, closures and points set by command.` : 'None in force for you right now.')
-                : 'Cordons, road closures and points set by command.'}
+                ? (zones.length ? t('{length} in force: cordons, closures and points set by command.', { length: zones.length }) : t('None in force for you right now.'))
+                : t('Cordons, road closures and points set by command.')}
               on={isOn('zones')}
               onToggle={() => toggle('zones')}
             />
@@ -359,8 +364,8 @@ export default function LiveMapScreen() {
             <LayerRow
               icon="rainy-outline"
               tint="#38bdf8"
-              title="Rain radar"
-              hint={rain.unavailable ? 'Weather is not set up on the server yet.' : 'Where it is raining now (OpenWeather).'}
+              title={t('Rain radar')}
+              hint={rain.unavailable ? t('Weather is not set up on the server yet.') : t('Where it is raining now (OpenWeather).')}
               on={isOn('rain')}
               onToggle={() => toggle('rain')}
             />

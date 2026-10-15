@@ -162,7 +162,7 @@ export function DashboardPeek() {
                 New assignment · Critical
               </p>
               <p className="mt-2 text-sm font-bold leading-snug">Taxi rollover — M4 nb, Umgeni</p>
-              <p className="mt-1 text-[11px] text-white/55">INC-20260429-0114 · entrapment reported</p>
+              <p className="mt-1 text-[11px] text-white/55">MPFD-MD-20260429-0914-0114 · entrapment reported</p>
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <span className="rounded-md bg-[#dc3545] py-1.5 text-center text-[11px] font-bold">Accept</span>
                 <span className="rounded-md border border-white/20 py-1.5 text-center text-[11px] font-bold text-white/70">Details</span>

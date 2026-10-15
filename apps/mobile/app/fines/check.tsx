@@ -7,8 +7,10 @@ import { useAuth } from '@/lib/auth';
 import { colors, space, makeStyles } from '@/lib/theme';
 import { Button, Card, EmptyState, Input, Muted, Segmented } from '@/components/ui';
 import { OwingPanel } from '@/components/owing-check';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
-const MODES = ['ID number', 'Registration'] as const;
+const MODES = [tx('ID number'), tx('Registration')] as const;
 
 /**
  * Check what is owed — before or instead of writing a fine: does this person
@@ -16,6 +18,7 @@ const MODES = ['ID number', 'Registration'] as const;
  * officer's fines; every check is audited.
  */
 export default function CheckOwingScreen() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { role, silo } = useAuth();
@@ -26,7 +29,7 @@ export default function CheckOwingScreen() {
   if (!canIssueFines({ role, silo }) && !canViewAllFines({ role, silo })) {
     return (
       <View style={styles.center}>
-        <EmptyState icon="search-outline" title="Not for your role" body="Metro Police officers and command staff check what is owed." />
+        <EmptyState icon="search-outline" title={t('Not for your role')} body={t('Metro Police officers and command staff check what is owed.')} />
       </View>
     );
   }
@@ -44,17 +47,17 @@ export default function CheckOwingScreen() {
           label={mode}
           value={value}
           onChangeText={(v) => { setValue(v.toUpperCase()); setChecked(null); }}
-          placeholder={mode === 'ID number' ? '13-digit ID or passport number' : 'e.g. ND 123-456'}
+          placeholder={mode === 'ID number' ? t('13-digit ID or passport number') : t('e.g. ND 123-456')}
           autoCapitalize="characters"
           autoCorrect={false}
           icon={mode === 'ID number' ? 'id-card-outline' : 'car-outline'}
-          hint={warn ? 'That is not a valid South African ID number — check the digits.' : undefined}
+          hint={warn ? t('That is not a valid South African ID number — check the digits.') : undefined}
           onSubmitEditing={() => { if (ready) setChecked(mode === 'ID number' ? { idNumber: id } : { vehicleReg: reg }); }}
           returnKeyType="search"
         />
         <View style={{ marginTop: space.md }}>
           <Button
-            label="Check"
+            label={t('Check')}
             icon="search"
             disabled={!ready}
             onPress={() => setChecked(mode === 'ID number' ? { idNumber: id } : { vehicleReg: reg })}
@@ -63,12 +66,11 @@ export default function CheckOwingScreen() {
         {checked ? <OwingPanel {...checked} /> : null}
       </Card>
       <Muted>
-        Shows unpaid fines on the city’s register from every officer: fine numbers, offences, amounts and where each
-        stands. Names and addresses on other officers’ fines are not shown. Every check is recorded.
+        {t('Shows unpaid fines on the city’s register from every officer: fine numbers, offences, amounts and where each stands. Names and addresses on other officers’ fines are not shown. Every check is recorded.')}
       </Muted>
       {checked && canIssueFines({ role, silo }) ? (
         <View style={{ marginTop: space.lg }}>
-          <Button label="Issue a fine" icon="receipt-outline" variant="outline" onPress={() => router.push('/fines/new')} />
+          <Button label={t('Issue a fine')} icon="receipt-outline" variant="outline" onPress={() => router.push('/fines/new')} />
         </View>
       ) : null}
     </ScrollView>

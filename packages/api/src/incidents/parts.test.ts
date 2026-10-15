@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { forDepartment, openParts, partFor, partOpen, partStep, partWords, sortParts, statusForPart, waitingParts, type DepartmentPart } from './parts.ts';
+import { editableBeforeDispatch, forDepartment, openParts, partFor, partOpen, partStep, partWords, sortParts, statusForPart, waitingParts, type DepartmentPart } from './parts.ts';
 
 const part = (silo: DepartmentPart['silo'], status: DepartmentPart['status'], extra: Partial<DepartmentPart> = {}): DepartmentPart => ({
   id: `${silo}-part`, tenant_id: 't', incident_id: 'i', silo, status, sent_at: '2026-10-12T08:00:00Z',
@@ -87,4 +87,16 @@ test('a closed part waits on departments still working, or filed and not closed 
     'every other department has closed or is done',
   );
   assert.deepEqual(waitingParts([part('MetroFire', 'Waiting')], 'MetroPolice').map((p) => p.silo), ['MetroFire'], 'not dispatched yet');
+});
+
+test('a desk edits a call until its own crews are sent; the control room until any are', () => {
+  const part = (silo: 'MetroPolice' | 'MetroFire', dispatched: boolean) => ({ silo, dispatched_at: dispatched ? '2026-10-15T08:00:00Z' : null });
+  const call = { status: 'Dispatched' as const, departments: [part('MetroPolice', true), part('MetroFire', false)] };
+  assert.equal(editableBeforeDispatch(call, 'MetroFire'), true, 'Fire has not dispatched');
+  assert.equal(editableBeforeDispatch(call, 'MetroPolice'), false);
+  assert.equal(editableBeforeDispatch(call, null), false, 'the control room: one department is out');
+  assert.equal(editableBeforeDispatch({ status: 'Pending Dispatch', departments: [part('MetroPolice', false)] }, null), true);
+  assert.equal(editableBeforeDispatch({ status: 'Pending Dispatch', departments: [] }, null), true, 'from before 0073: its status');
+  assert.equal(editableBeforeDispatch({ status: 'Dispatched', departments: null }, 'MetroPolice'), false);
+  assert.equal(editableBeforeDispatch({ status: 'Closed', departments: [part('MetroFire', false)] }, 'MetroFire'), false);
 });

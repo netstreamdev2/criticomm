@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth';
 import { useFeature } from '@/lib/features';
 import { useMyFines } from '@/lib/fines';
 import { colors, radius, space, makeStyles, useTheme } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 const RED = '#ef4444';
 const AMBER = '#f59e0b';
@@ -45,6 +46,7 @@ export function FinesQuick() {
 }
 
 function FinesQuickBody() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { figures, queued } = useMyFines();
@@ -57,24 +59,24 @@ function FinesQuickBody() {
         <Pressable
           onPress={() => router.push('/fines/new')}
           accessibilityRole="button"
-          accessibilityLabel={`Issue a fine. ${figures.today} issued today`}
+          accessibilityLabel={t('Issue a fine. {today} issued today', { today: figures.today })}
           style={({ pressed }) => [styles.issue, pressed && styles.pressed]}
         >
           <View style={styles.issueIcon}><Ionicons name="receipt" size={20} color="#fff" /></View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.issueTitle}>Issue a fine</Text>
-            <Text style={styles.issueSub}>{figures.today} today</Text>
+            <Text style={styles.issueTitle}>{t('Issue a fine')}</Text>
+            <Text style={styles.issueSub}>{t('{n} today', { n: figures.today })}</Text>
           </View>
           <Ionicons name="arrow-forward" size={18} color="#fff" />
         </Pressable>
         <Pressable
           onPress={() => router.push('/fines/check')}
           accessibilityRole="button"
-          accessibilityLabel="Check what someone owes"
+          accessibilityLabel={t('Check what someone owes')}
           style={({ pressed }) => [styles.quickCheck, pressed && styles.pressed]}
         >
           <Ionicons name="search" size={18} color={colors.accent} />
-          <Text style={styles.quickCheckText}>Check owing</Text>
+          <Text style={styles.quickCheckText}>{t('Check owing')}</Text>
         </Pressable>
       </View>
       {waiting + stuck > 0 ? (
@@ -82,8 +84,8 @@ function FinesQuickBody() {
           <Ionicons name={stuck > 0 ? 'warning' : 'cloud-upload-outline'} size={13} color={stuck > 0 ? colors.critical : colors.medium} />
           <Text style={[styles.queueText, { color: stuck > 0 ? colors.critical : colors.medium }]}>
             {stuck > 0
-              ? `${stuck} fine${stuck === 1 ? '' : 's'} not sent`
-              : `${waiting} fine${waiting === 1 ? '' : 's'} waiting for signal`}
+              ? stuck === 1 ? t('1 fine not sent') : t('{n} fines not sent', { n: stuck })
+              : waiting === 1 ? t('1 fine waiting for signal') : t('{n} fines waiting for signal', { n: waiting })}
           </Text>
           <Ionicons name="chevron-forward" size={13} color={colors.muted} />
         </Pressable>
@@ -93,6 +95,7 @@ function FinesQuickBody() {
 }
 
 function FinesCardBody() {
+  const { t } = useT();
   const styles = useStyles();
   const { isDark } = useTheme();
   const router = useRouter();
@@ -101,21 +104,21 @@ function FinesCardBody() {
   const stuck = queued.filter((q) => q.status === 'failed').length;
 
   const kpis = [
-    { key: 'today', label: 'TODAY', value: String(figures.today), tone: RED, a11y: `${figures.today} issued today` },
-    { key: 'month', label: 'THIS MONTH', value: String(figures.thisMonth), tone: BLUE, a11y: `${figures.thisMonth} issued this month` },
-    { key: 'value', label: 'VALUE', value: short(figures.valueThisMonth), tone: AMBER, a11y: `${rand(figures.valueThisMonth)} issued this month` },
-    { key: 'paid', label: 'PAID', value: short(figures.paid), tone: GREEN, a11y: `${rand(figures.paid)} paid against your fines` },
+    { key: 'today', label: t('TODAY'), value: String(figures.today), tone: RED, a11y: t('{n} issued today', { n: figures.today }) },
+    { key: 'month', label: t('THIS MONTH'), value: String(figures.thisMonth), tone: BLUE, a11y: t('{n} issued this month', { n: figures.thisMonth }) },
+    { key: 'value', label: t('VALUE'), value: short(figures.valueThisMonth), tone: AMBER, a11y: t('{amount} issued this month', { amount: rand(figures.valueThisMonth) }) },
+    { key: 'paid', label: t('PAID'), value: short(figures.paid), tone: GREEN, a11y: t('{amount} paid against your fines', { amount: rand(figures.paid) }) },
   ];
 
   return (
     <View style={styles.card}>
       <View style={styles.head}>
         <View style={styles.headMark} />
-        <Text style={styles.title}>Fines</Text>
-        <View style={styles.period}><Text style={styles.periodText}>AARTO · BY-LAW</Text></View>
+        <Text style={styles.title}>{t('Fines')}</Text>
+        <View style={styles.period}><Text style={styles.periodText}>{t('AARTO · BY-LAW')}</Text></View>
         <View style={{ flex: 1 }} />
         <Pressable onPress={() => router.push('/fines')} hitSlop={8} accessibilityRole="button" style={styles.viewAllBtn}>
-          <Text style={styles.viewAll}>View all</Text>
+          <Text style={styles.viewAll}>{t('View all')}</Text>
           <Ionicons name="chevron-forward" size={12} color={colors.accent} />
         </Pressable>
       </View>
@@ -124,13 +127,13 @@ function FinesCardBody() {
         <Pressable
           onPress={() => router.push('/fines/new')}
           accessibilityRole="button"
-          accessibilityLabel="Issue a fine"
+          accessibilityLabel={t('Issue a fine')}
           style={({ pressed }) => [styles.issue, pressed && styles.pressed]}
         >
           <View style={styles.issueIcon}><Ionicons name="receipt" size={20} color="#fff" /></View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.issueTitle}>Issue a fine</Text>
-            <Text style={styles.issueSub} numberOfLines={1}>AARTO 01 · Section 56 · 341</Text>
+            <Text style={styles.issueTitle}>{t('Issue a fine')}</Text>
+            <Text style={styles.issueSub} numberOfLines={1}>{t('AARTO 01 · Section 56 · 341')}</Text>
           </View>
           <Ionicons name="arrow-forward" size={18} color="#fff" />
         </Pressable>
@@ -138,12 +141,12 @@ function FinesCardBody() {
         <Pressable
           onPress={() => router.push('/fines')}
           accessibilityRole="button"
-          accessibilityLabel={`My fines, ${notices.length} notices`}
+          accessibilityLabel={t('My fines, {length} notices', { length: notices.length })}
           style={({ pressed }) => [styles.mine, pressed && styles.pressed]}
         >
           <Ionicons name="documents-outline" size={18} color={colors.accent} />
           <Text style={styles.mineCount}>{notices.length}</Text>
-          <Text style={styles.mineLabel}>MY FINES</Text>
+          <Text style={styles.mineLabel}>{t('MY FINES')}</Text>
         </Pressable>
       </View>
 
@@ -153,8 +156,8 @@ function FinesCardBody() {
         style={({ pressed }) => [styles.check, pressed && styles.pressed]}
       >
         <Ionicons name="search" size={15} color={colors.accent} />
-        <Text style={styles.checkText}>Check what someone owes</Text>
-        <Text style={styles.checkHint}>ID or registration</Text>
+        <Text style={styles.checkText}>{t('Check what someone owes')}</Text>
+        <Text style={styles.checkHint}>{t('ID or registration')}</Text>
         <Ionicons name="chevron-forward" size={14} color={colors.muted} />
       </Pressable>
 
@@ -182,8 +185,8 @@ function FinesCardBody() {
           <Ionicons name={stuck > 0 ? 'warning' : 'cloud-upload-outline'} size={13} color={stuck > 0 ? colors.critical : colors.medium} />
           <Text style={[styles.queueText, { color: stuck > 0 ? colors.critical : colors.medium }]}>
             {stuck > 0
-              ? `${stuck} notice${stuck === 1 ? '' : 's'} refused — open to see why`
-              : `${waiting} notice${waiting === 1 ? '' : 's'} waiting for signal — slips already printable`}
+              ? stuck === 1 ? t('1 notice refused — open to see why') : t('{n} notices refused — open to see why', { n: stuck })
+              : waiting === 1 ? t('1 notice waiting for signal — slip already printable') : t('{n} notices waiting for signal — slips already printable', { n: waiting })}
           </Text>
         </Pressable>
       ) : null}

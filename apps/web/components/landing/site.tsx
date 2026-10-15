@@ -50,7 +50,7 @@ const NAV_LINKS = LANDING_TOPICS.map(({ slug, label }) => ({ href: `/${slug}`, l
 const LIFECYCLE = [
   { n: 1, label: 'Call', sub: 'Intake desk answers', tone: 'red' },
   { n: 2, label: 'Duplicate check', sub: 'Same street, same minute', tone: 'red' },
-  { n: 3, label: 'Created', sub: 'Numbered INC-…', tone: 'red' },
+  { n: 3, label: 'Created', sub: 'Numbered MP-…', tone: 'red' },
   { n: 4, label: 'Routed', sub: 'To every department needed', tone: 'red' },
   { n: 5, label: 'Notified', sub: 'Alert + push to the crew', tone: 'blue' },
   { n: 6, label: 'Assigned', sub: 'A unit accepts', tone: 'blue' },

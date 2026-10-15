@@ -102,24 +102,26 @@ export function kindSearchWord(tag: string | null): string | null {
   return tag ? words[tag] ?? null : null;
 }
 
+/** What a kind of place is called, by its map tag. */
+export const PLACE_KINDS: Readonly<Record<string, string>> = {
+  'amenity:fuel': 'Fuel station', 'amenity:hospital': 'Hospital', 'amenity:clinic': 'Clinic', 'amenity:doctors': 'Doctor',
+  'amenity:police': 'Police station', 'amenity:fire_station': 'Fire station', 'amenity:school': 'School',
+  'amenity:college': 'College', 'amenity:university': 'University', 'amenity:bus_station': 'Bus or taxi rank',
+  'amenity:taxi': 'Taxi rank', 'amenity:place_of_worship': 'Place of worship', 'amenity:pharmacy': 'Pharmacy',
+  'amenity:bank': 'Bank', 'amenity:restaurant': 'Restaurant', 'amenity:fast_food': 'Takeaway', 'amenity:bar': 'Bar',
+  'amenity:pub': 'Pub', 'amenity:marketplace': 'Market', 'amenity:community_centre': 'Community hall',
+  'amenity:parking': 'Parking', 'shop:mall': 'Shopping centre', 'shop:supermarket': 'Supermarket',
+  'shop:convenience': 'Shop', 'shop:car_repair': 'Car repair', 'leisure:stadium': 'Stadium', 'leisure:park': 'Park',
+  'natural:beach': 'Beach', 'tourism:hotel': 'Hotel', 'tourism:attraction': 'Attraction',
+  'railway:station': 'Station', 'public_transport:station': 'Station', 'aeroway:aerodrome': 'Airport',
+  'building:hospital': 'Hospital', 'landuse:retail': 'Shops',
+};
+
 /** How a place is described to the call taker, from its map tags. */
 export function placeKindLabel(key: string | null | undefined, value: string | null | undefined): string | null {
   if (!key || !value) return null;
   const tag = `${key}:${value}`;
-  const known: Record<string, string> = {
-    'amenity:fuel': 'Fuel station', 'amenity:hospital': 'Hospital', 'amenity:clinic': 'Clinic', 'amenity:doctors': 'Doctor',
-    'amenity:police': 'Police station', 'amenity:fire_station': 'Fire station', 'amenity:school': 'School',
-    'amenity:college': 'College', 'amenity:university': 'University', 'amenity:bus_station': 'Bus or taxi rank',
-    'amenity:taxi': 'Taxi rank', 'amenity:place_of_worship': 'Place of worship', 'amenity:pharmacy': 'Pharmacy',
-    'amenity:bank': 'Bank', 'amenity:restaurant': 'Restaurant', 'amenity:fast_food': 'Takeaway', 'amenity:bar': 'Bar',
-    'amenity:pub': 'Pub', 'amenity:marketplace': 'Market', 'amenity:community_centre': 'Community hall',
-    'amenity:parking': 'Parking', 'shop:mall': 'Shopping centre', 'shop:supermarket': 'Supermarket',
-    'shop:convenience': 'Shop', 'shop:car_repair': 'Car repair', 'leisure:stadium': 'Stadium', 'leisure:park': 'Park',
-    'natural:beach': 'Beach', 'tourism:hotel': 'Hotel', 'tourism:attraction': 'Attraction',
-    'railway:station': 'Station', 'public_transport:station': 'Station', 'aeroway:aerodrome': 'Airport',
-    'building:hospital': 'Hospital', 'landuse:retail': 'Shops',
-  };
-  if (known[tag]) return known[tag];
+  if (PLACE_KINDS[tag]) return PLACE_KINDS[tag]!;
   if (key === 'shop') return 'Shop';
   if (key === 'amenity' || key === 'tourism' || key === 'leisure') return value.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
   return null;

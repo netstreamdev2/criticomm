@@ -2,9 +2,11 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, makeStyles } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 /** Header bell, top-right on every tab: opens the alert inbox, shows the unread count. */
 export function AlertsBell({ count }: { count: number }) {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   return (
@@ -12,7 +14,7 @@ export function AlertsBell({ count }: { count: number }) {
       onPress={() => router.push('/alerts')}
       hitSlop={10}
       accessibilityRole="button"
-      accessibilityLabel={count > 0 ? `Alerts, ${count} unread` : 'Alerts'}
+      accessibilityLabel={count > 0 ? t('Alerts, {count} unread', { count }) : t('Alerts')}
       style={({ pressed }) => [styles.bell, pressed && { opacity: 0.7 }]}
     >
       <Ionicons name={count > 0 ? 'notifications' : 'notifications-outline'} size={22} color={colors.text} />
@@ -27,6 +29,7 @@ export function AlertsBell({ count }: { count: number }) {
 
 /** Header search, left of the bell: opens Incidents with the search box ready. */
 export function HeaderSearch() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   return (
@@ -34,7 +37,7 @@ export function HeaderSearch() {
       onPress={() => router.push({ pathname: '/(tabs)/incidents', params: { search: String(Date.now()) } })}
       hitSlop={10}
       accessibilityRole="button"
-      accessibilityLabel="Search incidents"
+      accessibilityLabel={t('Search incidents')}
       style={({ pressed }) => [styles.search, pressed && { opacity: 0.7 }]}
     >
       <Ionicons name="search-outline" size={22} color={colors.text} />

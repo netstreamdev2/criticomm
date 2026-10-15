@@ -4,10 +4,18 @@ import {
   Ambulance, ArrowUpRight, FileText, Headset, MapPin, Paperclip, Phone, User,
 } from 'lucide-react';
 import {
-  deskTags, getIncident, getIncidentUpdates, getOperationalSettings, listIncidentAttachments, listOnDutyOfficers,
+  deskTags, editableBeforeDispatch, getIncident, getIncidentCategoryTree, getIncidentUpdates, getOperationalSettings,
+  listIncidentAttachments, listIncidentEdits, listOnDutyOfficers,
 } from '@criticom/api';
-import { DEPARTMENT_NAMES, departmentName, detailsToFollow, type Silo } from '@criticom/db';
+import { detailsToFollow, typeMeta, type IncidentDetails, type Silo } from '@criticom/db';
+import { CallEdits } from '@/components/call-edits';
+import { DepartmentPills, PatientList } from '@/components/department-pills';
+import { callChannelText, readPatients } from '@criticom/db/call-facts';
+import { EditCall } from './edit-call';
+import type { TypeOption } from '../../log-call/type-picker';
 import { DetailsToFollow } from '@/components/details-to-follow';
+import { CallDetails } from '@/components/call-details';
+import { getT } from '@/lib/i18n';
 import { IncidentLive } from '@/components/incident-live';
 import { LeafletMap } from '@/components/leaflet-map';
 import { DispatchMapButton } from '@/components/dispatch-map-button';
@@ -18,6 +26,9 @@ import { escapeHtml, formatSaTime, timeAgo } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Dispatch · HikTech' };
+
+/** Who may edit a call before dispatching it; the database checks the same (0079). */
+const EDIT_ROLES = ['SystemAdmin', 'SuperAdmin', 'Admin', 'Dispatcher', 'Operator', 'ControlRoom', 'Supervisor'];
 
 /** Read-only field styled like the intake console, so the two screens rhyme. */
 function Field({ label, value, mono, span }: {
@@ -35,7 +46,8 @@ function Field({ label, value, mono, span }: {
 
 export default async function AssignPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { supabase, role, silo: mySilo } = await getSession();
+  const { supabase, role, silo: mySilo, userId } = await getSession();
+  const { t } = await getT(supabase, userId);
   // A call not sent to this desk is not found here: the database does not
   // return it to a department's dispatch desk (0068).
   const incident = await getIncident(supabase, id).catch(() => null);
@@ -48,12 +60,20 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
   // room every department's. The form narrows them to the departments the
   // dispatcher routes the call to and keeps the list live.
   const fieldSilos: Silo[] = deskOf ? [deskOf] : ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
-  const [officers, settings, attachments, updates] = await Promise.all([
+  // The dispatcher may correct the call until their crews are sent (0079).
+  const canEdit = EDIT_ROLES.includes(role) && editableBeforeDispatch(incident, deskOf);
+  const [officers, settings, attachments, updates, edits, categoryTree] = await Promise.all([
     listOnDutyOfficers(supabase, fieldSilos).catch(() => []),
     getOperationalSettings(supabase),
     listIncidentAttachments(supabase, id).catch(() => []),
     getIncidentUpdates(supabase, id).catch(() => []),
+    listIncidentEdits(supabase, id),
+    canEdit ? getIncidentCategoryTree(supabase).catch(() => []) : Promise.resolve([]),
   ]);
+  const types: TypeOption[] = categoryTree.flatMap((g) => g.subcategories.map((s) => {
+    const meta = typeMeta(s.name, g.name);
+    return { id: s.id, code: s.code, name: s.name, group: g.name, prompts: s.prompts, departments: meta.departments, severity: meta.severity };
+  }));
 
   // Each department dispatches its own part (0073): one department leading
   // the call never stops another from sending its crews.
@@ -97,12 +117,34 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
             <span>· logged {timeAgo(incident.incident_created_at)}</span>
           </p>
         </div>
+        <div className="flex flex-wrap items-center gap-2">
+        {canEdit ? (
+          <EditCall
+            incidentId={incident.id}
+            incidentNumber={incident.incident_number}
+            types={types}
+            emsOnCall={sentTo.includes('Medical')}
+            call={{
+              incident_type: incident.incident_type, incident_category: incident.incident_category,
+              incident_severity: incident.incident_severity, call_description: incident.call_description,
+              details: (incident.details ?? {}) as IncidentDetails, caller_name: incident.caller_name,
+              caller_number: incident.caller_number, is_caller_patient: incident.is_caller_patient,
+              call_channel: incident.call_channel ?? null, call_channel_other: incident.call_channel_other ?? null,
+              patients: readPatients(incident.patients),
+              patient_name: incident.patient_name, number_of_victims: incident.number_of_victims,
+              medical_type: incident.medical_type, location_address: incident.location_address,
+              location_lat: incident.location_lat, location_lng: incident.location_lng, suburb: incident.suburb,
+              city: incident.city, postal_code: incident.postal_code, region: incident.region, notes: incident.notes,
+            }}
+          />
+        ) : null}
         <Link
           href={`/incidents/${incident.id}`}
           className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-soft px-4 py-2 text-sm font-semibold hover:bg-muted"
         >
           Full lifecycle <ArrowUpRight className="h-4 w-4" />
         </Link>
+        </div>
       </header>
 
       <div className="grid gap-5 xl:grid-cols-2">
@@ -124,6 +166,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
                   </a>
                 ) : <span className="text-muted-foreground">Not given yet</span>
               } />
+              <Field label="How the call came in" value={callChannelText(incident.call_channel, incident.call_channel_other) ?? 'Not recorded'} />
               <Field label="Caller is the patient" value={
                 incident.is_caller_patient === null ? 'Not recorded' : incident.is_caller_patient ? 'Yes' : 'No'
               } />
@@ -202,9 +245,9 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
           <div className="space-y-4 p-5">
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Incident ID" value={incident.incident_number} mono />
-              <Field label="Owning department" value={departmentName(incident.silo)} />
-              <Field label="Sent to dispatch" value={sentTo.length ? sentTo.map((d) => DEPARTMENT_NAMES[d]).join(', ') : 'Control room only'} span />
-              <Field label="Incident type (10-code)" value={incident.incident_type} span />
+              {/* The departments the call was sent to, each in its colour. */}
+              <Field label="Department" value={<DepartmentPills silos={sentTo.length ? sentTo : [incident.silo]} />} span />
+              <Field label="Incident type" value={incident.incident_code ? `${incident.incident_code} · ${incident.incident_type}` : incident.incident_type} span />
               <Field label="Category" value={incident.incident_category} />
               <Field label="Source" value={incident.source} />
             </div>
@@ -215,21 +258,26 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
 
             <div>
               <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Call description / narrative
+                Description
               </p>
               <div className="whitespace-pre-wrap rounded-lg border border-border bg-bg-soft px-3 py-2.5 text-sm leading-relaxed">
                 {incident.call_description}
               </div>
             </div>
 
+            {/* The details filled in for the type (0077). */}
+            <CallDetails incident={incident} t={t} />
+
             {/* EMS triage as captured at intake */}
             <div className="rounded-xl border border-border bg-bg-soft/60 p-4">
               <p className="mb-3 flex items-center gap-2 text-sm font-semibold">
-                <Ambulance className="h-4 w-4 text-severity-critical-ink" /> EMS / medical triage
+                <Ambulance className="h-4 w-4 text-severity-critical-ink" /> EMS
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Number of victims" value={incident.number_of_victims ?? '—'} />
                 <Field label="Medical severity" value={incident.medical_type} />
+                {/* Each patient's own severity, apart from the incident's (0080). */}
+                <Field label="Patients" value={<PatientList patients={incident.patients} />} span />
               </div>
             </div>
 
@@ -289,6 +337,9 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
           </div>
         </section>
       </div>
+
+      {/* What the call taker and dispatchers changed, before and after (0079). */}
+      <CallEdits edits={edits} loggedBy={incident.call_taken_by} />
 
       {/* ══ ROUTING & UNIT ══ */}
       <AssignForm

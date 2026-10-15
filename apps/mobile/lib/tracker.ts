@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { tNow } from './translator';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
@@ -290,7 +291,11 @@ export async function startRoute(userId: string): Promise<RouteMode> {
     try {
       if (!TaskManager.isTaskDefined(ROUTE_TASK)) throw new Error('The route task is not defined');
       if (!(await Location.hasStartedLocationUpdatesAsync(ROUTE_TASK))) {
-        await Location.startLocationUpdatesAsync(ROUTE_TASK, OPTIONS);
+        // The duty notification in the person's language.
+        await Location.startLocationUpdatesAsync(ROUTE_TASK, {
+          ...OPTIONS,
+          foregroundService: { ...OPTIONS.foregroundService!, notificationTitle: tNow('On duty'), notificationBody: tNow('Dispatch can see where you are.') },
+        });
       }
       stopWatcher();
       setStatus({ mode: 'background' });

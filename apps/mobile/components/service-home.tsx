@@ -14,6 +14,7 @@ import { ACTIVITY, HomeHeader } from './home-header';
 import { FinesQuick } from './fines-card';
 import { IncidentMap } from './incident-map';
 import { FireBackdrop } from './fire-ui';
+import { useT } from '@/lib/i18n';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -36,6 +37,7 @@ export type ServiceHomeContent = {
  * screens (tablets) get a taller map.
  */
 export function ServiceHome({ content }: { content: ServiceHomeContent }) {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -74,9 +76,9 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
 
   // One quiet line under the map instead of a row of tiles.
   const figures = [
-    overview ? `${overview.live} live` : null,
-    overview ? `${overview.closedToday} closed today` : null,
-    content.showTeamOnDuty !== false && teamOnDuty !== null ? `${teamOnDuty} on duty` : null,
+    overview ? t('{n} live', { n: overview.live }) : null,
+    overview ? t('{n} closed today', { n: overview.closedToday }) : null,
+    content.showTeamOnDuty !== false && teamOnDuty !== null ? t('{n} on duty', { n: teamOnDuty }) : null,
   ].filter(Boolean).join('  ·  ');
 
   return (
@@ -103,16 +105,16 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
         <View style={styles.mapCard}>
           <View style={styles.mapHead}>
             <View style={styles.liveDot} />
-            <Text style={styles.mapTitle}>Incident map</Text>
+            <Text style={styles.mapTitle}>{t('Incident map')}</Text>
             <View style={{ flex: 1 }} />
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Open full screen incident map"
+              accessibilityLabel={t('Open full screen incident map')}
               hitSlop={8}
               onPress={() => router.push('/live-map')}
               style={styles.fullBtn}
             >
-              <Text style={styles.full}>Full map</Text>
+              <Text style={styles.full}>{t('Full map')}</Text>
               <Ionicons name="expand-outline" size={13} color={colors.accent} />
             </Pressable>
           </View>
@@ -139,6 +141,7 @@ function NowCard({ open, where, unitIcon }: {
   where: string | null;
   unitIcon: IconName;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { silo } = useAuth();
@@ -152,7 +155,7 @@ function NowCard({ open, where, unitIcon }: {
     const assigned = activity.kind === 'assigned';
     const call = calls.find((c) => c.id === activity.incidentId)
       ?? awaiting.find((a) => a.id === activity.incidentId);
-    const label = assigned && activity.count > 1 ? `${activity.count} assigned to you` : act.label;
+    const label = assigned && activity.count > 1 ? t('{n} assigned to you', { n: activity.count }) : t(act.label);
     const more = calls.length + awaiting.length - 1;
     const sev = call?.incident_severity;
     // Not responded yet: the drawer, where Responding is one tap away.
@@ -172,10 +175,10 @@ function NowCard({ open, where, unitIcon }: {
               onPress={() => router.push('/my-incidents')}
               hitSlop={8}
               accessibilityRole="button"
-              accessibilityLabel={`${more} more of your incidents`}
+              accessibilityLabel={t('{more} more of your incidents', { more })}
               style={styles.more}
             >
-              <Text style={styles.moreText}>+{more} more</Text>
+              <Text style={styles.moreText}>{t('+{n} more', { n: more })}</Text>
             </Pressable>
           ) : null}
         </View>
@@ -188,7 +191,7 @@ function NowCard({ open, where, unitIcon }: {
             </View>
           ) : null}
         </View>
-        <Text style={styles.title} numberOfLines={1}>{call?.incident_type ?? 'Incident'}</Text>
+        <Text style={styles.title} numberOfLines={1}>{call?.incident_type ?? t('Incident')}</Text>
         {call?.location_address ? (
           <View style={[styles.line, { alignItems: 'flex-start' }]}>
             <Ionicons name="location-outline" size={13} color={colors.muted} style={{ marginTop: 1 }} />
@@ -201,7 +204,7 @@ function NowCard({ open, where, unitIcon }: {
           accessibilityRole="button"
           style={({ pressed }) => [styles.button, pressed && styles.pressed]}
         >
-          <Text style={styles.buttonText}>{assigned ? 'Open and respond' : 'Open incident'}</Text>
+          <Text style={styles.buttonText}>{assigned ? t('Open and respond') : t('Open incident')}</Text>
           <Ionicons name="arrow-forward" size={18} color="#fff" />
         </Pressable>
       </View>
@@ -212,8 +215,8 @@ function NowCard({ open, where, unitIcon }: {
     return (
       <Prompt
         icon="clipboard-outline"
-        title="Your shift has not started"
-        action="Start shift"
+        title={t('Your shift has not started')}
+        action={t('Start shift')}
         onPress={() => router.push('/(tabs)/shift')}
       />
     );
@@ -223,20 +226,20 @@ function NowCard({ open, where, unitIcon }: {
     return (
       <Prompt
         icon="moon-outline"
-        title="You are off duty"
-        action="Go on duty"
+        title={t('You are off duty')}
+        action={t('Go on duty')}
         onPress={() => router.push('/(tabs)/profile')}
       />
     );
   }
 
   return (
-    <View style={[styles.card, styles.calm]} accessible accessibilityLabel={`No incidents for you${where ? `. ${where}` : ''}`}>
+    <View style={[styles.card, styles.calm]} accessible accessibilityLabel={where ? `${t('No incidents for you')}. ${where}` : t('No incidents for you')}>
       <View style={styles.calmIcon}>
         <Ionicons name="checkmark" size={18} color={colors.low} />
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={styles.calmTitle}>No incidents for you</Text>
+        <Text style={styles.calmTitle}>{t('No incidents for you')}</Text>
         {where ? (
           <View style={styles.line}>
             <Ionicons name={unitIcon} size={12} color={colors.muted} />

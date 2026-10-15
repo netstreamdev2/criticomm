@@ -1,7 +1,10 @@
 'use client';
 
-import { Ambulance, Flame, Shield, Sparkles, Waves } from 'lucide-react';
-import { DEPARTMENT_NAMES, type DeskSilo, type IncidentSeverity } from '@criticom/db';
+import { Ambulance, Flame, Shield, Waves } from 'lucide-react';
+import type { DeskSilo, IncidentSeverity } from '@criticom/db';
+import type { Translate } from '@criticom/db/i18n';
+import { useT } from '@/components/i18n';
+import { CritiMascot } from '@/components/criti/mascot';
 import { cn } from '@/lib/utils';
 
 /**
@@ -24,13 +27,35 @@ export const inDeptOrder = (ds: Iterable<DeskSilo>) => {
   return DEPTS.map((d) => d.id).filter((d) => want.has(d));
 };
 
-export const deskList = (ds: readonly DeskSilo[]) => ds.map((d) => DEPARTMENT_NAMES[d]).join(', ');
+/** A department's full name in the reader's language (as DEPARTMENT_NAMES). */
+export function deptName(d: DeskSilo, t: Translate): string {
+  switch (d) {
+    case 'MetroPolice': return t('Metro Police');
+    case 'MetroFire': return t('Fire & Rescue');
+    case 'Medical': return t('EMS');
+    default: return t('Disaster Management');
+  }
+}
+
+/** A department's button word in the reader's language. */
+export function deptLabel(d: DeskSilo, t: Translate): string {
+  switch (d) {
+    case 'MetroPolice': return t('Police');
+    case 'MetroFire': return t('Fire');
+    case 'Medical': return t('Medical');
+    default: return t('Disaster');
+  }
+}
+
+/** "Metro Police, EMS", in the reader's language. */
+export const deskList = (ds: readonly DeskSilo[], t: Translate = (s) => s) => ds.map((d) => deptName(d, t)).join(', ');
 
 /** One dot per department a type or an injury needs. */
 export function DeptDots({ departments, className }: { departments: readonly DeskSilo[]; className?: string }) {
+  const { t } = useT();
   if (!departments.length) return null;
   return (
-    <span className={cn('inline-flex shrink-0 items-center gap-0.5', className)} title={deskList(departments)}>
+    <span className={cn('inline-flex shrink-0 items-center gap-0.5', className)} title={deskList(departments, t)}>
       {inDeptOrder(departments).map((d) => (
         <span key={d} className="h-2 w-2 rounded-full ring-1 ring-black/10" style={{ background: HEX[d] }} />
       ))}
@@ -40,12 +65,13 @@ export function DeptDots({ departments, className }: { departments: readonly Des
 
 /** On a field Criti filled in: the call taker may change it. */
 export function CritiMark({ className }: { className?: string }) {
+  const { t } = useT();
   return (
     <span
-      title="Filled in by Criti. Change it if it is wrong."
+      title={t('Filled in by Criti. Change it if it is wrong.')}
       className={cn('inline-flex items-center gap-0.5 rounded bg-accent/15 px-1 py-px text-[10px] font-bold normal-case tracking-normal text-accent', className)}
     >
-      <Sparkles className="h-2.5 w-2.5" /> Criti
+      <CritiMascot className="h-3 w-3" /> Criti
     </span>
   );
 }
@@ -53,13 +79,15 @@ export function CritiMark({ className }: { className?: string }) {
 /** Criti reading the description: not yet, now, done, switched off, or failed (the rules still work). */
 export type AiState = 'idle' | 'reading' | 'ready' | 'off' | 'error';
 
-export const AI_STATUS: Record<AiState, string> = {
-  idle: 'Reads the description as you type',
-  reading: 'Reading the description…',
-  ready: 'Read the description',
-  off: 'AI is off: the rules still help',
-  error: 'Could not read it just now: the rules still help',
-};
+export function aiStatus(s: AiState, t: Translate): string {
+  switch (s) {
+    case 'reading': return t('Reading the description…');
+    case 'ready': return t('Read the description');
+    case 'off': return t('AI is off: the rules still help');
+    case 'error': return t('Could not read it just now: the rules still help');
+    default: return t('Reads the description as you type');
+  }
+}
 
 export const SEVERITIES: readonly IncidentSeverity[] = ['Low', 'Medium', 'High', 'Critical'];
 export const SEVERITY_ON: Record<IncidentSeverity, string> = {
@@ -68,6 +96,10 @@ export const SEVERITY_ON: Record<IncidentSeverity, string> = {
   High: 'bg-severity-high',
   Critical: 'bg-severity-critical',
 };
+/** The severities, as the reader reads them (glossary words). */
+export function severityWord(s: IncidentSeverity, t: Translate): string {
+  return s === 'Low' ? t('Low') : s === 'Medium' ? t('Medium') : s === 'High' ? t('High') : t('Critical');
+}
 
 export const labelCls = 'mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground';
 export const fieldCls =

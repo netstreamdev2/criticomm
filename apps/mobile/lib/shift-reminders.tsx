@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { tNow } from './translator';
 import { AppState } from 'react-native';
 import { addDays, getMyLines, listShiftTemplates, saDay, type ScheduleLine } from '@criticom/api';
 import { useAuth } from '@/lib/auth';
@@ -37,7 +38,7 @@ export function reminderLines(
         id: l.id,
         start_at: l.start_at!,
         end_at: l.end_at!,
-        name: (l.template_id && names.get(l.template_id)) || l.activity_type || 'Shift',
+        name: (l.template_id && names.get(l.template_id)) || l.activity_type || tNow('Shift'),
         place: [l.post, l.station].filter(Boolean).join(' · ') || null,
         status: l.status,
         cancelled_at: l.cancelled_at,
@@ -48,7 +49,7 @@ export function reminderLines(
 
 /** Schedule exactly the plan: what is no longer wanted is cancelled. */
 export async function applyReminders(lines: ReminderLine[]) {
-  const plan = reminderPlan(lines);
+  const plan = reminderPlan(lines, Date.now(), tNow);
   // The time is in the identifier, so a shift moved to another time is a new reminder.
   const wanted = new Map(plan.map((r) => [`${r.id}:${r.at}`, r]));
   const existing = await scheduledIds(PREFIX);

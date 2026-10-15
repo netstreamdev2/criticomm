@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, makeStyles, useTheme } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 const TRACK_W = 52;
 const THUMB = 22;
@@ -13,6 +14,7 @@ const TRAVEL = TRACK_W - THUMB - PAD * 2;
  * (lib/theme.ts), and is remembered on the phone.
  */
 export function ThemeToggle() {
+  const { t } = useT();
   const styles = useStyles();
   const { isDark, toggle } = useTheme();
   const light = !isDark;
@@ -29,7 +31,7 @@ export function ThemeToggle() {
       hitSlop={8}
       accessibilityRole="switch"
       accessibilityState={{ checked: light }}
-      accessibilityLabel="Light mode"
+      accessibilityLabel={t('Light mode')}
       style={styles.wrap}
     >
       <View style={[styles.track, light && styles.trackLight]}>

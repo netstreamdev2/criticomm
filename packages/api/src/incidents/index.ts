@@ -13,10 +13,16 @@ import type {
   UpdateResponderStatusInput,
 } from '@criticom/db/schemas';
 import { completeCallIntakeSchema, logIncomingCallSchema, sendCallEarlySchema } from '@criticom/db/schemas';
+import { cleanDetails, type IncidentDetails } from '@criticom/db/intake-details';
+import type { IncidentEdit } from '@criticom/db/incident-edits';
+import type { CallPatient } from '@criticom/db/call-facts';
 
-/** Until migration 0076 is run the database has no injuries or early send: say so plainly. */
-function before0076(error: { code?: string; message?: string } | null): boolean {
-  return Boolean(error && (error.code === 'PGRST202' || /p_injuries|send_call_early|complete_call_intake/.test(error.message ?? '')));
+/**
+ * A call the database doesn't have in that shape (PostgREST: no function with
+ * those parameters): it is older than the migration that added them.
+ */
+function noSuchCall(error: { code?: string } | null): boolean {
+  return error?.code === 'PGRST202';
 }
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
@@ -30,6 +36,25 @@ function noParts(error: { code?: string; message?: string } | null): boolean {
 
 const PENDING_STATUSES: IncidentStatus[] = ['Pending Dispatch', 'Pending', 'New', 'Pending Analysis'];
 
+/** The details as the database keeps them; none means nothing is sent. */
+function detailsArg(raw: unknown): IncidentDetails | null {
+  const details = cleanDetails(raw);
+  return Object.keys(details).length ? details : null;
+}
+
+/** How the call came in and the patients (0080), sent only when filled in, so an older database still takes the call. */
+function factsArgs(input: { call_channel?: string | null; call_channel_other?: string | null; patients?: CallPatient[] | null }) {
+  return {
+    ...(input.call_channel ? { p_call_channel: input.call_channel, p_call_channel_other: input.call_channel_other?.trim() || null } : {}),
+    ...(input.patients?.length ? { p_patients: input.patients } : {}),
+  };
+}
+
+/** Fields only 0080 knows, left out for an older database. */
+const FACT_FIELDS = ['call_channel', 'call_channel_other', 'patients'] as const;
+const factsRefused = (error: { message?: string } | null) => /cannot be changed here: (call_channel|call_channel_other|patients)/.test(error?.message ?? '');
+const withoutFacts = <T extends Record<string, unknown>>(fields: T) => Object.fromEntries(Object.entries(fields).filter(([k]) => !(FACT_FIELDS as readonly string[]).includes(k))) as T;
+
 /** ControlRoomController.LogNew + IncidentWorkflowService.LogIncomingCallAsync */
 export async function logIncomingCall(
   client: CriticomClient,
@@ -40,7 +65,7 @@ export async function logIncomingCall(
   const parsed = logIncomingCallSchema.safeParse(raw);
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'The call details are incomplete');
   const input = parsed.data;
-  const args = {
+  const base = {
     p_silo: input.silo,
     p_caller_name: input.caller_name,
     p_caller_number: input.caller_number,
@@ -64,13 +89,30 @@ export async function logIncomingCall(
     p_region: input.region ?? null,
     p_tagged_silos: [...new Set(input.tagged_silos)],
     p_client_ref: input.client_ref ?? null,
-    p_injuries: input.injuries?.length ? input.injuries : null,
   };
-  let { data, error } = await client.rpc('log_incoming_call', args);
-  if (before0076(error)) {
-    // The call matters more than its injuries: log it the way 0068 does.
-    const { p_injuries: _, ...old } = args;
-    ({ data, error } = await client.rpc('log_incoming_call', old as typeof args));
+  // Only what was filled in is sent, so an older database still takes the call.
+  const injuries = input.injuries?.length ? { p_injuries: input.injuries } : {};
+  const details = detailsArg(input.details);
+  const facts = factsArgs(input);
+  type Args = Database['public']['Functions']['log_incoming_call']['Args'];
+  let { data, error } = await client.rpc('log_incoming_call', { ...base, ...injuries, ...(details ? { p_details: details } : {}), ...facts } as Args);
+  if (noSuchCall(error) && Object.keys(facts).length) {
+    // Before 0080 there is no channel or patients' severity: the call still goes.
+    ({ data, error } = await client.rpc('log_incoming_call', { ...base, ...injuries, ...(details ? { p_details: details } : {}) } as Args));
+  }
+  if (noSuchCall(error) && details) {
+    // Before 0077 there are no details: the call matters more than its details.
+    ({ data, error } = await client.rpc('log_incoming_call', { ...base, ...injuries } as Args));
+  }
+  if (noSuchCall(error)) {
+    // Before 0076 there are no injuries, and 0068 asks whether the caller is
+    // the patient on every call; the form asks only when someone is hurt.
+    // With no one hurt, the caller is not a patient. A call to EMS always
+    // carries the answer (the schema).
+    ({ data, error } = await client.rpc('log_incoming_call', {
+      ...base,
+      p_is_caller_patient: base.p_is_caller_patient ?? false,
+    } as Args));
   }
   if (error) throw error;
   return data as Incident;
@@ -86,7 +128,7 @@ export async function sendCallEarly(client: CriticomClient, raw: SendCallEarlyIn
   const parsed = sendCallEarlySchema.safeParse(raw);
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'The call is not ready to send');
   const input = parsed.data;
-  const { data, error } = await client.rpc('send_call_early', {
+  const base = {
     p_client_ref: input.client_ref,
     p_silo: input.silo,
     p_incident_type: input.incident_type,
@@ -109,8 +151,19 @@ export async function sendCallEarly(client: CriticomClient, raw: SendCallEarlyIn
     p_medical_type: input.medical_type ?? null,
     p_injuries: input.injuries?.length ? input.injuries : null,
     p_notes: input.notes?.trim() || null,
-  });
-  if (before0076(error)) throw new Error('Sending early needs the latest database update (0076). Fill in the form and send it the usual way.');
+  };
+  const details = detailsArg(input.details);
+  const facts = factsArgs(input);
+  let { data, error } = await client.rpc('send_call_early', { ...base, ...(details ? { p_details: details } : {}), ...facts });
+  if (noSuchCall(error) && Object.keys(facts).length) {
+    // Before 0080: sent without the channel and the patients' severity.
+    ({ data, error } = await client.rpc('send_call_early', details ? { ...base, p_details: details } : base));
+  }
+  if (noSuchCall(error) && details) {
+    // Before 0077: sent without its details, which can be added once it is run.
+    ({ data, error } = await client.rpc('send_call_early', base));
+  }
+  if (noSuchCall(error)) throw new Error('Sending early needs the latest database update (0076). Fill in the form and send it the usual way.');
   if (error) throw error;
   return data as Incident;
 }
@@ -126,10 +179,57 @@ export async function completeCallIntake(
 ): Promise<Incident> {
   const parsed = completeCallIntakeSchema.safeParse(args.fields);
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'Those details cannot be added');
-  const { data, error } = await client.rpc('complete_call_intake', { p_incident: args.incident_id, p_fields: parsed.data });
-  if (before0076(error)) throw new Error('Adding details to a call already sent needs the latest database update (0076).');
+  const fields = { ...parsed.data, ...(parsed.data.details ? { details: cleanDetails(parsed.data.details) } : {}) };
+  let { data, error } = await client.rpc('complete_call_intake', { p_incident: args.incident_id, p_fields: fields });
+  if (error && factsRefused(error) && Object.keys(withoutFacts(fields)).length) {
+    ({ data, error } = await client.rpc('complete_call_intake', { p_incident: args.incident_id, p_fields: withoutFacts(fields) }));
+  }
+  if (error && fields.details && /cannot be changed here: details/.test(error.message ?? '')) {
+    // Before 0077 a call has no details: the rest is still added.
+    const { details: _, ...rest } = fields;
+    if (Object.keys(rest).length === 0) {
+      ({ data, error } = await client.from('incidents').select('*').eq('id', args.incident_id).single());
+    } else {
+      ({ data, error } = await client.rpc('complete_call_intake', { p_incident: args.incident_id, p_fields: rest }));
+    }
+  }
+  if (noSuchCall(error)) throw new Error('Adding details to a call already sent needs the latest database update (0076).');
   if (error) throw error;
   return data as Incident;
+}
+
+/**
+ * A dispatcher corrects a call before dispatching it (0079). The database
+ * decides who may and until when, and keeps each change, before and after,
+ * in incident_edits, the audit trail and the timeline.
+ */
+export async function editCallBeforeDispatch(
+  client: CriticomClient,
+  args: { incident_id: string; fields: CompleteCallIntakeInput; reason?: string | null },
+): Promise<Incident> {
+  const parsed = completeCallIntakeSchema.safeParse(args.fields);
+  if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'Those changes cannot be saved');
+  const fields = { ...parsed.data, ...(parsed.data.details ? { details: cleanDetails(parsed.data.details) } : {}) };
+  const reason = (args.reason ?? '').trim().slice(0, 500) || null;
+  let { data, error } = await client.rpc('dispatcher_edit_call', { p_incident: args.incident_id, p_fields: fields, p_reason: reason });
+  if (error && factsRefused(error)) {
+    if (!Object.keys(withoutFacts(fields)).length) throw new Error('Changing how the call came in or the patients needs the latest database update (0080).');
+    ({ data, error } = await client.rpc('dispatcher_edit_call', { p_incident: args.incident_id, p_fields: withoutFacts(fields), p_reason: reason }));
+  }
+  if (noSuchCall(error)) throw new Error('Editing a call before dispatch needs the latest database update (0079).');
+  if (error) throw error;
+  return data as Incident;
+}
+
+/** Every change to a call after it was sent, oldest first (0079); none before 0079 is run. */
+export async function listIncidentEdits(client: CriticomClient, incidentId: string): Promise<IncidentEdit[]> {
+  const { data, error } = await client
+    .from('incident_edits')
+    .select('id, incident_id, kind, edited_by, edited_by_name, edited_by_role, reason, changes, edited_at')
+    .eq('incident_id', incidentId)
+    .order('edited_at', { ascending: true });
+  if (error) return [];
+  return (data ?? []) as IncidentEdit[];
 }
 
 /**

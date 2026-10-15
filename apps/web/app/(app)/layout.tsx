@@ -18,6 +18,8 @@ import { AssistantDock } from '@/components/assistant-dock';
 import { PanicBanner } from '@/components/panic-banner';
 import { ShiftBanner } from '@/components/schedule/shift-banner';
 import { ZoneNotifier } from '@/components/zone-notifier';
+import { I18nProvider } from '@/components/i18n';
+import { currentLang, dictionaryFor } from '@/lib/i18n';
 import { hasSidebar, isDisasterDesk, isDoctor, isEmsAdmin, isFireCommand, isPoliceAdmin } from '@/lib/nav';
 
 // Every page in this group is per-user (cookies + RLS), so none of them should
@@ -76,6 +78,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const hidden = [...hiddenFor(features), ...deniedHrefs(accessRules, role)];
   const dept = branding[silo as Silo];
 
+  // The person's language (0078) and its approved translations; English until chosen.
+  const lang = await currentLang(supabase, user.id);
+  const [dict, translator] = await Promise.all([
+    dictionaryFor(supabase, lang),
+    supabase.from('profiles').select('translator_langs').eq('id', user.id).maybeSingle()
+      .then(({ data }) => ((data as { translator_langs?: string[] } | null)?.translator_langs ?? []).length > 0, () => false),
+  ]);
+  const canTranslate = translator || role === 'SuperAdmin' || role === 'SystemAdmin';
+
   // Admin tiers, supervisory roles, the two control-room desks (Dispatcher and
   // IncidentLogger), the case manager and Metro Police officers have curated
   // sidebars. The remaining operational roles use compact top navigation to
@@ -87,11 +98,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     && !isFireCommand(role, silo) && !isDisasterDesk(role, silo);
 
   return (
+    <I18nProvider lang={lang} dict={dict}>
     <ToastProvider>
       <div className={usesSidebar ? 'min-h-screen lg:grid lg:grid-cols-[264px_1fr]' : 'min-h-screen'}>
         {usesSidebar ? <Sidebar silo={silo} role={role} dept={dept} org={branding.Ethekwini} tenantName={tenant?.name} hiddenHrefs={hidden} /> : null}
         <div className="flex min-h-screen min-w-0 flex-col">
-          <Topbar fullName={fullName} role={role} silo={silo} hasSidebar={usesSidebar} />
+          <Topbar fullName={fullName} role={role} silo={silo} hasSidebar={usesSidebar} canTranslate={canTranslate} />
           {/* Role navigation and the external ops links share one bar — two
               stacked bands cost a whole row of vertical space and read as two
               unrelated toolbars. */}
@@ -150,5 +162,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         ) : null}
       </div>
     </ToastProvider>
+    </I18nProvider>
   );
 }

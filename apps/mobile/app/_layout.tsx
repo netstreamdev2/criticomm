@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { View, ActivityIndicator, Platform, Pressable, StyleSheet, Text } from 'react-native';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { I18nProvider } from '@/lib/i18n';
 import { BrandingProvider } from '@/lib/branding';
 import { NotificationsProvider, useNotificationRouting } from '@/lib/notifications';
 import { DutyProvider, useDuty } from '@/lib/duty';
@@ -20,6 +21,7 @@ import { colors, space, type, makeStyles, useTheme, loadThemeMode } from '@/lib/
 import { HikTechLogo } from '@/components/hiktech-logo';
 import ShiftScreen from './(tabs)/shift';
 import { RUBIK_FONTS, fontFamily } from '@/lib/font';
+import { useT } from '@/lib/i18n';
 
 /**
  * Root error boundary. expo-router renders this instead of unmounting when
@@ -31,30 +33,31 @@ import { RUBIK_FONTS, fontFamily } from '@/lib/font';
  * difference between "the app is broken" and a report someone can act on.
  */
 export function ErrorBoundary({ error, retry }: { error: Error; retry: () => Promise<void> }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.splash}>
       <View style={{ marginBottom: space.md }}><HikTechLogo height={16} /></View>
-      <Text style={styles.errTitle}>The app hit an unexpected error</Text>
+      <Text style={styles.errTitle}>{t('The app hit an unexpected error')}</Text>
       <Text style={styles.errBody} numberOfLines={8}>
-        {error?.message ?? 'No detail available.'}
+        {error?.message ?? t('No detail available.')}
       </Text>
       <Text style={styles.errHint}>
-        Your session is safe. Tap below to retry — if it keeps happening, show this
-        screen to your system administrator and fall back to radio.
+        {t('Your session is safe. Tap below to retry — if it keeps happening, show this screen to your system administrator and fall back to radio.')}
       </Text>
       <Pressable
         accessibilityRole="button"
         onPress={() => { void retry(); }}
         style={({ pressed }) => [styles.errButton, { opacity: pressed ? 0.7 : 1 }]}
       >
-        <Text style={styles.errButtonText}>Try again</Text>
+        <Text style={styles.errButtonText}>{t('Try again')}</Text>
       </Pressable>
     </View>
   );
 }
 
 function AuthGate({ children }: { children: React.ReactNode }) {
+  const { t } = useT();
   const styles = useStyles();
   const { session, loading, role } = useAuth();
   const { shiftStarted, checking } = useDuty();
@@ -75,7 +78,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       <View style={styles.splash}>
         <ActivityIndicator color={colors.accent} size="large" />
         <View style={{ marginTop: space.sm }}><HikTechLogo height={16} /></View>
-        <Text style={styles.splashSub}>Restoring your session…</Text>
+        <Text style={styles.splashSub}>{t('Restoring your session…')}</Text>
       </View>
     );
   }
@@ -111,6 +114,7 @@ function NotificationRouter() {
 }
 
 export default function RootLayout() {
+  const { t } = useT();
   const { isDark } = useTheme();
   const [fontsLoaded, fontError] = useFonts(RUBIK_FONTS);
   // The saved light/dark choice is read before the first screen draws, so the
@@ -125,6 +129,8 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
+      {/* The person's language (docs/23, item 1), for every screen below. */}
+      <I18nProvider>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       {/* Above the gate: the start-of-shift screen it draws is the signed-in
           department's, crest and name included. */}
@@ -157,76 +163,76 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen
               name="incident/[id]"
-              options={{ title: 'Incident', headerBackTitle: 'Back' }}
+              options={{ title: t('Incident'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="route/[id]"
-              options={{ title: 'Route', headerBackTitle: 'Back' }}
+              options={{ title: t('Route'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="report/[id]"
-              options={{ title: 'Incident Report', headerBackTitle: 'Back' }}
+              options={{ title: t('Incident Report'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="fire-report/[id]"
-              options={{ title: 'Fire Report', headerBackTitle: 'Back' }}
+              options={{ title: t('Fire Report'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="pcr/[id]"
-              options={{ title: 'Patient Report', headerBackTitle: 'Back' }}
+              options={{ title: t('Patient Report'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="post-mortem/[id]"
-              options={{ title: 'Post-Mortem', headerBackTitle: 'Back' }}
+              options={{ title: t('Post-Mortem'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="assistant"
-              options={{ title: 'Criti', headerBackTitle: 'Back' }}
+              options={{ title: t('Criti'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="leave"
-              options={{ title: 'Leave', headerBackTitle: 'Back' }}
+              options={{ title: t('Leave'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="end-shift"
-              options={{ title: 'End of shift', headerBackTitle: 'Back' }}
+              options={{ title: t('End of shift'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="firearm-check"
-              options={{ title: 'Firearm Check', headerBackTitle: 'Back' }}
+              options={{ title: t('Firearm Check'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="fines/index"
-              options={{ title: 'My fines', headerBackTitle: 'Back' }}
+              options={{ title: t('My fines'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="fines/new"
-              options={{ title: 'Issue a fine', headerBackTitle: 'Back' }}
+              options={{ title: t('Issue a fine'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="fines/check"
-              options={{ title: 'Check what is owed', headerBackTitle: 'Back' }}
+              options={{ title: t('Check what is owed'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="fines/[id]"
-              options={{ title: 'Fine', headerBackTitle: 'Back' }}
+              options={{ title: t('Fine'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="alerts"
-              options={{ title: 'Alerts', headerBackTitle: 'Back' }}
+              options={{ title: t('Alerts'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="my-incidents"
-              options={{ title: 'My incidents', headerBackTitle: 'Back' }}
+              options={{ title: t('My incidents'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="my-performance"
-              options={{ title: 'My performance', headerBackTitle: 'Back' }}
+              options={{ title: t('My performance'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="live-map"
               // Full screen: the map draws its own back button under the status bar.
-              options={{ title: 'Live Map', headerShown: false }}
+              options={{ title: t('Live Map'), headerShown: false }}
             />
           </Stack>
 
@@ -242,6 +248,7 @@ export default function RootLayout() {
       </AuthGate>
       </DutyProvider>
       </BrandingProvider>
+    </I18nProvider>
     </AuthProvider>
   );
 }

@@ -3,7 +3,9 @@
  * rotation gives a team on a day, what state a shift is in right now, and the
  * month grid. Shared by the console and the phone, and tested on their own
  * (rules.test.ts). They mirror migration 0072, which is what enforces them.
+ * Words come out in English unless a translator `t` is passed.
  */
+import { english, tx, type Translate } from '@criticom/db/i18n';
 
 /** South Africa keeps one offset all year (no daylight saving). */
 const SA_OFFSET_MS = 2 * 3_600_000;
@@ -21,20 +23,20 @@ export function saTime(at: string | number | Date): string {
   return new Date(ms + SA_OFFSET_MS).toISOString().slice(11, 16);
 }
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const WEEKDAYS = [tx('Sun'), tx('Mon'), tx('Tue'), tx('Wed'), tx('Thu'), tx('Fri'), tx('Sat')];
+const MONTHS = [tx('Jan'), tx('Feb'), tx('Mar'), tx('Apr'), tx('May'), tx('Jun'), tx('Jul'), tx('Aug'), tx('Sep'), tx('Oct'), tx('Nov'), tx('Dec')];
+const MONTHS_LONG = [tx('January'), tx('February'), tx('March'), tx('April'), tx('May'), tx('June'), tx('July'), tx('August'), tx('September'), tx('October'), tx('November'), tx('December')];
 
 /** "Tue 13 Oct" for a calendar day. */
-export function dayLabel(day: string): string {
+export function dayLabel(day: string, t: Translate = english.t): string {
   const d = new Date(`${day}T00:00:00Z`);
-  return `${WEEKDAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+  return t('{weekday} {day} {month}', { weekday: t(WEEKDAYS[d.getUTCDay()] ?? ''), day: d.getUTCDate(), month: t(MONTHS[d.getUTCMonth()] ?? '') });
 }
 
 /** "October 2026" for "2026-10". */
-export function monthLabel(month: string): string {
+export function monthLabel(month: string, t: Translate = english.t): string {
   const [y, m] = month.split('-').map(Number);
-  return `${MONTHS_LONG[(m ?? 1) - 1]} ${y}`;
+  return t('{month} {year}', { month: t(MONTHS_LONG[(m ?? 1) - 1] ?? ''), year: y });
 }
 
 export function addDays(day: string, n: number): string {
@@ -150,20 +152,20 @@ export function shiftState(
 }
 
 /** Plain words for a state, as the screens show it. */
-export function stateWords(state: ShiftState, attendance?: AttendanceLike | null): string {
+export function stateWords(state: ShiftState, attendance?: AttendanceLike | null, t: Translate = english.t): string {
   switch (state) {
-    case 'leave': return 'On leave';
-    case 'cancelled': return 'Cancelled';
-    case 'recorded': return attendance?.outcome ?? 'Recorded';
-    case 'upcoming': return 'Not started yet';
-    case 'due': return 'Starting';
-    case 'late': return 'Late';
-    case 'not_started': return 'Not started';
-    case 'missed': return 'Missed';
-    case 'started': return attendance?.checked_in_at ? `Started ${saTime(attendance.checked_in_at)}` : 'Started';
+    case 'leave': return t('On leave');
+    case 'cancelled': return t('Cancelled');
+    case 'recorded': return attendance?.outcome ? t(attendance.outcome) : t('Recorded');
+    case 'upcoming': return t('Not started yet');
+    case 'due': return t('Starting');
+    case 'late': return t('Late');
+    case 'not_started': return t('Not started');
+    case 'missed': return t('Missed');
+    case 'started': return attendance?.checked_in_at ? t('Started {time}', { time: saTime(attendance.checked_in_at) }) : t('Started');
     case 'started_late': return attendance?.checked_in_at
-      ? `Started ${saTime(attendance.checked_in_at)} · ${attendance.late_minutes} min late` : 'Started late';
-    case 'finished': return 'Finished';
+      ? t('Started {time} · {n} min late', { time: saTime(attendance.checked_in_at), n: attendance.late_minutes }) : t('Started late');
+    case 'finished': return t('Finished');
   }
 }
 

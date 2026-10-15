@@ -1,6 +1,7 @@
 import {
   createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
 } from 'react';
+import type { Translate } from '@criticom/db/i18n';
 import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import * as FileSystem from 'expo-file-system';
@@ -367,7 +368,7 @@ type SyncApi = {
   retryAll: () => Promise<void>;
   /** Give up on one op. Only reachable from the sync tray, with a confirm. */
   discard: (id: string) => Promise<void>;
-  describeOp: (op: OutboxOp) => string;
+  describeOp: (op: OutboxOp, t?: Translate) => string;
 };
 
 const Ctx = createContext<SyncApi | null>(null);

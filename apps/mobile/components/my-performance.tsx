@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { formatMinutes, monthlyAttended, periodStart, summarise } from '@/lib/performance';
 import { usePerformance } from '@/lib/use-performance';
 import { colors, radius, space, makeStyles, useTheme } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 const BLUE = '#3b82f6';
 const CYAN = '#22d3ee';
@@ -33,22 +34,23 @@ function ScoreBar({ score }: { score: number }) {
  * appraisal score. "View all" opens the full My performance page.
  */
 export function MyPerformance() {
+  const { t } = useT();
   const styles = useStyles();
   const { isDark } = useTheme();
   const router = useRouter();
   const { rows, appraisal } = usePerformance();
   const month = summarise(rows, periodStart('This month'));
   const trend = monthlyAttended(rows, 6);
-  const peak = Math.max(1, ...trend.map((t) => t.count));
+  const peak = Math.max(1, ...trend.map((item) => item.count));
   const score = appraisal?.finalAverage ?? appraisal?.midYearAverage ?? null;
 
   return (
     <View style={styles.card}>
       <View style={styles.head}>
         <View style={styles.headMark} />
-        <Text style={styles.title}>My performance</Text>
+        <Text style={styles.title}>{t('My performance')}</Text>
         <View style={styles.period}>
-          <Text style={styles.periodText}>THIS MONTH</Text>
+          <Text style={styles.periodText}>{t('THIS MONTH')}</Text>
         </View>
         <View style={{ flex: 1 }} />
         <Pressable
@@ -57,48 +59,48 @@ export function MyPerformance() {
           accessibilityRole="button"
           style={styles.viewAllBtn}
         >
-          <Text style={styles.viewAll}>View all</Text>
+          <Text style={styles.viewAll}>{t('View all')}</Text>
           <Ionicons name="chevron-forward" size={12} color={colors.accent} />
         </Pressable>
       </View>
 
       <View style={styles.metrics}>
-        <View style={[styles.metric, { flex: 1.3 }]} accessible accessibilityLabel={`Attended ${month.attended} this month, ${month.led} as lead, ${month.backup} as backup`}>
+        <View style={[styles.metric, { flex: 1.3 }]} accessible accessibilityLabel={t('Attended {attended} this month, {led} as lead, {backup} as backup', { attended: month.attended, led: month.led, backup: month.backup })}>
           <View style={styles.attendedRow}>
             <Text style={[styles.value, { textShadowColor: isDark ? `${BLUE}99` : 'transparent' }]}>{month.attended}</Text>
             {/* Six-month trend, this month on the right. */}
             <View style={styles.spark}>
-              {trend.map((t, i) => (
+              {trend.map((item, i) => (
                 <View
-                  key={`${t.label}-${i}`}
+                  key={`${item.label}-${i}`}
                   style={[
                     styles.sparkBar,
-                    { height: 3 + (t.count / peak) * 19, backgroundColor: i === trend.length - 1 ? BLUE : `${BLUE}55` },
+                    { height: 3 + (item.count / peak) * 19, backgroundColor: i === trend.length - 1 ? BLUE : `${BLUE}55` },
                   ]}
                 />
               ))}
             </View>
           </View>
-          <Text style={styles.label}>ATTENDED</Text>
-          <Text style={styles.sub}>{month.led} lead · {month.backup} backup</Text>
+          <Text style={styles.label}>{t('ATTENDED')}</Text>
+          <Text style={styles.sub}>{t('{led} lead · {backup} backup', { led: month.led, backup: month.backup })}</Text>
         </View>
 
-        <View style={[styles.metric, styles.divider]} accessible accessibilityLabel={`Average time to scene ${formatMinutes(month.avgToScene)}`}>
+        <View style={[styles.metric, styles.divider]} accessible accessibilityLabel={t('Average time to scene {formatMinutes}', { formatMinutes: formatMinutes(month.avgToScene) })}>
           <Text style={[styles.value, { textShadowColor: isDark ? `${CYAN}99` : 'transparent' }]}>{formatMinutes(month.avgToScene)}</Text>
-          <Text style={styles.label}>TO SCENE</Text>
-          <Text style={styles.sub}>avg, as lead</Text>
+          <Text style={styles.label}>{t('TO SCENE')}</Text>
+          <Text style={styles.sub}>{t('avg, as lead')}</Text>
         </View>
 
-        <View style={[styles.metric, styles.divider]} accessible accessibilityLabel={`${month.reportsFiled} reports filed this month`}>
+        <View style={[styles.metric, styles.divider]} accessible accessibilityLabel={t('{reportsFiled} reports filed this month', { reportsFiled: month.reportsFiled })}>
           <Text style={[styles.value, { textShadowColor: isDark ? `${GREEN}99` : 'transparent' }]}>{month.reportsFiled}</Text>
-          <Text style={styles.label}>REPORTS</Text>
-          <Text style={styles.sub}>filed</Text>
+          <Text style={styles.label}>{t('REPORTS')}</Text>
+          <Text style={styles.sub}>{t('filed')}</Text>
         </View>
       </View>
 
-      <View style={styles.appraisal} accessible accessibilityLabel={score !== null ? `Appraisal ${score} out of 5` : 'No appraisal plan yet'}>
+      <View style={styles.appraisal} accessible accessibilityLabel={score !== null ? t('Appraisal {score} out of 5', { score }) : t('No appraisal plan yet')}>
         <Ionicons name="ribbon-outline" size={13} color={AMBER} />
-        <Text style={styles.appraisalLabel}>Appraisal {appraisal?.cycleLabel ?? ''}</Text>
+        <Text style={styles.appraisalLabel}>{t('Appraisal')}{' '}{appraisal?.cycleLabel ?? ''}</Text>
         <View style={{ flex: 1 }} />
         {score !== null ? (
           <>
@@ -106,7 +108,7 @@ export function MyPerformance() {
             <Text style={styles.score}>{score.toFixed(1)}<Text style={styles.scoreOf}> / 5</Text></Text>
           </>
         ) : (
-          <Text style={styles.noPlan}>{appraisal?.hasPlan ? 'Not scored yet' : 'No plan yet'}</Text>
+          <Text style={styles.noPlan}>{appraisal?.hasPlan ? t('Not scored yet') : t('No plan yet')}</Text>
         )}
       </View>
     </View>

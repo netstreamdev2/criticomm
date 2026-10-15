@@ -12,11 +12,13 @@ import { READINESS_ITEMS } from '@/lib/inspection-187c';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, Input, Muted, Stepper, Title } from '@/components/ui';
 import { HikTechLogo } from '@/components/hiktech-logo';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 type Step = 'loading' | 'intro' | 'readiness' | 'stood_down' | 'complete';
 type ReadinessKey = (typeof READINESS_ITEMS)[number][0];
-const STEPS = ['Welcome', 'Readiness'];
-const errorText = (e: unknown) => errorWords(e, 'Unable to connect. Check your connection and retry.');
+const STEPS = [tx('Welcome'), tx('Readiness')];
+const errorText = (e: unknown) => errorWords(e, tx('Unable to connect. Check your connection and retry.'));
 
 function saTodayStartIso() {
   const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Johannesburg', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
@@ -28,6 +30,7 @@ function saTodayStartIso() {
  * readiness assessment, then on duty. No vehicle form (migration 0065).
  */
 export function DisasterShift({ gated = false }: { gated?: boolean }) {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -67,7 +70,7 @@ export function DisasterShift({ gated = false }: { gated?: boolean }) {
   const submit = () => {
     if (answered !== READINESS_ITEMS.length) {
       setInvalid(true);
-      setError('Answer Yes or No for every readiness question.');
+      setError(t('Answer Yes or No for every readiness question.'));
       return;
     }
     void run(async () => {
@@ -118,9 +121,9 @@ export function DisasterShift({ gated = false }: { gated?: boolean }) {
         <View style={styles.gateHeader}>
           <View style={{ gap: 4 }}>
             <HikTechLogo height={14} />
-            <Text style={styles.gateEyebrow}>START OF SHIFT</Text>
+            <Text style={styles.gateEyebrow}>{t('START OF SHIFT')}</Text>
           </View>
-          <Button label="Sign out" variant="subtle" size="sm" disabled={busy} onPress={signOut} />
+          <Button label={t('Sign out')} variant="subtle" size="sm" disabled={busy} onPress={signOut} />
         </View>
       ) : null}
 
@@ -129,20 +132,20 @@ export function DisasterShift({ gated = false }: { gated?: boolean }) {
 
       {step === 'intro' ? (
         <Card>
-          <Text style={styles.eyebrow}>DISASTER MANAGEMENT · STEP 1 OF 2</Text>
+          <Text style={styles.eyebrow}>{t('DISASTER MANAGEMENT · STEP 1 OF 2')}</Text>
           <Ionicons name="warning-outline" size={40} color={colors.accent} style={{ marginVertical: space.md }} />
-          <Title>Start of Shift</Title>
-          <Muted>Begin your start-of-shift readiness check to go on duty.</Muted>
+          <Title>{t('Start of Shift')}</Title>
+          <Muted>{t('Begin your start-of-shift readiness check to go on duty.')}</Muted>
           <View style={{ marginTop: space.lg }}>
-            <Button label="Go on Duty — Begin Check" icon="play-circle-outline" variant="success" size="lg" onPress={() => setStep('readiness')} />
+            <Button label={t('Go on Duty — Begin Check')} icon="play-circle-outline" variant="success" size="lg" onPress={() => setStep('readiness')} />
           </View>
         </Card>
       ) : null}
 
       {step === 'readiness' ? (
         <Card>
-          <Title>Readiness Assessment</Title>
-          <Muted>Answer every question honestly.</Muted>
+          <Title>{t('Readiness Assessment')}</Title>
+          <Muted>{t('Answer every question honestly.')}</Muted>
           <View style={{ marginTop: space.md }}>
             {READINESS_ITEMS.map(([key, label]) => (
               <View key={key} style={styles.question}>
@@ -164,7 +167,7 @@ export function DisasterShift({ gated = false }: { gated?: boolean }) {
                         hitSlop={4}
                       >
                         <Ionicons name={answer ? 'checkmark' : 'close'} size={17} color={active ? '#fff' : tone} />
-                        <Text style={[styles.answerText, active && { color: '#fff' }]}>{answer ? 'Yes' : 'No'}</Text>
+                        <Text style={[styles.answerText, active && { color: '#fff' }]}>{answer ? t('Yes') : t('No')}</Text>
                       </Pressable>
                     );
                   })}
@@ -172,19 +175,19 @@ export function DisasterShift({ gated = false }: { gated?: boolean }) {
               </View>
             ))}
             <View style={{ marginTop: space.md, marginBottom: space.lg }}>
-              <Input label="Comments" placeholder="Anything your supervisor should know (optional)" value={comments} onChangeText={setComments} multiline />
+              <Input label={t('Comments')} placeholder={t('Anything your supervisor should know (optional)')} value={comments} onChangeText={setComments} multiline />
             </View>
-            <Button label="Submit Readiness Check" icon="checkmark-done" size="lg" busy={busy} onPress={submit} />
+            <Button label={t('Submit Readiness Check')} icon="checkmark-done" size="lg" busy={busy} onPress={submit} />
           </View>
         </Card>
       ) : null}
 
       {step === 'stood_down' ? (
         <Card accent={colors.critical}>
-          <Title>Readiness check not passed</Title>
-          <Muted>You have not been placed on duty. Speak to your supervisor, then retake the check.</Muted>
+          <Title>{t('Readiness check not passed')}</Title>
+          <Muted>{t('You have not been placed on duty. Speak to your supervisor, then retake the check.')}</Muted>
           <View style={{ marginTop: space.lg }}>
-            <Button label="Retake check" icon="refresh" variant="outline" onPress={() => { setMental({}); setStep('readiness'); }} />
+            <Button label={t('Retake check')} icon="refresh" variant="outline" onPress={() => { setMental({}); setStep('readiness'); }} />
           </View>
         </Card>
       ) : null}
@@ -192,10 +195,10 @@ export function DisasterShift({ gated = false }: { gated?: boolean }) {
       {step === 'complete' ? (
         <Card accent={colors.low}>
           <View style={styles.done}><Ionicons name="shield-checkmark" size={30} color="#fff" /></View>
-          <Title>Ready for duty</Title>
-          <Muted>Your readiness check for today is on record.</Muted>
+          <Title>{t('Ready for duty')}</Title>
+          <Muted>{t('Your readiness check for today is on record.')}</Muted>
           <View style={{ marginTop: space.lg }}>
-            <Button label={onDuty ? 'Go to Dashboard' : 'Go on Duty'} icon="arrow-forward-circle" variant="success" size="lg" busy={busy} onPress={goOnDuty} />
+            <Button label={onDuty ? t('Go to Dashboard') : t('Go on Duty')} icon="arrow-forward-circle" variant="success" size="lg" busy={busy} onPress={goOnDuty} />
           </View>
         </Card>
       ) : null}

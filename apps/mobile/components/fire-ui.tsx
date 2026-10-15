@@ -1,6 +1,7 @@
 import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, makeStyles, radius, space, useTheme } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 /**
  * Fire looks like every other department: the same backdrop, colours and
@@ -47,20 +48,21 @@ export function FireCheck({ label, hint, value, onChange, disabled, invalid }: {
   label: string; hint?: string; value: boolean | undefined; onChange: (value: boolean) => void;
   disabled?: boolean; invalid?: boolean;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={[styles.check, invalid && value === undefined && { borderColor: colors.critical }]}>
-      <Text style={styles.label}>{label}</Text>
-      {hint ? <Text style={styles.hint}>{hint}</Text> : null}
+      <Text style={styles.label}>{t(label)}</Text>
+      {hint ? <Text style={styles.hint}>{t(hint)}</Text> : null}
       <View style={styles.choices}>
         {[true, false].map((yes) => {
           const selected = value === yes;
           const tone = yes ? colors.low : colors.critical;
-          return <Pressable key={String(yes)} accessibilityRole="radio" accessibilityLabel={`${label}: ${yes ? 'Yes' : 'No'}`}
+          return <Pressable key={String(yes)} accessibilityRole="radio" accessibilityLabel={`${t(label)}: ${yes ? t('Yes') : t('No')}`}
             accessibilityState={{ checked: selected, disabled }} aria-checked={selected} disabled={disabled} onPress={() => onChange(yes)}
             style={[styles.choice, selected && { backgroundColor: `${tone}18`, borderColor: tone }]}>
             <Ionicons name={selected ? (yes ? 'checkmark-circle' : 'close-circle') : 'ellipse-outline'} size={19} color={selected ? tone : colors.muted} />
-            <Text style={[styles.choiceText, selected && { color: tone }]}>{yes ? 'Yes' : 'No'}</Text>
+            <Text style={[styles.choiceText, selected && { color: tone }]}>{yes ? t('Yes') : t('No')}</Text>
           </Pressable>;
         })}
       </View>

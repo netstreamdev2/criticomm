@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { PanResponder, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { makeStyles } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 /**
  * Finger signature for the 187(c) sign-off. Strokes are kept as SVG path data
@@ -41,6 +42,7 @@ export function SignaturePad({
   onDrawingChange?: (drawing: boolean) => void;
   disabled?: boolean;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const [strokes, setStrokes] = useState<Point[][]>([]);
   const size = useRef({ width: 0, height: 0 });
@@ -87,7 +89,7 @@ export function SignaturePad({
         style={[styles.pad, disabled && { opacity: 0.6 }]}
         onLayout={(e: LayoutChangeEvent) => { size.current = e.nativeEvent.layout; }}
         {...responder.panHandlers}
-        accessibilityLabel="Signature pad. Sign with your finger."
+        accessibilityLabel={t('Signature pad. Sign with your finger.')}
       >
         <Svg width="100%" height="100%">
           <Path
@@ -101,13 +103,13 @@ export function SignaturePad({
         </Svg>
         {strokes.length === 0 ? (
           <View style={styles.hint} pointerEvents="none">
-            <Text style={styles.hintText}>Sign here</Text>
+            <Text style={styles.hintText}>{t('Sign here')}</Text>
           </View>
         ) : null}
         <View style={styles.baseline} pointerEvents="none" />
       </View>
       {strokes.length > 0 && !disabled ? (
-        <Text onPress={clear} style={styles.clear} accessibilityRole="button">✕ Clear</Text>
+        <Text onPress={clear} style={styles.clear} accessibilityRole="button">{t('✕ Clear')}</Text>
       ) : null}
     </View>
   );

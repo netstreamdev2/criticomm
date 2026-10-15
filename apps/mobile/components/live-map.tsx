@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { colors, space, type, makeStyles } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
 
 /**
  * The live map, as on the V4 console: satellite imagery of the metro.
@@ -39,6 +40,7 @@ const HTML = `<!doctype html><html><head>
 </script></body></html>`;
 
 export function LiveMap({ style }: { style?: StyleProp<ViewStyle> }) {
+  const { t } = useT();
   const styles = useStyles();
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -60,12 +62,12 @@ export function LiveMap({ style }: { style?: StyleProp<ViewStyle> }) {
       {!ready && !failed ? (
         <View style={styles.overlay} pointerEvents="none">
           <ActivityIndicator color={colors.accent} />
-          <Text style={styles.text}>Loading map…</Text>
+          <Text style={styles.text}>{t('Loading map…')}</Text>
         </View>
       ) : null}
       {failed ? (
         <View style={styles.overlay}>
-          <Text style={styles.text}>The map could not load. Check your connection.</Text>
+          <Text style={styles.text}>{t('The map could not load. Check your connection.')}</Text>
         </View>
       ) : null}
     </View>

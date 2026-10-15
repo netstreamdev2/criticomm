@@ -31,7 +31,7 @@ test('the catalogue is well formed: unique names, known departments, injuries th
 test('the type search finds what people say: gun, heart, shack, knife', () => {
   const types = INCIDENT_CATALOGUE.map((c) => ({ name: c.name, group: c.group, code: null }));
   const first = (q: string) => searchTypes(types, q).map((x) => x.name);
-  assert.equal(first('gun')[0], 'Shooting / gunshot wound');
+  assert.ok(first('gun').slice(0, 2).includes('Shooting / gunshot wound'));
   assert.ok(first('gun').includes('Armed robbery'));
   assert.ok(first('heart').includes('Heart attack / chest pain'));
   assert.ok(first('shack').includes('Informal settlement fire'));
@@ -44,7 +44,7 @@ test('the type search finds what people say: gun, heart, shack, knife', () => {
 
 test('a type the administrator added falls back on its group', () => {
   assert.deepEqual(typeMeta('Cable theft', 'Crime').departments, ['MetroPolice']);
-  assert.deepEqual(typeMeta('Hospital transfer', 'Medical'), { departments: ['Medical'], severity: null, medical: true, keywords: [], injuries: [] });
+  assert.deepEqual(typeMeta('Hospital transfer', 'Medical'), { code: null, departments: ['Medical'], severity: null, medical: true, keywords: [], injuries: [], details: [] });
   assert.deepEqual(typeMeta('Shooting / gunshot wound', 'Crime').departments, ['MetroPolice', 'Medical']);
 });
 

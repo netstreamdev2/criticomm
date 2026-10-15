@@ -1,9 +1,10 @@
 import type { Ionicons } from '@expo/vector-icons';
+import { tx, type Translate } from '@criticom/db/i18n';
 
 /**
  * Each department's own words, so every screen says what that service is:
  * who works the call, the report that closes it, the vehicle they sign onto.
- * No dependencies, so the rules that use it can be tested. Department and
+ * No app dependencies, so the rules that use it can be tested. Department and
  * role names are shared with the console (departmentName, roleName in
  * @criticom/db).
  *
@@ -43,20 +44,20 @@ export type DepartmentWords = {
 
 const WORDS: Record<Department, DepartmentWords> = {
   police: {
-    person: 'officer', report: 'incident report', unit: 'vehicle',
-    unitIcon: 'car-sport-outline', movingIcon: 'car-sport', file: 'case file', media: 'evidence',
+    person: tx('officer'), report: tx('incident report'), unit: tx('vehicle'),
+    unitIcon: 'car-sport-outline', movingIcon: 'car-sport', file: tx('case file'), media: tx('evidence'),
   },
   fire: {
-    person: 'firefighter', report: 'fire report', unit: 'appliance',
-    unitIcon: 'bus-outline', movingIcon: 'bus', file: 'incident record', media: 'photos',
+    person: tx('firefighter'), report: tx('fire report'), unit: tx('appliance'),
+    unitIcon: 'bus-outline', movingIcon: 'bus', file: tx('incident record'), media: tx('photos'),
   },
   ems: {
-    person: 'paramedic', report: 'patient report', unit: 'ambulance',
-    unitIcon: 'medkit-outline', movingIcon: 'car', file: 'incident record', media: 'photos',
+    person: tx('paramedic'), report: tx('patient report'), unit: tx('ambulance'),
+    unitIcon: 'medkit-outline', movingIcon: 'car', file: tx('incident record'), media: tx('photos'),
   },
   disaster: {
-    person: 'officer', report: 'post-mortem', unit: null,
-    unitIcon: 'car-outline', movingIcon: 'car', file: 'incident record', media: 'photos',
+    person: tx('officer'), report: tx('post-mortem'), unit: null,
+    unitIcon: 'car-outline', movingIcon: 'car', file: tx('incident record'), media: tx('photos'),
   },
 };
 
@@ -64,8 +65,14 @@ export function wordsFor(silo: string | null | undefined): DepartmentWords {
   return WORDS[departmentOf(silo)];
 }
 
-/** "Firefighter", "Paramedic", "Officer" — for a name that is missing. */
-export function personTitle(silo: string | null | undefined): string {
-  const { person } = wordsFor(silo);
+/** The same words in the person's language, for the sentences they go into. */
+export function wordsIn(silo: string | null | undefined, t: Translate): DepartmentWords {
+  const w = wordsFor(silo);
+  return { ...w, person: t(w.person), report: t(w.report), unit: w.unit && t(w.unit), file: t(w.file), media: t(w.media) };
+}
+
+/** "Firefighter", "Paramedic", "Officer" — for a name that is missing; in the reader's language when `t` is given. */
+export function personTitle(silo: string | null | undefined, t?: Translate): string {
+  const person = t ? t(wordsFor(silo).person) : wordsFor(silo).person;
   return person.charAt(0).toUpperCase() + person.slice(1);
 }

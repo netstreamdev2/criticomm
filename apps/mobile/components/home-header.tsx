@@ -8,21 +8,23 @@ import { useDuty } from '@/lib/duty';
 import { useOpenCall, useReportingFor } from '@/lib/open-call';
 import { pickActivity, type Activity } from '@/lib/response';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 const GREEN = '#22c55e';
 
-/** Read at render time, so the tones follow the light/dark theme; on the way in the department's own vehicle. */
+/** Read at render time, so the tones follow the light/dark theme; on the way in the department's own vehicle. Labels go through t(). */
 export const ACTIVITY = (silo: string): Record<Activity['kind'], { label: string; icon: keyof typeof Ionicons.glyphMap; tone: string }> => ({
-  idle: { label: 'Idle', icon: 'pause-circle-outline', tone: colors.idle },
-  en_route: { label: 'En route', icon: wordsFor(silo).movingIcon, tone: colors.accent },
-  on_scene: { label: 'On scene', icon: 'location', tone: colors.critical },
-  transporting: { label: 'Transporting', icon: 'medkit', tone: colors.purple },
-  reporting: { label: 'Filing report', icon: 'document-text', tone: colors.cyan },
-  assigned: { label: 'Assigned to you', icon: 'person-add', tone: colors.medium },
+  idle: { label: tx('Idle'), icon: 'pause-circle-outline', tone: colors.idle },
+  en_route: { label: tx('En route'), icon: wordsFor(silo).movingIcon, tone: colors.accent },
+  on_scene: { label: tx('On scene'), icon: 'location', tone: colors.critical },
+  transporting: { label: tx('Transporting'), icon: 'medkit', tone: colors.purple },
+  reporting: { label: tx('Filing report'), icon: 'document-text', tone: colors.cyan },
+  assigned: { label: tx('Assigned to you'), icon: 'person-add', tone: colors.medium },
 });
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
-  'September', 'October', 'November', 'December'];
+const DAYS = [tx('Sunday'), tx('Monday'), tx('Tuesday'), tx('Wednesday'), tx('Thursday'), tx('Friday'), tx('Saturday')];
+const MONTHS = [tx('January'), tx('February'), tx('March'), tx('April'), tx('May'), tx('June'), tx('July'), tx('August'),
+  tx('September'), tx('October'), tx('November'), tx('December')];
 
 /** The time now, re-rendered on each minute boundary rather than polled. */
 function useClock() {
@@ -50,25 +52,26 @@ const pad = (n: number) => String(n).padStart(2, '0');
  * incident in its own card.
  */
 export function HomeHeader({ minimal = false }: { minimal?: boolean }) {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { fullName, silo } = useAuth();
   const { shiftStarted, onDuty } = useDuty();
   const now = useClock();
 
-  const name = (fullName || '').split('@')[0]?.trim() || personTitle(silo);
+  const name = (fullName || '').split('@')[0]?.trim() || personTitle(silo, t);
   const live = onDuty === true;
-  const dutyLabel = shiftStarted === false && !live ? 'SHIFT NOT STARTED' : live ? 'ON DUTY' : 'OFF DUTY';
+  const dutyLabel = shiftStarted === false && !live ? t('SHIFT NOT STARTED') : live ? t('ON DUTY') : t('OFF DUTY');
 
   return (
     <View style={[styles.wrap, minimal && styles.wrapMinimal]}>
       <View style={styles.top}>
         <View>
-          <Text style={styles.time} accessibilityLabel={`Time ${now.getHours()}:${pad(now.getMinutes())}`}>
+          <Text style={styles.time} accessibilityLabel={t('Time {time}', { time: `${now.getHours()}:${pad(now.getMinutes())}` })}>
             {pad(now.getHours())}:{pad(now.getMinutes())}
           </Text>
           <Text style={styles.date}>
-            {DAYS[now.getDay()]}, {now.getDate()} {MONTHS[now.getMonth()]}
+            {t('{weekday}, {day} {month}', { weekday: t(DAYS[now.getDay()] ?? ''), day: now.getDate(), month: t(MONTHS[now.getMonth()] ?? '') })}
           </Text>
           {minimal ? null : <ActivityChip />}
         </View>
@@ -83,7 +86,7 @@ export function HomeHeader({ minimal = false }: { minimal?: boolean }) {
             <View style={[styles.dot, { backgroundColor: live ? GREEN : colors.medium }]} />
             <Text style={styles.dutyText}>{dutyLabel}</Text>
           </Pressable>
-          {minimal ? null : <Text style={styles.welcome}>Welcome back</Text>}
+          {minimal ? null : <Text style={styles.welcome}>{t('Welcome back')}</Text>}
           <Text style={[styles.name, minimal && styles.nameMinimal]} numberOfLines={1}>{name}</Text>
         </View>
       </View>
@@ -93,6 +96,7 @@ export function HomeHeader({ minimal = false }: { minimal?: boolean }) {
 
 /** What this officer is doing now; tapping it opens that incident. */
 function ActivityChip() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { silo } = useAuth();
@@ -103,8 +107,8 @@ function ActivityChip() {
   const activity = pickActivity(calls, (id) => reportQueued.has(id) || reportingFor === id, awaiting);
   const act = ACTIVITY(silo)[activity.kind];
   const actLabel = activity.kind === 'assigned' && activity.count > 1
-    ? `${activity.count} assigned to you`
-    : act.label;
+    ? t('{n} assigned to you', { n: activity.count })
+    : t(act.label);
 
   const openActivity = () => {
     if (activity.kind === 'idle') return;

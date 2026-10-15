@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useOpenCall } from '@/lib/open-call';
 import { colors, radius, severityColor, space, makeStyles } from '@/lib/theme';
+import { tx } from '@criticom/db/i18n';
+import { useT } from '@/lib/i18n';
 
 /** Rows visible at once; the rest scroll inside the card. */
 const VISIBLE_ROWS = 3;
@@ -39,6 +41,7 @@ type Row = {
  * row opens its drawer, "View all" opens the My incidents page.
  */
 export function MyIncidents() {
+  const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
   const { calls, awaiting } = useOpenCall();
@@ -47,21 +50,21 @@ export function MyIncidents() {
     ...awaiting.map((a) => ({
       id: a.id,
       number: a.incident_number,
-      type: a.incident_type ?? 'Incident',
+      type: a.incident_type ?? tx('Incident'),
       location: a.location_address ?? '',
       severity: a.incident_severity ?? null,
-      status: 'Assigned',
-      tag: 'RESPOND',
+      status: tx('Assigned'),
+      tag: tx('RESPOND'),
       tagTone: colors.medium,
     })),
     ...calls.map((c) => ({
       id: c.id,
       number: c.incident_number,
-      type: c.incident_type ?? 'Incident',
+      type: c.incident_type ?? tx('Incident'),
       location: c.location_address ?? '',
       severity: c.incident_severity ?? null,
       status: c.status ?? 'En Route',
-      tag: c.role === 'backup' ? 'BACKUP' : 'LEAD',
+      tag: c.role === 'backup' ? tx('BACKUP') : tx('LEAD'),
       tagTone: c.role === 'backup' ? colors.cyan : colors.accent,
     })),
   ];
@@ -72,7 +75,7 @@ export function MyIncidents() {
     <View style={styles.card}>
       <View style={styles.head}>
         <View style={styles.headMark} />
-        <Text style={styles.title}>My incidents</Text>
+        <Text style={styles.title}>{t('My incidents')}</Text>
         <View style={styles.count}>
           <Text style={styles.countText}>{rows.length}</Text>
         </View>
@@ -83,7 +86,7 @@ export function MyIncidents() {
           accessibilityRole="button"
           style={styles.viewAllBtn}
         >
-          <Text style={styles.viewAll}>View all</Text>
+          <Text style={styles.viewAll}>{t('View all')}</Text>
           <Ionicons name="chevron-forward" size={12} color={colors.accent} />
         </Pressable>
       </View>
@@ -91,7 +94,7 @@ export function MyIncidents() {
       {rows.length === 0 ? (
         <View style={styles.empty}>
           <Ionicons name="file-tray-outline" size={18} color={colors.muted} />
-          <Text style={styles.emptyText}>No incidents assigned to you.</Text>
+          <Text style={styles.emptyText}>{t('No incidents assigned to you.')}</Text>
         </View>
       ) : (
         <ScrollView
@@ -107,14 +110,14 @@ export function MyIncidents() {
             key={r.id}
             onPress={() => open(r.id)}
             accessibilityRole="button"
-            accessibilityLabel={`${r.number}, ${r.type}, ${r.status}, ${r.tag.toLowerCase()}`}
+            accessibilityLabel={`${r.number}, ${t(r.type)}, ${t(r.status)}, ${t(r.tag).toLowerCase()}`}
             style={({ pressed }) => [styles.row, i > 0 && styles.rowDivider, pressed && { opacity: 0.75 }]}
           >
             <View style={[styles.sevBar, { backgroundColor: sev }]} />
             <View style={{ flex: 1, minWidth: 0 }}>
               <View style={styles.line}>
                 <Text style={styles.number}>{r.number}</Text>
-                <Text style={styles.type} numberOfLines={1}>{r.type}</Text>
+                <Text style={styles.type} numberOfLines={1}>{t(r.type)}</Text>
               </View>
               {r.location ? (
                 <View style={styles.line}>
@@ -128,7 +131,7 @@ export function MyIncidents() {
                 <View style={[styles.pillDot, { backgroundColor: tone }]} />
                 <Text style={[styles.pillText, { color: tone }]}>{r.status.toUpperCase()}</Text>
               </View>
-              <Text style={[styles.tag, { color: r.tagTone }]}>{r.tag}</Text>
+              <Text style={[styles.tag, { color: r.tagTone }]}>{t(r.tag)}</Text>
             </View>
           </Pressable>
         );

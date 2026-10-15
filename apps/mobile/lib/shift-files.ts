@@ -1,4 +1,5 @@
 import * as FileSystem from 'expo-file-system';
+import { tNow } from './translator';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import type { CriticomClient } from '@criticom/db';
@@ -38,7 +39,7 @@ export async function exportShiftPdf(ctx: ReportContext) {
   const target = `${FileSystem.cacheDirectory}${fileBase(ctx)}.pdf`;
   await FileSystem.deleteAsync(target, { idempotent: true });
   await FileSystem.moveAsync({ from: uri, to: target });
-  await share(target, 'application/pdf', 'com.adobe.pdf', 'Start of shift report (PDF)');
+  await share(target, 'application/pdf', 'com.adobe.pdf', tNow('Start of shift report (PDF)'));
 }
 
 export async function exportShiftCsv(ctx: ReportContext) {
@@ -47,7 +48,7 @@ export async function exportShiftCsv(ctx: ReportContext) {
   await FileSystem.writeAsStringAsync(target, `﻿${buildReportCsv(ctx)}`, {
     encoding: FileSystem.EncodingType.UTF8,
   });
-  await share(target, 'text/csv', 'public.comma-separated-values-text', 'Start of shift report (CSV)');
+  await share(target, 'text/csv', 'public.comma-separated-values-text', tNow('Start of shift report (CSV)'));
 }
 
 export async function printShiftReport(ctx: ReportContext) {

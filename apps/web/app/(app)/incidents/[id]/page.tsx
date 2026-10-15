@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FileText, Lock } from 'lucide-react';
 import {
-  deskTags, featureEnabled, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listBookedOutBodycams,
+  deskTags, featureEnabled, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listIncidentEdits, listBookedOutBodycams,
   listIncidentAttachments, listIncidentMapZones, listIncidentResponders, partFor, partWords, searchBodycamBookings, signIncidentMedia,
   statusForPart, type IncidentResponder,
 } from '@criticom/api';
@@ -21,6 +21,11 @@ import { PcrCard } from '@/components/pcr-card';
 import { PostMortemCard } from '@/components/post-mortem-card';
 import { IncidentLive } from '@/components/incident-live';
 import { DetailsToFollow } from '@/components/details-to-follow';
+import { CallDetails } from '@/components/call-details';
+import { CallEdits } from '@/components/call-edits';
+import { PatientList } from '@/components/department-pills';
+import { callChannelText, readPatients } from '@criticom/db/call-facts';
+import { getT } from '@/lib/i18n';
 import { VoiceNote } from '@/components/voice-note';
 import { IncidentZonesCard } from './zones-card';
 import { IncidentBodycamsCard, type IncidentBodycamPerson } from './bodycams-card';
@@ -38,11 +43,12 @@ export default async function IncidentDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { supabase, role, silo } = await getSession();
+  const { supabase, role, silo, userId } = await getSession();
+  const { t } = await getT(supabase, userId);
 
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) notFound();
-  const [updates, attachments, audit, report, responders, zones, fireReport, pcr, postMortem] = await Promise.all([
+  const [updates, attachments, audit, report, responders, zones, fireReport, pcr, postMortem, edits] = await Promise.all([
     getIncidentUpdates(supabase, id),
     listIncidentAttachments(supabase, id),
     // Console actions log as 'incident', server RPCs as 'incidents' — the id is enough.
@@ -57,6 +63,8 @@ export default async function IncidentDetailPage({
     getPcrForIncident(supabase, id).catch(() => null),
     // The Disaster officer's post-mortem (0065).
     getPostMortemForIncident(supabase, id).catch(() => null),
+    // What the call taker and dispatchers changed, before and after (0079).
+    listIncidentEdits(supabase, id),
   ]);
   const media = await signIncidentMedia(supabase, attachments.map((a) => a.storage_path)).catch(
     () => new Map<string, string>(),
@@ -281,6 +289,12 @@ export default async function IncidentDetailPage({
             </div>
             <div><p className="text-xs uppercase text-muted-foreground">Location</p><p>{incident.location_address}{incident.suburb ? `, ${incident.suburb}` : ''}</p></div>
             <div className="sm:col-span-2"><p className="text-xs uppercase text-muted-foreground">Description</p><p>{incident.call_description}</p></div>
+            <div><p className="text-xs uppercase text-muted-foreground">How the call came in</p><p>{callChannelText(incident.call_channel, incident.call_channel_other) ?? '—'}</p></div>
+            {readPatients(incident.patients).length ? (
+              <div><p className="text-xs uppercase text-muted-foreground">Patients</p><PatientList patients={incident.patients} /></div>
+            ) : null}
+            {/* The details filled in for the type (0077). */}
+            <div className="sm:col-span-2"><CallDetails incident={incident} t={t} /></div>
             {incident.notes && (
               <div className="sm:col-span-2"><p className="text-xs uppercase text-muted-foreground">Notes</p><p>{incident.notes}</p></div>
             )}
@@ -532,6 +546,8 @@ export default async function IncidentDetailPage({
           {postMortem ? <PostMortemCard report={postMortem} /> : null}
         </div>
       ) : null}
+
+      <CallEdits edits={edits} loggedBy={incident.call_taken_by} />
 
       {/* Complete life of the incident, newest first */}
       <Card id="case-history">

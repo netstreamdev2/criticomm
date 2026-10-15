@@ -4,6 +4,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, elevation, radius, severityColor, space, statusColor, type, makeStyles } from '@/lib/theme';
+import { useT } from '@/lib/i18n';
+
+// The parts below translate the labels they are given (catalogue wording,
+// statuses); wording already translated passes through unchanged.
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -68,12 +72,13 @@ const VARIANT_FG = (): Record<ButtonVariant, string> => ({
 });
 
 export function Button({
-  label, variant = 'primary', busy, icon, size = 'md', ...props
+  label, variant = 'primary', busy, icon, iconNode, size = 'md', ...props
 }: PressableProps & {
   label: string;
   variant?: ButtonVariant;
   busy?: boolean;
   icon?: IconName;
+  iconNode?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
 }) {
   const styles = useStyles();
@@ -99,7 +104,7 @@ export function Button({
         <ActivityIndicator color={fg} size="small" />
       ) : (
         <>
-          {icon ? <Ionicons name={icon} size={size === 'sm' ? 14 : 16} color={fg} /> : null}
+          {iconNode ?? (icon ? <Ionicons name={icon} size={size === 'sm' ? 14 : 16} color={fg} /> : null)}
           <Text style={[styles.buttonText, size === 'sm' && { fontSize: 13 }, { color: fg }]}>
             {label}
           </Text>
@@ -114,19 +119,21 @@ export function Button({
 export function Input({
   label, hint, icon, ...props
 }: TextInputProps & { label?: string; hint?: string; icon?: IconName }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View>
-      {label ? <Text style={styles.fieldLabel}>{label.toUpperCase()}</Text> : null}
+      {label ? <Text style={styles.fieldLabel}>{t(label).toUpperCase()}</Text> : null}
       <View style={styles.inputWrap}>
         {icon ? <Ionicons name={icon} size={16} color={colors.muted} style={styles.inputIcon} /> : null}
         <TextInput
           placeholderTextColor={colors.muted}
           {...props}
+          placeholder={props.placeholder ? t(props.placeholder) : props.placeholder}
           style={[styles.input, icon ? { paddingLeft: 38 } : null, props.style]}
         />
       </View>
-      {hint ? <Text style={styles.fieldHint}>{hint}</Text> : null}
+      {hint ? <Text style={styles.fieldHint}>{t(hint)}</Text> : null}
     </View>
   );
 }
@@ -134,31 +141,34 @@ export function Input({
 /* ── Status indicators ─────────────────────────────────────────────── */
 
 export function SeverityPill({ severity }: { severity: string }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={[styles.pill, { backgroundColor: severityColor(severity) }]}>
-      <Text style={styles.pillText}>{severity.toUpperCase()}</Text>
+      <Text style={styles.pillText}>{t(severity).toUpperCase()}</Text>
     </View>
   );
 }
 
 export function StatusBadge({ status }: { status: string }) {
+  const { t } = useT();
   const styles = useStyles();
   const tone = statusColor(status);
   return (
     <View style={[styles.badge, { borderColor: `${tone}66`, backgroundColor: `${tone}1f` }]}>
       <View style={[styles.badgeDot, { backgroundColor: tone }]} />
-      <Text style={[styles.badgeText, { color: tone }]}>{status}</Text>
+      <Text style={[styles.badgeText, { color: tone }]}>{t(status)}</Text>
     </View>
   );
 }
 
 /** Neutral key/value line for detail cards. */
 export function KeyValue({ label, value }: { label: string; value: React.ReactNode }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.kv}>
-      <Text style={styles.kvLabel}>{label}</Text>
+      <Text style={styles.kvLabel}>{t(label)}</Text>
       <Text style={styles.kvValue}>{value}</Text>
     </View>
   );
@@ -173,6 +183,7 @@ export function Banner({
   children: React.ReactNode;
   onDismiss?: () => void;
 }) {
+  const { t } = useT();
   const styles = useStyles();
   const map = {
     error: { colour: colors.critical, icon: 'alert-circle' as IconName },
@@ -182,9 +193,10 @@ export function Banner({
   return (
     <View style={[styles.banner, { borderColor: `${map.colour}55`, backgroundColor: `${map.colour}1a` }]}>
       <Ionicons name={map.icon} size={16} color={map.colour} />
-      <Text style={[styles.bannerText, { color: map.colour }]}>{children}</Text>
+      {/* A message passed as plain text (a check's or the app's own) is translated; a server's reason stays as sent. */}
+      <Text style={[styles.bannerText, { color: map.colour }]}>{typeof children === 'string' ? t(children) : children}</Text>
       {onDismiss ? (
-        <Pressable onPress={onDismiss} hitSlop={10} accessibilityLabel="Dismiss">
+        <Pressable onPress={onDismiss} hitSlop={10} accessibilityLabel={t('Dismiss')}>
           <Ionicons name="close" size={16} color={map.colour} />
         </Pressable>
       ) : null}
@@ -193,9 +205,10 @@ export function Banner({
 }
 
 export function EmptyState({
-  icon = 'file-tray-outline', title, body, action,
+  icon = 'file-tray-outline', iconNode, title, body, action,
 }: {
   icon?: IconName;
+  iconNode?: React.ReactNode;
   title: string;
   body?: string;
   action?: React.ReactNode;
@@ -204,7 +217,7 @@ export function EmptyState({
   return (
     <View style={styles.empty}>
       <View style={styles.emptyIcon}>
-        <Ionicons name={icon} size={26} color={colors.muted} />
+        {iconNode ?? <Ionicons name={icon} size={26} color={colors.muted} />}
       </View>
       <Text style={styles.emptyTitle}>{title}</Text>
       {body ? <Text style={styles.emptyBody}>{body}</Text> : null}
@@ -216,6 +229,7 @@ export function EmptyState({
 /* ── Wizard progress ───────────────────────────────────────────────── */
 
 export function Stepper({ steps, current }: { steps: string[]; current: number }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.stepper}>
@@ -236,7 +250,7 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
               ) : null}
             </View>
             <Text style={[styles.stepLabel, (done || active) && { color: colors.text }]} numberOfLines={1}>
-              {label}
+              {t(label)}
             </Text>
           </View>
         );
@@ -249,6 +263,7 @@ export function Stepper({ steps, current }: { steps: string[]; current: number }
 export function Segmented<T extends string>({
   options, value, onChange,
 }: { options: readonly T[]; value: T | null; onChange: (v: T) => void }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <View style={styles.segmented}>
@@ -266,7 +281,7 @@ export function Segmented<T extends string>({
               pressed && { opacity: 0.7 },
             ]}
           >
-            <Text style={[styles.segmentText, active && { color: '#fff' }]}>{opt}</Text>
+            <Text style={[styles.segmentText, active && { color: '#fff' }]}>{t(opt)}</Text>
           </Pressable>
         );
       })}
@@ -279,6 +294,7 @@ export function Segmented<T extends string>({
 export function CheckRow({
   label, checked, onToggle,
 }: { label: string; checked: boolean; onToggle: () => void }) {
+  const { t } = useT();
   const styles = useStyles();
   return (
     <Pressable
@@ -294,7 +310,7 @@ export function CheckRow({
       <View style={[styles.checkBox, checked && styles.checkBoxActive]}>
         {checked ? <Ionicons name="checkmark" size={14} color="#fff" /> : null}
       </View>
-      <Text style={[styles.checkLabel, checked && { color: colors.text }]}>{label}</Text>
+      <Text style={[styles.checkLabel, checked && { color: colors.text }]}>{t(label)}</Text>
     </Pressable>
   );
 }

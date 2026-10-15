@@ -1,4 +1,5 @@
 import type { InspectionItemStatus, ShiftStartRecord } from '@criticom/api';
+import { tx, type Translate } from '@criticom/db/i18n';
 
 /**
  * DMPS 187(c) vehicle inspection — the sheet Durban Metro officers sign at the
@@ -13,73 +14,73 @@ export type Section = { id: string; title: string; items: readonly (readonly [st
 
 export const SECTIONS = {
   ext_lights: {
-    id: 'ext_lights', title: 'External Lights',
+    id: 'ext_lights', title: tx('External Lights'),
     items: [
-      ['brake', 'Brake'], ['park', 'Park'], ['dim', 'Dim'], ['bright', 'Bright'],
-      ['indicators', 'Indicators'], ['hazard', 'Hazard'], ['front_spots', 'Front Spots'],
-      ['side_spots', 'Side Spots'], ['roof_spots', 'Roof Spots'], ['blue_lights', 'Blue Lights'],
-      ['gizwacks', 'Gizwacks'],
+      ['brake', tx('Brake')], ['park', tx('Park')], ['dim', tx('Dim')], ['bright', tx('Bright')],
+      ['indicators', tx('Indicators')], ['hazard', tx('Hazard')], ['front_spots', tx('Front Spots')],
+      ['side_spots', tx('Side Spots')], ['roof_spots', tx('Roof Spots')], ['blue_lights', tx('Blue Lights')],
+      ['gizwacks', tx('Gizwacks')],
     ],
   },
   int_lights: {
-    id: 'int_lights', title: 'Internal Lights',
-    items: [['cab_interior', 'Cab Interior'], ['van_interior', 'Van Interior'], ['dash_lights', 'Dash Lights']],
+    id: 'int_lights', title: tx('Internal Lights'),
+    items: [['cab_interior', tx('Cab Interior')], ['van_interior', tx('Van Interior')], ['dash_lights', tx('Dash Lights')]],
   },
   other_interior: {
-    id: 'other_interior', title: 'Other Interior',
+    id: 'other_interior', title: tx('Other Interior'),
     items: [
-      ['mirror', 'Mirror'], ['switches', 'Switches'], ['hooter', 'Hooter'], ['upholstery', 'Upholstery'],
-      ['handles', 'Handles'], ['handbrakes', 'Handbrakes'], ['radio_two_way', 'Radio - Two Way'],
+      ['mirror', tx('Mirror')], ['switches', tx('Switches')], ['hooter', tx('Hooter')], ['upholstery', tx('Upholstery')],
+      ['handles', tx('Handles')], ['handbrakes', tx('Handbrakes')], ['radio_two_way', tx('Radio - Two Way')],
     ],
   },
   windows: {
-    id: 'windows', title: 'Windows',
+    id: 'windows', title: tx('Windows'),
     items: [
-      ['windscreen', 'Windscreen'], ['left_front_cab', 'Left Front Cab'], ['left_rear_cab', 'Left Rear Cab'],
-      ['right_front_cab', 'Right Front Cab'], ['right_rear_cab', 'Right Rear Cab'], ['rear', 'Rear'],
+      ['windscreen', tx('Windscreen')], ['left_front_cab', tx('Left Front Cab')], ['left_rear_cab', tx('Left Rear Cab')],
+      ['right_front_cab', tx('Right Front Cab')], ['right_rear_cab', tx('Right Rear Cab')], ['rear', tx('Rear')],
     ],
   },
   grids: {
-    id: 'grids', title: 'Grids',
-    items: [['left_rear_cab', 'Left Rear Cab'], ['right_rear_cab', 'Right Rear Cab'], ['rear_canopy', 'Rear Canopy']],
+    id: 'grids', title: tx('Grids'),
+    items: [['left_rear_cab', tx('Left Rear Cab')], ['right_rear_cab', tx('Right Rear Cab')], ['rear_canopy', tx('Rear Canopy')]],
   },
   pannels: {
-    id: 'pannels', title: 'Panels',
+    id: 'pannels', title: tx('Panels'),
     items: [
-      ['bonnet', 'Bonnet'], ['right_front_arch', 'Right Front Arch'], ['right_front_door', 'Right Front Door'],
-      ['right_rear_door', 'Right Rear Door'], ['right_rear_arch', 'Right Rear Arch'],
-      ['rear_panel_boot', 'Rear Panel / Boot'], ['rear_door', 'Rear Door'], ['left_front_arch', 'Left Front Arch'],
-      ['left_front_door', 'Left Front Door'], ['left_rear_door', 'Left Rear Door'], ['left_rear_arch', 'Left Rear Arch'],
+      ['bonnet', tx('Bonnet')], ['right_front_arch', tx('Right Front Arch')], ['right_front_door', tx('Right Front Door')],
+      ['right_rear_door', tx('Right Rear Door')], ['right_rear_arch', tx('Right Rear Arch')],
+      ['rear_panel_boot', tx('Rear Panel / Boot')], ['rear_door', tx('Rear Door')], ['left_front_arch', tx('Left Front Arch')],
+      ['left_front_door', tx('Left Front Door')], ['left_rear_door', tx('Left Rear Door')], ['left_rear_arch', tx('Left Rear Arch')],
     ],
   },
   bumpers: {
-    id: 'bumpers', title: 'Bumpers',
-    items: [['front_push_bars', 'Front Push Bars'], ['front', 'Front'], ['rear', 'Rear']],
+    id: 'bumpers', title: tx('Bumpers'),
+    items: [['front_push_bars', tx('Front Push Bars')], ['front', tx('Front')], ['rear', tx('Rear')]],
   },
   other: {
-    id: 'other', title: 'Other',
-    items: [['wiper_blades', 'Wiper Blades'], ['reflectors', 'Reflectors']],
+    id: 'other', title: tx('Other'),
+    items: [['wiper_blades', tx('Wiper Blades')], ['reflectors', tx('Reflectors')]],
   },
   fluids: {
-    id: 'fluids', title: 'Fluids & Fuel Levels',
+    id: 'fluids', title: tx('Fluids & Fuel Levels'),
     items: [
-      ['engine_oil', 'Engine Oil'], ['radiator_water', 'Radiator Water'], ['windscreen_water', 'Windscreen Water'],
-      ['brake_levels', 'Brake Levels'], ['gearbox_levels', 'Gearbox Levels'], ['clutch_levels', 'Clutch Levels'],
-      ['battery_levels', 'Battery Levels'],
+      ['engine_oil', tx('Engine Oil')], ['radiator_water', tx('Radiator Water')], ['windscreen_water', tx('Windscreen Water')],
+      ['brake_levels', tx('Brake Levels')], ['gearbox_levels', tx('Gearbox Levels')], ['clutch_levels', tx('Clutch Levels')],
+      ['battery_levels', tx('Battery Levels')],
     ],
   },
   tyres: {
-    id: 'tyres', title: 'Tyres & Tools',
+    id: 'tyres', title: tx('Tyres & Tools'),
     items: [
-      ['left_front', 'Left Front'], ['left_rear', 'Left Rear'], ['right_front', 'Right Front'],
-      ['right_rear', 'Right Rear'], ['spare', 'Spare'], ['jack', 'Jack'], ['wheel_spanner', 'Wheel Spanner'],
+      ['left_front', tx('Left Front')], ['left_rear', tx('Left Rear')], ['right_front', tx('Right Front')],
+      ['right_rear', tx('Right Rear')], ['spare', tx('Spare')], ['jack', tx('Jack')], ['wheel_spanner', tx('Wheel Spanner')],
     ],
   },
   equipment: {
-    id: 'equipment', title: 'Equipment',
+    id: 'equipment', title: tx('Equipment'),
     items: [
-      ['spade', 'Spade'], ['fire_extinguisher', 'Fire Extinguisher'], ['first_aid_kit', 'First Aid Kit'],
-      ['crowbar', 'Crowbar'], ['broom', 'Broom'], ['six_cones', '6 x Cones'], ['blanket', 'Blanket'],
+      ['spade', tx('Spade')], ['fire_extinguisher', tx('Fire Extinguisher')], ['first_aid_kit', tx('First Aid Kit')],
+      ['crowbar', tx('Crowbar')], ['broom', tx('Broom')], ['six_cones', tx('6 x Cones')], ['blanket', tx('Blanket')],
     ],
   },
 } as const satisfies Record<string, Section>;
@@ -91,59 +92,59 @@ export const TOTAL_ITEMS = ITEM_KEYS.length; // 67
 
 /** The eight tabs of the V4 wizard. Item tabs list the sections they hold. */
 export const TABS = [
-  { id: 'check', label: 'Vehicle Check', sections: [] },
-  { id: 'details', label: 'Details', sections: [] },
-  { id: 'lights', label: 'Lights', sections: [SECTIONS.ext_lights, SECTIONS.int_lights] },
-  { id: 'interior', label: 'Interior', sections: [SECTIONS.other_interior, SECTIONS.windows, SECTIONS.grids] },
-  { id: 'body', label: 'Body', sections: [SECTIONS.pannels, SECTIONS.bumpers, SECTIONS.other] },
-  { id: 'mechanical', label: 'Mechanical & Fluids', sections: [SECTIONS.fluids, SECTIONS.tyres, SECTIONS.equipment] },
-  { id: 'review', label: 'Review', sections: [] },
-  { id: 'signoff', label: 'Sign Off', sections: [] },
+  { id: 'check', label: tx('Vehicle Check'), sections: [] },
+  { id: 'details', label: tx('Details'), sections: [] },
+  { id: 'lights', label: tx('Lights'), sections: [SECTIONS.ext_lights, SECTIONS.int_lights] },
+  { id: 'interior', label: tx('Interior'), sections: [SECTIONS.other_interior, SECTIONS.windows, SECTIONS.grids] },
+  { id: 'body', label: tx('Body'), sections: [SECTIONS.pannels, SECTIONS.bumpers, SECTIONS.other] },
+  { id: 'mechanical', label: tx('Mechanical & Fluids'), sections: [SECTIONS.fluids, SECTIONS.tyres, SECTIONS.equipment] },
+  { id: 'review', label: tx('Review'), sections: [] },
+  { id: 'signoff', label: tx('Sign Off'), sections: [] },
 ] as const satisfies readonly { id: string; label: string; sections: readonly Section[] }[];
 
 export const ESSENTIALS = [
-  ['lights_functional', 'Lights (Functioning properly)'],
-  ['tires_condition_ok', 'Tyres (Condition OK)'],
-  ['equipment_stocked', 'Emergency Equipment Stocked'],
-  ['comms_working', 'Communication/GPS Working'],
-  ['brakes_responsive', 'Brakes Responsive'],
+  ['lights_functional', tx('Lights (Functioning properly)')],
+  ['tires_condition_ok', tx('Tyres (Condition OK)')],
+  ['equipment_stocked', tx('Emergency Equipment Stocked')],
+  ['comms_working', tx('Communication/GPS Working')],
+  ['brakes_responsive', tx('Brakes Responsive')],
 ] as const;
 export type EssentialKey = (typeof ESSENTIALS)[number][0];
 
-export const FUEL_LEVELS = ['1/4', '1/2', '3/4', 'Full'] as const;
+export const FUEL_LEVELS = ['1/4', '1/2', '3/4', tx('Full')] as const;
 export type FuelLevel = (typeof FUEL_LEVELS)[number];
 
 export const SHIFT_TYPES = [
-  ['DAY', 'Day Shift'], ['NIGHT', 'Night Shift'], ['MORNING', 'Morning Shift'], ['AFTERNOON', 'Afternoon Shift'],
+  ['DAY', tx('Day Shift')], ['NIGHT', tx('Night Shift')], ['MORNING', tx('Morning Shift')], ['AFTERNOON', tx('Afternoon Shift')],
 ] as const;
 
 export const READINESS_ITEMS = [
-  ['memory_recall', 'Memory Recall (Can you remember key facts?)'],
-  ['judgment', 'Judgment (Split-second decision confidence?)'],
-  ['situational_awareness', 'Situational Awareness (Aware of surroundings?)'],
-  ['not_under_influence', 'Are you free from the influence of Alcohol/Drugs?'],
-  ['anger_check', 'Emotional Wellbeing (Feeling mentally balanced?)'],
-  ['reflexes', 'Reflexes (Motor skills functioning optimally?)'],
+  ['memory_recall', tx('Memory Recall (Can you remember key facts?)')],
+  ['judgment', tx('Judgment (Split-second decision confidence?)')],
+  ['situational_awareness', tx('Situational Awareness (Aware of surroundings?)')],
+  ['not_under_influence', tx('Are you free from the influence of Alcohol/Drugs?')],
+  ['anger_check', tx('Emotional Wellbeing (Feeling mentally balanced?)')],
+  ['reflexes', tx('Reflexes (Motor skills functioning optimally?)')],
 ] as const;
 
 export const CHAMBER_STATUSES = [
-  ['condition_1', 'Condition 1 — round chambered'],
-  ['condition_3', 'Condition 3 — magazine in, chamber empty'],
-  ['unloaded', 'Unloaded'],
+  ['condition_1', tx('Condition 1 — round chambered')],
+  ['condition_3', tx('Condition 3 — magazine in, chamber empty')],
+  ['unloaded', tx('Unloaded')],
 ] as const;
 
 export const FIREARM_CONDITIONS = [
-  ['clean', 'Clean & functional'],
-  ['requires_cleaning', 'Requires cleaning'],
-  ['damaged', 'Damaged / defective'],
+  ['clean', tx('Clean & functional')],
+  ['requires_cleaning', tx('Requires cleaning')],
+  ['damaged', tx('Damaged / defective')],
 ] as const;
 
 export const FIREARM_CHECKS = [
-  ['serial_verified', 'Serial number matches the register'],
-  ['barrel_clear', 'Barrel clear of obstruction'],
-  ['action_functional', 'Action / slide functions'],
-  ['safety_functional', 'Safety / decocker functions'],
-  ['sights_secure', 'Sights secure'],
+  ['serial_verified', tx('Serial number matches the register')],
+  ['barrel_clear', tx('Barrel clear of obstruction')],
+  ['action_functional', tx('Action / slide functions')],
+  ['safety_functional', tx('Safety / decocker functions')],
+  ['sights_secure', tx('Sights secure')],
 ] as const;
 export type FirearmCheckKey = (typeof FIREARM_CHECKS)[number][0];
 
@@ -164,10 +165,10 @@ export function sectionKeys(section: Section) {
   return section.items.map(([k]) => `${section.id}.${k}`);
 }
 
-export function faultLabels(items: ItemMap) {
+export function faultLabels(items: ItemMap, t: Translate = (s) => s) {
   return SECTION_ORDER.flatMap((s) => s.items
     .filter(([k]) => items[`${s.id}.${k}`] === 'fault')
-    .map(([, label]) => `${s.title}: ${label}`));
+    .map(([, label]) => `${t(s.title)}: ${t(label)}`));
 }
 
 /** "Thu, 01 Oct 2026" in South African time. */

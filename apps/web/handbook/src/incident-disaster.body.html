@@ -86,24 +86,27 @@
     <div class="section-head">
       <p class="eyebrow">Step 2 · Call logger · console</p>
       <h2>Logging the call</h2>
-      <p class="muted">The same form as every call: caller, number, patient question, map pin and region, then the details. For a flood, the Disaster group of incident codes (60-1 Flooding) suggests Disaster Management.</p>
+      <p class="muted">The same form as every call: the type, the description and the place first, then the caller and who receives it. For a flood, the Disaster group of incident types (60-1 Flooding) suggests Disaster Management.</p>
     </div>
     <figure class="exhibit">
       <figcaption><span class="tag">Send to dispatch</span><span class="where">/dispatch/log-call</span><span class="example">Example data</span></figcaption>
       <div class="screen" style="max-width:46rem">
         <div class="screen-body">
           <div class="m-card">
-            <div class="m-field"><span class="m-label"><span class="pin">1</span> Incident type (10-code)</span><div class="m-input">60-1: Flooding <span class="caret">▾</span></div></div>
-            <div class="m-field"><span class="m-label">Call description / narrative</span><div class="m-input">River over the road in Quarry Road informal settlement. About 20 homes flooded, families on roofs.</div></div>
-            <div class="m-part"><span class="m-label"><span class="pin">2</span> Send to dispatch</span><div class="m-dept"><span class="fire on">Fire</span><span class="police">Police</span><span class="med on">Medical</span><span class="dis on">Disaster</span></div>
+            <div class="m-field"><span class="m-label"><span class="pin">1</span> Incident type</span>
+              <div class="m-input"><span class="m-dots"><i class="dis"></i></span> DI-01 · Flooding <span class="caret">▾</span></div>
+              <span class="m-help">Disaster · Goes to <b>Disaster Management</b> · Usually High</span></div>
+            <div class="m-field"><span class="m-label">Description</span><div class="m-desc">River over the road in Quarry Road informal settlement. About 20 homes flooded, families on roofs.</div></div>
+            <div class="m-part"><span class="m-row between"><span class="m-label"><span class="pin">2</span> Send to dispatch</span><span class="m-help">Suggested by Criti: change if needed</span></span>
+              <div class="m-dept"><span class="fire on">Fire</span><span class="police">Police</span><span class="med on">Medical</span><span class="dis on">Disaster</span></div>
               <span class="m-help">Only the Fire &amp; Rescue, EMS, Disaster Management dispatch desks receive this call.</span></div>
             <span class="m-btn blue full">Send to 3 dispatch desks</span>
           </div>
         </div>
       </div>
       <ol class="legend">
-        <li><span class="pin">1</span><span><b>Disaster codes</b> suggest Disaster Management.</span></li>
-        <li><span class="pin">2</span><span><b>Several departments.</b> A flood with people trapped also needs Fire &amp; Rescue for rescue and EMS for the injured. Each department works its own part of the one call.</span></li>
+        <li><span class="pin">1</span><span><b>Disaster types</b> (purple dot) suggest Disaster Management. Some go to several departments at once, for example <i>People trapped by flood water</i> (Disaster, Fire &amp; Rescue and EMS).</span></li>
+        <li><span class="pin">2</span><span><b>Several departments.</b> Criti read “families on roofs” and suggested Fire &amp; Rescue for the rescue and EMS for the injured. Each department works its own part of the one call.</span></li>
       </ol>
     </figure>
   </section>
@@ -121,7 +124,7 @@
         <div class="screen-body">
           <div><p class="m-title">Dispatch resources</p><p class="m-sub">Resources sent to an open incident. Dispatching again updates its deployment.</p></div>
           <div class="m-card">
-            <div class="m-field"><span class="m-label"><span class="pin">1</span> Incident</span><div class="m-input">INC-20261013-0015 · Flooding · Quarry Road <span class="caret">▾</span></div></div>
+            <div class="m-field"><span class="m-label"><span class="pin">1</span> Incident</span><div class="m-input">FDMD-DM-20261013-1012-0015 · Flooding · Quarry Road <span class="caret">▾</span></div></div>
             <div class="m-grid2" style="gap:.6rem">
               <div class="m-field"><span class="m-label"><span class="pin">2</span> Disaster type</span><div class="m-input">Flood <span class="caret">▾</span></div></div>
               <div class="m-field"><span class="m-label"><span class="pin">3</span> Resource type</span><div class="m-input">Rescue teams <span class="caret">▾</span></div></div>
@@ -176,7 +179,7 @@
         <li><span class="pin">2</span><span><b>Impact:</b> injuries, deaths, and people displaced who need shelter. Whole numbers only.</span></li>
         <li><span class="pin">3</span><span><b>Root cause</b> and <b>lessons learned</b> are required, with the reporting officer’s name.</span></li>
         <li><span class="pin">4</span><span><b>The call’s timeline</b> and the desk’s deployment updates are attached to the report as they stood.</span></li>
-        <li><span class="pin">5</span><span><b>File.</b> Numbered PM-INC-20261013-0015, it finishes Disaster Management’s part of the call. Command can still correct it until the case is closed.</span></li>
+        <li><span class="pin">5</span><span><b>File.</b> Numbered PM-FDMD-DM-20261013-1012-0015, it finishes Disaster Management’s part of the call. Command can still correct it until the case is closed.</span></li>
       </ol>
     </div>
   </section>

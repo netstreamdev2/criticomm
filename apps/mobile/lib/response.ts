@@ -1,8 +1,10 @@
+import { english, tx, type Translate } from '@criticom/db/i18n';
 import type { IncidentStatus } from '@criticom/db/types';
-import { wordsFor } from './department.ts';
+import { wordsIn } from './department.ts';
 
 /**
- * How a crew works a call, with no dependencies so it can be tested.
+ * How a crew works a call, with no app dependencies so it can be tested.
+ * The wording is in English unless a translator `t` is passed.
  *
  * A police call is closed by its case report, not by a status: the lead
  * goes En Route (responding), On Scene, then files the report — the server
@@ -75,39 +77,49 @@ const LADDER: Partial<Record<IncidentStatus, IncidentStatus>> = {
   Transporting: 'Resolved',
 };
 
+/** The button that moves a call on to each status. */
+const MARK: Partial<Record<IncidentStatus, string>> = {
+  'En Route': tx('Accept · Mark En Route'),
+  Arrived: tx('Mark Arrived'),
+  'On Scene': tx('Mark On Scene'),
+  Transporting: tx('Mark Transporting'),
+  Resolved: tx('Mark Resolved'),
+};
+const markLabel = (to: IncidentStatus, t: Translate) => t(MARK[to] ?? to);
+
 /** The one action the crew takes next on this call, if any. */
-export function nextStep(call: CallLike, status: IncidentStatus, meSilo?: string): NextStep {
+export function nextStep(call: CallLike, status: IncidentStatus, meSilo?: string, t: Translate = english.t): NextStep {
   if (status === 'Resolved' || status === 'Closed') return null;
   if (isFireResponder(meSilo) || isEmsResponder(meSilo) || isDisasterResponder(meSilo)) {
     if (call.report_filed_at) return null;
     if (status === 'On Scene' || status === 'Transporting') {
       return {
         kind: 'report',
-        label: isEmsResponder(meSilo) ? 'File patient report' : isDisasterResponder(meSilo) ? 'File post-mortem' : 'File fire report',
+        label: isEmsResponder(meSilo) ? t('File patient report') : isDisasterResponder(meSilo) ? t('File post-mortem') : t('File fire report'),
       };
     }
     const to = FIRE_LADDER[status];
-    return to ? { kind: 'status', status: to, label: to === 'En Route' ? 'Accept · Mark En Route' : 'Mark On Scene' } : null;
+    return to ? { kind: 'status', status: to, label: markLabel(to, t) } : null;
   }
   if (isPoliceCall(call)) {
     if (call.report_filed_at) return null;
     if (status === 'On Scene' || status === 'Transporting') {
-      return { kind: 'report', label: 'File incident report' };
+      return { kind: 'report', label: t('File incident report') };
     }
     const to = POLICE_LADDER[status];
-    return to ? { kind: 'status', status: to, label: to === 'En Route' ? 'Accept · Mark En Route' : `Mark ${to}` } : null;
+    return to ? { kind: 'status', status: to, label: markLabel(to, t) } : null;
   }
   const to = LADDER[status];
-  return to ? { kind: 'status', status: to, label: `Mark ${to}` } : null;
+  return to ? { kind: 'status', status: to, label: to === 'En Route' ? t('Mark En Route') : markLabel(to, t) } : null;
 }
 
 /**
  * The optional step beside the main one: a firefighter on scene may mark
  * Transporting (casualties to hospital, the appliance moving) before filing.
  */
-export function secondaryStep(call: CallLike, status: IncidentStatus, meSilo?: string): NextStep {
+export function secondaryStep(call: CallLike, status: IncidentStatus, meSilo?: string, t: Translate = english.t): NextStep {
   if (!(isFireResponder(meSilo) || isEmsResponder(meSilo)) || call.report_filed_at) return null;
-  return status === 'On Scene' ? { kind: 'status', status: 'Transporting', label: 'Mark Transporting' } : null;
+  return status === 'On Scene' ? { kind: 'status', status: 'Transporting', label: t('Mark Transporting') } : null;
 }
 
 /** Statuses before a call has been sent out to anyone. */
@@ -175,6 +187,7 @@ export function callView(
   call: FieldCall,
   me: { userId: string; silo: string; onDuty: boolean | null },
   queued: IncidentStatus | null = null,
+  t: Translate = english.t,
 ): CallView {
   const responders = call.responders ?? [];
   const lead: Responder | null = responders.find((r) => r.role === 'lead')
@@ -196,13 +209,13 @@ export function callView(
     ? (queued ?? call.status)
     : role === 'backup' ? (queued ?? mine?.status ?? null) : null;
 
-  const words = wordsFor(me.silo);
+  const words = wordsIn(me.silo, t);
   const assignment: Assignment = lead?.user_id === me.userId || (assignedToMe && !lead)
     ? { kind: 'you' }
     : lead
-      ? { kind: 'other', name: lead.name ?? `another ${words.person}` }
+      ? { kind: 'other', name: lead.name ?? t('another {person}', { person: words.person }) }
       : call.assigned_to
-        ? { kind: 'other', name: call.assigned_to_name ?? `another ${words.person}` }
+        ? { kind: 'other', name: call.assigned_to_name ?? t('another {person}', { person: words.person }) }
         : { kind: 'open' };
 
   const ownSos = call.source === 'Responder-Panic' && call.created_by === me.userId;
@@ -210,30 +223,30 @@ export function callView(
   if (call.status === 'Resolved' || call.status === 'Closed') return view;
   // The officer in trouble never responds to their own SOS (migration 0044).
   if (ownSos) {
-    view.note = 'This is your SOS — dispatch is sending help to you.';
+    view.note = t('This is your SOS — dispatch is sending help to you.');
     return view;
   }
 
   if (role === 'lead' && myStatus) {
-    view.action = nextStep(call, myStatus, me.silo);
-    view.secondary = secondaryStep(call, myStatus, me.silo);
+    view.action = nextStep(call, myStatus, me.silo, t);
+    view.secondary = secondaryStep(call, myStatus, me.silo, t);
     return view;
   }
   if (role === 'backup') {
-    if (myStatus === 'En Route') view.action = { kind: 'status', status: 'On Scene', label: 'Mark On Scene' };
-    else view.note = `You are backup on this incident — the lead ${words.person} files the ${words.report}.`;
+    if (myStatus === 'En Route') view.action = { kind: 'status', status: 'On Scene', label: t('Mark On Scene') };
+    else view.note = t('You are backup on this incident — the lead {person} files the {report}.', { person: words.person, report: words.report });
     return view;
   }
 
   const sentToMe = assignedToMe
     || (!NOT_SENT.includes(call.status) && (call.dispatched_silos ?? []).includes(me.silo));
   if (!sentToMe) {
-    view.note = 'View only — this incident was not sent to your department.';
+    view.note = t('View only — this incident was not sent to your department.');
     return view;
   }
   const asLead = !lead && (!call.assigned_to || assignedToMe);
-  view.action = { kind: 'respond', asLead, label: 'Accept' };
-  if (me.onDuty === false) view.blocked = 'Go on duty to respond to incidents.';
+  view.action = { kind: 'respond', asLead, label: t('Accept') };
+  if (me.onDuty === false) view.blocked = t('Go on duty to respond to incidents.');
   return view;
 }
 
