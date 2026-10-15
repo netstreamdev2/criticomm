@@ -31,6 +31,7 @@
     "./incident-number": "./src/incident-number.ts",
     "./incident-edits": "./src/incident-edits.ts",
     "./call-facts": "./src/call-facts.ts",
+    "./unfinished-call": "./src/unfinished-call.ts",
     "./i18n": "./src/i18n/index.ts",
     "./i18n/locales": "./src/i18n/locales/index.ts",
     "./i18n/source": "./src/i18n/source.ts",

@@ -100,7 +100,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <I18nProvider lang={lang} dict={dict}>
     <ToastProvider>
-      <div className={usesSidebar ? 'min-h-screen lg:grid lg:grid-cols-[264px_1fr]' : 'min-h-screen'}>
+      <div className={usesSidebar ? 'min-h-screen lg:grid lg:grid-cols-[var(--sidebar-w,264px)_1fr] lg:transition-[grid-template-columns] lg:duration-200' : 'min-h-screen'}>
         {usesSidebar ? <Sidebar silo={silo} role={role} dept={dept} org={branding.Ethekwini} tenantName={tenant?.name} hiddenHrefs={hidden} /> : null}
         <div className="flex min-h-screen min-w-0 flex-col">
           <Topbar fullName={fullName} role={role} silo={silo} hasSidebar={usesSidebar} canTranslate={canTranslate} />

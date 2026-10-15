@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, ChevronDown, Menu, Target, X, Search } from 'lucide-react';
+import { BarChart3, Check, ChevronDown, Menu, PanelLeft, Target, X, Search } from 'lucide-react';
 import { canAccess, type Silo, type UserRole } from '@criticom/db';
 import type { DepartmentBranding } from '@criticom/api';
 // The dependency-free case module only: this is a client component.
@@ -13,6 +13,7 @@ import {
   ALL_NAV_ITEMS, NAV_GROUPS, POLICE_OPERATIONS, isDisasterDesk, isDoctor, isEmsAdmin, isFireCommand, isPoliceAdmin, type NavGroup, type NavItem,
 } from '@/lib/nav';
 import { cn } from '@/lib/utils';
+import { SIDEBAR_MODES, SIDEBAR_MODE_KEY, columnWidth, isSidebarMode, type SidebarMode } from '@/lib/sidebar-mode';
 
 /** Branding for the signed-in user's own department, resolved server-side. */
 export type DeptIdentity = DepartmentBranding & { logoUrl: string | null };
@@ -553,12 +554,23 @@ function visibleItem(item: NavItem, allowed: (i: NavItem) => boolean, q: string)
 }
 
 function NavList({
-  silo, role, onNavigate, hiddenHrefs = [],
+  silo, role, onNavigate, hiddenHrefs = [], narrow = false,
 }: {
   silo: string; role: string; onNavigate?: () => void; hiddenHrefs?: string[];
+  /** The collapsed rail: icons only, each named on hover. */
+  narrow?: boolean;
 }) {
   const pathname = usePathname();
   const [filter, setFilter] = useState('');
+  // On the rail, an entry with pages under it opens them beside the rail.
+  const [fly, setFly] = useState<{ key: string; top: number; item: NavItem } | null>(null);
+  useEffect(() => setFly(null), [pathname, narrow]);
+  useEffect(() => {
+    if (!fly) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setFly(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [fly]);
   const [collapsed, setCollapsed] = useState<string[]>([]);
 
   // Restore collapsed groups
@@ -625,7 +637,78 @@ function NavList({
     .sort((a, b) => b.length - a.length)[0];
   const isActive = (href: string) => href === activeHref;
 
+  const railCls = 'group relative mx-auto flex h-9 w-9 items-center justify-center rounded-md transition-colors';
+  const renderRail = (item: NavItem, key: string): React.ReactNode => {
+    const Icon = item.icon;
+    if (item.children) {
+      const inside = item.children.some((c) => activeHref !== undefined && hrefsOf(c).includes(activeHref));
+      return (
+        <li key={key}>
+          <button
+            type="button"
+            title={item.label}
+            aria-label={item.label}
+            aria-haspopup="menu"
+            aria-expanded={fly?.key === key}
+            onClick={(e) => {
+              if (fly?.key === key) { setFly(null); return; }
+              const top = Math.max(8, Math.min(e.currentTarget.getBoundingClientRect().top, window.innerHeight - 360));
+              setFly({ key, top, item });
+            }}
+            className={cn(railCls, inside || fly?.key === key ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-fg')}
+          >
+            <Icon className="h-4 w-4" />
+            <span aria-hidden className="absolute bottom-1 right-1 h-1 w-1 rounded-full bg-current opacity-60" />
+          </button>
+        </li>
+      );
+    }
+    const active = isActive(item.href);
+    return (
+      <li key={key}>
+        <Link
+          href={item.href}
+          onClick={onNavigate}
+          title={item.label}
+          aria-label={item.label}
+          aria-current={active ? 'page' : undefined}
+          className={cn(railCls, active ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:bg-muted hover:text-fg')}
+        >
+          {active && <span aria-hidden className="absolute -left-1.5 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-primary" />}
+          <Icon className="h-4 w-4" />
+        </Link>
+      </li>
+    );
+  };
+
+  /** An entry's pages, beside the rail: the pages, and any pages under those, named. */
+  const flyLinks = (item: NavItem, depth = 0): React.ReactNode[] => (item.children ?? []).flatMap((c) => {
+    if (c.children) {
+      return [
+        <p key={`h:${c.label}`} className="px-2.5 pb-0.5 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground" style={{ paddingLeft: `${0.625 + depth * 0.75}rem` }}>{c.label}</p>,
+        ...flyLinks(c, depth + 1),
+      ];
+    }
+    const CIcon = c.icon;
+    const active = isActive(c.href);
+    return [
+      <Link
+        key={c.href}
+        href={c.href}
+        role="menuitem"
+        onClick={() => { setFly(null); onNavigate?.(); }}
+        aria-current={active ? 'page' : undefined}
+        style={{ paddingLeft: `${0.625 + depth * 0.75}rem` }}
+        className={cn('flex items-center gap-2.5 rounded-md py-1.5 pr-2 text-sm', active ? 'bg-primary/15 font-semibold text-fg' : 'text-fg/80 hover:bg-muted hover:text-fg')}
+      >
+        <CIcon className={cn('h-4 w-4 shrink-0', active ? 'text-primary' : 'text-muted-foreground')} />
+        <span className="truncate">{c.label}</span>
+      </Link>,
+    ];
+  });
+
   const renderItem = (item: NavItem, key: string, depth: number): React.ReactNode => {
+    if (narrow && depth === 0) return renderRail(item, key);
     const Icon = item.icon;
     const indent = { paddingLeft: `${0.75 + depth * 0.9}rem` };
     if (item.children) {
@@ -679,6 +762,32 @@ function NavList({
       </li>
     );
   };
+
+  if (narrow) {
+    return (
+      <>
+        <nav className="flex-1 overflow-y-auto px-1.5 py-3" aria-label="Main">
+          {groups.map((g, i) => (
+            <div key={g.id} className={cn('mb-1', i > 0 && 'border-t border-border/60 pt-1')}>
+              <ul className="space-y-0.5" aria-label={g.label}>
+                {g.items.map((item) => renderItem(item, `${g.id}:${item.href}`, 0))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+        {fly ? (
+          <>
+            <button type="button" aria-label="Close" className="fixed inset-0 z-40 cursor-default" onClick={() => setFly(null)} />
+            <div role="menu" aria-label={fly.item.label} style={{ top: fly.top }}
+              className="fixed left-[72px] z-50 max-h-[350px] w-64 overflow-y-auto rounded-lg border border-border bg-bg-card p-1.5 shadow-2xl">
+              <p className="px-2.5 pb-1 pt-1 text-xs font-bold text-fg">{fly.item.label}</p>
+              {flyLinks(fly.item)}
+            </div>
+          </>
+        ) : null}
+      </>
+    );
+  }
 
   return (
     <>
@@ -762,8 +871,16 @@ function roleHeading(role: string, silo: string, tenantName?: string): { title: 
   }
 }
 
-function Brand({ dept, role, silo, tenantName }: { dept?: DeptIdentity; role: string; silo: string; tenantName?: string }) {
+function Brand({ dept, role, silo, tenantName, narrow = false }: { dept?: DeptIdentity; role: string; silo: string; tenantName?: string; narrow?: boolean }) {
   const heading = roleHeading(role, silo, tenantName);
+  if (narrow) {
+    return (
+      <div className="flex h-16 shrink-0 items-center justify-center border-b border-border" title={heading?.title ?? dept?.short_name ?? 'HIKTECH'}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/hiktech-icon.svg" alt="HIKTECH" className="h-9 w-9 rounded-md bg-white p-1" />
+      </div>
+    );
+  }
   return (
     <div className="shrink-0 border-b border-border">
       <div className="flex h-16 items-center px-4">
@@ -801,8 +918,15 @@ function Brand({ dept, role, silo, tenantName }: { dept?: DeptIdentity; role: st
  * menu: its crest when an administrator has uploaded one, and its name.
  * HikTech's mark at the top is untouched.
  */
-function OrgFooter({ org }: { org?: DeptIdentity }) {
+function OrgFooter({ org, narrow = false }: { org?: DeptIdentity; narrow?: boolean }) {
   if (!org) return null;
+  if (narrow) {
+    return (
+      <div className="flex shrink-0 justify-center border-t border-border py-3 opacity-80" title={`Serving ${org.official_name}`}>
+        <DeptBadge branding={org} logoUrl={org.logoUrl} size="xs" />
+      </div>
+    );
+  }
   return (
     <div className="flex shrink-0 items-center gap-2.5 border-t border-border px-5 py-3 opacity-80">
       <DeptBadge branding={org} logoUrl={org.logoUrl} size="xs" />
@@ -810,6 +934,56 @@ function OrgFooter({ org }: { org?: DeptIdentity }) {
         <span className="block text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Serving</span>
         <span className="block truncate text-[11px] font-semibold text-fg">{org.official_name}</span>
       </span>
+    </div>
+  );
+}
+
+/** How the sidebar shows, at its foot (as Supabase). */
+function ModeControl({ mode, onMode, narrow }: { mode: SidebarMode; onMode: (m: SidebarMode) => void; narrow: boolean }) {
+  // Placed on the page, not in the sidebar, so the narrow rail never cuts it off.
+  const [open, setOpen] = useState<{ left: number; bottom: number } | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
+  return (
+    <div className={cn('relative shrink-0 border-t border-border', narrow ? 'flex justify-center py-2' : 'px-3 py-2')}>
+      <button
+        type="button"
+        onClick={(e) => {
+          if (open) { setOpen(null); return; }
+          const r = e.currentTarget.getBoundingClientRect();
+          setOpen({ left: narrow ? r.right + 8 : r.left, bottom: window.innerHeight - (narrow ? r.bottom : r.top - 4) });
+        }}
+        aria-haspopup="menu"
+        aria-expanded={Boolean(open)}
+        title="Sidebar"
+        aria-label="Sidebar: how it shows"
+        className={cn('inline-flex items-center gap-2 rounded-md text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-fg',
+          narrow ? 'h-9 w-9 justify-center' : 'h-8 w-full px-2')}
+      >
+        <PanelLeft className="h-4 w-4 shrink-0" />
+        {narrow ? null : <span className="truncate">Sidebar · {SIDEBAR_MODES.find((m) => m.mode === mode)?.label}</span>}
+      </button>
+      {open ? (
+        <>
+          <button type="button" aria-label="Close" className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(null)} />
+          <div role="menu" aria-label="Sidebar" style={{ left: open.left, bottom: open.bottom }}
+            className="fixed z-50 w-52 rounded-lg border border-border bg-bg-card p-1.5 shadow-2xl">
+            <p className="px-2 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Sidebar</p>
+            {SIDEBAR_MODES.map((m) => (
+              <button key={m.mode} type="button" role="menuitemradio" aria-checked={mode === m.mode}
+                onClick={() => { onMode(m.mode); setOpen(null); }}
+                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-muted">
+                <span className="flex h-4 w-4 items-center justify-center">{mode === m.mode ? <Check className="h-3.5 w-3.5 text-primary" /> : null}</span>
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -827,13 +1001,53 @@ export function Sidebar({
   // Close the drawer whenever the route changes
   useEffect(() => setOpen(false), [pathname]);
 
+  // Expanded, collapsed, or open while the pointer is over it; remembered in this browser.
+  const [mode, setModeState] = useState<SidebarMode>('expanded');
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(SIDEBAR_MODE_KEY);
+      if (isSidebarMode(saved)) setModeState(saved);
+    } catch { /* ignore */ }
+  }, []);
+  useEffect(() => {
+    // The page's column (app layout) follows: the rail on hover never pushes the page.
+    document.documentElement.style.setProperty('--sidebar-w', `${columnWidth(mode)}px`);
+    document.documentElement.setAttribute('data-sidebar', mode);
+  }, [mode]);
+  const setMode = (m: SidebarMode) => {
+    setModeState(m);
+    setHovered(false);
+    try { localStorage.setItem(SIDEBAR_MODE_KEY, m); } catch { /* ignore */ }
+  };
+  const [hovered, setHovered] = useState(false);
+  const wait = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // A short pause, so passing the pointer across the rail does not throw it open.
+  const enter = () => { if (mode === 'hover') wait.current = setTimeout(() => setHovered(true), 150); };
+  const leave = () => { if (wait.current) clearTimeout(wait.current); setHovered(false); };
+  useEffect(() => () => { if (wait.current) clearTimeout(wait.current); }, []);
+  const narrow = mode === 'collapsed' || (mode === 'hover' && !hovered);
+
   return (
     <>
-      <aside className="hidden h-screen flex-col border-r border-border bg-bg-soft lg:sticky lg:top-0 lg:flex">
-        <Brand dept={dept} role={role} silo={silo} tenantName={tenantName} />
-        <NavList silo={silo} role={role} hiddenHrefs={hiddenHrefs} />
-        <OrgFooter org={org} />
-      </aside>
+      {/* The column holds the rail; on hover the sidebar opens over the page, not beside it. */}
+      <div className="relative z-30 hidden h-screen lg:sticky lg:top-0 lg:block">
+        <aside
+          onMouseEnter={enter}
+          onMouseLeave={leave}
+          onFocus={() => { if (mode === 'hover') setHovered(true); }}
+          onBlur={(e) => { if (mode === 'hover' && !e.currentTarget.contains(e.relatedTarget as Node | null)) setHovered(false); }}
+          className={cn(
+            'absolute inset-y-0 left-0 flex flex-col overflow-hidden border-r border-border bg-bg-soft transition-[width] duration-200 ease-out',
+            narrow ? 'w-16' : 'w-[264px]',
+            mode === 'hover' && hovered && 'shadow-2xl',
+          )}
+        >
+          <Brand dept={dept} role={role} silo={silo} tenantName={tenantName} narrow={narrow} />
+          <NavList silo={silo} role={role} hiddenHrefs={hiddenHrefs} narrow={narrow} />
+          <ModeControl mode={mode} onMode={setMode} narrow={narrow} />
+          <OrgFooter org={org} narrow={narrow} />
+        </aside>
+      </div>
 
       <button
         type="button"

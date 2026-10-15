@@ -526,6 +526,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "1 call sent early still needs its details",
+  "text": "1 call sent early still needs its details",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
+  ]
+ },
+ {
   "key": "1 day",
   "text": "1 day",
   "context": null,
@@ -2264,6 +2272,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/leave.tsx"
+  ]
+ },
+ {
+  "key": "Another call taker",
+  "text": "Another call taker",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
   ]
  },
  {
@@ -4341,6 +4357,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Carry on",
+  "text": "Carry on",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
   ]
  },
  {
@@ -7188,6 +7212,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Dispatch already has them. Carry on to add what is missing; each change goes to the call.",
+  "text": "Dispatch already has them. Carry on to add what is missing; each change goes to the call.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
+  ]
+ },
+ {
   "key": "Dispatch and command have been alerted ({number}) and will send help. Stay on the radio.",
   "text": "Dispatch and command have been alerted ({number}) and will send help. Stay on the radio.",
   "context": null,
@@ -8750,6 +8782,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/index.tsx"
+  ]
+ },
+ {
+  "key": "Finish this call",
+  "text": "Finish this call",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -13160,6 +13200,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Log a new call",
+  "text": "Log a new call",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/page.tsx"
+  ]
+ },
+ {
   "key": "Longitude",
   "text": "Longitude",
   "context": null,
@@ -16011,6 +16059,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Only the person who logged {number}, or the control room, can finish it.",
+  "text": "Only the person who logged {number}, or the control room, can finish it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/page.tsx"
+  ]
+ },
+ {
   "key": "Only the {desks} dispatch desk receives this call.",
   "text": "Only the {desks} dispatch desk receives this call.",
   "context": null,
@@ -16088,7 +16144,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Open the call",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/dispatch/log-call/page.tsx"
   ]
  },
  {
@@ -22456,6 +22513,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "That call was not found.",
+  "text": "That call was not found.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/page.tsx"
+  ]
+ },
+ {
   "key": "That email or badge number and password do not match an account.",
   "text": "That email or badge number and password do not match an account.",
   "context": null,
@@ -22887,6 +22952,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/lib/api-host.ts"
+  ]
+ },
+ {
+  "key": "This call cannot be carried on here",
+  "text": "This call cannot be carried on here",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/page.tsx"
   ]
  },
  {
@@ -26010,6 +26083,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "You, {ago}",
+  "text": "You, {ago}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
+  ]
+ },
+ {
   "key": "Your SOS — dispatch is sending help to you",
   "text": "Your SOS — dispatch is sending help to you",
   "context": null,
@@ -27467,6 +27548,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{number} has all its details.",
+  "text": "{number} has all its details.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/page.tsx"
+  ]
+ },
+ {
+  "key": "{number} is closed.",
+  "text": "{number} is closed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/page.tsx"
+  ]
+ },
+ {
   "key": "{number} is on their dispatch desk now.",
   "text": "{number} is on their dispatch desk now.",
   "context": null,
@@ -27585,6 +27682,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/sync-tray.tsx"
+  ]
+ },
+ {
+  "key": "{n} calls sent early still need their details",
+  "text": "{n} calls sent early still need their details",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
   ]
  },
  {

@@ -12,7 +12,8 @@ import {
   uploadIncidentEvidence, type IntakeSuggestion,
 } from '@criticom/api';
 import {
-  MED_PRIORITIES, askField, catalogueType, composeDescription, injuriesFor, intakeAdvice, maxSeverity, typeMeta,
+  CALLER_NOT_GIVEN, DESCRIPTION_TO_FOLLOW, MED_PRIORITIES, askField, catalogueType, composeDescription, injuriesFor, intakeAdvice,
+  maxSeverity, typeMeta,
   type CompleteCallIntakeInput, type DeskSilo, type IncidentDetails, type IncidentSeverity, type LogIncomingCallInput, type Silo,
 } from '@criticom/db';
 import { useT } from '@/components/i18n';
@@ -26,6 +27,7 @@ import { regionFor } from '@/lib/durban-regions';
 import { takeCallDraft } from '@/components/criti/shared';
 import { CritiStrip, missingWord } from './criti-strip';
 import { DescriptionBox, DescriptionModal, HURT_COUNTS, type PatientRow, type QuestionRow } from './description';
+import { readPatients } from '@criticom/db/call-facts';
 import { CALL_CHANNELS, DEFAULT_CALL_CHANNEL, type CallChannel, type CallPatient, type PatientSeverity } from '@criticom/db/call-facts';
 import {
   CritiMark, DEPTS, SEVERITIES, SEVERITY_ON, deptLabel, deskList, fieldCls, inDeptOrder, labelCls, newRef, severityWord,
@@ -98,9 +100,15 @@ const evidenceKind = (f: File) =>
  * department are known; the rest is then added to the same call.
  */
 export function LogCallForm({
-  defaultSilo, canRoute = true, categoryTree = [], tuning = DEFAULT_TUNING,
+  defaultSilo, canRoute = true, categoryTree = [], tuning = DEFAULT_TUNING, resume = null,
 }: {
   defaultSilo: Silo;
+  /**
+   * A call already sent early and not finished, to carry on with (0076): the
+   * page has checked this person may finish it. Its details are filled in and
+   * each further change goes to the same call.
+   */
+  resume?: Incident | null;
   /** False for pure call-takers: they queue for the dispatch desk, never route. */
   canRoute?: boolean;
   categoryTree?: CategoryTree;
@@ -439,6 +447,45 @@ export function LogCallForm({
     }
   }, [setRegionFromLocation]);
 
+  /* ── Carrying on with a call sent early ─────────────────────────── */
+  // Filled in once, when the form opens on that call.
+  useEffect(() => {
+    if (!resume) return;
+    const c = resume;
+    if (c.caller_name && c.caller_name !== CALLER_NOT_GIVEN) setCallerName(c.caller_name);
+    if (c.caller_number) { setPhone(c.caller_number); setPhoneTouched(true); }
+    if (c.call_description && c.call_description !== DESCRIPTION_TO_FOLLOW) { setDescription(c.call_description); mark('description', 'you'); }
+    if (c.incident_type) { setIncidentType(c.incident_type); setCategory(c.incident_category ?? ''); mark('type', 'you'); }
+    setSeverity(c.incident_severity); mark('severity', 'you');
+    setAddress(c.location_address ?? '');
+    if (c.location_lat && c.location_lng) { setLat(c.location_lat); setLng(c.location_lng); }
+    setSuburb(c.suburb ?? ''); setCity(c.city ?? ''); setPostal(c.postal_code ?? ''); setRegion(c.region ?? '');
+    setInjuries(c.injuries ?? []); if (c.injuries?.length) mark('injuries', 'you');
+    setDetails((c.details ?? {}) as IncidentDetails);
+    setNotes(c.notes ?? '');
+    if (c.call_channel && (CALL_CHANNELS as readonly string[]).includes(c.call_channel)) setChannel(c.call_channel as CallChannel);
+    setChannelOther(c.call_channel_other ?? '');
+    if (c.is_caller_patient !== null) { setIsPatient(c.is_caller_patient); mark('patient', 'you'); }
+    const kept = readPatients(c.patients);
+    const me = kept.find((p) => p.caller);
+    if (me) setCallerSeverity(me.severity);
+    const others = kept.filter((p) => !p.caller).map((p) => ({ name: p.name ?? '', severity: p.severity }));
+    const named = (c.patient_name ?? '').split(',').map((n) => n.trim()).filter((n) => n && n !== 'Unknown / Not Provided');
+    if (others.length) setPatients(others);
+    else if (c.is_caller_patient === false && named.length) setPatients(named.map((name) => ({ name, severity: '' })));
+    if (c.medical_type === 'EMS Not Required') { setEmsNotRequired(true); setVictims('0'); }
+    else {
+      if (c.number_of_victims !== null) { setVictims(String(Math.min(c.number_of_victims, 5))); mark('victims', 'you'); }
+      if (c.medical_type && (MED_PRIORITIES as readonly string[]).includes(c.medical_type)) { setMedPriority(c.medical_type); mark('priority', 'you'); }
+    }
+    const desks = inDeptOrder((c.tagged_silos ?? []).filter((d): d is DeskSilo => d !== 'Ethekwini'));
+    setTargets(desks); setTargetsTouched(true);
+    // The call is already with dispatch: from here on each change goes to it.
+    sentRef.current = c;
+    setSent(c);
+    setSentTags(desks);
+  }, []);
+
   /* ── A call Criti started ("Open in the form") ──────────────────── */
   // Filled in once, when the form opens. Every field stays editable and the
   // call is logged only by this form's own button, with its own checks.
@@ -480,6 +527,7 @@ export function LogCallForm({
   }, []);
 
   const checkDup = () => {
+    if (sentRef.current) return;
     const caller = phoneCheck.ok ? phoneCheck.e164 : null;
     if (!caller && !address) return;
     void (async () => {
@@ -556,6 +604,16 @@ export function LogCallForm({
   const fieldsKey = JSON.stringify(fields);
   const fieldsRef = useRef(fields);
   fieldsRef.current = fields;
+
+  // Carrying on: the form as filled in from the call is what the call already
+  // holds, so nothing is sent again. Runs before the saving below, in the same
+  // commit that shows the call.
+  const baselined = useRef(false);
+  useEffect(() => {
+    if (!resume || !sent || baselined.current) return;
+    savedRef.current = fieldsRef.current;
+    baselined.current = true;
+  }, [resume, sent]);
 
   /* ── Adding to a call already sent ──────────────────────────────── */
   const flush = useCallback(async (retry = false): Promise<boolean> => {

@@ -7,7 +7,7 @@ import {
   statusForPart, type IncidentResponder,
 } from '@criticom/api';
 import {
-  DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, STATUS_OVERRIDE_ROLES, departmentName, STATUS_OVERRIDE_STEPS, canAccess, canWatchBodycam, caseStage,
+  DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, STATUS_OVERRIDE_ROLES, departmentName, STATUS_OVERRIDE_STEPS, canAccess, canWatchBodycam, caseStage, mayFinishCall,
   type Database, type Silo, type UserRole,
 } from '@criticom/db';
 import { windowFor } from '@criticom/db/bodycams';
@@ -179,7 +179,16 @@ export default async function IncidentDetailPage({
             <DetailsToFollow incident={incident} />
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {/* Sent early and not finished: the person who logged it (or the control room) carries on (0076). */}
+          {mayFinishCall({ userId, role, silo }, incident) ? (
+            <Link
+              href={`/dispatch/log-call?resume=${incident.id}`}
+              className="no-print rounded-md bg-accent px-3 py-1.5 text-sm font-semibold text-white hover:bg-accent/90"
+            >
+              {t('Finish this call')}
+            </Link>
+          ) : null}
           <a
             href={`/api/pdf/incident/${incident.id}`}
             className="no-print rounded-md border border-border bg-bg-soft px-3 py-1.5 text-sm hover:bg-muted"

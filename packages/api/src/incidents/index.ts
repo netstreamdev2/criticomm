@@ -221,6 +221,31 @@ export async function editCallBeforeDispatch(
   return data as Incident;
 }
 
+export type UnfinishedCall = Pick<Incident,
+  'id' | 'incident_number' | 'incident_type' | 'incident_severity' | 'location_address' | 'incident_created_at' | 'call_taken_by' | 'created_by'>;
+
+/**
+ * Calls sent to dispatch before their details were in, and not yet finished
+ * (0076): the person's own, or every one in the organisation for the control
+ * room (`all`). Newest first; none before 0076 is run.
+ */
+export async function listUnfinishedCalls(
+  client: CriticomClient,
+  args: { userId: string; all: boolean },
+): Promise<UnfinishedCall[]> {
+  let q = client
+    .from('incidents')
+    .select('id, incident_number, incident_type, incident_severity, location_address, incident_created_at, call_taken_by, created_by')
+    .eq('intake_complete', false)
+    .not('status', 'in', '("Resolved","Closed")')
+    .order('incident_created_at', { ascending: false })
+    .limit(20);
+  if (!args.all) q = q.eq('created_by', args.userId);
+  const { data, error } = await q;
+  if (error) return [];
+  return (data ?? []) as UnfinishedCall[];
+}
+
 /** Every change to a call after it was sent, oldest first (0079); none before 0079 is run. */
 export async function listIncidentEdits(client: CriticomClient, incidentId: string): Promise<IncidentEdit[]> {
   const { data, error } = await client

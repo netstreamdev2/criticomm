@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Rubik } from 'next/font/google';
 import './globals.css';
 import { THEME_INIT_SCRIPT } from '@/lib/themes';
+import { SIDEBAR_INIT_SCRIPT } from '@/lib/sidebar-mode';
 
 const rubik = Rubik({ subsets: ['latin'], display: 'swap', variable: '--font-rubik' });
 
@@ -19,6 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             the default palette. Must stay inline and synchronous. */}
         {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, self-authored string */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        {/* The sidebar as the person left it (Expanded, Collapsed, Expand on hover), before first paint. */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static, self-authored string */}
+        <script dangerouslySetInnerHTML={{ __html: SIDEBAR_INIT_SCRIPT }} />
       </head>
       <body className="min-h-screen antialiased">{children}</body>
     </html>

@@ -20,5 +20,6 @@ export * from './intake-details';
 export * from './incident-number';
 export * from './incident-edits';
 export * from './call-facts';
+export * from './unfinished-call';
 export * from './schemas/index';
 export * as schemas from './schemas/index';

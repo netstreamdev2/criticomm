@@ -262,3 +262,27 @@ its note; each patient cleaned and kept apart from the incident's severity;
 sent early; corrected by the dispatcher and the call taker with each change
 kept; and one of each function, with the helper not callable. Not yet run on
 the hosted database.
+
+## Carrying on with a call sent early, after a refresh
+
+A call sent with **Send to dispatch now** is already with dispatch. Each
+change after that is saved to the call within seconds. If the page was
+refreshed or closed before the call was finished, the form used to start
+blank, with no way back to that call.
+
+- **The call logger page** lists the calls sent early that still need their
+  details: the person's own, or every unfinished call for the control room.
+  **Carry on** opens the same call in the form, filled in as saved. Each
+  further change goes to it, and nothing already saved is sent again.
+- **The call's page** has **Finish this call** while it is unfinished.
+- **Who:** the person who logged it, the control room and the organisation's
+  administrators, while the call is unfinished and not closed. This is the
+  same rule `complete_call_intake` enforces on every change: the page
+  decides only whether the form opens (`finishCallBlock` in
+  `packages/db/src/unfinished-call.ts`). Anyone else gets a plain refusal
+  and no form.
+- Every change is kept with who made it (0079), as before.
+- Once a call is sent, the duplicate-call check no longer flags the call
+  against itself.
+
+No database change: run nothing new for this.
