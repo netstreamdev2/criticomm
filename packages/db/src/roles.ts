@@ -630,6 +630,10 @@ export const ROUTE_RULES: RouteRule[] = [
   // The duty office (0085): open to everyone; each screen checks the person's
   // own access (View or Edit, given per person by the systems controller).
   { prefix: '/modules',      roles: undefined },
+  // Staff Maintenance's HR import and template stay with administrators, as
+  // they were on the old Personnel page.
+  { prefix: '/modules/staff/import',   roles: ['SystemAdmin', 'SuperAdmin'] },
+  { prefix: '/modules/staff/template', roles: ADMIN_ROLES },
   // Shift setup (0072): the department admin sets it up; those who roster
   // see it and put people in teams. The database holds the same line.
   { prefix: '/roster/setup', roles: [...SUPERVISORY_ROLES, 'SystemController'] },
@@ -657,7 +661,6 @@ export const ROUTE_RULES: RouteRule[] = [
   // Deciding account changes is the SystemAdmins' second pair of eyes (0048).
   { prefix: '/admin/approvals', roles: ['SystemAdmin', 'SuperAdmin'] },
   // Importing HR's staff list is a SystemAdmin's job (0050); Admins review roles afterwards.
-  { prefix: '/admin/personnel/import', roles: ['SystemAdmin', 'SuperAdmin'] },
   { prefix: '/admin',        roles: ADMIN_ROLES },
   // Body cams (0054): watching live is narrower than the old camera wall;
   // recorded footage adds case managers. The database checks each view again.
@@ -693,7 +696,7 @@ export function canAccess(pathname: string, role: UserRole, silo: Silo): boolean
       && !pathname.startsWith('/admin/access')
       && !pathname.startsWith('/admin/approvals')
       && !pathname.startsWith('/admin/invitations')
-      && !pathname.startsWith('/admin/personnel/import')
+      && !pathname.startsWith('/modules/staff/import')
       && !pathname.startsWith('/admin/rollout')
       && !pathname.startsWith('/admin/handbook');
   }

@@ -36,7 +36,7 @@ const MODULE_GROUPS: { label: string; items: { href: string; label: string }[] }
   {
     label: 'Staff & Personnel',
     items: [
-      { href: '/admin/personnel', label: 'Staff Maintenance' },
+      { href: '/modules/staff', label: 'Staff Maintenance' },
       { href: '/admin/operators', label: 'Call Signs' },
       { href: '/admin/sections', label: 'Sections' },
       { href: '/roster', label: 'Endorsements' },

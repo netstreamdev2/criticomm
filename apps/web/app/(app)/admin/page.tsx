@@ -60,7 +60,7 @@ export default async function AdminPage({
             </Link>
           ) : null}
           <Link href="/admin/handbook" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Handbook')}</Link>
-          <Link href="/admin/personnel" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Personnel')}</Link>
+          <Link href="/modules/staff" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Staff Maintenance')}</Link>
           <Link href="/admin/operators" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Operators')}</Link>
           <Link href="/admin/vehicles" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Vehicles')}</Link>
           <Link href="/admin/devices" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Devices')}</Link>

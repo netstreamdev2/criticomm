@@ -753,9 +753,9 @@ footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--l
     </ol>
 
     <figure class="exhibit">
-      <figcaption><span class="tag">Import the staff register</span><span class="where">/admin/personnel/import</span><span class="example">Example data</span></figcaption>
+      <figcaption><span class="tag">Import the staff register</span><span class="where">/modules/staff/import</span><span class="example">Example data</span></figcaption>
       <div class="screen">
-        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/admin/personnel/import</span></div>
+        <div class="chrome"><i></i><i></i><i></i><span class="url">hiktech.example/modules/staff/import</span></div>
         <div class="screen-body">
           <div>
             <p class="m-title">Import staff register</p>
@@ -1064,7 +1064,7 @@ footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--l
               <li>Role review: <code>set_register_roles</code>, for a SystemAdmin, or a department Admin in their own department. Administrator roles are never set in bulk. Leavers: <code>mark_register_left</code> (cancels open invitations) and <code>restore_register_person</code>.</li>
               <li>A badge number belongs to one current person: new duplicates are refused, existing ones are listed for cleanup, and a unique index takes over once there are none.</li>
               <li>The file is read in the browser by <code>apps/web/lib/register/</code> (Excel and CSV, no third-party spreadsheet library) and checked by <code>packages/db/src/register.ts</code>.</li>
-              <li>Screens: <code>/admin/personnel</code> (the register: filters, role review, bulk invitations, leavers), <code>/admin/personnel/import</code>, <code>/admin/personnel/template</code> (the workbook for HR) and <code>/admin/rollout</code>.</li>
+              <li>Screens: <code>/modules/staff</code> (Staff Maintenance: the Records tab, and the Logins tab with filters, role review, bulk invitations, leavers), <code>/modules/staff/import</code>, <code>/modules/staff/template</code> (the workbook for HR) and <code>/admin/rollout</code>.</li>
             </ul>
           </dd>
         </div>

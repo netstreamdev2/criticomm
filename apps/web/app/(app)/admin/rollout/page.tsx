@@ -61,7 +61,7 @@ export default async function RolloutPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <Link href="/admin/personnel" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-fg">
+        <Link href="/modules/staff?view=logins" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-fg">
           <ArrowLeft className="h-4 w-4" /> {' '}{t('Personnel')}</Link>
         <h1 className="text-2xl font-bold">{t('Rollout')}</h1>
         <p className="text-muted-foreground">{t('Who has a working account, who is invited, and who has not been reached yet.')}</p>
@@ -82,8 +82,8 @@ export default async function RolloutPage() {
               <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-success" /> {' '}{t('activated')}</span>
                 <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-primary/40" /> {' '}{t('invited')}</span>
-                {ready ? <Link href="/admin/personnel?status=ready" className="font-semibold text-primary hover:underline">{t('{ready} ready to invite →', { ready })}</Link> : null}
-                {toConfirm ? <Link href="/admin/personnel?status=to-confirm" className="font-semibold text-primary hover:underline">{t('{toConfirm} need a role first →', { toConfirm })}</Link> : null}
+                {ready ? <Link href="/modules/staff?view=logins&status=ready" className="font-semibold text-primary hover:underline">{t('{ready} ready to invite →', { ready })}</Link> : null}
+                {toConfirm ? <Link href="/modules/staff?view=logins&status=to-confirm" className="font-semibold text-primary hover:underline">{t('{toConfirm} need a role first →', { toConfirm })}</Link> : null}
               </p>
             </CardContent>
           </Card>

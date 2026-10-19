@@ -315,7 +315,7 @@ export function InviteForm({
             ) : null}
             <p className="text-xs text-muted-foreground">
               {t('Someone with an account is not invited again: change their role on their account page. Not in the staff register?')}{' '}
-              <Link href="/admin/personnel" className="font-semibold text-primary hover:underline">{t('Add them first →')}</Link>
+              <Link href="/modules/staff?id=new" className="font-semibold text-primary hover:underline">{t('Add them first →')}</Link>
             </p>
           </div>
         )}
@@ -332,7 +332,7 @@ export function InviteForm({
               <p className="mt-1 text-xs text-muted-foreground">
                 {t('From the staff register.')}{' '}
                 {canMovePeople ? (
-                  <Link href={`/admin/personnel?q=${encodeURIComponent(person.badge_number)}`} className="font-semibold text-primary hover:underline">
+                  <Link href={`/modules/staff?view=logins&q=${encodeURIComponent(person.badge_number)}`} className="font-semibold text-primary hover:underline">
                     {t('Wrong department? Change it in Personnel')}</Link>
                 ) : 'Wrong department? Ask a system administrator to change it in Personnel.'}
               </p>

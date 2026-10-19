@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/toast';
 import { cn } from '@/lib/utils';
-import { markLeftAction, moveDepartmentAction, restoreAction, setRolesAction } from './actions';
+import { markLeftAction, moveDepartmentAction, restoreAction, setRolesAction } from './register-actions';
 import { useT } from '@/components/i18n';
 
 export type StatusFilter =

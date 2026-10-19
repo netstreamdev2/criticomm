@@ -1,9 +1,9 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { addLeoRecord, removeLeoRecord, saveStaffRecord, setModuleAccess } from '@criticom/api';
-import type { ModuleCode, ModuleLevel, Silo } from '@criticom/db';
+import { normaliseCellphone, normaliseWorkEmail, type ModuleCode, type ModuleLevel, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
+import type { ActionResult } from '@/components/office/action-form';
 import { attempt, field, optional } from '@/lib/office-actions';
 
 const PERSON = [
@@ -18,7 +18,7 @@ const PRIVATE = [
 const CODES: ModuleCode[] = ['STFM', 'CSNM', 'SECM', 'ENTM', 'ABSM', 'DUTA', 'DUTM', 'DUTR', 'LEAM'];
 
 /** save_staff_record checks Staff Maintenance Edit. Only the fields on the form are sent. */
-export async function saveStaffAction(fd: FormData) {
+export async function saveStaffAction(fd: FormData): Promise<ActionResult> {
   const { supabase } = await getSession();
   const id = optional(fd, 'id');
   const silo = field(fd, 'silo') as Silo;
@@ -26,14 +26,34 @@ export async function saveStaffAction(fd: FormData) {
   const res = await attempt(async () => {
     const fields: Record<string, unknown> = {};
     for (const k of PERSON) if (fd.has(k)) fields[k] = field(fd, k);
+    // As the old Personnel form did: an invitation goes to these, so they must be real.
+    if (fd.has('work_email')) {
+      const email = normaliseWorkEmail(field(fd, 'work_email') || null);
+      if (!email.ok) throw new Error(`“${email.value}” is not an email address.`);
+      fields.work_email = email.value ?? '';
+    }
+    if (fd.has('work_cellphone')) {
+      const phone = normaliseCellphone(field(fd, 'work_cellphone') || null);
+      if (!phone.ok) throw new Error(`“${phone.value}” is not a cellphone number.`);
+      fields.work_cellphone = phone.value ?? '';
+    }
     if (fd.has('duty_allocation')) fields.duty_allocation = field(fd, 'duty_allocation') !== 'N';
     const priv: Record<string, unknown> = {};
     for (const k of PRIVATE) if (fd.has(k)) priv[k] = field(fd, k);
     saved = await saveStaffRecord(supabase, { personnelId: id, silo, fields, private: priv });
   }, '/modules/staff');
-  // A new member opens on their own record.
-  if (!id && res.ok && saved) redirect(`/modules/staff?id=${saved}${field(fd, 'dept') ? `&dept=${field(fd, 'dept')}` : ''}`);
-  return res;
+  if (!res.ok) return res;
+  const who = [field(fd, 'first_name'), field(fd, 'last_name')].filter(Boolean).join(' ');
+  if (!id && saved) {
+    // A new member: say so, then open their own record.
+    return {
+      ok: true,
+      message: who ? `${who} added` : 'Staff member added',
+      detail: `Staff no. ${field(fd, 'badge_number')}. Next: invite them from their record.`,
+      goTo: `/modules/staff?id=${saved}${field(fd, 'dept') ? `&dept=${field(fd, 'dept')}` : ''}`,
+    };
+  }
+  return { ok: true, message: who ? `${who} saved` : 'Record saved' };
 }
 
 export async function addLeoAction(fd: FormData) {

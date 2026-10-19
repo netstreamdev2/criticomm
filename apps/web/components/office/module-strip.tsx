@@ -20,7 +20,7 @@ export function ModuleStrip({ items }: { items: Array<{ href: string; label: str
     <nav className="no-print -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1" aria-label={t('System Modules')}>
       <Link href={`/modules${q}`}
         className={cn('inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md border px-3 text-sm font-semibold transition-colors',
-          path === '/modules' ? 'border-primary bg-primary/15 text-fg' : 'border-border text-muted-foreground hover:bg-muted hover:text-fg')}>
+          path === '/modules' ? 'border-primary bg-primary/25 text-fg backdrop-blur-md' : 'border-primary/25 bg-gradient-to-b from-primary/15 to-bg-card/55 backdrop-blur-md text-muted-foreground hover:from-primary/25 hover:text-fg')}>
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden /> {t('System Modules')}
       </Link>
       {items.map((m) => {
@@ -28,7 +28,7 @@ export function ModuleStrip({ items }: { items: Array<{ href: string; label: str
         return (
           <Link key={m.href} href={`${m.href}${q}`} aria-current={active ? 'page' : undefined}
             className={cn('inline-flex h-9 shrink-0 items-center rounded-md border px-3 text-sm font-semibold transition-colors',
-              active ? 'border-primary bg-primary/15 text-fg' : 'border-border text-muted-foreground hover:bg-muted hover:text-fg')}>
+              active ? 'border-primary bg-primary/25 text-fg backdrop-blur-md' : 'border-primary/25 bg-gradient-to-b from-primary/15 to-bg-card/55 backdrop-blur-md text-muted-foreground hover:from-primary/25 hover:text-fg')}>
             {t(m.label)}
           </Link>
         );

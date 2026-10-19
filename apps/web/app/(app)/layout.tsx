@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import {
-  deniedHrefs, featureEnabled, getFeatureMap, getMyModules, getMyTenant, getOperationalSettings, insightsApply, listAccessRules, listOpsLinks,
+  deniedHrefs, featureEnabled, getFeatureMap, getMyModules, getMyTenant, type MyModules, getOperationalSettings, insightsApply, listAccessRules, listOpsLinks,
 } from '@criticom/api';
 import { hiddenHrefs as hiddenFor } from '@/lib/features';
 import type { Silo, UserRole } from '@criticom/db';
@@ -77,8 +77,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Middleware refuses the routes themselves; this keeps the links honest.
   const hidden = [...hiddenFor(features), ...deniedHrefs(accessRules, role)];
   // System Modules shows only for people the systems controller gave access to.
-  const modules = await getMyModules(supabase).catch(() => ({}));
+  const modules: MyModules = await getMyModules(supabase).catch(() => ({}));
   if (Object.keys(modules).length === 0) hidden.push('/modules');
+  if (!('STFM' in modules)) hidden.push('/modules/staff');
   const dept = branding[silo as Silo];
 
   // The person's language (0078) and its approved translations; English until chosen.

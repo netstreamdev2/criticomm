@@ -116,7 +116,7 @@ export async function createAccountDirectlyAction(input: {
       email: String(input.email).trim(), password: String(input.password), reason: String(input.reason).trim(),
     });
     refresh();
-    revalidatePath('/admin/personnel');
+    revalidatePath('/modules/staff');
     revalidatePath('/admin/rollout');
     return result;
   } catch (e) {
@@ -214,7 +214,7 @@ export async function inviteFromRegisterAction(
     }
   }
   refresh();
-  revalidatePath('/admin/personnel');
+  revalidatePath('/modules/staff');
   revalidatePath('/admin/rollout');
   return { ok: true, results };
 }

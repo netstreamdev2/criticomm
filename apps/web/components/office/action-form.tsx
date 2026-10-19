@@ -5,19 +5,21 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/toast';
 import { useT } from '@/components/i18n';
+import { notify } from './notice';
 
-export type ActionResult = { ok?: true; error?: string; message?: string };
+export type ActionResult = { ok?: true; error?: string; message?: string; detail?: string; goTo?: string };
 
 /**
- * A duty office form: sends to a server action, says what happened in a
- * toast, and refreshes the page. The database's own words come back when it
+ * A duty office form: sends to a server action, says what happened (the
+ * frosted banner when done, a toast when refused), and refreshes the page or
+ * opens the page the action names. The database's own words come back when it
  * refuses (leave, court, no access …).
  */
 export function ActionForm({
   action, success, reset = false, confirm, className, children, onDone,
 }: {
   action: (fd: FormData) => Promise<ActionResult>;
-  /** The toast when it worked. */
+  /** The banner when it worked (unless the action says better). */
   success: string;
   /** Clear the fields afterwards (for "add" forms). */
   reset?: boolean;
@@ -45,10 +47,11 @@ export function ActionForm({
             toast.push({ title: t('Not done'), body: res.error, tone: 'critical' });
             return;
           }
-          toast.push({ title: res.message ?? success, tone: 'success' });
+          notify(res.message ?? success, res.detail);
           if (reset) form.reset();
           onDone?.();
-          router.refresh();
+          if (res.goTo) router.push(res.goTo);
+          else router.refresh();
         });
       }}
     >

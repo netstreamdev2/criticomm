@@ -81,7 +81,7 @@ const LINKS: Record<Persona, QuickLink[]> = {
   admin: [
     { href: '/admin', label: 'Administration', desc: 'Users & roles', icon: 'Users', tone: 'bg-primary/15 text-primary' },
     { href: '/admin/config', label: 'Configuration', desc: 'Categories, leave & shift types', icon: 'SlidersHorizontal' },
-    { href: '/admin/personnel', label: 'Personnel', desc: 'Operational staff register', icon: 'IdCard' },
+    { href: '/modules/staff', label: 'Staff Maintenance', desc: 'Staff records and logins', icon: 'IdCard' },
     { href: '/admin/vehicles', label: 'Fleet', desc: 'Apparatus register', icon: 'RadioTower' },
     { href: '/admin/devices', label: 'Devices', desc: 'MDTs, radios, tablets', icon: 'Radio' },
     { href: '/analytics', label: 'Analytics', desc: 'System-wide trends', icon: 'BarChart3' },

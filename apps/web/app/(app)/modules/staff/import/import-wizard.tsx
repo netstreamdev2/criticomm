@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
-import { finishImportAction, importRowsAction, registerSnapshotAction, startImportAction } from '../actions';
+import { finishImportAction, importRowsAction, registerSnapshotAction, startImportAction } from '../register-actions';
 import { useT } from '@/components/i18n';
 
 const BATCH = 500;
@@ -112,9 +112,9 @@ export function ImportWizard() {
             {t('{added} added, {updated} updated, {unchanged} unchanged, {skipped} not imported. Nobody has any new access: invitations come next.', { added: result.added, updated: result.updated, unchanged: result.unchanged, skipped: result.skipped })}</p>
         </div>
         <ol className="list-decimal space-y-1 pl-5 text-sm">
-          <li><Link href="/admin/personnel?status=to-confirm" className="font-semibold text-primary hover:underline">{t('Confirm suggested roles')}</Link>{t(', and set roles for people without one.')}</li>
+          <li><Link href="/modules/staff?view=logins&status=to-confirm" className="font-semibold text-primary hover:underline">{t('Confirm suggested roles')}</Link>{t(', and set roles for people without one.')}</li>
           {result.not_listed ? (
-            <li><Link href="/admin/personnel?status=not-listed" className="font-semibold text-primary hover:underline">{t('Review {value} {value2} not in this list', { value: result.not_listed, value2: result.not_listed === 1 ? 'person' : 'people' })}</Link>{t(': they may have left.')}</li>
+            <li><Link href="/modules/staff?view=logins&status=not-listed" className="font-semibold text-primary hover:underline">{t('Review {value} {value2} not in this list', { value: result.not_listed, value2: result.not_listed === 1 ? 'person' : 'people' })}</Link>{t(': they may have left.')}</li>
           ) : null}
           <li>{t('Invite people who are ready, station by station, and follow progress on the')}{' '}<Link href="/admin/rollout" className="font-semibold text-primary hover:underline">{t('rollout page')}</Link>.</li>
         </ol>
@@ -151,7 +151,7 @@ export function ImportWizard() {
             <span>{t('The file is read on this computer. Nothing reaches HikTech until you confirm, and then only the rows you confirm. The file itself is never stored.')}</span>
           </p>
           <p className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
-            <a href="/admin/personnel/template" className="inline-flex items-center gap-1.5 font-semibold text-primary hover:underline">
+            <a href="/modules/staff/template" className="inline-flex items-center gap-1.5 font-semibold text-primary hover:underline">
               <Download className="h-4 w-4" /> {' '}{t('Download the template for HR')}</a>
             <Link href="/admin/handbook/staff-list-request" className="font-semibold text-primary hover:underline">
               {t('The request to send with it')}</Link>

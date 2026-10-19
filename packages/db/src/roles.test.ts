@@ -305,10 +305,10 @@ test('only administrators invite people', () => {
 
 test('the staff list is imported by SystemAdmins; the rollout is for administrators', () => {
   for (const role of ['SystemAdmin', 'SuperAdmin'] as UserRole[]) {
-    assert.equal(canAccess('/admin/personnel/import', role, 'Ethekwini'), true, role);
+    assert.equal(canAccess('/modules/staff/import', role, 'Ethekwini'), true, role);
   }
   for (const role of ['Admin', 'SystemController', 'Supervisor', 'Police'] as UserRole[]) {
-    assert.equal(canAccess('/admin/personnel/import', role, 'MetroPolice'), false, role);
+    assert.equal(canAccess('/modules/staff/import', role, 'MetroPolice'), false, role);
   }
   for (const role of ['SystemAdmin', 'SuperAdmin', 'Admin'] as UserRole[]) {
     assert.equal(canAccess('/admin/rollout', role, 'MetroPolice'), true, role);
@@ -316,7 +316,10 @@ test('the staff list is imported by SystemAdmins; the rollout is for administrat
   for (const role of ['SystemController', 'Captain', 'Dispatcher'] as UserRole[]) {
     assert.equal(canAccess('/admin/rollout', role, 'Ethekwini'), false, role);
   }
-  assert.equal(canAccess('/admin/personnel', 'Admin', 'MetroPolice'), true, 'department Admins keep the register');
+  assert.equal(canAccess('/modules/staff', 'Admin', 'MetroPolice'), true, 'department Admins keep the register');
+  for (const role of ['Supervisor', 'Police', 'Dispatcher'] as UserRole[]) {
+    assert.equal(canAccess('/modules/staff/template', role, 'MetroPolice'), false, role);
+  }
 });
 
 test('the handbook is for administrators only', () => {

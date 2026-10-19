@@ -327,11 +327,11 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "({join}{value}). A badge number proves who someone is, so each should belong to one person: correct the badge, or mark the extra record as left.",
-  "text": "({join}{value}). A badge number proves who someone is, so each should belong to one person: correct the badge, or mark the extra record as left.",
+  "key": "({join}). A staff number proves who someone is, so each should belong to one person: correct it, or mark the extra record as left.",
+  "text": "({join}). A staff number proves who someone is, so each should belong to one person: correct it, or mark the extra record as left.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -461,7 +461,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": ", and set roles for people without one.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -501,7 +501,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": ", then import what they return.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -527,7 +527,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": ", {saTime} by {value}. {added} added, {updated} updated{value2}.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -1444,7 +1444,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": ": they may have left.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -2605,14 +2605,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Add one person",
-  "text": "Add one person",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
-  ]
- },
- {
   "key": "Add patient",
   "text": "Add patient",
   "context": null,
@@ -2845,7 +2837,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Adds people to the staff register and updates the ones already there, matched by badge number. Nobody gets access: each person is invited afterwards and activates their own account.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/page.tsx"
+   "apps/web/app/(app)/modules/staff/import/page.tsx"
   ]
  },
  {
@@ -3147,7 +3139,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "All departments",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -3354,9 +3346,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "All stations",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "apps/web/app/(app)/modules/sections/page.tsx",
-   "apps/web/app/(app)/modules/staff/page.tsx"
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -3850,7 +3842,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Another current person has the same badge number",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -4583,14 +4575,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/dispatch/page.tsx"
-  ]
- },
- {
-  "key": "As on their ID card",
-  "text": "As on their ID card",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx"
   ]
  },
  {
@@ -5343,7 +5327,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Back to the check",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -5421,7 +5405,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/activate.tsx",
    "apps/web/app/(app)/admin/operators/page.tsx",
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
    "apps/web/app/(app)/hierarchy/person/page.tsx",
    "apps/web/app/(app)/police/security/new/page.tsx",
    "apps/web/app/(app)/profile/page.tsx"
@@ -6220,7 +6203,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Bring back",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -7080,7 +7063,6 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/shift-documents.tsx",
    "apps/mobile/lib/accept.ts",
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "apps/web/app/(app)/admin/users/account-status-form.tsx",
    "apps/web/app/(app)/admin/vehicles/vehicle-form.tsx",
    "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx",
@@ -7092,6 +7074,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/modules/leave/decide.tsx",
    "apps/web/app/(app)/modules/sections/page.tsx",
    "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/police/armoury/armoury-table.tsx",
    "apps/web/app/(app)/police/armoury/firearm-form.tsx",
    "apps/web/app/(app)/police/bodycams/bodycam-form.tsx",
@@ -7756,7 +7739,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Change department",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -7798,7 +7781,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Change {name}’s department",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -8354,7 +8337,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Choose another file",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -8379,7 +8362,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Choose department",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -8468,7 +8451,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Choose the department",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -8761,12 +8744,12 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Clear",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "apps/web/app/(app)/case-manager/audit/page.tsx",
    "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
    "apps/web/app/(app)/fire/inspections/page.tsx",
    "apps/web/app/(app)/medical/handovers/page.tsx",
    "apps/web/app/(app)/medical/pcr/page.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/police/page.tsx",
    "apps/web/app/(app)/police/report-centre/records/page.tsx",
    "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
@@ -8970,6 +8953,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/components/command-palette.tsx",
    "apps/web/components/dispatch-map-modal.tsx",
    "apps/web/components/language-menu.tsx",
+   "apps/web/components/office/notice.tsx",
    "apps/web/components/ops-map/zones/zone-card.tsx",
    "apps/web/components/ops-map/zones/zone-tools.tsx",
    "apps/web/components/register/bulk-run.tsx",
@@ -9740,7 +9724,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Confirm suggested roles",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -9833,8 +9817,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/fines/new.tsx",
    "apps/mobile/app/incident/[id].tsx",
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -10039,7 +10023,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Copies merged",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -10804,6 +10788,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/components/shift-inspection.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Current staff",
+  "text": "Current staff",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -11641,8 +11633,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
    "apps/web/app/(app)/admin/page.tsx",
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "apps/web/app/(app)/admin/radios/radio-form.tsx",
    "apps/web/app/(app)/admin/users/change-role-form.tsx",
    "apps/web/app/(app)/admin/vehicles/vehicle-form.tsx",
@@ -11651,6 +11641,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
    "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/notifications/send-form.tsx",
    "apps/web/app/(app)/performance/operational/page.tsx",
    "apps/web/app/(app)/police/armoury/firearm-form.tsx",
@@ -12804,7 +12795,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Download the template for HR",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -13501,7 +13492,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Each person gets their own invitation, as their confirmed role, by the route shown: email where HR gave an address, SMS where there is only a cellphone{value}, otherwise a printed code. Each link or code works once and expires after its set time.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -13769,7 +13760,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/operators/page.tsx",
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
    "apps/web/app/(app)/hierarchy/person/page.tsx",
    "apps/web/app/(app)/modules/staff/page.tsx",
    "apps/web/app/(app)/profile/page.tsx"
@@ -14611,7 +14601,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Excel (.xlsx) or CSV, up to 20 MB",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -14984,7 +14974,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Field roles: choose people from one department.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -15911,7 +15901,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx",
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
    "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
@@ -15928,7 +15917,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Fix",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -15937,7 +15926,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Fix them here, or skip them. They never hold up the rest.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -16115,14 +16104,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/leave/page.tsx"
-  ]
- },
- {
-  "key": "For someone joining between staff-list imports. Then invite them from the list above.",
-  "text": "For someone joining between staff-list imports. Then invite them from the list above.",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
   ]
  },
  {
@@ -17328,6 +17309,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Has a login",
+  "text": "Has a login",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Has anyone touched the body?",
   "text": "Has anyone touched the body?",
   "context": null,
@@ -17357,6 +17346,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Have a login",
+  "text": "Have a login",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -18771,7 +18768,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Import another file",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/app/(app)/police/fines/payments/import-payments.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
@@ -18824,8 +18821,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Import staff list",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/page.tsx",
-   "apps/web/app/(app)/admin/personnel/page.tsx"
+   "apps/web/app/(app)/modules/staff/import/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -18833,7 +18830,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Import without email",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -18849,7 +18846,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Import without number",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -18857,7 +18854,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Imported",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -18882,7 +18879,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Importing… {done} of {total}",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -19741,7 +19738,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/admin/invitations/new/page.tsx",
    "apps/web/app/(app)/admin/invitations/page.tsx",
-   "apps/web/app/(app)/admin/personnel/page.tsx"
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -19765,7 +19762,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Invite",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -19789,7 +19787,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Invite people who are ready, station by station, and follow progress on the",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -19815,7 +19813,15 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Invite {length}",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Invited",
+  "text": "Invited",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -21280,7 +21286,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Last staff-list import:",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -22170,7 +22176,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Loading the register to compare against…",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -22339,6 +22345,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/call-edits.tsx"
+  ]
+ },
+ {
+  "key": "Logins",
+  "text": "Logins",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -22773,7 +22787,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Mark as left",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -22856,6 +22870,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "Marked as left on {date}.",
+  "text": "Marked as left on {date}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -24229,7 +24251,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Name, badge, rank or station",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -24362,7 +24384,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Need attention",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -24428,7 +24450,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "New department",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -24519,8 +24541,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/activate.tsx",
    "apps/mobile/components/report-wizard.tsx",
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/shift/readiness-review/page.tsx",
    "apps/web/components/form-wizard.tsx"
   ]
@@ -25496,6 +25518,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No login yet. Duty Allocation needs one.",
+  "text": "No login yet. Duty Allocation needs one.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "No logons recorded.",
   "text": "No logons recorded.",
   "context": null,
@@ -25952,7 +25982,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "No staff list imported yet. Send HR the",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -26281,7 +26311,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Nobody matches these filters.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -26629,7 +26659,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Not in this list",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -27269,7 +27299,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Now in {value}. Their role for invitation is cleared, and any open invitation is cancelled.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -28702,6 +28732,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Or here, by SMS, when they have no work email.",
+  "text": "Or here, by SMS, when they have no work email.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Orange",
   "text": "Orange",
   "context": null,
@@ -29157,7 +29195,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Page {value} of {pages}",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -29941,8 +29979,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Person",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -29985,13 +30023,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Personnel",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/page.tsx",
-   "apps/web/app/(app)/admin/personnel/import/page.tsx",
-   "apps/web/app/(app)/admin/personnel/page.tsx",
    "apps/web/app/(app)/admin/rollout/page.tsx",
-   "apps/web/app/(app)/performance/page.tsx",
-   "apps/web/components/sidebar.tsx",
-   "apps/web/lib/nav.ts"
+   "apps/web/app/(app)/performance/page.tsx"
   ]
  },
  {
@@ -30277,7 +30310,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/operators/page.tsx",
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
    "apps/web/app/(app)/hierarchy/person/page.tsx",
    "apps/web/app/(app)/profile/page.tsx"
   ]
@@ -30692,7 +30724,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Previous",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/shift/readiness-review/page.tsx"
   ]
  },
@@ -30825,7 +30857,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Printed code",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -30921,7 +30953,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Problem",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -31513,14 +31545,13 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/operators/page.tsx",
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
    "apps/web/app/(app)/fire/reports/new/page.tsx",
    "apps/web/app/(app)/modules/call-signs/page.tsx",
    "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
    "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
    "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
    "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/app/(app)/modules/staff/page.tsx",
    "apps/web/app/(app)/profile/page.tsx",
    "apps/web/app/(app)/roster/duty-sheet/page.tsx",
@@ -31652,7 +31683,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Read: {join}{value}{value2}{value3}",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -31799,7 +31830,15 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Ready to add",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Ready to invite",
+  "text": "Ready to invite",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -31870,9 +31909,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/leave.tsx",
    "apps/mobile/components/shift-bodycam.tsx",
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "apps/web/app/(app)/admin/users/confirm-fields.tsx",
    "apps/web/app/(app)/modules/leave/decide.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/components/schedule/leave-actions.tsx"
   ]
  },
@@ -31890,7 +31929,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -32222,7 +32261,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Records",
   "context": null,
   "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx",
    "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "Records: each member’s file. Logins: who can sign in, roles to confirm, HR’s staff list and leavers.",
+  "text": "Records: each member’s file. Logins: who can sign in, roles to confirm, HR’s staff list and leavers.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -33574,7 +33622,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Review {value} {value2} not in this list",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -33938,11 +33986,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Role and leaving",
+  "text": "Role and leaving",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Role for invitation",
   "text": "Role for invitation",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Role not set",
+  "text": "Role not set",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -33950,7 +34014,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Role to confirm",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/logins-view.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -33959,7 +34024,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/page.tsx",
-   "apps/web/app/(app)/admin/personnel/page.tsx",
    "apps/web/app/(app)/admin/rollout/page.tsx"
   ]
  },
@@ -34140,7 +34204,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Row",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -34157,7 +34221,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Rows that need attention",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -34810,7 +34874,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Same person: update",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -35539,7 +35603,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Search the register",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -35915,7 +35979,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Select all {length}",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -35947,7 +36011,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Select everyone on this page",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -36599,7 +36663,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Set role for invitation…",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -36971,7 +37035,6 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/activate.tsx",
    "apps/mobile/app/live-map.tsx",
    "apps/mobile/app/login.tsx",
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "apps/web/app/(app)/case-manager/audit/page.tsx",
    "apps/web/app/(app)/modules/call-signs/page.tsx",
    "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
@@ -36979,6 +37042,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/modules/leave/page.tsx",
    "apps/web/app/(app)/modules/sections/page.tsx",
    "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/notifications/feed.tsx",
    "apps/web/app/(app)/roster/page.tsx",
    "apps/web/app/(app)/roster/setup/page.tsx",
@@ -37054,7 +37118,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Show them",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -37498,7 +37562,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Skip row",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -37507,7 +37571,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Skipped",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx",
    "apps/web/components/register/bulk-run.tsx"
   ]
@@ -37938,7 +38002,11 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Staff Maintenance",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/page.tsx",
+   "apps/web/app/(app)/modules/staff/import/page.tsx",
    "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts",
    "packages/api/src/office/index.ts"
   ]
  },
@@ -38229,14 +38297,13 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/operators/page.tsx",
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "apps/web/app/(app)/admin/rollout/chase-list.tsx",
    "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
    "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
    "apps/web/app/(app)/hierarchy/person/page.tsx",
    "apps/web/app/(app)/modules/sections/page.tsx",
    "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/police/armoury/firearm-form.tsx",
    "apps/web/app/(app)/police/bodycams/bodycam-form.tsx",
    "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
@@ -38289,13 +38356,13 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Status",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "apps/web/app/(app)/admin/radios/radio-form.tsx",
    "apps/web/app/(app)/admin/tenants/page.tsx",
    "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
    "apps/web/app/(app)/incidents/page.tsx",
    "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
    "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/police/armoury/armoury-table.tsx",
    "apps/web/app/(app)/police/bodycams/bodycam-table.tsx",
    "apps/web/app/(app)/police/fines/page.tsx",
@@ -38966,7 +39033,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx",
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
    "apps/web/app/(app)/police/fines/new/capture-form.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
@@ -39607,7 +39673,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Template for HR",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -39985,7 +40051,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "The file is read on this computer. Nothing reaches HikTech until you confirm, and then only the rows you confirm. The file itself is never stored.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -40323,7 +40389,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "The request to send with it",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -40380,14 +40446,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/rollout/page.tsx"
-  ]
- },
- {
-  "key": "The staff register: everyone who works here, with or without an account. Being in the register gives nobody access; only an invitation they accept does.",
-  "text": "The staff register: everyone who works here, with or without an account. Being in the register gives nobody access; only an invitation they accept does.",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
   ]
  },
  {
@@ -40471,11 +40529,11 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Their invitation goes here",
-  "text": "Their invitation goes here",
+  "key": "Their invitation goes here.",
+  "text": "Their invitation goes here.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx"
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -40659,7 +40717,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "This import changes nothing about them. They may have left: review them on the Personnel page afterwards.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -40691,7 +40749,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "This list covers {join}. People in those departments it leaves out are shown for review; nobody is removed.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -42070,7 +42128,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Unchanged",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx",
    "packages/db/src/pcr.ts"
   ]
@@ -42128,7 +42186,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Undo skip",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -42147,7 +42205,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx",
    "apps/mobile/components/shift-report.tsx",
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
    "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
    "apps/web/app/(app)/hierarchy/person/page.tsx",
    "apps/web/app/(app)/medical/restock/page.tsx"
@@ -44738,7 +44795,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Will update",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },
@@ -44948,7 +45005,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Work cellphone",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
    "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
@@ -44957,7 +45013,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Work email",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/add-person-form.tsx"
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -45951,7 +46007,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "and {value} more",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -46303,7 +46359,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "e.g. Go-live preparation, HR staff list of 1 October 2026",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -46513,7 +46569,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "e.g. Works in Metro Police, per HR staff list 2026/10",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -47159,7 +47215,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "rollout page",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -47183,7 +47239,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "shared badge",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -47240,7 +47296,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "template",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -47410,7 +47466,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "{added} added, {updated} updated, {unchanged} unchanged, {skipped} not imported. Nobody has any new access: invitations come next.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -47480,6 +47536,14 @@ export const SOURCE: readonly SourceEntry[] = [
  {
   "key": "{count} free",
   "text": "{count} free",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "{count} left out: see the list below",
+  "text": "{count} left out: see the list below",
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
@@ -47800,14 +47864,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "{length} badge {value} used by more than one person",
-  "text": "{length} badge {value} used by more than one person",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/personnel/page.tsx"
-  ]
- },
- {
   "key": "{length} bodycam{value} out",
   "text": "{length} bodycam{value} out",
   "context": null,
@@ -48090,6 +48146,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{length} staff numbers used by more than one person",
+  "text": "{length} staff numbers used by more than one person",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
+  ]
+ },
+ {
   "key": "{length} stations",
   "text": "{length} stations",
   "context": null,
@@ -48134,7 +48198,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "{length} {value}{value2}{value3} · headings on row {value4} · fingerprint",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -48996,7 +49060,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "{size} selected",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -49285,7 +49349,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "{value} not ready (role, account or invitation)",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -49389,7 +49453,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "{value}Importing gives nobody access. It is recorded with your name, the reason and the file’s fingerprint.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
   ]
  },
  {
@@ -49485,7 +49549,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "· row {line}",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/modules/staff/import/import-wizard.tsx",
    "apps/web/components/register/asset-import.tsx"
   ]
  },

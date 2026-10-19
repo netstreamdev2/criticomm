@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { tx } from '@criticom/db/i18n';
-import { Plus } from 'lucide-react';
+import { Download, FileUp, KeyRound, Plus } from 'lucide-react';
+import { ADMIN_ROLES } from '@criticom/db';
 import { OFFICE_MODULES, getStaffRecord, listSectionDetails, listStaff, listStations } from '@criticom/api';
 import { ActionForm } from '@/components/office/action-form';
 import { OfficeHeader } from '@/components/office/office-header';
@@ -11,22 +12,34 @@ import { cn } from '@/lib/utils';
 import { requestT } from '@/lib/i18n';
 import { PrintButton } from '../../roster/duty-sheet/print-button';
 import { addLeoAction, removeLeoAction, saveAccessAction, saveStaffAction } from './actions';
+import { LoginsView } from './logins-view';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Staff Maintenance · HikTech' };
 
 const REGIONS = ['ETHEKWINI', 'CENTRAL', 'NORTH', 'SOUTH', 'INNER WEST'];
 
-/** Staff Maintenance (Oracle DCPSTFM): find a member, keep their record, and give screen access. */
+/**
+ * Staff Maintenance (Oracle DCPSTFM), and what the Personnel page was: the
+ * Records tab keeps each member's file and screen access; the Logins tab
+ * imports HR's staff list, confirms roles, invites and marks leavers.
+ */
 export default async function StaffPage({
   searchParams,
 }: {
-  searchParams: Promise<{ dept?: string; id?: string; q?: string; station?: string; rank?: string }>;
+  searchParams: Promise<{ dept?: string; id?: string; q?: string; station?: string; rank?: string; view?: string; status?: string }>;
 }) {
   const { t } = await requestT();
   const p = await searchParams;
   const ctx = await openModule('STFM', p.dept);
   const { supabase, target } = ctx;
+  // Logins: administrators manage them (as on the old Personnel page); the
+  // systems controller sees them. Inviting is never a duty office grant.
+  const canManage = ADMIN_ROLES.includes(ctx.role);
+  const canImport = ctx.role === 'SystemAdmin' || ctx.role === 'SuperAdmin';
+  const canSeeLogins = canManage || ctx.role === 'SystemController';
+  const logins = canSeeLogins && p.view === 'logins';
+  const deptQuery = ctx.global ? `dept=${target}&` : '';
   const [staff, stations, sections, record] = await Promise.all([
     listStaff(supabase, { silo: target, station: p.station || null, rank: p.rank || null, search: p.q }),
     listStations(supabase, target),
@@ -57,21 +70,47 @@ export default async function StaffPage({
     <div className="space-y-4">
       <OfficeHeader title={tx('Staff Maintenance')} info={tx('Each member’s record as the old system kept it: numbers, rank, station, section, weekend group, contacts, LEO record and screen access.')}
         target={target} global={ctx.global} canEdit={ctx.canEdit} path="/modules/staff">
-        {person ? <PrintButton /> : null}
+        {canImport ? (
+          <Link href="/modules/staff/import" className={ox.topButton}><FileUp className="h-4 w-4" aria-hidden /> {t('Import staff list')}</Link>
+        ) : null}
+        {canManage ? (
+          <>
+            <a href="/modules/staff/template" className={ox.topButton}><Download className="h-4 w-4" aria-hidden /> {t('Template for HR')}</a>
+            <Link href="/admin/invitations" className={ox.topButton}>{t('Invitations')}</Link>
+          </>
+        ) : null}
+        {person && !logins ? <PrintButton /> : null}
       </OfficeHeader>
+
+      {canSeeLogins ? (
+        <nav className="no-print flex items-center gap-1.5 rounded-md border border-primary/25 bg-gradient-to-b from-primary/15 to-bg-card/55 backdrop-blur-md px-1" aria-label={t('Staff Maintenance')}>
+          {[['records', t('Records')], ['logins', t('Logins')]].map(([v, label]) => (
+            <Link key={v} href={`/modules/staff?${deptQuery}view=${v}`} aria-current={(logins ? 'logins' : 'records') === v ? 'page' : undefined}
+              className={cn('my-1 rounded-md px-4 py-1.5 text-sm font-semibold shadow-sm transition-colors', (logins ? 'logins' : 'records') === v ? 'bg-primary text-primary-foreground' : 'bg-white text-slate-900 hover:bg-slate-100')}>
+              {label}
+            </Link>
+          ))}
+          <span className="ml-2 self-center"><InfoTip text={t('Records: each member’s file. Logins: who can sign in, roles to confirm, HR’s staff list and leavers.')} /></span>
+        </nav>
+      ) : null}
+
+      {logins ? (
+        <LoginsView supabase={supabase} role={ctx.role} target={target} status={p.status} q={p.q}
+          canManage={canManage} canImport={canImport} deptQuery={deptQuery} />
+      ) : (<>
 
       <form method="get" className="no-print flex flex-wrap items-center gap-2">
         {ctx.global ? <input type="hidden" name="dept" value={target} /> : null}
-        <select name="station" defaultValue={p.station ?? ''} className={cn(ox.input, 'w-48')} aria-label={t('Station')}>
+        <select name="station" defaultValue={p.station ?? ''} className={cn(ox.topInput, 'w-48')} aria-label={t('Station')}>
           <option value="">{t('All stations')}</option>
           {stations.map((s) => <option key={s.id} value={s.code}>{s.code} — {s.name}</option>)}
         </select>
-        <select name="rank" defaultValue={p.rank ?? ''} className={cn(ox.input, 'w-36')} aria-label={t('Rank')}>
+        <select name="rank" defaultValue={p.rank ?? ''} className={cn(ox.topInput, 'w-36')} aria-label={t('Rank')}>
           <option value="">{t('All ranks')}</option>
           {ranks.map((r) => <option key={r} value={r}>{r}</option>)}
         </select>
-        <input name="q" defaultValue={p.q} placeholder={t('Search by staff no., name or service no…')} className={cn(ox.input, 'w-72')} />
-        <button type="submit" className={ox.secondary}>{t('Show')}</button>
+        <input name="q" defaultValue={p.q} placeholder={t('Search by staff no., name or service no…')} className={cn(ox.topInput, 'w-72')} />
+        <button type="submit" className={ox.topButton}>{t('Show')}</button>
         {ctx.canEdit ? <Link href={keep({ id: 'new' })} className={cn(ox.primary, 'ml-auto')}><Plus className="h-4 w-4" aria-hidden /> {t('Add New Staff')}</Link> : null}
       </form>
 
@@ -93,6 +132,18 @@ export default async function StaffPage({
 
         {person || creating ? (
           <div className="space-y-4">
+            {person ? (
+              <p className={cn(ox.card, 'no-print flex flex-wrap items-center gap-2 px-4 py-2.5 text-sm')}>
+                <KeyRound className="h-4 w-4 text-muted-foreground" aria-hidden />
+                {person.left_at ? <span>{t('Marked as left on {date}.', { date: person.left_at.slice(0, 10) })}</span>
+                  : person.user_id ? <span>{t('Has a login')}: <b>{record?.account?.email ?? ''}</b>{record?.account?.role ? ` · ${record.account.role}` : ''}</span>
+                  : <span>{t('No login yet. Duty Allocation needs one.')}</span>}
+                {!person.left_at && !person.user_id && canManage ? (
+                  <Link href={`/admin/invitations/new?person=${person.id}`} className={cn(ox.primary, 'ml-auto h-8')}>{t('Invite')}</Link>
+                ) : null}
+                {canSeeLogins ? <Link href={`/modules/staff?${deptQuery}view=logins&q=${encodeURIComponent(person.badge_number)}`} className="text-xs text-primary hover:underline">{t('Role and leaving')}</Link> : null}
+              </p>
+            ) : null}
             <ActionForm key={person?.id ?? 'new'} action={saveStaffAction} success={t('Record saved')} className="space-y-4">
               <input type="hidden" name="silo" value={target} />
               {ctx.global ? <input type="hidden" name="dept" value={target} /> : null}
@@ -143,7 +194,8 @@ export default async function StaffPage({
                   {input('phone', tx('Phone'), priv?.phone, { type: 'tel' })}
                   {input('post_code', tx('Post code'), priv?.post_code)}
                   {input('email', tx('Email'), priv?.email, { type: 'email' })}
-                  {input('work_cellphone', tx('Work cellphone'), person?.work_cellphone, { type: 'tel' })}
+                  {input('work_email', tx('Work email'), person?.work_email, { type: 'email', info: tx('Their invitation goes here.') })}
+                  {input('work_cellphone', tx('Work cellphone'), person?.work_cellphone, { type: 'tel', info: tx('Or here, by SMS, when they have no work email.') })}
                   <label className="sm:col-span-2"><span className={ox.label}>{t('Section')}</span>
                     <select name="section_id" defaultValue={person?.section_id ?? ''} disabled={ro} className={ox.input}>
                       <option value="">—</option>
@@ -271,6 +323,7 @@ export default async function StaffPage({
           <p className={cn(ox.card, 'p-6 text-sm text-muted-foreground')}>{t('Choose a member on the left, or search.')}</p>
         )}
       </div>
+      </>)}
     </div>
   );
 }

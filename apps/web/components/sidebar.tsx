@@ -87,7 +87,7 @@ const SYSTEM_ADMIN_GROUPS: NavGroup[] = [
   {
     id: 'organisation-resources', label: 'People & Resources', items: [
       adminLink('/admin', 'Users & Roles'),
-      adminLink('/admin/personnel', 'Personnel'),
+      adminLink('/modules/staff', 'Staff Maintenance'),
       adminLink('/roster', 'Duty Roster'),
       adminLink('/modules', 'System Modules'),
       adminLink('/roster/setup', 'Shift Setup'),
@@ -270,7 +270,7 @@ const EMS_ADMIN_GROUPS: NavGroup[] = [
   ] },
   { id: 'ems-people', label: 'Crews', items: [
     adminLink('/admin', 'Users & Roles'),
-    adminLink('/admin/personnel', 'Personnel'),
+    adminLink('/modules/staff', 'Staff Maintenance'),
     adminLink('/roster', 'Duty Roster'),
     adminLink('/modules', 'System Modules'),
     adminLink('/roster/setup', 'Shift Setup'),
@@ -310,7 +310,7 @@ const POLICE_ADMIN_GROUPS: NavGroup[] = [
   ] },
   { id: 'padmin-people', label: 'People & Duty', items: [
     adminLink('/admin', 'Users & Roles'),
-    adminLink('/admin/personnel', 'Personnel'),
+    adminLink('/modules/staff', 'Staff Maintenance'),
     adminLink('/shift/today'),
     adminLink('/roster', 'Duty Roster'),
     adminLink('/modules', 'System Modules'),
@@ -355,7 +355,7 @@ const FIRE_COMMAND_GROUPS: NavGroup[] = [
   ] },
   { id: 'fire-people', label: 'Crews', items: [
     adminLink('/admin', 'Users & Roles'),
-    adminLink('/admin/personnel', 'Personnel'),
+    adminLink('/modules/staff', 'Staff Maintenance'),
     adminLink('/roster', 'Duty Roster'),
     adminLink('/modules', 'System Modules'),
     adminLink('/roster/setup', 'Shift Setup'),
@@ -387,7 +387,7 @@ const DISASTER_GROUPS: NavGroup[] = [
     adminLink('/shift/today'),
     adminLink('/shift/readiness-review'),
     adminLink('/admin', 'Users & Roles'),
-    adminLink('/admin/personnel', 'Personnel'),
+    adminLink('/modules/staff', 'Staff Maintenance'),
     adminLink('/roster', 'Duty Roster'),
     adminLink('/modules', 'System Modules'),
     adminLink('/roster/setup', 'Shift Setup'),
@@ -549,7 +549,7 @@ const SYSTEM_CONTROLLER_GROUPS: NavGroup[] = [
     adminLink('/analytics', 'Analytics'),
   ] },
   { id: 'controller-systems', label: 'Operational Systems', items: [
-    adminLink('/admin/personnel', 'Personnel'),
+    adminLink('/modules/staff', 'Staff Maintenance'),
     adminLink('/admin/vehicles', 'Fleet'),
     adminLink('/admin/devices', 'Devices'),
     adminLink('/admin/radios', 'Radios'),

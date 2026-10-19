@@ -38,10 +38,10 @@ export async function OfficeHeader({
         {global ? (
           <form method="get" action={path} className="flex items-center gap-2">
             <select name="dept" defaultValue={target} aria-label={t('Department')}
-              className="h-9 rounded-md border border-border bg-bg-soft px-2 text-sm">
+              className="h-9 rounded-md border border-primary/25 bg-gradient-to-b from-primary/15 to-bg-card/55 backdrop-blur-md px-2 text-sm">
               {OFFICE_SILOS.map((s) => <option key={s} value={s}>{t(DEPARTMENT_NAMES[s] ?? s)}</option>)}
             </select>
-            <button type="submit" className="h-9 rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{t('Show')}</button>
+            <button type="submit" className="h-9 rounded-md border border-primary/25 bg-gradient-to-b from-primary/15 to-bg-card/55 backdrop-blur-md px-3 text-sm font-semibold hover:from-primary/25">{t('Show')}</button>
           </form>
         ) : null}
       </div>

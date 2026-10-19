@@ -1,6 +1,16 @@
+/**
+ * Frosted glass over the console backdrop, with a touch of the console's red:
+ * the theme's card colour, see-through and blurred, tinted from the top.
+ */
+const frost = 'bg-gradient-to-b from-primary/15 to-bg-card/55 backdrop-blur-md';
+
 /** The duty office screens share these, so every form and table looks the same. */
 export const ox = {
+  frost,
   input: 'h-9 w-full rounded-md border border-border bg-bg-soft px-2.5 text-sm disabled:opacity-60',
+  /** Fields and buttons that sit straight on the backdrop (not inside a card). */
+  topInput: `h-9 rounded-md border border-primary/25 ${frost} px-2.5 text-sm`,
+  topButton: `inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-primary/25 ${frost} px-3 text-sm font-semibold hover:from-primary/25`,
   area: 'min-h-[4.5rem] w-full rounded-md border border-border bg-bg-soft px-2.5 py-2 text-sm',
   label: 'mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground',
   primary: 'inline-flex h-9 items-center justify-center gap-1.5 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60',

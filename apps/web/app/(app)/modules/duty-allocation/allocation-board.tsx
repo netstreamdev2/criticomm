@@ -8,6 +8,7 @@ import { ox } from '@/components/office/styles';
 import { useToast } from '@/components/toast';
 import { useT } from '@/components/i18n';
 import { cn } from '@/lib/utils';
+import { notify } from '@/components/office/notice';
 import { allocateAction } from './actions';
 
 type Sign = { id: string; callSign: string; start: string; stop: string; rank: string | null; description: string | null };
@@ -81,7 +82,8 @@ export function AllocationBoard({
         return;
       }
       setResult(res.result);
-      toast.push({ title: t('{count} duties allocated', { count: res.result.created }), tone: 'success' });
+      notify(t('{count} duties allocated', { count: res.result.created }),
+        res.result.skipped.length ? t('{count} left out: see the list below', { count: res.result.skipped.length }) : undefined);
       setPairs([]);
       setNote('');
       router.refresh();

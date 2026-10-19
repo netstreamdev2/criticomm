@@ -149,7 +149,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/admin', label: 'Users & Roles', icon: Users, keywords: 'accounts permissions' },
       { href: '/admin/config', label: 'Configuration', icon: SlidersHorizontal, keywords: 'categories leave shift types' },
-      { href: '/admin/personnel', label: 'Personnel', icon: IdCard, keywords: 'staff register' },
+      { href: '/modules/staff', label: 'Staff Maintenance', icon: IdCard, keywords: 'personnel staff register records import hr staff list invite logins roles leavers' },
       { href: '/admin/operators', label: 'Operators', icon: Users, keywords: 'control room call signs' },
       { href: '/admin/vehicles', label: 'Fleet', icon: RadioTower, keywords: 'apparatus vehicles' },
       { href: '/admin/devices', label: 'Devices', icon: Radio, keywords: 'mdt radios tablets' },
