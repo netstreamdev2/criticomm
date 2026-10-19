@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { MIN_REASON } from '../../users/confirm-fields';
 import { createAccountDirectlyAction, createInvitationAction, searchStaffAction } from '../actions';
 import { ActivationSlip, DevLink } from '../slip';
+import { useT } from '@/components/i18n';
 
 const ROLE_GROUPS: Array<{ label: string; roles: UserRole[] }> = [
   { label: 'Field', roles: ['Police', 'Captain', 'Firefighter', 'FireChief', 'Paramedic', 'Doctor', 'Disaster'] },
@@ -78,6 +79,7 @@ export function InviteForm({
   ttlHours: number;
   initialPerson: StaffForInvite | null;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -250,7 +252,7 @@ export function InviteForm({
 
   return (
     <div className="space-y-4">
-      <Step n={1} title="Who">
+      <Step n={1} title={t('Who')}>
         {person ? (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/50 bg-primary/5 px-4 py-3">
             <div>
@@ -258,19 +260,18 @@ export function InviteForm({
               <p className="text-sm text-muted-foreground">{personLine(person)}</p>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setPerson(null)}>
-              <X className="h-4 w-4" /> Choose someone else
-            </Button>
+              <X className="h-4 w-4" /> {' '}{t('Choose someone else')}</Button>
           </div>
         ) : (
           <div className="space-y-2">
-            <Label htmlFor="who">Search the staff register</Label>
+            <Label htmlFor="who">{t('Search the staff register')}</Label>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
               <Input
                 id="who"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Name or badge number"
+                placeholder={t('Name or badge number')}
                 autoComplete="off"
                 spellCheck={false}
                 className="pl-9"
@@ -313,34 +314,32 @@ export function InviteForm({
               </ul>
             ) : null}
             <p className="text-xs text-muted-foreground">
-              Someone with an account is not invited again: change their role on their account page.
-              Not in the staff register?{' '}
-              <Link href="/admin/personnel" className="font-semibold text-primary hover:underline">Add them first →</Link>
+              {t('Someone with an account is not invited again: change their role on their account page. Not in the staff register?')}{' '}
+              <Link href="/admin/personnel" className="font-semibold text-primary hover:underline">{t('Add them first →')}</Link>
             </p>
           </div>
         )}
       </Step>
 
-      <Step n={2} title="Access">
+      <Step n={2} title={t('Access')}>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <Label htmlFor="silo">Department</Label>
+            <Label htmlFor="silo">{t('Department')}</Label>
             <p id="silo" className="mt-1.5 flex h-10 items-center rounded-md border border-dashed border-border px-3 text-sm">
-              {person ? DEPARTMENT_NAMES[person.silo] : <span className="text-muted-foreground">Choose the person first</span>}
+              {person ? DEPARTMENT_NAMES[person.silo] : <span className="text-muted-foreground">{t('Choose the person first')}</span>}
             </p>
             {person ? (
               <p className="mt-1 text-xs text-muted-foreground">
-                From the staff register.{' '}
+                {t('From the staff register.')}{' '}
                 {canMovePeople ? (
                   <Link href={`/admin/personnel?q=${encodeURIComponent(person.badge_number)}`} className="font-semibold text-primary hover:underline">
-                    Wrong department? Change it in Personnel
-                  </Link>
+                    {t('Wrong department? Change it in Personnel')}</Link>
                 ) : 'Wrong department? Ask a system administrator to change it in Personnel.'}
               </p>
             ) : null}
           </div>
           <div>
-            <Label htmlFor="role">Role</Label>
+            <Label htmlFor="role">{t('Role')}</Label>
             <select id="role" value={role} onChange={(e) => setRole(e.target.value as UserRole)} disabled={!person || outside} className={selectClass}>
               <option value="" disabled>{person ? 'Choose a role' : 'Choose the person first'}</option>
               {ROLE_GROUPS.map((g) => {
@@ -359,21 +358,19 @@ export function InviteForm({
           <p role="alert" className="flex items-start gap-2 rounded-lg border border-severity-critical/40 bg-severity-critical/10 px-3 py-2.5 text-sm text-severity-critical-ink">
             <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
             <span>
-              {first} is in {DEPARTMENT_NAMES[person.silo]} in the staff register, and you invite into {departments.map((d) => DEPARTMENT_NAMES[d]).join(', ')} only.
-              {' '}A system administrator can change their department in Personnel.
-            </span>
+              {t('{first} is in {value} in the staff register, and you invite into {join} only. A system administrator can change their department in Personnel.', { first, value: DEPARTMENT_NAMES[person.silo], join: departments.map((d) => DEPARTMENT_NAMES[d]).join(', ') })}</span>
           </p>
         ) : null}
 
         {role ? (
           <div className="rounded-lg border border-border bg-bg-soft p-4">
-            <p className="text-sm font-semibold">{person ? `${first} will` : 'They will'} be able to open</p>
+            <p className="text-sm font-semibold">{t('{value} be able to open', { value: person ? `${first} will` : 'They will' })}</p>
             {access.length ? (
-              <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Access">
+              <ul className="mt-2 flex flex-wrap gap-1.5" aria-label={t('Access')}>
                 {access.map((a) => <li key={a} className="rounded-full border border-border bg-bg-card px-2.5 py-0.5 text-xs">{a}</li>)}
               </ul>
             ) : (
-              <p className="mt-1 text-sm text-muted-foreground">The dashboard, leave, search and their own profile only.</p>
+              <p className="mt-1 text-sm text-muted-foreground">{t('The dashboard, leave, search and their own profile only.')}</p>
             )}
           </div>
         ) : null}
@@ -382,15 +379,14 @@ export function InviteForm({
           <p className="flex items-start gap-2 rounded-lg border border-severity-medium/40 bg-severity-medium/10 px-3 py-2.5 text-sm">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-severity-medium-ink" aria-hidden />
             <span>
-              <b>{roleName(role)}</b> is a powerful role, so a second SystemAdmin must approve this invitation. Nothing reaches {first} until they do.
-            </span>
+              <b>{roleName(role)}</b> {' '}{t('is a powerful role, so a second SystemAdmin must approve this invitation. Nothing reaches {first} until they do.', { first })}</span>
           </p>
         ) : null}
       </Step>
 
       <Step n={3} title={direct ? 'Sign-in and password' : 'How they receive it'}>
         <fieldset className={cn('grid gap-2', channels.length > 3 ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3')}>
-          <legend className="sr-only">How they receive it</legend>
+          <legend className="sr-only">{t('How they receive it')}</legend>
           {channels.map((c) => {
             const Icon = c.icon;
             const on = channel === c.id;
@@ -421,28 +417,25 @@ export function InviteForm({
 
         {channel === 'email' ? (
           <div>
-            <Label htmlFor="email">Email address</Label>
+            <Label htmlFor="email">{t('Email address')}</Label>
             <Input id="email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setChecked(false); }}
-              placeholder="name@example.org" autoComplete="off" spellCheck={false} className="mt-1.5"
+              placeholder={t('name@example.org')} autoComplete="off" spellCheck={false} className="mt-1.5"
               aria-invalid={email.length > 0 && !contactOk} />
-            <p className="mt-1 text-xs text-muted-foreground">{first === 'them' ? 'They' : first} will sign in with this address.</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t('{value} will sign in with this address.', { value: first === 'them' ? 'They' : first })}</p>
           </div>
         ) : null}
         {channel === 'sms' ? (
           <div>
-            <Label htmlFor="phone">Cellphone number</Label>
+            <Label htmlFor="phone">{t('Cellphone number')}</Label>
             <Input id="phone" type="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setChecked(false); }}
               placeholder="082 123 4567" autoComplete="off" className="mt-1.5" aria-invalid={phone.length > 0 && !contactOk} />
             <p className="mt-1 text-xs text-muted-foreground">
-              {first === 'them' ? 'They' : first} will sign in with {person ? `badge number ${person.badge_number}` : 'their badge number'}.
-            </p>
+              {t('{value} will sign in with {value2}.', { value: first === 'them' ? 'They' : first, value2: person ? `badge number ${person.badge_number}` : 'their badge number' })}</p>
           </div>
         ) : null}
         {channel === 'code' ? (
           <p className="rounded-lg border border-border bg-bg-soft px-3 py-2.5 text-sm">
-            You will print a slip with a one-time code and hand it to {first} in person. They sign in with
-            {person ? ` badge number ${person.badge_number}` : ' their badge number'}.
-          </p>
+            {t('You will print a slip with a one-time code and hand it to {first} in person. They sign in with{value}.', { first, value: person ? ` badge number ${person.badge_number}` : ' their badge number' })}</p>
         ) : null}
 
         {direct ? (
@@ -450,24 +443,21 @@ export function InviteForm({
             <p className="flex items-start gap-2 rounded-lg border border-severity-medium/40 bg-severity-medium/10 px-3 py-2.5 text-sm">
               <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-severity-medium-ink" aria-hidden />
               <span>
-                The account is active as soon as you create it. You will know {first === 'them' ? 'their' : `${first}’s`} password,
-                and they do not confirm their badge number or accept the POPIA notice. Use an invitation where you can.
-              </span>
+                {t('The account is active as soon as you create it. You will know {value} password, and they do not confirm their badge number or accept the POPIA notice. Use an invitation where you can.', { value: first === 'them' ? 'their' : `${first}’s` })}</span>
             </p>
             {directBlocked ? (
               <p role="alert" className="rounded-lg border border-severity-critical/40 bg-severity-critical/10 px-3 py-2.5 text-sm text-severity-critical-ink">
-                {roleName(role)} needs a second SystemAdmin’s approval, so it cannot be created with a password. Choose email, SMS or a printed code.
-              </p>
+                {t('{roleName} needs a second SystemAdmin’s approval, so it cannot be created with a password. Choose email, SMS or a printed code.', { roleName: roleName(role) })}</p>
             ) : null}
             <div>
-              <Label htmlFor="direct-email">Email address (their sign-in)</Label>
+              <Label htmlFor="direct-email">{t('Email address (their sign-in)')}</Label>
               <Input id="direct-email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setChecked(false); }}
-                placeholder="name@example.org" autoComplete="off" spellCheck={false} className="mt-1.5"
+                placeholder={t('name@example.org')} autoComplete="off" spellCheck={false} className="mt-1.5"
                 aria-invalid={email.length > 0 && !contactOk} />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="direct-password">Password</Label>
+                <Label htmlFor="direct-password">{t('Password')}</Label>
                 <div className="relative mt-1.5">
                   <Input id="direct-password" type={showPassword ? 'text' : 'password'} value={password}
                     onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" className="pr-10" />
@@ -479,17 +469,17 @@ export function InviteForm({
                 </div>
               </div>
               <div>
-                <Label htmlFor="direct-confirm">Confirm password</Label>
+                <Label htmlFor="direct-confirm">{t('Confirm password')}</Label>
                 <Input id="direct-confirm" type={showPassword ? 'text' : 'password'} value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" className="mt-1.5"
                   aria-invalid={confirmPassword.length > 0 && password !== confirmPassword} />
               </div>
             </div>
-            <ul className="space-y-1 text-xs" aria-label="Password rules">
+            <ul className="space-y-1 text-xs" aria-label={t('Password rules')}>
               {rules.map((r) => (
                 <li key={r.rule} className={r.ok ? 'text-success' : 'text-muted-foreground'}>{r.ok ? '✓' : '○'} {r.rule}</li>
               ))}
-              <li className="text-muted-foreground">○ Not found in a known data breach (checked when you create it)</li>
+              <li className="text-muted-foreground">{t('○ Not found in a known data breach (checked when you create it)')}</li>
             </ul>
           </div>
         ) : null}
@@ -506,11 +496,11 @@ export function InviteForm({
         ) : null}
       </Step>
 
-      <Step n={4} title="Why">
+      <Step n={4} title={t('Why')}>
         <div>
-          <Label htmlFor="reason">Reason (kept on the permanent record)</Label>
+          <Label htmlFor="reason">{t('Reason (kept on the permanent record)')}</Label>
           <Textarea id="reason" value={reason} onChange={(e) => setReason(e.target.value)} rows={2} maxLength={500}
-            placeholder="e.g. New appointment, HR memo 2026/140" className="mt-1.5" />
+            placeholder={t('e.g. New appointment, HR memo 2026/140')} className="mt-1.5" />
           <p className={cn('mt-1 text-xs', reasonLength >= MIN_REASON ? 'text-muted-foreground' : 'text-severity-medium-ink')}>
             {reasonLength < MIN_REASON ? `At least ${MIN_REASON} characters (${reasonLength} so far).` : 'Recorded with the invitation and on the account it creates.'}
           </p>
@@ -522,19 +512,17 @@ export function InviteForm({
           {direct ? (
             <>
               <p>
-                Creates an account for <b>{fullName}</b> ({person.badge_number}) as <b>{roleName(role)}</b> in <b>{DEPARTMENT_NAMES[person.silo]}</b>,
-                signing in with <b>{email.trim() || '…'}</b>.
+                {t('Creates an account for')}{' '}<b>{fullName}</b> {' '}{t('({value}) as', { value: person.badge_number })}{' '}<b>{roleName(role)}</b> {' '}{t('in')}{' '}<b>{DEPARTMENT_NAMES[person.silo]}</b>{t(', signing in with')}{' '}<b>{email.trim() || '…'}</b>.
               </p>
               <p className="mt-1 text-muted-foreground">
-                Active at once on the web and the phone app. Nothing is emailed: give them the password yourself.
-              </p>
+                {t('Active at once on the web and the phone app. Nothing is emailed: give them the password yourself.')}</p>
             </>
           ) : (<>
           <p>
-            Invites <b>{fullName}</b> ({person.badge_number}) as <b>{roleName(role)}</b> in <b>{DEPARTMENT_NAMES[person.silo]}</b>,{' '}
-            {channel === 'email' ? <>by email to <b>{email.trim() || '…'}</b>.</>
-              : channel === 'sms' ? <>by SMS to <b>{phone.trim() || '…'}</b>.</>
-                : <>with a printed activation code.</>}
+            {t('Invites')}{' '}<b>{fullName}</b> {' '}{t('({value}) as', { value: person.badge_number })}{' '}<b>{roleName(role)}</b> {' '}{t('in')}{' '}<b>{DEPARTMENT_NAMES[person.silo]}</b>,{' '}
+            {channel === 'email' ? <>{t('by email to')}{' '}<b>{email.trim() || '…'}</b>.</>
+              : channel === 'sms' ? <>{t('by SMS to')}{' '}<b>{phone.trim() || '…'}</b>.</>
+                : <>{t('with a printed activation code.')}</>}
           </p>
           <p className="mt-1 text-muted-foreground">
             {approval
@@ -558,7 +546,7 @@ export function InviteForm({
         <Button type="button" onClick={submit} disabled={!ready || pending}>
           {pending ? 'Working…' : direct ? 'Create account' : approval ? 'Send for approval' : channel === 'code' ? 'Create slip' : 'Send invitation'}
         </Button>
-        <Button asChild variant="ghost"><Link href="/admin/invitations">Cancel</Link></Button>
+        <Button asChild variant="ghost"><Link href="/admin/invitations">{t('Cancel')}</Link></Button>
       </div>
 
       {slip ? <ActivationSlip slip={slip} onClose={done} /> : null}

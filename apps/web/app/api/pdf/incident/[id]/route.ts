@@ -60,7 +60,8 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   const pdf = await ReportPdf.create(
     `Case Report — ${incident.incident_number}`,
     `${departments} · ${incident.incident_type} · ${incident.incident_severity} · Status: ${incident.status} · Case: ${caseState}`,
-    await loadPdfBrand(supabase),
+    // A call police worked on, or one that carries a police report: the police badge too.
+    await loadPdfBrand(supabase, { police: departmentsOf(incident).includes('MetroPolice') || Boolean(report) }),
   );
 
   pdf.section('Call details');

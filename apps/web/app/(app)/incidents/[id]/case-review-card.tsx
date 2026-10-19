@@ -5,6 +5,7 @@ import { caseStage, closeActionFor, type Database, type UserRole } from '@critic
 import { Card, CardContent } from '@/components/ui/card';
 import { formatSaTime } from '@/lib/utils';
 import { CancelCallForm, ReviewCloseForm } from './case-forms';
+import { requestT } from '@/lib/i18n';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 type PoliceReport = { report_type: string | null; officer_name: string | null; badge_number: string | null; filed_at: string | null } | null;
@@ -17,7 +18,7 @@ type FireReport = { report_number: string; reporting_officer_name: string | null
  *   review  the report is filed; a case manager (or command) reads it and closes
  *   closed  who closed it, how and why
  */
-export function CaseReviewCard({
+export async function CaseReviewCard({
   incident, role, report, fireReport, pcr = null, postMortem = null, responding,
 }: {
   incident: Incident;
@@ -30,6 +31,7 @@ export function CaseReviewCard({
   postMortem?: { report_number: string | null; reporting_officer: string | null } | null;
   responding: number;
 }) {
+  const { t } = await requestT();
   const stage = caseStage(incident.status);
   const action = closeActionFor(role, incident.status);
 
@@ -91,17 +93,17 @@ export function CaseReviewCard({
             ? <FileCheck className="mt-0.5 h-5 w-5 shrink-0 text-accent" aria-hidden />
             : <FileWarning className="mt-0.5 h-5 w-5 shrink-0 text-severity-medium-ink" aria-hidden />}
           <div className="min-w-0">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-accent">Awaiting review</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-accent">{t('Awaiting review')}</p>
             <p className="mt-0.5 font-semibold">{reportLine ?? 'Resolved with no report on file'}</p>
             <p className="text-muted-foreground">
               {filedAt ? `Resolved ${formatSaTime(filedAt)}` : 'Resolved'}
               {waited !== null ? ` · waiting ${formatElapsed(waited)}` : ''}
             </p>
             <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs">
-              {reportLine ? <a href="#case-report" className="text-accent hover:underline">Read the report</a> : null}
-              <a href="#case-evidence" className="text-accent hover:underline">Evidence</a>
-              <a href="#case-history" className="text-accent hover:underline">Full history</a>
-              <a href={`/api/pdf/incident/${incident.id}`} className="text-accent hover:underline">Case PDF</a>
+              {reportLine ? <a href="#case-report" className="text-accent hover:underline">{t('Read the report')}</a> : null}
+              <a href="#case-evidence" className="text-accent hover:underline">{t('Evidence')}</a>
+              <a href="#case-history" className="text-accent hover:underline">{t('Full history')}</a>
+              <a href={`/api/pdf/incident/${incident.id}`} className="text-accent hover:underline">{t('Case PDF')}</a>
             </p>
           </div>
         </div>
@@ -112,8 +114,8 @@ export function CaseReviewCard({
             <p className="flex items-start gap-2 rounded-md border border-border bg-bg-soft p-3 text-xs text-muted-foreground">
               <Hourglass className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
               <span>
-                Waiting for a case manager to read the report and close the case.{' '}
-                <Link href="/case-manager/review" className="text-accent hover:underline">Review queue</Link>
+                {t('Waiting for a case manager to read the report and close the case.')}{' '}
+                <Link href="/case-manager/review" className="text-accent hover:underline">{t('Review queue')}</Link>
               </span>
             </p>
           )}

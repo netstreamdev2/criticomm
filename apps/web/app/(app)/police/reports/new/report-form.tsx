@@ -9,6 +9,7 @@ import {
 } from '@criticom/api';
 import { cn } from '@/lib/utils';
 import { fileConsoleReportAction, type ConsoleReportInput } from '../../actions';
+import { useT } from '@/components/i18n';
 
 type Header = ConsoleReportInput['header'];
 
@@ -23,6 +24,7 @@ export function ConsoleReportForm({ initialForms, officerName, bodycamOn }: {
   officerName: string;
   bodycamOn: boolean;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const [forms, setForms] = useState<string[]>(initialForms);
   const [header, setHeader] = useState<Header>({
@@ -82,14 +84,14 @@ export function ConsoleReportForm({ initialForms, officerName, bodycamOn }: {
     <form onSubmit={submit} className="space-y-4" noValidate>
       {problems.length ? (
         <div role="alert" className="rounded-lg border border-severity-critical/40 bg-severity-critical/10 px-4 py-3 text-sm text-severity-critical-ink">
-          <p className="font-semibold">The report cannot be filed yet:</p>
+          <p className="font-semibold">{t('The report cannot be filed yet:')}</p>
           <ul className="mt-1 list-disc pl-5">{problems.map((p) => <li key={p}>{p}</li>)}</ul>
         </div>
       ) : null}
 
       <section className="rounded-lg border border-border bg-bg-card p-4">
-        <h2 className="font-semibold">Forms <span className="text-severity-critical-ink">*</span></h2>
-        <p className="text-sm text-muted-foreground">Choose every form this report needs. Each has its own colour on the report and the PDF.</p>
+        <h2 className="font-semibold">{t('Forms')}{' '}<span className="text-severity-critical-ink">*</span></h2>
+        <p className="text-sm text-muted-foreground">{t('Choose every form this report needs. Each has its own colour on the report and the PDF.')}</p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {POLICE_REPORT_FORMS.map((f) => {
             const on = forms.includes(f.id);
@@ -122,15 +124,15 @@ export function ConsoleReportForm({ initialForms, officerName, bodycamOn }: {
       </section>
 
       <section className="rounded-lg border border-border bg-bg-card p-4">
-        <h2 className="font-semibold">Report</h2>
+        <h2 className="font-semibold">{t('Report')}</h2>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <HeaderField label="Case number" value={header.case_number} placeholder="Given automatically if blank" onChange={(v) => setHeader({ ...header, case_number: v })} />
-          <HeaderField label="Date of offence" type="date" required value={header.date_of_offense} onChange={(v) => setHeader({ ...header, date_of_offense: v })} />
-          <HeaderField label="Time of offence" type="time" value={header.time_of_offense} onChange={(v) => setHeader({ ...header, time_of_offense: v })} />
-          <HeaderField label="Location" required className="sm:col-span-2" value={header.location} invalid={tried && !header.location.trim()} onChange={(v) => setHeader({ ...header, location: v })} />
-          <HeaderField label="Station" value={header.station} onChange={(v) => setHeader({ ...header, station: v })} />
-          <HeaderField label="Officer" required value={header.officer_name} onChange={(v) => setHeader({ ...header, officer_name: v })} />
-          <HeaderField label="Force number" value={header.badge_number} onChange={(v) => setHeader({ ...header, badge_number: v })} />
+          <HeaderField label={t('Case number')} value={header.case_number} placeholder={t('Given automatically if blank')} onChange={(v) => setHeader({ ...header, case_number: v })} />
+          <HeaderField label={t('Date of offence')} type="date" required value={header.date_of_offense} onChange={(v) => setHeader({ ...header, date_of_offense: v })} />
+          <HeaderField label={t('Time of offence')} type="time" value={header.time_of_offense} onChange={(v) => setHeader({ ...header, time_of_offense: v })} />
+          <HeaderField label={t('Location')} required className="sm:col-span-2" value={header.location} invalid={tried && !header.location.trim()} onChange={(v) => setHeader({ ...header, location: v })} />
+          <HeaderField label={t('Station')} value={header.station} onChange={(v) => setHeader({ ...header, station: v })} />
+          <HeaderField label={t('Officer')} required value={header.officer_name} onChange={(v) => setHeader({ ...header, officer_name: v })} />
+          <HeaderField label={t('Force number')} value={header.badge_number} onChange={(v) => setHeader({ ...header, badge_number: v })} />
         </div>
       </section>
 
@@ -167,6 +169,7 @@ function Section({ section, answers, invalid, set, addRow, removeRow }: {
   addRow: (s: ReportSection) => void;
   removeRow: (s: ReportSection) => void;
 }) {
+  const { t } = useT();
   const tone = section.form ? getReportForm(section.form)?.tone : undefined;
   if (!section.repeat) {
     return (
@@ -192,8 +195,7 @@ function Section({ section, answers, invalid, set, addRow, removeRow }: {
               <p className="text-sm font-semibold">{rowLabel(section, n)}</p>
               {n === rows && rows > section.repeat!.min ? (
                 <button type="button" onClick={() => removeRow(section)} className="inline-flex items-center gap-1 text-xs font-semibold text-severity-critical-ink hover:underline">
-                  <Minus className="h-3.5 w-3.5" /> Remove
-                </button>
+                  <Minus className="h-3.5 w-3.5" /> {' '}{t('Remove')}</button>
               ) : null}
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -205,7 +207,7 @@ function Section({ section, answers, invalid, set, addRow, removeRow }: {
         ))}
         {rows < section.repeat.max ? (
           <button type="button" onClick={() => addRow(section)} className="inline-flex items-center gap-1.5 rounded-md border border-accent/50 px-3 py-1.5 text-sm font-semibold text-accent hover:bg-accent/10">
-            <Plus className="h-4 w-4" /> Add {section.repeat.noun}
+            <Plus className="h-4 w-4" /> {' '}{t('Add {noun}', { noun: section.repeat.noun })}
           </button>
         ) : null}
       </div>

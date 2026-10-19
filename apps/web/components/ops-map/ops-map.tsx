@@ -62,6 +62,7 @@ import { ZoneCard } from './zones/zone-card';
 import { ZoneEditor, type EditorIncident, type ZoneFormInit } from './zones/zone-editor';
 import { DrawToolbar, PlacingBar, ZonesList } from './zones/zone-tools';
 import { DispatchMapModal } from '@/components/dispatch-map-modal';
+import { useT } from '@/components/i18n';
 
 type L = typeof Leaflet;
 type Incident = Database['public']['Tables']['incidents']['Row'];
@@ -179,6 +180,7 @@ export function OpsMap({
   basemap: defaultBasemap, scopeLabel, height = 560, startInWall = false,
   me, focusZoneId = null, drawForIncidentId = null, bodycams = false, liveRoutes = null,
 }: OpsMapProps) {
+  const { t } = useT();
   const router = useRouter();
   const routerRef = useRef(router);
   routerRef.current = router;
@@ -1102,7 +1104,7 @@ export function OpsMap({
       data-wall={wall}
       data-idle={wall && idle && !sheet && !selectedZoneId && !editing && !watching}
     >
-      <div ref={el} className="absolute inset-0" role="region" aria-label="Live operations map" />
+      <div ref={el} className="absolute inset-0" role="region" aria-label={t('Live operations map')} />
 
       {/* Top row: controls on the left, wall title and counts on the right. */}
       <div className="pointer-events-none absolute inset-x-3 top-3 z-[5] flex flex-row-reverse items-start justify-between gap-3">
@@ -1110,11 +1112,11 @@ export function OpsMap({
           {wall ? (
             <>
               <WallTitle scopeLabel={scopeLabel} />
-              <Stat label="Live incidents" value={summary.live} />
-              <Stat label="Critical / high" value={summary.urgent} tone={summary.urgent ? 'urgent' : undefined} />
-              {summary.sos > 0 && <Stat label="SOS active" value={summary.sos} tone="sos" />}
+              <Stat label={t('Live incidents')} value={summary.live} />
+              <Stat label={t('Critical / high')} value={summary.urgent} tone={summary.urgent ? 'urgent' : undefined} />
+              {summary.sos > 0 && <Stat label={t('SOS active')} value={summary.sos} tone="sos" />}
               <Stat
-                label="Officers on duty"
+                label={t('Officers on duty')}
                 value={officers.length}
                 detail={placedOfficers < officers.length ? `${placedOfficers} on the map` : undefined}
               />
@@ -1123,8 +1125,7 @@ export function OpsMap({
           ) : (
             summary.sos > 0 && (
               <span className="ops-glass pointer-events-auto inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-red-300">
-                <Siren className="h-4 w-4 animate-pulse" /> {summary.sos} SOS active
-              </span>
+                <Siren className="h-4 w-4 animate-pulse" /> {' '}{t('{sos} SOS active', { sos: summary.sos })}</span>
             )
           )}
         </div>
@@ -1134,11 +1135,10 @@ export function OpsMap({
             type="button"
             onClick={() => { setSelectedZoneId(null); setSheet((v) => (v === 'zones' ? null : 'zones')); }}
             aria-expanded={sheet === 'zones'}
-            title="Perimeters and zones in force"
+            title={t('Perimeters and zones in force')}
             className="ops-glass ops-btn"
           >
-            <Shapes className="h-4 w-4" /> Perimeters
-            <span className="rounded bg-white/15 px-1.5 text-[10px] tabular-nums">{zones.length}</span>
+            <Shapes className="h-4 w-4" /> {' '}{t('Perimeters')}<span className="rounded bg-white/15 px-1.5 text-[10px] tabular-nums">{zones.length}</span>
           </button>
           <button
             type="button"
@@ -1146,11 +1146,10 @@ export function OpsMap({
             aria-expanded={sheet === 'layers'}
             className="ops-glass ops-btn"
           >
-            <Layers className="h-4 w-4" /> Layers
-            <span className="rounded bg-white/15 px-1.5 text-[10px] tabular-nums">{overlays}</span>
+            <Layers className="h-4 w-4" /> {' '}{t('Layers')}<span className="rounded bg-white/15 px-1.5 text-[10px] tabular-nums">{overlays}</span>
           </button>
           <fieldset className="ops-glass flex rounded-lg p-0.5">
-            <legend className="sr-only">Basemap</legend>
+            <legend className="sr-only">{t('Basemap')}</legend>
             {BASEMAPS.map((b) => (
               <button
                 key={b}
@@ -1288,13 +1287,13 @@ export function OpsMap({
             />
             <div className="min-w-0 text-sm">
               <p className="font-bold uppercase tracking-wider text-sky-300">
-                New call · {banner.incident_number}
+                {t('New call · {value}', { value: banner.incident_number })}
               </p>
               <p className="truncate text-slate-100">
                 {banner.incident_type} · {banner.incident_severity} · {banner.location_address}
               </p>
             </div>
-            <button type="button" onClick={() => setBanner(null)} aria-label="Dismiss" className="ml-1 text-slate-300 hover:text-white">
+            <button type="button" onClick={() => setBanner(null)} aria-label={t('Dismiss')} className="ml-1 text-slate-300 hover:text-white">
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -1305,8 +1304,7 @@ export function OpsMap({
 
       {wall && !nativeFs && (
         <p className="ops-map-chrome ops-glass pointer-events-none absolute bottom-3 left-1/2 z-[5] -translate-x-1/2 rounded-md px-3 py-1 text-xs text-slate-300">
-          F11 for edge-to-edge · Esc to leave
-        </p>
+          {t('F11 for edge-to-edge · Esc to leave')}</p>
       )}
 
       {routing && liveRoutes ? (
@@ -1328,6 +1326,7 @@ export function OpsMap({
 /* ── Pieces ─────────────────────────────────────────────────────────── */
 
 function WallTitle({ scopeLabel }: { scopeLabel: string }) {
+  const { t } = useT();
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
     setNow(new Date());
@@ -1337,8 +1336,7 @@ function WallTitle({ scopeLabel }: { scopeLabel: string }) {
   return (
     <div className="ops-glass rounded-xl px-4 py-2.5">
       <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-sky-300">
-        <span className="live-dot" /> Live operations
-      </p>
+        <span className="live-dot" /> {' '}{t('Live operations')}</p>
       <p className="mt-0.5 font-mono text-3xl font-bold tabular-nums text-white">
         {now ? SA_CLOCK.format(now) : '--:--:--'}
       </p>
@@ -1367,16 +1365,17 @@ function Stat({ label, value, detail, tone }: {
 }
 
 function WeatherStat({ weather }: { weather: WeatherNow | null }) {
+  const { t } = useT();
   if (!weather?.configured || weather.error || weather.tempC == null) return null;
   const kmh = weather.windSpeedMs != null ? Math.round(weather.windSpeedMs * 3.6) : null;
   return (
     <div className="ops-glass rounded-xl px-4 py-2.5">
-      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">Durban weather</p>
+      <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">{t('Durban weather')}</p>
       <p className="mt-0.5 text-3xl font-bold tabular-nums text-white">{Math.round(weather.tempC)}°</p>
       <p className="flex items-center gap-1 text-xs capitalize text-slate-300">
         {kmh != null && (
           <>
-            <Wind className="h-3 w-3" /> {kmh} km/h {compass(weather.windDeg)} ·{' '}
+            <Wind className="h-3 w-3" /> {' '}{t('{kmh} km/h {compass} ·', { kmh, compass: compass(weather.windDeg) })}{' '}
           </>
         )}
         {weather.description}
@@ -1399,11 +1398,12 @@ function LayerPanel({
   onReset: () => void;
   onClose: () => void;
 }) {
+  const { t } = useT();
   return (
     <div className="ops-map-chrome ops-glass absolute left-3 top-16 z-[6] max-h-[calc(100%-5.5rem)] w-80 max-w-[calc(100%-1.5rem)] overflow-y-auto rounded-xl p-3 text-slate-100 shadow-2xl">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-300">Map layers</p>
-        <button type="button" onClick={onClose} aria-label="Close layers" className="text-slate-300 hover:text-white">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-300">{t('Map layers')}</p>
+        <button type="button" onClick={onClose} aria-label={t('Close layers')} className="text-slate-300 hover:text-white">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -1414,7 +1414,7 @@ function LayerPanel({
           <fieldset key={group} className="mb-3">
             <legend className="mb-1 text-[11px] font-bold uppercase tracking-wider text-sky-300">{group}</legend>
             {group === 'Weather' && weatherOff && (
-              <p className="mb-1 text-xs text-amber-300">Weather needs OPENWEATHER_API_KEY on the server.</p>
+              <p className="mb-1 text-xs text-amber-300">{t('Weather needs OPENWEATHER_API_KEY on the server.')}</p>
             )}
             {defs.map((l) => (
               <div key={l.id} className="rounded-lg px-2 py-1.5 hover:bg-white/5">
@@ -1438,12 +1438,12 @@ function LayerPanel({
                     <select
                       value={crimeKind}
                       onChange={(ev) => setCrimeKind(ev.target.value as CrimeKind)}
-                      aria-label="Crime category"
+                      aria-label={t('Crime category')}
                       className="w-full rounded-md border border-white/15 bg-slate-900 px-2 py-1 text-xs text-slate-100"
                     >
                       {CRIME_KINDS.map((k) => <option key={k.key} value={k.key}>{k.label}</option>)}
                     </select>
-                    {crimeYear && <p className="mt-1 text-[11px] text-slate-400">SAPS financial year {crimeYear}</p>}
+                    {crimeYear && <p className="mt-1 text-[11px] text-slate-400">{t('SAPS financial year {crimeYear}', { crimeYear })}</p>}
                   </div>
                 )}
               </div>
@@ -1456,8 +1456,7 @@ function LayerPanel({
         onClick={onReset}
         className="w-full rounded-lg border border-white/15 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/10"
       >
-        Reset to my desk&apos;s defaults
-      </button>
+        {t('Reset to my desk\'s defaults')}</button>
     </div>
   );
 }
@@ -1465,6 +1464,7 @@ function LayerPanel({
 function Legend({ isOn, wall, unplaced, crimeYear, bodycams }: {
   isOn: (id: LayerId) => boolean; wall: boolean; unplaced: number; crimeYear: string | null; bodycams: boolean;
 }) {
+  const { t } = useT();
   const dot = (colour: string, label: string, ring?: string) => (
     <span key={label} className="inline-flex items-center gap-1.5">
       <span className="h-2.5 w-2.5 rounded-full" style={{ background: colour, boxShadow: ring ? `0 0 0 2px ${ring}` : undefined }} />
@@ -1484,19 +1484,17 @@ function Legend({ isOn, wall, unplaced, crimeYear, bodycams }: {
       {isOn('routes') && (
         <span className="inline-flex items-center gap-1.5">
           <span className="h-0.5 w-5 rounded-full bg-slate-200" />
-          Route
-        </span>
+          {t('Route')}</span>
       )}
       {isOn('routes') && (
         <span className="inline-flex items-center gap-1.5">
           <span className="w-5 border-t-2 border-dashed border-slate-200" />
-          No signal
-        </span>
+          {t('No signal')}</span>
       )}
       {isOn('crime') && (
         <span className="inline-flex items-center gap-1.5">
           <span className="h-2.5 w-8 rounded-full" style={{ background: 'linear-gradient(90deg,#facc15,#f97316,#dc2626)' }} />
-          Crime{crimeYear ? ` ${crimeYear}` : ''}
+          {t('Crime{value}', { value: crimeYear ? ` ${crimeYear}` : '' })}
         </span>
       )}
       {isOn('hydrants') && dot(HYDRANT_COLOUR.Operational!, 'Hydrant')}
@@ -1504,7 +1502,7 @@ function Legend({ isOn, wall, unplaced, crimeYear, bodycams }: {
       {isOn('cameras') && dot('#2dd4bf', 'SANRAL camera')}
       {isOn('traffic') && dot('#fb923c', 'Traffic')}
       {unplaced > 0 && isOn('incidents') && (
-        <span className="text-amber-300">{unplaced} call{unplaced === 1 ? '' : 's'} without a map position</span>
+        <span className="text-amber-300">{t('{unplaced} call{value} without a map position', { unplaced, value: unplaced === 1 ? '' : 's' })}</span>
       )}
     </div>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Palette, Check, Moon, Sun } from 'lucide-react';
 import { THEMES, DEFAULT_THEME, THEME_STORAGE_KEY, type ThemeId } from '@/lib/themes';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 function applyTheme(id: ThemeId) {
   document.documentElement.setAttribute('data-theme', id);
@@ -70,6 +71,7 @@ export function ThemeGrid() {
 
 /** Compact dropdown for the topbar. */
 export function ThemePicker() {
+  const { t } = useT();
   const [theme, setTheme] = useCurrentTheme();
   const [open, setOpen] = useState(false);
 
@@ -85,9 +87,9 @@ export function ThemePicker() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        aria-label="Change theme"
+        aria-label={t('Change theme')}
         aria-expanded={open}
-        title="Change theme"
+        title={t('Change theme')}
         className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-fg"
       >
         <Palette className="h-4 w-4" />
@@ -95,11 +97,10 @@ export function ThemePicker() {
 
       {open && (
         <>
-          <button type="button" aria-label="Close" className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(false)} />
+          <button type="button" aria-label={t('Close')} className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(false)} />
           <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border border-border bg-bg-card shadow-2xl">
             <p className="border-b border-border px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Theme
-            </p>
+              {t('Theme')}</p>
             <div className="max-h-80 overflow-y-auto p-1.5">
               {THEMES.map((t) => {
                 const selected = t.id === theme;

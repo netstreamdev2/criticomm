@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Wind } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useT } from '@/components/i18n';
 
 type WindData = {
   configured: boolean;
@@ -23,6 +24,7 @@ const compass = (deg: number) => {
 
 /** WindController.GetLatest widget — live conditions for fire-spread / disaster ops. */
 export function WindWidget() {
+  const { t } = useT();
   const [data, setData] = useState<WindData | null>(null);
 
   useEffect(() => {
@@ -41,29 +43,29 @@ export function WindWidget() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2"><Wind className="h-4 w-4" /> Wind & weather</CardTitle>
-        <CardDescription>Durban conditions — refreshed every 5 min.</CardDescription>
+        <CardTitle className="flex items-center gap-2"><Wind className="h-4 w-4" /> {' '}{t('Wind & weather')}</CardTitle>
+        <CardDescription>{t('Durban conditions — refreshed every 5 min.')}</CardDescription>
       </CardHeader>
       <CardContent className="text-sm">
-        {!data && <p className="text-muted-foreground">Loading…</p>}
+        {!data && <p className="text-muted-foreground">{t('Loading…')}</p>}
         {data && !data.configured && (
           <p className="text-muted-foreground">{data.message}</p>
         )}
         {data?.configured && data.error && (
-          <p className="text-severity-medium-ink">Weather service unavailable ({data.error}).</p>
+          <p className="text-severity-medium-ink">{t('Weather service unavailable ({error}).', { error: data.error })}</p>
         )}
         {data?.configured && !data.error && data.windSpeedMs != null && (
           <div className="space-y-3">
             <p className="text-3xl font-bold">
-              {(data.windSpeedMs * 3.6).toFixed(0)} <span className="text-base font-normal text-muted-foreground">km/h</span>
+              {(data.windSpeedMs * 3.6).toFixed(0)} <span className="text-base font-normal text-muted-foreground">{t('km/h')}</span>
               {data.windDeg != null && (
                 <span className="ml-2 text-base font-semibold text-accent">{compass(data.windDeg)}</span>
               )}
             </p>
             <ul className="space-y-1 text-muted-foreground">
-              {data.windGustMs != null && <li>Gusts: {(data.windGustMs * 3.6).toFixed(0)} km/h</li>}
-              {data.tempC != null && <li>Temperature: {data.tempC.toFixed(1)} °C</li>}
-              {data.humidity != null && <li>Humidity: {data.humidity}%</li>}
+              {data.windGustMs != null && <li>{t('Gusts: {fixed} km/h', { fixed: (data.windGustMs * 3.6).toFixed(0) })}</li>}
+              {data.tempC != null && <li>{t('Temperature: {fixed} °C', { fixed: data.tempC.toFixed(1) })}</li>}
+              {data.humidity != null && <li>{t('Humidity: {humidity}%', { humidity: data.humidity })}</li>}
               {data.description && <li className="capitalize">{data.description}</li>}
             </ul>
           </div>

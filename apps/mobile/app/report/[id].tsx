@@ -286,7 +286,7 @@ export default function IncidentReportScreen() {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <ScrollView contentContainerStyle={styles.container}>
         <Card>
-          <OrgMark style={styles.letterhead} />
+          <OrgMark police style={styles.letterhead} />
           <View style={styles.rowBetween}>
             <Text style={styles.number}>{incident.incident_number}</Text>
             <SeverityPill severity={incident.incident_severity} />

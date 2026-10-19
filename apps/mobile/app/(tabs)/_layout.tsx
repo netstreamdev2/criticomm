@@ -8,8 +8,8 @@ import { useFeature } from '@/lib/features';
 import { colors, useTheme } from '@/lib/theme';
 import { fontFamily } from '@/lib/font';
 import { CurvedTabBar } from '@/components/tab-bar';
-import { HikTechLogo } from '@/components/hiktech-logo';
-import { AlertsBell, HeaderSearch } from '@/components/alerts-bell';
+import { BrandMarks } from '@/components/police-badge';
+import { AlertsBell, HeaderSearch, HeaderTalk } from '@/components/alerts-bell';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useT } from '@/lib/i18n';
 
@@ -24,7 +24,7 @@ import { useT } from '@/lib/i18n';
  * the badge stuck.
  */
 function useUnreadAlerts(): number {
-  const { session, silo } = useAuth();
+  const { session } = useAuth();
   const [count, setCount] = useState(0);
 
   const reseed = useCallback(() => {
@@ -36,13 +36,13 @@ function useUnreadAlerts(): number {
     reseed();
     if (!session) return;
     const sb = getSupabase();
-    const offAlerts = subscribeAlerts(sb, { silo }, () => reseed());
+    const offAlerts = subscribeAlerts(sb, () => reseed());
     const offReads = subscribeMyAlertReads(sb, { userId: session.user.id }, {
       onChange: () => reseed(),
       onStatus: (status) => { if (status === 'SUBSCRIBED') reseed(); },
     });
     return () => { offAlerts(); offReads(); };
-  }, [session, silo, reseed]);
+  }, [session, reseed]);
 
   return count;
 }
@@ -73,6 +73,7 @@ export default function TabsLayout() {
         headerRight: () => (
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <ThemeToggle />
+            {doctor ? null : <HeaderTalk />}
             {doctor ? null : <HeaderSearch />}
             {alertsOn ? <AlertsBell count={unread} /> : <View style={{ width: 12 }} />}
           </View>
@@ -86,7 +87,7 @@ export default function TabsLayout() {
         options={{
           title: t('HikTech'),
           headerTitle: '',
-          headerLeft: () => <View style={{ marginLeft: 16 }}><HikTechLogo height={14} /></View>,
+          headerLeft: () => <View style={{ marginLeft: 16 }}><BrandMarks height={14} /></View>,
         }}
       />
       <Tabs.Screen name="shift" options={{ title: t('Shift') }} />

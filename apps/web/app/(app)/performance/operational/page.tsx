@@ -4,6 +4,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { PerfNav, cycleWindow } from '../perf-nav';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Operational KPIs · HikTech' };
@@ -13,6 +14,7 @@ export default async function OperationalKpiPage({
 }: {
   searchParams: Promise<{ from?: string; to?: string; dept?: string; region?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const params = await searchParams;
   const { from, to } = cycleWindow(params.from, params.to);
@@ -38,40 +40,38 @@ export default async function OperationalKpiPage({
       <PerfNav active="/performance/operational" />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Operational KPI console</h1>
+          <h1 className="text-2xl font-bold">{t('Operational KPI console')}</h1>
           <p className="text-muted-foreground">
-            Control-room throughput: call takers, dispatchers, category volume and raw call detail.
-          </p>
+            {t('Control-room throughput: call takers, dispatchers, category volume and raw call detail.')}</p>
         </div>
         <a href={exportHref} className="rounded-md border border-border px-4 py-2 text-sm font-semibold hover:bg-muted">
-          ⬇ Export CSV
-        </a>
+          {t('⬇ Export CSV')}</a>
       </header>
 
       <form method="get" className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="text-xs uppercase text-muted-foreground" htmlFor="from">From</label>
+          <label className="text-xs uppercase text-muted-foreground" htmlFor="from">{t('From')}</label>
           <input id="from" name="from" type="date" defaultValue={from} className="mt-1 block h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
         </div>
         <div>
-          <label className="text-xs uppercase text-muted-foreground" htmlFor="to">To</label>
+          <label className="text-xs uppercase text-muted-foreground" htmlFor="to">{t('To')}</label>
           <input id="to" name="to" type="date" defaultValue={to} className="mt-1 block h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
         </div>
         <div>
-          <label className="text-xs uppercase text-muted-foreground" htmlFor="dept">Department</label>
+          <label className="text-xs uppercase text-muted-foreground" htmlFor="dept">{t('Department')}</label>
           <select id="dept" name="dept" defaultValue={params.dept ?? 'All'} className="mt-1 block h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-            <option value="All">All</option>
+            <option value="All">{t('All')}</option>
             {kpi.departments.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
         </div>
         <div>
-          <label className="text-xs uppercase text-muted-foreground" htmlFor="region">Region</label>
+          <label className="text-xs uppercase text-muted-foreground" htmlFor="region">{t('Region')}</label>
           <select id="region" name="region" defaultValue={params.region ?? 'All'} className="mt-1 block h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-            <option value="All">All</option>
+            <option value="All">{t('All')}</option>
             {kpi.regions.map((r) => <option key={r} value={r}>{r}</option>)}
           </select>
         </div>
-        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Apply</button>
+        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Apply')}</button>
       </form>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
@@ -88,11 +88,11 @@ export default async function OperationalKpiPage({
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Call takers ({kpi.callTakers.length})</CardTitle>
-            <CardDescription>Operator throughput for the period.</CardDescription>
+            <CardTitle>{t('Call takers ({length})', { length: kpi.callTakers.length })}</CardTitle>
+            <CardDescription>{t('Operator throughput for the period.')}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Operator', 'Calls', 'Disp.', 'Closed', 'Avg disp (m)', 'Top category']} empty="No call-taker activity.">
+            <SimpleTable headers={['Operator', 'Calls', 'Disp.', 'Closed', 'Avg disp (m)', 'Top category']} empty={t('No call-taker activity.')}>
               {kpi.callTakers.map((o) => (
                 <Tr key={o.operator}>
                   <Td className="font-semibold">{o.operator}</Td>
@@ -109,11 +109,11 @@ export default async function OperationalKpiPage({
 
         <Card>
           <CardHeader>
-            <CardTitle>Dispatchers ({kpi.dispatchers.length})</CardTitle>
-            <CardDescription>Units dispatched per operator.</CardDescription>
+            <CardTitle>{t('Dispatchers ({length})', { length: kpi.dispatchers.length })}</CardTitle>
+            <CardDescription>{t('Units dispatched per operator.')}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Operator', 'Dispatched', 'Closed', 'Avg disp (m)', 'Avg res (m)']} empty="No dispatcher activity.">
+            <SimpleTable headers={['Operator', 'Dispatched', 'Closed', 'Avg disp (m)', 'Avg res (m)']} empty={t('No dispatcher activity.')}>
               {kpi.dispatchers.map((o) => (
                 <Tr key={o.operator}>
                   <Td className="font-semibold">{o.operator}</Td>
@@ -130,11 +130,11 @@ export default async function OperationalKpiPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Category pivot</CardTitle>
-          <CardDescription>Category × sub-category × region volume.</CardDescription>
+          <CardTitle>{t('Category pivot')}</CardTitle>
+          <CardDescription>{t('Category × sub-category × region volume.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Category', 'Sub-category', 'Region', 'Total']} empty="No incidents in range.">
+          <SimpleTable headers={['Category', 'Sub-category', 'Region', 'Total']} empty={t('No incidents in range.')}>
             {kpi.categoryPivot.slice(0, 60).map((r, i) => (
               <Tr key={i}>
                 <Td>{r.category}</Td>
@@ -149,11 +149,11 @@ export default async function OperationalKpiPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Call detail ({kpi.callDetail.length} of {kpi.callDetailTotal})</CardTitle>
-          <CardDescription>Most recent calls. Full set via CSV export.</CardDescription>
+          <CardTitle>{t('Call detail ({length} of {callDetailTotal})', { length: kpi.callDetail.length, callDetailTotal: kpi.callDetailTotal })}</CardTitle>
+          <CardDescription>{t('Most recent calls. Full set via CSV export.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Incident #', 'Date', 'Category', 'Type', 'Region', 'Operator', 'Dispatcher', 'Status']} empty="No calls in range.">
+          <SimpleTable headers={['Incident #', 'Date', 'Category', 'Type', 'Region', 'Operator', 'Dispatcher', 'Status']} empty={t('No calls in range.')}>
             {kpi.callDetail.map((r) => (
               <Tr key={r.incidentNumber}>
                 <Td className="font-mono">{r.incidentNumber}</Td>
@@ -172,11 +172,11 @@ export default async function OperationalKpiPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Logons ({kpi.logons.length})</CardTitle>
-          <CardDescription>User Logon report from the audit trail.</CardDescription>
+          <CardTitle>{t('Logons ({length})', { length: kpi.logons.length })}</CardTitle>
+          <CardDescription>{t('User Logon report from the audit trail.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['When', 'User', 'Department']} empty="No logons recorded.">
+          <SimpleTable headers={['When', 'User', 'Department']} empty={t('No logons recorded.')}>
             {kpi.logons.slice(0, 40).map((l, i) => (
               <Tr key={i}>
                 <Td className="text-muted-foreground">{formatSaTime(l.logDate)}</Td>

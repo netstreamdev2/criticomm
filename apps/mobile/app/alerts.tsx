@@ -1,44 +1,59 @@
 import { useCallback, useEffect, useState, useMemo } from 'react';
 import {
-  FlatList, Pressable, RefreshControl, StyleSheet, Text, View,
+  FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View,
 } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import {
-  listMyAlerts, subscribeAlerts,
+  AUDIENCE_TONE, audienceGroup, audienceLabel, listMyAlerts, subscribeAlerts, type AudienceGroup,
 } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useSync } from '@/lib/sync';
 import { clearBadge } from '@/lib/push';
-import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
+import { colors, getThemeMode, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, EmptyState, Muted } from '@/components/ui';
 import { useT } from '@/lib/i18n';
 
 type AlertRow = Awaited<ReturnType<typeof listMyAlerts>>[number];
+type Tab = 'all' | 'unread' | AudienceGroup;
+
+const TABS: Array<{ key: Tab; label: string }> = [
+  { key: 'all', label: 'All' },
+  { key: 'unread', label: 'Unread' },
+  { key: 'mine', label: 'Just me' },
+  { key: 'shared', label: 'Shared' },
+  { key: 'department', label: 'My department' },
+  { key: 'everyone', label: 'Everyone' },
+];
+
+const KIND_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
+  mail: 'mail-outline', task: 'clipboard-outline', broadcast: 'megaphone-outline',
+  dispatch: 'radio-outline', assignment: 'radio-outline', sos: 'warning-outline',
+  backup: 'people-outline', reassigned: 'swap-horizontal', stand_down: 'hand-left-outline',
+};
+const iconFor = (kind: string): keyof typeof Ionicons.glyphMap =>
+  KIND_ICON[kind] ?? (/^(shift_|leave_|swap)/.test(kind) ? 'calendar-outline' : 'notifications-outline');
 
 /**
- * The alert inbox.
+ * The notification inbox.
  *
- * Banners and full-screen interrupts are for the moment an alert arrives. This
- * is for every moment after: what came in during the call you were on, what you
- * acknowledged, what is still outstanding. Without it the only record a crew
- * has of a broadcast is whether they happened to be looking at the phone.
- *
- * Alerts that demanded acknowledgement keep showing that they did, and whether
- * it was given — a crew coming back to the app should be able to see at a
- * glance that something is still waiting on them.
+ * The heads-up and the full-screen alert are for the moment one arrives.
+ * This is for every moment after: what came in during the call you were on,
+ * what you acknowledged, what is still waiting. Each bubble says whom it was
+ * for (0084): just you, a few of you, your role, your department, everyone.
  */
 export default function AlertsScreen() {
   const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
-  const { session, silo } = useAuth();
+  const { session } = useAuth();
   const { enqueue, pending } = useSync();
   const [serverAlerts, setAlerts] = useState<AlertRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>('all');
 
   const load = useCallback(async () => {
     if (!session) return;
@@ -55,9 +70,9 @@ export default function AlertsScreen() {
   useEffect(() => {
     void load();
     if (!session) return;
-    const off = subscribeAlerts(getSupabase(), { silo }, () => void load());
+    const off = subscribeAlerts(getSupabase(), () => void load());
     return off;
-  }, [load, session, silo]);
+  }, [load, session]);
 
   // Opening the inbox is the moment the app-icon badge stops being true.
   useFocusEffect(useCallback(() => { void clearBadge(); }, []));
@@ -91,14 +106,25 @@ export default function AlertsScreen() {
       : a));
   }, [serverAlerts, pending]);
 
-  const unread = alerts.filter((a) => !a.read).length;
+  const counts = useMemo(() => {
+    const c: Record<Tab, number> = { all: alerts.length, unread: 0, mine: 0, shared: 0, department: 0, everyone: 0 };
+    for (const a of alerts) {
+      c[audienceGroup(a)] += 1;
+      if (!a.read) c.unread += 1;
+    }
+    return c;
+  }, [alerts]);
+
+  const shown = alerts.filter((a) => (tab === 'all' ? true : tab === 'unread' ? !a.read : audienceGroup(a) === tab));
+  const unread = counts.unread;
   const awaitingAck = alerts.filter((a) => a.requires_ack && !a.acknowledged).length;
+  const me = session?.user.id;
 
   return (
     <FlatList
       style={{ backgroundColor: colors.bg }}
-      contentContainerStyle={[styles.list, alerts.length === 0 && { flexGrow: 1 }]}
-      data={alerts}
+      contentContainerStyle={[styles.list, shown.length === 0 && { flexGrow: 1 }]}
+      data={shown}
       keyExtractor={(a) => a.id}
       refreshControl={
         <RefreshControl
@@ -120,10 +146,31 @@ export default function AlertsScreen() {
               {awaitingAck === 1 ? t('1 alert still waiting on your acknowledgement.') : t('{n} alerts still waiting on your acknowledgement.', { n: awaitingAck })}
             </Banner>
           ) : null}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
+            {TABS.map((x) => {
+              const on = tab === x.key;
+              return (
+                <Pressable
+                  key={x.key}
+                  onPress={() => setTab(x.key)}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: on }}
+                  style={[styles.tab, on && styles.tabOn]}
+                >
+                  <Text style={[styles.tabText, on && styles.tabTextOn]}>{t(x.label)}</Text>
+                  {counts[x.key] > 0 ? (
+                    <Text style={[styles.tabCount, on && styles.tabTextOn, x.key === 'unread' && !on && { color: colors.accent }]}>
+                      {counts[x.key]}
+                    </Text>
+                  ) : null}
+                </Pressable>
+              );
+            })}
+          </ScrollView>
           {alerts.length > 0 ? (
             <View style={styles.head}>
               <Muted>
-                {unread > 0 ? t('{unread} unread of {length}', { unread, length: alerts.length }) : `${alerts.length} alerts`}
+                {unread > 0 ? t('{unread} unread of {length}', { unread, length: alerts.length }) : t('{n} notifications', { n: alerts.length })}
               </Muted>
               {unread > 0 ? (
                 <Button
@@ -147,54 +194,55 @@ export default function AlertsScreen() {
         loading ? null : (
           <EmptyState
             icon="notifications-outline"
-            title={t('No alerts')}
-            body={t('Dispatch assignments and department broadcasts land here. High and Critical incidents also open a full-screen alert you have to acknowledge.')}
+            title={tab === 'unread' ? t('All caught up') : t('No notifications')}
+            body={t('What is sent to you, your role, your department and everyone lands here. High and Critical incidents also open a full-screen alert you have to acknowledge.')}
           />
         )
       }
       renderItem={({ item }) => {
-        const tone = severityColor(item.severity);
+        const group = audienceGroup(item);
+        const accent = AUDIENCE_TONE[group];
+        const sev = severityColor(item.severity);
         const needsAck = item.requires_ack && !item.acknowledged;
+        const from = item.created_by && item.created_by !== me ? item.created_by_name : item.created_by ? null : item.created_by_name;
         return (
           <Pressable
             onPress={() => void open(item)}
             accessibilityRole="button"
             accessibilityLabel={t('Alert: {title}', { title: item.title })}
-            style={({ pressed }) => [
-              styles.row,
-              { borderLeftColor: tone },
-              !item.read && styles.rowUnread,
-              pressed && { opacity: 0.85 },
-            ]}
+            style={({ pressed }) => [styles.bubble, pressed && { opacity: 0.85, transform: [{ scale: 0.99 }] }]}
           >
-            <View style={styles.rowHead}>
-              <Ionicons
-                name={needsAck ? 'warning' : item.read ? 'mail-open-outline' : 'mail'}
-                size={15}
-                color={needsAck ? tone : item.read ? colors.muted : colors.accent}
-              />
-              <Text style={[styles.title, !item.read && { color: colors.text }]} numberOfLines={2}>
+            {!item.read ? <View style={styles.unreadBar} /> : null}
+            <View style={[styles.icon, { backgroundColor: `${accent}26` }]}>
+              <Ionicons name={needsAck ? 'warning' : iconFor(item.kind)} size={17} color={needsAck ? sev : accent} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={styles.topRow}>
+                <View style={[styles.chip, { backgroundColor: `${accent}22` }]}>
+                  <Text style={[styles.chipText, { color: accent }]} numberOfLines={1}>{audienceLabel(item)}</Text>
+                </View>
+                <Text style={styles.meta}>{timeAgo(item.created_at)}</Text>
+                {!item.read ? <View style={styles.dot} /> : null}
+              </View>
+              <Text style={[styles.title, item.read && { fontWeight: '600', color: styles.body.color }]} numberOfLines={2}>
                 {item.title}
               </Text>
-              {!item.read ? <View style={styles.dot} /> : null}
-            </View>
-
-            {item.body ? <Text style={styles.body} numberOfLines={3}>{item.body}</Text> : null}
-
-            <View style={styles.metaRow}>
-              <View style={[styles.sevChip, { backgroundColor: `${tone}22`, borderColor: `${tone}66` }]}>
-                <Text style={[styles.sevText, { color: tone }]}>{item.severity}</Text>
+              {item.body ? <Text style={styles.body} numberOfLines={3}>{item.body}</Text> : null}
+              <View style={styles.metaRow}>
+                {from ? <Text style={styles.meta}>{t('From {name}', { name: from })}</Text> : null}
+                {item.severity !== 'Low' ? (
+                  <View style={[styles.sevChip, { backgroundColor: `${sev}22`, borderColor: `${sev}66` }]}>
+                    <Text style={[styles.sevText, { color: sev }]}>{item.severity}</Text>
+                  </View>
+                ) : null}
+                {needsAck ? <Text style={styles.ackPending}>{t('Acknowledgement needed')}</Text> : null}
+                {item.acknowledged ? (
+                  <View style={styles.ackDone}>
+                    <Ionicons name="checkmark-circle" size={12} color={colors.low} />
+                    <Text style={styles.ackDoneText}>{t('Acknowledged')}</Text>
+                  </View>
+                ) : null}
               </View>
-              <Text style={styles.meta}>
-                {item.created_by_name ? `${item.created_by_name} · ` : ''}{timeAgo(item.created_at)}
-              </Text>
-              {needsAck ? <Text style={styles.ackPending}>{t('Acknowledgement needed')}</Text> : null}
-              {item.acknowledged ? (
-                <View style={styles.ackDone}>
-                  <Ionicons name="checkmark-circle" size={12} color={colors.low} />
-                  <Text style={styles.ackDoneText}>{t('Acknowledged')}</Text>
-                </View>
-              ) : null}
             </View>
           </Pressable>
         );
@@ -203,36 +251,54 @@ export default function AlertsScreen() {
   );
 }
 
-const useStyles = makeStyles(() => StyleSheet.create({
-  list: { padding: space.lg, paddingBottom: space['3xl'] },
-  head: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    marginBottom: space.md,
-  },
+/** Milky white bubbles: a white haze on the dark theme, white cards on the light one. */
+const useStyles = makeStyles(() => {
+  const light = getThemeMode() === 'light';
+  const fill = light ? 'rgba(255,255,255,0.96)' : 'rgba(255,255,255,0.075)';
+  const edge = light ? 'rgba(15,23,42,0.07)' : 'rgba(255,255,255,0.13)';
+  return StyleSheet.create({
+    list: { padding: space.lg, paddingBottom: space['3xl'] },
+    head: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      marginBottom: space.md,
+    },
+    tabs: { gap: space.sm, paddingBottom: space.md },
+    tab: {
+      flexDirection: 'row', alignItems: 'center', gap: 6,
+      paddingHorizontal: space.md, height: 32, borderRadius: radius.pill,
+      backgroundColor: fill, borderWidth: 1, borderColor: edge,
+    },
+    tabOn: { backgroundColor: light ? '#0f172a' : '#ffffff', borderColor: light ? '#0f172a' : '#ffffff' },
+    tabText: { fontSize: 12, fontWeight: '700', color: colors.textDim },
+    tabTextOn: { color: light ? '#ffffff' : '#0f172a' },
+    tabCount: { fontSize: 11, fontWeight: '700', color: colors.muted },
 
-  row: {
-    backgroundColor: colors.bgCard,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderLeftWidth: 3,
-    borderRadius: radius.md,
-    padding: space.md,
-    marginBottom: space.sm,
-  },
-  rowUnread: { backgroundColor: colors.bgElevated, borderColor: colors.borderStrong },
-  rowHead: { flexDirection: 'row', alignItems: 'flex-start', gap: space.sm },
-  title: { flex: 1, color: colors.textDim, fontSize: 14, fontWeight: '700', lineHeight: 19 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.accent, marginTop: 5 },
-  body: { ...type.small, color: colors.muted, marginTop: 5, lineHeight: 18 },
+    bubble: {
+      flexDirection: 'row', alignItems: 'flex-start', gap: space.md,
+      backgroundColor: fill, borderWidth: 1, borderColor: edge,
+      borderRadius: 20, padding: space.md, paddingLeft: space.lg,
+      marginBottom: space.sm, overflow: 'hidden',
+      shadowColor: '#000', shadowOpacity: light ? 0.06 : 0, shadowRadius: 12,
+      shadowOffset: { width: 0, height: 4 }, elevation: light ? 1 : 0,
+    },
+    unreadBar: { position: 'absolute', left: 0, top: 12, bottom: 12, width: 3, borderTopRightRadius: 3, borderBottomRightRadius: 3, backgroundColor: colors.accent },
+    icon: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+    topRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+    chip: { borderRadius: radius.pill, paddingHorizontal: space.sm, paddingVertical: 2, flexShrink: 1 },
+    chipText: { fontSize: 11, fontWeight: '700' },
+    dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.accent, marginLeft: 'auto' },
+    title: { color: colors.text, fontSize: 14, fontWeight: '700', lineHeight: 19, marginTop: 6 },
+    body: { ...type.small, color: colors.muted, marginTop: 3, lineHeight: 18 },
 
-  metaRow: {
-    flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',
-    gap: space.sm, marginTop: space.md,
-  },
-  sevChip: { borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: space.sm, paddingVertical: 2 },
-  sevText: { fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
-  meta: { ...type.small, fontSize: 12, color: colors.muted },
-  ackPending: { ...type.small, fontSize: 12, color: colors.critical, fontWeight: '700' },
-  ackDone: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  ackDoneText: { ...type.small, fontSize: 12, color: colors.low, fontWeight: '600' },
-}));
+    metaRow: {
+      flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',
+      gap: space.sm, marginTop: space.sm,
+    },
+    sevChip: { borderWidth: 1, borderRadius: radius.pill, paddingHorizontal: space.sm, paddingVertical: 2 },
+    sevText: { fontSize: 10, fontWeight: '800', letterSpacing: 0.5 },
+    meta: { ...type.small, fontSize: 12, color: colors.muted },
+    ackPending: { ...type.small, fontSize: 12, color: colors.critical, fontWeight: '700' },
+    ackDone: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    ackDoneText: { ...type.small, fontSize: 12, color: colors.low, fontWeight: '600' },
+  });
+});

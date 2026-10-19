@@ -12,6 +12,7 @@ import { readSpreadsheet } from '@/lib/register/file';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { importPaymentsAction, previewPaymentsAction, type PaymentMatch } from '../actions';
+import { useT } from '@/components/i18n';
 
 const COLUMNS = PAYMENT_COLUMNS as SheetColumn<PaymentField>[];
 
@@ -24,6 +25,7 @@ type Checked = ReturnType<typeof checkPaymentRows>[number] & { match: PaymentMat
  * skipped, so the same file can be imported twice without paying twice.
  */
 export function ImportPayments() {
+  const { t } = useT();
   const [file, setFile] = useState<{ name: string; sha: string; sheet: string | null } | null>(null);
   const [rows, setRows] = useState<Checked[] | null>(null);
   const [busy, setBusy] = useState<'read' | 'record' | null>(null);
@@ -90,16 +92,16 @@ export function ImportPayments() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{result.recorded} payment{result.recorded === 1 ? '' : 's'} recorded · {rand(result.total)}</CardTitle>
-          <CardDescription>{file?.name}. Each fine’s status was updated from its ledger.{skipped.length ? ` ${skipped.length} not recorded — see why below.` : ''}</CardDescription>
+          <CardTitle>{t('{recorded} payment{value} recorded · {rand}', { recorded: result.recorded, value: result.recorded === 1 ? '' : 's', rand: rand(result.total) })}</CardTitle>
+          <CardDescription>{t('{name}. Each fine’s status was updated from its ledger.{value}', { name: file?.name, value: skipped.length ? ` ${skipped.length} not recorded — see why below.` : '' })}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 p-0">
           <div className="max-h-[60vh] overflow-auto">
             <table className="w-full text-sm">
               <thead><tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="border-b border-border px-4 py-2">Line</th><th className="border-b border-border px-4 py-2">Fine</th>
-                <th className="border-b border-border px-4 py-2">Receipt</th><th className="border-b border-border px-4 py-2 text-right">Amount</th>
-                <th className="border-b border-border px-4 py-2">Result</th><th className="border-b border-border px-4 py-2">Status now</th>
+                <th className="border-b border-border px-4 py-2">{t('Line')}</th><th className="border-b border-border px-4 py-2">{t('Fine')}</th>
+                <th className="border-b border-border px-4 py-2">{t('Receipt')}</th><th className="border-b border-border px-4 py-2 text-right">{t('Amount')}</th>
+                <th className="border-b border-border px-4 py-2">{t('Result')}</th><th className="border-b border-border px-4 py-2">{t('Status now')}</th>
               </tr></thead>
               <tbody>{result.rows.map((r, i) => (
                 <tr key={`${r.line}-${i}`} className={r.outcome === 'recorded' ? '' : 'bg-severity-medium/5'}>
@@ -119,8 +121,7 @@ export function ImportPayments() {
           </div>
           <div className="px-6 pb-6">
             <button type="button" onClick={reset} className="inline-flex h-10 items-center gap-2 rounded-md border border-border px-4 text-sm font-semibold hover:bg-muted">
-              <RotateCcw className="h-4 w-4" /> Import another file
-            </button>
+              <RotateCcw className="h-4 w-4" /> {' '}{t('Import another file')}</button>
           </div>
         </CardContent>
       </Card>
@@ -131,11 +132,9 @@ export function ImportPayments() {
     <div className="space-y-5">
       <Card>
         <CardHeader>
-          <CardTitle>1 · Choose the file</CardTitle>
+          <CardTitle>{t('1 · Choose the file')}</CardTitle>
           <CardDescription>
-            Excel (.xlsx) or CSV with these columns: {PAYMENT_COLUMNS.filter((c) => c.required).map((c) => c.header).join(', ')}
-            {' '}(Method and Note are optional). Headings from most cashier and bank exports are recognised.
-          </CardDescription>
+            {t('Excel (.xlsx) or CSV with these columns: {join} (Method and Note are optional). Headings from most cashier and bank exports are recognised.', { join: PAYMENT_COLUMNS.filter((c) => c.required).map((c) => c.header).join(', ') })}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center gap-3">
           <label className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90">
@@ -149,7 +148,7 @@ export function ImportPayments() {
               onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void read(f); }}
             />
           </label>
-          <a href="/police/fines/payments/template" className="text-sm font-semibold text-accent hover:underline">Download the template</a>
+          <a href="/police/fines/payments/template" className="text-sm font-semibold text-accent hover:underline">{t('Download the template')}</a>
           {file ? <span className="text-sm text-muted-foreground">{file.name}{file.sheet ? ` · sheet “${file.sheet}”` : ''}</span> : null}
         </CardContent>
       </Card>
@@ -159,21 +158,19 @@ export function ImportPayments() {
       {rows ? (
         <Card>
           <CardHeader>
-            <CardTitle>2 · Check the payments</CardTitle>
+            <CardTitle>{t('2 · Check the payments')}</CardTitle>
             <CardDescription>
-              {ready.length} of {rows.length} ready to record ({rand(total)}).
-              {rows.length - ready.length ? ` ${rows.length - ready.length} will be left out — fix them in the file and import it again.` : ''}
-              {ready.some((r) => r.warn) ? ' Rows marked with a warning will be recorded; check them first.' : ''}
+              {t('{length} of {length2} ready to record ({rand}).{value}{value2}', { length: ready.length, length2: rows.length, rand: rand(total), value: rows.length - ready.length ? ` ${rows.length - ready.length} will be left out — fix them in the file and import it again.` : '', value2: ready.some((r) => r.warn) ? ' Rows marked with a warning will be recorded; check them first.' : '' })}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 p-0">
             <div className="max-h-[60vh] overflow-auto">
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-bg-card"><tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <th className="border-b border-border px-4 py-2">Line</th><th className="border-b border-border px-4 py-2">Number in file</th>
-                  <th className="border-b border-border px-4 py-2">Fine</th><th className="border-b border-border px-4 py-2 text-right">Owing today</th>
-                  <th className="border-b border-border px-4 py-2 text-right">Paying</th><th className="border-b border-border px-4 py-2">Date paid</th>
-                  <th className="border-b border-border px-4 py-2">Receipt</th><th className="border-b border-border px-4 py-2">Check</th>
+                  <th className="border-b border-border px-4 py-2">{t('Line')}</th><th className="border-b border-border px-4 py-2">{t('Number in file')}</th>
+                  <th className="border-b border-border px-4 py-2">{t('Fine')}</th><th className="border-b border-border px-4 py-2 text-right">{t('Owing today')}</th>
+                  <th className="border-b border-border px-4 py-2 text-right">{t('Paying')}</th><th className="border-b border-border px-4 py-2">{t('Date paid')}</th>
+                  <th className="border-b border-border px-4 py-2">{t('Receipt')}</th><th className="border-b border-border px-4 py-2">{t('Check')}</th>
                 </tr></thead>
                 <tbody>{rows.map((r) => (
                   <tr key={r.line} className={r.problem ? 'bg-severity-critical/5' : r.warn ? 'bg-severity-medium/5' : ''}>
@@ -199,7 +196,7 @@ export function ImportPayments() {
               </table>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-3 px-6 pb-6">
-              <button type="button" onClick={reset} className="h-11 rounded-md border border-border px-5 text-sm font-semibold hover:bg-muted">Start again</button>
+              <button type="button" onClick={reset} className="h-11 rounded-md border border-border px-5 text-sm font-semibold hover:bg-muted">{t('Start again')}</button>
               <button
                 type="button"
                 disabled={busy !== null || ready.length === 0}

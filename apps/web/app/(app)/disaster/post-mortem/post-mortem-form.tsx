@@ -4,11 +4,13 @@ import { useState, useTransition } from 'react';
 import { POST_MORTEM_SECTIONS, durationHours, saStamp, validatePostMortem } from '@criticom/db/post-mortem';
 import { cn } from '@/lib/utils';
 import { filePostMortemAction } from '../actions';
+import { useT } from '@/components/i18n';
 
 type OpenIncident = { id: string; number: string; type: string; location: string; started: string };
 
 /** The Official After-Action Report from the console, for an incident command closes out. */
 export function PostMortemForm({ incidents, officer, initialId }: { incidents: OpenIncident[]; officer: string; initialId?: string }) {
+  const { t } = useT();
   const [incidentId, setIncidentId] = useState(initialId && incidents.some((i) => i.id === initialId) ? initialId : '');
   const picked = incidents.find((i) => i.id === incidentId) ?? null;
   const [answers, setAnswers] = useState<Record<string, string>>({
@@ -47,13 +49,13 @@ export function PostMortemForm({ incidents, officer, initialId }: { incidents: O
       ) : null}
 
       <fieldset className="rounded-lg border border-border bg-bg-card p-5">
-        <legend className="px-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Incident</legend>
-        <label htmlFor="pm-incident" className="text-sm font-medium">Incident ID <span className="text-severity-critical-ink">*</span></label>
+        <legend className="px-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t('Incident')}</legend>
+        <label htmlFor="pm-incident" className="text-sm font-medium">{t('Incident ID')}{' '}<span className="text-severity-critical-ink">*</span></label>
         <select id="pm-incident" value={incidentId} onChange={(e) => choose(e.target.value)} className={cn(field, 'h-10')}>
-          <option value="">-- Select incident --</option>
+          <option value="">{t('-- Select incident --')}</option>
           {incidents.map((i) => <option key={i.id} value={i.id}>{i.number} · {i.type} · {i.location}</option>)}
         </select>
-        {picked ? <p className="mt-2 text-xs text-muted-foreground">Type: {picked.type} · Location: {picked.location}</p> : null}
+        {picked ? <p className="mt-2 text-xs text-muted-foreground">{t('Type: {type} · Location: {location}', { type: picked.type, location: picked.location })}</p> : null}
       </fieldset>
 
       {POST_MORTEM_SECTIONS.map((s) => (
@@ -78,7 +80,7 @@ export function PostMortemForm({ incidents, officer, initialId }: { incidents: O
                 )}
               </div>
             ))}
-            {s.id === 'overview' && hours !== null ? <p className="self-end text-sm font-semibold">Duration: {hours} hours</p> : null}
+            {s.id === 'overview' && hours !== null ? <p className="self-end text-sm font-semibold">{t('Duration: {hours} hours', { hours })}</p> : null}
           </div>
         </fieldset>
       ))}

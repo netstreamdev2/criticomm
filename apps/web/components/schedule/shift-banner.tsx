@@ -3,6 +3,7 @@ import { getMyShiftNow, getScheduleSettings, listShiftTemplates, saTime, shiftSt
 import { RESPONDER_ROLES, type Silo, type UserRole } from '@criticom/db';
 import { getServerSupabase } from '@/lib/supabase';
 import { StartShiftButton } from './start-shift-button';
+import { requestT } from '@/lib/i18n';
 
 /**
  * For desk staff (control room, call takers, dispatchers, supervisors at the
@@ -11,6 +12,7 @@ import { StartShiftButton } from './start-shift-button';
  * otherwise — and never holds up the page (it is suspended in the layout).
  */
 export async function ShiftBanner({ userId, role, silo }: { userId: string; role: UserRole; silo: Silo }) {
+  const { t } = await requestT();
   if (RESPONDER_ROLES.includes(role)) return null;
   const supabase = await getServerSupabase();
   const line = await getMyShiftNow(supabase, userId).catch(() => null);
@@ -35,7 +37,7 @@ export async function ShiftBanner({ userId, role, silo }: { userId: string; role
         </span>
       </p>
       <div className="flex items-center gap-2">
-        <Link href="/roster/mine" className="text-xs font-semibold text-accent hover:underline">My schedule</Link>
+        <Link href="/roster/mine" className="text-xs font-semibold text-accent hover:underline">{t('My schedule')}</Link>
         <StartShiftButton />
       </div>
     </div>

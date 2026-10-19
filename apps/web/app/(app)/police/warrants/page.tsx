@@ -5,6 +5,7 @@ import { requireFeaturePage } from '@/lib/features';
 import { getSession } from '@/lib/session';
 import { cn, formatSaTime } from '@/lib/utils';
 import { issueWarrantAction, setWarrantStatusAction } from '../enforcement-actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Warrants · HikTech' };
@@ -17,6 +18,7 @@ const STATUS_TONE: Record<string, string> = {
 };
 
 export default async function WarrantsPage() {
+  const { t } = await requestT();
   await requireFeaturePage('web.enforcement');
   const { supabase } = await getSession();
   const warrants = await listWarrants(supabase);
@@ -25,47 +27,46 @@ export default async function WarrantsPage() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Warrants</h1>
-        <p className="text-muted-foreground">{warrants.length} on record · {active} active.</p>
+        <h1 className="text-2xl font-bold">{t('Warrants')}</h1>
+        <p className="text-muted-foreground">{t('{length} on record · {active} active.', { length: warrants.length, active })}</p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Register a warrant</CardTitle>
-          <CardDescription>It gets the next WA- number. Court and expiry as issued.</CardDescription>
+          <CardTitle>{t('Register a warrant')}</CardTitle>
+          <CardDescription>{t('It gets the next WA- number. Court and expiry as issued.')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form action={issueWarrantAction} className="grid gap-3 md:grid-cols-4">
-            <input name="subject_name" required placeholder="Subject name"
+            <input name="subject_name" required placeholder={t('Subject name')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <input name="subject_id_number" placeholder="ID number"
+            <input name="subject_id_number" placeholder={t('ID number')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
             <select name="warrant_type" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-              <option>Arrest</option><option>Search</option>
+              <option>{t('Arrest')}</option><option>{t('Search')}</option>
             </select>
-            <input name="issued_by_court" placeholder="Issuing court"
+            <input name="issued_by_court" placeholder={t('Issuing court')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
             <input name="expiry_date" type="date" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <input name="address" placeholder="Address"
+            <input name="address" placeholder={t('Address')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm md:col-span-2" />
-            <input name="notes" placeholder="Notes (optional)"
+            <input name="notes" placeholder={t('Notes (optional)')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
             <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold md:col-start-4">
-              Register
-            </button>
+              {t('Register')}</button>
           </form>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Register</CardTitle>
-          <CardDescription>Executing stamps the moment and the officer.</CardDescription>
+          <CardTitle>{t('Register')}</CardTitle>
+          <CardDescription>{t('Executing stamps the moment and the officer.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['#', 'Subject', 'Type', 'Court', 'Issued', 'Expiry', 'Status', 'Set status']}
-            empty="No warrants on record."
+            empty={t('No warrants on record.')}
           >
             {warrants.map((w) => (
               <Tr key={w.id}>
@@ -95,9 +96,9 @@ export default async function WarrantsPage() {
                     <form action={setWarrantStatusAction} className="flex items-center gap-1.5">
                       <input type="hidden" name="id" value={w.id} />
                       <select name="status" className="h-8 rounded-md border border-border bg-bg-soft px-1.5 text-xs">
-                        <option>Executed</option><option>Cancelled</option><option>Expired</option>
+                        <option>{t('Executed')}</option><option>{t('Cancelled')}</option><option>{t('Expired')}</option>
                       </select>
-                      <button type="submit" className="h-8 rounded-md bg-accent px-2.5 text-xs font-semibold">Set</button>
+                      <button type="submit" className="h-8 rounded-md bg-accent px-2.5 text-xs font-semibold">{t('Set')}</button>
                     </form>
                   ) : <span className="text-xs text-muted-foreground">—</span>}
                 </Td>

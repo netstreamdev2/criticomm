@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/toast';
 import { setActiveAction } from './actions';
 import { ConfirmFields, confirmReady, type ConfirmWord } from './confirm-fields';
+import { useT } from '@/components/i18n';
 
 /**
  * Deactivate an account (never delete it), or bring it back. Closed until
@@ -23,6 +24,7 @@ export function AccountStatusForm({
   needsApproval: boolean;
   confirm: ConfirmWord;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [open, setOpen] = useState(false);
@@ -55,12 +57,10 @@ export function AccountStatusForm({
   if (!open) {
     return active ? (
       <Button variant="outline" onClick={() => setOpen(true)} className="border-severity-critical/50 text-severity-critical-ink">
-        <UserX className="h-4 w-4" /> Deactivate account…
-      </Button>
+        <UserX className="h-4 w-4" /> {' '}{t('Deactivate account…')}</Button>
     ) : (
       <Button variant="outline" onClick={() => setOpen(true)}>
-        <UserCheck className="h-4 w-4" /> Reactivate account…
-      </Button>
+        <UserCheck className="h-4 w-4" /> {' '}{t('Reactivate account…')}</Button>
     );
   }
 
@@ -69,22 +69,22 @@ export function AccountStatusForm({
       <p className="font-semibold">{active ? `Deactivate ${name}` : `Reactivate ${name}`}</p>
       {active ? (
         <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-          <li>{first} is signed out everywhere and can no longer sign in.</li>
-          <li>They come off duty and off rosters straight away.</li>
-          <li>Everything they recorded stays: incidents, reports and their history.</li>
-          <li>The account can be reactivated later, with a reason.</li>
+          <li>{t('{first} is signed out everywhere and can no longer sign in.', { first })}</li>
+          <li>{t('They come off duty and off rosters straight away.')}</li>
+          <li>{t('Everything they recorded stays: incidents, reports and their history.')}</li>
+          <li>{t('The account can be reactivated later, with a reason.')}</li>
         </ul>
       ) : (
         <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-          <li>{first} can sign in again with their existing password, in the same role.</li>
-          <li>They go back on rosters, and on duty only after their next start of shift.</li>
+          <li>{t('{first} can sign in again with their existing password, in the same role.', { first })}</li>
+          <li>{t('They go back on rosters, and on duty only after their next start of shift.')}</li>
         </ul>
       )}
 
       {needsApproval ? (
         <p className="flex items-start gap-2 rounded-lg border border-severity-medium/40 bg-severity-medium/10 px-3 py-2.5 text-sm">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-severity-medium-ink" aria-hidden />
-          <span>This account holds a powerful role, so a second SystemAdmin must approve. Nothing changes until they do.</span>
+          <span>{t('This account holds a powerful role, so a second SystemAdmin must approve. Nothing changes until they do.')}</span>
         </p>
       ) : null}
 
@@ -112,7 +112,7 @@ export function AccountStatusForm({
         >
           {pending ? 'Working…' : needsApproval ? 'Send for approval' : active ? 'Deactivate' : 'Reactivate'}
         </Button>
-        <Button variant="ghost" onClick={close} disabled={pending}>Cancel</Button>
+        <Button variant="ghost" onClick={close} disabled={pending}>{t('Cancel')}</Button>
       </div>
     </div>
   );

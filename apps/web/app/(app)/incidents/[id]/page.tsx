@@ -33,6 +33,20 @@ import { addUpdateAction, requestCitizenLocationAction } from './actions';
 import { CaseReviewCard } from './case-review-card';
 import { StatusOverride } from './case-forms';
 import { DepartmentsCard } from './departments-card';
+import { TalkPanel } from '@/components/talk/talk-panel';
+import { talkChannelsFor } from '@/lib/talk';
+
+/** A step of the crew's progress in its own colour: sent blue, on the way amber, there orange, moving purple, filed teal, done green. */
+function stepTone(label: string): string {
+  const l = label.toLowerCase();
+  if (l.includes('en route')) return '#f59e0b';
+  if (l.includes('scene') && !l.includes('closed')) return '#f97316';
+  if (l.includes('arrived')) return '#f97316';
+  if (l.includes('transporting')) return '#a855f7';
+  if (l.includes('report')) return '#14b8a6';
+  if (l.includes('closed') || l.includes('resolved')) return '#22c55e';
+  return '#3b82f6';
+}
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Incident · HikTech' };
@@ -84,8 +98,13 @@ export default async function IncidentDetailPage({
   const parts = incident.departments ?? [];
   const canOverride = parts.length === 0 && STATUS_OVERRIDE_ROLES.includes(role) && stage === 'live' && Boolean(incident.dispatch_time);
   const canDispatch = parts.length === 0 && DISPATCH_DESK_ROLES.includes(role) && stage === 'live' && !incident.accepted_by;
-  const canNote = !isCaseClosed && role !== 'Viewer';
-  const bodycams = await incidentBodycams(supabase, incident, responders, role, silo);
+  // The call logger watches every call; they add only to the calls they logged (0081).
+  const canNote = !isCaseClosed && role !== 'Viewer' && (role !== 'IncidentLogger' || incident.created_by === userId);
+  const [bodycams, talk] = await Promise.all([
+    incidentBodycams(supabase, incident, responders, role, silo),
+    // The call's own talk group (0083): whoever works the call talks on it.
+    talkChannelsFor(supabase, { role, silo }, { incidentId: incident.id }).catch(() => ({ channels: [], setUp: false, installed: false })),
+  ]);
 
   // A department's desk, command and crews follow their own department's
   // part at the top (0073); the other departments are on the departments
@@ -175,7 +194,7 @@ export default async function IncidentDetailPage({
             </span>
           </p>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            Sent to dispatch: {deskTags(incident).map((d) => DEPARTMENT_NAMES[d]).join(', ') || 'Control room only'}
+            {t('Sent to dispatch: {value}', { value: deskTags(incident).map((d) => DEPARTMENT_NAMES[d]).join(', ') || 'Control room only' })}
             <DetailsToFollow incident={incident} />
           </p>
         </div>
@@ -193,8 +212,7 @@ export default async function IncidentDetailPage({
             href={`/api/pdf/incident/${incident.id}`}
             className="no-print rounded-md border border-border bg-bg-soft px-3 py-1.5 text-sm hover:bg-muted"
           >
-            ⬇ Case PDF
-          </a>
+            {t('⬇ Case PDF')}</a>
           {myPart ? (
             <span className="status-badge" data-status={statusForPart(myPart, incident.status)}>{myLabel} · {partWords(myPart)}</span>
           ) : (
@@ -217,7 +235,7 @@ export default async function IncidentDetailPage({
           {myPart ? (
             <p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">{myLabel}</p>
           ) : null}
-          <ol className={`grid grid-cols-2 gap-2 ${ladder.length > 5 ? 'sm:grid-cols-3 lg:grid-cols-6' : 'sm:grid-cols-5'}`} aria-label="Where the crew is">
+          <ol className={`grid grid-cols-2 gap-2 ${ladder.length > 5 ? 'sm:grid-cols-3 lg:grid-cols-6' : 'sm:grid-cols-5'}`} aria-label={t('Where the crew is')}>
             {ladder.map((step, i) => {
               const done = Boolean(step.at);
               const skipped = !done && step.optional && Boolean(ladderDone);
@@ -225,9 +243,20 @@ export default async function IncidentDetailPage({
               return (
                 <li
                   key={step.label}
-                  className={`rounded-lg border p-3 ${current ? 'border-accent bg-accent/10' : done ? 'border-severity-low/40 bg-severity-low/5' : 'border-border bg-bg-soft'}`}
+                  className="rounded-lg border p-3 transition-colors"
+                  // Each step in its own colour: done steps tinted, the current one bright, the rest quiet.
+                  style={current
+                    ? { borderColor: stepTone(step.label), background: `${stepTone(step.label)}2e`, boxShadow: `0 0 0 1px ${stepTone(step.label)}66` }
+                    : done
+                      ? { borderColor: `${stepTone(step.label)}80`, background: `${stepTone(step.label)}14` }
+                      : { borderColor: 'rgb(var(--c-border))', background: 'rgb(var(--c-bg-soft))' }}
                 >
-                  <p className={`text-[11px] font-bold uppercase tracking-wider ${done ? 'text-fg' : 'text-muted-foreground'}`}>
+                  <p className={`flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider ${done ? 'text-fg' : 'text-muted-foreground'}`}>
+                    <span
+                      aria-hidden
+                      className={`h-2 w-2 shrink-0 rounded-full ${current ? 'animate-pulse' : ''}`}
+                      style={{ background: stepTone(step.label), opacity: done ? 1 : 0.45 }}
+                    />
                     {done ? '✓ ' : ''}{step.label}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
@@ -244,7 +273,7 @@ export default async function IncidentDetailPage({
             {canDispatch && !incident.dispatch_time ? (
               <>
                 {' '}
-                <Link href={`/dispatch/assign/${incident.id}`} className="font-semibold text-accent hover:underline">Dispatch this call →</Link>
+                <Link href={`/dispatch/assign/${incident.id}`} className="font-semibold text-accent hover:underline">{t('Dispatch this call →')}</Link>
               </>
             ) : null}
           </p>
@@ -263,6 +292,10 @@ export default async function IncidentDetailPage({
         />
       ) : null}
 
+      {talk.channels.length ? (
+        <div id="talk" className="scroll-mt-20"><TalkPanel channels={talk.channels} compact title={`Talk on ${incident.incident_number}`} /></div>
+      ) : null}
+
       <CaseReviewCard
         incident={incident}
         role={role}
@@ -276,11 +309,11 @@ export default async function IncidentDetailPage({
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Details</CardTitle>
+            <CardTitle>{t('Details')}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 text-sm sm:grid-cols-2">
             <div>
-              <p className="text-xs uppercase text-muted-foreground">Caller</p>
+              <p className="text-xs uppercase text-muted-foreground">{t('Caller')}</p>
               <p>{incident.caller_name} · {incident.caller_number}</p>
               {!isClosed && (
                 <form action={requestCitizenLocationAction} className="mt-2">
@@ -291,25 +324,24 @@ export default async function IncidentDetailPage({
                     type="submit"
                     className="rounded-md border border-accent/50 bg-accent/10 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent/20"
                   >
-                    📍 Request citizen GPS via SMS
-                  </button>
+                    {t('📍 Request citizen GPS via SMS')}</button>
                 </form>
               )}
             </div>
-            <div><p className="text-xs uppercase text-muted-foreground">Location</p><p>{incident.location_address}{incident.suburb ? `, ${incident.suburb}` : ''}</p></div>
-            <div className="sm:col-span-2"><p className="text-xs uppercase text-muted-foreground">Description</p><p>{incident.call_description}</p></div>
-            <div><p className="text-xs uppercase text-muted-foreground">How the call came in</p><p>{callChannelText(incident.call_channel, incident.call_channel_other) ?? '—'}</p></div>
+            <div><p className="text-xs uppercase text-muted-foreground">{t('Location')}</p><p>{incident.location_address}{incident.suburb ? `, ${incident.suburb}` : ''}</p></div>
+            <div className="sm:col-span-2"><p className="text-xs uppercase text-muted-foreground">{t('Description')}</p><p>{incident.call_description}</p></div>
+            <div><p className="text-xs uppercase text-muted-foreground">{t('How the call came in')}</p><p>{callChannelText(incident.call_channel, incident.call_channel_other) ?? '—'}</p></div>
             {readPatients(incident.patients).length ? (
-              <div><p className="text-xs uppercase text-muted-foreground">Patients</p><PatientList patients={incident.patients} /></div>
+              <div><p className="text-xs uppercase text-muted-foreground">{t('Patients')}</p><PatientList patients={incident.patients} /></div>
             ) : null}
             {/* The details filled in for the type (0077). */}
             <div className="sm:col-span-2"><CallDetails incident={incident} t={t} /></div>
             {incident.notes && (
-              <div className="sm:col-span-2"><p className="text-xs uppercase text-muted-foreground">Notes</p><p>{incident.notes}</p></div>
+              <div className="sm:col-span-2"><p className="text-xs uppercase text-muted-foreground">{t('Notes')}</p><p>{incident.notes}</p></div>
             )}
-            <div><p className="text-xs uppercase text-muted-foreground">Dispatched by</p><p>{incident.dispatched_by ?? '—'}</p></div>
+            <div><p className="text-xs uppercase text-muted-foreground">{t('Dispatched by')}</p><p>{incident.dispatched_by ?? '—'}</p></div>
             <div>
-              <p className="text-xs uppercase text-muted-foreground">Assigned to</p>
+              <p className="text-xs uppercase text-muted-foreground">{t('Assigned to')}</p>
               <p>
                 {incident.assigned_to_name ?? (incident.dispatch_time ? 'Sent to all on duty' : '—')}
                 {incident.assigned_at ? (
@@ -318,7 +350,7 @@ export default async function IncidentDetailPage({
               </p>
             </div>
             <div className="sm:col-span-2">
-              <p className="text-xs uppercase text-muted-foreground">Responding ({responders.length})</p>
+              <p className="text-xs uppercase text-muted-foreground">{t('Responding ({length})', { length: responders.length })}</p>
               {responders.length === 0 ? (
                 <p>—</p>
               ) : (
@@ -342,21 +374,20 @@ export default async function IncidentDetailPage({
                 </ul>
               )}
             </div>
-            <div><p className="text-xs uppercase text-muted-foreground">Unit status</p><p>{incident.unit_status ?? '—'}</p></div>
-            <div><p className="text-xs uppercase text-muted-foreground">Unit type</p><p>{incident.unit_type ?? '—'}</p></div>
+            <div><p className="text-xs uppercase text-muted-foreground">{t('Unit status')}</p><p>{incident.unit_status ?? '—'}</p></div>
+            <div><p className="text-xs uppercase text-muted-foreground">{t('Unit type')}</p><p>{incident.unit_type ?? '—'}</p></div>
             {incident.number_of_victims != null && (
-              <div><p className="text-xs uppercase text-muted-foreground">Victims</p><p>{incident.number_of_victims}</p></div>
+              <div><p className="text-xs uppercase text-muted-foreground">{t('Victims')}</p><p>{incident.number_of_victims}</p></div>
             )}
             <div>
-              <p className="text-xs uppercase text-muted-foreground">Coordinates</p>
+              <p className="text-xs uppercase text-muted-foreground">{t('Coordinates')}</p>
               <p className="font-mono">{incident.location_lat.toFixed(5)}, {incident.location_lng.toFixed(5)}</p>
               {canAccess('/sanral', role, silo) && (
                 <Link
                   href={`/sanral?lat=${incident.location_lat}&lng=${incident.location_lng}`}
                   className="text-xs text-accent hover:underline"
                 >
-                  SANRAL freeway cameras nearby
-                </Link>
+                  {t('SANRAL freeway cameras nearby')}</Link>
               )}
             </div>
           </CardContent>
@@ -364,8 +395,8 @@ export default async function IncidentDetailPage({
 
         <Card>
           <CardHeader>
-            <CardTitle>Lifecycle</CardTitle>
-            <CardDescription>Milestones from call to close.</CardDescription>
+            <CardTitle>{t('Lifecycle')}</CardTitle>
+            <CardDescription>{t('Milestones from call to close.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <ol className="relative space-y-0 text-sm">
@@ -400,8 +431,8 @@ export default async function IncidentDetailPage({
 
             {canOverride && (
               <div className="mt-5 border-t border-border pt-4">
-                <p className="mb-1 text-xs uppercase text-muted-foreground">Mark for the crew</p>
-                <p className="mb-2 text-xs text-muted-foreground">When the officer radios a step in instead of pressing it in the app.</p>
+                <p className="mb-1 text-xs uppercase text-muted-foreground">{t('Mark for the crew')}</p>
+                <p className="mb-2 text-xs text-muted-foreground">{t('When the officer radios a step in instead of pressing it in the app.')}</p>
                 <StatusOverride incidentId={incident.id} silo={incident.silo} steps={STATUS_OVERRIDE_STEPS} current={incident.status} />
               </div>
             )}
@@ -430,8 +461,8 @@ export default async function IncidentDetailPage({
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Updates ({updates.length})</CardTitle>
-            <CardDescription>Chronological dispatcher/responder log.</CardDescription>
+            <CardTitle>{t('Updates ({length})', { length: updates.length })}</CardTitle>
+            <CardDescription>{t('Chronological dispatcher/responder log.')}</CardDescription>
           </CardHeader>
           <CardContent>
             {canNote && (
@@ -442,11 +473,11 @@ export default async function IncidentDetailPage({
                   name="message" required placeholder={stage === 'review' ? 'Add a case note…' : 'Add an update…'}
                   className="h-10 flex-1 rounded-md border border-border bg-bg-soft px-3 text-sm"
                 />
-                <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Post</button>
+                <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Post')}</button>
               </form>
             )}
             <ul className="space-y-3 text-sm">
-              {updates.length === 0 && <li className="text-muted-foreground">No updates logged.</li>}
+              {updates.length === 0 && <li className="text-muted-foreground">{t('No updates logged.')}</li>}
               {updates.map((u) => (
                 <li key={u.id} className="rounded-md border border-border/60 bg-bg-soft p-3">
                   <p>{u.message}</p>
@@ -463,22 +494,20 @@ export default async function IncidentDetailPage({
           <CardHeader>
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <CardTitle>Evidence ({attachments.length})</CardTitle>
-                <CardDescription>Photos, voice notes and files captured at the scene.</CardDescription>
+                <CardTitle>{t('Evidence ({length})', { length: attachments.length })}</CardTitle>
+                <CardDescription>{t('Photos, voice notes and files captured at the scene.')}</CardDescription>
               </div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg-soft px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-                <Lock className="h-3 w-3" /> Cannot be deleted
-              </span>
+                <Lock className="h-3 w-3" /> {' '}{t('Cannot be deleted')}</span>
             </div>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
-            {attachments.length === 0 && <p className="text-muted-foreground">No attachments.</p>}
+            {attachments.length === 0 && <p className="text-muted-foreground">{t('No attachments.')}</p>}
 
             {photos.length > 0 && (
               <div>
                 <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Photos ({photos.length}/10)
-                </p>
+                  {t('Photos ({length}/10)', { length: photos.length })}</p>
                 <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                   {photos.map((a) => {
                     const url = media.get(a.storage_path);
@@ -494,7 +523,7 @@ export default async function IncidentDetailPage({
                           {url ? (
                             <img src={url} alt={a.caption ?? 'Scene photo'} className="h-full w-full object-cover" loading="lazy" />
                           ) : (
-                            <span className="flex h-full items-center justify-center text-xs text-muted-foreground">Unavailable</span>
+                            <span className="flex h-full items-center justify-center text-xs text-muted-foreground">{t('Unavailable')}</span>
                           )}
                         </a>
                       </li>
@@ -507,8 +536,7 @@ export default async function IncidentDetailPage({
             {voiceNotes.length > 0 && (
               <div>
                 <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Voice notes ({voiceNotes.length})
-                </p>
+                  {t('Voice notes ({length})', { length: voiceNotes.length })}</p>
                 <ul className="space-y-2">
                   {voiceNotes.map((a) => {
                     const url = media.get(a.storage_path);
@@ -561,15 +589,14 @@ export default async function IncidentDetailPage({
       {/* Complete life of the incident, newest first */}
       <Card id="case-history">
         <CardHeader>
-          <CardTitle>Complete history ({events.length})</CardTitle>
+          <CardTitle>{t('Complete history ({length})', { length: events.length })}</CardTitle>
           <CardDescription>
-            Every milestone, update, evidence upload and audited action — from the first call
-            {isCaseClosed ? ' through to closure.' : ' up to now.'}
+            {t('Every milestone, update, evidence upload and audited action — from the first call{value}', { value: isCaseClosed ? ' through to closure.' : ' up to now.' })}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {events.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No activity recorded yet.</p>
+            <p className="text-sm text-muted-foreground">{t('No activity recorded yet.')}</p>
           ) : (
             <ol className="relative text-sm">
               {events.map((ev, idx) => (

@@ -14,6 +14,7 @@ import {
 } from '@/lib/nav';
 import { cn } from '@/lib/utils';
 import { SIDEBAR_MODES, SIDEBAR_MODE_KEY, columnWidth, isSidebarMode, type SidebarMode } from '@/lib/sidebar-mode';
+import { useT } from '@/components/i18n';
 
 /** Branding for the signed-in user's own department, resolved server-side. */
 export type DeptIdentity = DepartmentBranding & { logoUrl: string | null };
@@ -69,9 +70,11 @@ const SYSTEM_ADMIN_GROUPS: NavGroup[] = [
       adminLink('/command', 'Command Centre'),
       adminLink('/analytics', 'Analytics'),
       adminLink('/report-hub', 'Reports'),
+      adminLink('/police/report-centre', 'Police Reports'),
       adminLink('/shift/today'),
       adminLink('/cameras'),
       adminLink('/cameras/footage'),
+      adminLink('/dispatch/ptt', 'Radio Desk'),
     ],
   },
   {
@@ -85,12 +88,14 @@ const SYSTEM_ADMIN_GROUPS: NavGroup[] = [
     id: 'organisation-resources', label: 'People & Resources', items: [
       adminLink('/admin', 'Users & Roles'),
       adminLink('/admin/personnel', 'Personnel'),
-      adminLink('/roster', 'Rosters'),
+      adminLink('/roster', 'Duty Roster'),
+      adminLink('/modules', 'System Modules'),
       adminLink('/roster/setup', 'Shift Setup'),
       adminLink('/leave', 'Leave'),
       adminLink('/hr', 'HR Centre'),
       adminLink('/admin/vehicles', 'Fleet'),
       adminLink('/admin/devices', 'Devices'),
+      adminLink('/admin/radios', 'Radios'),
     ],
   },
   { id: 'organisation-police', label: 'Police', items: [POLICE_OPERATIONS] },
@@ -117,9 +122,8 @@ const SUPERVISOR_GROUPS: NavGroup[] = [
   {
     id: 'supervisor-team', label: 'Team & Duty', items: [
       adminLink('/shift/today'),
-      adminLink('/roster', 'Roster'),
-      adminLink('/roster/allocation', 'Duty Board'),
-      adminLink('/roster/duty-sheet', 'Duty Sheet'),
+      adminLink('/roster', 'Duty Roster'),
+      adminLink('/modules', 'System Modules'),
       adminLink('/roster/setup', 'Shift Setup'),
       adminLink('/hr', 'Team Readiness'),
       adminLink('/attendance', 'Attendance'),
@@ -133,9 +137,10 @@ const SUPERVISOR_GROUPS: NavGroup[] = [
       adminLink('/dispatch/pending', 'Pending Dispatch'),
       adminLink('/incidents', 'Incidents'),
       adminLink('/incidents/map', 'Live Map'),
+      adminLink('/responder/monitor', 'Active Responders'),
       adminLink('/case-manager/review', 'Reports to Review'),
       adminLink('/cameras'),
-      adminLink('/duty-tasks', 'Duty Maintenance'),
+      adminLink('/duty-tasks', 'Station Tasks'),
       adminLink('/report-hub', 'Reports'),
     ],
   },
@@ -162,9 +167,8 @@ const CAPTAIN_GROUPS: NavGroup[] = [
   ] },
   { id: 'captain-team', label: 'Team & Duty', items: [
     adminLink('/shift/today'),
-    adminLink('/roster', 'Roster'),
-    adminLink('/roster/allocation', 'Duty Board'),
-    adminLink('/roster/duty-sheet', 'Duty Sheet'),
+    adminLink('/roster', 'Duty Roster'),
+    adminLink('/modules', 'System Modules'),
     adminLink('/roster/setup', 'Shift Setup'),
     adminLink('/hr', 'Team Readiness'),
     adminLink('/leave', 'Leave Approvals'),
@@ -172,12 +176,14 @@ const CAPTAIN_GROUPS: NavGroup[] = [
   ] },
   { id: 'captain-operations', label: 'Operations', items: [
     POLICE_OPERATIONS,
+    adminLink('/police/report-centre', 'Police Reports'),
     adminLink('/incidents', 'Incidents'),
     adminLink('/incidents/map', 'Live Map'),
+    adminLink('/responder/monitor', 'Active Responders'),
     adminLink('/case-manager/review', 'Reports to Review'),
     adminLink('/cameras'),
     adminLink('/responder', 'My Incidents'),
-    adminLink('/duty-tasks', 'Duty Maintenance'),
+    adminLink('/duty-tasks', 'Station Tasks'),
   ] },
   { id: 'captain-account', label: 'My Work', items: [
     adminLink('/roster/mine', 'My Schedule'),
@@ -192,12 +198,14 @@ const POLICE_OFFICER_GROUPS: NavGroup[] = [
     adminLink('/dashboard', 'Overview'),
     adminLink('/responder', 'My Incidents'),
     adminLink('/roster/mine', 'My Schedule'),
+    adminLink('/modules', 'System Modules'),
     adminLink('/roster/allocation', 'Published Duty Board'),
   ] },
   { id: 'officer-shift', label: 'On Shift', items: [
     adminLink('/shift/mental-check', 'Start of Shift'),
     adminLink('/duty-tasks', 'My Duty Tasks'),
     adminLink('/incidents/map', 'Live Map'),
+    adminLink('/responder/monitor', 'Active Responders'),
   ] },
   { id: 'officer-police', label: 'Police', items: [POLICE_OPERATIONS] },
   { id: 'officer-account', label: 'Account', items: [
@@ -218,10 +226,12 @@ const CASE_MANAGER_GROUPS: NavGroup[] = [
     adminLink('/case-manager/open'),
     adminLink('/case-manager/closed'),
     adminLink('/case-manager/audit'),
+    adminLink('/police/report-centre', 'Police Reports'),
   ] },
   { id: 'cases-incidents', label: 'Incidents', items: [
     adminLink('/incidents', 'All Incidents'),
     adminLink('/incidents/map', 'Live Map'),
+    adminLink('/responder/monitor', 'Active Responders'),
   ] },
   { id: 'cases-evidence', label: 'Evidence & Exports', items: [
     adminLink('/cameras/footage'),
@@ -247,6 +257,7 @@ const EMS_ADMIN_GROUPS: NavGroup[] = [
     adminLink('/medical/handovers'),
     adminLink('/incidents', 'EMS Incidents'),
     adminLink('/incidents/map', 'Live Map'),
+    adminLink('/responder/monitor', 'Active Responders'),
   ] },
   { id: 'ems-fleet', label: 'Ambulances & Shift', items: [
     adminLink('/admin/vehicles', 'Ambulances'),
@@ -255,12 +266,13 @@ const EMS_ADMIN_GROUPS: NavGroup[] = [
     adminLink('/shift/unit-compliance'),
     adminLink('/shift/readiness-review'),
     adminLink('/admin/devices', 'Devices'),
+    adminLink('/admin/radios', 'Radios'),
   ] },
   { id: 'ems-people', label: 'Crews', items: [
     adminLink('/admin', 'Users & Roles'),
     adminLink('/admin/personnel', 'Personnel'),
-    adminLink('/roster', 'Roster'),
-    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/roster', 'Duty Roster'),
+    adminLink('/modules', 'System Modules'),
     adminLink('/roster/setup', 'Shift Setup'),
     adminLink('/leave', 'Leave'),
     adminLink('/training', 'Training'),
@@ -289,16 +301,19 @@ const POLICE_ADMIN_GROUPS: NavGroup[] = [
     POLICE_OPERATIONS,
     adminLink('/incidents', 'Incidents'),
     adminLink('/incidents/map', 'Live Map'),
+    adminLink('/responder/monitor', 'Active Responders'),
     adminLink('/case-manager/review', 'Reports to Review'),
     adminLink('/cameras'),
     adminLink('/report-hub', 'Reports'),
+    adminLink('/police/report-centre', 'Police Reports'),
+    adminLink('/dispatch/ptt', 'Radio Desk'),
   ] },
   { id: 'padmin-people', label: 'People & Duty', items: [
     adminLink('/admin', 'Users & Roles'),
     adminLink('/admin/personnel', 'Personnel'),
     adminLink('/shift/today'),
-    adminLink('/roster', 'Roster'),
-    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/roster', 'Duty Roster'),
+    adminLink('/modules', 'System Modules'),
     adminLink('/roster/setup', 'Shift Setup'),
     adminLink('/leave', 'Leave'),
     adminLink('/hr', 'HR Centre'),
@@ -308,6 +323,7 @@ const POLICE_ADMIN_GROUPS: NavGroup[] = [
   { id: 'padmin-fleet', label: 'Fleet & Devices', items: [
     adminLink('/admin/vehicles', 'Fleet'),
     adminLink('/admin/devices', 'Devices'),
+    adminLink('/admin/radios', 'Radios'),
   ] },
   { id: 'padmin-account', label: 'Settings & Account', items: [
     adminLink('/admin/config', 'Configuration'),
@@ -327,6 +343,7 @@ const FIRE_COMMAND_GROUPS: NavGroup[] = [
     adminLink('/fire/pir'),
     adminLink('/incidents', 'Fire Incidents'),
     adminLink('/incidents/map', 'Live Map'),
+    adminLink('/responder/monitor', 'Active Responders'),
   ] },
   { id: 'fire-fleet', label: 'Appliances & Shift', items: [
     adminLink('/admin/vehicles', 'Appliances'),
@@ -334,12 +351,13 @@ const FIRE_COMMAND_GROUPS: NavGroup[] = [
     adminLink('/shift/unit-compliance'),
     adminLink('/shift/readiness-review'),
     adminLink('/admin/devices', 'Devices'),
+    adminLink('/admin/radios', 'Radios'),
   ] },
   { id: 'fire-people', label: 'Crews', items: [
     adminLink('/admin', 'Users & Roles'),
     adminLink('/admin/personnel', 'Personnel'),
-    adminLink('/roster', 'Roster'),
-    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/roster', 'Duty Roster'),
+    adminLink('/modules', 'System Modules'),
     adminLink('/roster/setup', 'Shift Setup'),
     adminLink('/leave', 'Leave'),
     adminLink('/training', 'Training'),
@@ -363,14 +381,15 @@ const DISASTER_GROUPS: NavGroup[] = [
     adminLink('/disaster/partners'),
     adminLink('/incidents', 'Disaster Incidents'),
     adminLink('/incidents/map', 'Live Map'),
+    adminLink('/responder/monitor', 'Active Responders'),
   ] },
   { id: 'disaster-people', label: 'Shift & Crews', items: [
     adminLink('/shift/today'),
     adminLink('/shift/readiness-review'),
     adminLink('/admin', 'Users & Roles'),
     adminLink('/admin/personnel', 'Personnel'),
-    adminLink('/roster', 'Roster'),
-    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/roster', 'Duty Roster'),
+    adminLink('/modules', 'System Modules'),
     adminLink('/roster/setup', 'Shift Setup'),
     adminLink('/leave', 'Leave'),
     adminLink('/training', 'Training'),
@@ -407,8 +426,9 @@ const DISPATCHER_GROUPS: NavGroup[] = [
       adminLink('/dispatch/pending', 'Pending Queue'),
       adminLink('/incidents', 'Incidents'),
       adminLink('/incidents/map', 'Live Map'),
+      adminLink('/responder/monitor', 'Active Responders'),
       adminLink('/cameras'),
-      adminLink('/dispatch/ptt', 'PTT Radio'),
+      adminLink('/dispatch/ptt', 'Radio Desk'),
     ],
   },
   {
@@ -416,6 +436,7 @@ const DISPATCHER_GROUPS: NavGroup[] = [
       adminLink('/roster/allocation', 'Duty Board'),
       adminLink('/dispatch/kpi', 'Dispatch KPIs'),
       adminLink('/report-hub', 'Reports'),
+      adminLink('/police/report-centre', 'Police Reports'),
       adminLink('/cameras/footage'),
       adminLink('/sanral'),
     ],
@@ -441,7 +462,7 @@ const INCIDENT_LOGGER_GROUPS: NavGroup[] = [
   { id: 'logger-incidents', label: 'Incidents', items: [
     adminLink('/incidents', 'Incidents'),
     adminLink('/incidents/map', 'Live Map'),
-    adminLink('/case-manager', 'Case Manager'),
+    adminLink('/responder/monitor', 'Active Responders'),
   ] },
   { id: 'logger-monitoring', label: 'Monitoring', items: [
     adminLink('/sanral'),
@@ -474,11 +495,12 @@ const CONTROL_ROOM_GROUPS: NavGroup[] = [
     adminLink('/dispatch/pending', 'Pending Queue'),
     adminLink('/incidents', 'Incidents'),
     adminLink('/incidents/map', 'Live Map'),
+    adminLink('/responder/monitor', 'Active Responders'),
   ] },
   { id: 'control-monitoring', label: 'Monitoring', items: [
     adminLink('/cameras'),
     adminLink('/sanral'),
-    adminLink('/dispatch/ptt', 'PTT Radio'),
+    adminLink('/dispatch/ptt', 'Radio Desk'),
   ] },
   { id: 'control-reporting', label: 'Duty & Reporting', items: [
     adminLink('/roster/allocation', 'Duty Board'),
@@ -501,33 +523,36 @@ const SYSTEM_CONTROLLER_GROUPS: NavGroup[] = [
     adminLink('/dispatch/pending', 'Pending Dispatch'),
     adminLink('/incidents', 'Incidents'),
     adminLink('/incidents/map', 'Live Map'),
+    adminLink('/responder/monitor', 'Active Responders'),
     adminLink('/case-manager', 'Case Management'),
   ] },
   { id: 'controller-monitoring', label: 'Monitoring', items: [
     adminLink('/cameras'),
     adminLink('/cameras/footage'),
     adminLink('/sanral'),
-    adminLink('/dispatch/ptt', 'PTT Radio'),
+    adminLink('/dispatch/ptt', 'Radio Desk'),
     adminLink('/dispatch/kpi', 'Dispatch KPIs'),
   ] },
   { id: 'controller-duty', label: 'Duty & People', items: [
     adminLink('/shift/today'),
-    adminLink('/roster', 'Rosters'),
-    adminLink('/roster/allocation', 'Duty Board'),
+    adminLink('/modules', 'System Modules'),
+    adminLink('/roster', 'Duty Roster'),
     adminLink('/roster/setup', 'Shift Setup'),
-    adminLink('/duty-tasks', 'Duty Maintenance'),
+    adminLink('/duty-tasks', 'Station Tasks'),
     adminLink('/attendance', 'Attendance'),
     adminLink('/leave', 'Leave'),
   ] },
   { id: 'controller-police', label: 'Police', items: [POLICE_OPERATIONS] },
   { id: 'controller-reports', label: 'Reports', items: [
     adminLink('/report-hub', 'Report Hub'),
+    adminLink('/police/report-centre', 'Police Reports'),
     adminLink('/analytics', 'Analytics'),
   ] },
   { id: 'controller-systems', label: 'Operational Systems', items: [
     adminLink('/admin/personnel', 'Personnel'),
     adminLink('/admin/vehicles', 'Fleet'),
     adminLink('/admin/devices', 'Devices'),
+    adminLink('/admin/radios', 'Radios'),
     adminLink('/admin/integrations', 'Integrations'),
     adminLink('/admin/status', 'System Status'),
   ] },
@@ -560,6 +585,7 @@ function NavList({
   /** The collapsed rail: icons only, each named on hover. */
   narrow?: boolean;
 }) {
+  const { t } = useT();
   const pathname = usePathname();
   const [filter, setFilter] = useState('');
   // On the rail, an entry with pages under it opens them beside the rail.
@@ -625,11 +651,15 @@ function NavList({
       : role === 'CaseManager' ? CASE_MANAGER_GROUPS
       : role === 'SystemController' ? SYSTEM_CONTROLLER_GROUPS : NAV_GROUPS;
     const allowed = (i: NavItem) => canAccess(i.href, role as UserRole, silo as Silo) && !hiddenHrefs.includes(i.href);
+    // The menu in the person's language (the labels are in the word list:
+    // packages/db/src/i18n/extract.ts reads them from this file and lib/nav.ts).
+    const say = (i: NavItem): NavItem => ({ ...i, label: t(i.label), children: i.children?.map(say) });
     return sourceGroups.map((g) => ({
       ...g,
-      items: g.items.map((i) => visibleItem(i, allowed, q)).filter((i): i is NavItem => i !== null),
+      label: t(g.label),
+      items: g.items.map((i) => visibleItem(say(i), allowed, q)).filter((i): i is NavItem => i !== null),
     })).filter((g) => g.items.length > 0);
-  }, [role, silo, filter, hiddenHrefs]);
+  }, [role, silo, filter, hiddenHrefs, t]);
 
   const activeHref = groups
     .flatMap((group) => group.items.flatMap(hrefsOf))
@@ -766,7 +796,7 @@ function NavList({
   if (narrow) {
     return (
       <>
-        <nav className="flex-1 overflow-y-auto px-1.5 py-3" aria-label="Main">
+        <nav className="flex-1 overflow-y-auto px-1.5 py-3" aria-label={t('Main')}>
           {groups.map((g, i) => (
             <div key={g.id} className={cn('mb-1', i > 0 && 'border-t border-border/60 pt-1')}>
               <ul className="space-y-0.5" aria-label={g.label}>
@@ -777,7 +807,7 @@ function NavList({
         </nav>
         {fly ? (
           <>
-            <button type="button" aria-label="Close" className="fixed inset-0 z-40 cursor-default" onClick={() => setFly(null)} />
+            <button type="button" aria-label={t('Close')} className="fixed inset-0 z-40 cursor-default" onClick={() => setFly(null)} />
             <div role="menu" aria-label={fly.item.label} style={{ top: fly.top }}
               className="fixed left-[72px] z-50 max-h-[350px] w-64 overflow-y-auto rounded-lg border border-border bg-bg-card p-1.5 shadow-2xl">
               <p className="px-2.5 pb-1 pt-1 text-xs font-bold text-fg">{fly.item.label}</p>
@@ -797,8 +827,8 @@ function NavList({
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Filter menu…"
-            aria-label="Filter navigation"
+            placeholder={t('Filter menu…')}
+            aria-label={t('Filter navigation')}
             className="h-8 w-full rounded-md border border-border bg-bg/60 pl-8 pr-2 text-xs text-fg placeholder:text-muted-foreground focus:border-accent focus:outline-none"
           />
         </div>
@@ -806,7 +836,7 @@ function NavList({
 
       <nav className="flex-1 overflow-y-auto px-2 pb-4">
         {groups.length === 0 && (
-          <p className="px-3 py-6 text-center text-xs text-muted-foreground">No matching pages.</p>
+          <p className="px-3 py-6 text-center text-xs text-muted-foreground">{t('No matching pages.')}</p>
         )}
         {groups.map((g) => {
           // While filtering, always show results expanded.
@@ -872,7 +902,10 @@ function roleHeading(role: string, silo: string, tenantName?: string): { title: 
 }
 
 function Brand({ dept, role, silo, tenantName, narrow = false }: { dept?: DeptIdentity; role: string; silo: string; tenantName?: string; narrow?: boolean }) {
+  const { t } = useT();
   const heading = roleHeading(role, silo, tenantName);
+  // On the police side the DMPS badge sits beside HikTech's mark, as in V4; never in its place.
+  const police = silo === 'MetroPolice';
   if (narrow) {
     return (
       <div className="flex h-16 shrink-0 items-center justify-center border-b border-border" title={heading?.title ?? dept?.short_name ?? 'HIKTECH'}>
@@ -883,13 +916,17 @@ function Brand({ dept, role, silo, tenantName, narrow = false }: { dept?: DeptId
   }
   return (
     <div className="shrink-0 border-b border-border">
-      <div className="flex h-16 items-center px-4">
+      <div className="flex h-16 items-center gap-2.5 px-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/hiktech-brand.svg"
           alt="HIKTECH"
-          className="h-auto w-[190px] max-w-full rounded-md bg-white p-2"
+          className={`h-auto max-w-full rounded-md bg-white p-2 ${police ? 'w-[160px] min-w-0' : 'w-[190px]'}`}
         />
+        {police ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src="/images/dmps-badge.png" alt={t('Durban Metropolitan Police Service')} title={t('Durban Metropolitan Police Service')} className="h-11 w-11 shrink-0 object-contain" />
+        ) : null}
       </div>
       {/* Whose service this screen belongs to, in that service's own colour. */}
       {heading ? (
@@ -919,6 +956,7 @@ function Brand({ dept, role, silo, tenantName, narrow = false }: { dept?: DeptId
  * HikTech's mark at the top is untouched.
  */
 function OrgFooter({ org, narrow = false }: { org?: DeptIdentity; narrow?: boolean }) {
+  const { t } = useT();
   if (!org) return null;
   if (narrow) {
     return (
@@ -931,7 +969,7 @@ function OrgFooter({ org, narrow = false }: { org?: DeptIdentity; narrow?: boole
     <div className="flex shrink-0 items-center gap-2.5 border-t border-border px-5 py-3 opacity-80">
       <DeptBadge branding={org} logoUrl={org.logoUrl} size="xs" />
       <span className="min-w-0 leading-tight">
-        <span className="block text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Serving</span>
+        <span className="block text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{t('Serving')}</span>
         <span className="block truncate text-[11px] font-semibold text-fg">{org.official_name}</span>
       </span>
     </div>
@@ -940,6 +978,7 @@ function OrgFooter({ org, narrow = false }: { org?: DeptIdentity; narrow?: boole
 
 /** How the sidebar shows, at its foot (as Supabase). */
 function ModeControl({ mode, onMode, narrow }: { mode: SidebarMode; onMode: (m: SidebarMode) => void; narrow: boolean }) {
+  const { t } = useT();
   // Placed on the page, not in the sidebar, so the narrow rail never cuts it off.
   const [open, setOpen] = useState<{ left: number; bottom: number } | null>(null);
   useEffect(() => {
@@ -959,20 +998,20 @@ function ModeControl({ mode, onMode, narrow }: { mode: SidebarMode; onMode: (m: 
         }}
         aria-haspopup="menu"
         aria-expanded={Boolean(open)}
-        title="Sidebar"
-        aria-label="Sidebar: how it shows"
+        title={t('Sidebar')}
+        aria-label={t('Sidebar: how it shows')}
         className={cn('inline-flex items-center gap-2 rounded-md text-xs font-semibold text-muted-foreground hover:bg-muted hover:text-fg',
           narrow ? 'h-9 w-9 justify-center' : 'h-8 w-full px-2')}
       >
         <PanelLeft className="h-4 w-4 shrink-0" />
-        {narrow ? null : <span className="truncate">Sidebar · {SIDEBAR_MODES.find((m) => m.mode === mode)?.label}</span>}
+        {narrow ? null : <span className="truncate">{t('Sidebar · {label}', { label: SIDEBAR_MODES.find((m) => m.mode === mode)?.label })}</span>}
       </button>
       {open ? (
         <>
-          <button type="button" aria-label="Close" className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(null)} />
-          <div role="menu" aria-label="Sidebar" style={{ left: open.left, bottom: open.bottom }}
+          <button type="button" aria-label={t('Close')} className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(null)} />
+          <div role="menu" aria-label={t('Sidebar')} style={{ left: open.left, bottom: open.bottom }}
             className="fixed z-50 w-52 rounded-lg border border-border bg-bg-card p-1.5 shadow-2xl">
-            <p className="px-2 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Sidebar</p>
+            <p className="px-2 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t('Sidebar')}</p>
             {SIDEBAR_MODES.map((m) => (
               <button key={m.mode} type="button" role="menuitemradio" aria-checked={mode === m.mode}
                 onClick={() => { onMode(m.mode); setOpen(null); }}
@@ -994,6 +1033,7 @@ export function Sidebar({
 }: {
   silo: string; role: string; dept?: DeptIdentity; org?: DeptIdentity; tenantName?: string; hiddenHrefs?: string[];
 }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const drawerHeading = roleHeading(role, silo, tenantName);
@@ -1051,7 +1091,7 @@ export function Sidebar({
 
       <button
         type="button"
-        aria-label="Open navigation"
+        aria-label={t('Open navigation')}
         onClick={() => setOpen(true)}
         className="fixed left-3 top-3 z-40 inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-bg-soft transition-colors hover:bg-muted lg:hidden"
       >
@@ -1059,15 +1099,15 @@ export function Sidebar({
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
-          <button type="button" aria-label="Close navigation" className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label={t('Navigation')}>
+          <button type="button" aria-label={t('Close navigation')} className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
           <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-border bg-bg-soft shadow-2xl">
             <div className="flex h-16 shrink-0 items-center justify-between border-b border-border pl-5 pr-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/hiktech-brand.svg" alt="HIKTECH" className="h-auto w-[190px] max-w-full rounded-md bg-white p-2" />
               <button
                 type="button"
-                aria-label="Close"
+                aria-label={t('Close')}
                 onClick={() => setOpen(false)}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted"
               >

@@ -7,6 +7,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { fileInspectionAction } from '../actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Fire Safety Inspections · HikTech' };
@@ -16,6 +17,7 @@ const FILERS = ['Firefighter', 'FireChief', 'Admin', 'SystemAdmin', 'SuperAdmin'
 const field = 'h-9 rounded-md border border-border bg-bg-soft px-2.5 text-sm';
 
 export default async function FireInspectionsPage({ searchParams }: { searchParams: Promise<Params> }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const params = await searchParams;
   // Empty until migration 0066 is run.
@@ -26,8 +28,8 @@ export default async function FireInspectionsPage({ searchParams }: { searchPara
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Fire Safety Inspections</h1>
-        <p className="text-muted-foreground">Business and site inspections, newest first.</p>
+        <h1 className="text-2xl font-bold">{t('Fire Safety Inspections')}</h1>
+        <p className="text-muted-foreground">{t('Business and site inspections, newest first.')}</p>
       </header>
 
       {params.error ? (
@@ -37,47 +39,46 @@ export default async function FireInspectionsPage({ searchParams }: { searchPara
       ) : null}
       {params.filed ? (
         <div className="rounded-lg border border-severity-low/40 bg-severity-low/10 px-4 py-3 text-sm text-severity-low-ink">
-          Inspection {params.filed} filed.
-        </div>
+          {t('Inspection {filed} filed.', { filed: params.filed })}</div>
       ) : null}
 
       {canFile ? (
         <form action={fileInspectionAction} className="space-y-4">
-          <FormSection title="New inspection">
-            <TextField name="business_name" label="Business / Site Name" required placeholder="e.g. Skyline Mall" />
-            <TextField name="contact_person" label="Contact Person" required placeholder="Manager Name" />
-            <TextField name="address" label="Site Address" required placeholder="123 Main Street" />
-            <SelectField name="extinguishers" label="Extinguishers Present & Serviced?" required options={[
+          <FormSection title={t('New inspection')}>
+            <TextField name="business_name" label={t('Business / Site Name')} required placeholder={t('e.g. Skyline Mall')} />
+            <TextField name="contact_person" label={t('Contact Person')} required placeholder={t('Manager Name')} />
+            <TextField name="address" label={t('Site Address')} required placeholder={t('123 Main Street')} />
+            <SelectField name="extinguishers" label={t('Extinguishers Present & Serviced?')} required options={[
               { value: 'Yes', label: 'Yes - Compliant' }, { value: 'No', label: 'No - Violation' }, { value: 'N/A', label: 'Not Applicable' },
             ]} />
-            <SelectField name="exits" label="Emergency Exits Clear?" required options={[
+            <SelectField name="exits" label={t('Emergency Exits Clear?')} required options={[
               { value: 'Yes', label: 'Yes - Compliant' }, { value: 'No', label: 'No - Blocked / Violation' },
             ]} />
-            <SelectField name="result" label="Final Inspection Result" required options={[
+            <SelectField name="result" label={t('Final Inspection Result')} required options={[
               { value: 'PASS', label: 'PASS - Premises is Safe' }, { value: 'FAIL', label: 'FAIL - Major Hazards Present' },
             ]} />
-            <TextAreaField name="notes" label="Additional Inspector Notes" placeholder="Detail any violations, hazards, or warnings issued..." className="sm:col-span-2 lg:col-span-3" />
+            <TextAreaField name="notes" label={t('Additional Inspector Notes')} placeholder={t('Detail any violations, hazards, or warnings issued...')} className="sm:col-span-2 lg:col-span-3" />
           </FormSection>
-          <button type="submit" className="h-11 w-full rounded-md bg-primary text-sm font-semibold">File inspection</button>
+          <button type="submit" className="h-11 w-full rounded-md bg-primary text-sm font-semibold">{t('File inspection')}</button>
         </form>
       ) : null}
 
       <form method="get" className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-bg-card px-3 py-2.5">
         <div className="relative min-w-[220px] flex-1">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <input name="q" defaultValue={params.q} placeholder="Search business, address, contact or reference" aria-label="Search inspections" className={`${field} w-full pl-8`} />
+          <input name="q" defaultValue={params.q} placeholder={t('Search business, address, contact or reference')} aria-label={t('Search inspections')} className={`${field} w-full pl-8`} />
         </div>
-        <select name="result" defaultValue={params.result ?? ''} aria-label="Result" className={field}>
-          <option value="">All results</option>
+        <select name="result" defaultValue={params.result ?? ''} aria-label={t('Result')} className={field}>
+          <option value="">{t('All results')}</option>
           <option value="PASS">PASS</option>
           <option value="FAIL">FAIL</option>
         </select>
-        <button type="submit" className="h-9 rounded-md bg-accent px-4 text-sm font-semibold">Apply</button>
-        {filtered ? <Link href="/fire/inspections" className="text-sm text-accent hover:underline">Clear</Link> : null}
+        <button type="submit" className="h-9 rounded-md bg-accent px-4 text-sm font-semibold">{t('Apply')}</button>
+        {filtered ? <Link href="/fire/inspections" className="text-sm text-accent hover:underline">{t('Clear')}</Link> : null}
       </form>
 
       <Card>
-        <CardHeader><CardTitle>{rows.length} inspection{rows.length === 1 ? '' : 's'}</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('{length} inspection{value}', { length: rows.length, value: rows.length === 1 ? '' : 's' })}</CardTitle></CardHeader>
         <CardContent className="p-0">
           <SimpleTable headers={['Reference', 'Business / Site', 'Address', 'Extinguishers', 'Exits', 'Result', 'Inspector', 'Inspected']}
             empty={filtered ? 'No inspections match.' : 'No inspections yet.'}>

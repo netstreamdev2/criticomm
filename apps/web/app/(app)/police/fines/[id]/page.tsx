@@ -11,6 +11,7 @@ import { FINE_STATUS_TONE } from '@/lib/fine-tone';
 import { getSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import { FineActions } from './fine-actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Fine · HikTech' };
@@ -52,6 +53,7 @@ function Signature({ svg, caption, refused, none }: { svg: string | null; captio
  * cancellations here; nothing that was served can be edited.
  */
 export default async function FinePage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = await requestT();
   await requireFeaturePage('web.enforcement');
   const { id } = await params;
   const { supabase, role, silo, userId } = await getSession();
@@ -80,7 +82,7 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="space-y-5">
-      <Link href="/police/fines" className="text-sm font-semibold text-muted-foreground hover:text-fg">← Fines register</Link>
+      <Link href="/police/fines" className="text-sm font-semibold text-muted-foreground hover:text-fg">{t('← Fines register')}</Link>
 
       <section className="overflow-hidden rounded-2xl border border-border bg-bg-card">
         <div className="flex flex-wrap items-start justify-between gap-4 bg-gradient-to-r from-primary/20 via-bg-card to-bg-card p-5">
@@ -88,10 +90,7 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
             <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{fine.issuing_authority ?? 'Metro Police'} · {info.label}</p>
             <h1 className="mt-1 font-mono text-2xl font-bold">{charges.map((c) => c.fine_number).join(' · ')}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Served {when(fine.issued_at)} by {fine.issued_by_name ?? '—'}
-              {fine.officer_infrastructure_no ? ` (${fine.officer_infrastructure_no})` : ''}
-              {fine.captured_from === 'paper' ? ' · captured from a paper book' : ''}
-              {fine.notice_number ? ` · Notice no. ${fine.notice_number}` : ''}
+              {t('Served {when} by {value}{value2}{value3}{value4}', { when: when(fine.issued_at), value: fine.issued_by_name ?? '—', value2: fine.officer_infrastructure_no ? ` (${fine.officer_infrastructure_no})` : '', value3: fine.captured_from === 'paper' ? ' · captured from a paper book' : '', value4: fine.notice_number ? ` · Notice no. ${fine.notice_number}` : '' })}
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
@@ -102,22 +101,21 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
               rel="noopener noreferrer"
               className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
             >
-              Print slip
-            </a>
+              {t('Print slip')}</a>
           </div>
         </div>
         <div className="grid gap-px bg-border sm:grid-cols-3">
           <div className="bg-bg-card p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Penalty</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('Penalty')}</p>
             <p className="mt-1 text-2xl font-bold tabular-nums">{rand(total)}</p>
             {fine.notice_type === 'AARTO 01' ? (
-              <p className="text-xs text-muted-foreground">{rand(total - charges.reduce((s, c) => s + Number(c.discount_amount), 0))} if paid by {fine.due_date}</p>
+              <p className="text-xs text-muted-foreground">{t('{rand} if paid by {value}', { rand: rand(total - charges.reduce((s, c) => s + Number(c.discount_amount), 0)), value: fine.due_date })}</p>
             ) : null}
           </div>
           <div className="bg-bg-card p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Paid</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('Paid')}</p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-severity-low-ink">{rand(totalPaid)}</p>
-            <p className="text-xs text-muted-foreground">{ledger.length} ledger entr{ledger.length === 1 ? 'y' : 'ies'}</p>
+            <p className="text-xs text-muted-foreground">{t('{length} ledger entr{value}', { length: ledger.length, value: ledger.length === 1 ? 'y' : 'ies' })}</p>
           </div>
           <div className="bg-bg-card p-4">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
@@ -149,20 +147,18 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
         <div className="flex flex-wrap gap-2 text-sm">
           {fine.offender_id_number ? (
             <Link href={`/police/fines/account?id=${encodeURIComponent(fine.offender_id_number)}`} className="rounded-md border border-border px-3 py-1.5 font-semibold hover:bg-muted">
-              All fines for this ID number →
-            </Link>
+              {t('All fines for this ID number →')}</Link>
           ) : null}
           {fine.vehicle_reg ? (
             <Link href={`/police/fines/account?reg=${encodeURIComponent(fine.vehicle_reg)}`} className="rounded-md border border-border px-3 py-1.5 font-semibold hover:bg-muted">
-              All fines for {fine.vehicle_reg} →
-            </Link>
+              {t('All fines for {value} →', { value: fine.vehicle_reg })}</Link>
           ) : null}
         </div>
       ) : null}
 
       {fine.status === 'Cancelled' && fine.cancel_reason ? (
         <div className="rounded-xl border border-severity-critical/40 bg-severity-critical/10 p-4 text-sm">
-          <b>Cancelled</b> {when(fine.cancelled_at)} by {fine.cancelled_by_name ?? '—'}: {fine.cancel_reason}
+          <b>{t('Cancelled')}</b> {' '}{t('{when} by {value}: {value2}', { when: when(fine.cancelled_at), value: fine.cancelled_by_name ?? '—', value2: fine.cancel_reason })}
         </div>
       ) : null}
 
@@ -174,7 +170,7 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
               <SimpleTable headers={['Fine', 'Offence', 'Penalty', 'Paid', 'Status']}>
                 {charges.map((c) => (
                   <Tr key={c.id}>
-                    <Td className="font-mono text-sm font-bold">{c.fine_number}{c.notice_number ? <div className="text-[11px] font-normal text-muted-foreground">No. {c.notice_number}</div> : null}</Td>
+                    <Td className="font-mono text-sm font-bold">{c.fine_number}{c.notice_number ? <div className="text-[11px] font-normal text-muted-foreground">{t('No. {value}', { value: c.notice_number })}</div> : null}</Td>
                     <Td>
                       {c.offence_description}
                       <div className="text-xs text-muted-foreground">
@@ -196,30 +192,30 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
               <CardHeader className="pb-2"><CardTitle>{info.personPresent ? 'Infringer' : 'Owner'}</CardTitle></CardHeader>
               <CardContent>
                 <dl>
-                  <Field label="Name">{fine.offender_name}</Field>
+                  <Field label={t('Name')}>{fine.offender_name}</Field>
                   {info.personPresent ? (
                     <>
                       <Field label={fine.offender_id_type ?? 'Identification'}><span className="font-mono">{fine.offender_id_number}</span></Field>
-                      <Field label="Date of birth">{fine.offender_dob}</Field>
-                      <Field label="Sex">{fine.offender_gender}</Field>
-                      <Field label="Licence code">{[fine.offender_licence_code, fine.offender_prdp_code ? `PrDP ${fine.offender_prdp_code}` : null].filter(Boolean).join(' · ')}</Field>
-                      <Field label="Cell">{fine.offender_phone}</Field>
-                      <Field label="Address">{fine.offender_address}</Field>
+                      <Field label={t('Date of birth')}>{fine.offender_dob}</Field>
+                      <Field label={t('Sex')}>{fine.offender_gender}</Field>
+                      <Field label={t('Licence code')}>{[fine.offender_licence_code, fine.offender_prdp_code ? `PrDP ${fine.offender_prdp_code}` : null].filter(Boolean).join(' · ')}</Field>
+                      <Field label={t('Cell')}>{fine.offender_phone}</Field>
+                      <Field label={t('Address')}>{fine.offender_address}</Field>
                     </>
                   ) : null}
                 </dl>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-2"><CardTitle>Vehicle and place</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle>{t('Vehicle and place')}</CardTitle></CardHeader>
               <CardContent>
                 <dl>
-                  <Field label="Registration"><span className="font-mono font-bold">{fine.vehicle_reg}</span></Field>
-                  <Field label="Licence disc">{fine.vehicle_licence_disc}</Field>
-                  <Field label="Vehicle">{[fine.vehicle_type, fine.vehicle_make, fine.vehicle_model, fine.vehicle_colour].filter(Boolean).join(' · ')}</Field>
-                  <Field label="Where">{[fine.street_a, fine.street_b, fine.suburb, fine.city].filter(Boolean).join(', ') || fine.location}</Field>
-                  {fine.direction ? <Field label="Direction">{fine.direction}</Field> : null}
-                  <Field label="Offence time">{when(fine.offence_at ?? fine.issued_at)}</Field>
+                  <Field label={t('Registration')}><span className="font-mono font-bold">{fine.vehicle_reg}</span></Field>
+                  <Field label={t('Licence disc')}>{fine.vehicle_licence_disc}</Field>
+                  <Field label={t('Vehicle')}>{[fine.vehicle_type, fine.vehicle_make, fine.vehicle_model, fine.vehicle_colour].filter(Boolean).join(' · ')}</Field>
+                  <Field label={t('Where')}>{[fine.street_a, fine.street_b, fine.suburb, fine.city].filter(Boolean).join(', ') || fine.location}</Field>
+                  {fine.direction ? <Field label={t('Direction')}>{fine.direction}</Field> : null}
+                  <Field label={t('Offence time')}>{when(fine.offence_at ?? fine.issued_at)}</Field>
                   {fine.latitude !== null && fine.longitude !== null ? (
                     <Field label="GPS">
                       <a
@@ -232,7 +228,7 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
                       </a>
                     </Field>
                   ) : null}
-                  {fine.incident_id ? <Field label="Incident"><Link href={`/incidents/${fine.incident_id}`} className="text-accent hover:underline">Open incident</Link></Field> : null}
+                  {fine.incident_id ? <Field label={t('Incident')}><Link href={`/incidents/${fine.incident_id}`} className="text-accent hover:underline">{t('Open incident')}</Link></Field> : null}
                 </dl>
               </CardContent>
             </Card>
@@ -240,18 +236,18 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
 
           {obs.length || fine.notes ? (
             <Card>
-              <CardHeader className="pb-2"><CardTitle>Notes</CardTitle><CardDescription>From the notice’s notes page.</CardDescription></CardHeader>
+              <CardHeader className="pb-2"><CardTitle>{t('Notes')}</CardTitle><CardDescription>{t('From the notice’s notes page.')}</CardDescription></CardHeader>
               <CardContent>
                 <dl>
                   {obs.map((f) => <Field key={f.key} label={f.label}>{String(fine.observations[f.key])}</Field>)}
-                  {fine.notes ? <Field label="Other">{fine.notes}</Field> : null}
+                  {fine.notes ? <Field label={t('Other')}>{fine.notes}</Field> : null}
                 </dl>
               </CardContent>
             </Card>
           ) : null}
 
           <Card>
-            <CardHeader className="pb-2"><CardTitle>Signatures</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle>{t('Signatures')}</CardTitle></CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2">
               <Signature svg={fine.officer_signature} caption={`Officer · ${fine.issued_by_name ?? '—'}`} none={fine.captured_from === 'paper' ? 'Signed on the paper notice' : 'Not signed'} />
               <Signature
@@ -264,9 +260,9 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
           </Card>
 
           <Card>
-            <CardHeader className="pb-2"><CardTitle>Payments</CardTitle><CardDescription>The ledger sets Paid and Partially Paid. Entries are never edited or deleted.</CardDescription></CardHeader>
+            <CardHeader className="pb-2"><CardTitle>{t('Payments')}</CardTitle><CardDescription>{t('The ledger sets Paid and Partially Paid. Entries are never edited or deleted.')}</CardDescription></CardHeader>
             <CardContent className="p-0">
-              <SimpleTable headers={['Date paid', 'Fine', 'Type', 'Method', 'Amount', 'Receipt', 'Recorded by']} empty="No payments recorded.">
+              <SimpleTable headers={['Date paid', 'Fine', 'Type', 'Method', 'Amount', 'Receipt', 'Recorded by']} empty={t('No payments recorded.')}>
                 {ledger.map((t) => (
                   <Tr key={t.id}>
                     <Td className="whitespace-nowrap text-xs">{t.paid_on ?? when(t.recorded_at)}</Td>
@@ -294,7 +290,7 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
           />
 
           <Card>
-            <CardHeader className="pb-2"><CardTitle>History</CardTitle><CardDescription>Every change, from the audit trail.</CardDescription></CardHeader>
+            <CardHeader className="pb-2"><CardTitle>{t('History')}</CardTitle><CardDescription>{t('Every change, from the audit trail.')}</CardDescription></CardHeader>
             <CardContent>
               {history?.length ? (
                 <ol className="space-y-3">
@@ -306,7 +302,7 @@ export default async function FinePage({ params }: { params: Promise<{ id: strin
                     </li>
                   ))}
                 </ol>
-              ) : <p className="text-sm text-muted-foreground">No history yet.</p>}
+              ) : <p className="text-sm text-muted-foreground">{t('No history yet.')}</p>}
             </CardContent>
           </Card>
         </div>

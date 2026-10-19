@@ -3,6 +3,7 @@ import type { Silo } from '@criticom/db';
 import { getSession, siloFilter } from '@/lib/session';
 import { PerfNav } from '../perf-nav';
 import { RollupExplorer } from './rollup-client';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'KPI rollup · HikTech' };
@@ -14,6 +15,7 @@ export default async function KpiRollupPage({
 }: {
   searchParams: Promise<{ days?: string; silo?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, silo } = await getSession();
   const params = await searchParams;
 
@@ -29,11 +31,9 @@ export default async function KpiRollupPage({
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">KPI rollup</h1>
+        <h1 className="text-2xl font-bold">{t('KPI rollup')}</h1>
         <p className="text-muted-foreground">
-          The same response metrics at every level — organisation, department, area and member.
-          Drill in; the definitions never change, only the calls they cover.
-        </p>
+          {t('The same response metrics at every level — organisation, department, area and member. Drill in; the definitions never change, only the calls they cover.')}</p>
       </header>
 
       <PerfNav active="/performance/rollup" />

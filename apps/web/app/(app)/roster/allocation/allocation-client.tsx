@@ -9,6 +9,7 @@ import { useToast } from '@/components/toast';
 import {
   assignAction, copyForwardAction, publishDayAction, savePostAction, unassignAction,
 } from './actions';
+import { useT } from '@/components/i18n';
 
 const btn = 'inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-semibold';
 const input = 'h-9 rounded-md border border-border bg-bg-soft px-2 text-sm';
@@ -36,6 +37,7 @@ export function AllocationBoard({
   settings: ScheduleSettings;
   isToday: boolean;
 }) {
+  const { t } = useT();
   const toast = useToast();
   const [tab, setTab] = useState<'posts' | 'people'>('posts');
   const [assigning, setAssigning] = useState<PostCoverage | null>(null);
@@ -76,15 +78,15 @@ export function AllocationBoard({
       <div className="flex flex-wrap items-end justify-between gap-3 rounded-lg border border-border bg-bg-card p-3">
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <label className={label} htmlFor="d">Duty date</label>
+            <label className={label} htmlFor="d">{t('Duty date')}</label>
             <input id="d" type="date" className={`${input} mt-1`} value={date}
               onChange={(e) => setDate(e.target.value)} />
           </div>
-          <Stat label="Posts" value={`${s.postsTotal}`} />
-          <Stat label="Unmanned" value={`${s.postsUnmanned}`} tone={s.postsUnmanned ? 'danger' : undefined} />
-          <Stat label="Short-crewed" value={`${s.postsShort}`} tone={s.postsShort ? 'warning' : undefined} />
-          <Stat label="Coverage" value={`${coverPct}%`} tone={coverPct < 100 ? 'warning' : 'success'} />
-          {s.conflicts > 0 ? <Stat label="On leave" value={`${s.conflicts}`} tone="danger" /> : null}
+          <Stat label={t('Posts')} value={`${s.postsTotal}`} />
+          <Stat label={t('Unmanned')} value={`${s.postsUnmanned}`} tone={s.postsUnmanned ? 'danger' : undefined} />
+          <Stat label={t('Short-crewed')} value={`${s.postsShort}`} tone={s.postsShort ? 'warning' : undefined} />
+          <Stat label={t('Coverage')} value={`${coverPct}%`} tone={coverPct < 100 ? 'warning' : 'success'} />
+          {s.conflicts > 0 ? <Stat label={t('On leave')} value={`${s.conflicts}`} tone="danger" /> : null}
         </div>
 
         {canManage ? (
@@ -95,15 +97,14 @@ export function AllocationBoard({
               <input type="hidden" name="silo" value={silo} />
               <button type="submit" disabled={pending}
                 className={`${btn} border border-border hover:bg-muted disabled:opacity-60`}>
-                <Copy className="h-4 w-4" /> Copy {prevDate.slice(5)} forward
-              </button>
+                <Copy className="h-4 w-4" /> {' '}{t('Copy {slice} forward', { slice: prevDate.slice(5) })}</button>
             </form>
             {s.drafts > 0 ? (
               <form action={(fd) => go(() => publishDayAction(fd), 'Duty board issued to staff')}>
                 <input type="hidden" name="date" value={date} />
                 <input type="hidden" name="silo" value={silo} />
                 <button type="submit" disabled={pending} className={`${btn} bg-primary disabled:opacity-60`}>
-                  <Send className="h-4 w-4" /> Publish {s.drafts} draft{s.drafts === 1 ? '' : 's'}
+                  <Send className="h-4 w-4" /> {' '}{t('Publish {drafts} draft{value}', { drafts: s.drafts, value: s.drafts === 1 ? '' : 's' })}
                 </button>
               </form>
             ) : (
@@ -129,7 +130,7 @@ export function AllocationBoard({
       {tab === 'posts' ? (
         <div className="space-y-2">
           {board.posts.length === 0 ? (
-            <Empty>No posts defined for this department yet. Add one below to start the board.</Empty>
+            <Empty>{t('No posts defined for this department yet. Add one below to start the board.')}</Empty>
           ) : board.posts.map((c) => {
             const st = STATE_STYLE[c.state];
             return (
@@ -154,8 +155,7 @@ export function AllocationBoard({
                     {canManage ? (
                       <button type="button" onClick={() => setAssigning(c)}
                         className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-semibold hover:bg-muted">
-                        <Plus className="h-3 w-3" /> Assign
-                      </button>
+                        <Plus className="h-3 w-3" /> {' '}{t('Assign')}</button>
                     ) : null}
                   </div>
                 </div>
@@ -177,10 +177,9 @@ export function AllocationBoard({
                         {a.leaveConflict ? (
                           <span className="inline-flex items-center gap-1 font-semibold text-danger"
                             title={canManage ? `On ${a.leaveConflict.absence} from ${a.leaveConflict.from} to ${a.leaveConflict.to}` : 'On leave'}>
-                            <AlertTriangle className="h-3 w-3" /> on leave
-                          </span>
+                            <AlertTriangle className="h-3 w-3" /> {' '}{t('on leave')}</span>
                         ) : !a.published ? (
-                          <span className="text-accent">draft</span>
+                          <span className="text-accent">{t('draft')}</span>
                         ) : attendance(a) ?? (a.acknowledged_at ? (
                           <Check className="h-3 w-3 text-success" />
                         ) : null)}
@@ -199,8 +198,7 @@ export function AllocationBoard({
                   </ul>
                 ) : (
                   <p className="mt-2 border-t border-border/60 pt-2 text-xs text-muted-foreground">
-                    Nobody allocated.
-                  </p>
+                    {t('Nobody allocated.')}</p>
                 )}
               </div>
             );
@@ -208,13 +206,13 @@ export function AllocationBoard({
 
           {board.adHoc.length > 0 ? (
             <div className="rounded-lg border border-border bg-bg-card p-3">
-              <p className={label}>Ad-hoc duties (no standing post)</p>
+              <p className={label}>{t('Ad-hoc duties (no standing post)')}</p>
               <ul className="mt-2 flex flex-wrap gap-1.5">
                 {board.adHoc.map((a) => (
                   <li key={a.id} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg-soft px-2.5 py-1 text-xs">
                     <span className="font-semibold">{a.user_name}</span>
                     <span className="text-muted-foreground">{a.activity_type || 'General'}</span>
-                    {a.leaveConflict ? <span className="font-semibold text-danger">on leave</span> : !a.published ? <span className="text-accent">draft</span> : attendance(a)}
+                    {a.leaveConflict ? <span className="font-semibold text-danger">{t('on leave')}</span> : !a.published ? <span className="text-accent">{t('draft')}</span> : attendance(a)}
                   </li>
                 ))}
               </ul>
@@ -259,6 +257,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 /* ── By person ────────────────────────────────────────────────────── */
 
 function PersonList({ people }: { people: PersonRow[] }) {
+  const { t } = useT();
   const [onlyFree, setOnlyFree] = useState(false);
   const shown = onlyFree ? people.filter((p) => p.allocations.length === 0 && !p.onLeave) : people;
   const free = people.filter((p) => p.allocations.length === 0 && !p.onLeave).length;
@@ -267,12 +266,10 @@ function PersonList({ people }: { people: PersonRow[] }) {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {people.length} members · <span className="font-semibold text-fg">{free}</span> available to allocate
-        </p>
+          {t('{length} members ·', { length: people.length })}{' '}<span className="font-semibold text-fg">{free}</span> {' '}{t('available to allocate')}</p>
         <label className="inline-flex items-center gap-2 text-xs">
           <input type="checkbox" checked={onlyFree} onChange={(e) => setOnlyFree(e.target.checked)} />
-          Show only unallocated
-        </label>
+          {t('Show only unallocated')}</label>
       </div>
       <div className="overflow-x-auto rounded-lg border border-border bg-bg-card">
         <table className="w-full min-w-max text-sm">
@@ -293,10 +290,10 @@ function PersonList({ people }: { people: PersonRow[] }) {
                 <td className="px-3 py-1.5">
                   {p.onLeave ? (
                     <span className="inline-flex items-center gap-1 text-danger">
-                      <CircleSlash className="h-3.5 w-3.5" /> On {p.onLeave.absence}
+                      <CircleSlash className="h-3.5 w-3.5" /> {' '}{t('On {absence}', { absence: p.onLeave.absence })}
                     </span>
                   ) : p.allocations.length === 0 ? (
-                    <span className="text-muted-foreground">Unallocated</span>
+                    <span className="text-muted-foreground">{t('Unallocated')}</span>
                   ) : (
                     p.allocations.map((a) => (
                       <span key={a.id} className="mr-1.5 inline-flex items-center gap-1 rounded-full bg-bg-soft px-2 py-0.5 text-xs">
@@ -308,7 +305,7 @@ function PersonList({ people }: { people: PersonRow[] }) {
               </tr>
             ))}
             {shown.length === 0 ? (
-              <tr><td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">Everyone is allocated.</td></tr>
+              <tr><td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">{t('Everyone is allocated.')}</td></tr>
             ) : null}
           </tbody>
         </table>
@@ -325,6 +322,7 @@ function AssignDialog({
   post: PostCoverage; people: PersonRow[]; date: string; silo: string; templates: TemplateOption[];
   onClose: () => void; onDone: (msg: string) => void;
 }) {
+  const { t } = useT();
   const [q, setQ] = useState('');
   const [pending, start] = useTransition();
   // For someone with no shift that day: which shift they work on this post.
@@ -360,12 +358,12 @@ function AssignDialog({
       <div className="max-h-[80vh] w-full max-w-lg overflow-hidden rounded-xl border border-border bg-bg-card shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div>
-            <p className="font-semibold">Assign to {post.post.name}</p>
+            <p className="font-semibold">{t('Assign to {name}', { name: post.post.name })}</p>
             <p className="text-xs text-muted-foreground">
-              {post.assigned}/{post.required} crewed · {date}
+              {t('{assigned}/{required} crewed · {date}', { assigned: post.assigned, required: post.required, date })}
             </p>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close" className="rounded p-1 hover:bg-muted">
+          <button type="button" onClick={onClose} aria-label={t('Close')} className="rounded p-1 hover:bg-muted">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -373,12 +371,11 @@ function AssignDialog({
           {/* biome-ignore lint/a11y/noAutofocus: this input only exists inside
               the just-opened member picker, so focus is already the user's
               intent — they opened it to type a name. */}
-          <input autoFocus className={`${input} w-full`} placeholder="Search name, badge or rank…"
+          <input autoFocus className={`${input} w-full`} placeholder={t('Search name, badge or rank…')}
             value={q} onChange={(e) => setQ(e.target.value)} />
           {templates.length ? (
             <label className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-              Shift for anyone not on the roster that day
-              <select className={`${input} h-8`} value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
+              {t('Shift for anyone not on the roster that day')}<select className={`${input} h-8`} value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
                 {templates.map((t) => <option key={t.id} value={t.id}>{t.name} ({t.start})</option>)}
               </select>
             </label>
@@ -395,18 +392,18 @@ function AssignDialog({
                 </span>
                 {p.onLeave ? (
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-danger">
-                    <AlertTriangle className="h-3 w-3" /> on {p.onLeave.absence}
+                    <AlertTriangle className="h-3 w-3" /> {' '}{t('on {absence}', { absence: p.onLeave.absence })}
                   </span>
                 ) : p.allocations.length ? (
-                  <span className="text-xs text-success">on the roster</span>
+                  <span className="text-xs text-success">{t('on the roster')}</span>
                 ) : (
-                  <span className="text-xs text-muted-foreground">not rostered: adds a shift</span>
+                  <span className="text-xs text-muted-foreground">{t('not rostered: adds a shift')}</span>
                 )}
               </button>
             </li>
           ))}
           {candidates.length === 0 ? (
-            <li className="px-2 py-6 text-center text-sm text-muted-foreground">Nobody matches.</li>
+            <li className="px-2 py-6 text-center text-sm text-muted-foreground">{t('Nobody matches.')}</li>
           ) : null}
         </ul>
       </div>
@@ -417,6 +414,7 @@ function AssignDialog({
 /* ── Establishment editor ─────────────────────────────────────────── */
 
 function PostEditor({ silo }: { silo: string }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -425,8 +423,7 @@ function PostEditor({ silo }: { silo: string }) {
     return (
       <button type="button" onClick={() => setOpen(true)}
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
-        <Plus className="h-4 w-4" /> Add a duty post
-      </button>
+        <Plus className="h-4 w-4" /> {' '}{t('Add a duty post')}</button>
     );
   }
 
@@ -441,21 +438,21 @@ function PostEditor({ silo }: { silo: string }) {
     >
       <input type="hidden" name="silo" value={silo} />
       <div className="sm:col-span-2">
-        <label className={label} htmlFor="pname">Post name</label>
-        <input id="pname" name="name" required className={`${input} mt-1 w-full`} placeholder="e.g. Sector 1 Patrol Vehicle" />
+        <label className={label} htmlFor="pname">{t('Post name')}</label>
+        <input id="pname" name="name" required className={`${input} mt-1 w-full`} placeholder={t('e.g. Sector 1 Patrol Vehicle')} />
       </div>
-      <div><label className={label} htmlFor="pst">Station</label><input id="pst" name="station" className={`${input} mt-1 w-full`} /></div>
-      <div><label className={label} htmlFor="psec">Sector</label><input id="psec" name="sector" className={`${input} mt-1 w-full`} /></div>
-      <div><label className={label} htmlFor="pveh">Vehicle</label><input id="pveh" name="vehicle" className={`${input} mt-1 w-full`} /></div>
-      <div><label className={label} htmlFor="pcs">Call sign</label><input id="pcs" name="callSign" className={`${input} mt-1 w-full`} /></div>
-      <div><label className={label} htmlFor="pact">Duty type</label><input id="pact" name="activity" className={`${input} mt-1 w-full`} placeholder="Patrol" /></div>
+      <div><label className={label} htmlFor="pst">{t('Station')}</label><input id="pst" name="station" className={`${input} mt-1 w-full`} /></div>
+      <div><label className={label} htmlFor="psec">{t('Sector')}</label><input id="psec" name="sector" className={`${input} mt-1 w-full`} /></div>
+      <div><label className={label} htmlFor="pveh">{t('Vehicle')}</label><input id="pveh" name="vehicle" className={`${input} mt-1 w-full`} /></div>
+      <div><label className={label} htmlFor="pcs">{t('Call sign')}</label><input id="pcs" name="callSign" className={`${input} mt-1 w-full`} /></div>
+      <div><label className={label} htmlFor="pact">{t('Duty type')}</label><input id="pact" name="activity" className={`${input} mt-1 w-full`} placeholder={t('Patrol')} /></div>
       <div>
-        <label className={label} htmlFor="pmin">Crew needed</label>
+        <label className={label} htmlFor="pmin">{t('Crew needed')}</label>
         <input id="pmin" name="minStaff" type="number" min={1} max={50} defaultValue={1} className={`${input} mt-1 w-full`} />
       </div>
       <div className="flex items-end gap-2">
-        <button type="submit" disabled={pending} className={`${btn} bg-primary disabled:opacity-60`}>Save post</button>
-        <button type="button" onClick={() => setOpen(false)} className={`${btn} border border-border hover:bg-muted`}>Cancel</button>
+        <button type="submit" disabled={pending} className={`${btn} bg-primary disabled:opacity-60`}>{t('Save post')}</button>
+        <button type="button" onClick={() => setOpen(false)} className={`${btn} border border-border hover:bg-muted`}>{t('Cancel')}</button>
       </div>
     </form>
   );

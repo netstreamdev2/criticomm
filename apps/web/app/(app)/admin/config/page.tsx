@@ -5,6 +5,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { FormSection, TextField, TextAreaField, SelectField } from '@/components/fields';
 import { getSession } from '@/lib/session';
 import { addConfigAction, toggleConfigAction } from './actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Configuration · HikTech' };
@@ -21,6 +22,7 @@ export default async function AdminConfigPage({
 }: {
   searchParams: Promise<{ module?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const params = await searchParams;
   const module = (MODULES.find((m) => m.key === params.module)?.key ?? 'IncidentCategory') as ConfigModule;
@@ -36,10 +38,9 @@ export default async function AdminConfigPage({
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">System configuration</h1>
+        <h1 className="text-2xl font-bold">{t('System configuration')}</h1>
         <p className="text-muted-foreground">
-          Admin-configurable operational lists. Everything is a soft delete — history is never lost.
-        </p>
+          {t('Admin-configurable operational lists. Everything is a soft delete — history is never lost.')}</p>
       </header>
 
       <nav className="flex flex-wrap gap-2">
@@ -65,23 +66,22 @@ export default async function AdminConfigPage({
             {module === 'IncidentCategory' && (
               <SelectField
                 name="parent"
-                label="Parent group (leave blank to add a group)"
+                label={t('Parent group (leave blank to add a group)')}
                 options={['', ...groups]}
               />
             )}
-            <TextField name="name" label="Name" required />
-            {module === 'IncidentCategory' && <TextField name="code" label="Code (e.g. 10-1)" />}
+            <TextField name="name" label={t('Name')} required />
+            {module === 'IncidentCategory' && <TextField name="code" label={t('Code (e.g. 10-1)')} />}
             {module === 'IncidentCategory' && (
               <TextAreaField
                 name="prompts"
-                label="Extra form prompts (one per line)"
+                label={t('Extra form prompts (one per line)')}
                 className="sm:col-span-2 lg:col-span-3"
               />
             )}
           </FormSection>
           <button type="submit" className="h-10 w-full rounded-md bg-primary text-sm font-semibold">
-            Add entry
-          </button>
+            {t('Add entry')}</button>
         </form>
       )}
 
@@ -97,7 +97,7 @@ export default async function AdminConfigPage({
                 ? ['Group', 'Name', 'Code', 'Prompts', 'Status', '']
                 : ['Name', 'Status', '']
             }
-            empty="No entries yet."
+            empty={t('No entries yet.')}
           >
             {records.map((r) => (
               <Tr key={r.id}>

@@ -846,15 +846,40 @@ export function LogCallForm({
   };
 
   /* ── Submit ─────────────────────────────────────────────────────── */
+  /**
+   * Finish a call sent early: what the database needs to call it complete
+   * (complete_call_intake: the caller, a number, the description, and on an
+   * EMS call whether the caller is the patient) is checked here, saved, and
+   * confirmed from the database before the call taker is told it is done.
+   */
   const finish = async () => {
     const incident = sentRef.current;
     if (!incident) return;
     setError(null);
+    if (!description.trim()) { openDescription(); return setError(t('Add the description: what the caller says.')); }
+    if (!callerName.trim()) return setError(t('Add the caller name.'));
+    if (!phoneCheck.ok) { setPhoneTouched(true); return setError(phoneCheck.error); }
+    if (channel === 'Other' && !channelOther.trim()) return setError(t('Say how the call came in.'));
+    if (patientAsked && isPatient === null) {
+      setDescOpen(true);
+      return setError(t('In the description, say whether the caller is the patient.'));
+    }
     const ok = await flush(true);
     if (!ok) {
       setError(t('Some details were not added. Fix them, or open the call and add them there.'));
       return;
     }
+    // The database decides it is complete; the screen only says so once it has.
+    const { data } = await getBrowserSupabase().from('incidents').select('intake_complete').eq('id', incident.id).maybeSingle();
+    if (!(data as { intake_complete?: boolean | null } | null)?.intake_complete) {
+      setError(t('{number} is not complete yet. Check the caller, the number, the description and, for EMS, whether the caller is the patient.', { number: incident.incident_number }));
+      return;
+    }
+    toast.push({
+      title: t('{number} finished', { number: incident.incident_number }),
+      body: t('All its details are with dispatch.'),
+      tone: 'success',
+    });
     router.push(`/incidents/${incident.id}`);
   };
 
@@ -1478,7 +1503,7 @@ export function LogCallForm({
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-accent text-sm font-bold uppercase tracking-wider transition-transform hover:scale-[1.01] disabled:opacity-60"
               >
                 {sent
-                  ? (saveState === 'saving' ? <><Loader2 className="h-4 w-4 animate-spin" /> {t('Adding…')}</> : <><CheckCircle2 className="h-4 w-4" /> {t('Done · open the call')}</>)
+                  ? (saveState === 'saving' ? <><Loader2 className="h-4 w-4 animate-spin" /> {t('Adding…')}</> : <><CheckCircle2 className="h-4 w-4" /> {t('Finish the call')}</>)
                   : pending
                     ? <><Loader2 className="h-4 w-4 animate-spin" /> {canRoute && dispatchNow ? t('Dispatching…') : t('Sending…')}</>
                     : canRoute && dispatchNow

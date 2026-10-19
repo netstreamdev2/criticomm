@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { applyLeaveAction, cancelLeaveAction, decideLeaveAction, type LeaveResult } from '@/app/(app)/leave/actions';
 import { useToast } from '@/components/toast';
+import { useT } from '@/components/i18n';
 
 const btn = 'inline-flex h-8 items-center rounded-md px-3 text-xs font-semibold transition-colors disabled:opacity-60';
 const input = 'h-9 w-full rounded-md border border-border bg-bg-soft px-2 text-sm';
@@ -34,6 +35,7 @@ const fd = (entries: Record<string, string>) => {
  * database checks who you are; a refusal it would not take comes back here.
  */
 export function LeaveDecision({ id, compact = false }: { id: string; compact?: boolean }) {
+  const { t } = useT();
   const { pending, run } = useRun();
   const [refusing, setRefusing] = useState(false);
   const [reason, setReason] = useState('');
@@ -41,14 +43,13 @@ export function LeaveDecision({ id, compact = false }: { id: string; compact?: b
   if (refusing) {
     return (
       <div className="flex min-w-[220px] flex-wrap items-center gap-1.5">
-        <input className={`${input} h-8 flex-1`} placeholder="Why it is not approved" value={reason}
-          onChange={(e) => setReason(e.target.value)} aria-label="Reason" />
+        <input className={`${input} h-8 flex-1`} placeholder={t('Why it is not approved')} value={reason}
+          onChange={(e) => setReason(e.target.value)} aria-label={t('Reason')} />
         <button type="button" disabled={pending || reason.trim().length < 3}
           onClick={() => run(() => decideLeaveAction(fd({ id, decision: 'refuse', comment: reason })), 'Leave not approved', () => setRefusing(false))}
           className={`${btn} bg-severity-critical/20 text-severity-critical-ink hover:bg-severity-critical/30`}>
-          Refuse
-        </button>
-        <button type="button" onClick={() => setRefusing(false)} className={`${btn} border border-border hover:bg-muted`}>Back</button>
+          {t('Refuse')}</button>
+        <button type="button" onClick={() => setRefusing(false)} className={`${btn} border border-border hover:bg-muted`}>{t('Back')}</button>
       </div>
     );
   }
@@ -57,8 +58,7 @@ export function LeaveDecision({ id, compact = false }: { id: string; compact?: b
       <button type="button" disabled={pending}
         onClick={() => run(() => decideLeaveAction(fd({ id, decision: 'approve' })), 'Leave approved')}
         className={`${btn} bg-severity-low/20 text-severity-low-ink hover:bg-severity-low/30`}>
-        Approve
-      </button>
+        {t('Approve')}</button>
       <button type="button" disabled={pending} onClick={() => setRefusing(true)}
         className={`${btn} bg-severity-critical/15 text-severity-critical-ink hover:bg-severity-critical/25`}>
         {compact ? '✕' : 'Refuse'}
@@ -69,6 +69,7 @@ export function LeaveDecision({ id, compact = false }: { id: string; compact?: b
 
 /** Cancel leave: your own before it starts; someone else's (senior to them) with a reason. */
 export function LeaveCancel({ id, own }: { id: string; own: boolean }) {
+  const { t } = useT();
   const { pending, run } = useRun();
   const [asking, setAsking] = useState(false);
   const [reason, setReason] = useState('');
@@ -78,33 +79,31 @@ export function LeaveCancel({ id, own }: { id: string; own: boolean }) {
       <button type="button" disabled={pending}
         onClick={() => { if (window.confirm('Cancel this leave?')) run(() => cancelLeaveAction(fd({ id })), 'Leave cancelled'); }}
         className={`${btn} border border-border hover:bg-muted`}>
-        Cancel
-      </button>
+        {t('Cancel')}</button>
     );
   }
   if (!asking) {
     return (
       <button type="button" onClick={() => setAsking(true)} className={`${btn} border border-border hover:bg-muted`}>
-        Cancel leave
-      </button>
+        {t('Cancel leave')}</button>
     );
   }
   return (
     <div className="flex min-w-[220px] flex-wrap items-center gap-1.5">
-      <input className={`${input} h-8 flex-1`} placeholder="Why it is cancelled" value={reason}
-        onChange={(e) => setReason(e.target.value)} aria-label="Reason" />
+      <input className={`${input} h-8 flex-1`} placeholder={t('Why it is cancelled')} value={reason}
+        onChange={(e) => setReason(e.target.value)} aria-label={t('Reason')} />
       <button type="button" disabled={pending || reason.trim().length < 3}
         onClick={() => run(() => cancelLeaveAction(fd({ id, reason })), 'Leave cancelled', () => setAsking(false))}
         className={`${btn} bg-severity-critical/20 text-severity-critical-ink`}>
-        Cancel it
-      </button>
-      <button type="button" onClick={() => setAsking(false)} className={`${btn} border border-border hover:bg-muted`}>Back</button>
+        {t('Cancel it')}</button>
+      <button type="button" onClick={() => setAsking(false)} className={`${btn} border border-border hover:bg-muted`}>{t('Back')}</button>
     </div>
   );
 }
 
 /** Ask for leave. The days it costs are counted when it is saved. */
 export function ApplyLeaveForm({ types }: { types: string[] }) {
+  const { t } = useT();
   const { pending, run } = useRun();
   const [key, setKey] = useState(0);
   return (
@@ -114,21 +113,21 @@ export function ApplyLeaveForm({ types }: { types: string[] }) {
       className="grid gap-3 rounded-lg border border-border bg-bg-card p-4 sm:grid-cols-2 lg:grid-cols-4"
     >
       <div>
-        <label className={label} htmlFor="absence">Type</label>
+        <label className={label} htmlFor="absence">{t('Type')}</label>
         <select id="absence" name="absence" required className={`${input} mt-1`}>
           {types.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
       <div>
-        <label className={label} htmlFor="eff_from">First day</label>
+        <label className={label} htmlFor="eff_from">{t('First day')}</label>
         <input id="eff_from" name="eff_from" type="date" required className={`${input} mt-1`} />
       </div>
       <div>
-        <label className={label} htmlFor="eff_to">Last day</label>
+        <label className={label} htmlFor="eff_to">{t('Last day')}</label>
         <input id="eff_to" name="eff_to" type="date" required className={`${input} mt-1`} />
       </div>
       <div className="sm:col-span-2 lg:col-span-1">
-        <label className={label} htmlFor="reason">Reason (optional)</label>
+        <label className={label} htmlFor="reason">{t('Reason (optional)')}</label>
         <input id="reason" name="reason" maxLength={1000} className={`${input} mt-1`} />
       </div>
       <div className="sm:col-span-2 lg:col-span-4">

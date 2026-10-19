@@ -5,6 +5,7 @@ import { MapPin } from 'lucide-react';
 import type { OnDutyOfficer } from '@criticom/api';
 import { DispatchMapModal, type MapIncident } from '@/components/dispatch-map-modal';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 /** Opens the live dispatch map for one incident. */
 export function DispatchMapButton({
@@ -17,6 +18,7 @@ export function DispatchMapButton({
   className?: string;
   title?: string;
 }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -29,8 +31,7 @@ export function DispatchMapButton({
         {children ?? (
           <>
             <MapPin className="h-3.5 w-3.5 shrink-0 text-accent" aria-hidden />
-            Live map
-          </>
+            {t('Live map')}</>
         )}
       </button>
       {open ? (

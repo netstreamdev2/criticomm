@@ -1,0 +1,6 @@
+{
+  "platforms": ["android"],
+  "android": {
+    "modules": ["za.co.ethekwini.radiokeys.RadioKeysModule"]
+  }
+}

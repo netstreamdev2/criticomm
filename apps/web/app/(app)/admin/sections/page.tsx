@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { listSections } from '@criticom/api';
 import type { Silo } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -6,6 +7,7 @@ import { requireFeaturePage } from '@/lib/features';
 import { getSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import { createSectionAction, setSectionActiveAction } from './actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Sections · HikTech' };
@@ -13,6 +15,9 @@ export const metadata = { title: 'Sections · HikTech' };
 const SILOS: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
 
 export default async function SectionsPage() {
+  // Moved to the duty office (0085).
+  redirect('/modules/sections');
+  const { t } = await requestT();
   await requireFeaturePage('web.sections');
   const { supabase } = await getSession();
   const sections = await listSections(supabase, { includeInactive: true });
@@ -20,41 +25,39 @@ export default async function SectionsPage() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Sections</h1>
+        <h1 className="text-2xl font-bold">{t('Sections')}</h1>
         <p className="text-muted-foreground">
-          The operational areas that appear beside every officer on the duty board — NR, DR, B, CH…
-        </p>
+          {t('The operational areas that appear beside every officer on the duty board — NR, DR, B, CH…')}</p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Add a section</CardTitle>
-          <CardDescription>Codes are short and permanent; retire a section rather than renaming it.</CardDescription>
+          <CardTitle>{t('Add a section')}</CardTitle>
+          <CardDescription>{t('Codes are short and permanent; retire a section rather than renaming it.')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form action={createSectionAction} className="grid gap-3 md:grid-cols-5">
-            <input name="code" required maxLength={6} placeholder="Code — e.g. NR"
+            <input name="code" required maxLength={6} placeholder={t('Code — e.g. NR')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 font-mono text-sm uppercase" />
-            <input name="name" required placeholder="Name — e.g. North Region"
+            <input name="name" required placeholder={t('Name — e.g. North Region')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm md:col-span-2" />
-            <input name="region" placeholder="Region (optional)"
+            <input name="region" placeholder={t('Region (optional)')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
             <select name="silo" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
               {SILOS.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
             <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold md:col-start-5">
-              Add
-            </button>
+              {t('Add')}</button>
           </form>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>{sections.length} sections</CardTitle>
+          <CardTitle>{t('{length} sections', { length: sections.length })}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Code', 'Name', 'Region', 'Department', 'Status', 'Action']} empty="No sections defined.">
+          <SimpleTable headers={['Code', 'Name', 'Region', 'Department', 'Status', 'Action']} empty={t('No sections defined.')}>
             {sections.map((s) => (
               <Tr key={s.id}>
                 <Td className="font-mono font-bold">{s.code}</Td>

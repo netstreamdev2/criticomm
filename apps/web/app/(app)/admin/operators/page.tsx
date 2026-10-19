@@ -5,51 +5,51 @@ import { FormSection, TextField, SelectField } from '@/components/fields';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { createOperatorAction } from './actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Operators · HikTech' };
 
 export default async function AdminOperatorsPage() {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const operators = await listSystemProfiles(supabase);
 
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Control-room operators</h1>
+        <h1 className="text-2xl font-bold">{t('Control-room operators')}</h1>
         <p className="text-muted-foreground">
-          Dispatcher and operator profiles, with NATO call signs.
-        </p>
+          {t('Dispatcher and operator profiles, with NATO call signs.')}</p>
       </header>
 
       <form action={createOperatorAction} className="space-y-4">
-        <FormSection title="Register operator">
-          <TextField name="first_name" label="First name" required />
-          <TextField name="last_name" label="Last name" required />
-          <TextField name="badge_number" label="Badge number" />
-          <TextField name="rank" label="Rank" />
-          <SelectField name="role" label="Operator role"
+        <FormSection title={t('Register operator')}>
+          <TextField name="first_name" label={t('First name')} required />
+          <TextField name="last_name" label={t('Last name')} required />
+          <TextField name="badge_number" label={t('Badge number')} />
+          <TextField name="rank" label={t('Rank')} />
+          <SelectField name="role" label={t('Operator role')}
             options={['Dispatcher', 'ControlRoom', 'IncidentLogger', 'Supervisor']} />
-          <TextField name="station" label="Station" />
-          <TextField name="platoon" label="Platoon" />
-          <TextField name="contact_number" label="Contact number" />
-          <TextField name="email" label="Email" type="email" />
-          <TextField name="emergency_contact" label="Emergency contact" />
+          <TextField name="station" label={t('Station')} />
+          <TextField name="platoon" label={t('Platoon')} />
+          <TextField name="contact_number" label={t('Contact number')} />
+          <TextField name="email" label={t('Email')} type="email" />
+          <TextField name="emergency_contact" label={t('Emergency contact')} />
         </FormSection>
         <button type="submit" className="h-10 w-full rounded-md bg-primary text-sm font-semibold">
-          Register operator (call sign auto-assigned)
-        </button>
+          {t('Register operator (call sign auto-assigned)')}</button>
       </form>
 
       <Card>
         <CardHeader>
-          <CardTitle>{operators.length} operators</CardTitle>
-          <CardDescription>Incident totals update as they close cases.</CardDescription>
+          <CardTitle>{t('{length} operators', { length: operators.length })}</CardTitle>
+          <CardDescription>{t('Incident totals update as they close cases.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['Operator', 'Call sign', 'Role', 'Station', 'Incidents handled', 'On duty', 'Last login']}
-            empty="No operator profiles."
+            empty={t('No operator profiles.')}
           >
             {operators.map((o) => (
               <Tr key={o.id}>
@@ -61,7 +61,7 @@ export default async function AdminOperatorsPage() {
                 <Td>{o.role ?? '—'}</Td>
                 <Td>{o.station ?? '—'}</Td>
                 <Td className="font-mono">{o.total_incidents_handled}</Td>
-                <Td>{o.is_on_duty ? <span className="text-severity-low-ink">Yes</span> : 'No'}</Td>
+                <Td>{o.is_on_duty ? <span className="text-severity-low-ink">{t('Yes')}</span> : 'No'}</Td>
                 <Td className="text-muted-foreground">{formatSaTime(o.last_login)}</Td>
               </Tr>
             ))}

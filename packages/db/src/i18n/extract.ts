@@ -31,12 +31,19 @@ export const SOURCE_DIRS = [
   'apps/mobile/app', 'apps/mobile/components', 'apps/mobile/lib',
   // Shared rules whose words both apps show.
   'packages/api/src/schedule',
+  // The duty office's screen names and their (i) lines.
+  'packages/api/src/office',
 ];
 
 const STRING = String.raw`(['"])((?:\\.|(?!\1)[^\\\n])*)\1`;
 /** t('…'); tx('…') for wording kept outside a screen; tNow('…') for wording made outside one (the phone's lib/translator.ts). */
 const T_CALL = new RegExp(String.raw`(?<![\w$.])(?:tx?|tNow)\(\s*${STRING}`, 'g');
 const TC_CALL = new RegExp(String.raw`(?<![\w$.])tc\(\s*${STRING}\s*,\s*(['"])((?:\\.|(?!\3)[^\\\n])*)\3`, 'g');
+/** <T s="…" /> in a component shared by the server and the browser (apps/web/components/i18n.tsx). JSX strings have no escapes. */
+const T_TAG = /<T\s+s=(?:\{\s*)?(['"])((?:(?!\1)[^\n])*)\1/g;
+/** The menu's labels: `label: '…'` in its lists, and adminLink('/path', '…'). */
+const MENU_FILES = new Set(['apps/web/lib/nav.ts', 'apps/web/components/sidebar.tsx']);
+const MENU_LABEL = new RegExp(String.raw`\blabel:\s*${STRING}|adminLink\(\s*'[^']*'\s*,\s*${STRING.replace('\\1', '\\3')}`, 'g');
 /** t(`…`) can't be read ahead of time, so it is not allowed. */
 export const TEMPLATE_CALL = /(?<![\w$.])(?:t[cx]?|tNow)\(\s*`/g;
 
@@ -144,6 +151,9 @@ export function extractSource(root: string): { entries: SourceEntry[]; templates
       const src = readFileSync(file, 'utf8');
       for (const m of src.matchAll(T_CALL)) add(unescape(m[2]!), null, rel);
       for (const m of src.matchAll(TC_CALL)) add(unescape(m[4]!), unescape(m[2]!), rel);
+      for (const m of src.matchAll(T_TAG)) add(m[2]!, null, rel);
+      // The console's menu: its labels are data, translated where the menu is built (sidebar.tsx).
+      if (MENU_FILES.has(rel)) for (const m of src.matchAll(MENU_LABEL)) add(unescape(m[2] ?? m[4]!), null, rel);
       if (TEMPLATE_CALL.test(src)) templates.push(rel);
       TEMPLATE_CALL.lastIndex = 0;
     }

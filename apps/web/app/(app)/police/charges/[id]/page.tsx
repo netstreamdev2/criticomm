@@ -6,6 +6,7 @@ import { requireFeaturePage } from '@/lib/features';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { recordTransactionAction, setChargeStatusAction } from '../../enforcement-actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Charge · HikTech' };
@@ -15,6 +16,7 @@ export default async function ChargeDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { t } = await requestT();
   await requireFeaturePage('web.enforcement');
   const { supabase } = await getSession();
   const { id } = await params;
@@ -32,29 +34,27 @@ export default async function ChargeDetailPage({
           <span className="font-mono">{charge.charge_number}</span> · {charge.accused_name}
         </h1>
         <p className="text-muted-foreground">
-          {charge.description} — {charge.severity}, opened {formatSaTime(charge.opened_at)}
-          {charge.officer_name ? ` by ${charge.officer_name}` : ''}.
-        </p>
+          {t('{description} — {severity}, opened {saTime}{value}.', { description: charge.description, severity: charge.severity, saTime: formatSaTime(charge.opened_at), value: charge.officer_name ? ` by ${charge.officer_name}` : '' })}</p>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Disposition</CardTitle>
-            <CardDescription>Status now: <b>{charge.status}</b>{charge.case_ref ? ` · case ${charge.case_ref}` : ''}</CardDescription>
+            <CardTitle>{t('Disposition')}</CardTitle>
+            <CardDescription>{t('Status now:')}{' '}<b>{charge.status}</b>{charge.case_ref ? ` · case ${charge.case_ref}` : ''}</CardDescription>
           </CardHeader>
           <CardContent>
             <form action={setChargeStatusAction} className="grid gap-3 sm:grid-cols-2">
               <input type="hidden" name="id" value={charge.id} />
               <select name="status" defaultValue={charge.status} className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-                <option>Open</option><option>Referred to Court</option><option>Withdrawn</option>
-                <option>Convicted</option><option>Acquitted</option>
+                <option>{t('Open')}</option><option>{t('Referred to Court')}</option><option>{t('Withdrawn')}</option>
+                <option>{t('Convicted')}</option><option>{t('Acquitted')}</option>
               </select>
-              <input name="court_name" defaultValue={charge.court_name ?? ''} placeholder="Court"
+              <input name="court_name" defaultValue={charge.court_name ?? ''} placeholder={t('Court')}
                 className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
               <input name="court_date" type="date" defaultValue={charge.court_date ?? ''}
                 className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-              <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Update</button>
+              <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Update')}</button>
             </form>
             {charge.notes && <p className="mt-3 text-sm text-muted-foreground">{charge.notes}</p>}
           </CardContent>
@@ -62,26 +62,26 @@ export default async function ChargeDetailPage({
 
         <Card>
           <CardHeader>
-            <CardTitle>Record a transaction</CardTitle>
-            <CardDescription>Bail, court fees, payments and refunds against this charge.</CardDescription>
+            <CardTitle>{t('Record a transaction')}</CardTitle>
+            <CardDescription>{t('Bail, court fees, payments and refunds against this charge.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <form action={recordTransactionAction} className="grid gap-3 sm:grid-cols-2">
               <input type="hidden" name="charge_id" value={charge.id} />
               <select name="tx_type" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-                <option>Bail</option><option>Court Fee</option><option>Payment</option>
-                <option>Refund</option><option>Adjustment</option>
+                <option>{t('Bail')}</option><option>{t('Court Fee')}</option><option>{t('Payment')}</option>
+                <option>{t('Refund')}</option><option>{t('Adjustment')}</option>
               </select>
-              <input name="amount" required type="number" min={0.01} step="0.01" placeholder="Amount (R)"
+              <input name="amount" required type="number" min={0.01} step="0.01" placeholder={t('Amount (R)')}
                 className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
               <select name="method" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-                <option>EFT</option><option>Cash</option><option>Card</option><option>Other</option>
+                <option>EFT</option><option>{t('Cash')}</option><option>{t('Card')}</option><option>{t('Other')}</option>
               </select>
-              <input name="reference" placeholder="Receipt / reference"
+              <input name="reference" placeholder={t('Receipt / reference')}
                 className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-              <input name="note" placeholder="Note (optional)"
+              <input name="note" placeholder={t('Note (optional)')}
                 className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-              <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Record</button>
+              <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Record')}</button>
             </form>
           </CardContent>
         </Card>
@@ -89,11 +89,11 @@ export default async function ChargeDetailPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Ledger</CardTitle>
-          <CardDescription>{txs.length} transactions · net R{total.toFixed(2)}.</CardDescription>
+          <CardTitle>{t('Ledger')}</CardTitle>
+          <CardDescription>{t('{length} transactions · net R{fixed}.', { length: txs.length, fixed: total.toFixed(2) })}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['When', 'Type', 'Amount', 'Method', 'Reference', 'By', 'Note']} empty="Nothing recorded.">
+          <SimpleTable headers={['When', 'Type', 'Amount', 'Method', 'Reference', 'By', 'Note']} empty={t('Nothing recorded.')}>
             {txs.map((t) => (
               <Tr key={t.id}>
                 <Td className="text-xs text-muted-foreground">{formatSaTime(t.recorded_at)}</Td>

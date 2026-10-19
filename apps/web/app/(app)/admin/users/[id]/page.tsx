@@ -14,6 +14,7 @@ import { cn, formatSaTime, timeAgo } from '@/lib/utils';
 import { AccountStatusForm } from '../account-status-form';
 import { ChangeRoleForm } from '../change-role-form';
 import { RequestDecision } from '../request-decision';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Account · HikTech' };
@@ -34,6 +35,7 @@ function historyLine(h: AccountHistoryEntry): string {
 }
 
 export default async function AccountPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = await requestT();
   const { id } = await params;
   const { supabase, userId, role, silo } = await getSession();
 
@@ -63,8 +65,7 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
   return (
     <div className="space-y-6">
       <Link href="/admin" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-fg">
-        <ArrowLeft className="h-4 w-4" /> Users
-      </Link>
+        <ArrowLeft className="h-4 w-4" /> {' '}{t('Users')}</Link>
 
       <header className="space-y-1">
         <div className="flex flex-wrap items-center gap-3">
@@ -87,7 +88,7 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
 
       {!active ? (
         <div className="rounded-lg border border-severity-critical/40 bg-severity-critical/10 px-4 py-3 text-sm">
-          <p className="font-semibold">Deactivated {formatSaTime(profile.deactivated_at)}</p>
+          <p className="font-semibold">{t('Deactivated {saTime}', { saTime: formatSaTime(profile.deactivated_at) })}</p>
           {profile.deactivated_reason ? <p className="mt-1 text-muted-foreground">“{profile.deactivated_reason}”</p> : null}
         </div>
       ) : null}
@@ -99,10 +100,7 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
               <Clock className="h-4 w-4 text-severity-medium-ink" /> {describeRequest(open)}
             </CardTitle>
             <CardDescription>
-              Requested by {open.requested_by_name ?? 'an administrator'} {timeAgo(open.requested_at)}
-              {requestExpired(open) ? ' · expired (older than 7 days)' : ''}. Reason: “{open.reason}”.
-              The account is frozen until this is decided.
-            </CardDescription>
+              {t('Requested by {value} {timeAgo}{value2}. Reason: “{reason}”. The account is frozen until this is decided.', { value: open.requested_by_name ?? 'an administrator', timeAgo: timeAgo(open.requested_at), value2: requestExpired(open) ? ' · expired (older than 7 days)' : '', reason: open.reason })}</CardDescription>
           </CardHeader>
           <CardContent>
             <RequestDecision requestId={open.id} userId={profile.id} mode={requestMode ?? 'view'} />
@@ -114,24 +112,21 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Role and department</CardTitle>
+              <CardTitle className="text-base">{t('Role and department')}</CardTitle>
               <CardDescription>
-                Every change needs a reason and the {confirm.kind} typed back. Changes to SystemAdmin, Admin
-                or SystemController also need a second SystemAdmin.
-              </CardDescription>
+                {t('Every change needs a reason and the {kind} typed back. Changes to SystemAdmin, Admin or SystemController also need a second SystemAdmin.', { kind: confirm.kind })}</CardDescription>
             </CardHeader>
             <CardContent>
               {isSelf ? (
-                <p className="text-sm text-muted-foreground">You cannot change your own account. Ask another administrator.</p>
+                <p className="text-sm text-muted-foreground">{t('You cannot change your own account. Ask another administrator.')}</p>
               ) : !canManage ? (
                 <p className="text-sm text-muted-foreground">
-                  Your role cannot change this account.
-                  {role === 'Admin' ? ' A department administrator manages department roles in their own department only.' : ''}
+                  {t('Your role cannot change this account.{value}', { value: role === 'Admin' ? ' A department administrator manages department roles in their own department only.' : '' })}
                 </p>
               ) : !active ? (
-                <p className="text-sm text-muted-foreground">Reactivate the account before changing its role.</p>
+                <p className="text-sm text-muted-foreground">{t('Reactivate the account before changing its role.')}</p>
               ) : open ? (
-                <p className="text-sm text-muted-foreground">Frozen while a change waits for approval.</p>
+                <p className="text-sm text-muted-foreground">{t('Frozen while a change waits for approval.')}</p>
               ) : (
                 <ChangeRoleForm
                   userId={profile.id}
@@ -149,16 +144,16 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Account status</CardTitle>
-              <CardDescription>Accounts are deactivated, never deleted, so their records stay intact.</CardDescription>
+              <CardTitle className="text-base">{t('Account status')}</CardTitle>
+              <CardDescription>{t('Accounts are deactivated, never deleted, so their records stay intact.')}</CardDescription>
             </CardHeader>
             <CardContent>
               {isSelf ? (
-                <p className="text-sm text-muted-foreground">You cannot deactivate your own account.</p>
+                <p className="text-sm text-muted-foreground">{t('You cannot deactivate your own account.')}</p>
               ) : !canManage ? (
-                <p className="text-sm text-muted-foreground">Your role cannot change this account.</p>
+                <p className="text-sm text-muted-foreground">{t('Your role cannot change this account.')}</p>
               ) : open ? (
-                <p className="text-sm text-muted-foreground">Frozen while a change waits for approval.</p>
+                <p className="text-sm text-muted-foreground">{t('Frozen while a change waits for approval.')}</p>
               ) : (
                 <AccountStatusForm
                   userId={profile.id}
@@ -174,12 +169,12 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">History</CardTitle>
-            <CardDescription>Permanent. It cannot be edited or deleted, by anyone.</CardDescription>
+            <CardTitle className="text-base">{t('History')}</CardTitle>
+            <CardDescription>{t('Permanent. It cannot be edited or deleted, by anyone.')}</CardDescription>
           </CardHeader>
           <CardContent>
             {history.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No changes recorded yet.</p>
+              <p className="text-sm text-muted-foreground">{t('No changes recorded yet.')}</p>
             ) : (
               <ol className="space-y-4">
                 {history.map((h) => (
@@ -197,8 +192,7 @@ export default async function AccountPage({ params }: { params: Promise<{ id: st
                     ) : null}
                     {h.outside_app && !h.reason && h.change !== 'baseline' ? (
                       <p className="mt-1 flex items-center gap-1.5 text-xs text-severity-medium-ink">
-                        <ShieldAlert className="h-3.5 w-3.5" /> No reason was recorded for this change.
-                      </p>
+                        <ShieldAlert className="h-3.5 w-3.5" /> {' '}{t('No reason was recorded for this change.')}</p>
                     ) : null}
                   </li>
                 ))}

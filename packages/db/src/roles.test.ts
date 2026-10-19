@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as roles from './roles.ts';
 import {
   accessChanges, ASSIGNABLE_ROLES, canAccess, confirmWordFor, needsSecondApproval, normaliseConfirm,
-  receivesLiveOperations, RETIRED_ROLES, rolesAssignableBy, ROUTE_RULES, TENANT_WIDE_ROLES,
+  receivesLiveOperations, RESPONDER_MONITOR_ACT_ROLES, RETIRED_ROLES, rolesAssignableBy, ROUTE_RULES, TENANT_WIDE_ROLES,
 } from './roles.ts';
 import type { Silo, UserRole } from './types.generated.ts';
 
@@ -387,12 +387,17 @@ test('case management opens for case managers, the desk and command, never for f
   for (const [role, silo] of [
     ['CaseManager', 'Ethekwini'], ['CaseManager', 'MetroPolice'], ['Supervisor', 'Ethekwini'],
     ['Captain', 'MetroPolice'], ['FireChief', 'MetroFire'], ['Dispatcher', 'Ethekwini'],
-    ['SystemAdmin', 'Ethekwini'], ['Viewer', 'Ethekwini'], ['IncidentLogger', 'Ethekwini'],
+    ['SystemAdmin', 'Ethekwini'], ['Viewer', 'Ethekwini'],
   ] as Array<[UserRole, Silo]>) {
     for (const path of ['/case-manager', '/case-manager/review', '/case-manager/open', '/case-manager/closed', '/case-manager/audit']) {
       assert.equal(canAccess(path, role, silo), true, `${role} opens ${path}`);
     }
   }
+  // The call logger logs calls and watches them unfold; they never review or close a case.
+  for (const path of ['/case-manager', '/case-manager/review', '/case-manager/open']) {
+    assert.equal(canAccess(path, 'IncidentLogger', 'Ethekwini'), false, `IncidentLogger must not open ${path}`);
+  }
+  assert.equal(canAccess('/incidents', 'IncidentLogger', 'Ethekwini'), true, 'the logger watches the incidents');
   for (const [role, silo] of [['Police', 'MetroPolice'], ['Firefighter', 'MetroFire'], ['Paramedic', 'Medical'], ['Staff', 'Ethekwini']] as Array<[UserRole, Silo]>) {
     assert.equal(canAccess('/case-manager', role, silo), false, `${role} must not open case management`);
   }
@@ -515,4 +520,42 @@ test('filing by radio (0075): the desk and command of the department, the contro
     assert.equal(roles.canFileByRadio(role, 'MetroPolice', 'MetroPolice'), false, role);
   }
   assert.ok(roles.PART_STATUS_ROLES.includes('SystemController'));
+});
+
+test('the police reporting pages open for police dispatch, the captain, the case manager, the police admin and system admins', () => {
+  const yes: Array<[UserRole, Silo]> = [
+    ['Dispatcher', 'MetroPolice'], ['Captain', 'MetroPolice'], ['CaseManager', 'MetroPolice'], ['CaseManager', 'Ethekwini'],
+    ['Admin', 'MetroPolice'], ['SystemAdmin', 'Ethekwini'], ['SuperAdmin', 'Ethekwini'],
+  ];
+  for (const [role, silo] of yes) {
+    for (const path of ['/police/report-centre', '/police/report-centre/management', '/police/report-centre/records']) {
+      assert.equal(canAccess(path, role, silo), true, `${role} (${silo}) opens ${path}`);
+    }
+  }
+  const no: Array<[UserRole, Silo]> = [
+    ['Dispatcher', 'MetroFire'], ['Dispatcher', 'Ethekwini'], ['Admin', 'Medical'], ['Captain', 'MetroFire'],
+    ['Police', 'MetroPolice'], ['IncidentLogger', 'Ethekwini'], ['Viewer', 'Ethekwini'], ['ControlRoom', 'Ethekwini'],
+    ['FireChief', 'MetroFire'], ['CaseManager', 'MetroFire'],
+  ];
+  for (const [role, silo] of no) {
+    assert.equal(canAccess('/police/report-centre', role, silo), false, `${role} (${silo}) must not open the police reports`);
+  }
+});
+
+test('the Active Responders terminal: the desks, command seat, admins and the viewer; not the field or the call logger', () => {
+  const yes: Array<[UserRole, Silo]> = [
+    ['Dispatcher', 'MetroPolice'], ['Dispatcher', 'Ethekwini'], ['ControlRoom', 'Ethekwini'],
+    ['Supervisor', 'MetroFire'], ['Viewer', 'Ethekwini'], ['Admin', 'MetroPolice'], ['Admin', 'Medical'],
+    ['SystemAdmin', 'Ethekwini'], ['SuperAdmin', 'Ethekwini'], ['SystemController', 'Ethekwini'],
+  ];
+  for (const [role, silo] of yes) assert.equal(canAccess('/responder/monitor', role, silo), true, `${role} (${silo}) opens the terminal`);
+  const no: Array<[UserRole, Silo]> = [
+    ['Police', 'MetroPolice'], ['Firefighter', 'MetroFire'], ['Paramedic', 'Medical'], ['Captain', 'MetroPolice'],
+    ['FireChief', 'MetroFire'], ['IncidentLogger', 'Ethekwini'], ['CaseManager', 'Ethekwini'], ['Doctor', 'Medical'],
+  ];
+  for (const [role, silo] of no) assert.equal(canAccess('/responder/monitor', role, silo), false, `${role} (${silo}) must not open the terminal`);
+  // My calls is unchanged: the field, and admins.
+  assert.equal(canAccess('/responder', 'Police', 'MetroPolice'), true);
+  assert.equal(canAccess('/responder', 'Dispatcher', 'Ethekwini'), false);
+  assert.equal(RESPONDER_MONITOR_ACT_ROLES.includes('Viewer'), false, 'the viewer watches; they do not act');
 });

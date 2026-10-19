@@ -3,9 +3,11 @@ import { canManageRoster, departmentName, type Silo, type UserRole } from '@crit
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getServerSupabase } from '@/lib/supabase';
+import { requestT } from '@/lib/i18n';
 
 /** The last 30 days of shifts in the department: who started on time, late, or not at all. */
 export async function Punctuality({ viewerRole: role, silo }: { viewerRole: UserRole; silo: Silo }) {
+  const { t } = await requestT();
   if (!canManageRoster(role, silo)) return null;
   const supabase = await getServerSupabase();
   const to = saDay();
@@ -15,11 +17,11 @@ export async function Punctuality({ viewerRole: role, silo }: { viewerRole: User
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Punctuality · last 30 days</CardTitle>
-        <CardDescription>{departmentName(silo)} · issued shifts that have started, and how each was started.</CardDescription>
+        <CardTitle>{t('Punctuality · last 30 days')}</CardTitle>
+        <CardDescription>{t('{departmentName} · issued shifts that have started, and how each was started.', { departmentName: departmentName(silo) })}</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
-        <SimpleTable headers={['Member', 'Shifts', 'Started', 'Late', 'Minutes late', 'Not started', 'Excused', 'Sick', 'Absent']} empty="No shifts in the last 30 days.">
+        <SimpleTable headers={['Member', 'Shifts', 'Started', 'Late', 'Minutes late', 'Not started', 'Excused', 'Sick', 'Absent']} empty={t('No shifts in the last 30 days.')}>
           {sorted.map((r) => (
             <Tr key={r.user_id}>
               <Td className="font-medium">{r.user_name}</Td>

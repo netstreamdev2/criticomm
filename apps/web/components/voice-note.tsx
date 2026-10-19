@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useT } from '@/components/i18n';
 
 /** The type a browser plays a voice note as, from its file name. */
 function playableType(filename: string, stored: string | null) {
@@ -25,6 +26,7 @@ const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60))
  * with the right type, every note plays and shows its real length.
  */
 export function VoiceNote({ url, filename, contentType }: { url: string; filename: string; contentType: string | null }) {
+  const { t } = useT();
   const [src, setSrc] = useState<string | null>(null);
   const [seconds, setSeconds] = useState<number | null>(null);
   const [failed, setFailed] = useState(false);
@@ -52,8 +54,7 @@ export function VoiceNote({ url, filename, contentType }: { url: string; filenam
   if (failed) {
     return (
       <a href={url} target="_blank" rel="noreferrer" className="text-xs text-accent hover:underline">
-        Could not load the voice note here: open it
-      </a>
+        {t('Could not load the voice note here: open it')}</a>
     );
   }
   return (

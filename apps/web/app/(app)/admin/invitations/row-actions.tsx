@@ -9,6 +9,7 @@ import { useToast } from '@/components/toast';
 import type { ActivationSlip as Slip } from '@/lib/onboarding/server';
 import { cancelInvitationAction, sendInvitationAction } from './actions';
 import { ActivationSlip, DevLink } from './slip';
+import { useT } from '@/components/i18n';
 
 /**
  * What an administrator can still do with one invitation: send it (or send
@@ -34,6 +35,7 @@ export function InvitationRowActions({
   /** For a closed invitation: start a new one for the same person. */
   reinviteHref: string | null;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -80,10 +82,10 @@ export function InvitationRowActions({
   if (confirming === 'send') {
     return (
       <div className="ml-auto max-w-[17rem] space-y-2 text-left text-xs">
-        <p>Send a new {thing}? The one {firstName} has stops working.</p>
+        <p>{t('Send a new {thing}? The one {firstName} has stops working.', { thing, firstName })}</p>
         <div className="flex gap-1.5">
           <Button size="sm" onClick={doSend} disabled={pending}>{sendLabel}</Button>
-          <Button size="sm" variant="ghost" onClick={() => setConfirming(null)} disabled={pending}>Keep it</Button>
+          <Button size="sm" variant="ghost" onClick={() => setConfirming(null)} disabled={pending}>{t('Keep it')}</Button>
         </div>
       </div>
     );
@@ -93,12 +95,12 @@ export function InvitationRowActions({
     return (
       <div className="ml-auto max-w-[17rem] space-y-2 text-left text-xs">
         <p>{withdraw ? 'Withdraw this request? Nothing has been sent.' : `Cancel for good? Any ${thing} already sent stops working.`}</p>
-        <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" maxLength={300} className="h-8 text-xs" aria-label="Note" />
+        <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder={t('Note (optional)')} maxLength={300} className="h-8 text-xs" aria-label={t('Note')} />
         <div className="flex gap-1.5">
           <Button size="sm" variant="outline" className="border-severity-critical/50 text-severity-critical-ink" onClick={doCancel} disabled={pending}>
             {withdraw ? 'Withdraw' : 'Cancel invitation'}
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => setConfirming(null)} disabled={pending}>Keep it</Button>
+          <Button size="sm" variant="ghost" onClick={() => setConfirming(null)} disabled={pending}>{t('Keep it')}</Button>
         </div>
         {error ? <p role="alert" className="text-severity-critical-ink">{error}</p> : null}
       </div>
@@ -109,7 +111,7 @@ export function InvitationRowActions({
     <div className="flex flex-col items-end gap-1">
       <div className="flex flex-wrap justify-end gap-1.5">
         {awaitingApproval && !mine && approver ? (
-          <Button asChild size="sm" variant="outline"><Link href="/admin/approvals">Review</Link></Button>
+          <Button asChild size="sm" variant="outline"><Link href="/admin/approvals">{t('Review')}</Link></Button>
         ) : null}
         {send ? (
           <Button size="sm" variant="outline" disabled={pending} onClick={() => (firstSend ? doSend() : setConfirming('send'))}>
@@ -122,7 +124,7 @@ export function InvitationRowActions({
           </Button>
         ) : null}
         {reinviteHref ? (
-          <Button asChild size="sm" variant="ghost"><Link href={reinviteHref}>Invite again</Link></Button>
+          <Button asChild size="sm" variant="ghost"><Link href={reinviteHref}>{t('Invite again')}</Link></Button>
         ) : null}
       </div>
       {error ? <p role="alert" className="max-w-[17rem] text-right text-xs text-severity-critical-ink">{error}</p> : null}

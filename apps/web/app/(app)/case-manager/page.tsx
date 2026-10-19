@@ -9,6 +9,7 @@ import { IncidentLive } from '@/components/incident-live';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { CaseLink, OutcomeChip, SeverityPill, departmentLabel, officerOf, reportLabel } from './case-ui';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Case Management · HikTech' };
@@ -40,6 +41,7 @@ function Tile({ label, value, sub, tone, href }: { label: string; value: string 
 }
 
 export default async function CaseDashboardPage() {
+  const { t } = await requestT();
   const { supabase, silo } = await getSession();
   const [summary, review, live, closed] = await Promise.all([
     getCaseDashboard(supabase),
@@ -76,23 +78,20 @@ export default async function CaseDashboardPage() {
 
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">Case Management · {scope}</p>
-          <h1 className="mt-1 text-2xl font-bold">Case dashboard</h1>
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary">{t('Case Management · {scope}', { scope })}</p>
+          <h1 className="mt-1 text-2xl font-bold">{t('Case dashboard')}</h1>
           <p className="text-sm text-muted-foreground">
-            A call comes here once its officer files the report. Read the case file, then close it.
-          </p>
+            {t('A call comes here once its officer files the report. Read the case file, then close it.')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href="/case-manager/review" className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold">
-            <FileCheck className="h-4 w-4" aria-hidden /> Review queue ({summary.awaitingReview})
-          </Link>
+            <FileCheck className="h-4 w-4" aria-hidden /> {' '}{t('Review queue ({awaitingReview})', { awaitingReview: summary.awaitingReview })}</Link>
           <Link href="/case-manager/audit" className="inline-flex items-center gap-2 rounded-md border border-border bg-bg-soft px-4 py-2 text-sm hover:bg-muted">
-            <History className="h-4 w-4" aria-hidden /> Audit trail
-          </Link>
+            <History className="h-4 w-4" aria-hidden /> {' '}{t('Audit trail')}</Link>
         </div>
       </header>
 
-      <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6" aria-label="Case figures">
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6" aria-label={t('Case figures')}>
         {tiles.map((t) => <Tile key={t.label} {...t} />)}
       </section>
 
@@ -101,29 +100,28 @@ export default async function CaseDashboardPage() {
           <CardHeader>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <CardTitle>Awaiting review</CardTitle>
-                <CardDescription>Newest first. Open one to read its report and close it.</CardDescription>
+                <CardTitle>{t('Awaiting review')}</CardTitle>
+                <CardDescription>{t('Newest first. Open one to read its report and close it.')}</CardDescription>
               </div>
               <Link href="/case-manager/review" className="inline-flex shrink-0 items-center gap-1 text-sm text-accent hover:underline">
-                All {summary.awaitingReview} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                {t('All {awaitingReview}', { awaitingReview: summary.awaitingReview })}{' '}<ArrowRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Incident', 'Type', 'Report', 'Waiting', '']} empty="Nothing waiting. Every filed report has been reviewed.">
+            <SimpleTable headers={['Incident', 'Type', 'Report', 'Waiting', '']} empty={t('Nothing waiting. Every filed report has been reviewed.')}>
               {review.rows.map((r) => (
                 <Tr key={r.id}>
                   <Td><CaseLink row={r} review /><p className="text-xs text-muted-foreground">{departmentLabel(r)}</p></Td>
                   <Td><span className="mr-2">{r.incident_type}</span><SeverityPill severity={r.incident_severity} /></Td>
                   <Td>
-                    {reportLabel(r.report) ?? <span className="text-severity-medium-ink">No report on file</span>}
+                    {reportLabel(r.report) ?? <span className="text-severity-medium-ink">{t('No report on file')}</span>}
                     <p className="text-xs text-muted-foreground">{r.report?.officer ?? r.responding_officer ?? '—'}</p>
                   </Td>
                   <Td className="whitespace-nowrap font-semibold">{formatElapsed(minutesBetween(resolvedAtOf(r), now))}</Td>
                   <Td>
                     <Link href={`/incidents/${r.id}#case-review`} className="rounded-md bg-primary/15 px-3 py-1.5 text-xs font-semibold hover:bg-primary/25">
-                      Review
-                    </Link>
+                      {t('Review')}</Link>
                   </Td>
                 </Tr>
               ))}
@@ -133,8 +131,8 @@ export default async function CaseDashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>By department</CardTitle>
-            <CardDescription>Waiting for review, and still live.</CardDescription>
+            <CardTitle>{t('By department')}</CardTitle>
+            <CardDescription>{t('Waiting for review, and still live.')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {summary.byDepartment.map((d) => (
@@ -142,11 +140,9 @@ export default async function CaseDashboardPage() {
                 <span className="font-medium">{d.label}</span>
                 <span className="flex items-center gap-3 text-xs">
                   <Link href={`/case-manager/review?department=${d.department}`} className={d.review ? 'font-semibold text-accent hover:underline' : 'text-muted-foreground hover:underline'}>
-                    {d.review} to review
-                  </Link>
+                    {t('{review} to review', { review: d.review })}</Link>
                   <Link href={`/case-manager/open?department=${d.department}`} className="text-muted-foreground hover:underline">
-                    {d.live} live
-                  </Link>
+                    {t('{live} live', { live: d.live })}</Link>
                 </span>
               </div>
             ))}
@@ -159,16 +155,16 @@ export default async function CaseDashboardPage() {
           <CardHeader>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <CardTitle>Live calls</CardTitle>
-                <CardDescription>Still being worked; newest first.</CardDescription>
+                <CardTitle>{t('Live calls')}</CardTitle>
+                <CardDescription>{t('Still being worked; newest first.')}</CardDescription>
               </div>
               <Link href="/case-manager/open" className="inline-flex shrink-0 items-center gap-1 text-sm text-accent hover:underline">
-                All {summary.live} <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                {t('All {live}', { live: summary.live })}{' '}<ArrowRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Incident', 'Status', 'Officer', 'Age']} empty="No live calls.">
+            <SimpleTable headers={['Incident', 'Status', 'Officer', 'Age']} empty={t('No live calls.')}>
               {live.rows.map((r) => (
                 <Tr key={r.id}>
                   <Td><CaseLink row={r} /><p className="text-xs text-muted-foreground">{r.incident_type}</p></Td>
@@ -185,16 +181,16 @@ export default async function CaseDashboardPage() {
           <CardHeader>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <CardTitle>Recently closed</CardTitle>
-                <CardDescription>Who closed each case, and how.</CardDescription>
+                <CardTitle>{t('Recently closed')}</CardTitle>
+                <CardDescription>{t('Who closed each case, and how.')}</CardDescription>
               </div>
               <Link href="/case-manager/closed" className="inline-flex shrink-0 items-center gap-1 text-sm text-accent hover:underline">
-                Closed cases <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+                {t('Closed cases')}{' '}<ArrowRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
             </div>
           </CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Incident', 'Outcome', 'Closed by', 'Closed']} empty="Nothing closed yet.">
+            <SimpleTable headers={['Incident', 'Outcome', 'Closed by', 'Closed']} empty={t('Nothing closed yet.')}>
               {closed.rows.map((r) => (
                 <Tr key={r.id}>
                   <Td><CaseLink row={r} /><p className="text-xs text-muted-foreground">{r.incident_type}</p></Td>

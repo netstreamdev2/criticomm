@@ -4,6 +4,7 @@ import { OpsMap } from '@/components/ops-map/ops-map';
 import { getFeatures } from '@/lib/features';
 import { availableLayers, defaultLayers } from '@/lib/ops-map/layers';
 import { getSession, siloFilter } from '@/lib/session';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Live Map · HikTech' };
@@ -19,6 +20,7 @@ export default async function LiveMapPage({
 }: {
   searchParams: Promise<{ wall?: string; zone?: string; incident?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, silo, role, userId } = await getSession();
   const { wall, zone, incident } = await searchParams;
   const sf = siloFilter(silo);
@@ -31,11 +33,9 @@ export default async function LiveMapPage({
   return (
     <div className="space-y-3">
       <header>
-        <h1 className="text-2xl font-bold">Live operations map</h1>
+        <h1 className="text-2xl font-bold">{t('Live operations map')}</h1>
         <p className="text-muted-foreground">
-          Calls, officers, perimeters, crime zones, hydrants and weather, live. Choose what shows under
-          {' '}<strong>Layers</strong>; <strong>Full screen</strong> (or F) turns it into a wall display.
-          {canDrawMapZones(role) && ' Draw a cordon or zone with the tools on the right of the map.'}
+          {t('Calls, officers, perimeters, crime zones, hydrants and weather, live. Choose what shows under')}{' '}<strong>{t('Layers')}</strong>; <strong>{t('Full screen')}</strong> {' '}{t('(or F) turns it into a wall display.')}{canDrawMapZones(role) && ' Draw a cordon or zone with the tools on the right of the map.'}
         </p>
       </header>
 

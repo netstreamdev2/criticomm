@@ -6,6 +6,7 @@ import type { MapZoneShape, Silo } from '@criticom/db';
 import { SHAPE_LABEL, describeShape, roleWords, zoneKind } from '@/lib/ops-map/zones';
 import { cn, timeAgo } from '@/lib/utils';
 import type { DrawSnapshot } from './draw-controller';
+import { useT } from '@/components/i18n';
 
 /** The drawing toolbar, the instructions while placing, and the list of zones in force. */
 
@@ -18,11 +19,11 @@ export function DrawToolbar({ active, onPick, disabled }: {
   onPick: (shape: MapZoneShape) => void;
   disabled?: string | null;
 }) {
+  const { t } = useT();
   return (
     <div className="ops-map-chrome ops-glass pointer-events-auto absolute right-3 top-16 z-[5] flex flex-col gap-1 rounded-xl p-1.5">
       <p className="flex items-center justify-center gap-1 px-1 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">
-        <PencilRuler className="h-3 w-3" /> Draw
-      </p>
+        <PencilRuler className="h-3 w-3" /> {' '}{t('Draw')}</p>
       {(['polygon', 'circle', 'line', 'point'] as const).map((shape) => {
         const Icon = SHAPE_ICON[shape];
         return (
@@ -68,6 +69,7 @@ export function PlacingBar({ snapshot, onFinish, onUndo, onCancel }: {
   onUndo: () => void;
   onCancel: () => void;
 }) {
+  const { t } = useT();
   // Measure with the pointer included, so the figures move as you draw.
   const preview = snapshot.cursor && (snapshot.shape === 'polygon' || snapshot.shape === 'line') && snapshot.points.length
     ? { ...snapshot, points: [...snapshot.points, snapshot.cursor] }
@@ -85,17 +87,14 @@ export function PlacingBar({ snapshot, onFinish, onUndo, onCancel }: {
           <span className="w-full font-mono text-xs tabular-nums text-sky-200 sm:w-auto">{describeShape(preview)}</span>
         )}
         <span className="flex gap-1.5">
-          <button type="button" onClick={onUndo} disabled={!snapshot.points.length} title="Backspace" className="ops-btn bg-white/10 hover:bg-white/20 disabled:opacity-40">
-            <Undo2 className="h-3.5 w-3.5" /> Undo
-          </button>
+          <button type="button" onClick={onUndo} disabled={!snapshot.points.length} title={t('Backspace')} className="ops-btn bg-white/10 hover:bg-white/20 disabled:opacity-40">
+            <Undo2 className="h-3.5 w-3.5" /> {' '}{t('Undo')}</button>
           {canFinish && (
-            <button type="button" onClick={onFinish} title="Enter" className="ops-btn bg-sky-500 text-slate-950 hover:bg-sky-400">
-              <Check className="h-3.5 w-3.5" /> Finish
-            </button>
+            <button type="button" onClick={onFinish} title={t('Enter')} className="ops-btn bg-sky-500 text-slate-950 hover:bg-sky-400">
+              <Check className="h-3.5 w-3.5" /> {' '}{t('Finish')}</button>
           )}
-          <button type="button" onClick={onCancel} title="Esc" className="ops-btn bg-white/10 hover:bg-white/20">
-            <X className="h-3.5 w-3.5" /> Cancel
-          </button>
+          <button type="button" onClick={onCancel} title={t('Esc')} className="ops-btn bg-white/10 hover:bg-white/20">
+            <X className="h-3.5 w-3.5" /> {' '}{t('Cancel')}</button>
         </span>
       </div>
     </div>
@@ -110,6 +109,7 @@ export function ZonesList({ zones, meId, deptName, unavailable, onPick, onClose 
   onPick: (id: string) => void;
   onClose: () => void;
 }) {
+  const { t } = useT();
   const shared = zones.filter((z) => z.visibility !== 'private');
   const drafts = zones.filter((z) => z.visibility === 'private' && z.created_by === meId);
   const row = (z: LiveMapZone) => {
@@ -135,24 +135,24 @@ export function ZonesList({ zones, meId, deptName, unavailable, onPick, onClose 
   return (
     <div className="ops-map-chrome ops-glass absolute left-3 top-16 z-[6] max-h-[calc(100%-5.5rem)] w-80 max-w-[calc(100%-1.5rem)] overflow-y-auto rounded-xl p-3 text-slate-100 shadow-2xl">
       <div className="mb-2 flex items-center justify-between">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-300">Perimeters & zones</p>
-        <button type="button" onClick={onClose} aria-label="Close" className="text-slate-300 hover:text-white">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-300">{t('Perimeters & zones')}</p>
+        <button type="button" onClick={onClose} aria-label={t('Close')} className="text-slate-300 hover:text-white">
           <X className="h-4 w-4" />
         </button>
       </div>
       {unavailable && <p className="mb-2 text-xs text-amber-300">{unavailable}</p>}
       {!unavailable && shared.length === 0 && drafts.length === 0 && (
-        <p className="text-xs text-slate-400">No perimeters or zones are in force.</p>
+        <p className="text-xs text-slate-400">{t('No perimeters or zones are in force.')}</p>
       )}
       {shared.length > 0 && (
         <>
-          <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-sky-300">In force ({shared.length})</p>
+          <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-sky-300">{t('In force ({length})', { length: shared.length })}</p>
           <ul className="mb-2 space-y-0.5">{shared.map(row)}</ul>
         </>
       )}
       {drafts.length > 0 && (
         <>
-          <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">My drafts — only me ({drafts.length})</p>
+          <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('My drafts — only me ({length})', { length: drafts.length })}</p>
           <ul className="space-y-0.5">{drafts.map(row)}</ul>
         </>
       )}

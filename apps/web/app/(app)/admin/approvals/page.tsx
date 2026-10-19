@@ -9,6 +9,7 @@ import { SimpleTable, Td, Tr } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { cn, formatSaTime, timeAgo } from '@/lib/utils';
 import { RequestDecision } from '../users/request-decision';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Approvals · HikTech' };
@@ -31,6 +32,7 @@ const STATUS_TONE: Record<string, string> = {
  * approves or rejects it (migration 0048).
  */
 export default async function ApprovalsPage() {
+  const { t } = await requestT();
   const { supabase, userId, role } = await getSession();
   if (role !== 'SystemAdmin' && role !== 'SuperAdmin') redirect('/admin');
 
@@ -53,17 +55,15 @@ export default async function ApprovalsPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <Link href="/admin" className="text-sm text-muted-foreground hover:text-fg">← Users</Link>
-        <h1 className="text-2xl font-bold">Approvals</h1>
+        <Link href="/admin" className="text-sm text-muted-foreground hover:text-fg">{t('← Users')}</Link>
+        <h1 className="text-2xl font-bold">{t('Approvals')}</h1>
         <p className="text-muted-foreground">
-          Changes to powerful roles wait here for a second SystemAdmin. You cannot decide a request you made,
-          or one about your own account. Requests close after {ACCOUNT_REQUEST_DAYS} days.
-        </p>
+          {t('Changes to powerful roles wait here for a second SystemAdmin. You cannot decide a request you made, or one about your own account. Requests close after {value} days.', { value: ACCOUNT_REQUEST_DAYS })}</p>
       </header>
 
       {open.length === 0 ? (
         <Card>
-          <CardContent className="p-6 text-sm text-muted-foreground">Nothing is waiting for approval.</CardContent>
+          <CardContent className="p-6 text-sm text-muted-foreground">{t('Nothing is waiting for approval.')}</CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
@@ -78,14 +78,13 @@ export default async function ApprovalsPage() {
                     <Link href={subjectHref(req)} className="hover:underline">{describeRequest(req)}</Link>
                   </CardTitle>
                   <CardDescription>
-                    Requested by {req.requested_by_name ?? 'an administrator'} {timeAgo(req.requested_at)}
-                    {expired ? ' · expired: deciding it will close it' : ''}
+                    {t('Requested by {value} {timeAgo}{value2}', { value: req.requested_by_name ?? 'an administrator', timeAgo: timeAgo(req.requested_at), value2: expired ? ' · expired: deciding it will close it' : '' })}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="rounded-md bg-bg-soft px-3 py-2 text-sm">“{req.reason}”</p>
                   {req.invitation_id && channelOf.get(req.invitation_id) === 'code' ? (
-                    <p className="text-sm text-muted-foreground">Once approved, {req.requested_by_name ?? 'the requester'} prints the activation slip and hands it over in person.</p>
+                    <p className="text-sm text-muted-foreground">{t('Once approved, {value} prints the activation slip and hands it over in person.', { value: req.requested_by_name ?? 'the requester' })}</p>
                   ) : null}
                   <RequestDecision requestId={req.id} userId={req.user_id ?? ''} mode={mode} approveLabel={approveLabel(req)} />
                 </CardContent>
@@ -97,10 +96,10 @@ export default async function ApprovalsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Recently decided</CardTitle>
+          <CardTitle className="text-base">{t('Recently decided')}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Request', 'Asked by', 'Outcome', 'Decided by', 'Note', 'When']} empty="Nothing decided yet.">
+          <SimpleTable headers={['Request', 'Asked by', 'Outcome', 'Decided by', 'Note', 'When']} empty={t('Nothing decided yet.')}>
             {decided.map((req) => (
               <Tr key={req.id}>
                 <Td>

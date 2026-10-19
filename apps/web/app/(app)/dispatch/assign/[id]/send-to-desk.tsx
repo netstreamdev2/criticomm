@@ -6,6 +6,7 @@ import { Send } from 'lucide-react';
 import { DEPARTMENT_NAMES, type Silo } from '@criticom/db';
 import { useToast } from '@/components/toast';
 import { sendToDeskAction } from '../../actions';
+import { useT } from '@/components/i18n';
 
 /**
  * Bring another department in: the call goes to that department's dispatch
@@ -13,6 +14,7 @@ import { sendToDeskAction } from '../../actions';
  * sent to stays on its record.
  */
 export function SendToDesk({ incidentId, sentTo }: { incidentId: string; sentTo: Silo[] }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -32,7 +34,7 @@ export function SendToDesk({ incidentId, sentTo }: { incidentId: string; sentTo:
 
   return (
     <div>
-      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Also send to</p>
+      <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('Also send to')}</p>
       <div className="flex flex-wrap gap-2">
         {others.map((s) => (
           <button
@@ -42,8 +44,7 @@ export function SendToDesk({ incidentId, sentTo }: { incidentId: string; sentTo:
             onClick={() => send(s)}
             className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-bg-soft px-3 text-xs font-semibold hover:border-accent/50 disabled:opacity-60"
           >
-            <Send className="h-3.5 w-3.5" aria-hidden /> {DEPARTMENT_NAMES[s]} desk
-          </button>
+            <Send className="h-3.5 w-3.5" aria-hidden /> {' '}{t('{value} desk', { value: DEPARTMENT_NAMES[s] })}</button>
         ))}
       </div>
       {error ? <p role="alert" className="mt-1.5 text-xs text-severity-critical-ink">{error}</p> : null}

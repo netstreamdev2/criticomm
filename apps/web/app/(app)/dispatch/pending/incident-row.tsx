@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useT } from '@/components/i18n';
 
 /**
  * Clickable queue row — opens the incident's full lifecycle view.
@@ -14,6 +15,7 @@ export function IncidentRow({
   incidentId: string;
   children: React.ReactNode;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const open = () => router.push(`/incidents/${incidentId}`);
 
@@ -28,7 +30,7 @@ export function IncidentRow({
       }}
       tabIndex={0}
       role="link"
-      aria-label="View incident lifecycle"
+      aria-label={t('View incident lifecycle')}
       className="cursor-pointer border-b border-border/50 transition-colors hover:bg-muted/40 focus-visible:bg-muted/40"
     >
       {children}

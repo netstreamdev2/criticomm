@@ -28,6 +28,24 @@ export function AlertsBell({ count }: { count: number }) {
 }
 
 /** Header search, left of the bell: opens Incidents with the search box ready. */
+/** HikTech Talk, one tap from every tab (0083). */
+export function HeaderTalk() {
+  const { t } = useT();
+  const styles = useStyles();
+  const router = useRouter();
+  return (
+    <Pressable
+      onPress={() => router.push('/talk')}
+      hitSlop={10}
+      accessibilityRole="button"
+      accessibilityLabel={t('Talk')}
+      style={({ pressed }) => [styles.search, pressed && { opacity: 0.7 }]}
+    >
+      <Ionicons name="radio-outline" size={22} color={colors.text} />
+    </Pressable>
+  );
+}
+
 export function HeaderSearch() {
   const { t } = useT();
   const styles = useStyles();

@@ -6,6 +6,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession, siloFilter } from '@/lib/session';
 import { IncidentLive } from '@/components/incident-live';
 import { timeAgo } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Incidents · HikTech' };
@@ -21,6 +22,7 @@ export default async function IncidentsPage({
 }: {
   searchParams: Promise<{ q?: string; status?: string; silo?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, silo } = await getSession();
   const params = await searchParams;
 
@@ -35,47 +37,47 @@ export default async function IncidentsPage({
       {/* Status changes from the field re-render the list. */}
       <IncidentLive />
       <header>
-        <h1 className="text-2xl font-bold">All incidents</h1>
-        <p className="text-muted-foreground">Every logged call across your visible silos.</p>
+        <h1 className="text-2xl font-bold">{t('All incidents')}</h1>
+        <p className="text-muted-foreground">{t('Every logged call across your visible silos.')}</p>
       </header>
 
       <form method="get" className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="text-xs uppercase text-muted-foreground" htmlFor="q">Search</label>
+          <label className="text-xs uppercase text-muted-foreground" htmlFor="q">{t('Search')}</label>
           <input
             id="q" name="q" defaultValue={params.q}
-            placeholder="Incident #, caller, address…"
+            placeholder={t('Incident #, caller, address…')}
             className="mt-1 block h-10 w-64 rounded-md border border-border bg-bg-soft px-3 text-sm"
           />
         </div>
         <div>
-          <label className="text-xs uppercase text-muted-foreground" htmlFor="status">Status</label>
+          <label className="text-xs uppercase text-muted-foreground" htmlFor="status">{t('Status')}</label>
           <select id="status" name="status" defaultValue={params.status ?? ''} className="mt-1 block h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-            <option value="">All</option>
+            <option value="">{t('All')}</option>
             {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         {silo === 'Ethekwini' && (
           <div>
-            <label className="text-xs uppercase text-muted-foreground" htmlFor="silo">Silo</label>
+            <label className="text-xs uppercase text-muted-foreground" htmlFor="silo">{t('Silo')}</label>
             <select id="silo" name="silo" defaultValue={params.silo ?? ''} className="mt-1 block h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-              <option value="">All</option>
+              <option value="">{t('All')}</option>
               {SILOS.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
         )}
-        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Filter</button>
+        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Filter')}</button>
       </form>
 
       <Card>
         <CardHeader>
-          <CardTitle>{incidents.length} incidents</CardTitle>
-          <CardDescription>Click a row for the full lifecycle.</CardDescription>
+          <CardTitle>{t('{length} incidents', { length: incidents.length })}</CardTitle>
+          <CardDescription>{t('Click a row for the full lifecycle.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['Incident #', 'Silo', 'Severity', 'Status', 'Type', 'Location', 'Logged', '']}
-            empty="No incidents match your filters."
+            empty={t('No incidents match your filters.')}
           >
             {incidents.map((i) => (
               <Tr key={i.id}>
@@ -87,7 +89,7 @@ export default async function IncidentsPage({
                 <Td className="max-w-[260px] truncate">{i.location_address}</Td>
                 <Td className="text-muted-foreground">{timeAgo(i.incident_created_at)}</Td>
                 <Td>
-                  <Link href={`/incidents/${i.id}`} className="text-accent hover:underline">Open</Link>
+                  <Link href={`/incidents/${i.id}`} className="text-accent hover:underline">{t('Open')}</Link>
                 </Td>
               </Tr>
             ))}

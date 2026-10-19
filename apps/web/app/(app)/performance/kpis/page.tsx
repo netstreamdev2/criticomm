@@ -6,6 +6,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { ADMIN_ROLES } from '@criticom/db';
 import { PerfNav } from '../perf-nav';
 import { addKpiAction, deactivateKpiAction } from '../actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'KPI Config · HikTech' };
@@ -15,6 +16,7 @@ export default async function KpiConfigPage({
 }: {
   searchParams: Promise<{ year?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const params = await searchParams;
   const cycleYear = Number(params.year) || cycleYearFor();
@@ -27,32 +29,31 @@ export default async function KpiConfigPage({
     <div className="space-y-6">
       <PerfNav active="/performance/kpis" />
       <header>
-        <h1 className="text-2xl font-bold">Performance KPI configuration</h1>
+        <h1 className="text-2xl font-bold">{t('Performance KPI configuration')}</h1>
         <p className="text-muted-foreground">
-          Cycle {cycleLabel(cycleYear)} · total weight {totalWeight}%. Add or retire KPIs without a code change.
-        </p>
+          {t('Cycle {cycleLabel} · total weight {totalWeight}%. Add or retire KPIs without a code change.', { cycleLabel: cycleLabel(cycleYear), totalWeight })}</p>
       </header>
 
       {canManage && (
         <form action={addKpiAction} className="space-y-4">
           <input type="hidden" name="cycle_year" value={cycleYear} />
-          <FormSection title="Add KPI">
-            <TextField name="title" label="Title" required />
-            <TextField name="weight" label="Weight (%)" type="number" defaultValue={10} />
-            <TextField name="department" label="Department (blank = all)" />
-            <TextAreaField name="description" label="Description" className="sm:col-span-2 lg:col-span-3" />
+          <FormSection title={t('Add KPI')}>
+            <TextField name="title" label={t('Title')} required />
+            <TextField name="weight" label={t('Weight (%)')} type="number" defaultValue={10} />
+            <TextField name="department" label={t('Department (blank = all)')} />
+            <TextAreaField name="description" label={t('Description')} className="sm:col-span-2 lg:col-span-3" />
           </FormSection>
-          <button type="submit" className="h-10 w-full rounded-md bg-primary text-sm font-semibold">Add KPI</button>
+          <button type="submit" className="h-10 w-full rounded-md bg-primary text-sm font-semibold">{t('Add KPI')}</button>
         </form>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>KPIs ({kpis.length})</CardTitle>
-          <CardDescription>Applied to appraisal plans this cycle.</CardDescription>
+          <CardTitle>{t('KPIs ({length})', { length: kpis.length })}</CardTitle>
+          <CardDescription>{t('Applied to appraisal plans this cycle.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Title', 'Weight', 'Department', 'Description', canManage ? '' : '']} empty="No KPIs configured for this cycle.">
+          <SimpleTable headers={['Title', 'Weight', 'Department', 'Description', canManage ? '' : '']} empty={t('No KPIs configured for this cycle.')}>
             {kpis.map((k) => (
               <Tr key={k.id}>
                 <Td className="font-semibold">{k.title}</Td>
@@ -63,7 +64,7 @@ export default async function KpiConfigPage({
                   {canManage && (
                     <form action={deactivateKpiAction}>
                       <input type="hidden" name="id" value={k.id} />
-                      <button type="submit" className="rounded bg-muted px-2 py-1 text-xs hover:bg-muted/70">Retire</button>
+                      <button type="submit" className="rounded bg-muted px-2 py-1 text-xs hover:bg-muted/70">{t('Retire')}</button>
                     </form>
                   )}
                 </Td>

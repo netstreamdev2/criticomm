@@ -12,6 +12,7 @@ import { ArmouryTable, type ArmouryFilter } from './armoury-table';
 import { blankFirearm } from './blank';
 import { FirearmForm } from './firearm-form';
 import { armouryRolesFor } from '@/lib/assets/roles';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Armoury · HikTech' };
@@ -24,6 +25,7 @@ const FILTERS: ArmouryFilter[] = ['current', 'Available', 'Issued', 'overdue', '
  * shift and hand them back at the end; command staff keep the register here.
  */
 export default async function ArmouryPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const { status } = await searchParams;
   const { global, canManage, departments } = armouryRolesFor(role, silo);
@@ -53,25 +55,21 @@ export default async function ArmouryPage({ searchParams }: { searchParams: Prom
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Armoury</h1>
+          <h1 className="text-2xl font-bold">{t('Armoury')}</h1>
           <p className="max-w-2xl text-muted-foreground">
-            Every firearm on the register, where it is kept and who has it now. Officers book a firearm out in the app
-            at the start of their shift and hand it back before the shift can end.
-          </p>
+            {t('Every firearm on the register, where it is kept and who has it now. Officers book a firearm out in the app at the start of their shift and hand it back before the shift can end.')}</p>
         </div>
         <div className="flex flex-wrap gap-2 text-sm">
           {canManage ? (
             <>
               <Link href="/police/armoury/import" className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground hover:bg-primary/90">
-                <FileUp className="h-4 w-4" /> Import armoury list
-              </Link>
+                <FileUp className="h-4 w-4" /> {' '}{t('Import armoury list')}</Link>
               <a href="/police/armoury/template" className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 hover:bg-muted">
-                <Download className="h-4 w-4" /> Template
-              </a>
+                <Download className="h-4 w-4" /> {' '}{t('Template')}</a>
             </>
           ) : null}
-          <Link href="/shift/today" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Today’s shift</Link>
-          <Link href="/police/firearms" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Issue register</Link>
+          <Link href="/shift/today" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Today’s shift')}</Link>
+          <Link href="/police/firearms" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Issue register')}</Link>
         </div>
       </header>
 
@@ -100,9 +98,7 @@ export default async function ArmouryPage({ searchParams }: { searchParams: Prom
 
           {latest ? (
             <p className="text-sm text-muted-foreground">
-              Last armoury import: <b className="text-fg">{latest.file_name}</b>, {formatSaTime(latest.imported_at)} by {latest.imported_by_name ?? 'an administrator'}.{' '}
-              {latest.added} added, {latest.updated} updated.
-            </p>
+              {t('Last armoury import:')}{' '}<b className="text-fg">{latest.file_name}</b>{t(', {saTime} by {value}. {added} added, {updated} updated.', { saTime: formatSaTime(latest.imported_at), value: latest.imported_by_name ?? 'an administrator', added: latest.added, updated: latest.updated })}</p>
           ) : null}
 
           <ArmouryTable firearms={firearms} canManage={canManage} departments={departments} overdueBefore={overdueBefore} initialFilter={initialFilter} />
@@ -112,8 +108,8 @@ export default async function ArmouryPage({ searchParams }: { searchParams: Prom
       {canManage && !loadError ? (
         <Card>
           <CardHeader>
-            <CardTitle>Add a firearm</CardTitle>
-            <CardDescription>One at a time. For the whole armoury, use the import with the template.</CardDescription>
+            <CardTitle>{t('Add a firearm')}</CardTitle>
+            <CardDescription>{t('One at a time. For the whole armoury, use the import with the template.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <FirearmForm initial={blankFirearm(homeSilo)} departments={departments} />

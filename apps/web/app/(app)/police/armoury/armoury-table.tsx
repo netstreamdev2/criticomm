@@ -13,6 +13,7 @@ import { Modal } from '@/components/ui/modal';
 import { cn, formatSaTime } from '@/lib/utils';
 import { receiveFirearmAction, setFirearmStatusAction } from './actions';
 import { FirearmForm } from './firearm-form';
+import { useT } from '@/components/i18n';
 
 export type ArmouryFilter = 'current' | 'Available' | 'Issued' | 'overdue' | 'Maintenance' | 'Retired' | 'all';
 
@@ -40,6 +41,7 @@ type Dialog =
 export function ArmouryTable({ firearms, canManage, departments, overdueBefore, initialFilter }: {
   firearms: ArmouryFirearm[]; canManage: boolean; departments: Silo[]; overdueBefore: string; initialFilter: ArmouryFilter;
 }) {
+  const { t } = useT();
   const [filter, setFilter] = useState<ArmouryFilter>(initialFilter);
   const [q, setQ] = useState('');
   const [dialog, setDialog] = useState<Dialog>(null);
@@ -73,7 +75,7 @@ export function ArmouryTable({ firearms, canManage, departments, overdueBefore, 
         ))}
         <div className="relative ml-auto w-full sm:w-64">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" aria-hidden />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Serial, make, holder, station" aria-label="Search the armoury" className="pl-8" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Serial, make, holder, station')} aria-label={t('Search the armoury')} className="pl-8" />
         </div>
       </div>
 
@@ -86,12 +88,12 @@ export function ArmouryTable({ firearms, canManage, departments, overdueBefore, 
         <table className="w-full min-w-[52rem] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <th className="px-3 py-2">Serial</th>
-              <th className="px-3 py-2">Firearm</th>
-              <th className="px-3 py-2">Kept at</th>
-              <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2">Held by</th>
-              {canManage ? <th className="px-3 py-2"><span className="sr-only">Actions</span></th> : null}
+              <th className="px-3 py-2">{t('Serial')}</th>
+              <th className="px-3 py-2">{t('Firearm')}</th>
+              <th className="px-3 py-2">{t('Kept at')}</th>
+              <th className="px-3 py-2">{t('Status')}</th>
+              <th className="px-3 py-2">{t('Held by')}</th>
+              {canManage ? <th className="px-3 py-2"><span className="sr-only">{t('Actions')}</span></th> : null}
             </tr>
           </thead>
           <tbody>
@@ -119,7 +121,7 @@ export function ArmouryTable({ firearms, canManage, departments, overdueBefore, 
                     <>
                       <span className="font-medium">{f.holder.name}</span>
                       <span className={cn('block text-xs', overdue(f) ? 'font-semibold text-severity-high-ink' : 'text-muted-foreground')}>
-                        since {formatSaTime(f.holder.since)}{f.holder.rounds !== null ? ` · ${f.holder.rounds} rounds` : ''}
+                        {t('since {saTime}{value}', { saTime: formatSaTime(f.holder.since), value: f.holder.rounds !== null ? ` · ${f.holder.rounds} rounds` : '' })}
                       </span>
                     </>
                   ) : <span className="text-muted-foreground">—</span>}
@@ -128,11 +130,11 @@ export function ArmouryTable({ firearms, canManage, departments, overdueBefore, 
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-1.5">
                       {f.status === 'Issued' ? (
-                        <Button size="sm" variant="outline" onClick={() => setDialog({ kind: 'receive', firearm: f })}>Receive back</Button>
+                        <Button size="sm" variant="outline" onClick={() => setDialog({ kind: 'receive', firearm: f })}>{t('Receive back')}</Button>
                       ) : (
-                        <Button size="sm" variant="outline" onClick={() => setDialog({ kind: 'status', firearm: f })}>Status</Button>
+                        <Button size="sm" variant="outline" onClick={() => setDialog({ kind: 'status', firearm: f })}>{t('Status')}</Button>
                       )}
-                      <Button size="sm" variant="ghost" onClick={() => setDialog({ kind: 'edit', firearm: f })}>Edit</Button>
+                      <Button size="sm" variant="ghost" onClick={() => setDialog({ kind: 'edit', firearm: f })}>{t('Edit')}</Button>
                     </div>
                   </td>
                 ) : null}
@@ -164,6 +166,7 @@ export function ArmouryTable({ firearms, canManage, departments, overdueBefore, 
 }
 
 function StatusDialog({ firearm, onClose }: { firearm: ArmouryFirearm; onClose: () => void }) {
+  const { t } = useT();
   const router = useRouter();
   const options = (['Available', 'Maintenance', 'Retired'] as const).filter((s) => s !== firearm.status);
   const [status, setStatus] = useState<(typeof options)[number]>(options[0]!);
@@ -182,9 +185,9 @@ function StatusDialog({ firearm, onClose }: { firearm: ArmouryFirearm; onClose: 
   const hint = { Available: 'Back in service: the officers can book it out.', Maintenance: 'With the armourer: nobody can book it out until it is back.', Retired: 'Off the register for good. It stays on record and can be reinstated.' };
   return (
     <Modal title={`${firearm.serial_number} · ${firearm.make} ${firearm.model}`} onClose={onClose} busy={busy}>
-      <p className="text-sm text-muted-foreground">Now: <b className="text-fg">{firearm.status}</b>{firearm.status_note ? ` (${firearm.status_note})` : ''}</p>
+      <p className="text-sm text-muted-foreground">{t('Now:')}{' '}<b className="text-fg">{firearm.status}</b>{firearm.status_note ? ` (${firearm.status_note})` : ''}</p>
       <fieldset className="space-y-2">
-        <legend className="mb-1 text-sm font-semibold">Change to</legend>
+        <legend className="mb-1 text-sm font-semibold">{t('Change to')}</legend>
         {options.map((s) => (
           <label key={s} className={cn('flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2 text-sm', status === s ? 'border-primary bg-primary/5' : 'border-border')}>
             <input type="radio" name="fa-status" checked={status === s} onChange={() => setStatus(s)} className="mt-1 accent-[rgb(var(--c-primary))]" />
@@ -193,20 +196,21 @@ function StatusDialog({ firearm, onClose }: { firearm: ArmouryFirearm; onClose: 
         ))}
       </fieldset>
       <div>
-        <Label htmlFor="fa-status-reason">Reason (on the firearm’s record)</Label>
+        <Label htmlFor="fa-status-reason">{t('Reason (on the firearm’s record)')}</Label>
         <Input id="fa-status-reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} className="mt-1.5"
           placeholder={status === 'Maintenance' ? 'e.g. Trigger sticking, sent to armourer' : status === 'Retired' ? 'e.g. Written off, frame cracked' : 'e.g. Serviced and test-fired'} />
       </div>
       {error ? <p role="alert" className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical-ink">{error}</p> : null}
       <div className="flex gap-2">
         <Button onClick={save} disabled={busy || reason.trim().length < 5}>{busy ? 'Saving…' : 'Save'}</Button>
-        <Button variant="ghost" onClick={onClose} disabled={busy}>Cancel</Button>
+        <Button variant="ghost" onClick={onClose} disabled={busy}>{t('Cancel')}</Button>
       </div>
     </Modal>
   );
 }
 
 function ReceiveDialog({ firearm, onClose }: { firearm: ArmouryFirearm; onClose: () => void }) {
+  const { t } = useT();
   const router = useRouter();
   const issued = firearm.holder?.rounds ?? null;
   const [rounds, setRounds] = useState(issued !== null ? String(issued) : '');
@@ -235,12 +239,12 @@ function ReceiveDialog({ firearm, onClose }: { firearm: ArmouryFirearm; onClose:
 
   if (done) {
     return (
-      <Modal title="Received" onClose={onClose}>
+      <Modal title={t('Received')} onClose={onClose}>
         <p className="text-sm">
-          {firearm.serial_number} is back in the armoury and is now <b>{done.status === 'Available' ? 'available' : 'with the armourer (maintenance)'}</b>.
+          {t('{value} is back in the armoury and is now', { value: firearm.serial_number })}{' '}<b>{done.status === 'Available' ? 'available' : 'with the armourer (maintenance)'}</b>.
           {done.short > 0 ? ` ${done.short} rounds are unaccounted for; command has been alerted.` : ''}
         </p>
-        <Button onClick={onClose}>Done</Button>
+        <Button onClick={onClose}>{t('Done')}</Button>
       </Modal>
     );
   }
@@ -248,23 +252,21 @@ function ReceiveDialog({ firearm, onClose }: { firearm: ArmouryFirearm; onClose:
   return (
     <Modal title={`Receive back ${firearm.serial_number}`} onClose={onClose} busy={busy}>
       <p className="text-sm text-muted-foreground">
-        Booked out to <b className="text-fg">{firearm.holder?.name ?? 'an officer'}</b> since {formatSaTime(firearm.holder?.since)}
-        {issued !== null ? ` with ${issued} rounds` : ''}. Use this when the officer cannot return it in the app.
-      </p>
+        {t('Booked out to')}{' '}<b className="text-fg">{firearm.holder?.name ?? 'an officer'}</b> {' '}{t('since {saTime}{value}. Use this when the officer cannot return it in the app.', { saTime: formatSaTime(firearm.holder?.since), value: issued !== null ? ` with ${issued} rounds` : '' })}</p>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <Label htmlFor="rcv-rounds">Rounds handed back</Label>
+          <Label htmlFor="rcv-rounds">{t('Rounds handed back')}</Label>
           <Input id="rcv-rounds" inputMode="numeric" value={rounds} onChange={(e) => setRounds(e.target.value.replace(/\D/g, ''))} className="mt-1.5" />
-          {short > 0 ? <p className="mt-1 text-xs font-semibold text-severity-high-ink">{short} short: say why in the notes. Command is alerted.</p> : null}
-          {issued !== null && r > issued ? <p className="mt-1 text-xs text-severity-critical-ink">More than the {issued} issued.</p> : null}
+          {short > 0 ? <p className="mt-1 text-xs font-semibold text-severity-high-ink">{t('{short} short: say why in the notes. Command is alerted.', { short })}</p> : null}
+          {issued !== null && r > issued ? <p className="mt-1 text-xs text-severity-critical-ink">{t('More than the {issued} issued.', { issued })}</p> : null}
         </div>
         <div>
-          <Label htmlFor="rcv-mags">Magazines</Label>
+          <Label htmlFor="rcv-mags">{t('Magazines')}</Label>
           <Input id="rcv-mags" inputMode="numeric" value={mags} onChange={(e) => setMags(e.target.value.replace(/\D/g, ''))} className="mt-1.5" />
         </div>
       </div>
       <fieldset>
-        <legend className="mb-1.5 text-sm font-semibold">Condition</legend>
+        <legend className="mb-1.5 text-sm font-semibold">{t('Condition')}</legend>
         <div className="flex flex-wrap gap-2">
           {([['clean', 'Clean'], ['requires_cleaning', 'Needs cleaning'], ['damaged', 'Damaged']] as const).map(([v, l]) => (
             <label key={v} className={cn('cursor-pointer rounded-md border px-3 py-1.5 text-sm', condition === v ? 'border-primary bg-primary/10 font-semibold' : 'border-border')}>
@@ -275,20 +277,20 @@ function ReceiveDialog({ firearm, onClose }: { firearm: ArmouryFirearm; onClose:
       </fieldset>
       <label className="flex items-start gap-2.5 text-sm">
         <input type="checkbox" checked={checksOk} onChange={(e) => setChecksOk(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[rgb(var(--c-primary))]" />
-        <span>Unloaded, serial checked, action and safety work</span>
+        <span>{t('Unloaded, serial checked, action and safety work')}</span>
       </label>
       {condition === 'damaged' || !checksOk ? (
-        <p className="text-xs text-severity-medium-ink">It will go to maintenance, not back into service.</p>
+        <p className="text-xs text-severity-medium-ink">{t('It will go to maintenance, not back into service.')}</p>
       ) : null}
       <div>
-        <Label htmlFor="rcv-notes">Notes (who handed it in, and why here)</Label>
+        <Label htmlFor="rcv-notes">{t('Notes (who handed it in, and why here)')}</Label>
         <Input id="rcv-notes" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} className="mt-1.5"
-          placeholder="e.g. Handed in by Sgt Dlamini at the front desk; phone flat" />
+          placeholder={t('e.g. Handed in by Sgt Dlamini at the front desk; phone flat')} />
       </div>
       {error ? <p role="alert" className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical-ink">{error}</p> : null}
       <div className="flex gap-2">
         <Button onClick={save} disabled={busy || !valid}>{busy ? 'Saving…' : 'Receive it'}</Button>
-        <Button variant="ghost" onClick={onClose} disabled={busy}>Cancel</Button>
+        <Button variant="ghost" onClick={onClose} disabled={busy}>{t('Cancel')}</Button>
       </div>
     </Modal>
   );

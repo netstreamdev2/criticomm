@@ -1,5 +1,6 @@
 import 'server-only';
 import { createHash, createHmac } from 'node:crypto';
+import { realPttRadios, type LiveRadio } from '@criticom/api/radio';
 
 /**
  * RealPTT client — faithful port of ResponderController's PTT integration.
@@ -25,7 +26,8 @@ type PttJson = {
   data?: {
     random?: string;
     sessionId?: string;
-    users?: Array<{ user_id?: number }>;
+    users?: Array<{ user_id?: number; user_account?: string; user_name?: string; user_online?: number; battery?: number; client_type?: number; last_online_time?: string }>;
+    userGpsInfoList?: Array<{ userId?: string; userAccount?: string; userName?: string; lat?: string; lng?: string; time?: string; speed?: string }>;
     audios?: Array<{ id: number; time: string; play_url: string }>;
   };
 };
@@ -56,6 +58,35 @@ async function login(): Promise<string> {
     `${BASE}/organization;jsessionid=${sid}?method=login&account=${encodeURIComponent(account)}&pwd=${pwd}&timeZoneOffset=-120`,
   );
   return sid;
+}
+
+/**
+ * One login shared by every caller for five minutes (as V4's RealPttService):
+ * the handshake costs three round trips. A rejected call logs in again once.
+ */
+let cached: { sid: string; at: number } | null = null;
+let pending: Promise<string> | null = null;
+async function session(force = false): Promise<string> {
+  if (!force && cached && Date.now() - cached.at < 5 * 60_000) return cached.sid;
+  pending ??= login().then((sid) => { cached = { sid, at: Date.now() }; return sid; }).finally(() => { pending = null; });
+  return pending;
+}
+async function call(path: string): Promise<PttJson> {
+  const sid = await session();
+  const first = await getJson(`${BASE}/${path.replace('{sid}', sid)}`);
+  if (first.code === 0) return first;
+  const again = await session(true);
+  return getJson(`${BASE}/${path.replace('{sid}', again)}`);
+}
+
+/** Every RealPTT account with its online state, battery and last position, for the radio desk and the map. */
+export async function listRealPttLive(): Promise<LiveRadio[]> {
+  const [users, gps] = await Promise.all([
+    call('user;jsessionid={sid}?method=get&user_account=&limit=500&page=0'),
+    call('gps;jsessionid={sid}?method=getGpsInfo'),
+  ]);
+  if (users.code !== 0) throw new Error('RealPTT did not return its radios');
+  return realPttRadios(users.data?.users ?? [], gps.code === 0 ? gps.data?.userGpsInfoList ?? [] : []);
 }
 
 /**

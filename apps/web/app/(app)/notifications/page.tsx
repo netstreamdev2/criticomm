@@ -1,158 +1,136 @@
-import Link from 'next/link';
-import { Radio, Megaphone, Siren, Info, Bell, ArrowUpRight, CheckCircle2, CalendarClock, Clock, Repeat, Plane } from 'lucide-react';
-import { listMyAlerts, listNotifications } from '@criticom/api';
-import type { AlertKind } from '@criticom/db';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  AUDIENCE_TONE, audienceGroup, audienceLabel, getNotificationReach, listAllProfiles, listMyAlerts,
+  listMySentNotifications, listNotifications, type NotificationReach,
+} from '@criticom/api';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { MarkAllRead } from './mark-all-read';
+import { NotificationFeed, type FeedItem } from './feed';
+import { SendNotificationForm, WithdrawButton, type Person } from './send-form';
 import { getSession, siloFilter } from '@/lib/session';
-import { formatSaTime } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+import { formatSaTime, timeAgo } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Notifications · HikTech' };
 
-const KIND_META: Record<AlertKind, { label: string; icon: typeof Info; tone: string }> = {
-  assignment: { label: 'Dispatch', icon: Radio, tone: 'text-primary' },
-  incident_new: { label: 'New call', icon: Siren, tone: 'text-severity-high-ink' },
-  incident_update: { label: 'Update', icon: Info, tone: 'text-accent' },
-  broadcast: { label: 'Broadcast', icon: Megaphone, tone: 'text-severity-medium-ink' },
-  system: { label: 'System', icon: Bell, tone: 'text-muted-foreground' },
-  info: { label: 'Info', icon: Info, tone: 'text-muted-foreground' },
-  dispatch: { label: 'Dispatch', icon: Radio, tone: 'text-primary' },
-  accepted: { label: 'Accepted', icon: CheckCircle2, tone: 'text-severity-low-ink' },
-  resolved: { label: 'Resolved', icon: CheckCircle2, tone: 'text-success' },
-  responding: { label: 'Responding', icon: Radio, tone: 'text-accent' },
-  reassigned: { label: 'Reassigned', icon: Info, tone: 'text-muted-foreground' },
-  backup: { label: 'Backup', icon: Radio, tone: 'text-accent' },
-  sos: { label: 'SOS', icon: Siren, tone: 'text-severity-critical-ink' },
-  shift_published: { label: 'Roster', icon: CalendarClock, tone: 'text-primary' },
-  shift_changed: { label: 'Shift', icon: CalendarClock, tone: 'text-accent' },
-  shift_confirm: { label: 'Shift', icon: CalendarClock, tone: 'text-accent' },
-  shift_late: { label: 'Late', icon: Clock, tone: 'text-severity-high-ink' },
-  shift_noshow: { label: 'Not started', icon: Clock, tone: 'text-severity-critical-ink' },
-  shift_team_late: { label: 'Late', icon: Clock, tone: 'text-severity-high-ink' },
-  shift_team_noshow: { label: 'Not started', icon: Clock, tone: 'text-severity-critical-ink' },
-  shift_started_late: { label: 'Started', icon: CheckCircle2, tone: 'text-severity-low-ink' },
-  shift_outcome: { label: 'Shift', icon: Info, tone: 'text-muted-foreground' },
-  leave_request: { label: 'Leave', icon: Plane, tone: 'text-accent' },
-  leave_decision: { label: 'Leave', icon: Plane, tone: 'text-primary' },
-  swap: { label: 'Swap', icon: Repeat, tone: 'text-accent' },
-  swap_waiting: { label: 'Swap', icon: Repeat, tone: 'text-accent' },
-  report_filed: { label: 'Report filed', icon: CheckCircle2, tone: 'text-severity-low-ink' },
-  stood_down: { label: 'Not needed', icon: Info, tone: 'text-muted-foreground' },
-  stand_down: { label: 'Stand down', icon: Info, tone: 'text-severity-medium-ink' },
-  officer_closed: { label: 'Closed on scene', icon: CheckCircle2, tone: 'text-severity-low-ink' },
-};
+const NO_REACH: NotificationReach = { groups: false, anyDepartment: false, organisation: false, silo: null };
 
+/**
+ * Notifications: what was sent to you, to a few people with you, to your
+ * role, to your department and to everyone (0084). Each bubble says which.
+ * Sending sits beside it, limited to whom you may reach.
+ */
 export default async function NotificationsPage() {
-  const { supabase, silo } = await getSession();
+  const { t } = await requestT();
+  const { supabase, silo, userId } = await getSession();
 
-  const [alerts, arrivals] = await Promise.all([
-    listMyAlerts(supabase, { limit: 60 }).catch(() => []),
+  const [alerts, reach, sent, profiles, arrivals] = await Promise.all([
+    listMyAlerts(supabase, { limit: 80 }).catch(() => []),
+    getNotificationReach(supabase).catch(() => NO_REACH),
+    listMySentNotifications(supabase).catch(() => []),
+    listAllProfiles(supabase).catch(() => []),
     listNotifications(supabase, siloFilter(silo)).catch(() => []),
   ]);
 
-  const unread = alerts.filter((a) => !a.read).length;
+  const items: FeedItem[] = alerts.map((a) => {
+    const group = audienceGroup(a);
+    return {
+      id: a.id,
+      title: a.title,
+      body: a.body,
+      link: a.link,
+      kind: a.kind,
+      severity: a.severity,
+      createdAt: a.created_at,
+      from: a.created_by && a.created_by !== userId ? a.created_by_name : a.created_by ? null : a.created_by_name,
+      read: a.read,
+      acknowledged: a.acknowledged,
+      audience: audienceLabel(a),
+      group,
+      accent: AUDIENCE_TONE[group],
+    };
+  });
+  const unread = items.filter((i) => !i.read).length;
+
+  const people: Person[] = profiles
+    .filter((p) => !p.deactivated_at)
+    .map((p) => ({ id: p.id, name: p.full_name ?? p.email ?? t('Unnamed'), silo: p.silo }));
 
   return (
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Notifications</h1>
-          <p className="text-muted-foreground">
-            Everything that popped on your screen, kept in one place.
-          </p>
+          <h1 className="text-2xl font-bold">{t('Notifications')}</h1>
+          <p className="text-muted-foreground">{t('For you, your role, your department and everyone.')}</p>
         </div>
         {unread > 0 ? <MarkAllRead count={unread} /> : null}
       </header>
 
-      {/* Alert feed */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Alerts{unread > 0 ? <span className="ml-2 text-sm font-normal text-severity-critical-ink">{unread} unread</span> : null}
-          </CardTitle>
-          <CardDescription>
-            Dispatch assignments, broadcasts and escalations addressed to you or your department.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          {alerts.length === 0 ? (
-            <p className="px-6 py-12 text-center text-sm text-muted-foreground">
-              Nothing yet. Alerts appear here the moment a call is routed to your department.
-            </p>
-          ) : (
-            <ul className="divide-y divide-border">
-              {alerts.map((a) => {
-                const meta = KIND_META[a.kind] ?? KIND_META.info;
-                const Icon = meta.icon;
-                const row = (
-                  <div className="flex items-start gap-3 px-6 py-3.5">
-                    <span className={cn('mt-0.5 shrink-0', meta.tone)}>
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-                        {!a.read ? (
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-label="Unread" />
-                        ) : null}
-                        <span className="severity-pill" data-sev={a.severity}>{a.severity}</span>
-                        <span className="min-w-0 break-words">{a.title}</span>
-                      </p>
-                      {a.body ? (
-                        <p className="mt-1 break-words text-xs text-muted-foreground">{a.body}</p>
-                      ) : null}
-                      <p className="mt-1.5 flex flex-wrap gap-x-3 text-[11px] text-muted-foreground">
-                        <span>{meta.label}</span>
-                        <span>{a.silo}</span>
-                        <span>{formatSaTime(a.created_at)}</span>
-                        {a.created_by_name ? <span>by {a.created_by_name}</span> : null}
-                        {a.acknowledged ? <span className="text-severity-low-ink">acknowledged</span> : null}
-                      </p>
-                    </div>
-                    {a.link ? (
-                      <ArrowUpRight className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                    ) : null}
-                  </div>
-                );
-                return (
-                  <li key={a.id} className={cn(!a.read && 'bg-accent/5')}>
-                    {a.link ? (
-                      <Link href={a.link} className="block transition-colors hover:bg-muted/50">{row}</Link>
-                    ) : row}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+        <NotificationFeed items={items} />
 
-      {/* Legacy arrival log — kept because V4's NotificationsController wrote here */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Unit arrivals</CardTitle>
-          <CardDescription>Arrival confirmations logged by responding units.</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <SimpleTable
-            headers={['When', 'Silo', 'Unit', 'Responder', 'Location', 'Status']}
-            empty="No arrival confirmations."
-          >
-            {arrivals.map((n) => (
-              <Tr key={n.id}>
-                <Td className="whitespace-nowrap text-muted-foreground">{formatSaTime(n.created_at)}</Td>
-                <Td>{n.silo}</Td>
-                <Td>{n.unit_type ?? '—'}</Td>
-                <Td>{n.responder_name ?? '—'}</Td>
-                <Td className="max-w-[260px] truncate">{n.location ?? '—'}</Td>
-                <Td>{n.arrived ?? '—'}</Td>
-              </Tr>
-            ))}
-          </SimpleTable>
-        </CardContent>
-      </Card>
+        <aside className="space-y-4 lg:sticky lg:top-4">
+          <section className="frost-white rounded-[22px] p-5">
+            <h2 className="text-base font-bold">{t('Send a notification')}</h2>
+            <p className="mb-4 mt-0.5 text-xs text-muted-foreground">
+              {reach.groups ? t('To a person, a group, a role or your department.') : t('To one person at a time.')}
+            </p>
+            <SendNotificationForm reach={reach} people={people} meId={userId} />
+          </section>
+
+          <section className="frost-white rounded-[22px] p-5">
+            <h2 className="text-base font-bold">{t('What I sent')}</h2>
+            {sent.length === 0 ? (
+              <p className="mt-2 text-xs text-muted-foreground">{t('Nothing sent yet.')}</p>
+            ) : (
+              <ul className="mt-3 space-y-2">
+                {sent.slice(0, 12).map((s) => {
+                  const tone = AUDIENCE_TONE[audienceGroup(s)];
+                  return (
+                    <li key={s.id} className="rounded-2xl border border-border/60 px-3 py-2.5">
+                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                        <span className="rounded-full px-2 py-0.5 font-semibold" style={{ backgroundColor: `${tone}1f`, color: tone }}>
+                          {s.audience === 'person' ? (people.find((p) => p.id === s.target_user_id)?.name ?? t('One person')) : audienceLabel(s)}
+                        </span>
+                        <span suppressHydrationWarning>{timeAgo(s.created_at)}</span>
+                        <span className="ml-auto">
+                          {s.withdrawn_at ? <span className="font-semibold">{t('Taken back')}</span> : <WithdrawButton id={s.id} />}
+                        </span>
+                      </div>
+                      <p className={s.withdrawn_at ? 'mt-1 truncate text-sm text-muted-foreground line-through' : 'mt-1 truncate text-sm font-medium'}>
+                        {s.title}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        </aside>
+      </div>
+
+      {/* The V4 arrival log, kept: V4's NotificationsController wrote here. */}
+      {arrivals.length > 0 ? (
+        <details className="frost-white rounded-[22px]">
+          <summary className="cursor-pointer px-5 py-4 text-sm font-semibold">
+            {t('Unit arrivals')} <span className="font-normal text-muted-foreground">· {arrivals.length}</span>
+          </summary>
+          <div className="px-2 pb-3">
+            <SimpleTable headers={['When', 'Silo', 'Unit', 'Responder', 'Location', 'Status']} empty={t('No arrival confirmations.')}>
+              {arrivals.map((n) => (
+                <Tr key={n.id}>
+                  <Td className="whitespace-nowrap text-muted-foreground">{formatSaTime(n.created_at)}</Td>
+                  <Td>{n.silo}</Td>
+                  <Td>{n.unit_type ?? '—'}</Td>
+                  <Td>{n.responder_name ?? '—'}</Td>
+                  <Td className="max-w-[260px] truncate">{n.location ?? '—'}</Td>
+                  <Td>{n.arrived ?? '—'}</Td>
+                </Tr>
+              ))}
+            </SimpleTable>
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 }

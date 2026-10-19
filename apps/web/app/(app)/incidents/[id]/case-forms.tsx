@@ -5,6 +5,7 @@ import { CANCEL_REASON_MIN } from '@criticom/db';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { closeCaseAction, setStatusAction, standDownAction, type FormState } from './actions';
+import { useT } from '@/components/i18n';
 
 function Outcome({ state }: { state: FormState }) {
   if (state?.error) {
@@ -23,14 +24,15 @@ function Outcome({ state }: { state: FormState }) {
  * it goes on the case's timeline and to the officer.
  */
 export function ReviewCloseForm({ incidentId, incidentNumber }: { incidentId: string; incidentNumber: string }) {
+  const { t } = useT();
   const [state, action, pending] = useActionState(closeCaseAction, null);
   return (
     <form action={action} className="space-y-2">
       <input type="hidden" name="incident_id" value={incidentId} />
       <label htmlFor="review-note" className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        Review note <span className="font-normal normal-case tracking-normal">(optional, goes on the record and to the officer)</span>
+        {t('Review note')}{' '}<span className="font-normal normal-case tracking-normal">{t('(optional, goes on the record and to the officer)')}</span>
       </label>
-      <Textarea id="review-note" name="reason" rows={2} maxLength={1000} placeholder="e.g. Report complete; statement and photos on file." />
+      <Textarea id="review-note" name="reason" rows={2} maxLength={1000} placeholder={t('e.g. Report complete; statement and photos on file.')} />
       <button
         type="submit"
         disabled={pending}
@@ -51,27 +53,26 @@ export function ReviewCloseForm({ incidentId, incidentNumber }: { incidentId: st
 export function CancelCallForm({
   incidentId, incidentNumber, responding,
 }: { incidentId: string; incidentNumber: string; responding: number }) {
+  const { t } = useT();
   const [state, action, pending] = useActionState(closeCaseAction, null);
   const [reason, setReason] = useState('');
   const short = reason.trim().length < CANCEL_REASON_MIN;
   return (
     <details className="group rounded-lg border border-border bg-bg-soft">
       <summary className="cursor-pointer select-none px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-fg">
-        Close without a report
-      </summary>
+        {t('Close without a report')}</summary>
       <form action={action} className="space-y-2 border-t border-border p-3">
         <input type="hidden" name="incident_id" value={incidentId} />
         <p className="text-xs text-muted-foreground">
-          For a call that will never have a report: a hoax, a duplicate, or the caller cancelled.
-          {responding > 0
+          {t('For a call that will never have a report: a hoax, a duplicate, or the caller cancelled.{value}', { value: responding > 0
             ? ` ${responding} officer${responding === 1 ? ' is' : 's are'} on this call and will be told to stand down.`
-            : ''}
+            : '' })}
         </p>
-        <label htmlFor="cancel-reason" className="sr-only">Reason for closing {incidentNumber} without a report</label>
+        <label htmlFor="cancel-reason" className="sr-only">{t('Reason for closing {incidentNumber} without a report', { incidentNumber })}</label>
         <Textarea
           id="cancel-reason" name="reason" rows={2} required minLength={CANCEL_REASON_MIN} maxLength={1000}
           value={reason} onChange={(e) => setReason(e.target.value)}
-          placeholder="Why this call is being closed (at least 10 characters)"
+          placeholder={t('Why this call is being closed (at least 10 characters)')}
         />
         <button
           type="submit"
@@ -123,12 +124,13 @@ export function StatusOverride({
 
 /** A department is not needed on this call (0073): say why; its crew is told to stand down. */
 export function StandDown({ incidentId, department, label }: { incidentId: string; department: string; label: string }) {
+  const { t } = useT();
   const [state, action, pending] = useActionState(standDownAction, null);
   const [reason, setReason] = useState('');
   if (state?.done) return <Outcome state={state} />;
   return (
     <details className="group">
-      <summary className="cursor-pointer text-xs font-semibold text-muted-foreground hover:text-fg">Not needed</summary>
+      <summary className="cursor-pointer text-xs font-semibold text-muted-foreground hover:text-fg">{t('Not needed')}</summary>
       <form action={action} className="mt-2 space-y-2">
         <input type="hidden" name="incident_id" value={incidentId} />
         <input type="hidden" name="department" value={department} />

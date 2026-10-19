@@ -1,5 +1,6 @@
 import { DEPARTMENT_NAMES, type Silo } from '@criticom/db';
 import { readPatients, type CallPatient } from '@criticom/db/call-facts';
+import { requestT } from '@/lib/i18n';
 
 /** Each department in its own colour: the same as the dots on the call form. */
 const TONE: Record<string, string> = {
@@ -10,10 +11,11 @@ const TONE: Record<string, string> = {
 };
 
 /** The departments on a call, one coloured pill each; the control room when none. */
-export function DepartmentPills({ silos }: { silos: readonly Silo[] }) {
+export async function DepartmentPills({ silos }: { silos: readonly Silo[] }) {
+  const { t } = await requestT();
   const list = silos.filter((s) => s !== 'Ethekwini');
   if (!list.length) {
-    return <span className="inline-flex rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-semibold">Control room</span>;
+    return <span className="inline-flex rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-semibold">{t('Control room')}</span>;
   }
   return (
     <span className="flex flex-wrap gap-1.5">
@@ -37,15 +39,16 @@ const SEVERITY_PILL: Record<string, string> = {
 };
 
 /** Each patient and their own severity, apart from the incident's (0080). */
-export function PatientList({ patients }: { patients: unknown }) {
+export async function PatientList({ patients }: { patients: unknown }) {
+  const { t } = await requestT();
   const list: CallPatient[] = readPatients(patients);
-  if (!list.length) return <span className="text-muted-foreground">Not recorded</span>;
+  if (!list.length) return <span className="text-muted-foreground">{t('Not recorded')}</span>;
   return (
     <ul className="space-y-1">
       {list.map((p, i) => (
         <li key={`${p.name ?? 'patient'}-${i}`} className="flex flex-wrap items-center gap-2">
           <span className={`rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${SEVERITY_PILL[p.severity] ?? SEVERITY_PILL.Unknown}`}>{p.severity}</span>
-          <span>{p.name ?? 'Name not given'}{p.caller ? <span className="text-muted-foreground"> (the caller)</span> : null}</span>
+          <span>{p.name ?? 'Name not given'}{p.caller ? <span className="text-muted-foreground"> {' '}{t('(the caller)')}</span> : null}</span>
         </li>
       ))}
     </ul>

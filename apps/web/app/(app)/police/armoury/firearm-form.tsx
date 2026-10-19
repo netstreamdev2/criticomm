@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { addFirearmAction, updateFirearmAction, type FirearmDetails } from './actions';
 import { blankFirearm } from './blank';
+import { useT } from '@/components/i18n';
 
 const SELECT = 'mt-1.5 h-10 w-full rounded-md border border-border bg-bg-soft px-3 text-sm';
 
@@ -20,6 +21,7 @@ const SELECT = 'mt-1.5 h-10 w-full rounded-md border border-border bg-bg-soft px
 export function FirearmForm({ initial, id, departments, onDone }: {
   initial: FirearmDetails; id?: string; departments: Silo[]; onDone?: () => void;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const [d, setD] = useState(initial);
   const [busy, setBusy] = useState(false);
@@ -44,42 +46,42 @@ export function FirearmForm({ initial, id, departments, onDone }: {
     <form onSubmit={submit} className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <Label htmlFor={`fa-serial-${k}`}>Serial number</Label>
+          <Label htmlFor={`fa-serial-${k}`}>{t('Serial number')}</Label>
           <Input id={`fa-serial-${k}`} value={d.serial_number} onChange={set('serial_number')} required maxLength={60} className="mt-1.5 font-mono" autoComplete="off" />
         </div>
         <div>
-          <Label htmlFor={`fa-type-${k}`}>Type</Label>
+          <Label htmlFor={`fa-type-${k}`}>{t('Type')}</Label>
           <select id={`fa-type-${k}`} value={d.firearm_type} onChange={set('firearm_type')} required className={SELECT}>
-            <option value="" disabled>Choose</option>
+            <option value="" disabled>{t('Choose')}</option>
             {FIREARM_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div>
-          <Label htmlFor={`fa-make-${k}`}>Make</Label>
-          <Input id={`fa-make-${k}`} value={d.make} onChange={set('make')} required maxLength={60} placeholder="e.g. Glock" className="mt-1.5" />
+          <Label htmlFor={`fa-make-${k}`}>{t('Make')}</Label>
+          <Input id={`fa-make-${k}`} value={d.make} onChange={set('make')} required maxLength={60} placeholder={t('e.g. Glock')} className="mt-1.5" />
         </div>
         <div>
-          <Label htmlFor={`fa-model-${k}`}>Model</Label>
-          <Input id={`fa-model-${k}`} value={d.model} onChange={set('model')} required maxLength={60} placeholder="e.g. 17 Gen 5" className="mt-1.5" />
+          <Label htmlFor={`fa-model-${k}`}>{t('Model')}</Label>
+          <Input id={`fa-model-${k}`} value={d.model} onChange={set('model')} required maxLength={60} placeholder={t('e.g. 17 Gen 5')} className="mt-1.5" />
         </div>
         <div>
-          <Label htmlFor={`fa-cal-${k}`}>Calibre</Label>
-          <Input id={`fa-cal-${k}`} value={d.calibre} onChange={set('calibre')} maxLength={30} placeholder="e.g. 9mm" className="mt-1.5" />
+          <Label htmlFor={`fa-cal-${k}`}>{t('Calibre')}</Label>
+          <Input id={`fa-cal-${k}`} value={d.calibre} onChange={set('calibre')} maxLength={30} placeholder={t('e.g. 9mm')} className="mt-1.5" />
         </div>
         <div>
-          <Label htmlFor={`fa-station-${k}`}>Station</Label>
-          <Input id={`fa-station-${k}`} value={d.station} onChange={set('station')} maxLength={80} placeholder="Where it is kept" className="mt-1.5" />
+          <Label htmlFor={`fa-station-${k}`}>{t('Station')}</Label>
+          <Input id={`fa-station-${k}`} value={d.station} onChange={set('station')} maxLength={80} placeholder={t('Where it is kept')} className="mt-1.5" />
         </div>
         {departments.length > 1 ? (
           <div>
-            <Label htmlFor={`fa-silo-${k}`}>Department</Label>
+            <Label htmlFor={`fa-silo-${k}`}>{t('Department')}</Label>
             <select id={`fa-silo-${k}`} value={d.silo} onChange={set('silo')} className={SELECT}>
               {departments.map((s) => <option key={s} value={s}>{DEPARTMENT_NAMES[s]}</option>)}
             </select>
           </div>
         ) : null}
         <div className={departments.length > 1 ? '' : 'sm:col-span-2'}>
-          <Label htmlFor={`fa-notes-${k}`}>Notes</Label>
+          <Label htmlFor={`fa-notes-${k}`}>{t('Notes')}</Label>
           <Input id={`fa-notes-${k}`} value={d.notes} onChange={set('notes')} maxLength={300} className="mt-1.5" />
         </div>
       </div>
@@ -87,7 +89,7 @@ export function FirearmForm({ initial, id, departments, onDone }: {
       {saved ? <output className="block text-sm text-success">{saved}</output> : null}
       <div className="flex gap-2">
         <Button type="submit" disabled={busy}>{busy ? 'Saving…' : id ? 'Save changes' : 'Add firearm'}</Button>
-        {onDone ? <Button type="button" variant="ghost" onClick={onDone} disabled={busy}>Cancel</Button> : null}
+        {onDone ? <Button type="button" variant="ghost" onClick={onDone} disabled={busy}>{t('Cancel')}</Button> : null}
       </div>
     </form>
   );

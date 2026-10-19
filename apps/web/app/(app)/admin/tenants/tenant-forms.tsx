@@ -5,12 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { assignUserTenantAction, createTenantAction, deleteTenantAction } from './actions';
 import { useToast } from '@/components/toast';
+import { useT } from '@/components/i18n';
 
 const input = 'h-10 w-full rounded-md border border-border bg-bg-soft px-3 text-sm';
 const label = 'mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground';
 const button = 'inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-50';
 
 export function TenantForms({ tenants }: { tenants: Array<{ id: string; name: string; slug: string; active: boolean }> }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -71,37 +73,35 @@ export function TenantForms({ tenants }: { tenants: Array<{ id: string; name: st
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <div className="rounded-xl border border-border bg-bg-card p-4">
-        <h2 className="mb-3 font-semibold">Create a tenant</h2>
+        <h2 className="mb-3 font-semibold">{t('Create a tenant')}</h2>
         <div className="space-y-3">
           <div>
-            <span className={label}>Name</span>
+            <span className={label}>{t('Name')}</span>
             <input className={input} value={name} onChange={(e) => setName(e.target.value)}
-              placeholder="City of uMhlathuze" />
+              placeholder={t('City of uMhlathuze')} />
           </div>
           <div>
-            <span className={label}>Slug</span>
+            <span className={label}>{t('Slug')}</span>
             <input className={input} value={slug} onChange={(e) => setSlug(e.target.value)}
               placeholder="umhlathuze" />
             <p className="mt-1 text-xs text-muted-foreground">
-              Lowercase letters, digits and hyphens. Permanent once created.
-            </p>
+              {t('Lowercase letters, digits and hyphens. Permanent once created.')}</p>
           </div>
           <button type="button" className={button} disabled={pending || !slug || !name} onClick={create}>
-            {pending ? <Loader2 className="size-4 animate-spin" /> : null} Create tenant
-          </button>
+            {pending ? <Loader2 className="size-4 animate-spin" /> : null} {' '}{t('Create tenant')}</button>
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-bg-card p-4">
-        <h2 className="mb-3 font-semibold">Assign a user to a tenant</h2>
+        <h2 className="mb-3 font-semibold">{t('Assign a user to a tenant')}</h2>
         <div className="space-y-3">
           <div>
-            <span className={label}>Account email</span>
+            <span className={label}>{t('Account email')}</span>
             <input className={input} value={email} onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@municipality.gov.za" type="email" />
+              placeholder={t('admin@municipality.gov.za')} type="email" />
           </div>
           <div>
-            <span className={label}>Tenant</span>
+            <span className={label}>{t('Tenant')}</span>
             <select className={input} value={tenantId} onChange={(e) => setTenantId(e.target.value)}>
               {tenants.map((t) => (
                 <option key={t.id} value={t.id}>{t.name}{t.active ? '' : ' (suspended)'}</option>
@@ -109,37 +109,32 @@ export function TenantForms({ tenants }: { tenants: Array<{ id: string; name: st
             </select>
           </div>
           <button type="button" className={button} disabled={pending || !email || !tenantId} onClick={assign}>
-            {pending ? <Loader2 className="size-4 animate-spin" /> : null} Reassign
-          </button>
+            {pending ? <Loader2 className="size-4 animate-spin" /> : null} {' '}{t('Reassign')}</button>
           <p className="text-xs text-muted-foreground">
-            Takes effect on their next sign-in. Their existing records do not move — a person
-            changes tenant; history stays where it happened.
-          </p>
+            {t('Takes effect on their next sign-in. Their existing records do not move — a person changes tenant; history stays where it happened.')}</p>
         </div>
       </div>
 
       <div className="rounded-xl border border-severity-critical/40 bg-bg-card p-4 lg:col-span-2">
-        <h2 className="mb-1 font-semibold text-severity-critical-ink">Delete a tenant</h2>
+        <h2 className="mb-1 font-semibold text-severity-critical-ink">{t('Delete a tenant')}</h2>
         <p className="mb-3 text-xs text-muted-foreground">
-          No undo. Refused while users are still assigned, and the founding tenant can never be
-          deleted. To switch a customer off reversibly, suspend them instead.
-        </p>
+          {t('No undo. Refused while users are still assigned, and the founding tenant can never be deleted. To switch a customer off reversibly, suspend them instead.')}</p>
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
-            <span className={label}>Tenant</span>
+            <span className={label}>{t('Tenant')}</span>
             <select
               className={input}
               value={deleteId}
               onChange={(e) => { setDeleteId(e.target.value); setConfirmSlug(''); }}
             >
-              <option value="">Select…</option>
+              <option value="">{t('Select…')}</option>
               {deletable.map((t) => (
                 <option key={t.id} value={t.id}>{t.name}{t.active ? '' : ' (suspended)'}</option>
               ))}
             </select>
           </div>
           <div>
-            <span className={label}>Type the slug to confirm</span>
+            <span className={label}>{t('Type the slug to confirm')}</span>
             <input
               className={input}
               value={confirmSlug}
@@ -155,8 +150,7 @@ export function TenantForms({ tenants }: { tenants: Array<{ id: string; name: st
               disabled={pending || !deleteTarget || confirmSlug.trim().toLowerCase() !== deleteTarget.slug}
               onClick={remove}
             >
-              {pending ? <Loader2 className="size-4 animate-spin" /> : null} Delete permanently
-            </button>
+              {pending ? <Loader2 className="size-4 animate-spin" /> : null} {' '}{t('Delete permanently')}</button>
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ import { departmentsInvitableBy, rolesInvitableBy } from '@criticom/db';
 import { deliveryOptions, invitationTtlHours } from '@/lib/onboarding/server';
 import { getSession } from '@/lib/session';
 import { InviteForm } from './invite-form';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Invite someone · HikTech' };
@@ -18,6 +19,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * `?person=` starts from one register entry, as "Invite again" does.
  */
 export default async function NewInvitationPage({ searchParams }: { searchParams: Promise<{ person?: string }> }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const roles = rolesInvitableBy(role);
   if (roles.length === 0) redirect('/admin');
@@ -29,9 +31,8 @@ export default async function NewInvitationPage({ searchParams }: { searchParams
     <div className="mx-auto max-w-3xl space-y-6">
       <header className="space-y-1">
         <Link href="/admin/invitations" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-fg">
-          <ArrowLeft className="h-4 w-4" /> Invitations
-        </Link>
-        <h1 className="text-2xl font-bold">Invite someone</h1>
+          <ArrowLeft className="h-4 w-4" /> {' '}{t('Invitations')}</Link>
+        <h1 className="text-2xl font-bold">{t('Invite someone')}</h1>
         <p className="text-muted-foreground">
           {role === 'SystemAdmin' || role === 'SuperAdmin'
             ? 'By invitation the person chooses their own password and you never see it. You can also set a password and create the account at once, which is less safe.'

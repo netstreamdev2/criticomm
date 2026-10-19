@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 type AnyItem = FirearmItem | VehicleItem | BodycamItem;
 type AssetKind = 'firearms' | 'vehicles' | 'bodycams';
@@ -79,6 +80,7 @@ const LIST_LIMIT = 200;
  * and the database checks every row again.
  */
 export function AssetImportWizard({ kind }: { kind: AssetKind }) {
+  const { t } = useT();
   const k = KINDS[kind];
   const [register, setRegister] = useState<unknown[] | null>(null);
   const [registerError, setRegisterError] = useState<string | null>(null);
@@ -130,13 +132,12 @@ export function AssetImportWizard({ kind }: { kind: AssetKind }) {
   if (phase === 'done' && result) {
     return (
       <div className="space-y-4 rounded-xl border border-success/40 bg-bg-card p-6">
-        <p className="text-lg font-semibold">Imported</p>
-        <p className="text-sm text-muted-foreground">{result.added} added, {result.updated} updated, {result.unchanged} unchanged. It is on the permanent record with your reason.</p>
+        <p className="text-lg font-semibold">{t('Imported')}</p>
+        <p className="text-sm text-muted-foreground">{t('{added} added, {updated} updated, {unchanged} unchanged. It is on the permanent record with your reason.', { added: result.added, updated: result.updated, unchanged: result.unchanged })}</p>
         <div className="flex gap-2">
-          <Button asChild><Link href={k.back.href}>Back to the {k.back.label.toLowerCase()}</Link></Button>
+          <Button asChild><Link href={k.back.href}>{t('Back to the {lowerCase}', { lowerCase: k.back.label.toLowerCase() })}</Link></Button>
           <Button variant="outline" onClick={() => { setFile(null); setResult(null); setReason(''); setFixes({}); setPhase('check'); k.snapshot().then((r) => r.ok && setRegister(r.register)); }}>
-            Import another file
-          </Button>
+            {t('Import another file')}</Button>
         </div>
       </div>
     );
@@ -157,22 +158,21 @@ export function AssetImportWizard({ kind }: { kind: AssetKind }) {
           >
             <FileSpreadsheet className="h-8 w-8 text-muted-foreground" aria-hidden />
             <span className="font-semibold">{reading ? 'Reading…' : `Choose the ${k.what} spreadsheet, or drop it here`}</span>
-            <span className="text-sm text-muted-foreground">Excel (.xlsx) or CSV</span>
+            <span className="text-sm text-muted-foreground">{t('Excel (.xlsx) or CSV')}</span>
             <input type="file" accept=".xlsx,.xlsm,.csv,.txt" className="sr-only"
               onChange={(e) => { const f = e.target.files?.[0]; if (f) void open(f); e.target.value = ''; }} />
           </label>
           <p className="flex items-start gap-2 text-sm text-muted-foreground">
             <Lock className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-            <span>The file is read on this computer. Nothing is saved until you confirm, and the file itself is never stored.</span>
+            <span>{t('The file is read on this computer. Nothing is saved until you confirm, and the file itself is never stored.')}</span>
           </p>
           <a href={k.template} className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
-            <Download className="h-4 w-4" /> Download the {k.what} template
-          </a>
+            <Download className="h-4 w-4" /> {' '}{t('Download the {what} template', { what: k.what })}</a>
           {fileError ? <p role="alert" className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical-ink">{fileError}</p> : null}
         </section>
       ) : null}
 
-      {file && !register && !registerError ? <p className="text-sm text-muted-foreground">Loading the register to compare against…</p> : null}
+      {file && !register && !registerError ? <p className="text-sm text-muted-foreground">{t('Loading the register to compare against…')}</p> : null}
 
       {file && check ? (
         <>
@@ -180,30 +180,29 @@ export function AssetImportWizard({ kind }: { kind: AssetKind }) {
             <div>
               <p className="font-semibold">{file.name}</p>
               <p className="text-muted-foreground">
-                {file.rows.length} rows{file.staff.sheet ? ` · sheet “${file.staff.sheet}”` : ''} · headings on row {file.headerRow + 1}
-                {file.ignored.length ? ` · ignored: ${file.ignored.join(', ')}` : ''}
+                {t('{length} rows{value} · headings on row {value2}{value3}', { length: file.rows.length, value: file.staff.sheet ? ` · sheet “${file.staff.sheet}”` : '', value2: file.headerRow + 1, value3: file.ignored.length ? ` · ignored: ${file.ignored.join(', ')}` : '' })}
               </p>
             </div>
-            {phase === 'check' ? <Button variant="ghost" size="sm" onClick={() => { setFile(null); setFixes({}); }}><RotateCcw className="h-4 w-4" /> Choose another file</Button> : null}
+            {phase === 'check' ? <Button variant="ghost" size="sm" onClick={() => { setFile(null); setFixes({}); }}><RotateCcw className="h-4 w-4" /> {' '}{t('Choose another file')}</Button> : null}
           </section>
 
           <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-            <Tile n={check.counts.add} label="New" tone="ok" />
-            <Tile n={check.counts.update} label="Will update" tone="info" />
-            <Tile n={check.counts.unchanged} label="Unchanged" tone="dim" />
-            <Tile n={check.counts.merged} label="Copies merged" tone="dim" />
-            <Tile n={check.counts.attention} label="Need attention" tone={check.counts.attention ? 'warn' : 'dim'} />
-            <Tile n={check.counts.skipped} label="Skipped" tone="dim" />
+            <Tile n={check.counts.add} label={t('New')} tone="ok" />
+            <Tile n={check.counts.update} label={t('Will update')} tone="info" />
+            <Tile n={check.counts.unchanged} label={t('Unchanged')} tone="dim" />
+            <Tile n={check.counts.merged} label={t('Copies merged')} tone="dim" />
+            <Tile n={check.counts.attention} label={t('Need attention')} tone={check.counts.attention ? 'warn' : 'dim'} />
+            <Tile n={check.counts.skipped} label={t('Skipped')} tone="dim" />
           </dl>
 
           {check.rows.some((r) => r.outcome === 'attention' || r.outcome === 'skipped') ? (
             <section className="space-y-2">
-              <h2 className="text-base font-semibold">Rows that need attention</h2>
-              <p className="text-sm text-muted-foreground">Fix them here, or skip them. They never hold up the rest.</p>
+              <h2 className="text-base font-semibold">{t('Rows that need attention')}</h2>
+              <p className="text-sm text-muted-foreground">{t('Fix them here, or skip them. They never hold up the rest.')}</p>
               <div className="overflow-x-auto rounded-xl border border-border bg-bg-card">
                 <table className="w-full min-w-[44rem] text-sm">
                   <thead><tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <th className="px-3 py-2">Row</th><th className="px-3 py-2">{k.noun[0]!.toUpperCase() + k.noun.slice(1)}</th><th className="px-3 py-2">Problem</th><th className="px-3 py-2">Fix</th>
+                    <th className="px-3 py-2">{t('Row')}</th><th className="px-3 py-2">{k.noun[0]!.toUpperCase() + k.noun.slice(1)}</th><th className="px-3 py-2">{t('Problem')}</th><th className="px-3 py-2">{t('Fix')}</th>
                   </tr></thead>
                   <tbody>
                     {check.rows.filter((r) => r.outcome === 'attention' || r.outcome === 'skipped').slice(0, 500).map((r) => (
@@ -219,7 +218,7 @@ export function AssetImportWizard({ kind }: { kind: AssetKind }) {
             <Details title={`${check.counts.update} will be updated`}>
               {check.rows.filter((r) => r.outcome === 'update').slice(0, LIST_LIMIT).map((r) => (
                 <li key={r.line} className="px-3 py-2">
-                  <span className="font-medium">{r.label}</span> <span className="text-xs text-muted-foreground">· row {r.line}</span>
+                  <span className="font-medium">{r.label}</span> <span className="text-xs text-muted-foreground">{t('· row {line}', { line: r.line })}</span>
                   <ul className="mt-0.5 text-xs text-muted-foreground">
                     {r.changes.map((c) => <li key={c.label}>{c.label}: <s>{c.from}</s> → <span className="text-fg">{c.to}</span></li>)}
                     {r.notes.map((n) => <li key={n} className="text-severity-medium-ink">{n}</li>)}
@@ -240,23 +239,21 @@ export function AssetImportWizard({ kind }: { kind: AssetKind }) {
           {phase === 'check' ? (
             <section className="space-y-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
               <div>
-                <Label htmlFor="asset-reason">Reason (kept on the permanent record)</Label>
+                <Label htmlFor="asset-reason">{t('Reason (kept on the permanent record)')}</Label>
                 <Input id="asset-reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} placeholder={k.reasonHint} className="mt-1.5" />
               </div>
               <p className="text-sm text-muted-foreground">
-                {check.counts.attention ? `${check.counts.attention} ${check.counts.attention === 1 ? 'row needs' : 'rows need'} attention and will not be imported unless fixed. ` : ''}
-                Details are updated; {k.untouched}.
-              </p>
+                {t('{value}Details are updated; {untouched}.', { value: check.counts.attention ? `${check.counts.attention} ${check.counts.attention === 1 ? 'row needs' : 'rows need'} attention and will not be imported unless fixed. ` : '', untouched: k.untouched })}</p>
               <Button onClick={runImport} disabled={reason.trim().length < 10 || check.toImport.length === 0}>
                 {check.counts.add || check.counts.update ? `Add ${check.counts.add} and update ${check.counts.update}` : `Confirm ${check.counts.unchanged} unchanged`}
               </Button>
             </section>
           ) : null}
-          {phase === 'importing' ? <p className="text-sm text-muted-foreground" aria-live="polite">Importing…</p> : null}
+          {phase === 'importing' ? <p className="text-sm text-muted-foreground" aria-live="polite">{t('Importing…')}</p> : null}
           {phase === 'failed' && importError ? (
             <section role="alert" className="space-y-2 rounded-xl border border-severity-critical/40 bg-severity-critical/10 p-4 text-sm text-severity-critical-ink">
-              <p>{importError} Nothing was imported.</p>
-              <Button variant="outline" size="sm" onClick={() => setPhase('check')}>Back to the check</Button>
+              <p>{t('{importError} Nothing was imported.', { importError })}</p>
+              <Button variant="outline" size="sm" onClick={() => setPhase('check')}>{t('Back to the check')}</Button>
             </section>
           ) : null}
         </>
@@ -266,32 +263,33 @@ export function AssetImportWizard({ kind }: { kind: AssetKind }) {
 }
 
 function AttentionRow({ row, onFix }: { row: CheckedAsset<AnyItem>; onFix: (change: Partial<AssetFix> | null) => void }) {
+  const { t } = useT();
   const can = new Set(row.issues.flatMap((i) => i.fixes));
   return (
     <tr className={cn('border-b border-border align-top last:border-0', row.outcome === 'skipped' && 'opacity-60')}>
       <td className="px-3 py-2 tabular-nums text-muted-foreground">{row.line}</td>
       <td className="px-3 py-2 font-medium">{row.label}</td>
-      <td className="px-3 py-2">{row.outcome === 'skipped' ? <span className="text-muted-foreground">Skipped</span> : <ul className="space-y-0.5">{row.issues.map((i) => <li key={i.code}>{i.message}</li>)}</ul>}</td>
+      <td className="px-3 py-2">{row.outcome === 'skipped' ? <span className="text-muted-foreground">{t('Skipped')}</span> : <ul className="space-y-0.5">{row.issues.map((i) => <li key={i.code}>{i.message}</li>)}</ul>}</td>
       <td className="px-3 py-2">
-        {row.outcome === 'skipped' ? <Button size="sm" variant="ghost" onClick={() => onFix(null)}>Undo skip</Button> : (
+        {row.outcome === 'skipped' ? <Button size="sm" variant="ghost" onClick={() => onFix(null)}>{t('Undo skip')}</Button> : (
           <div className="flex flex-wrap items-center gap-1.5">
             {can.has('department') ? (
               <select aria-label={`Department for row ${row.line}`} defaultValue="" onChange={(e) => e.target.value && onFix({ silo: e.target.value as Silo })}
                 className="h-8 rounded-md border border-border bg-bg-soft px-2 text-xs">
-                <option value="" disabled>Choose department</option>
+                <option value="" disabled>{t('Choose department')}</option>
                 {SILOS.map((s) => <option key={s} value={s}>{DEPARTMENT_NAMES[s]}</option>)}
               </select>
             ) : null}
             {can.has('firearm-type') ? (
               <select aria-label={`Type for row ${row.line}`} defaultValue="" onChange={(e) => e.target.value && onFix({ firearmType: e.target.value as FirearmType })}
                 className="h-8 rounded-md border border-border bg-bg-soft px-2 text-xs">
-                <option value="" disabled>Choose type</option>
+                <option value="" disabled>{t('Choose type')}</option>
                 {FIREARM_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             ) : null}
-            {can.has('drop-value') ? <Button size="sm" variant="outline" onClick={() => onFix({ dropValue: true })}>Import without it</Button> : null}
-            {can.has('accept-match') ? <Button size="sm" variant="outline" onClick={() => onFix({ acceptMatch: true })}>Same one: update</Button> : null}
-            <Button size="sm" variant="ghost" onClick={() => onFix({ skip: true })}>Skip row</Button>
+            {can.has('drop-value') ? <Button size="sm" variant="outline" onClick={() => onFix({ dropValue: true })}>{t('Import without it')}</Button> : null}
+            {can.has('accept-match') ? <Button size="sm" variant="outline" onClick={() => onFix({ acceptMatch: true })}>{t('Same one: update')}</Button> : null}
+            <Button size="sm" variant="ghost" onClick={() => onFix({ skip: true })}>{t('Skip row')}</Button>
           </div>
         )}
       </td>

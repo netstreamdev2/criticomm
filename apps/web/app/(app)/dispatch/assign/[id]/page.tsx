@@ -108,13 +108,13 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
       {/* Header */}
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Dispatch call</h1>
+          <h1 className="text-2xl font-bold">{t('Dispatch call')}</h1>
           <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            Incident <span className="font-mono text-fg">{incident.incident_number}</span>
+            {t('Incident')}{' '}<span className="font-mono text-fg">{incident.incident_number}</span>
             <span className="severity-pill" data-sev={incident.incident_severity}>{incident.incident_severity}</span>
             <span className="status-badge" data-status={incident.status}>{incident.status}</span>
             <DetailsToFollow incident={incident} />
-            <span>· logged {timeAgo(incident.incident_created_at)}</span>
+            <span>{t('· logged {timeAgo}', { timeAgo: timeAgo(incident.incident_created_at) })}</span>
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -142,7 +142,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
           href={`/incidents/${incident.id}`}
           className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-soft px-4 py-2 text-sm font-semibold hover:bg-muted"
         >
-          Full lifecycle <ArrowUpRight className="h-4 w-4" />
+          {t('Full lifecycle')}{' '}<ArrowUpRight className="h-4 w-4" />
         </Link>
         </div>
       </header>
@@ -151,28 +151,27 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
         {/* ══ CALLER & LOCATION — everything intake captured ══ */}
         <section className="overflow-hidden rounded-2xl border border-border bg-bg-card">
           <h2 className="border-b border-border bg-bg-soft px-5 py-3 text-center text-xs font-bold uppercase tracking-[0.18em]">
-            Caller &amp; location info
-          </h2>
+            {t('Caller & location info')}</h2>
           <div className="space-y-4 p-5">
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Caller name" value={
+              <Field label={t('Caller name')} value={
                 <span className="inline-flex items-center gap-2"><User className="h-3.5 w-3.5 text-muted-foreground" />{incident.caller_name}</span>
               } />
-              <Field label="Contact number" value={
+              <Field label={t('Contact number')} value={
                 // A call sent early may not have the number yet (0076).
                 incident.caller_number ? (
                   <a href={`tel:${incident.caller_number.replace(/\s+/g, '')}`} className="inline-flex items-center gap-2 text-accent hover:underline">
                     <Phone className="h-3.5 w-3.5" />{incident.caller_number}
                   </a>
-                ) : <span className="text-muted-foreground">Not given yet</span>
+                ) : <span className="text-muted-foreground">{t('Not given yet')}</span>
               } />
-              <Field label="How the call came in" value={callChannelText(incident.call_channel, incident.call_channel_other) ?? 'Not recorded'} />
-              <Field label="Caller is the patient" value={
+              <Field label={t('How the call came in')} value={callChannelText(incident.call_channel, incident.call_channel_other) ?? 'Not recorded'} />
+              <Field label={t('Caller is the patient')} value={
                 incident.is_caller_patient === null ? 'Not recorded' : incident.is_caller_patient ? 'Yes' : 'No'
               } />
-              <Field label="Patient name" value={incident.patient_name} />
-              <Field label="Call timestamp" value={formatSaTime(incident.call_timestamp)} mono />
-              <Field label="Call taken by" value={
+              <Field label={t('Patient name')} value={incident.patient_name} />
+              <Field label={t('Call timestamp')} value={formatSaTime(incident.call_timestamp)} mono />
+              <Field label={t('Call taken by')} value={
                 incident.call_taken_by
                   ? <span className="inline-flex items-center gap-2"><Headset className="h-3.5 w-3.5 text-muted-foreground" />{incident.call_taken_by}</span>
                   : '—'
@@ -182,8 +181,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
             {/* Scene */}
             <div>
               <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                <MapPin className="h-3 w-3" /> Incident location
-              </p>
+                <MapPin className="h-3 w-3" /> {' '}{t('Incident location')}</p>
               <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg-soft px-3 py-2.5 text-sm">
                 <span>{incident.location_address}</span>
                 {hasPoint ? (
@@ -197,8 +195,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
                     canAssign={!locked}
                     className="shrink-0 rounded-md border border-accent/40 px-2.5 py-1 text-xs font-semibold text-accent"
                   >
-                    <MapPin className="h-3.5 w-3.5" aria-hidden /> Live map &amp; routes
-                  </DispatchMapButton>
+                    <MapPin className="h-3.5 w-3.5" aria-hidden /> {' '}{t('Live map & routes')}</DispatchMapButton>
                 ) : null}
               </div>
               {hasPoint ? (
@@ -221,18 +218,17 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
                 </div>
               ) : (
                 <p className="mt-2 rounded-lg border border-dashed border-border px-3 py-4 text-center text-xs text-muted-foreground">
-                  No coordinates captured for this call.
-                </p>
+                  {t('No coordinates captured for this call.')}</p>
               )}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Suburb" value={incident.suburb} />
-              <Field label="Region" value={incident.region} />
-              <Field label="City" value={incident.city} />
-              <Field label="Postal code" value={incident.postal_code} />
-              <Field label="Latitude" value={incident.location_lat || '—'} mono />
-              <Field label="Longitude" value={incident.location_lng || '—'} mono />
+              <Field label={t('Suburb')} value={incident.suburb} />
+              <Field label={t('Region')} value={incident.region} />
+              <Field label={t('City')} value={incident.city} />
+              <Field label={t('Postal code')} value={incident.postal_code} />
+              <Field label={t('Latitude')} value={incident.location_lat || '—'} mono />
+              <Field label={t('Longitude')} value={incident.location_lng || '—'} mono />
             </div>
           </div>
         </section>
@@ -240,16 +236,15 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
         {/* ══ INCIDENT DETAILS — the full capture, read-only ══ */}
         <section className="overflow-hidden rounded-2xl border border-border bg-bg-card">
           <h2 className="border-b border-border bg-bg-soft px-5 py-3 text-center text-xs font-bold uppercase tracking-[0.18em]">
-            Incident details
-          </h2>
+            {t('Incident details')}</h2>
           <div className="space-y-4 p-5">
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Incident ID" value={incident.incident_number} mono />
+              <Field label={t('Incident ID')} value={incident.incident_number} mono />
               {/* The departments the call was sent to, each in its colour. */}
-              <Field label="Department" value={<DepartmentPills silos={sentTo.length ? sentTo : [incident.silo]} />} span />
-              <Field label="Incident type" value={incident.incident_code ? `${incident.incident_code} · ${incident.incident_type}` : incident.incident_type} span />
-              <Field label="Category" value={incident.incident_category} />
-              <Field label="Source" value={incident.source} />
+              <Field label={t('Department')} value={<DepartmentPills silos={sentTo.length ? sentTo : [incident.silo]} />} span />
+              <Field label={t('Incident type')} value={incident.incident_code ? `${incident.incident_code} · ${incident.incident_type}` : incident.incident_type} span />
+              <Field label={t('Category')} value={incident.incident_category} />
+              <Field label={t('Source')} value={incident.source} />
             </div>
 
             {incident.status !== 'Resolved' && incident.status !== 'Closed' ? (
@@ -258,8 +253,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
 
             <div>
               <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Description
-              </p>
+                {t('Description')}</p>
               <div className="whitespace-pre-wrap rounded-lg border border-border bg-bg-soft px-3 py-2.5 text-sm leading-relaxed">
                 {incident.call_description}
               </div>
@@ -274,18 +268,17 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
                 <Ambulance className="h-4 w-4 text-severity-critical-ink" /> EMS
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Number of victims" value={incident.number_of_victims ?? '—'} />
-                <Field label="Medical severity" value={incident.medical_type} />
+                <Field label={t('Number of victims')} value={incident.number_of_victims ?? '—'} />
+                <Field label={t('Medical severity')} value={incident.medical_type} />
                 {/* Each patient's own severity, apart from the incident's (0080). */}
-                <Field label="Patients" value={<PatientList patients={incident.patients} />} span />
+                <Field label={t('Patients')} value={<PatientList patients={incident.patients} />} span />
               </div>
             </div>
 
             {incident.notes ? (
               <div>
                 <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Internal dispatch notes
-                </p>
+                  {t('Internal dispatch notes')}</p>
                 <div className="whitespace-pre-wrap rounded-lg border border-severity-medium/40 bg-severity-medium/10 px-3 py-2.5 text-sm leading-relaxed">
                   {incident.notes}
                 </div>
@@ -295,12 +288,10 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
             {/* Evidence attached at intake or from the field */}
             <div>
               <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                <Paperclip className="h-3 w-3" /> Attachments ({attachments.length})
-              </p>
+                <Paperclip className="h-3 w-3" /> {' '}{t('Attachments ({length})', { length: attachments.length })}</p>
               {attachments.length === 0 ? (
                 <p className="rounded-lg border border-dashed border-border px-3 py-3 text-center text-xs text-muted-foreground">
-                  Nothing attached to this call.
-                </p>
+                  {t('Nothing attached to this call.')}</p>
               ) : (
                 <ul className="divide-y divide-border rounded-lg border border-border">
                   {attachments.slice(0, 6).map((a) => (
@@ -320,8 +311,7 @@ export default async function AssignPage({ params }: { params: Promise<{ id: str
             {updates.length > 0 ? (
               <div>
                 <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                  Recent updates
-                </p>
+                  {t('Recent updates')}</p>
                 <ul className="space-y-1.5">
                   {updates.slice(0, 3).map((u) => (
                     <li key={u.id} className="rounded-lg border border-border bg-bg-soft px-3 py-2 text-xs">

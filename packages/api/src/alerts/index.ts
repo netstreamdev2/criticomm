@@ -1,86 +1,115 @@
-import type { CriticomClient, Database, Silo, AlertKind, AlertPresentation } from '@criticom/db';
+import type { CriticomClient, Database, Silo, AlertAudience, UserRole } from '@criticom/db';
 import { subscribeSignedIn } from '../realtime/join';
+
+export * from './audience';
 
 export type Alert = Database['public']['Tables']['alerts']['Row'];
 export type PushToken = Database['public']['Tables']['push_tokens']['Row'];
 
 /**
- * Alerts are the "tell a human right now" channel: department dispatch
- * assignments, escalations, broadcasts. They arrive over Supabase realtime and
- * surface as toasts on the web and as push/full-screen alerts on mobile.
+ * Alerts are the "tell a human right now" channel: dispatch, SOS, assignments,
+ * broadcasts, and the notifications people send each other. They arrive over
+ * Supabase realtime and surface as pop-ups on the web and on the phone.
  *
- * Read scope is enforced by RLS (see migration 0010): you receive alerts
- * addressed to you personally, alerts broadcast to your silo, and — if you hold
- * a global role — everything.
+ * Each one names its audience (migration 0084): one person, a named few, the
+ * holders of some roles, a department, or the whole organisation. RLS lets
+ * only that audience read it. Nobody writes the table directly: the database
+ * raises its own (dispatch, SOS…) and people send through send_notification().
  */
 
-/* ── Raising alerts ─────────────────────────────────────────────────── */
+/* ── Sending ────────────────────────────────────────────────────────── */
 
-export type RaiseAlertInput = {
-  silo: Silo;
+export type SendNotificationInput =
+  | { audience: 'person'; userId: string }
+  | { audience: 'people'; userIds: string[]; silo?: Silo }
+  | { audience: 'role'; roles: UserRole[]; silo?: Silo; allDepartments?: boolean }
+  | { audience: 'department'; silo?: Silo }
+  | { audience: 'organisation' };
+
+export type SendNotificationMessage = {
   title: string;
   body?: string | null;
-  /** Omit to broadcast to the whole silo. */
-  targetUserId?: string | null;
-  kind?: AlertKind;
-  severity?: Alert['severity'];
-  incidentId?: string | null;
+  /** A page inside HikTech, e.g. "/mail". */
   link?: string | null;
-  presentation?: AlertPresentation;
-  requiresAck?: boolean;
-  createdByName?: string | null;
-  /** Auto-hide after this many minutes; omit to keep until read. */
-  expiresInMinutes?: number;
+  severity?: 'Low' | 'Medium' | 'High';
+  kind?: 'info' | 'broadcast' | 'mail' | 'task';
 };
 
-export async function raiseAlert(client: CriticomClient, input: RaiseAlertInput) {
-  const { data, error } = await client
-    .from('alerts')
-    .insert({
-      silo: input.silo,
-      target_user_id: input.targetUserId ?? null,
-      kind: input.kind ?? 'info',
-      severity: input.severity ?? 'Medium',
-      title: input.title,
-      body: input.body ?? null,
-      incident_id: input.incidentId ?? null,
-      link: input.link ?? null,
-      presentation: input.presentation ?? 'toast',
-      requires_ack: input.requiresAck ?? false,
-      created_by_name: input.createdByName ?? null,
-      expires_at: input.expiresInMinutes
-        ? new Date(Date.now() + input.expiresInMinutes * 60_000).toISOString()
-        : null,
-    })
-    .select()
-    .single();
-  if (error) throw error;
-  return data;
-}
-
 /**
- * Fan an incident out to every department it was routed to — one silo-wide
- * alert each. High and Critical calls are raised as blocking modals so a crew
- * cannot scroll past them. Runs server-side in Postgres so the whole fanout is
- * one round trip and cannot half-succeed.
+ * Send a notification. The database checks who may reach whom (anyone to one
+ * person in the organisation; administrators, command and the desks to a
+ * group in their department; the organisation's administrators to everyone)
+ * and audits it. Never an emergency pop-up.
  */
-export async function raiseDispatchAlerts(
+export async function sendNotification(
   client: CriticomClient,
-  args: { incidentId: string; silos: Silo[]; byName?: string | null },
+  to: SendNotificationInput,
+  message: SendNotificationMessage,
 ) {
-  if (args.silos.length === 0) return 0;
-  const { data, error } = await client.rpc('raise_dispatch_alerts', {
-    p_incident_id: args.incidentId,
-    p_silos: args.silos,
-    p_by_name: args.byName ?? null,
+  const { data, error } = await client.rpc('send_notification', {
+    p_audience: to.audience,
+    p_title: message.title,
+    p_body: message.body ?? null,
+    p_link: message.link ?? null,
+    p_severity: message.severity ?? 'Low',
+    p_user: to.audience === 'person' ? to.userId : null,
+    p_users: to.audience === 'people' ? to.userIds : null,
+    p_roles: to.audience === 'role' ? to.roles : null,
+    p_silo: 'silo' in to ? (to.silo ?? null) : null,
+    p_all_departments: to.audience === 'role' ? Boolean(to.allDepartments) : false,
+    p_kind: message.kind ?? 'info',
   });
   if (error) throw error;
-  return data ?? 0;
+  return data as unknown as Alert;
 }
+
+/** Take back a notification you sent: it disappears for everyone. */
+export async function withdrawNotification(client: CriticomClient, id: string) {
+  const { error } = await client.rpc('withdraw_notification', { p_id: id });
+  if (error) throw error;
+}
+
+/** The last 50 notifications you sent. */
+export async function listMySentNotifications(client: CriticomClient) {
+  const { data, error } = await client.rpc('my_sent_notifications');
+  if (error) throw error;
+  return (data ?? []) as unknown as Alert[];
+}
+
+export type NotificationReach = {
+  /** May send to people, a role or a department (else one person at a time). */
+  groups: boolean;
+  /** May send to another department. */
+  anyDepartment: boolean;
+  /** May send to everyone, or to a role in every department. */
+  organisation: boolean;
+  silo: Silo | null;
+};
+
+/** Whom the signed-in person may send to. The database enforces it; this only shapes the form. */
+export async function getNotificationReach(client: CriticomClient): Promise<NotificationReach> {
+  const { data, error } = await client.rpc('notification_reach');
+  if (error) throw error;
+  const r = (data ?? {}) as Partial<NotificationReach>;
+  return { groups: Boolean(r.groups), anyDepartment: Boolean(r.anyDepartment), organisation: Boolean(r.organisation), silo: r.silo ?? null };
+}
+
+/** For System Status: notifications raised since a moment (administrators). */
+export async function countNotificationActivity(client: CriticomClient, since: string) {
+  const { data, error } = await client.rpc('notification_activity', { p_since: since });
+  if (error) throw error;
+  return typeof data === 'number' ? data : 0;
+}
+
+export type { AlertAudience };
 
 /* ── Reading ────────────────────────────────────────────────────────── */
 
-/** Recent alerts visible to the caller, newest first, with read state joined. */
+/**
+ * Recent notifications meant for the caller (RLS: theirs, their group's,
+ * their department's, everyone's), newest first, with read state joined.
+ * Expired ones are left out, as the unread count leaves them out.
+ */
 export async function listMyAlerts(
   client: CriticomClient,
   opts: { limit?: number; unreadOnly?: boolean } = {},
@@ -89,6 +118,7 @@ export async function listMyAlerts(
   const { data, error } = await client
     .from('alerts')
     .select('*, alert_reads(user_id, read_at, acknowledged)')
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
     .order('created_at', { ascending: false })
     .limit(opts.limit ?? 50);
   if (error) throw error;
@@ -163,21 +193,18 @@ let seq = 0;
 const uniqueTopic = (base: string) => `${base}:${++seq}:${Math.random().toString(36).slice(2, 8)}`;
 
 /**
- * Live alert stream. Postgres RLS already limits which rows the socket may
- * deliver, so no client-side filtering is needed for security — but we still
- * pass a silo filter when we can, to cut needless traffic.
+ * Live stream of the notifications meant for the signed-in person. Postgres
+ * RLS decides which rows the socket delivers (0084: the person, the named few,
+ * the role, the department or everyone), so there is no silo filter: a
+ * notification for "Metro Police admins" or "everyone" carries a silo that
+ * is not necessarily the reader's.
  */
-export function subscribeAlerts(
-  client: CriticomClient,
-  args: { silo: Silo | 'all' },
-  onAlert: (alert: Alert) => void,
-) {
-  const filter = args.silo === 'all' ? undefined : `silo=eq.${args.silo}`;
+export function subscribeAlerts(client: CriticomClient, onAlert: (alert: Alert) => void) {
   const channel = client
-    .channel(uniqueTopic(`alerts:${args.silo}`))
+    .channel(uniqueTopic('alerts'))
     .on(
       'postgres_changes' as never,
-      { event: 'INSERT', schema: 'public', table: 'alerts', filter },
+      { event: 'INSERT', schema: 'public', table: 'alerts' },
       (payload: { new: Alert }) => onAlert(payload.new),
     );
   subscribeSignedIn(client, channel);

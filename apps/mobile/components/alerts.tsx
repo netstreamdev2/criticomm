@@ -1,19 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Alert, Animated, Modal, Pressable, StyleSheet, Text, View,
+  Alert, Animated, Modal, PanResponder, Pressable, StyleSheet, Text, View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { subscribeIncidentUpdates } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
-import { useNotifications } from '@/lib/notifications';
+import { BANNER_MS, useNotifications, type Banner } from '@/lib/notifications';
 import { useSync } from '@/lib/sync';
 import { useDuty } from '@/lib/duty';
 import { confirmAccept } from '@/lib/accept';
 import { departmentName } from '@criticom/db';
 import { personTitle } from '@/lib/department';
-import { colors, radius, severityColor, space, type, makeStyles } from '@/lib/theme';
+import { colors, getThemeMode, radius, severityColor, space, type, makeStyles } from '@/lib/theme';
 import { Button } from '@/components/ui';
 import { useT } from '@/lib/i18n';
 
@@ -21,57 +22,111 @@ import { useT } from '@/lib/i18n';
 const incidentNumberOf = (title: string) => /\b[A-Z]{2,5}(?:-[A-Z0-9]+)+\b/.exec(title)?.[0] ?? null;
 
 /**
- * Corner banners for routine alerts. Sit below the header so they never cover
- * the back button, and slide away on their own.
+ * The heads-up: a notification drops in from the top as a white frosted
+ * bubble, the way a Samsung's does, says whom it was for, and lifts away by
+ * itself. Swipe it up to dismiss; tap it to open. Below the status bar, so it
+ * never covers the clock; never used for the full-screen alerts below.
  */
 export function AlertBanners() {
-  const styles = useStyles();
   const { banners, dismissBanner } = useNotifications();
-  const router = useRouter();
-
+  const insets = useSafeAreaInsets();
   if (banners.length === 0) return null;
-
   return (
-    <View pointerEvents="box-none" style={styles.bannerStack}>
-      {banners.map((b) => (
-        <SlideIn key={b.id}>
-          <Pressable
-            onPress={() => {
-              dismissBanner(b.id);
-              if (b.incidentId) router.push(`/incident/${b.incidentId}`);
-            }}
-            style={[styles.banner, { borderLeftColor: severityColor(b.severity) }]}
-          >
-            <Ionicons name="notifications" size={16} color={severityColor(b.severity)} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.bannerTitle} numberOfLines={2}>{b.title}</Text>
-              {b.body ? (
-                <Text style={styles.bannerBody} numberOfLines={2}>{b.body}</Text>
-              ) : null}
-            </View>
-            <Pressable onPress={() => dismissBanner(b.id)} hitSlop={12}>
-              <Ionicons name="close" size={16} color={colors.muted} />
-            </Pressable>
-          </Pressable>
-        </SlideIn>
-      ))}
+    <View pointerEvents="box-none" style={[bubbleStack, { top: insets.top + space.xs }]}>
+      {[...banners].reverse().map((b) => <HeadsUp key={b.id} banner={b} onGone={dismissBanner} />)}
     </View>
   );
 }
 
-function SlideIn({ children }: { children: React.ReactNode }) {
-  const anim = useRef(new Animated.Value(0)).current;
+const bubbleStack = {
+  position: 'absolute' as const, left: 0, right: 0,
+  paddingHorizontal: space.sm, gap: space.sm, zIndex: 100,
+};
+
+const KIND_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
+  mail: 'mail', task: 'clipboard', broadcast: 'megaphone', dispatch: 'radio', assignment: 'radio',
+  backup: 'people', reassigned: 'swap-horizontal', stand_down: 'hand-left',
+};
+const iconFor = (kind?: string): keyof typeof Ionicons.glyphMap =>
+  (kind && KIND_ICON[kind]) || (kind && /^(shift_|leave_|swap)/.test(kind) ? 'calendar' : 'notifications');
+
+function HeadsUp({ banner: b, onGone }: { banner: Banner; onGone: (id: string) => void }) {
+  const { t } = useT();
+  const styles = useStyles();
+  const router = useRouter();
+  const enter = useRef(new Animated.Value(0)).current;
+  const drag = useRef(new Animated.Value(0)).current;
+  const gone = useRef(false);
+
+  const leave = useCallback(() => {
+    if (gone.current) return;
+    gone.current = true;
+    Animated.timing(enter, { toValue: 0, duration: 220, useNativeDriver: true }).start(() => onGone(b.id));
+  }, [enter, onGone, b.id]);
+
   useEffect(() => {
-    Animated.spring(anim, { toValue: 1, useNativeDriver: true, friction: 9, tension: 70 }).start();
-  }, [anim]);
+    Animated.spring(enter, { toValue: 1, useNativeDriver: true, friction: 8, tension: 80 }).start();
+    const timer = setTimeout(leave, BANNER_MS);
+    return () => clearTimeout(timer);
+  }, [enter, leave]);
+
+  // Swipe up to dismiss; a small drag springs back.
+  const pan = useMemo(() => PanResponder.create({
+    onMoveShouldSetPanResponder: (_e, g) => Math.abs(g.dy) > 6,
+    onPanResponderMove: (_e, g) => drag.setValue(Math.min(0, g.dy)),
+    onPanResponderRelease: (_e, g) => {
+      if (g.dy < -30 || g.vy < -0.6) leave();
+      else Animated.spring(drag, { toValue: 0, useNativeDriver: true }).start();
+    },
+    onPanResponderTerminate: () => Animated.spring(drag, { toValue: 0, useNativeDriver: true }).start(),
+  }), [drag, leave]);
+
+  const open = () => {
+    leave();
+    if (b.incidentId) router.push(`/incident/${b.incidentId}`);
+    else if (b.kind && /^(shift_|leave_|swap)/.test(b.kind)) router.push('/(tabs)/schedule');
+    else router.push('/alerts');
+  };
+
+  const accent = b.accent ?? colors.accent;
+  const urgent = b.severity === 'High' || b.severity === 'Critical';
   return (
     <Animated.View
+      {...pan.panHandlers}
       style={{
-        opacity: anim,
-        transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [-24, 0] }) }],
+        opacity: enter,
+        transform: [
+          { translateY: Animated.add(enter.interpolate({ inputRange: [0, 1], outputRange: [-90, 0] }), drag) },
+          { scale: enter.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] }) },
+        ],
       }}
     >
-      {children}
+      <Pressable onPress={open} style={styles.bubble} accessibilityRole="button" accessibilityLabel={b.title}>
+        <View style={[styles.bubbleIcon, { backgroundColor: `${accent}2e` }]}>
+          <Ionicons name={iconFor(b.kind)} size={17} color={accent} />
+          {urgent ? <View style={[styles.bubbleDot, { backgroundColor: severityColor(b.severity) }]} /> : null}
+        </View>
+        <View style={{ flex: 1 }}>
+          <View style={styles.bubbleTop}>
+            <Text style={styles.bubbleApp}>HikTech</Text>
+            {b.audience ? (
+              <>
+                <Text style={styles.bubbleSep}>·</Text>
+                <Text style={[styles.bubbleAudience, { color: accent }]} numberOfLines={1}>{b.audience}</Text>
+              </>
+            ) : null}
+            <Text style={styles.bubbleSep}>·</Text>
+            <Text style={styles.bubbleSep}>{t('now')}</Text>
+          </View>
+          <Text style={styles.bubbleTitle} numberOfLines={2}>{b.title}</Text>
+          {b.body ? <Text style={styles.bubbleBody} numberOfLines={2}>{b.body}</Text> : null}
+          {b.from ? <Text style={styles.bubbleFrom} numberOfLines={1}>{t('From {name}', { name: b.from })}</Text> : null}
+        </View>
+        <Pressable onPress={leave} hitSlop={12} accessibilityLabel={t('Dismiss')}>
+          <Ionicons name="close" size={16} color={styles.bubbleSep.color} />
+        </Pressable>
+      </Pressable>
+      <View style={styles.bubbleGrip} />
     </Animated.View>
   );
 }
@@ -258,23 +313,37 @@ export function AssignmentAlert() {
   );
 }
 
-const useStyles = makeStyles(() => StyleSheet.create({
-  bannerStack: {
-    position: 'absolute', top: 0, left: 0, right: 0,
-    padding: space.md, gap: space.sm, zIndex: 100,
-  },
-  banner: {
+/**
+ * The bubble's milky white: on the dark theme the card colour lifted toward
+ * white, on the light one nearly white glass. (The phone has no live blur,
+ * so the frost is in the colour.)
+ */
+export const bubbleTone = () => (getThemeMode() === 'light'
+  ? { fill: 'rgba(255,255,255,0.97)', edge: 'rgba(15,23,42,0.08)', ink: '#0f172a', dim: '#5f6b7e' }
+  : { fill: 'rgba(52,53,82,0.97)', edge: 'rgba(255,255,255,0.16)', ink: '#ffffff', dim: '#b8bdd0' });
+
+const useStyles = makeStyles(() => {
+  const tone = bubbleTone();
+  return StyleSheet.create({
+  bubble: {
     flexDirection: 'row', alignItems: 'flex-start', gap: space.md,
-    backgroundColor: colors.bgCard,
-    borderWidth: 1, borderColor: colors.border,
-    borderLeftWidth: 3,
-    borderRadius: radius.md,
-    padding: space.md,
-    shadowColor: '#000', shadowOpacity: 0.5, shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 }, elevation: 8,
+    backgroundColor: tone.fill,
+    borderWidth: 1, borderColor: tone.edge,
+    borderRadius: 22,
+    paddingHorizontal: space.lg, paddingTop: space.md, paddingBottom: space.lg,
+    shadowColor: '#000', shadowOpacity: 0.35, shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 }, elevation: 10,
   },
-  bannerTitle: { color: colors.text, fontSize: 14, fontWeight: '700', lineHeight: 19 },
-  bannerBody: { ...type.small, color: colors.muted, marginTop: 2, lineHeight: 18 },
+  bubbleIcon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  bubbleDot: { position: 'absolute', top: -1, right: -1, width: 10, height: 10, borderRadius: 5, borderWidth: 2, borderColor: tone.fill },
+  bubbleTop: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  bubbleApp: { fontSize: 11, fontWeight: '700', color: tone.ink, opacity: 0.8 },
+  bubbleAudience: { fontSize: 11, fontWeight: '700', flexShrink: 1 },
+  bubbleSep: { fontSize: 11, color: tone.dim },
+  bubbleTitle: { color: tone.ink, fontSize: 14, fontWeight: '700', lineHeight: 19, marginTop: 2 },
+  bubbleBody: { fontSize: 13, color: tone.dim, marginTop: 1, lineHeight: 18 },
+  bubbleFrom: { fontSize: 11, color: tone.dim, marginTop: 4 },
+  bubbleGrip: { position: 'absolute', bottom: 6, alignSelf: 'center', width: 34, height: 4, borderRadius: 2, backgroundColor: tone.dim, opacity: 0.35 },
 
   scrim: {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.85)',
@@ -304,4 +373,5 @@ const useStyles = makeStyles(() => StyleSheet.create({
     ...type.small, color: colors.medium, fontWeight: '700',
     marginTop: space.lg,
   },
-}));
+  });
+});

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { TrafficCone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useT } from '@/components/i18n';
 
 type TrafficIncident = {
   geometry?: { type?: string; coordinates?: unknown };
@@ -21,6 +22,7 @@ const CATEGORY: Record<number, string> = {
 
 /** Live TomTom traffic incidents (via /api/external/traffic). */
 export function TrafficPanel() {
+  const { t } = useT();
   const [state, setState] = useState<TrafficResponse | null>(null);
 
   useEffect(() => {
@@ -42,21 +44,20 @@ export function TrafficPanel() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <TrafficCone className="h-4 w-4" /> Live traffic incidents
-        </CardTitle>
-        <CardDescription>TomTom feed for the Durban metro bbox — refreshed every 2 min.</CardDescription>
+          <TrafficCone className="h-4 w-4" /> {' '}{t('Live traffic incidents')}</CardTitle>
+        <CardDescription>{t('TomTom feed for the Durban metro bbox — refreshed every 2 min.')}</CardDescription>
       </CardHeader>
       <CardContent className="text-sm">
-        {!state && <p className="text-muted-foreground">Loading…</p>}
+        {!state && <p className="text-muted-foreground">{t('Loading…')}</p>}
         {state && 'configured' in state && !state.configured && (
           <p className="text-muted-foreground">{state.message}</p>
         )}
         {state && 'error' in state && (
-          <p className="text-severity-medium-ink">Traffic feed unavailable ({state.error}).</p>
+          <p className="text-severity-medium-ink">{t('Traffic feed unavailable ({error}).', { error: state.error })}</p>
         )}
         {state && 'incidents' in state && (
           incidents.length === 0 ? (
-            <p className="text-severity-low-ink">No active traffic incidents in the metro area.</p>
+            <p className="text-severity-low-ink">{t('No active traffic incidents in the metro area.')}</p>
           ) : (
             <ul className="grid gap-2 sm:grid-cols-2">
               {incidents.slice(0, 12).map((i, idx) => (

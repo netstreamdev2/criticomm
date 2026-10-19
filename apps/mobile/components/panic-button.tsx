@@ -15,6 +15,7 @@ import { useFeature } from '@/lib/features';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { useTabBarHeight } from '@/components/tab-bar';
 import { useT } from '@/lib/i18n';
+import { RADIO_SOS_COUNTDOWN_S, RADIO_SOS_REPEAT_MS, onRadioSosKey } from '@/lib/radio-keys';
 
 /**
  * Officer-down.
@@ -34,7 +35,11 @@ import { useT } from '@/lib/i18n';
  *     to the phone's last known fix (GPS needs no data signal), and send
  *     without coordinates if we have to — dispatch would rather have "officer
  *     down, position unknown" now than a precise position later.
- *  5. **It must be honest.** The confirmation follows the queued SOS: sending,
+ *  5. **The radio's own SOS key works too.** On the push-to-talk radio (E977)
+ *     the orange key opens a 5-second countdown with Cancel, then sends the
+ *     same SOS. The radio's PocStar app raises its own alarm as well; this one
+ *     reaches HikTech's dispatch and command.
+ *  6. **It must be honest.** The confirmation follows the queued SOS: sending,
  *     delivered (with its incident number), or held on the phone with no
  *     signal — and then SMS and a call to the control room are one tap away,
  *     because the voice/SMS network often works where data does not.
@@ -71,6 +76,10 @@ export function PanicButton() {
   const pulse = useRef(new Animated.Value(0)).current;
   const armed = useRef(false);
   const nudges = useRef<ReturnType<typeof setTimeout>[]>([]);
+  // The radio's SOS key: seconds left before it sends, and when it last sent.
+  const [keyCountdown, setKeyCountdown] = useState<number | null>(null);
+  const keyTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const keySentAt = useRef(0);
 
   // Idle breathing so the control reads as live rather than decorative.
   useEffect(() => {
@@ -178,6 +187,37 @@ export function PanicButton() {
 
   useEffect(() => () => clearNudges(), []);
 
+  const stopKeyCountdown = useCallback(() => {
+    if (keyTimer.current) clearInterval(keyTimer.current);
+    keyTimer.current = null;
+    setKeyCountdown(null);
+  }, []);
+
+  // The radio's SOS key. A press opens the countdown; held or pressed again it
+  // is the same emergency. Nothing is sent if the officer cancels.
+  const active = Boolean(session) && panicOn && role !== 'Doctor';
+  useEffect(() => {
+    if (!active) return;
+    const off = onRadioSosKey((e) => {
+      if (!e.pressed || keyTimer.current || Date.now() - keySentAt.current < RADIO_SOS_REPEAT_MS) return;
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      let left = RADIO_SOS_COUNTDOWN_S;
+      setKeyCountdown(left);
+      keyTimer.current = setInterval(() => {
+        left -= 1;
+        if (left > 0) {
+          setKeyCountdown(left);
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          return;
+        }
+        stopKeyCountdown();
+        keySentAt.current = Date.now();
+        void fire();
+      }, 1000);
+    });
+    return () => { off(); stopKeyCountdown(); };
+  }, [active, fire, stopKeyCountdown]);
+
   // Where the SOS is right now, read from the queue itself.
   const delivery: 'sending' | 'offline' | 'failed' | 'delivered' | null = !sent ? null
     : pending.some((e) => e.id === sent.id) ? (online ? 'sending' : 'offline')
@@ -246,6 +286,37 @@ export function PanicButton() {
           <Text style={styles.buttonText}>{holding ? t('HOLD…') : t('SOS')}</Text>
         </Animated.View>
       </Pressable>
+
+      <Modal visible={keyCountdown !== null} transparent animationType="fade" onRequestClose={stopKeyCountdown}>
+        <View style={styles.scrim}>
+          <View style={styles.card}>
+            <View style={styles.cardIcon}>
+              <Text style={styles.countdown}>{keyCountdown ?? ''}</Text>
+            </View>
+            <Text style={styles.cardTitle}>{t('SOS from the radio button')}</Text>
+            <Text style={styles.cardBody}>
+              {t('Sending to dispatch and command in {s} seconds. Cancel if it was pressed by mistake.', { s: keyCountdown ?? 0 })}
+            </Text>
+            <View style={styles.fallbacks}>
+              <Pressable
+                onPress={() => { stopKeyCountdown(); keySentAt.current = Date.now(); void fire(); }}
+                accessibilityRole="button"
+                style={({ pressed }) => [styles.fallback, styles.fallbackPrimary, pressed && { opacity: 0.85 }]}
+              >
+                <Ionicons name="warning" size={18} color="#fff" />
+                <Text style={styles.fallbackText}>{t('Send SOS now')}</Text>
+              </Pressable>
+            </View>
+            <Pressable
+              onPress={stopKeyCountdown}
+              accessibilityRole="button"
+              style={({ pressed }) => [styles.cardButton, pressed && { opacity: 0.8 }]}
+            >
+              <Text style={styles.cardButtonText}>{t('Cancel')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
       <Modal visible={Boolean(sent)} transparent animationType="fade" onRequestClose={() => setSent(null)}>
         <View style={styles.scrim}>
@@ -368,6 +439,7 @@ const useStyles = makeStyles(() => StyleSheet.create({
     marginBottom: space.lg,
   },
   cardTitle: { ...type.h1, color: colors.text, textAlign: 'center' },
+  countdown: { color: '#fff', fontSize: 26, fontWeight: '900' },
   cardBody: {
     ...type.small, color: colors.textDim, textAlign: 'center',
     marginTop: space.sm, lineHeight: 20,

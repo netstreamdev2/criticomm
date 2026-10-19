@@ -4,6 +4,7 @@ import { Search } from 'lucide-react';
 import { groupSearchHits, searchEverything, MIN_SEARCH_LENGTH, SEARCH_KIND_LABELS } from '@criticom/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { getServerSupabase } from '@/lib/supabase';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Search · HikTech' };
@@ -21,6 +22,7 @@ export default async function SearchPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
+  const { t } = await requestT();
   await requireFeaturePage('web.search');
   const { q } = await searchParams;
   const query = (q ?? '').trim();
@@ -34,10 +36,9 @@ export default async function SearchPage({
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Search</h1>
+        <h1 className="text-2xl font-bold">{t('Search')}</h1>
         <p className="text-muted-foreground">
-          Incidents, personnel, fleet and reports — everything your department can see.
-        </p>
+          {t('Incidents, personnel, fleet and reports — everything your department can see.')}</p>
       </header>
 
       {/* A GET form, so the query lives in the URL and the result is shareable. */}
@@ -47,33 +48,28 @@ export default async function SearchPage({
           <input
             name="q"
             defaultValue={query}
-            placeholder="Incident number, plate, badge, surname, case number…"
+            placeholder={t('Incident number, plate, badge, surname, case number…')}
             className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
           <button
             type="submit"
             className="my-2 inline-flex h-8 shrink-0 items-center rounded-md bg-primary px-3 text-sm font-semibold text-primary-foreground"
           >
-            Search
-          </button>
+            {t('Search')}</button>
         </div>
       </form>
 
       {query.length > 0 && query.length < MIN_SEARCH_LENGTH ? (
         <Card>
           <CardContent className="p-6 text-center text-sm text-muted-foreground">
-            Type at least {MIN_SEARCH_LENGTH} characters — a single character matches most of the
-            database and tells you nothing.
-          </CardContent>
+            {t('Type at least {value} characters — a single character matches most of the database and tells you nothing.', { value: MIN_SEARCH_LENGTH })}</CardContent>
         </Card>
       ) : null}
 
       {query.length >= MIN_SEARCH_LENGTH && hits.length === 0 ? (
         <Card>
           <CardContent className="p-6 text-center text-sm text-muted-foreground">
-            Nothing matches &ldquo;{query}&rdquo;. Partial identifiers work — try fewer characters,
-            or the surname on its own.
-          </CardContent>
+            {t('Nothing matches “{query}”. Partial identifiers work — try fewer characters, or the surname on its own.', { query })}</CardContent>
         </Card>
       ) : null}
 

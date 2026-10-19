@@ -5,6 +5,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { PostMortemForm } from './post-mortem-form';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Post-Mortem Reports · HikTech' };
@@ -13,6 +14,7 @@ const DEPLOYED = ['Dispatched', 'En Route', 'Arrived', 'On Scene', 'Transporting
 const COMMAND = ['Supervisor', 'Admin', 'SystemAdmin', 'SuperAdmin'];
 
 export default async function PostMortemPage({ searchParams }: { searchParams: Promise<{ incident?: string }> }) {
+  const { t } = await requestT();
   const { supabase, fullName, role } = await getSession();
   const params = await searchParams;
   const [reports, open] = await Promise.all([
@@ -29,24 +31,24 @@ export default async function PostMortemPage({ searchParams }: { searchParams: P
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Post-mortem reports</h1>
-        <p className="text-muted-foreground">Official After-Action Reports. Filing one resolves the incident.</p>
+        <h1 className="text-2xl font-bold">{t('Post-mortem reports')}</h1>
+        <p className="text-muted-foreground">{t('Official After-Action Reports. Filing one resolves the incident.')}</p>
       </header>
 
       {canFile ? (
         deployed.length ? (
           <PostMortemForm incidents={deployed} officer={fullName} initialId={params.incident} />
         ) : (
-          <Card><CardContent className="p-6 text-sm text-muted-foreground">No deployed incident is waiting for a post-mortem.</CardContent></Card>
+          <Card><CardContent className="p-6 text-sm text-muted-foreground">{t('No deployed incident is waiting for a post-mortem.')}</CardContent></Card>
         )
       ) : null}
 
       <Card>
-        <CardHeader><CardTitle>{reports.length} filed</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('{length} filed', { length: reports.length })}</CardTitle></CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['Report', 'Type', 'Location', 'Duration (h)', 'Injuries', 'Fatalities', 'Displaced', 'Officer', 'Filed', '']}
-            empty="No post-mortems filed."
+            empty={t('No post-mortems filed.')}
           >
             {reports.map((r) => (
               <Tr key={r.id}>
@@ -59,7 +61,7 @@ export default async function PostMortemPage({ searchParams }: { searchParams: P
                 <Td className="font-mono">{r.displaced_people}</Td>
                 <Td>{r.reporting_officer ?? '—'}</Td>
                 <Td className="whitespace-nowrap text-xs text-muted-foreground">{formatSaTime(r.report_filed_at)}</Td>
-                <Td>{r.incident_id ? <Link href={`/incidents/${r.incident_id}`} className="text-accent hover:underline">Open</Link> : null}</Td>
+                <Td>{r.incident_id ? <Link href={`/incidents/${r.incident_id}`} className="text-accent hover:underline">{t('Open')}</Link> : null}</Td>
               </Tr>
             ))}
           </SimpleTable>

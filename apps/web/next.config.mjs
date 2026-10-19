@@ -22,6 +22,16 @@ const STREAM_ORIGINS = [
   ...(process.env.BODYCAM_STREAM_ORIGINS ?? '').split(/[\s,]+/).filter(Boolean),
 ].join(' ');
 
+/**
+ * HikTech Talk (0083): the browser talks straight to the voice server.
+ * LiveKit Cloud while testing; a self-hosted server is added in
+ * TALK_ORIGINS (e.g. "wss://talk.hiktech.co.za https://talk.hiktech.co.za").
+ */
+const TALK_ORIGINS = [
+  'wss://*.livekit.cloud', 'https://*.livekit.cloud',
+  ...(process.env.TALK_ORIGINS ?? '').split(/[\s,]+/).filter(Boolean),
+].join(' ');
+
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
@@ -32,7 +42,7 @@ const CSP = [
   `media-src 'self' blob: ${STREAM_ORIGINS}`,
   "worker-src 'self' blob:",
   "frame-src 'self' https://www.i-traffic.co.za",
-  `connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in https://photon.komoot.io https://nominatim.openstreetmap.org https://router.project-osrm.org ${STREAM_ORIGINS}`,
+  `connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in https://photon.komoot.io https://nominatim.openstreetmap.org https://router.project-osrm.org ${STREAM_ORIGINS} ${TALK_ORIGINS}`,
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -69,6 +79,9 @@ const nextConfig = {
     // The public guides (/guide) read the same files.
     '/guide': ['./handbook/**/*.html'],
     '/guide/\\[slug\\]': ['./handbook/**/*.html'],
+    // The police badge on police PDFs (lib/pdf-brand.ts).
+    '/api/pdf/**': ['./public/images/dmps-badge.png'],
+    '/police/report-centre/export/pdf': ['./public/images/dmps-badge.png'],
   },
   images: {
     remotePatterns: [

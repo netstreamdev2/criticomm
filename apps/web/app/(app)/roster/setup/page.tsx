@@ -5,6 +5,7 @@ import {
 import { DEPARTMENT_NAMES, canAdminSchedule, canManageRoster, isScheduleHr, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 import { SetupClient } from './setup-client';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Shift setup · HikTech' };
@@ -15,6 +16,7 @@ export const metadata = { title: 'Shift setup · HikTech' };
  * (organisation HR).
  */
 export default async function ShiftSetupPage({ searchParams }: { searchParams: Promise<{ silo?: string }> }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const params = await searchParams;
   const asked = params.silo && params.silo in DEPARTMENT_NAMES ? (params.silo as Silo) : null;
@@ -34,7 +36,7 @@ export default async function ShiftSetupPage({ searchParams }: { searchParams: P
     <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Shift setup</h1>
+          <h1 className="text-2xl font-bold">{t('Shift setup')}</h1>
           <p className="text-muted-foreground">{DEPARTMENT_NAMES[target]}</p>
         </div>
         {isScheduleHr(role) ? (
@@ -42,7 +44,7 @@ export default async function ShiftSetupPage({ searchParams }: { searchParams: P
             <select name="silo" defaultValue={target} className="h-9 rounded-md border border-border bg-bg-soft px-2 text-sm">
               {(Object.keys(DEPARTMENT_NAMES) as Silo[]).map((s) => <option key={s} value={s}>{DEPARTMENT_NAMES[s]}</option>)}
             </select>
-            <button type="submit" className="h-9 rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">Show</button>
+            <button type="submit" className="h-9 rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{t('Show')}</button>
           </form>
         ) : null}
       </header>

@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { ProposalCard } from './proposal-card';
 import { COUNT_EVENT, askCriti, openCriti, standing } from './shared';
 import { CritiMascot } from './mascot';
+import { useT } from '@/components/i18n';
 
 /**
  * Criti's suggestion tiles: what needs attention now, for this person.
@@ -70,6 +71,7 @@ function readSnoozed(): Record<string, number> {
 }
 
 export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) {
+  const { t } = useT();
   const [insights, setInsights] = useState<Insight[] | null>(null);
   const [enabled, setEnabled] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -150,7 +152,7 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
   if (!enabled) return null;
   if (insights === null) {
     return variant === 'dock'
-      ? <p className="px-1 py-6 text-center text-xs text-muted-foreground">Reading the board…</p>
+      ? <p className="px-1 py-6 text-center text-xs text-muted-foreground">{t('Reading the board…')}</p>
       : null;
   }
 
@@ -174,15 +176,15 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
             ) : null}
           </div>
           {x.since ? (
-            <span className={cn('shrink-0 font-mono text-[11px] font-bold tabular-nums', tone.ink)} title="How long this has stood">
+            <span className={cn('shrink-0 font-mono text-[11px] font-bold tabular-nums', tone.ink)} title={t('How long this has stood')}>
               {standing(x.since, now)}
             </span>
           ) : null}
           <button
             type="button"
             onClick={() => snooze(x.id)}
-            aria-label="Hide for 15 minutes"
-            title="Hide for 15 minutes"
+            aria-label={t('Hide for 15 minutes')}
+            title={t('Hide for 15 minutes')}
             className="-mr-1 -mt-1 shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-fg"
           >
             <X className="h-3.5 w-3.5" />
@@ -212,7 +214,7 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
   // In the dock: the full cards. On a page: three slim strips, the rest in a pop-up.
   if (variant === 'dock') {
     return (
-      <section aria-label="Criti suggestions" className="space-y-2">
+      <section aria-label={t('Criti suggestions')} className="space-y-2">
         {/* A pop-up would open behind the dock, so the card sits on top of the list. */}
         {confirming ? (
           <div className="space-y-1.5" ref={cardRef}>
@@ -223,8 +225,7 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
               onChange={(st) => { if (st === 'cancelled') setConfirming(null); }}
             />
             <button type="button" onClick={() => setConfirming(null)} className="text-[11px] font-semibold text-accent hover:underline">
-              Back to the suggestions
-            </button>
+              {t('Back to the suggestions')}</button>
           </div>
         ) : null}
         {visible.length === 0 ? (
@@ -247,7 +248,7 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
   };
 
   return (
-    <section aria-label="Criti suggestions" className="overflow-hidden rounded-lg border border-white/10 bg-slate-950/90 text-white shadow-sm">
+    <section aria-label={t('Criti suggestions')} className="overflow-hidden rounded-lg border border-white/10 bg-slate-950/90 text-white shadow-sm">
       <div className="flex items-center gap-2 px-3 py-1.5">
         <CritiMascot className="h-5 w-5" />
         <span className="text-[11px] font-bold uppercase tracking-wider text-white/70">Criti</span>
@@ -260,12 +261,10 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
         <div className="ml-auto flex items-center gap-3">
           {visible.length > 0 ? (
             <button type="button" onClick={() => setListOpen(true)} className="text-[11px] font-semibold text-sky-300 hover:underline">
-              View all ({visible.length})
-            </button>
+              {t('View all ({length})', { length: visible.length })}</button>
           ) : null}
           <button type="button" onClick={() => openCriti('chat')} className="inline-flex items-center gap-1 text-[11px] font-semibold text-white/70 hover:text-white">
-            <MessageSquare className="h-3 w-3" /> Ask
-          </button>
+            <MessageSquare className="h-3 w-3" /> {' '}{t('Ask')}</button>
         </div>
       </div>
       {visible.slice(0, SHOWN).map((x) => {
@@ -285,7 +284,7 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
             </p>
             {x.since ? <span className="shrink-0 font-mono text-[11px] tabular-nums text-white/60">{standing(x.since, now)}</span> : null}
             {first(x)}
-            <button type="button" onClick={() => snooze(x.id)} aria-label="Hide for 15 minutes" title="Hide for 15 minutes"
+            <button type="button" onClick={() => snooze(x.id)} aria-label={t('Hide for 15 minutes')} title={t('Hide for 15 minutes')}
               className="shrink-0 rounded p-0.5 text-white/40 hover:bg-white/10 hover:text-white">
               <X className="h-3 w-3" />
             </button>
@@ -296,13 +295,13 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
       {listOpen ? (
         <Modal title={`Criti suggests (${visible.length})`} onClose={() => setListOpen(false)} wide>
           {visible.length === 0
-            ? <p className="text-sm text-muted-foreground">Nothing needs your attention right now.</p>
+            ? <p className="text-sm text-muted-foreground">{t('Nothing needs your attention right now.')}</p>
             : <div className="grid max-h-[65vh] gap-2 overflow-y-auto pr-1">{visible.map(fullCard)}</div>}
         </Modal>
       ) : null}
 
       {confirming ? (
-        <Modal title="Confirm with Criti" onClose={() => setConfirming(null)}>
+        <Modal title={t('Confirm with Criti')} onClose={() => setConfirming(null)}>
           <ProposalCard
             view={confirming}
             onDone={() => void load()}

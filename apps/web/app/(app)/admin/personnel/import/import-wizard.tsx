@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { finishImportAction, importRowsAction, registerSnapshotAction, startImportAction } from '../actions';
+import { useT } from '@/components/i18n';
 
 const BATCH = 500;
 const LIST_LIMIT = 200;
@@ -29,6 +30,7 @@ type Done = { added: number; updated: number; unchanged: number; skipped: number
  * the rows they confirmed. The database checks every row again.
  */
 export function ImportWizard() {
+  const { t } = useT();
   const [register, setRegister] = useState<RegisterEntry[] | null>(null);
   const [registerError, setRegisterError] = useState<string | null>(null);
   const [parsed, setParsed] = useState<Parsed | null>(null);
@@ -105,22 +107,19 @@ export function ImportWizard() {
     return (
       <div className="space-y-5 rounded-xl border border-success/40 bg-bg-card p-6">
         <div>
-          <p className="text-lg font-semibold">Imported</p>
+          <p className="text-lg font-semibold">{t('Imported')}</p>
           <p className="text-sm text-muted-foreground">
-            {result.added} added, {result.updated} updated, {result.unchanged} unchanged, {result.skipped} not imported.
-            Nobody has any new access: invitations come next.
-          </p>
+            {t('{added} added, {updated} updated, {unchanged} unchanged, {skipped} not imported. Nobody has any new access: invitations come next.', { added: result.added, updated: result.updated, unchanged: result.unchanged, skipped: result.skipped })}</p>
         </div>
         <ol className="list-decimal space-y-1 pl-5 text-sm">
-          <li><Link href="/admin/personnel?status=to-confirm" className="font-semibold text-primary hover:underline">Confirm suggested roles</Link>, and set roles for people without one.</li>
+          <li><Link href="/admin/personnel?status=to-confirm" className="font-semibold text-primary hover:underline">{t('Confirm suggested roles')}</Link>{t(', and set roles for people without one.')}</li>
           {result.not_listed ? (
-            <li><Link href="/admin/personnel?status=not-listed" className="font-semibold text-primary hover:underline">Review {result.not_listed} {result.not_listed === 1 ? 'person' : 'people'} not in this list</Link>: they may have left.</li>
+            <li><Link href="/admin/personnel?status=not-listed" className="font-semibold text-primary hover:underline">{t('Review {value} {value2} not in this list', { value: result.not_listed, value2: result.not_listed === 1 ? 'person' : 'people' })}</Link>{t(': they may have left.')}</li>
           ) : null}
-          <li>Invite people who are ready, station by station, and follow progress on the <Link href="/admin/rollout" className="font-semibold text-primary hover:underline">rollout page</Link>.</li>
+          <li>{t('Invite people who are ready, station by station, and follow progress on the')}{' '}<Link href="/admin/rollout" className="font-semibold text-primary hover:underline">{t('rollout page')}</Link>.</li>
         </ol>
         <Button variant="outline" onClick={() => { setParsed(null); setResult(null); setReason(''); setFixes({}); setPhase('check'); registerSnapshotAction().then((r) => r.ok && setRegister(r.register)); }}>
-          Import another file
-        </Button>
+          {t('Import another file')}</Button>
       </div>
     );
   }
@@ -143,27 +142,25 @@ export function ImportWizard() {
           >
             <FileSpreadsheet className="h-8 w-8 text-muted-foreground" aria-hidden />
             <span className="font-semibold">{reading ? 'Reading…' : 'Choose HR’s staff list, or drop it here'}</span>
-            <span className="text-sm text-muted-foreground">Excel (.xlsx) or CSV, up to 20 MB</span>
+            <span className="text-sm text-muted-foreground">{t('Excel (.xlsx) or CSV, up to 20 MB')}</span>
             <input ref={input} type="file" accept=".xlsx,.xlsm,.csv,.txt,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void open(f); e.target.value = ''; }} />
           </label>
           <p className="flex items-start gap-2 text-sm text-muted-foreground">
             <Lock className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-            <span>The file is read on this computer. Nothing reaches HikTech until you confirm, and then only the rows you confirm. The file itself is never stored.</span>
+            <span>{t('The file is read on this computer. Nothing reaches HikTech until you confirm, and then only the rows you confirm. The file itself is never stored.')}</span>
           </p>
           <p className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
             <a href="/admin/personnel/template" className="inline-flex items-center gap-1.5 font-semibold text-primary hover:underline">
-              <Download className="h-4 w-4" /> Download the template for HR
-            </a>
+              <Download className="h-4 w-4" /> {' '}{t('Download the template for HR')}</a>
             <Link href="/admin/handbook/staff-list-request" className="font-semibold text-primary hover:underline">
-              The request to send with it
-            </Link>
+              {t('The request to send with it')}</Link>
           </p>
           {fileError ? <p role="alert" className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical-ink">{fileError}</p> : null}
         </section>
       ) : null}
 
-      {parsed && !register && !registerError ? <p className="text-sm text-muted-foreground">Loading the register to compare against…</p> : null}
+      {parsed && !register && !registerError ? <p className="text-sm text-muted-foreground">{t('Loading the register to compare against…')}</p> : null}
 
       {/* ── 2 · The check ── */}
       {parsed && check ? (
@@ -172,48 +169,39 @@ export function ImportWizard() {
             <div className="space-y-0.5">
               <p className="font-semibold">{parsed.file.name}</p>
               <p className="text-muted-foreground">
-                {parsed.rows.length} {parsed.rows.length === 1 ? 'row' : 'rows'}
-                {parsed.staff.sheet ? ` · sheet “${parsed.staff.sheet}”` : ''}
-                {parsed.staff.sheets.length > 1 ? ` of ${parsed.staff.sheets.length}` : ''}
-                {' · '}headings on row {parsed.headerRow + 1}
-                {' · '}fingerprint <span className="font-mono">{parsed.staff.fingerprint.slice(0, 8)}…</span>
+                {t('{length} {value}{value2}{value3} · headings on row {value4} · fingerprint', { length: parsed.rows.length, value: parsed.rows.length === 1 ? 'row' : 'rows', value2: parsed.staff.sheet ? ` · sheet “${parsed.staff.sheet}”` : '', value3: parsed.staff.sheets.length > 1 ? ` of ${parsed.staff.sheets.length}` : '', value4: parsed.headerRow + 1 })}{' '}<span className="font-mono">{parsed.staff.fingerprint.slice(0, 8)}…</span>
               </p>
               <p className="text-xs text-muted-foreground">
-                Read: {Object.keys(parsed.header.columns).map(fieldName).join(', ')}
-                {parsed.header.fullNameOnly ? ' (names split at the last space)' : ''}
-                {parsed.header.badgeFromForceNumber ? ' (force numbers used as badge numbers)' : ''}
-                {parsed.header.ignored.length ? `. Ignored: ${parsed.header.ignored.join(', ')}` : ''}
+                {t('Read: {join}{value}{value2}{value3}', { join: Object.keys(parsed.header.columns).map(fieldName).join(', '), value: parsed.header.fullNameOnly ? ' (names split at the last space)' : '', value2: parsed.header.badgeFromForceNumber ? ' (force numbers used as badge numbers)' : '', value3: parsed.header.ignored.length ? `. Ignored: ${parsed.header.ignored.join(', ')}` : '' })}
               </p>
             </div>
             {phase === 'check' ? (
-              <Button variant="ghost" size="sm" onClick={() => { setParsed(null); setFixes({}); }}><RotateCcw className="h-4 w-4" /> Choose another file</Button>
+              <Button variant="ghost" size="sm" onClick={() => { setParsed(null); setFixes({}); }}><RotateCcw className="h-4 w-4" /> {' '}{t('Choose another file')}</Button>
             ) : null}
           </section>
 
           <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-            <Tile n={check.counts.add} label="Ready to add" sub="new to the register" tone="ok" />
-            <Tile n={check.counts.update} label="Will update" sub="matched by badge" tone="info" />
-            <Tile n={check.counts.unchanged} label="Unchanged" sub="already up to date" tone="dim" />
-            <Tile n={check.counts.merged} label="Copies merged" sub="same person twice" tone="dim" />
-            <Tile n={check.counts.attention} label="Need attention" sub="fix or skip below" tone={check.counts.attention ? 'warn' : 'dim'} />
-            <Tile n={check.counts.skipped} label="Skipped" sub="by you" tone="dim" />
-            <Tile n={check.notListed.length} label="Not in this list" sub="shown for review" tone={check.notListed.length ? 'crit' : 'dim'} />
+            <Tile n={check.counts.add} label={t('Ready to add')} sub="new to the register" tone="ok" />
+            <Tile n={check.counts.update} label={t('Will update')} sub="matched by badge" tone="info" />
+            <Tile n={check.counts.unchanged} label={t('Unchanged')} sub="already up to date" tone="dim" />
+            <Tile n={check.counts.merged} label={t('Copies merged')} sub="same person twice" tone="dim" />
+            <Tile n={check.counts.attention} label={t('Need attention')} sub="fix or skip below" tone={check.counts.attention ? 'warn' : 'dim'} />
+            <Tile n={check.counts.skipped} label={t('Skipped')} sub="by you" tone="dim" />
+            <Tile n={check.notListed.length} label={t('Not in this list')} sub="shown for review" tone={check.notListed.length ? 'crit' : 'dim'} />
           </dl>
           {check.departments.length ? (
             <p className="text-sm text-muted-foreground">
-              This list covers {check.departments.map((d) => DEPARTMENT_NAMES[d]).join(', ')}. People in those departments it leaves out are
-              shown for review; nobody is removed.
-            </p>
+              {t('This list covers {join}. People in those departments it leaves out are shown for review; nobody is removed.', { join: check.departments.map((d) => DEPARTMENT_NAMES[d]).join(', ') })}</p>
           ) : null}
 
           {check.rows.some((r) => r.outcome === 'attention' || r.outcome === 'skipped') ? (
             <section className="space-y-2">
-              <h2 className="text-base font-semibold">Rows that need attention</h2>
-              <p className="text-sm text-muted-foreground">Fix them here, or skip them. They never hold up the rest.</p>
+              <h2 className="text-base font-semibold">{t('Rows that need attention')}</h2>
+              <p className="text-sm text-muted-foreground">{t('Fix them here, or skip them. They never hold up the rest.')}</p>
               <div className="overflow-x-auto rounded-xl border border-border bg-bg-card">
                 <table className="w-full min-w-[48rem] text-sm">
                   <thead><tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <th className="px-3 py-2">Row</th><th className="px-3 py-2">Person</th><th className="px-3 py-2">Problem</th><th className="px-3 py-2">Fix</th>
+                    <th className="px-3 py-2">{t('Row')}</th><th className="px-3 py-2">{t('Person')}</th><th className="px-3 py-2">{t('Problem')}</th><th className="px-3 py-2">{t('Fix')}</th>
                   </tr></thead>
                   <tbody>
                     {check.rows.filter((r) => r.outcome === 'attention' || r.outcome === 'skipped').slice(0, 500).map((r) => (
@@ -231,7 +219,7 @@ export function ImportWizard() {
                 {check.rows.filter((r) => r.outcome === 'update').slice(0, LIST_LIMIT).map((r) => (
                   <li key={r.line} className="px-3 py-2">
                     <span className="font-medium">{name(r)}</span> <span className="font-mono text-xs text-muted-foreground">{r.person.badge_number}</span>
-                    <span className="text-xs text-muted-foreground"> · row {r.line}</span>
+                    <span className="text-xs text-muted-foreground"> {' '}{t('· row {line}', { line: r.line })}</span>
                     <ul className="mt-0.5 text-xs text-muted-foreground">
                       {r.changes.map((c) => <li key={c.field}>{c.label}: <s>{c.from}</s> → <span className="text-fg">{c.to}</span></li>)}
                       {r.notes.map((n) => <li key={n} className="text-severity-medium-ink">{n}</li>)}
@@ -263,7 +251,7 @@ export function ImportWizard() {
 
           {check.notListed.length ? (
             <Collapsible title={`${check.notListed.length} in the register but not in this list`}>
-              <p className="px-3 pt-2 text-sm text-muted-foreground">This import changes nothing about them. They may have left: review them on the Personnel page afterwards.</p>
+              <p className="px-3 pt-2 text-sm text-muted-foreground">{t('This import changes nothing about them. They may have left: review them on the Personnel page afterwards.')}</p>
               <ul className="divide-y divide-border">
                 {check.notListed.slice(0, LIST_LIMIT).map((e) => (
                   <li key={e.id} className="flex flex-wrap items-baseline gap-x-2 px-3 py-1.5">
@@ -281,14 +269,12 @@ export function ImportWizard() {
           {phase === 'check' ? (
             <section className="space-y-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
               <div>
-                <Label htmlFor="import-reason">Reason (kept on the permanent record)</Label>
+                <Label htmlFor="import-reason">{t('Reason (kept on the permanent record)')}</Label>
                 <Input id="import-reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300}
-                  placeholder="e.g. Go-live preparation, HR staff list of 1 October 2026" className="mt-1.5" />
+                  placeholder={t('e.g. Go-live preparation, HR staff list of 1 October 2026')} className="mt-1.5" />
               </div>
               <p className="text-sm text-muted-foreground">
-                {check.counts.attention ? `${check.counts.attention} ${check.counts.attention === 1 ? 'row needs' : 'rows need'} attention and will not be imported unless fixed. ` : ''}
-                Importing gives nobody access. It is recorded with your name, the reason and the file’s fingerprint.
-              </p>
+                {t('{value}Importing gives nobody access. It is recorded with your name, the reason and the file’s fingerprint.', { value: check.counts.attention ? `${check.counts.attention} ${check.counts.attention === 1 ? 'row needs' : 'rows need'} attention and will not be imported unless fixed. ` : '' })}</p>
               <Button onClick={runImport} disabled={reason.trim().length < 10 || check.toImport.length === 0 || !check.departments.length}>
                 {check.counts.add || check.counts.update
                   ? `Add ${check.counts.add} and update ${check.counts.update}`
@@ -299,7 +285,7 @@ export function ImportWizard() {
 
           {phase === 'importing' ? (
             <section className="space-y-2 rounded-xl border border-border bg-bg-card p-4" aria-live="polite">
-              <p className="text-sm">Importing… {progress.done} of {progress.total}</p>
+              <p className="text-sm">{t('Importing… {done} of {total}', { done: progress.done, total: progress.total })}</p>
               <div className="h-2 overflow-hidden rounded-full bg-muted">
                 <div className="h-full bg-primary transition-all" style={{ width: `${progress.total ? Math.round((progress.done / progress.total) * 100) : 0}%` }} />
               </div>
@@ -309,7 +295,7 @@ export function ImportWizard() {
           {phase === 'failed' && importError ? (
             <section role="alert" className="space-y-2 rounded-xl border border-severity-critical/40 bg-severity-critical/10 p-4 text-sm text-severity-critical-ink">
               <p>{importError}</p>
-              <Button variant="outline" size="sm" onClick={() => setPhase('check')}>Back to the check</Button>
+              <Button variant="outline" size="sm" onClick={() => setPhase('check')}>{t('Back to the check')}</Button>
             </section>
           ) : null}
         </>
@@ -319,6 +305,7 @@ export function ImportWizard() {
 }
 
 function AttentionRow({ row, fix, onFix }: { row: CheckedRow; fix: RowFix; onFix: (change: Partial<RowFix> | null) => void }) {
+  const { t } = useT();
   const [rank, setRank] = useState(fix.rank ?? '');
   const can = new Set(row.issues.flatMap((i) => i.fixes));
   return (
@@ -329,31 +316,31 @@ function AttentionRow({ row, fix, onFix }: { row: CheckedRow; fix: RowFix; onFix
         <div className="font-mono text-xs text-muted-foreground">{row.person.badge_number || 'no badge'}</div>
       </td>
       <td className="px-3 py-2">
-        {row.outcome === 'skipped' ? <span className="text-muted-foreground">Skipped</span> : (
+        {row.outcome === 'skipped' ? <span className="text-muted-foreground">{t('Skipped')}</span> : (
           <ul className="space-y-0.5">{row.issues.map((i) => <li key={i.code}>{i.message}</li>)}</ul>
         )}
       </td>
       <td className="px-3 py-2">
         {row.outcome === 'skipped' ? (
-          <Button size="sm" variant="ghost" onClick={() => onFix(null)}>Undo skip</Button>
+          <Button size="sm" variant="ghost" onClick={() => onFix(null)}>{t('Undo skip')}</Button>
         ) : (
           <div className="flex flex-wrap items-center gap-1.5">
             {can.has('department') ? (
               <select aria-label={`Department for row ${row.line}`} defaultValue="" className="h-8 rounded-md border border-border bg-bg-soft px-2 text-xs"
                 onChange={(e) => e.target.value && onFix({ silo: e.target.value as Silo })}>
-                <option value="" disabled>Choose department</option>
+                <option value="" disabled>{t('Choose department')}</option>
                 {SILOS.map((s) => <option key={s} value={s}>{DEPARTMENT_NAMES[s]}</option>)}
               </select>
             ) : null}
             {can.has('rank') ? (
               <Input value={rank} onChange={(e) => setRank(e.target.value)} onBlur={() => rank.trim() && onFix({ rank: rank.trim() })}
                 onKeyDown={(e) => { if (e.key === 'Enter' && rank.trim()) onFix({ rank: rank.trim() }); }}
-                placeholder="Rank" aria-label={`Rank for row ${row.line}`} className="h-8 w-28 text-xs" />
+                placeholder={t('Rank')} aria-label={`Rank for row ${row.line}`} className="h-8 w-28 text-xs" />
             ) : null}
-            {can.has('drop-email') ? <Button size="sm" variant="outline" onClick={() => onFix({ dropEmail: true })}>Import without email</Button> : null}
-            {can.has('drop-phone') ? <Button size="sm" variant="outline" onClick={() => onFix({ dropPhone: true })}>Import without number</Button> : null}
-            {can.has('accept-match') ? <Button size="sm" variant="outline" onClick={() => onFix({ acceptMatch: true })}>Same person: update</Button> : null}
-            <Button size="sm" variant="ghost" onClick={() => onFix({ skip: true })}>Skip row</Button>
+            {can.has('drop-email') ? <Button size="sm" variant="outline" onClick={() => onFix({ dropEmail: true })}>{t('Import without email')}</Button> : null}
+            {can.has('drop-phone') ? <Button size="sm" variant="outline" onClick={() => onFix({ dropPhone: true })}>{t('Import without number')}</Button> : null}
+            {can.has('accept-match') ? <Button size="sm" variant="outline" onClick={() => onFix({ acceptMatch: true })}>{t('Same person: update')}</Button> : null}
+            <Button size="sm" variant="ghost" onClick={() => onFix({ skip: true })}>{t('Skip row')}</Button>
           </div>
         )}
       </td>
@@ -382,5 +369,6 @@ function Collapsible({ title, children }: { title: string; children: React.React
 }
 
 function More({ total }: { total: number }) {
-  return total > LIST_LIMIT ? <p className="px-3 py-2 text-xs text-muted-foreground">and {total - LIST_LIMIT} more</p> : null;
+  const { t } = useT();
+  return total > LIST_LIMIT ? <p className="px-3 py-2 text-xs text-muted-foreground">{t('and {value} more', { value: total - LIST_LIMIT })}</p> : null;
 }

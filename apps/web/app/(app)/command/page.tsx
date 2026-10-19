@@ -12,6 +12,7 @@ import { cn, formatSaTime } from '@/lib/utils';
 import { LeaveDecision } from '@/components/schedule/leave-actions';
 import { CritiTiles } from '@/components/criti/insight-tiles';
 import { AttendanceNow } from '@/components/schedule/attendance-now';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Command · HikTech' };
@@ -84,6 +85,7 @@ export default async function CommandPage({
 }: {
   searchParams: Promise<{ silo?: string }>;
 }) {
+  const { t } = await requestT();
   await requireFeaturePage('web.command');
   const { supabase, silo, role, userId } = await getSession();
   const params = await searchParams;
@@ -133,11 +135,9 @@ export default async function CommandPage({
     <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Command</h1>
+          <h1 className="text-2xl font-bold">{t('Command')}</h1>
           <p className="text-muted-foreground">
-            {new Date().toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Africa/Johannesburg' })}
-            {' · '}{board} board
-          </p>
+            {t('{localeDateString} · {board} board', { localeDateString: new Date().toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Africa/Johannesburg' }), board })}</p>
         </div>
         <nav className="flex flex-wrap gap-2">
           {QUICK_TABS.filter((t) => !hidden.includes(t.href) && canAccess(t.href, role, silo)).map((t) => (
@@ -160,29 +160,29 @@ export default async function CommandPage({
       <div className="grid gap-3 sm:grid-cols-3">
         <Card>
           <CardContent className="p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Responders on duty</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('Responders on duty')}</p>
             <p className="mt-1 text-4xl font-bold">{onDuty}</p>
-            <p className="text-xs text-muted-foreground">of {profiles.length} personnel</p>
+            <p className="text-xs text-muted-foreground">{t('of {length} personnel', { length: profiles.length })}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Leave for approval</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('Leave for approval')}</p>
             <div className="mt-1 flex items-baseline gap-4">
-              <span><span className="text-4xl font-bold">{pending.length}</span> <span className="text-xs text-severity-medium-ink">pending</span></span>
-              <span><span className="text-4xl font-bold">{urgent.length}</span> <span className="text-xs text-severity-critical-ink">urgent</span></span>
+              <span><span className="text-4xl font-bold">{pending.length}</span> <span className="text-xs text-severity-medium-ink">{t('pending')}</span></span>
+              <span><span className="text-4xl font-bold">{urgent.length}</span> <span className="text-xs text-severity-critical-ink">{t('urgent')}</span></span>
             </div>
-            <p className="text-xs text-muted-foreground">urgent = starts within 7 days</p>
+            <p className="text-xs text-muted-foreground">{t('urgent = starts within 7 days')}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Decisions to date</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('Decisions to date')}</p>
             <div className="mt-1 flex items-baseline gap-4">
-              <span><span className="text-4xl font-bold">{approved}</span> <span className="text-xs text-severity-low-ink">approved</span></span>
-              <span><span className="text-4xl font-bold">{rejected}</span> <span className="text-xs text-severity-critical-ink">rejected</span></span>
+              <span><span className="text-4xl font-bold">{approved}</span> <span className="text-xs text-severity-low-ink">{t('approved')}</span></span>
+              <span><span className="text-4xl font-bold">{rejected}</span> <span className="text-xs text-severity-critical-ink">{t('rejected')}</span></span>
             </div>
-            <p className="text-xs text-muted-foreground">across all leave on record</p>
+            <p className="text-xs text-muted-foreground">{t('across all leave on record')}</p>
           </CardContent>
         </Card>
       </div>
@@ -191,18 +191,18 @@ export default async function CommandPage({
         {/* ── Duty allocation ── */}
         <Card className="xl:col-span-1">
           <CardHeader>
-            <CardTitle>Duty allocation</CardTitle>
-            <CardDescription>Today&apos;s shift assignments — {board}.</CardDescription>
+            <CardTitle>{t('Duty allocation')}</CardTitle>
+            <CardDescription>{t('Today\'s shift assignments — {board}.', { board })}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {sheet.shifts.length === 0 && (
-              <p className="text-sm text-muted-foreground">No allocations for today. Build the board in Duty Allocation.</p>
+              <p className="text-sm text-muted-foreground">{t('No allocations for today. Build the board in Duty Allocation.')}</p>
             )}
             {sheet.shifts.map((block) => (
               <div key={block.shiftName}>
                 <div className="flex items-baseline justify-between rounded-md bg-muted px-3 py-1.5">
                   <span className="text-xs font-bold uppercase tracking-wide">{block.shiftName}</span>
-                  <span className="text-[11px] text-muted-foreground">{block.members.length} member{block.members.length === 1 ? '' : 's'}</span>
+                  <span className="text-[11px] text-muted-foreground">{t('{length} member{value}', { length: block.members.length, value: block.members.length === 1 ? '' : 's' })}</span>
                 </div>
                 <ul className="mt-1 space-y-1">
                   {block.members.slice(0, 8).map((m) => {
@@ -220,14 +220,14 @@ export default async function CommandPage({
                     );
                   })}
                   {block.members.length > 8 && (
-                    <li className="px-2 text-xs text-muted-foreground">+ {block.members.length - 8} more on the duty sheet</li>
+                    <li className="px-2 text-xs text-muted-foreground">{t('+ {value} more on the duty sheet', { value: block.members.length - 8 })}</li>
                   )}
                 </ul>
               </div>
             ))}
             <div className="border-t border-border pt-3">
               <div className="flex items-baseline justify-between text-xs">
-                <span className="text-muted-foreground">Allocation coverage</span>
+                <span className="text-muted-foreground">{t('Allocation coverage')}</span>
                 <span className="font-bold">{coverage}% · {allocated.size}/{profiles.length}</span>
               </div>
               <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -241,13 +241,13 @@ export default async function CommandPage({
         <Card className="xl:col-span-1">
           <CardHeader className="flex-row items-start justify-between space-y-0">
             <div>
-              <CardTitle>Duty maintenance</CardTitle>
-              <CardDescription>Scheduled station tasks and their status.</CardDescription>
+              <CardTitle>{t('Duty maintenance')}</CardTitle>
+              <CardDescription>{t('Scheduled station tasks and their status.')}</CardDescription>
             </div>
-            <Link href="/duty-tasks" className="text-xs font-semibold text-accent hover:underline">Open board →</Link>
+            <Link href="/duty-tasks" className="text-xs font-semibold text-accent hover:underline">{t('Open board →')}</Link>
           </CardHeader>
           <CardContent className="space-y-2">
-            {openTasks.length === 0 && <p className="text-sm text-muted-foreground">Nothing outstanding.</p>}
+            {openTasks.length === 0 && <p className="text-sm text-muted-foreground">{t('Nothing outstanding.')}</p>}
             {openTasks.slice(0, 5).map((t) => (
               <div key={t.id} className="rounded-md border border-border p-3">
                 <div className="flex items-baseline justify-between gap-2">
@@ -283,13 +283,13 @@ export default async function CommandPage({
         <Card className="xl:col-span-1">
           <CardHeader className="flex-row items-start justify-between space-y-0">
             <div>
-              <CardTitle>Leave approvals</CardTitle>
-              <CardDescription>{pending.length} awaiting a decision.</CardDescription>
+              <CardTitle>{t('Leave approvals')}</CardTitle>
+              <CardDescription>{t('{length} awaiting a decision.', { length: pending.length })}</CardDescription>
             </div>
-            <Link href="/leave" className="text-xs font-semibold text-accent hover:underline">All leave →</Link>
+            <Link href="/leave" className="text-xs font-semibold text-accent hover:underline">{t('All leave →')}</Link>
           </CardHeader>
           <CardContent className="space-y-2">
-            {pending.length === 0 && <p className="text-sm text-muted-foreground">The queue is clear.</p>}
+            {pending.length === 0 && <p className="text-sm text-muted-foreground">{t('The queue is clear.')}</p>}
             {pending.slice(0, 6).map((l) => (
               <div key={l.id} className="flex items-center justify-between gap-2 rounded-md border border-border p-3">
                 <div className="min-w-0">
@@ -299,7 +299,7 @@ export default async function CommandPage({
                 {mayApprove ? (
                   <LeaveDecision id={l.id} compact />
                 ) : (
-                  <span className="text-[10px] uppercase text-muted-foreground">Pending</span>
+                  <span className="text-[10px] uppercase text-muted-foreground">{t('Pending')}</span>
                 )}
               </div>
             ))}
@@ -310,8 +310,8 @@ export default async function CommandPage({
       {/* ── Module launcher ── */}
       <Card>
         <CardHeader>
-          <CardTitle>System modules</CardTitle>
-          <CardDescription>Every module on the platform — what your role and your organisation&apos;s switches allow.</CardDescription>
+          <CardTitle>{t('System modules')}</CardTitle>
+          <CardDescription>{t('Every module on the platform — what your role and your organisation\'s switches allow.')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">

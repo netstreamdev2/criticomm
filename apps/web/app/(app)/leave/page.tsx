@@ -9,6 +9,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { ApplyLeaveForm, LeaveCancel, LeaveDecision } from '@/components/schedule/leave-actions';
 import { getSession, siloFilter } from '@/lib/session';
 import { cn } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Leave · HikTech' };
@@ -28,6 +29,7 @@ export default async function LeavePage({
 }: {
   searchParams: Promise<{ m?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, role, silo, userId } = await getSession();
   // Those who roster a department decide its leave (0072); the database
   // checks each decision against the person asking.
@@ -54,7 +56,7 @@ export default async function LeavePage({
     isApprover ? getLeaveMonth(supabase, { monthFirstDayIso: monthFirst, silo: sf }).catch(() => []) : Promise.resolve([]),
   ]);
   const absenceTypes = leaveTypes.length > 0
-    ? leaveTypes.map((t) => t.name ?? '').filter(Boolean)
+    ? leaveTypes.filter((t) => t.detail2 !== 'Office').map((t) => t.name ?? '').filter(Boolean)
     : FALLBACK_TYPES;
 
   const mine = entries.filter((e) => e.user_id === userId);
@@ -87,7 +89,7 @@ export default async function LeavePage({
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Leave</h1>
+        <h1 className="text-2xl font-bold">{t('Leave')}</h1>
         <p className="text-muted-foreground">
           {isApprover ? 'Your leave, and the requests waiting for you.' : 'Your balances and your requests.'}
         </p>
@@ -105,7 +107,7 @@ export default async function LeavePage({
                   </p>
                   <p className="mt-2 text-2xl font-bold">
                     {b.remaining}
-                    <span className="text-sm font-normal text-muted-foreground"> / {b.entitlement} days left</span>
+                    <span className="text-sm font-normal text-muted-foreground"> {' '}{t('/ {entitlement} days left', { entitlement: b.entitlement })}</span>
                   </p>
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
                     <div
@@ -114,7 +116,7 @@ export default async function LeavePage({
                     />
                   </div>
                   <p className="mt-1.5 text-[11px] text-muted-foreground">
-                    {b.taken} taken{b.pending > 0 ? ` · ${b.pending} pending` : ''}
+                    {t('{taken} taken{value}', { taken: b.taken, value: b.pending > 0 ? ` · ${b.pending} pending` : '' })}
                   </p>
                 </CardContent>
               </Card>
@@ -124,21 +126,20 @@ export default async function LeavePage({
       ) : null}
 
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Ask for leave</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t('Ask for leave')}</h2>
         <ApplyLeaveForm types={absenceTypes} />
         <p className="text-xs text-muted-foreground">
-          Days are counted from your roster: the shifts the leave covers, and working days after it.
-        </p>
+          {t('Days are counted from your roster: the shifts the leave covers, and working days after it.')}</p>
       </section>
 
       {isApprover ? (
         <Card>
           <CardHeader>
-            <CardTitle>Waiting for you ({toDecide.length})</CardTitle>
-            <CardDescription>Shows how many in the department would be away if granted.</CardDescription>
+            <CardTitle>{t('Waiting for you ({length})', { length: toDecide.length })}</CardTitle>
+            <CardDescription>{t('Shows how many in the department would be away if granted.')}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Who', 'Type', 'From', 'To', 'Days', 'Reason', '']} empty="Nothing waiting.">
+            <SimpleTable headers={['Who', 'Type', 'From', 'To', 'Days', 'Reason', '']} empty={t('Nothing waiting.')}>
               {toDecide.map((l) => {
                 const impact = coverage.get(l.id);
                 return (
@@ -161,8 +162,7 @@ export default async function LeavePage({
                                   : 'bg-severity-low/15 text-severity-low-ink',
                             )}
                           >
-                            {impact.pct}% away
-                          </span>
+                            {t('{pct}% away', { pct: impact.pct })}</span>
                         ) : null}
                         <LeaveDecision id={l.id} />
                       </div>
@@ -177,11 +177,11 @@ export default async function LeavePage({
 
       <Card>
         <CardHeader>
-          <CardTitle>My leave</CardTitle>
-          <CardDescription>Cancel a request any time before your leave starts.</CardDescription>
+          <CardTitle>{t('My leave')}</CardTitle>
+          <CardDescription>{t('Cancel a request any time before your leave starts.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Type', 'From', 'To', 'Days', 'Status', 'Decided by', '']} empty="No leave requests.">
+          <SimpleTable headers={['Type', 'From', 'To', 'Days', 'Status', 'Decided by', '']} empty={t('No leave requests.')}>
             {mine.map((l) => (
               <Tr key={l.id}>
                 <Td>{l.absence ?? '—'}</Td>
@@ -207,11 +207,11 @@ export default async function LeavePage({
         <>
           <Card>
             <CardHeader>
-              <CardTitle>Approved leave ahead</CardTitle>
-              <CardDescription>Cancelling gives the person their shifts back. Say why; they are told.</CardDescription>
+              <CardTitle>{t('Approved leave ahead')}</CardTitle>
+              <CardDescription>{t('Cancelling gives the person their shifts back. Say why; they are told.')}</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <SimpleTable headers={['Who', 'Type', 'From', 'To', 'Days', 'Decided by', '']} empty="No approved leave ahead.">
+              <SimpleTable headers={['Who', 'Type', 'From', 'To', 'Days', 'Decided by', '']} empty={t('No approved leave ahead.')}>
                 {othersApproved.map((l) => (
                   <Tr key={l.id}>
                     <Td className="font-medium">{l.applicant_name ?? 'Member'}</Td>
@@ -230,12 +230,12 @@ export default async function LeavePage({
           <Card>
             <CardHeader className="flex-row items-center justify-between space-y-0">
               <div>
-                <CardTitle>Who&apos;s away · {monthName}</CardTitle>
-                <CardDescription>Solid: approved. Outlined: waiting for a decision.</CardDescription>
+                <CardTitle>{t('Who\'s away · {monthName}', { monthName })}</CardTitle>
+                <CardDescription>{t('Solid: approved. Outlined: waiting for a decision.')}</CardDescription>
               </div>
               <div className="flex items-center gap-1">
-                <Link href={`/leave?m=${prev}`} aria-label="Previous month" className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronLeft className="h-4 w-4" /></Link>
-                <Link href={`/leave?m=${next}`} aria-label="Next month" className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronRight className="h-4 w-4" /></Link>
+                <Link href={`/leave?m=${prev}`} aria-label={t('Previous month')} className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronLeft className="h-4 w-4" /></Link>
+                <Link href={`/leave?m=${next}`} aria-label={t('Next month')} className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronRight className="h-4 w-4" /></Link>
               </div>
             </CardHeader>
             <CardContent>
@@ -266,7 +266,7 @@ export default async function LeavePage({
                           {e.name.split(' ')[0]}
                         </p>
                       ))}
-                      {off.length > 3 ? <p className="text-[10px] text-muted-foreground">+{off.length - 3} more</p> : null}
+                      {off.length > 3 ? <p className="text-[10px] text-muted-foreground">{t('+{value} more', { value: off.length - 3 })}</p> : null}
                     </div>
                   );
                 })}

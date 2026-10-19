@@ -2,6 +2,7 @@ import { getDispatcherKpis } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSession, siloFilter } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'KPI Dashboard · HikTech' };
@@ -20,6 +21,7 @@ function BarRow({ label, value, max }: { label: string; value: number; max: numb
 }
 
 export default async function KpiPage() {
+  const { t } = await requestT();
   const { supabase, silo } = await getSession();
   const kpi = await getDispatcherKpis(supabase, siloFilter(silo));
 
@@ -41,8 +43,8 @@ export default async function KpiPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Dispatcher KPIs</h1>
-        <p className="text-muted-foreground">Operational metrics · refreshed {formatSaTime(new Date())}</p>
+        <h1 className="text-2xl font-bold">{t('Dispatcher KPIs')}</h1>
+        <p className="text-muted-foreground">{t('Operational metrics · refreshed {saTime}', { saTime: formatSaTime(new Date()) })}</p>
       </header>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -59,8 +61,8 @@ export default async function KpiPage() {
       <section className="grid gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle>Severity mix</CardTitle>
-            <CardDescription>Calls by priority.</CardDescription>
+            <CardTitle>{t('Severity mix')}</CardTitle>
+            <CardDescription>{t('Calls by priority.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -73,8 +75,8 @@ export default async function KpiPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>By department</CardTitle>
-            <CardDescription>Dispatches per silo.</CardDescription>
+            <CardTitle>{t('By department')}</CardTitle>
+            <CardDescription>{t('Dispatches per silo.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -87,8 +89,8 @@ export default async function KpiPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Hourly distribution</CardTitle>
-            <CardDescription>Today's call volume by hour.</CardDescription>
+            <CardTitle>{t('Hourly distribution')}</CardTitle>
+            <CardDescription>{t('Today\'s call volume by hour.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex h-32 items-end gap-0.5">

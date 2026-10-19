@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MapPin, Radio, Siren, Clock } from 'lucide-react';
 import {
-  markAlertRead, subscribeAlerts, subscribeIncidentUpdates, subscribeNewIncidents,
+  AUDIENCE_TONE, audienceGroup, audienceLabel, markAlertRead, subscribeAlerts, subscribeIncidentUpdates, subscribeNewIncidents,
   type Alert,
 } from '@criticom/api';
 import {
@@ -14,6 +14,7 @@ import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { useToast, type Severity, type ToastTone } from '@/components/toast';
 import { SosAlert, SosBar } from '@/components/sos-alert';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 const SILO_LABELS: Record<string, string> = {
   Ethekwini: 'Control Room',
@@ -56,15 +57,18 @@ const DEFAULT_TUNING: AlertTuning = {
  *   • incident updates    — status changes on calls in your scope.
  *
  * Anything marked `presentation: 'modal'` (High/Critical dispatch assignments)
- * blocks the screen until acknowledged; everything else is a corner toast.
+ * blocks the screen until acknowledged, and an SOS brings its own siren pop-up;
+ * both are unchanged. Every other notification drops in from the top as a
+ * white frosted bubble saying whom it was for (heads-up.tsx).
  */
 export function AlertCenter({
   silo, role, userId, tuning = DEFAULT_TUNING,
 }: {
   silo: string; role: string; userId: string; tuning?: AlertTuning;
 }) {
+  const { t } = useT();
   const router = useRouter();
-  const { push, chime: rawChime, chimeSeverity: rawChimeSeverity } = useToast();
+  const { push, notify, chime: rawChime, chimeSeverity: rawChimeSeverity } = useToast();
   const [queue, setQueue] = useState<Alert[]>([]);
   /** SOS alerts folded into the bottom bar: out of the way, still unanswered. */
   const [minimized, setMinimized] = useState<Alert[]>([]);
@@ -133,18 +137,23 @@ export function AlertCenter({
       chime('critical');
       return;
     }
-    push({
+    notify({
       id: `alert-${alert.id}`,
       title: alert.title,
       body: alert.body ?? undefined,
-      badge: alert.severity,
-      tone: alert.kind === 'assignment' ? 'dispatch' : toneFor(alert.severity),
       href: alert.link ?? undefined,
-      duration: toastMs,
+      from: alert.created_by && alert.created_by !== userId ? alert.created_by_name : null,
+      audience: audienceLabel(alert),
+      accent: AUDIENCE_TONE[audienceGroup(alert)],
+      kind: alert.kind,
+      severity: alert.severity,
+      duration: Math.max(toastMs, 6000),
     });
-    chime(alert.severity === 'Critical' ? 'critical' : 'dispatch');
+    // A person's note is a soft bell; HikTech's own operational ones keep their tone.
+    const quiet = ['info', 'mail', 'task', 'broadcast'].includes(alert.kind) && rank < 2;
+    chime(alert.severity === 'Critical' ? 'critical' : quiet ? 'info' : 'dispatch');
     void markAlertRead(getBrowserSupabase(), alert.id).catch(() => {});
-  }, [push, chime, interruptsAt, toastMs]);
+  }, [notify, chime, interruptsAt, toastMs, userId]);
 
   useEffect(() => {
     let sb: ReturnType<typeof getBrowserSupabase>;
@@ -155,13 +164,13 @@ export function AlertCenter({
       return;
     }
 
-    const offAlerts = subscribeAlerts(sb, { silo: scope }, (alert) => {
-      // A silo-wide alert reaches every session in that silo; a targeted one
-      // only its addressee.
+    // RLS delivers only what is meant for this person (0084): them, a few
+    // named people, their role, their department or everyone.
+    const offAlerts = subscribeAlerts(sb, (alert) => {
       if (alert.target_user_id && alert.target_user_id !== userId) return;
-      // Off the floor (the SuperAdmin): only what is addressed to you
-      // personally, and never an SOS or a department-wide escalation.
-      if (!onTheFloor && (!alert.target_user_id || alert.kind === 'sos')) return;
+      // Off the floor (the SuperAdmin): what is sent to you or your role, and
+      // the organisation's news, never an SOS or a department-wide escalation.
+      if (!onTheFloor && (alert.audience === 'department' || alert.kind === 'sos')) return;
       showAlert(alert);
     });
 
@@ -333,7 +342,7 @@ export function AlertCenter({
             <p className="text-xs font-bold uppercase tracking-[0.2em] opacity-80">
               {current.severity} · {SILO_LABELS[current.silo] ?? current.silo}
             </p>
-            <p className="text-lg font-bold leading-tight">Incident assigned</p>
+            <p className="text-lg font-bold leading-tight">{t('Incident assigned')}</p>
           </div>
         </div>
 
@@ -358,13 +367,12 @@ export function AlertCenter({
             {current.created_by_name ? (
               <span className="flex items-center gap-1.5">
                 <Radio className="h-3.5 w-3.5" />
-                Dispatched by {current.created_by_name}
+                {t('Dispatched by {value}', { value: current.created_by_name })}
               </span>
             ) : null}
             {queue.length > 1 ? (
               <span className="ml-auto font-semibold text-fg">
-                +{queue.length - 1} more waiting
-              </span>
+                {t('+{value} more waiting', { value: queue.length - 1 })}</span>
             ) : null}
           </div>
 
@@ -376,8 +384,7 @@ export function AlertCenter({
                 onClick={() => void acknowledge(true)}
                 className="h-11 flex-1 rounded-lg bg-primary text-sm font-bold disabled:opacity-60"
               >
-                Acknowledge & open
-              </button>
+                {t('Acknowledge & open')}</button>
             ) : null}
             <button
               type="button"
@@ -388,8 +395,7 @@ export function AlertCenter({
                 current.link ? 'sm:w-40' : 'flex-1',
               )}
             >
-              Acknowledge
-            </button>
+              {t('Acknowledge')}</button>
           </div>
         </div>
       </div>

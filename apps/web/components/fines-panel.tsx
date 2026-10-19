@@ -7,6 +7,7 @@ import { FINE_STATUS_TONE } from '@/lib/fine-tone';
 import { fineQueryString, readFineQuery, toFineFilters, type FineQuery } from '@/lib/fines';
 import type { getSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -64,6 +65,7 @@ export async function FinesPanel({
   params: Params;
   userId: string;
 }) {
+  const { t } = await requestT();
   const raw = readFineQuery(params, P);
   // This month by default; overdue fines are older, so Overdue looks at all time unless a period is chosen.
   const query: FineQuery = { ...raw, period: raw.period ?? (raw.overdue ? undefined : 'month') };
@@ -83,11 +85,11 @@ export async function FinesPanel({
       <CardHeader className="pb-3">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <CardTitle>Fines &amp; tickets</CardTitle>
-            <CardDescription>AARTO 01 road traffic notices and by-law notices served by Metro Police officers.</CardDescription>
+            <CardTitle>{t('Fines & tickets')}</CardTitle>
+            <CardDescription>{t('AARTO 01 road traffic notices and by-law notices served by Metro Police officers.')}</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Link href={registerHref} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">Open register →</Link>
+            <Link href={registerHref} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{t('Open register →')}</Link>
             <a href={`/police/fines/export${fineQueryString({ period: query.period, status: query.status, overdue: query.overdue, type: query.type })}`} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">CSV</a>
           </div>
         </div>
@@ -96,13 +98,13 @@ export async function FinesPanel({
             <Chip key={p.key} href={hrefWith(params, { period: p.key })} on={query.period === p.key}>{p.label}</Chip>
           ))}
           <span className="mx-1 h-5 w-px bg-border" />
-          <Chip href={hrefWith(params, { type: undefined })} on={!query.type}>All notices</Chip>
+          <Chip href={hrefWith(params, { type: undefined })} on={!query.type}>{t('All notices')}</Chip>
           {NOTICE_TYPES.map((n) => (
             <Chip key={n.type} href={hrefWith(params, { type: n.type })} on={query.type === n.type}>{n.type}</Chip>
           ))}
           <span className="mx-1 h-5 w-px bg-border" />
-          <Chip href={hrefWith(params, { status: undefined })} on={!query.status && !query.overdue}>Any status</Chip>
-          <Chip href={hrefWith(params, { status: 'Overdue' })} on={Boolean(query.overdue)}>Overdue</Chip>
+          <Chip href={hrefWith(params, { status: undefined })} on={!query.status && !query.overdue}>{t('Any status')}</Chip>
+          <Chip href={hrefWith(params, { status: 'Overdue' })} on={Boolean(query.overdue)}>{t('Overdue')}</Chip>
           {FINE_STATUSES.map((s) => (
             <Chip key={s} href={hrefWith(params, { status: s })} on={query.status === s}>{s}</Chip>
           ))}
@@ -111,8 +113,7 @@ export async function FinesPanel({
       <CardContent className="space-y-4 p-0">
         {failed ? (
           <p className="mx-6 rounded-md border border-severity-medium/40 bg-severity-medium/10 p-3 text-sm">
-            Fines are not available yet. If migration 0057 has not been run, run it in Supabase.
-          </p>
+            {t('Fines are not available yet. If migration 0057 has not been run, run it in Supabase.')}</p>
         ) : null}
         <div className="grid grid-cols-2 gap-px border-y border-border bg-border sm:grid-cols-4 xl:grid-cols-7">
           {[
@@ -130,7 +131,7 @@ export async function FinesPanel({
             </div>
           ))}
         </div>
-        <SimpleTable headers={['Fine', 'Served', 'Notice', 'Vehicle / infringer', 'Offence', 'Officer', 'Amount', 'Status']} empty="No fines in this view.">
+        <SimpleTable headers={['Fine', 'Served', 'Notice', 'Vehicle / infringer', 'Offence', 'Officer', 'Amount', 'Status']} empty={t('No fines in this view.')}>
           {rows.slice(0, 12).map((r) => (
             <Tr key={r.id}>
               <Td><Link href={`/police/fines/${r.id}`} className="font-mono text-sm font-bold text-accent hover:underline">{r.fine_number}</Link></Td>
@@ -154,7 +155,7 @@ export async function FinesPanel({
         </SimpleTable>
         {rows.length > 12 ? (
           <p className="px-6 pb-4 text-sm text-muted-foreground">
-            Showing the latest 12 of {rows.length}. <Link href={registerHref} className="font-semibold text-accent hover:underline">See them all in the register</Link>.
+            {t('Showing the latest 12 of {length}.', { length: rows.length })}{' '}<Link href={registerHref} className="font-semibold text-accent hover:underline">{t('See them all in the register')}</Link>.
           </p>
         ) : null}
       </CardContent>

@@ -6,11 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'My HR · HikTech' };
 
 export default async function MyHrPage() {
+  const { t } = await requestT();
   const { supabase, userId, silo, role, fullName } = await getSession();
 
   const now = new Date();
@@ -51,25 +53,24 @@ export default async function MyHrPage() {
           </div>
         </div>
         <Link href="/profile" className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted">
-          Edit profile →
-        </Link>
+          {t('Edit profile →')}</Link>
       </header>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Badge</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Badge')}</p>
           <p className="mt-2 text-xl font-bold">{profile?.badge_number ?? me?.badge_number ?? '—'}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Station</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Station')}</p>
           <p className="mt-2 text-xl font-bold">{profile?.station ?? me?.station ?? '—'}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Leave (approved / pending)</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Leave (approved / pending)')}</p>
           <p className="mt-2 text-xl font-bold">{approvedLeave} / {pendingLeave}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">On duty</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('On duty')}</p>
           <p className="mt-2 text-xl font-bold">{profile?.is_on_duty ? 'Yes' : 'No'}</p>
         </CardContent></Card>
       </section>
@@ -77,7 +78,7 @@ export default async function MyHrPage() {
       {perf && (
         <Card>
           <CardHeader>
-            <CardTitle>Performance snapshot — {perf.cycleLabel}</CardTitle>
+            <CardTitle>{t('Performance snapshot — {cycleLabel}', { cycleLabel: perf.cycleLabel })}</CardTitle>
             <CardDescription>
               {perf.hasPlan
                 ? `Appraisal status ${perf.planStatus}. Mid-year ${perf.midYearAverage ?? '—'}, final ${perf.finalAverage ?? '—'} / 5.`
@@ -85,18 +86,18 @@ export default async function MyHrPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-3 gap-3 text-center">
-            <div><p className="text-2xl font-bold">{perf.asCallTaker.total}</p><p className="text-xs text-muted-foreground">Calls taken</p></div>
-            <div><p className="text-2xl font-bold">{perf.asDispatcher.dispatched}</p><p className="text-xs text-muted-foreground">Dispatched</p></div>
-            <div><p className="text-2xl font-bold">{perf.asResponder.total}</p><p className="text-xs text-muted-foreground">Attended</p></div>
+            <div><p className="text-2xl font-bold">{perf.asCallTaker.total}</p><p className="text-xs text-muted-foreground">{t('Calls taken')}</p></div>
+            <div><p className="text-2xl font-bold">{perf.asDispatcher.dispatched}</p><p className="text-xs text-muted-foreground">{t('Dispatched')}</p></div>
+            <div><p className="text-2xl font-bold">{perf.asResponder.total}</p><p className="text-xs text-muted-foreground">{t('Attended')}</p></div>
           </CardContent>
         </Card>
       )}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle>My upcoming duty</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('My upcoming duty')}</CardTitle></CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Shift', 'Station', 'Activity', 'Vehicle']} empty="No duty allocated.">
+            <SimpleTable headers={['Shift', 'Station', 'Activity', 'Vehicle']} empty={t('No duty allocated.')}>
               {myShifts.map((r) => (
                 <Tr key={r.id}>
                   <Td>{(r as { shift?: { shift_name?: string } }).shift?.shift_name ?? '—'}</Td>
@@ -110,9 +111,9 @@ export default async function MyHrPage() {
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>My endorsements</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('My endorsements')}</CardTitle></CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Type', 'Details', 'Period']} empty="No endorsements on file.">
+            <SimpleTable headers={['Type', 'Details', 'Period']} empty={t('No endorsements on file.')}>
               {myEndorsements.map((e) => (
                 <Tr key={e.id}>
                   <Td className="font-semibold">{e.type}</Td>
@@ -126,9 +127,9 @@ export default async function MyHrPage() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle>My leave history</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('My leave history')}</CardTitle></CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Type', 'From', 'To', 'Status', 'Applied']} empty="No leave requests.">
+          <SimpleTable headers={['Type', 'From', 'To', 'Status', 'Applied']} empty={t('No leave requests.')}>
             {myLeave.map((l) => (
               <Tr key={l.id}>
                 <Td>{l.absence ?? '—'}</Td>

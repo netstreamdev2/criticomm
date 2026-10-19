@@ -8,11 +8,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 import { RuleCard } from './rule-card';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Automations · HikTech' };
 
 export default async function AutomationsPage() {
+  const { t } = await requestT();
   const { supabase, role } = await getSession();
   if (!ADMIN_CONSOLE_ROLES.includes(role)) redirect('/dashboard');
 
@@ -25,16 +27,12 @@ export default async function AutomationsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Automations</h1>
+        <h1 className="text-2xl font-bold">{t('Automations')}</h1>
         <p className="text-muted-foreground">
-          Rules that watch the board when nobody is watching it — ageing calls, lapsing
-          certifications, duties nobody confirmed. They run in the database on a five-minute tick.
-        </p>
+          {t('Rules that watch the board when nobody is watching it — ageing calls, lapsing certifications, duties nobody confirmed. They run in the database on a five-minute tick.')}</p>
         {role !== 'SuperAdmin' ? (
           <p className="mt-2 text-sm text-muted-foreground">
-            Read-only: these rules run for every municipality on the platform, so only the
-            SuperAdmin can change or run them.
-          </p>
+            {t('Read-only: these rules run for every municipality on the platform, so only the SuperAdmin can change or run them.')}</p>
         ) : null}
       </header>
 
@@ -57,12 +55,10 @@ export default async function AutomationsPage() {
             {health.lastRunAt ? `Last tick ${timeAgo(health.lastRunAt)}` : 'Never run'}
           </div>
           <div className="text-sm text-muted-foreground">
-            {health.enabled} of {health.total} rules enabled
-          </div>
+            {t('{enabled} of {total} rules enabled', { enabled: health.enabled, total: health.total })}</div>
           {health.erroring.length > 0 ? (
             <div className="text-sm font-semibold text-severity-critical">
-              {health.erroring.length} rule{health.erroring.length === 1 ? '' : 's'} erroring
-            </div>
+              {t('{length} rule{value} erroring', { length: health.erroring.length, value: health.erroring.length === 1 ? '' : 's' })}</div>
           ) : null}
         </CardContent>
       </Card>
@@ -70,32 +66,24 @@ export default async function AutomationsPage() {
       {health.stalled ? (
         <Card className="border-severity-critical/40 bg-severity-critical/5">
           <CardHeader>
-            <CardTitle className="text-severity-critical">Nothing is calling the engine</CardTitle>
+            <CardTitle className="text-severity-critical">{t('Nothing is calling the engine')}</CardTitle>
             <CardDescription>
-              The rules are installed and correct, but no scheduler is ticking them, so no
-              escalation will fire on its own. Either enable <code>pg_cron</code> on the database
-              (migration <code>0026</code> does this where the platform allows it), or call{' '}
-              <code>select public.run_automations();</code> every five minutes from an external
-              scheduler. &ldquo;Run now&rdquo; below still works in the meantime.
-            </CardDescription>
+              {t('The rules are installed and correct, but no scheduler is ticking them, so no escalation will fire on its own. Either enable')}{' '}<code>pg_cron</code> {' '}{t('on the database (migration')}{' '}<code>0026</code> {' '}{t('does this where the platform allows it), or call')}{' '}
+              <code>select public.run_automations();</code> {' '}{t('every five minutes from an external scheduler. “Run now” below still works in the meantime.')}</CardDescription>
           </CardHeader>
         </Card>
       ) : null}
 
       <Card>
         <CardHeader>
-          <CardTitle>How this works</CardTitle>
+          <CardTitle>{t('How this works')}</CardTitle>
           <CardDescription>
-            Each rule acts at most once per thing per threshold — a call that breaches its SLA
-            raises one alert at each tier, not one every five minutes. Thresholds are stored per
-            rule, so changing &ldquo;escalate after 10 minutes&rdquo; to 15 needs no deployment.
-            Every change and every manual run is written to the audit trail with your name on it.
-          </CardDescription>
+            {t('Each rule acts at most once per thing per threshold — a call that breaches its SLA raises one alert at each tier, not one every five minutes. Thresholds are stored per rule, so changing “escalate after 10 minutes” to 15 needs no deployment. Every change and every manual run is written to the audit trail with your name on it.')}</CardDescription>
         </CardHeader>
       </Card>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Rules</h2>
+        <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t('Rules')}</h2>
         <div className="overflow-hidden rounded-xl border border-border bg-bg-card">
           <ul className="divide-y divide-border">
             {rules.map((rule) => (
@@ -107,26 +95,24 @@ export default async function AutomationsPage() {
 
       <section className="space-y-3">
         <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          Recent runs
-        </h2>
+          {t('Recent runs')}</h2>
         <Card>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="text-xs uppercase tracking-wide text-muted-foreground">
                   <tr className="border-b border-border">
-                    <th className="px-4 py-3 text-left">Rule</th>
-                    <th className="px-4 py-3 text-left">When</th>
-                    <th className="px-4 py-3 text-left">Result</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                    <th className="px-4 py-3 text-left">{t('Rule')}</th>
+                    <th className="px-4 py-3 text-left">{t('When')}</th>
+                    <th className="px-4 py-3 text-left">{t('Result')}</th>
+                    <th className="px-4 py-3 text-right">{t('Actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {runs.length === 0 ? (
                     <tr>
                       <td colSpan={4} className="px-4 py-6 text-center text-muted-foreground">
-                        The engine has not run yet.
-                      </td>
+                        {t('The engine has not run yet.')}</td>
                     </tr>
                   ) : null}
                   {runs.map((run) => (

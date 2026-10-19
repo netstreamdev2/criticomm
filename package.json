@@ -42,7 +42,8 @@
   "pnpm": {
     "overrides": {
       "@types/react": "^19.0.0",
-      "@types/react-dom": "^19.0.0"
+      "@types/react-dom": "^19.0.0",
+      "@livekit/react-native>@livekit/components-react": "2.9.0"
     }
   }
 }

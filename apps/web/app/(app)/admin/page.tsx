@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Admin · HikTech' };
@@ -17,6 +18,7 @@ export default async function AdminPage({
 }: {
   searchParams: Promise<{ silo?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, userId, role, silo } = await getSession();
   const me = { id: userId, role, silo };
   const params = await searchParams;
@@ -37,33 +39,32 @@ export default async function AdminPage({
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Administration</h1>
-          <p className="text-muted-foreground">Users, vehicles, devices and the audit trail.</p>
+          <h1 className="text-2xl font-bold">{t('Administration')}</h1>
+          <p className="text-muted-foreground">{t('Users, vehicles, devices and the audit trail.')}</p>
         </div>
         <div className="flex flex-wrap gap-2 text-sm">
           {canInvite ? (
             <>
               <Link href="/admin/invitations/new"
                 className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground hover:bg-primary/90">
-                <UserPlus className="h-4 w-4" /> Invite someone
-              </Link>
+                <UserPlus className="h-4 w-4" /> {' '}{t('Invite someone')}</Link>
               <Link href="/admin/invitations" className="rounded-md border border-border px-4 py-2 hover:bg-muted">
-                Invitations{openInvitations ? ` (${openInvitations})` : ''}
+                {t('Invitations{value}', { value: openInvitations ? ` (${openInvitations})` : '' })}
               </Link>
-              <Link href="/admin/rollout" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Rollout</Link>
+              <Link href="/admin/rollout" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Rollout')}</Link>
             </>
           ) : null}
           {isApprover ? (
             <Link href="/admin/approvals" className="rounded-md border border-border px-4 py-2 hover:bg-muted">
-              Approvals{openRequests.length ? ` (${openRequests.length})` : ''}
+              {t('Approvals{value}', { value: openRequests.length ? ` (${openRequests.length})` : '' })}
             </Link>
           ) : null}
-          <Link href="/admin/handbook" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Handbook</Link>
-          <Link href="/admin/personnel" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Personnel</Link>
-          <Link href="/admin/operators" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Operators</Link>
-          <Link href="/admin/vehicles" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Vehicles</Link>
-          <Link href="/admin/devices" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Devices</Link>
-          <Link href="/case-manager/audit" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Audit log</Link>
+          <Link href="/admin/handbook" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Handbook')}</Link>
+          <Link href="/admin/personnel" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Personnel')}</Link>
+          <Link href="/admin/operators" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Operators')}</Link>
+          <Link href="/admin/vehicles" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Vehicles')}</Link>
+          <Link href="/admin/devices" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Devices')}</Link>
+          <Link href="/case-manager/audit" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Audit log')}</Link>
         </div>
       </header>
 
@@ -72,14 +73,9 @@ export default async function AdminPage({
           <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-severity-high-ink" />
           <div>
             <p className="font-semibold">
-              {systemAdmins === 1 ? 'Only one SystemAdmin.' : `${systemAdmins} SystemAdmins.`} Appoint
-              {systemAdmins === 0 ? ' two' : ' a second'}.
-            </p>
+              {t('{value} Appoint{value2}.', { value: systemAdmins === 1 ? 'Only one SystemAdmin.' : `${systemAdmins} SystemAdmins.`, value2: systemAdmins === 0 ? ' two' : ' a second' })}</p>
             <p className="text-muted-foreground">
-              The organisation must keep at least {MIN_SYSTEM_ADMINS}. Until it has them, the current SystemAdmin
-              cannot be demoted or deactivated, and if they are unavailable nobody can manage accounts. A new
-              SystemAdmin needs a second approval; with nobody else to give it, the SuperAdmin decides.
-            </p>
+              {t('The organisation must keep at least {value}. Until it has them, the current SystemAdmin cannot be demoted or deactivated, and if they are unavailable nobody can manage accounts. A new SystemAdmin needs a second approval; with nobody else to give it, the SuperAdmin decides.', { value: MIN_SYSTEM_ADMINS })}</p>
           </div>
         </div>
       ) : null}
@@ -89,33 +85,29 @@ export default async function AdminPage({
           className="flex items-center gap-3 rounded-lg border border-severity-medium/50 bg-severity-medium/10 px-4 py-3 text-sm hover:bg-severity-medium/15">
           <ShieldCheck className="h-5 w-5 shrink-0 text-severity-medium-ink" />
           <span>
-            <b>{toDecide.length} account {toDecide.length === 1 ? 'change is' : 'changes are'} waiting for your approval.</b>{' '}
-            Review →
-          </span>
+            <b>{t('{length} account {value} waiting for your approval.', { length: toDecide.length, value: toDecide.length === 1 ? 'change is' : 'changes are' })}</b>{' '}{t('Review →')}</span>
         </Link>
       ) : null}
 
       <form method="get" className="flex items-end gap-3">
         <div>
-          <label className="text-xs uppercase text-muted-foreground" htmlFor="silo">Department</label>
+          <label className="text-xs uppercase text-muted-foreground" htmlFor="silo">{t('Department')}</label>
           <select id="silo" name="silo" defaultValue={params.silo ?? ''} className="mt-1 block h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-            <option value="">All</option>
+            <option value="">{t('All')}</option>
             {SILOS.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
-        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Filter</button>
+        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Filter')}</button>
       </form>
 
       <Card>
         <CardHeader>
-          <CardTitle>{profiles.length} users</CardTitle>
+          <CardTitle>{t('{length} users', { length: profiles.length })}</CardTitle>
           <CardDescription>
-            Open an account to change its role or deactivate it. Every change needs a reason, is recorded
-            permanently, and reaches the person straight away. New people join by invitation.
-          </CardDescription>
+            {t('Open an account to change its role or deactivate it. Every change needs a reason, is recorded permanently, and reaches the person straight away. New people join by invitation.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Name', 'Department', 'Role', 'Badge', 'Status', '']} empty="No users.">
+          <SimpleTable headers={['Name', 'Department', 'Role', 'Badge', 'Status', '']} empty={t('No users.')}>
             {profiles.map((p) => {
               const deactivated = p.deactivated_at !== null;
               const waiting = waitingFor.has(p.id);

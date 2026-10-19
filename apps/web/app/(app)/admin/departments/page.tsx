@@ -5,11 +5,13 @@ import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/ca
 import { getSession } from '@/lib/session';
 import { getBrandingMap } from '@/lib/branding';
 import { DepartmentCard } from './department-card';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Departments · HikTech' };
 
 export default async function DepartmentsPage() {
+  const { t } = await requestT();
   const { role } = await getSession();
   if (!ADMIN_CONSOLE_ROLES.includes(role)) redirect('/dashboard');
 
@@ -18,23 +20,16 @@ export default async function DepartmentsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Departments</h1>
+        <h1 className="text-2xl font-bold">{t('Departments')}</h1>
         <p className="text-muted-foreground">
-          Each service&apos;s identity — crest, colours and naming — as it appears across the
-          platform, the responder app and printed reports.
-        </p>
+          {t('Each service\'s identity — crest, colours and naming — as it appears across the platform, the responder app and printed reports.')}</p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>About the crests</CardTitle>
+          <CardTitle>{t('About the crests')}</CardTitle>
           <CardDescription>
-            Official insignia belong to the municipality and its services, so the platform ships
-            none — upload each department&apos;s real crest here and it appears everywhere
-            immediately. Until then a monogram badge renders in that department&apos;s colours, so
-            nothing ever looks unfinished. PNG or SVG with a transparent background works best;
-            square crops read cleanest at small sizes.
-          </CardDescription>
+            {t('Official insignia belong to the municipality and its services, so the platform ships none — upload each department\'s real crest here and it appears everywhere immediately. Until then a monogram badge renders in that department\'s colours, so nothing ever looks unfinished. PNG or SVG with a transparent background works best; square crops read cleanest at small sizes.')}</CardDescription>
         </CardHeader>
       </Card>
 

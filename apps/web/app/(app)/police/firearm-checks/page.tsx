@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { cn, formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Firearm checks · HikTech' };
@@ -13,6 +14,7 @@ export const metadata = { title: 'Firearm checks · HikTech' };
  * the weapon at that moment, and nobody edits testimony from a desk.
  */
 export default async function FirearmChecksPage() {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const checks = await listFirearmChecklists(supabase);
   const failed = checks.filter((c) => !c.passed).length;
@@ -25,21 +27,20 @@ export default async function FirearmChecksPage() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Firearm checks</h1>
+        <h1 className="text-2xl font-bold">{t('Firearm checks')}</h1>
         <p className="text-muted-foreground">
-          {checks.length} checklists from the field · {failed} did not pass. Captured on the phone, read-only here.
-        </p>
+          {t('{length} checklists from the field · {failed} did not pass. Captured on the phone, read-only here.', { length: checks.length, failed })}</p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Register</CardTitle>
-          <CardDescription>Pass requires every safety item ticked — the form cannot claim otherwise.</CardDescription>
+          <CardTitle>{t('Register')}</CardTitle>
+          <CardDescription>{t('Pass requires every safety item ticked — the form cannot claim otherwise.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['When', 'Officer', 'Kind', 'Firearm', 'Checks', 'Ammunition', 'Result', 'Defects']}
-            empty="No checklists submitted yet."
+            empty={t('No checklists submitted yet.')}
           >
             {checks.map((c) => (
               <Tr key={c.id}>
@@ -64,7 +65,7 @@ export default async function FirearmChecksPage() {
                   </div>
                 </Td>
                 <Td className="text-xs text-muted-foreground">
-                  {c.magazines} mag · {c.rounds_issued} out{c.rounds_returned !== null ? ` · ${c.rounds_returned} back` : ''}
+                  {t('{magazines} mag · {value} out{value2}', { magazines: c.magazines, value: c.rounds_issued, value2: c.rounds_returned !== null ? ` · ${c.rounds_returned} back` : '' })}
                 </Td>
                 <Td>
                   <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-bold uppercase',

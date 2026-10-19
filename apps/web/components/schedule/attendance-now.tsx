@@ -5,6 +5,7 @@ import {
 } from '@criticom/api';
 import { canManageRoster, departmentName, type Silo, type UserRole } from '@criticom/db';
 import { getServerSupabase } from '@/lib/supabase';
+import { requestT } from '@/lib/i18n';
 
 /**
  * Who is on shift now in the department, and who has not started — for those
@@ -13,6 +14,7 @@ import { getServerSupabase } from '@/lib/supabase';
  */
 /** `silo` is the department shown; `ownSilo` the viewer's (defaults to it). */
 export async function AttendanceNow({ viewerRole: role, silo, ownSilo = silo }: { viewerRole: UserRole; silo: Silo; ownSilo?: Silo }) {
+  const { t } = await requestT();
   if (!canManageRoster(role, ownSilo, silo)) return null;
   const supabase = await getServerSupabase();
   const today = saDay();
@@ -37,22 +39,22 @@ export async function AttendanceNow({ viewerRole: role, silo, ownSilo = silo }: 
   return (
     <section className="rounded-lg border border-border bg-bg-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="flex items-center gap-2 font-semibold"><Clock className="h-4 w-4" /> Shift attendance now · {departmentName(silo)}</p>
+        <p className="flex items-center gap-2 font-semibold"><Clock className="h-4 w-4" /> {' '}{t('Shift attendance now · {departmentName}', { departmentName: departmentName(silo) })}</p>
         <div className="flex gap-3 text-xs font-semibold">
-          <Link href="/roster/allocation" className="text-accent hover:underline">Duty board</Link>
-          <Link href="/roster" className="text-accent hover:underline">Roster</Link>
+          <Link href="/roster/allocation" className="text-accent hover:underline">{t('Duty board')}</Link>
+          <Link href="/roster" className="text-accent hover:underline">{t('Roster')}</Link>
         </div>
       </div>
       {current.length === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">Nobody is on the issued roster right now.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t('Nobody is on the issued roster right now.')}</p>
       ) : (
         <>
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
-            <Figure label="Started" value={count('started', 'started_late', 'finished')} />
-            <Figure label="Starting" value={count('upcoming', 'due')} />
-            <Figure label="Late" value={count('late')} tone={count('late') ? 'warning' : undefined} />
-            <Figure label="Not started" value={count('not_started')} tone={count('not_started') ? 'danger' : undefined} />
-            <Figure label="On leave" value={count('leave')} />
+            <Figure label={t('Started')} value={count('started', 'started_late', 'finished')} />
+            <Figure label={t('Starting')} value={count('upcoming', 'due')} />
+            <Figure label={t('Late')} value={count('late')} tone={count('late') ? 'warning' : undefined} />
+            <Figure label={t('Not started')} value={count('not_started')} tone={count('not_started') ? 'danger' : undefined} />
+            <Figure label={t('On leave')} value={count('leave')} />
           </div>
           {attention.length ? (
             <ul className="mt-3 space-y-1.5 text-sm">
@@ -65,17 +67,15 @@ export async function AttendanceNow({ viewerRole: role, silo, ownSilo = silo }: 
                     </span>
                   </span>
                   <span className={`text-xs font-bold ${state === 'not_started' ? 'text-danger' : 'text-warning'}`}>
-                    {stateWords(state)} · {Math.floor((now - Date.parse(l.start_at!)) / 60_000)} min
-                  </span>
+                    {t('{stateWords} · {floor} min', { stateWords: stateWords(state), floor: Math.floor((now - Date.parse(l.start_at!)) / 60_000) })}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="mt-3 text-sm text-severity-low-ink">Everyone due has started.</p>
+            <p className="mt-3 text-sm text-severity-low-ink">{t('Everyone due has started.')}</p>
           )}
           <p className="mt-2 text-xs text-muted-foreground">
-            Late after {settings.grace} min, not started after {settings.noshow} min. Record why from the roster.
-          </p>
+            {t('Late after {grace} min, not started after {noshow} min. Record why from the roster.', { grace: settings.grace, noshow: settings.noshow })}</p>
         </>
       )}
     </section>

@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { logAudit, markMailRead, raiseAlert, sendMail } from '@criticom/api';
+import { logAudit, markMailRead, sendMail, sendNotification } from '@criticom/api';
 import { getSession } from '@/lib/session';
 
 export async function sendMailAction(formData: FormData) {
@@ -18,16 +18,13 @@ export async function sendMailAction(formData: FormData) {
     fromName: fullName,
   });
 
-  // A mail lands as a low-priority alert too, so it reaches the phone.
-  await raiseAlert(supabase, {
-    silo: silo === 'Ethekwini' ? 'MetroPolice' : silo,
-    targetUserId: toUser,
-    kind: 'info',
-    severity: 'Low',
-    title: `Mail from ${fullName}`,
-    body: String(formData.get('subject') ?? ''),
+  // A mail lands as a notification for the recipient alone, phone included.
+  const subject = String(formData.get('subject') ?? '').trim();
+  await sendNotification(supabase, { audience: 'person', userId: toUser }, {
+    kind: 'mail',
+    title: `Mail from ${fullName}`.slice(0, 140),
+    body: subject ? subject.slice(0, 1000) : null,
     link: '/mail',
-    createdByName: fullName,
   }).catch(() => {});
 
   await logAudit(supabase, {

@@ -9,12 +9,14 @@ import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { DeptBadge } from '@/components/dept-badge';
 import { useToast } from '@/components/toast';
 import { saveBrandingAction, clearLogoAction } from './actions';
+import { useT } from '@/components/i18n';
 
 type Branding = DepartmentBranding & { logoUrl: string | null };
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
 export function DepartmentCard({ branding }: { branding: Branding }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -113,7 +115,7 @@ export function DepartmentCard({ branding }: { branding: Branding }) {
       <div className="space-y-4 p-5">
         {/* Crest */}
         <div>
-          <p className={label}>Crest</p>
+          <p className={label}>{t('Crest')}</p>
           <div className="flex flex-wrap items-center gap-2">
             <label
               htmlFor={`logo-${branding.silo}`}
@@ -140,49 +142,46 @@ export function DepartmentCard({ branding }: { branding: Branding }) {
                 disabled={pending}
                 className="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-muted-foreground hover:bg-muted hover:text-fg disabled:opacity-60"
               >
-                <Trash2 className="h-3.5 w-3.5" /> Remove
-              </button>
+                <Trash2 className="h-3.5 w-3.5" /> {' '}{t('Remove')}</button>
             ) : (
               <span className="text-xs text-muted-foreground">
-                Using the monogram badge until a crest is uploaded.
-              </span>
+                {t('Using the monogram badge until a crest is uploaded.')}</span>
             )}
           </div>
           {branding.silo === 'Ethekwini' ? (
             <p className="mt-2 text-xs text-muted-foreground">
-              The municipality&apos;s crest: it also appears on report PDFs, report screens in the app and the menu. Use a PNG for the PDFs.
-            </p>
+              {t('The municipality\'s crest: it also appears on report PDFs, report screens in the app and the menu. Use a PNG for the PDFs.')}</p>
           ) : null}
         </div>
 
         {/* Identity */}
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className={label} htmlFor={`official-${branding.silo}`}>Official name</label>
+            <label className={label} htmlFor={`official-${branding.silo}`}>{t('Official name')}</label>
             <input
               id={`official-${branding.silo}`} className={field} value={draft.official_name}
               onChange={(e) => set('official_name', e.target.value)}
             />
           </div>
           <div>
-            <label className={label} htmlFor={`short-${branding.silo}`}>Short name</label>
+            <label className={label} htmlFor={`short-${branding.silo}`}>{t('Short name')}</label>
             <input
               id={`short-${branding.silo}`} className={field} value={draft.short_name}
               onChange={(e) => set('short_name', e.target.value)}
             />
           </div>
           <div>
-            <label className={label} htmlFor={`mono-${branding.silo}`}>Monogram (max 4)</label>
+            <label className={label} htmlFor={`mono-${branding.silo}`}>{t('Monogram (max 4)')}</label>
             <input
               id={`mono-${branding.silo}`} className={field} maxLength={4} value={draft.monogram}
               onChange={(e) => set('monogram', e.target.value.toUpperCase())}
             />
           </div>
           <div>
-            <label className={label} htmlFor={`primary-${branding.silo}`}>Primary colour</label>
+            <label className={label} htmlFor={`primary-${branding.silo}`}>{t('Primary colour')}</label>
             <div className="flex items-center gap-2">
               <input
-                type="color" aria-label="Primary colour picker"
+                type="color" aria-label={t('Primary colour picker')}
                 className="h-10 w-12 shrink-0 cursor-pointer rounded-lg border border-border bg-bg-soft"
                 value={draft.primary_color}
                 onChange={(e) => set('primary_color', e.target.value)}
@@ -194,10 +193,10 @@ export function DepartmentCard({ branding }: { branding: Branding }) {
             </div>
           </div>
           <div>
-            <label className={label} htmlFor={`accent-${branding.silo}`}>Accent colour</label>
+            <label className={label} htmlFor={`accent-${branding.silo}`}>{t('Accent colour')}</label>
             <div className="flex items-center gap-2">
               <input
-                type="color" aria-label="Accent colour picker"
+                type="color" aria-label={t('Accent colour picker')}
                 className="h-10 w-12 shrink-0 cursor-pointer rounded-lg border border-border bg-bg-soft"
                 value={draft.accent_color}
                 onChange={(e) => set('accent_color', e.target.value)}
@@ -209,7 +208,7 @@ export function DepartmentCard({ branding }: { branding: Branding }) {
             </div>
           </div>
           <div className="sm:col-span-2">
-            <label className={label} htmlFor={`motto-${branding.silo}`}>Motto (optional)</label>
+            <label className={label} htmlFor={`motto-${branding.silo}`}>{t('Motto (optional)')}</label>
             <input
               id={`motto-${branding.silo}`} className={field} value={draft.motto}
               onChange={(e) => set('motto', e.target.value)}
@@ -227,10 +226,9 @@ export function DepartmentCard({ branding }: { branding: Branding }) {
             className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-5 text-sm font-bold disabled:opacity-60"
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save identity
-          </button>
+            {t('Save identity')}</button>
           {branding.updated_by ? (
-            <span className="text-[11px] text-muted-foreground">Last changed by {branding.updated_by}</span>
+            <span className="text-[11px] text-muted-foreground">{t('Last changed by {value}', { value: branding.updated_by })}</span>
           ) : null}
         </div>
       </div>

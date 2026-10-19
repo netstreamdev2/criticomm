@@ -6,11 +6,13 @@ import { requireFeaturePage } from '@/lib/features';
 import { getSession } from '@/lib/session';
 import { cn, formatSaTime } from '@/lib/utils';
 import { clockAction } from './actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Time & Attendance · HikTech' };
 
 export default async function AttendancePage() {
+  const { t } = await requestT();
   await requireFeaturePage('web.time_attendance');
   const { supabase, userId, role } = await getSession();
 
@@ -29,8 +31,8 @@ export default async function AttendancePage() {
     <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Time &amp; Attendance</h1>
-          <p className="text-muted-foreground">The clock register — append-only, corrections are new punches.</p>
+          <h1 className="text-2xl font-bold">{t('Time & Attendance')}</h1>
+          <p className="text-muted-foreground">{t('The clock register — append-only, corrections are new punches.')}</p>
         </div>
         <form action={clockAction} className="flex items-center gap-2">
           <input type="hidden" name="kind" value={onClock ? 'clock_out' : 'clock_in'} />
@@ -50,14 +52,13 @@ export default async function AttendancePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Hours this week</CardTitle>
+          <CardTitle>{t('Hours this week')}</CardTitle>
           <CardDescription>
-            Ins paired with outs per person; someone still on the clock accrues to now.
-            {isSupervisor ? '' : ' You see your own record here.'}
+            {t('Ins paired with outs per person; someone still on the clock accrues to now.{value}', { value: isSupervisor ? '' : ' You see your own record here.' })}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Member', 'First in', 'Last out', 'Hours', 'Now']} empty="No punches in the last 7 days.">
+          <SimpleTable headers={['Member', 'First in', 'Last out', 'Hours', 'Now']} empty={t('No punches in the last 7 days.')}>
             {summary.map((s) => (
               <Tr key={s.userId}>
                 <Td className="font-medium">{s.name}</Td>
@@ -78,11 +79,11 @@ export default async function AttendancePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Register</CardTitle>
-          <CardDescription>Every punch, newest first.</CardDescription>
+          <CardTitle>{t('Register')}</CardTitle>
+          <CardDescription>{t('Every punch, newest first.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['When', 'Member', 'Event', 'Source', 'Note']} empty="Nothing recorded yet.">
+          <SimpleTable headers={['When', 'Member', 'Event', 'Source', 'Note']} empty={t('Nothing recorded yet.')}>
             {events.slice(0, 100).map((e) => (
               <Tr key={e.id}>
                 <Td className="text-xs text-muted-foreground">{formatSaTime(e.at)}</Td>

@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react';
 import { getReportForm, getReportType, type PoliceReportForm } from '@criticom/api';
+import { requestT } from '@/lib/i18n';
 
 /** The case report's own colour, beside the DMPS forms' (the phone uses the same). */
 export const CASE_TONE = '#3b82f6';
@@ -8,13 +9,14 @@ export const CASE_TONE = '#3b82f6';
  * The forms a police report carries, each in its own colour with a tick, as
  * the officer ticked them on the phone: the case report, then the DMPS forms.
  */
-export function ReportFormChips({ forms, withCase = true }: { forms: readonly PoliceReportForm[]; withCase?: boolean }) {
+export async function ReportFormChips({ forms, withCase = true }: { forms: readonly PoliceReportForm[]; withCase?: boolean }) {
+  const { t } = await requestT();
   const items = [
     ...(withCase ? [{ key: 'case', text: 'Case report', tone: CASE_TONE }] : []),
     ...forms.map((f) => ({ key: f.id, text: `${f.code} · ${f.label}`, tone: f.tone })),
   ];
   return (
-    <ul className="flex flex-wrap gap-1.5" aria-label="Forms filed">
+    <ul className="flex flex-wrap gap-1.5" aria-label={t('Forms filed')}>
       {items.map((i) => (
         <li
           key={i.key}

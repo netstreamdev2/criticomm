@@ -7,6 +7,7 @@ import {
 import { DEPARTMENT_NAMES, canAdminSchedule, canManageRoster, isScheduleHr, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 import { RosterPlanner } from './planner';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Roster · HikTech' };
@@ -22,6 +23,7 @@ export default async function RosterPage({
 }: {
   searchParams: Promise<{ m?: string; silo?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const params = await searchParams;
   const month = /^\d{4}-\d{2}$/.test(params.m ?? '') ? params.m! : saDay().slice(0, 7);
@@ -48,7 +50,7 @@ export default async function RosterPage({
     <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Roster · {monthLabel(month)}</h1>
+          <h1 className="text-2xl font-bold">{t('Roster · {monthLabel}', { monthLabel: monthLabel(month) })}</h1>
           <p className="text-muted-foreground">{DEPARTMENT_NAMES[target]}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -58,15 +60,15 @@ export default async function RosterPage({
               <select name="silo" defaultValue={target} className="h-9 rounded-md border border-border bg-bg-soft px-2 text-sm">
                 {(Object.keys(DEPARTMENT_NAMES) as Silo[]).map((s) => <option key={s} value={s}>{DEPARTMENT_NAMES[s]}</option>)}
               </select>
-              <button type="submit" className="h-9 rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">Show</button>
+              <button type="submit" className="h-9 rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{t('Show')}</button>
             </form>
           ) : null}
           <Link href={q(shiftMonth(month, -1))} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">← {monthLabel(shiftMonth(month, -1)).split(' ')[0]}</Link>
           <Link href={q(shiftMonth(month, 1))} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{monthLabel(shiftMonth(month, 1)).split(' ')[0]} →</Link>
-          <Link href={`/roster/allocation${target !== silo ? `?silo=${target}` : ''}`} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">Duty board</Link>
-          <Link href={`/roster/duty-sheet`} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">Duty sheet</Link>
+          <Link href={`/roster/allocation${target !== silo ? `?silo=${target}` : ''}`} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{t('Duty board')}</Link>
+          <Link href={`/roster/duty-sheet`} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{t('Duty sheet')}</Link>
           {canAdminSchedule(role, silo, target) ? (
-            <Link href={`/roster/setup${target !== silo ? `?silo=${target}` : ''}`} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">Shift setup</Link>
+            <Link href={`/roster/setup${target !== silo ? `?silo=${target}` : ''}`} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{t('Shift setup')}</Link>
           ) : null}
         </div>
       </header>

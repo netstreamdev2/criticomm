@@ -1,5 +1,6 @@
 import type { CriticomClient, Database } from '@criticom/db';
 import { cleanSearch } from '../cases/stage';
+import { REPORT_RECORD_COLUMNS, toReportRecord, type ReportRecord, type PoliceReportRow } from './report-stats';
 
 type MetroReport = Database['public']['Tables']['metro_reports']['Row'];
 type MetroReportInsert = Database['public']['Tables']['metro_reports']['Insert'];
@@ -211,3 +212,22 @@ export async function listCrimeZones(client: CriticomClient, district = 'ethekwi
   return { year: latest.data.year, stations: data ?? [] };
 }
 export * from './report-types';
+
+export * from './report-stats';
+
+/**
+ * Police reports for the reporting pages (Reports → Management, Records,
+ * Recent activity, Specialised report), newest first, each with its call.
+ * Read with the person's own session: the database's rules decide which
+ * reports they see (0002, 0039, 0081).
+ */
+export async function listPoliceReportRecords(
+  client: CriticomClient,
+  opts: { since?: string | null; limit?: number } = {},
+): Promise<ReportRecord[]> {
+  let q = client.from('metro_reports').select(REPORT_RECORD_COLUMNS);
+  if (opts.since) q = q.gte('created_at', opts.since);
+  const { data, error } = await q.order('created_at', { ascending: false }).limit(Math.min(opts.limit ?? 2000, 5000));
+  if (error) throw error;
+  return ((data ?? []) as unknown as PoliceReportRow[]).map(toReportRecord);
+}

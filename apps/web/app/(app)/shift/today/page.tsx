@@ -9,6 +9,7 @@ import { getSession } from '@/lib/session';
 import { cn, formatSaTime } from '@/lib/utils';
 import { ShiftBoardLive } from './board-live';
 import { ReturnToService } from './off-road';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Today’s shift · HikTech' };
@@ -36,6 +37,7 @@ const time = (iso: string | null | undefined) =>
  * shift or kept after the shift ended.
  */
 export default async function TodayShiftPage() {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   if (!SUPERVISORY_ROLES.includes(role) && role !== 'SystemController') notFound();
   const global = role === 'SystemAdmin' || role === 'SuperAdmin' || role === 'SystemController' || role === 'System';
@@ -55,19 +57,17 @@ export default async function TodayShiftPage() {
       <ShiftBoardLive />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Today’s shift</h1>
+          <h1 className="text-2xl font-bold">{t('Today’s shift')}</h1>
           <p className="max-w-2xl text-muted-foreground">
-            Who has started{global ? '' : ` in ${DEPARTMENT_NAMES[silo]}`}, with which vehicle, firearm and bodycam, and who
-            has ended. Problems come first. Updates by itself.
-          </p>
+            {t('Who has started{value}, with which vehicle, firearm and bodycam, and who has ended. Problems come first. Updates by itself.', { value: global ? '' : ` in ${DEPARTMENT_NAMES[silo]}` })}</p>
         </div>
-        <nav className="flex flex-wrap gap-2 text-sm" aria-label="Related">
-          <Link href="/shift/readiness-review" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Readiness checks</Link>
-          <Link href="/shift/unit-compliance" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Unit compliance</Link>
-          {canAccess('/police/armoury', role, silo) ? <Link href="/police/armoury" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Armoury</Link> : null}
-          {canAccess('/police/bodycams', role, silo) ? <Link href="/police/bodycams" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Bodycams</Link> : null}
+        <nav className="flex flex-wrap gap-2 text-sm" aria-label={t('Related')}>
+          <Link href="/shift/readiness-review" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Readiness checks')}</Link>
+          <Link href="/shift/unit-compliance" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Unit compliance')}</Link>
+          {canAccess('/police/armoury', role, silo) ? <Link href="/police/armoury" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Armoury')}</Link> : null}
+          {canAccess('/police/bodycams', role, silo) ? <Link href="/police/bodycams" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Bodycams')}</Link> : null}
           {canAccess('/admin/vehicles', role, silo) ? (
-            <Link href="/admin/vehicles" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Fleet</Link>
+            <Link href="/admin/vehicles" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Fleet')}</Link>
           ) : null}
         </nav>
       </header>
@@ -96,27 +96,26 @@ export default async function TodayShiftPage() {
 
           {flagged ? (
             <p className="rounded-lg border border-severity-high/50 bg-severity-high/10 px-4 py-3 text-sm">
-              <b>{flagged} {flagged === 1 ? 'person needs' : 'people need'} attention</b>: they are at the top of the list.
-            </p>
+              <b>{t('{flagged} {value} attention', { flagged, value: flagged === 1 ? 'person needs' : 'people need' })}</b>{t(': they are at the top of the list.')}</p>
           ) : null}
 
           <section className="space-y-2">
-            <h2 className="text-base font-semibold">People</h2>
+            <h2 className="text-base font-semibold">{t('People')}</h2>
             <div className="overflow-x-auto rounded-xl border border-border bg-bg-card">
               <table className="w-full min-w-[64rem] text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                    <th className="px-3 py-2">Officer</th>
-                    <th className="px-3 py-2">Readiness</th>
-                    <th className="px-3 py-2">Vehicle</th>
-                    <th className="px-3 py-2">Firearm</th>
-                    <th className="px-3 py-2">Bodycam</th>
-                    <th className="px-3 py-2">Shift</th>
+                    <th className="px-3 py-2">{t('Officer')}</th>
+                    <th className="px-3 py-2">{t('Readiness')}</th>
+                    <th className="px-3 py-2">{t('Vehicle')}</th>
+                    <th className="px-3 py-2">{t('Firearm')}</th>
+                    <th className="px-3 py-2">{t('Bodycam')}</th>
+                    <th className="px-3 py-2">{t('Shift')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {board.rows.length === 0 ? (
-                    <tr><td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">Nobody has started a shift today yet.</td></tr>
+                    <tr><td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">{t('Nobody has started a shift today yet.')}</td></tr>
                   ) : board.rows.map((r) => (
                     <tr key={r.userId} className={cn('border-b border-border align-top last:border-0', r.flags.length && 'bg-severity-high/[0.04]')}>
                       <td className="px-3 py-2">
@@ -133,15 +132,15 @@ export default async function TodayShiftPage() {
                         ) : null}
                       </td>
                       <td className="px-3 py-2">
-                        {r.readiness === 'passed' ? <span className="text-success">Passed</span>
-                          : r.readiness === 'failed' ? <span className="font-semibold text-severity-high-ink">Failed</span>
-                            : <span className="text-muted-foreground">Not today</span>}
+                        {r.readiness === 'passed' ? <span className="text-success">{t('Passed')}</span>
+                          : r.readiness === 'failed' ? <span className="font-semibold text-severity-high-ink">{t('Failed')}</span>
+                            : <span className="text-muted-foreground">{t('Not today')}</span>}
                       </td>
                       <td className="px-3 py-2">
                         {r.vehicle ? (
                           <>
                             <span className="font-mono font-semibold">{r.vehicle.unit}</span>
-                            {r.vehicle.result ? <span className={cn('block text-xs', INSPECTION[r.vehicle.result][1])}>Inspection {INSPECTION[r.vehicle.result][0]}</span> : null}
+                            {r.vehicle.result ? <span className={cn('block text-xs', INSPECTION[r.vehicle.result][1])}>{t('Inspection {value}', { value: INSPECTION[r.vehicle.result][0] })}</span> : null}
                           </>
                         ) : <span className="text-muted-foreground">—</span>}
                       </td>
@@ -149,28 +148,28 @@ export default async function TodayShiftPage() {
                         {r.firearm ? (
                           <>
                             <span className="font-mono font-semibold">{r.firearm.serial}</span>
-                            <span className="block text-xs text-muted-foreground">{r.firearm.label} · since {formatSaTime(r.firearm.since)}</span>
+                            <span className="block text-xs text-muted-foreground">{t('{label} · since {saTime}', { label: r.firearm.label, saTime: formatSaTime(r.firearm.since) })}</span>
                           </>
                         ) : r.noFirearm !== undefined ? (
-                          <span className="text-muted-foreground">None drawn{r.noFirearm ? `: ${r.noFirearm}` : ''}</span>
+                          <span className="text-muted-foreground">{t('None drawn{value}', { value: r.noFirearm ? `: ${r.noFirearm}` : '' })}</span>
                         ) : <span className="text-muted-foreground">—</span>}
                       </td>
                       <td className="px-3 py-2">
                         {r.bodycam ? (
                           <>
                             <span className="font-mono font-semibold">{r.bodycam.serial}</span>
-                            <span className="block text-xs text-muted-foreground">since {formatSaTime(r.bodycam.since)}</span>
+                            <span className="block text-xs text-muted-foreground">{t('since {saTime}', { saTime: formatSaTime(r.bodycam.since) })}</span>
                           </>
                         ) : r.noBodycam !== undefined ? (
-                          <span className="text-severity-medium-ink">None: {r.noBodycam}</span>
+                          <span className="text-severity-medium-ink">{t('None: {noBodycam}', { noBodycam: r.noBodycam })}</span>
                         ) : <span className="text-muted-foreground">—</span>}
                       </td>
                       <td className="px-3 py-2">
                         {r.onDuty ? (
-                          <span className="font-semibold text-success">On duty{r.dutySince ? ` since ${time(r.dutySince)}` : ''}</span>
+                          <span className="font-semibold text-success">{t('On duty{value}', { value: r.dutySince ? ` since ${time(r.dutySince)}` : '' })}</span>
                         ) : r.ended ? (
-                          <span>{ENDED[r.ended.source]} at {time(r.ended.at)}</span>
-                        ) : <span className="text-muted-foreground">Off duty</span>}
+                          <span>{t('{value} at {time}', { value: ENDED[r.ended.source], time: time(r.ended.at) })}</span>
+                        ) : <span className="text-muted-foreground">{t('Off duty')}</span>}
                       </td>
                     </tr>
                   ))}
@@ -180,9 +179,9 @@ export default async function TodayShiftPage() {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-base font-semibold">Vehicles off the road</h2>
+            <h2 className="text-base font-semibold">{t('Vehicles off the road')}</h2>
             {board.offRoad.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Every vehicle is on the road.</p>
+              <p className="text-sm text-muted-foreground">{t('Every vehicle is on the road.')}</p>
             ) : (
               <ul className="divide-y divide-border rounded-xl border border-border bg-bg-card text-sm">
                 {board.offRoad.map((v) => (

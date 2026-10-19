@@ -12,6 +12,8 @@ import {
 import { CHART_COLORS, SeverityDonut, SimpleBarChart } from '@/components/charts';
 import { useToast } from '@/components/toast';
 import { exportCsvAction, runReportAction, saveReportAction } from './actions';
+import { useT } from '@/components/i18n';
+import { T } from '@/components/i18n';
 
 type SavedSummary = {
   id: string;
@@ -51,6 +53,7 @@ export function ReportBuilder({
   initialChart: ChartSpec;
   initialMeta: { id?: string; name: string; description: string; visibility: string };
 }) {
+  const { t } = useT();
   const toast = useToast();
   const [spec, setSpec] = useState<ReportDefinition>(initial);
   const [chart, setChart] = useState<ChartSpec>(initialChart);
@@ -193,7 +196,7 @@ export function ReportBuilder({
   };
 
   if (!dataset) {
-    return <p className="text-muted-foreground">No datasets are available to your role.</p>;
+    return <p className="text-muted-foreground">{t('No datasets are available to your role.')}</p>;
   }
 
   const chartData = result && chart.type !== 'none' && chart.xField && chart.yField
@@ -208,21 +211,21 @@ export function ReportBuilder({
       {/* Header */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-64 flex-1">
-          <label className={label} htmlFor="rname">Report name</label>
+          <label className={label} htmlFor="rname">{t('Report name')}</label>
           <input
             id="rname" className={`${input} mt-1 w-full text-base font-semibold`}
-            value={meta.name} placeholder="Untitled report"
+            value={meta.name} placeholder={t('Untitled report')}
             onChange={(e) => setMeta({ ...meta, name: e.target.value })}
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <select
-            className={input} value={meta.visibility} aria-label="Sharing"
+            className={input} value={meta.visibility} aria-label={t('Sharing')}
             onChange={(e) => setMeta({ ...meta, visibility: e.target.value })}
           >
-            <option value="private">Only me</option>
-            <option value="department">My department</option>
-            <option value="global">Everyone</option>
+            <option value="private">{t('Only me')}</option>
+            <option value="department">{t('My department')}</option>
+            <option value="global">{t('Everyone')}</option>
           </select>
           <button type="button" onClick={() => onSave(false)} disabled={saving}
             className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-sm font-semibold disabled:opacity-60">
@@ -232,8 +235,7 @@ export function ReportBuilder({
           {meta.id ? (
             <button type="button" onClick={() => onSave(true)} disabled={saving}
               className="h-9 rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">
-              Save as new
-            </button>
+              {t('Save as new')}</button>
           ) : null}
           <button type="button" onClick={onExport}
             className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">
@@ -246,7 +248,7 @@ export function ReportBuilder({
         {/* ── Left: dataset + fields ── */}
         <aside className="space-y-3">
           <div className="rounded-lg border border-border bg-bg-card p-3">
-            <label className={label} htmlFor="dataset">Data source</label>
+            <label className={label} htmlFor="dataset">{t('Data source')}</label>
             <select
               id="dataset" className={`${input} mt-1 w-full`} value={dataset.key}
               onChange={(e) => changeDataset(e.target.value)}
@@ -258,7 +260,7 @@ export function ReportBuilder({
 
           <div className="rounded-lg border border-border bg-bg-card">
             <div className="flex items-center justify-between border-b border-border px-3 py-2">
-              <span className={label}>Fields</span>
+              <span className={label}>{t('Fields')}</span>
               <button
                 type="button" onClick={() => setShowAdvanced((v) => !v)}
                 className="text-xs text-accent hover:underline"
@@ -290,14 +292,13 @@ export function ReportBuilder({
           {/* Filters */}
           <section className="rounded-lg border border-border bg-bg-card p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className={label}>Filters</span>
+              <span className={label}>{t('Filters')}</span>
               <button type="button" onClick={addFilter}
                 className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
-                <Plus className="h-3 w-3" /> Add filter
-              </button>
+                <Plus className="h-3 w-3" /> {' '}{t('Add filter')}</button>
             </div>
             {spec.filters.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No filters — every row in {dataset.label.toLowerCase()}.</p>
+              <p className="text-xs text-muted-foreground">{t('No filters — every row in {lowerCase}.', { lowerCase: dataset.label.toLowerCase() })}</p>
             ) : (
               <div className="space-y-2">
                 {spec.filters.map((f, i) => {
@@ -306,7 +307,7 @@ export function ReportBuilder({
                   return (
                     <div key={i} className="flex flex-wrap items-center gap-2">
                       <select
-                        className={`${input} min-w-40`} value={f.field} aria-label="Field"
+                        className={`${input} min-w-40`} value={f.field} aria-label={t('Field')}
                         onChange={(e) => {
                           const nf = dataset.fields.find((x) => x.key === e.target.value)!;
                           updateFilter(i, { field: nf.key, op: OPERATORS_BY_TYPE[nf.type][0]!, value: '', values: [] });
@@ -315,14 +316,14 @@ export function ReportBuilder({
                         {dataset.fields.map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}
                       </select>
                       <select
-                        className={`${input} min-w-36`} value={f.op} aria-label="Condition"
+                        className={`${input} min-w-36`} value={f.op} aria-label={t('Condition')}
                         onChange={(e) => updateFilter(i, { op: e.target.value as FilterOperator })}
                       >
                         {ops.map((o) => <option key={o} value={o}>{OPERATOR_LABELS[o]}</option>)}
                       </select>
                       <FilterValue field={fd} filter={f} onChange={(v) => updateFilter(i, v)} />
                       <button type="button" onClick={() => removeFilter(i)}
-                        aria-label="Remove filter" className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-danger">
+                        aria-label={t('Remove filter')} className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-danger">
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </div>
@@ -335,7 +336,7 @@ export function ReportBuilder({
           {/* Group & summarise */}
           <section className="rounded-lg border border-border bg-bg-card p-3">
             <div className="mb-2 flex items-center gap-2">
-              <span className={label}>Group &amp; summarise</span>
+              <span className={label}>{t('Group & summarise')}</span>
               <span className="text-xs text-muted-foreground">
                 {grouped ? 'Showing one row per group' : 'Off — showing individual records'}
               </span>
@@ -357,22 +358,21 @@ export function ReportBuilder({
             {grouped ? (
               <div className="mt-3 space-y-2 border-t border-border pt-3">
                 <div className="flex items-center justify-between">
-                  <span className={label}>Measures</span>
+                  <span className={label}>{t('Measures')}</span>
                   <button
                     type="button"
                     onClick={() => patch({ metrics: [...(spec.metrics ?? []), { field: '*', agg: 'count' }] })}
                     className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline"
                   >
-                    <Plus className="h-3 w-3" /> Add measure
-                  </button>
+                    <Plus className="h-3 w-3" /> {' '}{t('Add measure')}</button>
                 </div>
                 {(spec.metrics ?? []).length === 0 ? (
-                  <p className="text-xs text-muted-foreground">Counting rows in each group.</p>
+                  <p className="text-xs text-muted-foreground">{t('Counting rows in each group.')}</p>
                 ) : (
                   (spec.metrics ?? []).map((m, i) => (
                     <div key={i} className="flex flex-wrap items-center gap-2">
                       <select
-                        className={`${input} min-w-40`} value={m.agg} aria-label="Measure"
+                        className={`${input} min-w-40`} value={m.agg} aria-label={t('Measure')}
                         onChange={(e) => {
                           const metrics = [...(spec.metrics ?? [])];
                           metrics[i] = { ...m, agg: e.target.value as Aggregation };
@@ -383,7 +383,7 @@ export function ReportBuilder({
                       </select>
                       {m.agg !== 'count' ? (
                         <select
-                          className={`${input} min-w-40`} value={m.field} aria-label="Measure field"
+                          className={`${input} min-w-40`} value={m.field} aria-label={t('Measure field')}
                           onChange={(e) => {
                             const metrics = [...(spec.metrics ?? [])];
                             metrics[i] = { ...m, field: e.target.value };
@@ -395,7 +395,7 @@ export function ReportBuilder({
                             .map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
                         </select>
                       ) : null}
-                      <button type="button" aria-label="Remove measure"
+                      <button type="button" aria-label={t('Remove measure')}
                         onClick={() => patch({ metrics: (spec.metrics ?? []).filter((_, x) => x !== i) })}
                         className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-danger">
                         <X className="h-3.5 w-3.5" />
@@ -410,7 +410,7 @@ export function ReportBuilder({
           {/* Chart + limit */}
           <section className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-bg-card p-3">
             <div>
-              <label className={label} htmlFor="charttype">Chart</label>
+              <label className={label} htmlFor="charttype">{t('Chart')}</label>
               <select
                 id="charttype" className={`${input} mt-1`} value={chart.type}
                 onChange={(e) => {
@@ -420,22 +420,22 @@ export function ReportBuilder({
                   setChart({ type, xField: chart.xField ?? x, yField: chart.yField ?? y });
                 }}
               >
-                <option value="none">None</option>
-                <option value="bar">Bar</option>
-                <option value="donut">Donut</option>
+                <option value="none">{t('None')}</option>
+                <option value="bar">{t('Bar')}</option>
+                <option value="donut">{t('Donut')}</option>
               </select>
             </div>
             {chart.type !== 'none' && result ? (
               <>
                 <div>
-                  <label className={label} htmlFor="cx">Category</label>
+                  <label className={label} htmlFor="cx">{t('Category')}</label>
                   <select id="cx" className={`${input} mt-1`} value={chart.xField ?? ''}
                     onChange={(e) => setChart({ ...chart, xField: e.target.value })}>
                     {result.columns.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={label} htmlFor="cy">Value</label>
+                  <label className={label} htmlFor="cy">{t('Value')}</label>
                   <select id="cy" className={`${input} mt-1`} value={chart.yField ?? ''}
                     onChange={(e) => setChart({ ...chart, yField: e.target.value })}>
                     {result.columns.filter((c) => c.type === 'number').map((c) => (
@@ -446,14 +446,14 @@ export function ReportBuilder({
               </>
             ) : null}
             <div>
-              <label className={label} htmlFor="limit">Row limit</label>
+              <label className={label} htmlFor="limit">{t('Row limit')}</label>
               <select id="limit" className={`${input} mt-1`} value={spec.limit ?? 1000}
                 onChange={(e) => patch({ limit: Number(e.target.value) })}>
                 {[100, 500, 1000, 2500, 5000].map((n) => <option key={n} value={n}>{n.toLocaleString()}</option>)}
               </select>
             </div>
             <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
-              {running ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Running…</> : result ? `${result.count.toLocaleString()} rows` : null}
+              {running ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {' '}{t('Running…')}</> : result ? `${result.count.toLocaleString()} rows` : null}
             </div>
           </section>
 
@@ -464,9 +464,7 @@ export function ReportBuilder({
 
           {result?.truncated ? (
             <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
-              Showing the first {result.limit.toLocaleString()} rows — there are more. Totals below cover
-              only what is shown, so narrow the filters or raise the row limit before relying on them.
-            </div>
+              {t('Showing the first {localeString} rows — there are more. Totals below cover only what is shown, so narrow the filters or raise the row limit before relying on them.', { localeString: result.limit.toLocaleString() })}</div>
           ) : null}
 
           {chart.type !== 'none' && chartData.length > 0 ? (
@@ -483,7 +481,7 @@ export function ReportBuilder({
 
       {saved.length > 0 ? (
         <section className="rounded-lg border border-border bg-bg-card p-3">
-          <span className={label}>Saved reports</span>
+          <span className={label}>{t('Saved reports')}</span>
           <div className="mt-2 flex flex-wrap gap-2">
             {saved.map((s) => (
               <a key={s.id} href={`/reports/builder?id=${s.id}`}
@@ -512,6 +510,7 @@ function FilterValue({
   filter: ReportDefinition['filters'][number];
   onChange: (v: Partial<ReportDefinition['filters'][number]>) => void;
 }) {
+  const { t } = useT();
   if (!field || NO_VALUE.includes(filter.op)) return null;
 
   if (filter.op === 'between') {
@@ -520,7 +519,7 @@ function FilterValue({
       <div className="flex items-center gap-1.5">
         <input type={t} className={`${input} w-40`} value={String(filter.value ?? '')}
           onChange={(e) => onChange({ value: e.target.value })} aria-label="From" />
-        <span className="text-xs text-muted-foreground">and</span>
+        <span className="text-xs text-muted-foreground"><T s="and" /></span>
         <input type={t} className={`${input} w-40`} value={String(filter.value2 ?? '')}
           onChange={(e) => onChange({ value2: e.target.value })} aria-label="To" />
       </div>
@@ -546,17 +545,17 @@ function FilterValue({
       );
     }
     return (
-      <input className={`${input} w-56`} placeholder="value, value, value"
-        value={(filter.values ?? []).join(', ')} aria-label="Values"
+      <input className={`${input} w-56`} placeholder={t('value, value, value')}
+        value={(filter.values ?? []).join(', ')} aria-label={t('Values')}
         onChange={(e) => onChange({ values: e.target.value.split(',').map((v) => v.trim()).filter(Boolean) })} />
     );
   }
 
   if (field.options) {
     return (
-      <select className={`${input} min-w-40`} value={String(filter.value ?? '')} aria-label="Value"
+      <select className={`${input} min-w-40`} value={String(filter.value ?? '')} aria-label={t('Value')}
         onChange={(e) => onChange({ value: e.target.value })}>
-        <option value="">Choose…</option>
+        <option value="">{t('Choose…')}</option>
         {field.options.map((o) => <option key={o} value={o}>{o}</option>)}
       </select>
     );
@@ -565,7 +564,7 @@ function FilterValue({
   if (filter.op === 'lastDays') {
     return (
       <input type="number" min={1} max={3650} className={`${input} w-24`} value={String(filter.value ?? '')}
-        aria-label="Days" onChange={(e) => onChange({ value: e.target.value })} />
+        aria-label={t('Days')} onChange={(e) => onChange({ value: e.target.value })} />
     );
   }
 
@@ -575,7 +574,7 @@ function FilterValue({
     : 'text';
 
   return (
-    <input type={type} className={`${input} w-56`} value={String(filter.value ?? '')} aria-label="Value"
+    <input type={type} className={`${input} w-56`} value={String(filter.value ?? '')} aria-label={t('Value')}
       onChange={(e) => onChange({ value: e.target.value })} />
   );
 }
@@ -583,6 +582,7 @@ function FilterValue({
 /* ── Results table ────────────────────────────────────────────────── */
 
 function ResultTable({ result, running }: { result: ReportResult | null; running: boolean }) {
+  const { t } = useT();
   if (!result) {
     return (
       <div className="rounded-lg border border-border bg-bg-card p-8 text-center text-sm text-muted-foreground">
@@ -593,8 +593,7 @@ function ResultTable({ result, running }: { result: ReportResult | null; running
   if (result.rows.length === 0) {
     return (
       <div className="rounded-lg border border-border bg-bg-card p-8 text-center text-sm text-muted-foreground">
-        No records match these filters.
-      </div>
+        {t('No records match these filters.')}</div>
     );
   }
   return (

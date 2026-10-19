@@ -298,7 +298,122 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "(optional)",
   "context": null,
   "where": [
-   "apps/mobile/components/shift-documents.tsx"
+   "apps/mobile/components/shift-documents.tsx",
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
+  "key": "(optional, goes on the record and to the officer)",
+  "text": "(optional, goes on the record and to the officer)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-forms.tsx"
+  ]
+ },
+ {
+  "key": "(or F) turns it into a wall display.",
+  "text": "(or F) turns it into a wall display.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/map/page.tsx"
+  ]
+ },
+ {
+  "key": "(the caller)",
+  "text": "(the caller)",
+  "context": null,
+  "where": [
+   "apps/web/components/department-pills.tsx"
+  ]
+ },
+ {
+  "key": "({join}{value}). A badge number proves who someone is, so each should belong to one person: correct the badge, or mark the extra record as left.",
+  "text": "({join}{value}). A badge number proves who someone is, so each should belong to one person: correct the badge, or mark the extra record as left.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
+  "key": "({value}) as",
+  "text": "({value}) as",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "); the matrix above works without one.",
+  "text": "); the matrix above works without one.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/page.tsx"
+  ]
+ },
+ {
+  "key": "+ Capture a fire report",
+  "text": "+ Capture a fire report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
+  ]
+ },
+ {
+  "key": "+ Dispatch resources",
+  "text": "+ Dispatch resources",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "+ Issue firearm",
+  "text": "+ Issue firearm",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/page.tsx"
+  ]
+ },
+ {
+  "key": "+ Log new call",
+  "text": "+ Log new call",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/page.tsx"
+  ]
+ },
+ {
+  "key": "+ New Manual Entry",
+  "text": "+ New Manual Entry",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx",
+   "apps/web/app/(app)/medical/pcr/page.tsx"
+  ]
+ },
+ {
+  "key": "+ New guard report",
+  "text": "+ New guard report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/page.tsx"
+  ]
+ },
+ {
+  "key": "+ New report",
+  "text": "+ New report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/page.tsx",
+   "apps/web/app/(app)/police/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "+ {value} more on the duty sheet",
+  "text": "+ {value} more on the duty sheet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
   ]
  },
  {
@@ -318,6 +433,78 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "+{value} more",
+  "text": "+{value} more",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "+{value} more waiting",
+  "text": "+{value} more waiting",
+  "context": null,
+  "where": [
+   "apps/web/components/alert-center.tsx"
+  ]
+ },
+ {
+  "key": "+{waiting} more alert{value} waiting",
+  "text": "+{waiting} more alert{value} waiting",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
+  "key": ", and set roles for people without one.",
+  "text": ", and set roles for people without one.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": ", from when it was logged{value}.{value2}",
+  "text": ", from when it was logged{value}.{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx"
+  ]
+ },
+ {
+  "key": ", shown once and not stored anywhere. Print them now and hand each to the person named on it. A lost slip is replaced from the invitations list; that cancels the old one.",
+  "text": ", shown once and not stored anywhere. Print them now and hand each to the person named on it. A lost slip is replaced from the invitations list; that cancels the old one.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
+  "key": ", signing in with",
+  "text": ", signing in with",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": ", so feeds cannot play. An administrator can switch on the test video under Admin → Integrations → Hikvision to demonstrate.",
+  "text": ", so feeds cannot play. An administrator can switch on the test video under Admin → Integrations → Hikvision to demonstrate.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/page.tsx"
+  ]
+ },
+ {
+  "key": ", then import what they return.",
+  "text": ", then import what they return.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
   "key": ", with vehicle faults reported",
   "text": ", with vehicle faults reported",
   "context": null,
@@ -326,11 +513,77 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": ", {saTime} by {value}. {added} added, {updated} updated.",
+  "text": ", {saTime} by {value}. {added} added, {updated} updated.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/page.tsx",
+   "apps/web/app/(app)/police/armoury/page.tsx",
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
+  "key": ", {saTime} by {value}. {added} added, {updated} updated{value2}.",
+  "text": ", {saTime} by {value}. {added} added, {updated} updated{value2}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
+  "key": "-- Select incident --",
+  "text": "-- Select incident --",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/post-mortem/post-mortem-form.tsx"
+  ]
+ },
+ {
+  "key": ". Check the inbox and spam folder.",
+  "text": ". Check the inbox and spam folder.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx"
+  ]
+ },
+ {
   "key": ". Command has been told and you remain off duty.",
   "text": ". Command has been told and you remain off duty.",
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": ". Each change below keeps what the call said before it.",
+  "text": ". Each change below keeps what the call said before it.",
+  "context": null,
+  "where": [
+   "apps/web/components/call-edits.tsx"
+  ]
+ },
+ {
+  "key": ". Each step is saved as you finish it, so you can stop and pick up where you left off. Your supervisor sees the result on Today's shift.",
+  "text": ". Each step is saved as you finish it, so you can stop and pick up where you left off. Your supervisor sees the result on Today's shift.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/mental-check/page.tsx"
+  ]
+ },
+ {
+  "key": ". It keeps working without signal and sends your position to dispatch. The call closes when your report is filed.",
+  "text": ". It keeps working without signal and sends your position to dispatch. The call closes when your report is filed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
+  "key": ". Someone who reports an invitation as “not me” closes it, and whoever sent it is told.",
+  "text": ". Someone who reports an invitation as “not me” closes it, and whoever sent it is told.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/page.tsx"
   ]
  },
  {
@@ -379,6 +632,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "/ {entitlement} days left",
+  "text": "/ {entitlement} days left",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
   ]
  },
  {
@@ -665,6 +926,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "1 · Choose the file",
+  "text": "1 · Choose the file",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
   "key": "1. Damage observed prior to towing",
   "text": "1. Damage observed prior to towing",
   "context": null,
@@ -750,6 +1019,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "123 Main Street",
+  "text": "123 Main Street",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
   ]
  },
  {
@@ -862,6 +1139,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "2 · Check the payments",
+  "text": "2 · Check the payments",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
   ]
  },
  {
@@ -1147,6 +1432,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": ": they are at the top of the list.",
+  "text": ": they are at the top of the list.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": ": they may have left.",
+  "text": ": they may have left.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
   "key": "A building or flats",
   "text": "A building or flats",
   "context": null,
@@ -1176,6 +1477,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "A call comes here once its officer files the report. Read the case file, then close it.",
+  "text": "A call comes here once its officer files the report. Read the case file, then close it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "A court date keeps the person off the roster that day.",
+  "text": "A court date keeps the person off the roster that day.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
   ]
  },
  {
@@ -1243,6 +1560,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "A report not tied to a dispatched call.",
+  "text": "A report not tied to a dispatched call.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "A report with two forms counts under both.",
+  "text": "A report with two forms counts under both.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
   "key": "A representation or dispute is lodged; the clock is paused.",
   "text": "A representation or dispute is lodged; the clock is paused.",
   "context": null,
@@ -1267,11 +1600,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "A rotation rosters everyone in its teams. Someone in no team is rostered by hand.",
+  "text": "A rotation rosters everyone in its teams. Someone in no team is rostered by hand.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
   "key": "A school",
   "text": "A school",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "A section is a unit staff are allocated to, such as Hawkers Enforcement. Each works from a station (NR, DR, B …).",
+  "text": "A section is a unit staff are allocated to, such as Hawkers Enforcement. Each works from a station (NR, DR, B …).",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
   ]
  },
  {
@@ -1355,6 +1704,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "AARTO (road traffic)",
+  "text": "AARTO (road traffic)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "AARTO 01 road traffic notices and by-law notices served by Metro Police officers.",
+  "text": "AARTO 01 road traffic notices and by-law notices served by Metro Police officers.",
+  "context": null,
+  "where": [
+   "apps/web/components/fines-panel.tsx"
+  ]
+ },
+ {
   "key": "AARTO 01 · Road traffic",
   "text": "AARTO 01 · Road traffic",
   "context": null,
@@ -1388,11 +1753,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "ALL SECTIONS",
+  "text": "ALL SECTIONS",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
   "key": "ALS",
   "text": "ALS",
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "API key",
+  "text": "API key",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
+  ]
+ },
+ {
+  "key": "API secret",
+  "text": "API secret",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
   ]
  },
  {
@@ -1436,11 +1825,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "ATTEND DURBAN COURT 21",
+  "text": "ATTEND DURBAN COURT 21",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
   "key": "ATTENDED",
   "text": "ATTENDED",
   "context": null,
   "where": [
    "apps/mobile/components/my-performance.tsx"
+  ]
+ },
+ {
+  "key": "AVAILABLE",
+  "text": "AVAILABLE",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/officer-picker.tsx"
+  ]
+ },
+ {
+  "key": "AWOL this month",
+  "text": "AWOL this month",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
   ]
  },
  {
@@ -1452,6 +1865,87 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "About the crests",
+  "text": "About the crests",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/page.tsx"
+  ]
+ },
+ {
+  "key": "Absence",
+  "text": "Absence",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Absence Codes",
+  "text": "Absence Codes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Absence code",
+  "text": "Absence code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Absence code register",
+  "text": "Absence code register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Absence code saved",
+  "text": "Absence code saved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Absence codes",
+  "text": "Absence codes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Absence type",
+  "text": "Absence type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Accent colour",
+  "text": "Accent colour",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
+  ]
+ },
+ {
+  "key": "Accent colour picker",
+  "text": "Accent colour picker",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
+  ]
+ },
+ {
   "key": "Accept",
   "text": "Accept",
   "context": null,
@@ -1460,7 +1954,8 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/incident/[id].tsx",
    "apps/mobile/components/incident-sheet.tsx",
    "apps/mobile/lib/accept.ts",
-   "apps/mobile/lib/response.ts"
+   "apps/mobile/lib/response.ts",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
   ]
  },
  {
@@ -1498,11 +1993,46 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Access",
+  "text": "Access",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Access & permissions",
+  "text": "Access & permissions",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Access Control",
+  "text": "Access Control",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/access/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Access notes, hazards, standing instructions for the crew",
   "text": "Access notes, hazards, standing instructions for the crew",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Access saved",
+  "text": "Access saved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -1542,7 +2072,73 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Account",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/profile.tsx"
+   "apps/mobile/app/(tabs)/profile.tsx",
+   "apps/web/app/(app)/profile/page.tsx",
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Account Look-up",
+  "text": "Account Look-up",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Account email",
+  "text": "Account email",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "Account look-up",
+  "text": "Account look-up",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "Account on the platform",
+  "text": "Account on the platform",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
+  "key": "Account status",
+  "text": "Account status",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Account →",
+  "text": "Account →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/page.tsx"
+  ]
+ },
+ {
+  "key": "Accounts are deactivated, never deleted, so their records stay intact.",
+  "text": "Accounts are deactivated, never deleted, so their records stay intact.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Accused name",
+  "text": "Accused name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
   ]
  },
  {
@@ -1550,7 +2146,17 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Acknowledge",
   "context": null,
   "where": [
-   "apps/mobile/components/alerts.tsx"
+   "apps/mobile/components/alerts.tsx",
+   "apps/web/components/alert-center.tsx",
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
+  "key": "Acknowledge & open",
+  "text": "Acknowledge & open",
+  "context": null,
+  "where": [
+   "apps/web/components/alert-center.tsx"
   ]
  },
  {
@@ -1558,7 +2164,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Acknowledged",
   "context": null,
   "where": [
-   "apps/mobile/app/alerts.tsx"
+   "apps/mobile/app/alerts.tsx",
+   "apps/web/app/(app)/notifications/feed.tsx"
   ]
  },
  {
@@ -1567,6 +2174,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/alerts.tsx"
+  ]
+ },
+ {
+  "key": "Acquitted",
+  "text": "Acquitted",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Action",
+  "text": "Action",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/audit/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx"
   ]
  },
  {
@@ -1586,11 +2210,32 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Actions",
+  "text": "Actions",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx",
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
+  ]
+ },
+ {
   "key": "Actions & rescue",
   "text": "Actions & rescue",
   "context": null,
   "where": [
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Actions taken",
+  "text": "Actions taken",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx"
   ]
  },
  {
@@ -1626,6 +2271,170 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Active ({length})",
+  "text": "Active ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Active Responders",
+  "text": "Active Responders",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Active at once on the web and the phone app. Nothing is emailed: give them the password yourself.",
+  "text": "Active at once on the web and the phone app. Nothing is emailed: give them the password yourself.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Active deployments",
+  "text": "Active deployments",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Active disaster-silo incidents.",
+  "text": "Active disaster-silo incidents.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Active incidents",
+  "text": "Active incidents",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Active incidents ({length})",
+  "text": "Active incidents ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Active police incidents",
+  "text": "Active police incidents",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Active responders",
+  "text": "Active responders",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Active units",
+  "text": "Active units",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Ad-hoc duties (no standing post)",
+  "text": "Ad-hoc duties (no standing post)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Add",
+  "text": "Add",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/sections/page.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/roster/planner.tsx",
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Add KPI",
+  "text": "Add KPI",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "Add LEO record",
+  "text": "Add LEO record",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Add New Staff",
+  "text": "Add New Staff",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Add a bodycam",
+  "text": "Add a bodycam",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
+  "key": "Add a duty post",
+  "text": "Add a duty post",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Add a firearm",
+  "text": "Add a firearm",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/page.tsx"
+  ]
+ },
+ {
+  "key": "Add a firearm to the issue register.",
+  "text": "Add a firearm to the issue register.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Add a new one instead",
+  "text": "Add a new one instead",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
   "key": "Add a note about the readiness concern for your shift supervisor.",
   "text": "Add a note about the readiness concern for your shift supervisor.",
   "context": null,
@@ -1650,6 +2459,54 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Add a rotation",
+  "text": "Add a rotation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Add a section",
+  "text": "Add a section",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Add a shift",
+  "text": "Add a shift",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Add a shift type",
+  "text": "Add a shift type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Add a vehicle",
+  "text": "Add a vehicle",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/page.tsx"
+  ]
+ },
+ {
+  "key": "Add an offence",
+  "text": "Add an offence",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
   "key": "Add an update…",
   "text": "Add an update…",
   "context": null,
@@ -1662,7 +2519,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Add another charge",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -1670,7 +2528,56 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Add another patient",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "Add certification",
+  "text": "Add certification",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "Add code",
+  "text": "Add code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Add endorsement",
+  "text": "Add endorsement",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Add entry",
+  "text": "Add entry",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/config/page.tsx"
+  ]
+ },
+ {
+  "key": "Add filter",
+  "text": "Add filter",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Add it",
+  "text": "Add it",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -1679,6 +2586,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "Add measure",
+  "text": "Add measure",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Add number",
+  "text": "Add number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
+  ]
+ },
+ {
+  "key": "Add one person",
+  "text": "Add one person",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
   ]
  },
  {
@@ -1695,6 +2626,46 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/pcr/[id].tsx"
+  ]
+ },
+ {
+  "key": "Add record",
+  "text": "Add record",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "Add section",
+  "text": "Add section",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Add shift",
+  "text": "Add shift",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Add staff member",
+  "text": "Add staff member",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Add the AARTO or book number once it is known. It can be written only once.",
+  "text": "Add the AARTO or book number once it is known. It can be written only once.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
   ]
  },
  {
@@ -1730,6 +2701,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Add them first →",
+  "text": "Add them first →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Add them to the register",
+  "text": "Add them to the register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
   "key": "Add {document}",
   "text": "Add {document}",
   "context": null,
@@ -1738,11 +2725,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Add {lowerCase}",
+  "text": "Add {lowerCase}",
+  "context": null,
+  "where": [
+   "apps/web/components/form-wizard.tsx"
+  ]
+ },
+ {
   "key": "Add {noun}",
   "text": "Add {noun}",
   "context": null,
   "where": [
-   "apps/mobile/components/report-wizard.tsx"
+   "apps/mobile/components/report-wizard.tsx",
+   "apps/web/app/(app)/police/reports/new/report-form.tsx"
   ]
  },
  {
@@ -1770,11 +2766,129 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Additional Inspector Notes",
+  "text": "Additional Inspector Notes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "Additional notes",
+  "text": "Additional notes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Address",
+  "text": "Address",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
+   "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
+  "key": "Address 1",
+  "text": "Address 1",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Address 2",
+  "text": "Address 2",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Address 3",
+  "text": "Address 3",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Address 4 (alt)",
+  "text": "Address 4 (alt)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Adds bodycams to the register and updates the ones already there, matched by serial number. Who has a bodycam right now never changes by import; that happens only when it is booked out or handed back.",
+  "text": "Adds bodycams to the register and updates the ones already there, matched by serial number. Who has a bodycam right now never changes by import; that happens only when it is booked out or handed back.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/import/page.tsx"
+  ]
+ },
+ {
+  "key": "Adds firearms to the register and updates the ones already there, matched by serial number. Who holds a firearm right now never changes by import; that happens only when it is booked out or handed back.",
+  "text": "Adds firearms to the register and updates the ones already there, matched by serial number. Who holds a firearm right now never changes by import; that happens only when it is booked out or handed back.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/import/page.tsx"
+  ]
+ },
+ {
+  "key": "Adds people to the staff register and updates the ones already there, matched by badge number. Nobody gets access: each person is invited afterwards and activates their own account.",
+  "text": "Adds people to the staff register and updates the ones already there, matched by badge number. Nobody gets access: each person is invited afterwards and activates their own account.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/page.tsx"
+  ]
+ },
+ {
+  "key": "Adds vehicles to the register and updates the ones already there, matched by department and unit number. A vehicle’s status never changes by import: one off the road stays off the road until fleet control returns it.",
+  "text": "Adds vehicles to the register and updates the ones already there, matched by department and unit number. A vehicle’s status never changes by import: one off the road stays off the road until fleet control returns it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/import/page.tsx"
+  ]
+ },
+ {
+  "key": "Adjustment",
+  "text": "Adjustment",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
   "key": "Admin",
   "text": "Admin",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Admin-configurable operational lists. Everything is a soft delete — history is never lost.",
+  "text": "Admin-configurable operational lists. Everything is a soft delete — history is never lost.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/config/page.tsx"
+  ]
+ },
+ {
+  "key": "Administration",
+  "text": "Administration",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -1787,11 +2901,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Advanced incident reporting with filters, exports and saved templates.",
+  "text": "Advanced incident reporting with filters, exports and saved templates.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/report-hub/page.tsx"
+  ]
+ },
+ {
   "key": "African",
   "text": "African",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "After",
+  "text": "After",
+  "context": null,
+  "where": [
+   "apps/web/components/call-edits.tsx"
   ]
  },
  {
@@ -1816,6 +2946,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/pcr/[id].tsx",
+   "apps/web/components/pcr-card.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/intake.ts",
    "packages/db/src/pcr.ts"
@@ -1935,7 +3066,24 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/fines/index.tsx",
    "apps/mobile/app/live-map.tsx",
    "apps/mobile/components/incidents-list.tsx",
+   "apps/web/app/(app)/admin/page.tsx",
+   "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/disaster/partners/page.tsx",
+   "apps/web/app/(app)/incidents/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/performance/operational/page.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx",
    "apps/web/app/(app)/translations/translations-editor.tsx"
+  ]
+ },
+ {
+  "key": "All Incidents",
+  "text": "All Incidents",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -1955,11 +3103,100 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "All areas",
+  "text": "All areas",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "All calls by priority.",
+  "text": "All calls by priority.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "All care levels",
+  "text": "All care levels",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/page.tsx"
+  ]
+ },
+ {
+  "key": "All caught up",
+  "text": "All caught up",
+  "context": null,
+  "where": [
+   "apps/mobile/app/alerts.tsx"
+  ]
+ },
+ {
+  "key": "All caught up.",
+  "text": "All caught up.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/feed.tsx"
+  ]
+ },
+ {
+  "key": "All departments",
+  "text": "All departments",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "All destinations",
+  "text": "All destinations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/page.tsx"
+  ]
+ },
+ {
+  "key": "All duty records",
+  "text": "All duty records",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
   "key": "All fault",
   "text": "All fault",
   "context": null,
   "where": [
    "apps/mobile/components/shift-form.tsx"
+  ]
+ },
+ {
+  "key": "All fines for this ID number →",
+  "text": "All fines for this ID number →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "All fines for {value} →",
+  "text": "All fines for {value} →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "All forms",
+  "text": "All forms",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/reports/reports-list.tsx"
   ]
  },
  {
@@ -1979,11 +3216,129 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "All hospitals",
+  "text": "All hospitals",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/handovers/page.tsx"
+  ]
+ },
+ {
+  "key": "All incidents",
+  "text": "All incidents",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/page.tsx"
+  ]
+ },
+ {
+  "key": "All incidents in scope.",
+  "text": "All incidents in scope.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
+  ]
+ },
+ {
+  "key": "All its details are with dispatch.",
+  "text": "All its details are with dispatch.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "All leave →",
+  "text": "All leave →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "All notices",
+  "text": "All notices",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/components/fines-panel.tsx"
+  ]
+ },
+ {
+  "key": "All officers",
+  "text": "All officers",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "All partners",
+  "text": "All partners",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx"
+  ]
+ },
+ {
+  "key": "All ranks",
+  "text": "All ranks",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "All regions",
+  "text": "All regions",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
+  ]
+ },
+ {
+  "key": "All reports",
+  "text": "All reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/report-centre/parts.tsx"
+  ]
+ },
+ {
+  "key": "All results",
+  "text": "All results",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
   "key": "All safety items ticked — this checklist will file as PASSED.",
   "text": "All safety items ticked — this checklist will file as PASSED.",
   "context": null,
   "where": [
    "apps/mobile/app/firearm-check.tsx"
+  ]
+ },
+ {
+  "key": "All sections",
+  "text": "All sections",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "All severities",
+  "text": "All severities",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
   ]
  },
  {
@@ -1995,6 +3350,32 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "All stations",
+  "text": "All stations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "All stations ({length})",
+  "text": "All stations ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/chase-list.tsx"
+  ]
+ },
+ {
+  "key": "All statuses",
+  "text": "All statuses",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
   "key": "All ticked.",
   "text": "All ticked.",
   "context": null,
@@ -2003,11 +3384,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "All types",
+  "text": "All types",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "All users",
+  "text": "All users",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
   "key": "All working",
   "text": "All working",
   "context": null,
   "where": [
    "apps/mobile/components/shift-form.tsx"
+  ]
+ },
+ {
+  "key": "All zones",
+  "text": "All zones",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "All {awaitingReview}",
+  "text": "All {awaitingReview}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "All {live}",
+  "text": "All {live}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
   ]
  },
  {
@@ -2040,6 +3461,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Alloc",
+  "text": "Alloc",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Allocate selected",
+  "text": "Allocate selected",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Allocation",
+  "text": "Allocation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Allocation coverage",
+  "text": "Allocation coverage",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
   ]
  },
  {
@@ -2080,6 +3533,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "Also send to",
+  "text": "Also send to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/send-to-desk.tsx"
   ]
  },
  {
@@ -2131,11 +3592,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Ambulance Restock",
+  "text": "Ambulance Restock",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Ambulance inventory & restock",
+  "text": "Ambulance inventory & restock",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
   "key": "Ambulance off the road",
   "text": "Ambulance off the road",
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": "Ambulance restock",
+  "text": "Ambulance restock",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx"
   ]
  },
  {
@@ -2179,6 +3664,46 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Ambulances",
+  "text": "Ambulances",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Ambulances & Shift",
+  "text": "Ambulances & Shift",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Ambulances in service",
+  "text": "Ambulances in service",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Ambulances off road",
+  "text": "Ambulances off road",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Ambulances off road for cleaning",
+  "text": "Ambulances off road for cleaning",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx"
+  ]
+ },
+ {
   "key": "Ammunition",
   "text": "Ammunition",
   "context": null,
@@ -2195,11 +3720,24 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Amount",
+  "text": "Amount",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
   "key": "Amount (R)",
   "text": "Amount (R)",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx"
   ]
  },
  {
@@ -2216,6 +3754,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/place-search.tsx"
+  ]
+ },
+ {
+  "key": "An endorsement is an instruction for one member: court, a special event, a briefing. Active ones print on the duty sheet; court keeps the member off duty that day.",
+  "text": "An endorsement is an instruction for one member: court, a special event, a briefing. Active ones print on the duty sheet; court keeps the member off duty that day.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Analytics",
+  "text": "Analytics",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -2275,11 +3830,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Annual appraisal — {cycleLabel}",
+  "text": "Annual appraisal — {cycleLabel}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/mine/page.tsx"
+  ]
+ },
+ {
   "key": "Another call taker",
   "text": "Another call taker",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
+  ]
+ },
+ {
+  "key": "Another current person has the same badge number",
+  "text": "Another current person has the same badge number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
   ]
  },
  {
@@ -2330,6 +3901,50 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "Any",
+  "text": "Any",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/audit/page.tsx",
+   "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "Any officer",
+  "text": "Any officer",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "Any station",
+  "text": "Any station",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "Any status",
+  "text": "Any status",
+  "context": null,
+  "where": [
+   "apps/web/components/fines-panel.tsx"
+  ]
+ },
+ {
+  "key": "Any time",
+  "text": "Any time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
   ]
  },
  {
@@ -2430,6 +4045,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Appearance",
+  "text": "Appearance",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/page.tsx"
+  ]
+ },
+ {
   "key": "Appliance",
   "text": "Appliance",
   "context": null,
@@ -2462,11 +4085,44 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Appliances",
+  "text": "Appliances",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Appliances & Shift",
+  "text": "Appliances & Shift",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Applied to appraisal plans this cycle.",
+  "text": "Applied to appraisal plans this cycle.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/kpis/page.tsx"
+  ]
+ },
+ {
   "key": "Apply",
   "text": "Apply",
   "context": null,
   "where": [
-   "apps/mobile/app/leave.tsx"
+   "apps/mobile/app/leave.tsx",
+   "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/fire/inspections/page.tsx",
+   "apps/web/app/(app)/medical/handovers/page.tsx",
+   "apps/web/app/(app)/medical/pcr/page.tsx",
+   "apps/web/app/(app)/performance/operational/page.tsx",
+   "apps/web/app/(app)/performance/role-kpis/page.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/reports/reports-list.tsx"
   ]
  },
  {
@@ -2494,11 +4150,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Appraisal /5",
+  "text": "Appraisal /5",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Appraisal plans",
+  "text": "Appraisal plans",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/page.tsx"
+  ]
+ },
+ {
   "key": "Appraisal {score} out of 5",
   "text": "Appraisal {score} out of 5",
   "context": null,
   "where": [
    "apps/mobile/components/my-performance.tsx"
+  ]
+ },
+ {
+  "key": "Appraisals",
+  "text": "Appraisals",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -2510,11 +4190,63 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Approvals",
+  "text": "Approvals",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/approvals/page.tsx",
+   "apps/web/app/(app)/admin/invitations/page.tsx"
+  ]
+ },
+ {
+  "key": "Approvals waiting",
+  "text": "Approvals waiting",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hr/page.tsx"
+  ]
+ },
+ {
+  "key": "Approvals{value}",
+  "text": "Approvals{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
   "key": "Approve",
   "text": "Approve",
   "context": null,
   "where": [
-   "apps/web/app/(app)/translations/translations-editor.tsx"
+   "apps/web/app/(app)/modules/leave/decide.tsx",
+   "apps/web/app/(app)/roster/planner.tsx",
+   "apps/web/app/(app)/translations/translations-editor.tsx",
+   "apps/web/components/schedule/leave-actions.tsx"
+  ]
+ },
+ {
+  "key": "Approve leave and capture leave or absence for a member.",
+  "text": "Approve leave and capture leave or absence for a member.",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Approve leave members ask for, and capture leave or absence from the form a member hands in. Captured leave marks their duty as absent.",
+  "text": "Approve leave members ask for, and capture leave or absence from the form a member hands in. Captured leave marks their duty as absent.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Approve {value}",
+  "text": "Approve {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/[id]/page.tsx"
   ]
  },
  {
@@ -2525,6 +4257,22 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/(tabs)/schedule.tsx",
    "apps/mobile/app/my-performance.tsx",
    "apps/web/app/(app)/translations/translations-editor.tsx"
+  ]
+ },
+ {
+  "key": "Approved by: __________________",
+  "text": "Approved by: __________________",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
+  "key": "Approved leave ahead",
+  "text": "Approved leave ahead",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
   ]
  },
  {
@@ -2683,6 +4431,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Area",
+  "text": "Area",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/itraffic-map.tsx"
+  ]
+ },
+ {
   "key": "Armed Individual / Subject with Gun",
   "text": "Armed Individual / Subject with Gun",
   "context": null,
@@ -2699,6 +4455,37 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Armoury",
+  "text": "Armoury",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/import/page.tsx",
+   "apps/web/app/(app)/police/armoury/page.tsx",
+   "apps/web/app/(app)/police/firearms/page.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Around the incident",
+  "text": "Around the incident",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/itraffic-map.tsx"
+  ]
+ },
+ {
+  "key": "Arrest",
+  "text": "Arrest",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/parts.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
+   "apps/web/app/(app)/police/reports/reports-list.tsx",
+   "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
   "key": "Arrest Report",
   "text": "Arrest Report",
   "context": null,
@@ -2711,6 +4498,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Arrest made",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/reports/reports-list.tsx",
+   "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-types.ts"
   ]
  },
@@ -2720,6 +4509,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Arrest: any",
+  "text": "Arrest: any",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/reports-list.tsx"
   ]
  },
  {
@@ -2739,11 +4536,29 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Arrests",
+  "text": "Arrests",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "Arrival time",
+  "text": "Arrival time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
   "key": "Arrived on scene",
   "text": "Arrived on scene",
   "context": null,
   "where": [
-   "apps/mobile/app/fire-report/[id].tsx"
+   "apps/mobile/app/fire-report/[id].tsx",
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
   ]
  },
  {
@@ -2763,6 +4578,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "As logged",
+  "text": "As logged",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx"
+  ]
+ },
+ {
+  "key": "As on their ID card",
+  "text": "As on their ID card",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx"
+  ]
+ },
+ {
   "key": "As on your appointment letter or ID card. {INVITATION_ATTEMPTS} wrong tries lock the code.",
   "text": "As on your appointment letter or ID card. {INVITATION_ATTEMPTS} wrong tries lock the code.",
   "context": null,
@@ -2779,12 +4610,45 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Ask",
+  "text": "Ask",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx",
+   "apps/web/components/criti/insight-tiles.tsx"
+  ]
+ },
+ {
   "key": "Ask Criti",
   "text": "Ask Criti",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx",
    "apps/mobile/app/assistant.tsx"
+  ]
+ },
+ {
+  "key": "Ask Criti  (Ctrl+J)",
+  "text": "Ask Criti  (Ctrl+J)",
+  "context": null,
+  "where": [
+   "apps/web/components/assistant-dock.tsx"
+  ]
+ },
+ {
+  "key": "Ask Criti · Ctrl+J",
+  "text": "Ask Criti · Ctrl+J",
+  "context": null,
+  "where": [
+   "apps/web/components/assistant-dock.tsx"
+  ]
+ },
+ {
+  "key": "Ask about the board, or tell me what to do…",
+  "text": "Ask about the board, or tell me what to do…",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/chat.tsx"
   ]
  },
  {
@@ -2804,11 +4668,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Ask for a swap",
+  "text": "Ask for a swap",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
   "key": "Ask for leave",
   "text": "Ask for leave",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/leave/page.tsx"
   ]
  },
  {
@@ -2837,6 +4710,47 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Assign",
+  "text": "Assign",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Assign / Update Duty",
+  "text": "Assign / Update Duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "Assign a user to a tenant",
+  "text": "Assign a user to a tenant",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "Assign to {name}",
+  "text": "Assign to {name}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Assign {value}",
+  "text": "Assign {value}",
+  "context": null,
+  "where": [
+   "apps/web/components/dispatch-map-modal.tsx"
+  ]
+ },
+ {
   "key": "Assigned",
   "text": "Assigned",
   "context": null,
@@ -2845,11 +4759,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Assigned station",
+  "text": "Assigned station",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/devices/page.tsx"
+  ]
+ },
+ {
   "key": "Assigned to",
   "text": "Assigned to",
   "context": null,
   "where": [
-   "apps/mobile/app/incident/[id].tsx"
+   "apps/mobile/app/incident/[id].tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -2887,6 +4810,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Assigned to {name}{value} — waiting for them to respond. You can reassign it or send it to all.",
+  "text": "Assigned to {name}{value} — waiting for them to respond. You can reassign it or send it to all.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
+  ]
+ },
+ {
   "key": "Assigned unit",
   "text": "Assigned unit",
   "context": null,
@@ -2895,11 +4826,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Assigned vehicle",
+  "text": "Assigned vehicle",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "Assignees may advance their own; supervisors may advance any.",
+  "text": "Assignees may advance their own; supervisors may advance any.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
   "key": "At intersection with",
   "text": "At intersection with",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "At least 10 characters.",
+  "text": "At least 10 characters.",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
   ]
  },
  {
@@ -2951,11 +4906,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Attachments ({length})",
+  "text": "Attachments ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Attack and supply lines ready",
   "text": "Attack and supply lines ready",
   "context": null,
   "where": [
    "packages/db/src/fire-shift.ts"
+  ]
+ },
+ {
+  "key": "Attendance",
+  "text": "Attendance",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -2971,7 +4942,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Attended",
   "context": null,
   "where": [
-   "apps/mobile/app/my-performance.tsx"
+   "apps/mobile/app/my-performance.tsx",
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
+  ]
+ },
+ {
+  "key": "Attended (cycle)",
+  "text": "Attended (cycle)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
   ]
  },
  {
@@ -3007,11 +4987,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Attribution from the incident log: calls taken, dispatches made, responses run.",
+  "text": "Attribution from the incident log: calls taken, dispatches made, responses run.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/reports/page.tsx"
+  ]
+ },
+ {
   "key": "Audi",
   "text": "Audi",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Audit",
+  "text": "Audit",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/case-ui.tsx"
+  ]
+ },
+ {
+  "key": "Audit log",
+  "text": "Audit log",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
+  "key": "Audit trail",
+  "text": "Audit trail",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
   ]
  },
  {
@@ -3034,11 +5046,79 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Authorities contacted",
+  "text": "Authorities contacted",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Authorities notified",
+  "text": "Authorities notified",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "Authority / RIMS",
   "text": "Authority / RIMS",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Authorization",
+  "text": "Authorization",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
+  "key": "Authorization window",
+  "text": "Authorization window",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Authorizing officer",
+  "text": "Authorizing officer",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
+  "key": "Auto-generated if blank",
+  "text": "Auto-generated if blank",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Automatic (inferred from rank)",
+  "text": "Automatic (inferred from rank)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "Automations",
+  "text": "Automations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -3050,11 +5130,73 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Average {value} / 5 across {length} KPIs.",
+  "text": "Average {value} / 5 across {length} KPIs.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Avg call duration",
+  "text": "Avg call duration",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Avg response (min)",
+  "text": "Avg response (min)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx",
+   "apps/web/app/(app)/performance/page.tsx"
+  ]
+ },
+ {
+  "key": "Avg response time",
+  "text": "Avg response time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Awaiting Review",
+  "text": "Awaiting Review",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Awaiting court",
   "text": "Awaiting court",
   "context": null,
   "where": [
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Awaiting its endpoint — set the URL under Admin → Configuration → OpsLink",
+  "text": "Awaiting its endpoint — set the URL under Admin → Configuration → OpsLink",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-command-bar.tsx"
+  ]
+ },
+ {
+  "key": "Awaiting review",
+  "text": "Awaiting review",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx",
+   "apps/web/app/(app)/case-manager/review/page.tsx",
+   "apps/web/app/(app)/incidents/[id]/case-review-card.tsx",
+   "apps/web/app/(app)/police/report-centre/management/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
   ]
  },
  {
@@ -3100,6 +5242,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "BUSY",
+  "text": "BUSY",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
   "key": "BVM & Masks (Adult/Ped)",
   "text": "BVM & Masks (Adult/Ped)",
   "context": null,
@@ -3125,7 +5275,9 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/end-shift.tsx",
    "apps/mobile/app/fines/new.tsx",
    "apps/mobile/app/live-map.tsx",
-   "apps/mobile/components/report-wizard.tsx"
+   "apps/mobile/components/report-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/components/schedule/leave-actions.tsx"
   ]
  },
  {
@@ -3149,7 +5301,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Back to dashboard",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/error.tsx",
+   "apps/web/app/(app)/not-found.tsx"
   ]
  },
  {
@@ -3161,6 +5315,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Back to hierarchy",
+  "text": "Back to hierarchy",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "Back to records",
+  "text": "Back to records",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/report/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Back to sign in",
   "text": "Back to sign in",
   "context": null,
@@ -3169,11 +5339,60 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Back to the check",
+  "text": "Back to the check",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Back to the incident",
+  "text": "Back to the incident",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "Back to the suggestions",
+  "text": "Back to the suggestions",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/insight-tiles.tsx"
+  ]
+ },
+ {
+  "key": "Back to the {lowerCase}",
+  "text": "Back to the {lowerCase}",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
   "key": "Back to vehicle checks",
   "text": "Back to vehicle checks",
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": "Back to {value}",
+  "text": "Back to {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/page.tsx"
+  ]
+ },
+ {
+  "key": "Backspace",
+  "text": "Backspace",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-tools.tsx"
   ]
  },
  {
@@ -3186,11 +5405,26 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Badge",
+  "text": "Badge",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx",
+   "apps/web/app/(app)/profile/my-hr/page.tsx",
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
   "key": "Badge number",
   "text": "Badge number",
   "context": null,
   "where": [
-   "apps/mobile/app/activate.tsx"
+   "apps/mobile/app/activate.tsx",
+   "apps/web/app/(app)/admin/operators/page.tsx",
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -3199,6 +5433,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Bail",
+  "text": "Bail",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
+  "key": "Bail, court fees, payments and refunds against this charge.",
+  "text": "Bail, court fees, payments and refunds against this charge.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx"
   ]
  },
  {
@@ -3246,6 +5497,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Bar",
   "context": null,
   "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -3274,6 +5526,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Basemap",
+  "text": "Basemap",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Battery Levels",
   "text": "Battery Levels",
   "context": null,
@@ -3296,6 +5556,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Before",
+  "text": "Before",
+  "context": null,
+  "where": [
+   "apps/web/components/call-edits.tsx"
   ]
  },
  {
@@ -3364,6 +5632,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Belongs to",
+  "text": "Belongs to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
   "key": "Beretta",
   "text": "Beretta",
   "context": null,
@@ -3417,6 +5693,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Birth date",
+  "text": "Birth date",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -3510,11 +5794,61 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Body Cam Footage",
+  "text": "Body Cam Footage",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Body Cam Footage{value}",
+  "text": "Body Cam Footage{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/page.tsx"
+  ]
+ },
+ {
+  "key": "Body Cams",
+  "text": "Body Cams",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/page.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Body cam footage",
+  "text": "Body cam footage",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/page.tsx"
+  ]
+ },
+ {
   "key": "Body camera active",
   "text": "Body camera active",
   "context": null,
   "where": [
    "packages/api/src/police/report-types.ts"
+  ]
+ },
+ {
+  "key": "Body cams live",
+  "text": "Body cams live",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/page.tsx",
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
+  "key": "Body cams on this incident",
+  "text": "Body cams on this incident",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/bodycams-card.tsx"
   ]
  },
  {
@@ -3524,7 +5858,26 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx",
    "apps/mobile/app/end-shift.tsx",
-   "apps/mobile/components/shift-bodycam.tsx"
+   "apps/mobile/components/shift-bodycam.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx",
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
+  "key": "Bodycam Register",
+  "text": "Bodycam Register",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Bodycam register",
+  "text": "Bodycam register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/page.tsx"
   ]
  },
  {
@@ -3533,6 +5886,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "Bodycam test video: {value}",
+  "text": "Bodycam test video: {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
   ]
  },
  {
@@ -3568,6 +5929,40 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Bodycams",
+  "text": "Bodycams",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/import/page.tsx",
+   "apps/web/app/(app)/police/bodycams/page.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "Bodycams out with officers",
+  "text": "Bodycams out with officers",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/bodycam-wall.tsx"
+  ]
+ },
+ {
+  "key": "Bodycams out with officers right now. Watch up to four at once; each one asks why, and the officer’s phone shows that the control room is viewing their camera.",
+  "text": "Bodycams out with officers right now. Watch up to four at once; each one asks why, and the officer’s phone shows that the control room is viewing their camera.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/page.tsx"
+  ]
+ },
+ {
+  "key": "Bodycams worn by the officers on",
+  "text": "Bodycams worn by the officers on",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx"
+  ]
+ },
+ {
   "key": "Bomb Threat",
   "text": "Bomb Threat",
   "context": null,
@@ -3593,11 +5988,60 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Book one member on one call sign for a date range, with its own hours if needed.",
+  "text": "Book one member on one call sign for a date range, with its own hours if needed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "Book one member on one call sign, step by step.",
+  "text": "Book one member on one call sign, step by step.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Book renewals before a member becomes non-deployable.",
+  "text": "Book renewals before a member becomes non-deployable.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hr/page.tsx"
+  ]
+ },
+ {
   "key": "Booked out",
   "text": "Booked out",
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "Booked out to",
+  "text": "Booked out to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "Booking needs Duty Allocation access.",
+  "text": "Booking needs Duty Allocation access.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "Bookings in the window",
+  "text": "Bookings in the window",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx"
   ]
  },
  {
@@ -3675,6 +6119,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Breadcrumb",
+  "text": "Breadcrumb",
+  "context": null,
+  "where": [
+   "apps/web/components/topbar.tsx"
+  ]
+ },
+ {
+  "key": "Break",
+  "text": "Break",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Break time",
+  "text": "Break time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
   "key": "Breakdown",
   "text": "Breakdown",
   "context": null,
@@ -3748,6 +6216,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Bring back",
+  "text": "Bring back",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
   "key": "Broadcast all (emergency)",
   "text": "Broadcast all (emergency)",
   "context": null,
@@ -3794,6 +6270,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Build a report from any data source, save it, and share it with your department.",
+  "text": "Build a report from any data source, save it, and share it with your department.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/page.tsx"
+  ]
+ },
+ {
+  "key": "Build from a rotation",
+  "text": "Build from a rotation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Build report",
+  "text": "Build report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
   ]
  },
  {
@@ -3880,11 +6380,95 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Busiest stations",
+  "text": "Busiest stations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Business / Site Name",
+  "text": "Business / Site Name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "Business and site inspections, newest first.",
+  "text": "Business and site inspections, newest first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "By day",
+  "text": "By day",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "By department",
+  "text": "By department",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx",
+   "apps/web/app/(app)/case-manager/page.tsx",
+   "apps/web/app/(app)/dispatch/kpi/page.tsx",
+   "apps/web/app/(app)/performance/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "By department and station",
+  "text": "By department and station",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
+  "key": "By form",
+  "text": "By form",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "By incident type",
+  "text": "By incident type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "By member",
+  "text": "By member",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/reports/page.tsx"
+  ]
+ },
+ {
   "key": "By signing above and checking this box I accept full responsibility for this declaration.",
   "text": "By signing above and checking this box I accept full responsibility for this declaration.",
   "context": null,
   "where": [
    "apps/mobile/components/shift-inspection.tsx"
+  ]
+ },
+ {
+  "key": "By the date on the receipt.",
+  "text": "By the date on the receipt.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
   ]
  },
  {
@@ -3901,6 +6485,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "By-law",
+  "text": "By-law",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
   ]
  },
  {
@@ -4021,6 +6613,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Calibre",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -4049,6 +6642,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Call Intake",
+  "text": "Call Intake",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Call Sign Maintenance",
+  "text": "Call Sign Maintenance",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Call Signs",
+  "text": "Call Signs",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
   "key": "Call caller",
   "text": "Call caller",
   "context": null,
@@ -4065,12 +6682,166 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Call detail ({length} of {callDetailTotal})",
+  "text": "Call detail ({length} of {callDetailTotal})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "Call from",
+  "text": "Call from",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/case-ui.tsx"
+  ]
+ },
+ {
+  "key": "Call not closed yet",
+  "text": "Call not closed yet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Call sign",
+  "text": "Call sign",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/edit-duty.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx",
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
+  "key": "Call sign & section",
+  "text": "Call sign & section",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Call sign history",
+  "text": "Call sign history",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "Call sign saved",
+  "text": "Call sign saved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Call signs",
+  "text": "Call signs",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Call signs — slots",
+  "text": "Call signs — slots",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Call taken by",
+  "text": "Call taken by",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Call takers ({length})",
+  "text": "Call takers ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "Call timestamp",
+  "text": "Call timestamp",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Call to",
+  "text": "Call to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/case-ui.tsx"
+  ]
+ },
+ {
+  "key": "Call volume — today",
+  "text": "Call volume — today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Call {incidentNumber}{value}{value2}",
+  "text": "Call {incidentNumber}{value}{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/parts.tsx"
+  ]
+ },
+ {
+  "key": "Call → closed today · target {value} min",
+  "text": "Call → closed today · target {value} min",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Call → on scene today · target {value} min · dispatch {avgDispatch} min",
+  "text": "Call → on scene today · target {value} min · dispatch {avgDispatch} min",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
   "key": "Caller",
   "text": "Caller",
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx",
+   "apps/web/app/(app)/dispatch/pending/page.tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Caller & location info",
+  "text": "Caller & location info",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
   ]
  },
  {
@@ -4090,10 +6861,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Caller is the patient",
+  "text": "Caller is the patient",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Caller name",
   "text": "Caller name",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
   ]
@@ -4103,6 +6884,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Caller number",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
   ]
@@ -4116,11 +6898,84 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Caller: {callerName}",
+  "text": "Caller: {callerName}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
   "key": "Caller: {caller_name}",
   "text": "Caller: {caller_name}",
   "context": null,
   "where": [
    "apps/mobile/components/incident-sheet.tsx"
+  ]
+ },
+ {
+  "key": "Calls",
+  "text": "Calls",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx",
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Calls by priority.",
+  "text": "Calls by priority.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/kpi/page.tsx"
+  ]
+ },
+ {
+  "key": "Calls still being worked. Each comes to review once its report is filed; the dispatch desk closes any that will never have one.",
+  "text": "Calls still being worked. Each comes to review once its report is filed; the dispatch desk closes any that will never have one.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/open/page.tsx"
+  ]
+ },
+ {
+  "key": "Calls taken",
+  "text": "Calls taken",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
+  ]
+ },
+ {
+  "key": "Calls today",
+  "text": "Calls today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/page.tsx"
+  ]
+ },
+ {
+  "key": "Calls with crews out",
+  "text": "Calls with crews out",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Calls you took, by month.",
+  "text": "Calls you took, by month.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/mine/page.tsx"
+  ]
+ },
+ {
+  "key": "Calls, officers, perimeters, crime zones, hydrants and weather, live. Choose what shows under",
+  "text": "Calls, officers, perimeters, crime zones, hydrants and weather, live. Choose what shows under",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/map/page.tsx"
   ]
  },
  {
@@ -4137,6 +6992,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "Camera wall",
+  "text": "Camera wall",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/live-wall.tsx"
   ]
  },
  {
@@ -4213,8 +7076,60 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/end-shift.tsx",
    "apps/mobile/app/pcr/[id].tsx",
    "apps/mobile/components/closed-incidents.tsx",
+   "apps/mobile/components/panic-button.tsx",
    "apps/mobile/components/shift-documents.tsx",
-   "apps/mobile/lib/accept.ts"
+   "apps/mobile/lib/accept.ts",
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/admin/users/account-status-form.tsx",
+   "apps/web/app/(app)/admin/vehicles/vehicle-form.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/modules/absence/page.tsx",
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/edit-duty.tsx",
+   "apps/web/app/(app)/modules/leave/decide.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx",
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx",
+   "apps/web/app/(app)/roster/setup/setup-client.tsx",
+   "apps/web/components/criti/proposal-card.tsx",
+   "apps/web/components/ops-map/zones/zone-editor.tsx",
+   "apps/web/components/ops-map/zones/zone-tools.tsx",
+   "apps/web/components/register/bulk-run.tsx",
+   "apps/web/components/schedule/leave-actions.tsx"
+  ]
+ },
+ {
+  "key": "Cancel a request any time before your leave starts.",
+  "text": "Cancel a request any time before your leave starts.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Cancel drawing",
+  "text": "Cancel drawing",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
+  ]
+ },
+ {
+  "key": "Cancel it",
+  "text": "Cancel it",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/leave-actions.tsx"
   ]
  },
  {
@@ -4223,7 +7138,24 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx",
-   "apps/mobile/lib/outbox-policy.ts"
+   "apps/mobile/lib/outbox-policy.ts",
+   "apps/web/components/schedule/leave-actions.tsx"
+  ]
+ },
+ {
+  "key": "Cancel shift",
+  "text": "Cancel shift",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Cancel shift…",
+  "text": "Cancel shift…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
   ]
  },
  {
@@ -4235,12 +7167,23 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Cancel {fineNumber}",
+  "text": "Cancel {fineNumber}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
+  ]
+ },
+ {
   "key": "Cancelled",
   "text": "Cancelled",
   "context": null,
   "where": [
    "apps/mobile/app/fines/[id].tsx",
    "apps/mobile/components/closed-incidents.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/warrants/page.tsx",
    "packages/api/src/schedule/rules.ts",
    "packages/db/src/fines.ts"
   ]
@@ -4278,6 +7221,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Cancelled. Nothing was changed.",
+  "text": "Cancelled. Nothing was changed.",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/proposal-card.tsx"
+  ]
+ },
+ {
   "key": "Cancelling",
   "text": "Cancelling",
   "context": null,
@@ -4286,11 +7237,67 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Cancelling gives the person their shifts back. Say why; they are told.",
+  "text": "Cancelling gives the person their shifts back. Say why; they are told.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Cannot be deleted",
+  "text": "Cannot be deleted",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Captain",
   "text": "Captain",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Captain Dashboard",
+  "text": "Captain Dashboard",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Caption",
+  "text": "Caption",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
+  "key": "Caption (optional)",
+  "text": "Caption (optional)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
+  "key": "Capture a paper notice",
+  "text": "Capture a paper notice",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Capture paper notice",
+  "text": "Capture paper notice",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
   ]
  },
  {
@@ -4326,6 +7333,16 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Card",
+  "text": "Card",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
   "key": "Cardiac",
   "text": "Cardiac",
   "context": null,
@@ -4340,6 +7357,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/components/doctor-home.tsx",
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Care level",
+  "text": "Care level",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/page.tsx"
   ]
  },
  {
@@ -4365,6 +7390,56 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
+  ]
+ },
+ {
+  "key": "Case Audit Trail",
+  "text": "Case Audit Trail",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Case Dashboard",
+  "text": "Case Dashboard",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Case Management",
+  "text": "Case Management",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Case Management · {scope}",
+  "text": "Case Management · {scope}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Case PDF",
+  "text": "Case PDF",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-review-card.tsx"
+  ]
+ },
+ {
+  "key": "Case audit trail",
+  "text": "Case audit trail",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/audit/page.tsx"
   ]
  },
  {
@@ -4400,11 +7475,52 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Case dashboard",
+  "text": "Case dashboard",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Case figures",
+  "text": "Case figures",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Case number",
+  "text": "Case number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/report-card.tsx",
+   "apps/web/app/(app)/police/reports/new/report-form.tsx"
+  ]
+ },
+ {
+  "key": "Case number, officer, call, place, form code",
+  "text": "Case number, officer, call, place, form code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
   "key": "Case report",
   "text": "Case report",
   "context": null,
   "where": [
    "apps/mobile/app/report/[id].tsx"
+  ]
+ },
+ {
+  "key": "Case report · {label}",
+  "text": "Case report · {label}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/report-card.tsx"
   ]
  },
  {
@@ -4424,10 +7540,21 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Case-manager PDF export lands with the Edge Function phase.",
+  "text": "Case-manager PDF export lands with the Edge Function phase.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/page.tsx"
+  ]
+ },
+ {
   "key": "Cash",
   "text": "Cash",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -4444,7 +7571,42 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Casualties",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Casualty totals",
+  "text": "Casualty totals",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
+  "key": "Category",
+  "text": "Category",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx",
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Category pivot",
+  "text": "Category pivot",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "Category × sub-category × region volume.",
+  "text": "Category × sub-category × region volume.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
   ]
  },
  {
@@ -4456,10 +7618,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Cause summary",
+  "text": "Cause summary",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
   "key": "Cell",
   "text": "Cell",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -4468,7 +7639,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Cell number",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -4504,10 +7676,60 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Cellphone number",
+  "text": "Cellphone number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Centre on my position",
+  "text": "Centre on my position",
+  "context": null,
+  "where": [
+   "apps/web/components/location-picker.tsx"
+  ]
+ },
+ {
+  "key": "Certification",
+  "text": "Certification",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "Certifications ({length})",
+  "text": "Certifications ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "Certifications expiring in 30 days",
+  "text": "Certifications expiring in 30 days",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hr/page.tsx"
+  ]
+ },
+ {
+  "key": "Chain of command with reporting lines. Click any member for their HR record; pinned lines override the inferred chain.",
+  "text": "Chain of command with reporting lines. Click any member for their HR record; pinned lines override the inferred chain.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/page.tsx"
+  ]
+ },
+ {
   "key": "Challenges faced",
   "text": "Challenges faced",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -4516,7 +7738,25 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Chamber status",
   "context": null,
   "where": [
-   "apps/mobile/components/shift-firearm.tsx"
+   "apps/mobile/components/shift-firearm.tsx",
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Change",
+  "text": "Change",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Change department",
+  "text": "Change department",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
   ]
  },
  {
@@ -4528,11 +7768,104 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Change status",
+  "text": "Change status",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/off-road.tsx"
+  ]
+ },
+ {
+  "key": "Change theme",
+  "text": "Change theme",
+  "context": null,
+  "where": [
+   "apps/web/components/theme-picker.tsx"
+  ]
+ },
+ {
+  "key": "Change to",
+  "text": "Change to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "Change {name}’s department",
+  "text": "Change {name}’s department",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Changes since it was logged",
+  "text": "Changes since it was logged",
+  "context": null,
+  "where": [
+   "apps/web/components/call-edits.tsx"
+  ]
+ },
+ {
+  "key": "Changes to powerful roles wait here for a second SystemAdmin. You cannot decide a request you made, or one about your own account. Requests close after {value} days.",
+  "text": "Changes to powerful roles wait here for a second SystemAdmin. You cannot decide a request you made, or one about your own account. Requests close after {value} days.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/approvals/page.tsx"
+  ]
+ },
+ {
+  "key": "Channel clear",
+  "text": "Channel clear",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
+  "key": "Channel clear. {value}",
+  "text": "Channel clear. {value}",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/talk-panel.tsx"
+  ]
+ },
+ {
   "key": "Charge",
   "text": "Charge",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/[id].tsx"
+   "apps/mobile/app/fines/[id].tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
+  ]
+ },
+ {
+  "key": "Charge Book",
+  "text": "Charge Book",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Charge Transactions",
+  "text": "Charge Transactions",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Charge book",
+  "text": "Charge book",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/page.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx"
   ]
  },
  {
@@ -4540,7 +7873,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Charge code",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
+  "key": "Charge transactions",
+  "text": "Charge transactions",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/transactions/page.tsx"
   ]
  },
  {
@@ -4549,6 +7891,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "Charges",
+  "text": "Charges",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx",
+   "apps/web/components/police-report-view.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -4568,11 +7920,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Chart",
+  "text": "Chart",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
   "key": "Check",
   "text": "Check",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/check.tsx"
+   "apps/mobile/app/fines/check.tsx",
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
   ]
  },
  {
@@ -4590,6 +7951,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/components/ems-shift.tsx",
    "apps/mobile/components/fire-shift.tsx"
+  ]
+ },
+ {
+  "key": "Check every",
+  "text": "Check every",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/rule-card.tsx"
   ]
  },
  {
@@ -4646,6 +8015,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": "Checked {localeString}. Refresh to re-run.",
+  "text": "Checked {localeString}. Refresh to re-run.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/status/page.tsx"
   ]
  },
  {
@@ -4851,6 +8228,64 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Choose",
+  "text": "Choose",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx",
+   "apps/web/app/(app)/admin/vehicles/vehicle-form.tsx",
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx"
+  ]
+ },
+ {
+  "key": "Choose a bodycam from the list to watch it here.",
+  "text": "Choose a bodycam from the list to watch it here.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/bodycam-wall.tsx"
+  ]
+ },
+ {
+  "key": "Choose a booking to play its footage here.",
+  "text": "Choose a booking to play its footage here.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx"
+  ]
+ },
+ {
+  "key": "Choose a call sign to see who worked it.",
+  "text": "Choose a call sign to see who worked it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "Choose a call sign…",
+  "text": "Choose a call sign…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "Choose a form to start; more can be added on the report.",
+  "text": "Choose a form to start; more can be added on the report.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx"
+  ]
+ },
+ {
+  "key": "Choose a member on the left, or search.",
+  "text": "Choose a member on the left, or search.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Choose a password. Only you will know it: administrators never see or set passwords.",
   "text": "Choose a password. Only you will know it: administrators never see or set passwords.",
   "context": null,
@@ -4864,6 +8299,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Choose a role",
+  "text": "Choose a role",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/change-role-form.tsx"
+  ]
+ },
+ {
+  "key": "Choose a section and the dates. Tick call signs and staff, press Allocate selected to pair them in order, then Confirm & save. Each member is told once.",
+  "text": "Choose a section and the dates. Tick call signs and staff, press Allocate selected to pair them in order, then Confirm & save. Each member is told once.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx"
   ]
  },
  {
@@ -4899,6 +8350,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Choose another file",
+  "text": "Choose another file",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
   "key": "Choose another vehicle",
   "text": "Choose another vehicle",
   "context": null,
@@ -4912,6 +8372,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Choose department",
+  "text": "Choose department",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Choose every form this report needs. Each has its own colour on the report and the PDF.",
+  "text": "Choose every form this report needs. Each has its own colour on the report and the PDF.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/new/report-form.tsx"
   ]
  },
  {
@@ -4936,6 +8413,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Choose someone else",
+  "text": "Choose someone else",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
@@ -4979,6 +8464,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Choose the department",
+  "text": "Choose the department",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
   "key": "Choose the department this call is for: who must receive it.",
   "text": "Choose the department this call is for: who must receive it.",
   "context": null,
@@ -4992,6 +8485,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "Choose the forms, the dates and the people. The report is built from the reports on record.",
+  "text": "Choose the forms, the dates and the people. The report is built from the reports on record.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
   ]
  },
  {
@@ -5035,6 +8536,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Choose the person",
+  "text": "Choose the person",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx"
+  ]
+ },
+ {
+  "key": "Choose the person first",
+  "text": "Choose the person first",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "Choose the region.",
   "text": "Choose the region.",
   "context": null,
@@ -5051,11 +8568,40 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Choose type",
+  "text": "Choose type",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Choose what the report covers, then press Build report.",
+  "text": "Choose what the report covers, then press Build report.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "Choose your password.",
+  "text": "Choose your password.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
   "key": "Choose…",
   "text": "Choose…",
   "context": null,
   "where": [
-   "apps/mobile/components/report-wizard.tsx"
+   "apps/mobile/components/report-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/reports/builder/builder-client.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx",
+   "apps/web/components/form-wizard.tsx"
   ]
  },
  {
@@ -5064,6 +8610,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Chronological dispatcher/responder log.",
+  "text": "Chronological dispatcher/responder log.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -5111,6 +8665,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "City",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
   ]
  },
@@ -5120,6 +8676,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "City of uMhlathuze",
+  "text": "City of uMhlathuze",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
   ]
  },
  {
@@ -5135,6 +8699,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Civilian fatalities",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -5143,6 +8709,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Civilian fatality details",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -5151,6 +8718,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Civilian injuries",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -5159,6 +8728,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Civilian injury details",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -5191,7 +8761,26 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Clear",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/case-manager/audit/page.tsx",
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
+   "apps/web/app/(app)/fire/inspections/page.tsx",
+   "apps/web/app/(app)/medical/handovers/page.tsx",
+   "apps/web/app/(app)/medical/pcr/page.tsx",
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
+   "apps/web/app/(app)/police/reports/reports-list.tsx",
+   "apps/web/components/signature-pad.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Clear SOS",
+  "text": "Clear SOS",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
   ]
  },
  {
@@ -5200,7 +8789,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/shift-bodycam.tsx",
-   "apps/mobile/components/shift-firearm.tsx"
+   "apps/mobile/components/shift-firearm.tsx",
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Clear filters",
+  "text": "Clear filters",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/case-ui.tsx"
   ]
  },
  {
@@ -5209,6 +8807,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/incidents-list.tsx"
+  ]
+ },
+ {
+  "key": "Clear selected officer",
+  "text": "Clear selected officer",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/officer-picker.tsx"
+  ]
+ },
+ {
+  "key": "Clear time",
+  "text": "Clear time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Clear — marks it acknowledged",
+  "text": "Clear — marks it acknowledged",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
+  "key": "Clear — marks it acknowledged for you",
+  "text": "Clear — marks it acknowledged for you",
+  "context": null,
+  "where": [
+   "apps/web/components/panic-banner.tsx"
   ]
  },
  {
@@ -5236,11 +8866,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Cleared · total",
+  "text": "Cleared · total",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/report-card.tsx"
+  ]
+ },
+ {
+  "key": "Click a camera for its latest snapshot.",
+  "text": "Click a camera for its latest snapshot.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/itraffic-map.tsx"
+  ]
+ },
+ {
+  "key": "Click a row for the full lifecycle.",
+  "text": "Click a row for the full lifecycle.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/page.tsx"
+  ]
+ },
+ {
+  "key": "Click anywhere to sound the SOS alarm",
+  "text": "Click anywhere to sound the SOS alarm",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
+  "key": "Click or drag the pin to set the scene",
+  "text": "Click or drag the pin to set the scene",
+  "context": null,
+  "where": [
+   "apps/web/components/location-picker.tsx"
+  ]
+ },
+ {
   "key": "Click to add what happened, the details and who is hurt.",
   "text": "Click to add what happened, the details and who is hurt.",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "Click to hear the radios",
+  "text": "Click to hear the radios",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/talk-panel.tsx"
   ]
  },
  {
@@ -5252,11 +8930,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Clinical Archive",
+  "text": "Clinical Archive",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/page.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Clinical Assessment & Psychological Presentation",
   "text": "Clinical Assessment & Psychological Presentation",
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Clinical archive",
+  "text": "Clinical archive",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx"
   ]
  },
  {
@@ -5269,8 +8964,26 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/report-wizard.tsx",
    "apps/mobile/components/sync-tray.tsx",
    "apps/mobile/lib/outbox-policy.ts",
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx",
+   "apps/web/app/(app)/roster/planner.tsx",
+   "apps/web/components/command-palette.tsx",
+   "apps/web/components/dispatch-map-modal.tsx",
    "apps/web/components/language-menu.tsx",
+   "apps/web/components/ops-map/zones/zone-card.tsx",
+   "apps/web/components/ops-map/zones/zone-tools.tsx",
+   "apps/web/components/register/bulk-run.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/components/theme-picker.tsx",
    "apps/web/components/ui/modal.tsx"
+  ]
+ },
+ {
+  "key": "Close Criti",
+  "text": "Close Criti",
+  "context": null,
+  "where": [
+   "apps/web/components/assistant-dock.tsx"
   ]
  },
  {
@@ -5290,6 +9003,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Close layers",
+  "text": "Close layers",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Close list",
   "text": "Close list",
   "context": null,
@@ -5298,11 +9019,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Close navigation",
+  "text": "Close navigation",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Close on scene",
+  "text": "Close on scene",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/close-button.tsx"
+  ]
+ },
+ {
   "key": "Close the description?",
   "text": "Close the description?",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "Close this bodycam",
+  "text": "Close this bodycam",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
+  "key": "Close without a report",
+  "text": "Close without a report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-forms.tsx"
+  ]
+ },
+ {
+  "key": "Close {departmentName} on scene",
+  "text": "Close {departmentName} on scene",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
   ]
  },
  {
@@ -5318,7 +9079,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Close, keep answers",
   "context": null,
   "where": [
-   "apps/mobile/components/report-wizard.tsx"
+   "apps/mobile/components/report-wizard.tsx",
+   "apps/web/components/form-wizard.tsx"
   ]
  },
  {
@@ -5327,7 +9089,60 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/closed-incidents.tsx",
-   "apps/mobile/components/incidents-list.tsx"
+   "apps/mobile/components/incidents-list.tsx",
+   "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/dashboard/page.tsx",
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
+  ]
+ },
+ {
+  "key": "Closed Cases",
+  "text": "Closed Cases",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Closed and resolved incidents. Open one to review its lifecycle and evidence.",
+  "text": "Closed and resolved incidents. Open one to review its lifecycle and evidence.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "Closed cases",
+  "text": "Closed cases",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/closed/page.tsx",
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Closed on scene",
+  "text": "Closed on scene",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/departments-card.tsx",
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "Closed today",
+  "text": "Closed today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Closed without report",
+  "text": "Closed without report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/case-ui.tsx"
   ]
  },
  {
@@ -5355,6 +9170,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Closing note",
+  "text": "Closing note",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/departments-card.tsx"
+  ]
+ },
+ {
   "key": "Closing. Sends when you have signal.",
   "text": "Closing. Sends when you have signal.",
   "context": null,
@@ -5368,6 +9191,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/closed-incidents.tsx"
+  ]
+ },
+ {
+  "key": "Closure rate",
+  "text": "Closure rate",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
   ]
  },
  {
@@ -5416,7 +9247,20 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Code",
   "context": null,
   "where": [
-   "apps/mobile/app/activate.tsx"
+   "apps/mobile/app/activate.tsx",
+   "apps/web/app/(app)/modules/absence/page.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "Code (e.g. 10-1)",
+  "text": "Code (e.g. 10-1)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/config/page.tsx"
   ]
  },
  {
@@ -5428,11 +9272,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Code — e.g. NR",
+  "text": "Code — e.g. NR",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Codes are short and permanent; retire a section rather than renaming it.",
+  "text": "Codes are short and permanent; retire a section rather than renaming it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/sections/page.tsx"
+  ]
+ },
+ {
   "key": "Cognitive Testing for {short_name}",
   "text": "Cognitive Testing for {short_name}",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "Collected",
+  "text": "Collected",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
   ]
  },
  {
@@ -5465,6 +9333,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -5481,7 +9350,42 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Command",
   "context": null,
   "where": [
-   "apps/mobile/lib/police-overlays.ts"
+   "apps/mobile/lib/police-overlays.ts",
+   "apps/web/app/(app)/command/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Command Board",
+  "text": "Command Board",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Command Centre",
+  "text": "Command Centre",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Command bar",
+  "text": "Command bar",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-command-bar.tsx"
+  ]
+ },
+ {
+  "key": "Command palette",
+  "text": "Command palette",
+  "context": null,
+  "where": [
+   "apps/web/components/command-palette.tsx"
   ]
  },
  {
@@ -5501,12 +9405,23 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Comment / instruction",
+  "text": "Comment / instruction",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
   "key": "Comments",
   "text": "Comments",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx",
-   "apps/mobile/components/disaster-shift.tsx"
+   "apps/mobile/components/disaster-shift.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/performance/plans/[id]/page.tsx",
+   "apps/web/app/(app)/shift/readiness-review/page.tsx"
   ]
  },
  {
@@ -5550,11 +9465,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Company / force number",
+  "text": "Company / force number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
+  ]
+ },
+ {
   "key": "Company, tel, driver name",
   "text": "Company, tel, driver name",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Compiled by: {fullName}",
+  "text": "Compiled by: {fullName}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
   ]
  },
  {
@@ -5571,6 +9503,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/shift-inspection.tsx"
+  ]
+ },
+ {
+  "key": "Complete history ({length})",
+  "text": "Complete history ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -5606,6 +9546,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Compose",
+  "text": "Compose",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
+  ]
+ },
+ {
+  "key": "Concluded",
+  "text": "Concluded",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
   "key": "Concrete",
   "text": "Concrete",
   "context": null,
@@ -5619,6 +9575,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx",
+   "apps/web/app/(app)/reports/builder/builder-client.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -5647,6 +9606,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Condition of rescued",
+  "text": "Condition of rescued",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
   "key": "Condition when care was handed over",
   "text": "Condition when care was handed over",
   "context": null,
@@ -5660,6 +9627,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Configuration",
+  "text": "Configuration",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Confirm & save",
+  "text": "Confirm & save",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
   ]
  },
  {
@@ -5727,6 +9711,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Confirm password",
+  "text": "Confirm password",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "Confirm readiness",
   "text": "Confirm readiness",
   "context": null,
@@ -5741,6 +9733,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": "Confirm suggested roles",
+  "text": "Confirm suggested roles",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Confirm with Criti",
+  "text": "Confirm with Criti",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/insight-tiles.tsx"
   ]
  },
  {
@@ -5764,6 +9772,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Confirmed Fatalities",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
   ]
  },
@@ -5772,6 +9781,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Confirmed Injuries",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
   ]
  },
@@ -5781,6 +9791,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/sync-tray.tsx"
+  ]
+ },
+ {
+  "key": "Console",
+  "text": "Console",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/features/page.tsx"
+  ]
+ },
+ {
+  "key": "Console reports",
+  "text": "Console reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
   ]
  },
  {
@@ -5806,7 +9833,17 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/fines/new.tsx",
    "apps/mobile/app/incident/[id].tsx",
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Contact & address",
+  "text": "Contact & address",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -5815,6 +9852,33 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Contact Person",
+  "text": "Contact Person",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "Contact and radio channels for joint operations.",
+  "text": "Contact and radio channels for joint operations.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/partners/page.tsx"
+  ]
+ },
+ {
+  "key": "Contact number",
+  "text": "Contact number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -5831,6 +9895,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Contents value (R)",
+  "text": "Contents value (R)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
   ]
  },
  {
@@ -5859,6 +9931,38 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Contraband",
+  "text": "Contraband",
+  "context": null,
+  "where": [
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
+  "key": "Control Room Dashboard",
+  "text": "Control Room Dashboard",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Control room",
+  "text": "Control room",
+  "context": null,
+  "where": [
+   "apps/web/components/department-pills.tsx"
+  ]
+ },
+ {
+  "key": "Control room (not dispatched)",
+  "text": "Control room (not dispatched)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/case-ui.tsx"
+  ]
+ },
+ {
   "key": "Control room information",
   "text": "Control room information",
   "context": null,
@@ -5875,11 +9979,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Control room only",
+  "text": "Control room only",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/page.tsx"
+  ]
+ },
+ {
+  "key": "Control-room operators",
+  "text": "Control-room operators",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx"
+  ]
+ },
+ {
+  "key": "Control-room throughput: call takers, dispatchers, category volume and raw call detail.",
+  "text": "Control-room throughput: call takers, dispatchers, category volume and raw call detail.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "Convicted",
+  "text": "Convicted",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Cool",
   "text": "Cool",
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Coordinates",
+  "text": "Coordinates",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Coordination & review",
+  "text": "Coordination & review",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Copies merged",
+  "text": "Copies merged",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
   ]
  },
  {
@@ -5899,11 +10060,44 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Copy coordinates",
+  "text": "Copy coordinates",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx",
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
+  ]
+ },
+ {
+  "key": "Copy link",
+  "text": "Copy link",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
+  "key": "Copy {slice} forward",
+  "text": "Copy {slice} forward",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
   "key": "Cordon",
   "text": "Cordon",
   "context": null,
   "where": [
    "packages/db/src/map-layers.ts"
+  ]
+ },
+ {
+  "key": "Cordons, closures and points set on the live map for this call.",
+  "text": "Cordons, closures and points set on the live map for this call.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/zones-card.tsx"
   ]
  },
  {
@@ -5931,11 +10125,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Correct what the caller said or what was captured. Every change is kept with your name, what it was and what it became: on the call, in the audit trail and on the case PDF.",
+  "text": "Correct what the caller said or what was captured. Every change is kept with your name, what it was and what it became: on the call, in the audit trail and on the case PDF.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx"
+  ]
+ },
+ {
   "key": "Could not get a GPS fix. Type the place instead.",
   "text": "Could not get a GPS fix. Type the place instead.",
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "Could not load the voice note here: open it",
+  "text": "Could not load the voice note here: open it",
+  "context": null,
+  "where": [
+   "apps/web/components/voice-note.tsx"
   ]
  },
  {
@@ -5987,6 +10197,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Counting rows in each group.",
+  "text": "Counting rows in each group.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
   "key": "Country of ID",
   "text": "Country of ID",
   "context": null,
@@ -6015,7 +10233,43 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Court",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
+  "key": "Court (optional)",
+  "text": "Court (optional)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
+  "key": "Court Attendance keeps the member off duty that day.",
+  "text": "Court Attendance keeps the member off duty that day.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Court Date Set",
+  "text": "Court Date Set",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
+  "key": "Court Fee",
+  "text": "Court Fee",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx"
   ]
  },
  {
@@ -6027,11 +10281,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Court dates",
+  "text": "Court dates",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
   "key": "Court dates and endorsements",
   "text": "Court dates and endorsements",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/roster/planner.tsx"
   ]
  },
  {
@@ -6040,6 +10303,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Coverage",
+  "text": "Coverage",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
   ]
  },
  {
@@ -6147,6 +10418,78 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Create a tenant",
+  "text": "Create a tenant",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "Create an active tenant first.",
+  "text": "Create an active tenant first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Create task",
+  "text": "Create task",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
+  "key": "Create tenant",
+  "text": "Create tenant",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "Create the tenant, then invite its first SystemAdmin using their email address. Existing accounts can be reassigned using the separate form below.",
+  "text": "Create the tenant, then invite its first SystemAdmin using their email address. Existing accounts can be reassigned using the separate form below.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/page.tsx"
+  ]
+ },
+ {
+  "key": "Created",
+  "text": "Created",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/page.tsx"
+  ]
+ },
+ {
+  "key": "Creates an account for",
+  "text": "Creates an account for",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Credentials missing",
+  "text": "Credentials missing",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
+  ]
+ },
+ {
+  "key": "Crest",
+  "text": "Crest",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
+  ]
+ },
+ {
   "key": "Crew",
   "text": "Crew",
   "context": null,
@@ -6163,12 +10506,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Crew needed",
+  "text": "Crew needed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Crew on duty",
+  "text": "Crew on duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Crew on scene",
+  "text": "Crew on scene",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
+  ]
+ },
+ {
+  "key": "Crews",
+  "text": "Crews",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
   "key": "Crime",
   "text": "Crime",
   "context": null,
   "where": [
    "apps/mobile/app/live-map.tsx",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Crime Hotspots",
+  "text": "Crime Hotspots",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Crime category",
+  "text": "Crime category",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
+  "key": "Crime hotspots",
+  "text": "Crime hotspots",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/crime-hotspots/page.tsx"
   ]
  },
  {
@@ -6196,11 +10595,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Crime{value}",
+  "text": "Crime{value}",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Criti",
   "text": "Criti",
   "context": null,
   "where": [
    "apps/mobile/app/_layout.tsx"
+  ]
+ },
+ {
+  "key": "Criti Assistant",
+  "text": "Criti Assistant",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -6260,6 +10675,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Criti sees only what your role may see. Nothing changes until you confirm.",
+  "text": "Criti sees only what your role may see. Nothing changes until you confirm.",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/chat.tsx"
+  ]
+ },
+ {
+  "key": "Criti suggestions",
+  "text": "Criti suggestions",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/insight-tiles.tsx"
+  ]
+ },
+ {
   "key": "Criti suggests also sending to {desks}",
   "text": "Criti suggests also sending to {desks}",
   "context": null,
@@ -6281,7 +10712,40 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/intake-ui.tsx",
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Critical / high",
+  "text": "Critical / high",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
+  "key": "Critical response (p90)",
+  "text": "Critical response (p90)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
+  ]
+ },
+ {
+  "key": "Critical today",
+  "text": "Critical today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Critical wait time",
+  "text": "Critical wait time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
   ]
  },
  {
@@ -6290,6 +10754,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Cross street",
+  "text": "Cross street",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -6335,6 +10807,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Customised",
+  "text": "Customised",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operations/setting-row.tsx"
+  ]
+ },
+ {
   "key": "Cuts and bruises",
   "text": "Cuts and bruises",
   "context": null,
@@ -6348,6 +10828,46 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Cycle",
+  "text": "Cycle",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Cycle {cycleLabel} (1 Jul – 30 Jun). One plan per member, mid-year & final assessment.",
+  "text": "Cycle {cycleLabel} (1 Jul – 30 Jun). One plan per member, mid-year & final assessment.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/page.tsx"
+  ]
+ },
+ {
+  "key": "Cycle {cycleLabel} · total weight {totalWeight}%. Add or retire KPIs without a code change.",
+  "text": "Cycle {cycleLabel} · total weight {totalWeight}%. Add or retire KPIs without a code change.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "Cycle {cycleLabel} · {value} · status",
+  "text": "Cycle {cycleLabel} · {value} · status",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "DCPDUTY Ver 3 · {upperCase}",
+  "text": "DCPDUTY Ver 3 · {upperCase}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
   ]
  },
  {
@@ -6444,7 +10964,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "DMPS forms · optional",
   "context": null,
   "where": [
-   "apps/mobile/app/report/[id].tsx"
+   "apps/mobile/app/report/[id].tsx",
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
   ]
  },
  {
@@ -6472,6 +10993,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "DUTY SHEET — {dept}",
+  "text": "DUTY SHEET — {dept}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
   "key": "Daihatsu",
   "text": "Daihatsu",
   "context": null,
@@ -6480,10 +11009,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Damage assessment",
+  "text": "Damage assessment",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
   "key": "Damage estimate (R)",
   "text": "Damage estimate (R)",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -6541,6 +11079,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx",
+   "apps/web/app/(app)/police/firearms/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -6599,7 +11138,25 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx",
-   "apps/mobile/components/fire-shift.tsx"
+   "apps/mobile/components/fire-shift.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Dashed: draft, not yet issued",
+  "text": "Dashed: draft, not yet issued",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Data source",
+  "text": "Data source",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
   ]
  },
  {
@@ -6611,7 +11168,35 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/fire-report/[id].tsx",
    "apps/mobile/components/shift-inspection.tsx",
    "apps/mobile/components/shift-report.tsx",
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Date achieved",
+  "text": "Date achieved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "Date completed",
+  "text": "Date completed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "Date from",
+  "text": "Date from",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
   ]
  },
  {
@@ -6635,7 +11220,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Date of birth",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
   ]
  },
  {
@@ -6655,6 +11241,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Date of offence",
+  "text": "Date of offence",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/new/report-form.tsx"
+  ]
+ },
+ {
   "key": "Date of report",
   "text": "Date of report",
   "context": null,
@@ -6663,11 +11257,62 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Date on the receipt",
+  "text": "Date on the receipt",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
+  ]
+ },
+ {
+  "key": "Date paid",
+  "text": "Date paid",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
+  "key": "Date to",
+  "text": "Date to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
   "key": "Date to appear",
   "text": "Date to appear",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
+  ]
+ },
+ {
+  "key": "Date:",
+  "text": "Date:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
+  "key": "Dates",
+  "text": "Dates",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Dates & times",
+  "text": "Dates & times",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx"
   ]
  },
  {
@@ -6684,6 +11329,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Day",
+  "text": "Day",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
   ]
  },
  {
@@ -6704,11 +11357,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Day each team starts on",
+  "text": "Day each team starts on",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Day the cycle starts",
+  "text": "Day the cycle starts",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
   "key": "Daylight (N/A)",
   "text": "Daylight (N/A)",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Days",
+  "text": "Days",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Days a year",
+  "text": "Days a year",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Days are counted from your roster: the shifts the leave covers, and working days after it.",
+  "text": "Days are counted from your roster: the shifts the leave covers, and working days after it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Deactivate account…",
+  "text": "Deactivate account…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/account-status-form.tsx"
+  ]
+ },
+ {
+  "key": "Deactivated {saTime}",
+  "text": "Deactivated {saTime}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
   ]
  },
  {
@@ -6772,6 +11482,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Decide here — the member is alerted the moment you do.",
+  "text": "Decide here — the member is alerted the moment you do.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hr/page.tsx"
+  ]
+ },
+ {
   "key": "Decided by {approved_by}",
   "text": "Decided by {approved_by}",
   "context": null,
@@ -6788,11 +11506,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Decision note",
+  "text": "Decision note",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/request-decision.tsx"
+  ]
+ },
+ {
+  "key": "Decisions to date",
+  "text": "Decisions to date",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
   "key": "Decline",
   "text": "Decline",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
   ]
  },
  {
@@ -6844,6 +11579,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Delete a tenant",
+  "text": "Delete a tenant",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "Delete permanently",
+  "text": "Delete permanently",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
   "key": "Deliberate / incendiary",
   "text": "Deliberate / incendiary",
   "context": null,
@@ -6860,6 +11611,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Demerit points",
+  "text": "Demerit points",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "Deny role",
+  "text": "Deny role",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/access/page.tsx"
+  ]
+ },
+ {
   "key": "Depart Scene",
   "text": "Depart Scene",
   "context": null,
@@ -6872,8 +11639,123 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Department",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
+   "apps/web/app/(app)/admin/page.tsx",
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/admin/radios/radio-form.tsx",
+   "apps/web/app/(app)/admin/users/change-role-form.tsx",
+   "apps/web/app/(app)/admin/vehicles/vehicle-form.tsx",
+   "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/notifications/send-form.tsx",
+   "apps/web/app/(app)/performance/operational/page.tsx",
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx",
+   "apps/web/components/office/office-header.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Department (blank = all)",
+  "text": "Department (blank = all)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "Department Branding",
+  "text": "Department Branding",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Department hierarchy",
+  "text": "Department hierarchy",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/page.tsx"
+  ]
+ },
+ {
+  "key": "Department statistics and response trends across the last {length} incidents.",
+  "text": "Department statistics and response trends across the last {length} incidents.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
+  ]
+ },
+ {
+  "key": "Department stats, response trends and officer activity.",
+  "text": "Department stats, response trends and officer activity.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/page.tsx"
+  ]
+ },
+ {
+  "key": "Departments",
+  "text": "Departments",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/page.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Departments on this call",
+  "text": "Departments on this call",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/departments-card.tsx"
+  ]
+ },
+ {
+  "key": "Deployment",
+  "text": "Deployment",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx"
+  ]
+ },
+ {
+  "key": "Deployment monitor",
+  "text": "Deployment monitor",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Deployments, periodic updates and after-action reports.",
+  "text": "Deployments, periodic updates and after-action reports.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Dept",
+  "text": "Dept",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Dept Hierarchy",
+  "text": "Dept Hierarchy",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -6953,7 +11835,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Describe the offence",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -6961,8 +11844,18 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Description",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx",
+   "apps/web/app/(app)/modules/absence/page.tsx",
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/performance/kpis/page.tsx",
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -6983,6 +11876,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Description of the charge",
+  "text": "Description of the charge",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
   "key": "Description or registration",
   "text": "Description or registration",
   "context": null,
@@ -6999,6 +11900,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Description:",
+  "text": "Description:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
   "key": "Description: {type}",
   "text": "Description: {type}",
   "context": null,
@@ -7011,6 +11920,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Destination",
   "context": null,
   "where": [
+   "apps/web/app/(app)/medical/pcr/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -7023,12 +11933,45 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Detail",
+  "text": "Detail",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Detail (optional)",
+  "text": "Detail (optional)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
+  "key": "Detail any violations, hazards, or warnings issued...",
+  "text": "Detail any violations, hazards, or warnings issued...",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
   "key": "Details",
   "text": "Details",
   "context": null,
   "where": [
    "apps/mobile/lib/inspection-187c.ts",
-   "apps/web/app/(app)/dispatch/log-call/description.tsx"
+   "apps/web/app/(app)/dispatch/log-call/description.tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Details for the type",
+  "text": "Details for the type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx"
   ]
  },
  {
@@ -7044,7 +11987,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Details to follow",
   "context": null,
   "where": [
+   "apps/web/components/details-to-follow.tsx",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Details, e.g. Durban Magistrate 09:00",
+  "text": "Details, e.g. Durban Magistrate 09:00",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
   ]
  },
  {
@@ -7053,6 +12005,33 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Device ID / serial",
+  "text": "Device ID / serial",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/devices/page.tsx"
+  ]
+ },
+ {
+  "key": "Device enrolment",
+  "text": "Device enrolment",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/devices/page.tsx"
+  ]
+ },
+ {
+  "key": "Devices",
+  "text": "Devices",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx",
+   "apps/web/app/(app)/dashboard/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -7105,6 +12084,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Direction",
+  "text": "Direction",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Direction of travel",
   "text": "Direction of travel",
   "context": null,
@@ -7118,6 +12105,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "Directory is empty — load supabase/seed.",
+  "text": "Directory is empty — load supabase/seed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/partners/page.tsx"
+  ]
+ },
+ {
+  "key": "Disabled",
+  "text": "Disabled",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
   ]
  },
  {
@@ -7138,12 +12141,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Disaster Dashboard",
+  "text": "Disaster Dashboard",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Disaster Incidents",
+  "text": "Disaster Incidents",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
   "key": "Disaster Management",
   "text": "Disaster Management",
   "context": null,
   "where": [
    "apps/mobile/app/login.tsx",
    "apps/web/app/(app)/dispatch/log-call/intake-ui.tsx"
+  ]
+ },
+ {
+  "key": "Disaster Mgmt",
+  "text": "Disaster Mgmt",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Disaster management",
+  "text": "Disaster management",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Disaster map",
+  "text": "Disaster map",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Disaster type",
+  "text": "Disaster type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx"
+  ]
+ },
+ {
+  "key": "Disc",
+  "text": "Disc",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx"
   ]
  },
  {
@@ -7192,7 +12251,18 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/live-map.tsx",
-   "apps/mobile/components/ui.tsx"
+   "apps/mobile/components/alerts.tsx",
+   "apps/mobile/components/ui.tsx",
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
+  "key": "Dismiss notification",
+  "text": "Dismiss notification",
+  "context": null,
+  "where": [
+   "apps/web/components/heads-up.tsx",
+   "apps/web/components/toast.tsx"
   ]
  },
  {
@@ -7200,7 +12270,50 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Dispatch",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/pending/page.tsx",
+   "apps/web/components/sos-alert.tsx",
+   "apps/web/lib/nav.ts",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Dispatch & routing",
+  "text": "Dispatch & routing",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
+  ]
+ },
+ {
+  "key": "Dispatch Dashboard",
+  "text": "Dispatch Dashboard",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Dispatch KPIs",
+  "text": "Dispatch KPIs",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Dispatch Resources",
+  "text": "Dispatch Resources",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Dispatch SOS",
+  "text": "Dispatch SOS",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
   ]
  },
  {
@@ -7236,11 +12349,11 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Dispatch assignments and department broadcasts land here. High and Critical incidents also open a full-screen alert you have to acknowledge.",
-  "text": "Dispatch assignments and department broadcasts land here. High and Critical incidents also open a full-screen alert you have to acknowledge.",
+  "key": "Dispatch call",
+  "text": "Dispatch call",
   "context": null,
   "where": [
-   "apps/mobile/app/alerts.tsx"
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
   ]
  },
  {
@@ -7285,6 +12398,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Dispatch narrative",
+  "text": "Dispatch narrative",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Dispatch resources",
+  "text": "Dispatch resources",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx"
+  ]
+ },
+ {
   "key": "Dispatch sees your route",
   "text": "Dispatch sees your route",
   "context": null,
@@ -7301,6 +12430,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Dispatch this call →",
+  "text": "Dispatch this call →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Dispatch time",
+  "text": "Dispatch time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
   "key": "Dispatch to the crews on duty now",
   "text": "Dispatch to the crews on duty now",
   "context": null,
@@ -7314,7 +12459,11 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fire-report/[id].tsx",
-   "apps/mobile/components/closed-incidents.tsx"
+   "apps/mobile/components/closed-incidents.tsx",
+   "apps/web/app/(app)/incidents/[id]/departments-card.tsx",
+   "apps/web/app/(app)/incidents/[id]/report-card.tsx",
+   "apps/web/app/(app)/profile/my-hr/page.tsx",
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
   ]
  },
  {
@@ -7322,7 +12471,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Dispatched by",
   "context": null,
   "where": [
-   "apps/mobile/app/incident/[id].tsx"
+   "apps/mobile/app/incident/[id].tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -7331,6 +12481,54 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/alerts.tsx"
+  ]
+ },
+ {
+  "key": "Dispatched by {value}",
+  "text": "Dispatched by {value}",
+  "context": null,
+  "where": [
+   "apps/web/components/alert-center.tsx"
+  ]
+ },
+ {
+  "key": "Dispatched, en route, on scene or transporting — updates in realtime.",
+  "text": "Dispatched, en route, on scene or transporting — updates in realtime.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Dispatcher KPIs",
+  "text": "Dispatcher KPIs",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/kpi/page.tsx"
+  ]
+ },
+ {
+  "key": "Dispatcher and operator profiles, with NATO call signs.",
+  "text": "Dispatcher and operator profiles, with NATO call signs.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx"
+  ]
+ },
+ {
+  "key": "Dispatchers ({length})",
+  "text": "Dispatchers ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "Dispatches per silo.",
+  "text": "Dispatches per silo.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/kpi/page.tsx"
   ]
  },
  {
@@ -7346,7 +12544,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Displaced Persons (Requiring Shelter)",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
+  ]
+ },
+ {
+  "key": "Disposition",
+  "text": "Disposition",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx"
   ]
  },
  {
@@ -7354,6 +12561,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Disputed",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/fines/page.tsx",
    "packages/db/src/fines.ts"
   ]
  },
@@ -7390,6 +12598,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Division",
+  "text": "Division",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
   "key": "Do they have a pump?",
   "text": "Do they have a pump?",
   "context": null,
@@ -7411,6 +12627,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Doctor's signature",
+  "text": "Doctor's signature",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/handovers/page.tsx"
   ]
  },
  {
@@ -7442,7 +12666,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Does the vehicle require cleaning?",
   "context": null,
   "where": [
-   "apps/mobile/app/pcr/[id].tsx"
+   "apps/mobile/app/pcr/[id].tsx",
+   "apps/web/app/(app)/medical/pcr/pcr-form.tsx"
   ]
  },
  {
@@ -7517,15 +12742,28 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/end-shift.tsx",
    "apps/mobile/app/report/[id].tsx",
    "apps/mobile/components/report-wizard.tsx",
-   "apps/web/app/(app)/dispatch/log-call/description.tsx"
+   "apps/web/app/(app)/admin/invitations/slip.tsx",
+   "apps/web/app/(app)/dispatch/log-call/description.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx",
+   "apps/web/components/form-wizard.tsx",
+   "apps/web/components/register/bulk-run.tsx"
   ]
  },
  {
-  "key": "Done · open the call",
-  "text": "Done · open the call",
+  "key": "Done in the HikTech Responder app. This page shows how far you are today.",
+  "text": "Done in the HikTech Responder app. This page shows how far you are today.",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+   "apps/web/app/(app)/shift/mental-check/page.tsx"
+  ]
+ },
+ {
+  "key": "Donut",
+  "text": "Donut",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
   ]
  },
  {
@@ -7537,11 +12775,44 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Download PDF",
+  "text": "Download PDF",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
   "key": "Download approved file",
   "text": "Download approved file",
   "context": null,
   "where": [
    "apps/web/app/(app)/translations/translations-editor.tsx"
+  ]
+ },
+ {
+  "key": "Download the template",
+  "text": "Download the template",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
+  "key": "Download the template for HR",
+  "text": "Download the template for HR",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Download the {what} template",
+  "text": "Download the {what} template",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
   ]
  },
  {
@@ -7577,11 +12848,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Draft, not issued",
+  "text": "Draft, not issued",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
   "key": "Drafts",
   "text": "Drafts",
   "context": null,
   "where": [
+   "apps/web/app/(app)/roster/planner.tsx",
    "apps/web/app/(app)/translations/translations-editor.tsx"
+  ]
+ },
+ {
+  "key": "Drag a point to move it · drag a small dot to add one · right-click or double-click a point to remove it.",
+  "text": "Drag a point to move it · drag a small dot to add one · right-click or double-click a point to remove it.",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
+  ]
+ },
+ {
+  "key": "Draw",
+  "text": "Draw",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-tools.tsx"
+  ]
+ },
+ {
+  "key": "Draw a perimeter",
+  "text": "Draw a perimeter",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/zones-card.tsx"
+  ]
+ },
+ {
+  "key": "Drill in",
+  "text": "Drill in",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
+  ]
+ },
+ {
+  "key": "Drill path",
+  "text": "Drill path",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
+  ]
+ },
+ {
+  "key": "Driver",
+  "text": "Driver",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx"
   ]
  },
  {
@@ -7655,6 +12983,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Drug and consumable usage per unit.",
+  "text": "Drug and consumable usage per unit.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/restock/page.tsx"
   ]
  },
  {
@@ -7739,11 +13075,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Duration",
+  "text": "Duration",
+  "context": null,
+  "where": [
+   "apps/web/components/post-mortem-card.tsx"
+  ]
+ },
+ {
   "key": "Duration: {hours} hours",
   "text": "Duration: {hours} hours",
   "context": null,
   "where": [
-   "apps/mobile/app/post-mortem/[id].tsx"
+   "apps/mobile/app/post-mortem/[id].tsx",
+   "apps/web/app/(app)/disaster/post-mortem/post-mortem-form.tsx"
   ]
  },
  {
@@ -7751,7 +13096,19 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Durban Metropolitan Police Service",
   "context": null,
   "where": [
-   "apps/mobile/components/shift-form.tsx"
+   "apps/mobile/components/police-badge.tsx",
+   "apps/mobile/components/shift-form.tsx",
+   "apps/web/app/(app)/police/report-centre/parts.tsx",
+   "apps/web/components/police-report-view.tsx",
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Durban conditions — refreshed every 5 min.",
+  "text": "Durban conditions — refreshed every 5 min.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wind-widget.tsx"
   ]
  },
  {
@@ -7763,11 +13120,112 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Durban weather",
+  "text": "Durban weather",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Dust",
   "text": "Dust",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Duties for Operation",
+  "text": "Duties for Operation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
+  "key": "Duty",
+  "text": "Duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
+  "key": "Duty & People",
+  "text": "Duty & People",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Duty & Reporting",
+  "text": "Duty & Reporting",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Duty / Special instructions",
+  "text": "Duty / Special instructions",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
+  "key": "Duty Allocation",
+  "text": "Duty Allocation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx",
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Duty Board",
+  "text": "Duty Board",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Duty For:",
+  "text": "Duty For:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
+  "key": "Duty Maintenance",
+  "text": "Duty Maintenance",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Duty Operations",
+  "text": "Duty Operations",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Duty Roster",
+  "text": "Duty Roster",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -7779,6 +13237,60 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Duty allocation",
+  "text": "Duty allocation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/roster/allocation/page.tsx"
+  ]
+ },
+ {
+  "key": "Duty board",
+  "text": "Duty board",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/page.tsx",
+   "apps/web/components/schedule/attendance-now.tsx"
+  ]
+ },
+ {
+  "key": "Duty changed",
+  "text": "Duty changed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/edit-duty.tsx"
+  ]
+ },
+ {
+  "key": "Duty date",
+  "text": "Duty date",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Duty from",
+  "text": "Duty from",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "Duty maintenance",
+  "text": "Duty maintenance",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
   "key": "Duty officer name",
   "text": "Duty officer name",
   "context": null,
@@ -7787,11 +13299,45 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Duty saved",
+  "text": "Duty saved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Duty sheet",
+  "text": "Duty sheet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/page.tsx"
+  ]
+ },
+ {
   "key": "Duty status",
   "text": "Duty status",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "Duty to",
+  "text": "Duty to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "Duty type",
+  "text": "Duty type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
   ]
  },
  {
@@ -7842,7 +13388,48 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/login.tsx",
    "apps/web/app/(app)/dispatch/log-call/intake-ui.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/lib/nav.ts",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "EMS Dashboard",
+  "text": "EMS Dashboard",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "EMS Incidents",
+  "text": "EMS Incidents",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "EMS Operations",
+  "text": "EMS Operations",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "EMS at a glance",
+  "text": "EMS at a glance",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "EMS status",
+  "text": "EMS status",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
   ]
  },
  {
@@ -7854,11 +13441,83 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Each call sign is one duty slot: where it patrols, its hours, its break and the rank it needs. Duty Allocation books staff onto these.",
+  "text": "Each call sign is one duty slot: where it patrols, its hours, its break and the rank it needs. Duty Allocation books staff onto these.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Each call sign with its patrol area, hours, break and the rank it needs.",
+  "text": "Each call sign with its patrol area, hours, break and the rank it needs.",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Each day's reports, by where they stand.",
+  "text": "Each day's reports, by where they stand.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Each link or code works once and expires after {invitationTtlHours} hours. Sending again cancels the old one.",
+  "text": "Each link or code works once and expires after {invitationTtlHours} hours. Sending again cancels the old one.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/page.tsx"
+  ]
+ },
+ {
+  "key": "Each member’s record as the old system kept it: numbers, rank, station, section, weekend group, contacts, LEO record and screen access.",
+  "text": "Each member’s record as the old system kept it: numbers, rank, station, section, weekend group, contacts, LEO record and screen access.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Each member’s record: numbers, rank, station, section, weekend group, contacts and access.",
+  "text": "Each member’s record: numbers, rank, station, section, weekend group, contacts and access.",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
   "key": "Each patient and how bad they are",
   "text": "Each patient and how bad they are",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "Each person gets their own invitation, as their confirmed role, by the route shown: email where HR gave an address, SMS where there is only a cellphone{value}, otherwise a printed code. Each link or code works once and expires after its set time.",
+  "text": "Each person gets their own invitation, as their confirmed role, by the route shown: email where HR gave an address, SMS where there is only a cellphone{value}, otherwise a printed code. Each link or code works once and expires after its set time.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Each rule acts at most once per thing per threshold — a call that breaches its SLA raises one alert at each tier, not one every five minutes. Thresholds are stored per rule, so changing “escalate after 10 minutes” to 15 needs no deployment. Every change and every manual run is written to the audit trail with your name on it.",
+  "text": "Each rule acts at most once per thing per threshold — a call that breaches its SLA raises one alert at each tier, not one every five minutes. Thresholds are stored per rule, so changing “escalate after 10 minutes” to 15 needs no deployment. Every change and every manual run is written to the audit trail with your name on it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "Each service's identity — crest, colours and naming — as it appears across the platform, the responder app and printed reports.",
+  "text": "Each service's identity — crest, colours and naming — as it appears across the platform, the responder app and printed reports.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/page.tsx"
   ]
  },
  {
@@ -7868,6 +13527,101 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Edit",
+  "text": "Edit",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx",
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/edit-duty.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx",
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "Edit PCR",
+  "text": "Edit PCR",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Edit before dispatch",
+  "text": "Edit before dispatch",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx"
+  ]
+ },
+ {
+  "key": "Edit call sign",
+  "text": "Edit call sign",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Edit code",
+  "text": "Edit code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Edit profile →",
+  "text": "Edit profile →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
+  ]
+ },
+ {
+  "key": "Edit section",
+  "text": "Edit section",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Edit {value} · {value2}",
+  "text": "Edit {value} · {value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/[id]/edit/page.tsx"
+  ]
+ },
+ {
+  "key": "Eff from",
+  "text": "Eff from",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Eff to",
+  "text": "Eff to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Either",
+  "text": "Either",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
   ]
  },
  {
@@ -7919,11 +13673,54 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Email",
+  "text": "Email",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx",
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Email address",
+  "text": "Email address",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Email address (their sign-in)",
+  "text": "Email address (their sign-in)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Email is not set up on this server, so pass these on yourself. Production always emails them.",
+  "text": "Email is not set up on this server, so pass these on yourself. Production always emails them.",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
   "key": "Email or badge number",
   "text": "Email or badge number",
   "context": null,
   "where": [
    "apps/mobile/app/login.tsx"
+  ]
+ },
+ {
+  "key": "Emergency",
+  "text": "Emergency",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
   ]
  },
  {
@@ -7940,6 +13737,42 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/lib/inspection-187c.ts"
+  ]
+ },
+ {
+  "key": "Emergency Exits Clear?",
+  "text": "Emergency Exits Clear?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "Emergency Medical Services",
+  "text": "Emergency Medical Services",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx"
+  ]
+ },
+ {
+  "key": "Emergency Medical Services · Administration",
+  "text": "Emergency Medical Services · Administration",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Emergency contact",
+  "text": "Emergency contact",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx",
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -7967,11 +13800,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Emergency-flagged rows are highlighted. Resolve inline once handled.",
+  "text": "Emergency-flagged rows are highlighted. Resolve inline once handled.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/page.tsx"
+  ]
+ },
+ {
   "key": "Emotional Wellbeing (Feeling mentally balanced?)",
   "text": "Emotional Wellbeing (Feeling mentally balanced?)",
   "context": null,
   "where": [
    "apps/mobile/lib/inspection-187c.ts"
+  ]
+ },
+ {
+  "key": "Employee",
+  "text": "Employee",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Employee name",
+  "text": "Employee name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
   ]
  },
  {
@@ -8008,11 +13865,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Enabled",
+  "text": "Enabled",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
+  ]
+ },
+ {
+  "key": "Enabling a feature never grants a role anything the route matrix and row-level security would not — the two systems compose. Disabling one hides it everywhere and makes its server routes refuse, for this tenant only.",
+  "text": "Enabling a feature never grants a role anything the route matrix and row-level security would not — the two systems compose. Disabling one hides it everywhere and makes its server routes refuse, for this tenant only.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/features/page.tsx"
+  ]
+ },
+ {
   "key": "End",
   "text": "End",
   "context": null,
   "where": [
-   "apps/mobile/app/end-shift.tsx"
+   "apps/mobile/app/end-shift.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx"
   ]
  },
  {
@@ -8030,6 +13904,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx",
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "End time",
+  "text": "End time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/edit-duty.tsx",
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
   ]
  },
  {
@@ -8054,6 +13938,62 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "Endorsement Maintenance",
+  "text": "Endorsement Maintenance",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Endorsement added",
+  "text": "Endorsement added",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Endorsement code",
+  "text": "Endorsement code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Endorsement register",
+  "text": "Endorsement register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Endorsement withdrawn",
+  "text": "Endorsement withdrawn",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Endorsements",
+  "text": "Endorsements",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Endorsements ({length})",
+  "text": "Endorsements ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
   ]
  },
  {
@@ -8082,11 +14022,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Enrol device",
+  "text": "Enrol device",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/devices/page.tsx"
+  ]
+ },
+ {
+  "key": "Ent seq",
+  "text": "Ent seq",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
   "key": "Entabeni Hospital",
   "text": "Entabeni Hospital",
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Enter",
+  "text": "Enter",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-tools.tsx"
   ]
  },
  {
@@ -8098,11 +14062,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Enter a full ID number, a registration, or both.",
+  "text": "Enter a full ID number, a registration, or both.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
+  ]
+ },
+ {
   "key": "Enter how many magazines you are handing back.",
   "text": "Enter how many magazines you are handing back.",
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "Enter staff number…",
+  "text": "Enter staff number…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx"
   ]
  },
  {
@@ -8135,6 +14116,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "Enter this code and your badge number.",
+  "text": "Enter this code and your badge number.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
   ]
  },
  {
@@ -8176,7 +14165,17 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Equipment used",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Esc",
+  "text": "Esc",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-tools.tsx"
   ]
  },
  {
@@ -8212,6 +14211,38 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Every bodycam on the register, where it is kept and who has it now. Officers book one out in the app at the start of their shift and hand it back before the shift can end.",
+  "text": "Every bodycam on the register, where it is kept and who has it now. Officers book one out in the app at the start of their shift and hand it back before the shift can end.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
+  "key": "Every change needs a reason and the {kind} typed back. Changes to SystemAdmin, Admin or SystemController also need a second SystemAdmin.",
+  "text": "Every change needs a reason and the {kind} typed back. Changes to SystemAdmin, Admin or SystemController also need a second SystemAdmin.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Every change, from the audit trail.",
+  "text": "Every change, from the audit trail.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Every closed case: reviewed after its report, or closed without one by the desk, with who and why.",
+  "text": "Every closed case: reviewed after its report, or closed without one by the desk, with who and why.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/closed/page.tsx"
+  ]
+ },
+ {
   "key": "Every crew on duty in {desks} is alerted with a blocking pop-up that must be acknowledged.",
   "text": "Every crew on duty in {desks} is alerted with a blocking pop-up that must be acknowledged.",
   "context": null,
@@ -8228,11 +14259,229 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Every crew out is on the Active Responders terminal",
+  "text": "Every crew out is on the Active Responders terminal",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
+  "key": "Every crew still out, live. Open a row for the narrative and the timeline.",
+  "text": "Every crew still out, live. Open a row for the narrative and the timeline.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Every external service HikTech talks to — what it powers, whether its credentials are present, and whether it currently answers.",
+  "text": "Every external service HikTech talks to — what it powers, whether its credentials are present, and whether it currently answers.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/page.tsx"
+  ]
+ },
+ {
+  "key": "Every feed shows a sample video, not the bodycam. Switch it off under Admin → Integrations → Hikvision once the platform is connected.",
+  "text": "Every feed shows a sample video, not the bodycam. Switch it off under Admin → Integrations → Hikvision once the platform is connected.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/page.tsx"
+  ]
+ },
+ {
+  "key": "Every firearm on the register, where it is kept and who has it now. Officers book a firearm out in the app at the start of their shift and hand it back before the shift can end.",
+  "text": "Every firearm on the register, where it is kept and who has it now. Officers book a firearm out in the app at the start of their shift and hand it back before the shift can end.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/page.tsx"
+  ]
+ },
+ {
+  "key": "Every form",
+  "text": "Every form",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/activity/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "Every knob has a safe built-in default and hard bounds; a value outside its bounds is clamped, and deleting an override falls back to the default. Every change is written to the audit trail with your name on it.",
+  "text": "Every knob has a safe built-in default and hard bounds; a value outside its bounds is clamped, and deleting an override falls back to the default. Every change is written to the audit trail with your name on it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operations/page.tsx"
+  ]
+ },
+ {
+  "key": "Every leave or absence is captured under one of these codes. Office-only codes (AWOL, Suspended …) are never asked for by members.",
+  "text": "Every leave or absence is captured under one of these codes. Office-only codes (AWOL, Suspended …) are never asked for by members.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Every logged call across your visible silos.",
+  "text": "Every logged call across your visible silos.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/page.tsx"
+  ]
+ },
+ {
+  "key": "Every milestone, update, evidence upload and audited action — from the first call{value}",
+  "text": "Every milestone, update, evidence upload and audited action — from the first call{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Every module on the platform — what your role and your organisation's switches allow.",
+  "text": "Every module on the platform — what your role and your organisation's switches allow.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "Every organisation on this deployment. Each tenant’s data, users, configuration and feature switches are isolated at the database — a row in one tenant does not exist for another, on any screen, in any export, in any search.",
+  "text": "Every organisation on this deployment. Each tenant’s data, users, configuration and feature switches are isolated at the database — a row in one tenant does not exist for another, on any screen, in any export, in any search.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/page.tsx"
+  ]
+ },
+ {
+  "key": "Every police report. Search, filter, export, or open one to read it in full.",
+  "text": "Every police report. Search, filter, export, or open one to read it in full.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "Every punch, newest first.",
+  "text": "Every punch, newest first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/attendance/page.tsx"
+  ]
+ },
+ {
+  "key": "Every radio and hard hat, as the person it belongs to.",
+  "text": "Every radio and hard hat, as the person it belongs to.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Every recorded action on a case: who logged it, routed it, responded, filed the report and closed it. Audit rows are permanent.",
+  "text": "Every recorded action on a case: who logged it, routed it, responded, filed the report and closed it. Audit rows are permanent.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/audit/page.tsx"
+  ]
+ },
+ {
+  "key": "Every report officers file, colour-coded by form. Choose where to go.",
+  "text": "Every report officers file, colour-coded by form. Choose where to go.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/page.tsx"
+  ]
+ },
+ {
+  "key": "Every section, from observations to sign-off.",
+  "text": "Every section, from observations to sign-off.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Every stage",
+  "text": "Every stage",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Every vehicle is on the road.",
+  "text": "Every vehicle is on the road.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "Every vehicle, who is driving it, its last inspection and licence disc. Officers choose a vehicle in the app at the start of a shift; one that fails its inspection comes off the road until it is returned to service here.",
+  "text": "Every vehicle, who is driving it, its last inspection and licence disc. Officers choose a vehicle in the app at the start of a shift; one that fails its inspection comes off the road until it is returned to service here.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/page.tsx"
+  ]
+ },
+ {
+  "key": "Everyone",
+  "text": "Everyone",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx",
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Everyone due has started.",
+  "text": "Everyone due has started.",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/attendance-now.tsx"
+  ]
+ },
+ {
+  "key": "Everyone in each team gets their team's shifts as drafts. Anyone on leave, booked for court or already on a shift is left out, with the reason below. Issue the drafts when you are happy.",
+  "text": "Everyone in each team gets their team's shifts as drafts. Anyone on leave, booked for court or already on a shift is left out, with the reason below. Issue the drafts when you are happy.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Everyone in the window",
+  "text": "Everyone in the window",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx"
+  ]
+ },
+ {
   "key": "Everyone inside must leave.",
   "text": "Everyone inside must leave.",
   "context": null,
   "where": [
    "packages/db/src/map-layers.ts"
+  ]
+ },
+ {
+  "key": "Everyone is allocated.",
+  "text": "Everyone is allocated.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Everything an administrator needs to answer “is the platform working”, in one place. Each check says what it means, not just what it measured.",
+  "text": "Everything an administrator needs to answer “is the platform working”, in one place. Each check says what it means, not just what it measured.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/status/page.tsx"
   ]
  },
  {
@@ -8260,6 +14509,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Everything on the register for one ID number or one vehicle: fines, payments and when they were made, and what is owed today.",
+  "text": "Everything on the register for one ID number or one vehicle: fines, payments and when they were made, and what is owed today.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
+  ]
+ },
+ {
   "key": "Everything that came in while you were busy, with what still needs your acknowledgement.",
   "text": "Everything that came in while you were busy, with what still needs your acknowledgement.",
   "context": null,
@@ -8268,11 +14525,53 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Everything they recorded stays: incidents, reports and their history.",
+  "text": "Everything they recorded stays: incidents, reports and their history.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/account-status-form.tsx"
+  ]
+ },
+ {
   "key": "Evidence",
   "text": "Evidence",
   "context": null,
   "where": [
+   "apps/web/app/(app)/incidents/[id]/case-review-card.tsx",
+   "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-types.ts"
+  ]
+ },
+ {
+  "key": "Evidence & Exports",
+  "text": "Evidence & Exports",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Evidence ({length})",
+  "text": "Evidence ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Evidence / portfolio ref",
+  "text": "Evidence / portfolio ref",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Evidence file",
+  "text": "Evidence file",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
   ]
  },
  {
@@ -8292,6 +14591,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Excel (.xlsx) or CSV",
+  "text": "Excel (.xlsx) or CSV",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Excel (.xlsx) or CSV with these columns: {join} (Method and Note are optional). Headings from most cashier and bank exports are recognised.",
+  "text": "Excel (.xlsx) or CSV with these columns: {join} (Method and Note are optional). Headings from most cashier and bank exports are recognised.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
+  "key": "Excel (.xlsx) or CSV, up to 20 MB",
+  "text": "Excel (.xlsx) or CSV, up to 20 MB",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
   "key": "Exclusion zone",
   "text": "Exclusion zone",
   "context": null,
@@ -8300,11 +14623,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Executed",
+  "text": "Executed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
+  "key": "Executing stamps the moment and the officer.",
+  "text": "Executing stamps the moment and the officer.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
   "key": "Expired",
   "text": "Expired",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
+  "key": "Expiry date",
+  "text": "Expiry date",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
   ]
  },
  {
@@ -8328,7 +14676,10 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Export CSV",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/shift.tsx"
+   "apps/mobile/app/(tabs)/shift.tsx",
+   "apps/web/app/(app)/hierarchy/toolbar.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
   ]
  },
  {
@@ -8337,6 +14688,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "Export the log",
+  "text": "Export the log",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
   ]
  },
  {
@@ -8364,6 +14723,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Extinguishers Present & Serviced?",
+  "text": "Extinguishers Present & Serviced?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "Extra form prompts (one per line)",
+  "text": "Extra form prompts (one per line)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/config/page.tsx"
+  ]
+ },
+ {
   "key": "Extreme",
   "text": "Extreme",
   "context": null,
@@ -8377,6 +14752,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/pcr/[id].tsx"
+  ]
+ },
+ {
+  "key": "F11 for edge-to-edge · Esc to leave",
+  "text": "F11 for edge-to-edge · Esc to leave",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -8410,6 +14793,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Failed",
+  "text": "Failed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "Failed checks require supervisor follow-up.",
+  "text": "Failed checks require supervisor follow-up.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/unit-compliance/page.tsx"
   ]
  },
  {
@@ -8517,6 +14916,16 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Features",
+  "text": "Features",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/features/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Feb",
   "text": "Feb",
   "context": null,
@@ -8562,11 +14971,44 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Field",
+  "text": "Field",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx",
+   "apps/web/components/call-edits.tsx"
+  ]
+ },
+ {
+  "key": "Field roles: choose people from one department.",
+  "text": "Field roles: choose people from one department.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Fields",
+  "text": "Fields",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
   "key": "Fight / Physical Altercation",
   "text": "Fight / Physical Altercation",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Figures",
+  "text": "Figures",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
   ]
  },
  {
@@ -8611,6 +15053,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "File inspection",
+  "text": "File inspection",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
   "key": "File its {report} before you {action}.",
   "text": "File its {report} before you {action}.",
   "context": null,
@@ -8641,7 +15091,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/fire-report/[id].tsx",
    "apps/mobile/app/post-mortem/[id].tsx",
-   "apps/mobile/app/report/[id].tsx"
+   "apps/mobile/app/report/[id].tsx",
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "File security report",
+  "text": "File security report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
   ]
  },
  {
@@ -8670,6 +15129,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Filed by {value}{value2}{value3}{value4}",
+  "text": "Filed by {value}{value2}{value3}{value4}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/report-card.tsx"
+  ]
+ },
+ {
+  "key": "Filed by {value}{value2}{value3}{value4}{value5}",
+  "text": "Filed by {value}{value2}{value3}{value4}{value5}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/fire-report-card.tsx"
+  ]
+ },
+ {
+  "key": "Filed from the desk by {value}{value2}.",
+  "text": "Filed from the desk by {value}{value2}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/departments-card.tsx"
+  ]
+ },
+ {
   "key": "Filed reports are permanent and visible to dispatch and command.",
   "text": "Filed reports are permanent and visible to dispatch and command.",
   "context": null,
@@ -8691,6 +15174,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fire-report/[id].tsx"
+  ]
+ },
+ {
+  "key": "Filing:",
+  "text": "Filing:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
   ]
  },
  {
@@ -8718,11 +15209,95 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Filter",
+  "text": "Filter",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx",
+   "apps/web/app/(app)/disaster/partners/page.tsx",
+   "apps/web/app/(app)/incidents/page.tsx",
+   "apps/web/app/(app)/police/crime-hotspots/page.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "Filter by station and share the list with its commander before shift briefing.",
+  "text": "Filter by station and share the list with its commander before shift briefing.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
+  "key": "Filter cameras…",
+  "text": "Filter cameras…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/live-wall.tsx"
+  ]
+ },
+ {
+  "key": "Filter menu…",
+  "text": "Filter menu…",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Filter navigation",
+  "text": "Filter navigation",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Filters",
+  "text": "Filters",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Final Inspection Result",
+  "text": "Final Inspection Result",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "Find a name",
+  "text": "Find a name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx"
+  ]
+ },
+ {
   "key": "Find a person",
   "text": "Find a person",
   "context": null,
   "where": [
    "apps/web/app/(app)/translations/translators-card.tsx"
+  ]
+ },
+ {
+  "key": "Find footage",
+  "text": "Find footage",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx"
+  ]
+ },
+ {
+  "key": "Find someone…",
+  "text": "Find someone…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
   ]
  },
  {
@@ -8748,7 +15323,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/_layout.tsx",
-   "apps/mobile/lib/outbox-policy.ts"
+   "apps/mobile/lib/outbox-policy.ts",
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
+  "key": "Fine Payments",
+  "text": "Fine Payments",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -8765,7 +15349,49 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/fines-card.tsx",
-   "apps/mobile/lib/modules.ts"
+   "apps/mobile/lib/modules.ts",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Fines & tickets",
+  "text": "Fines & tickets",
+  "context": null,
+  "where": [
+   "apps/web/components/fines-panel.tsx"
+  ]
+ },
+ {
+  "key": "Fines ({length})",
+  "text": "Fines ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
+  ]
+ },
+ {
+  "key": "Fines Account",
+  "text": "Fines Account",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Fines Register",
+  "text": "Fines Register",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Fines account",
+  "text": "Fines account",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
   ]
  },
  {
@@ -8777,11 +15403,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Fines are not available yet. If migration 0057 has not been run, run it in Supabase.",
+  "text": "Fines are not available yet. If migration 0057 has not been run, run it in Supabase.",
+  "context": null,
+  "where": [
+   "apps/web/components/fines-panel.tsx"
+  ]
+ },
+ {
   "key": "Fines you issue appear here, with their slips.",
   "text": "Fines you issue appear here, with their slips.",
   "context": null,
   "where": [
    "apps/mobile/app/fines/index.tsx"
+  ]
+ },
+ {
+  "key": "Finish",
+  "text": "Finish",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-tools.tsx"
+  ]
+ },
+ {
+  "key": "Finish the call",
+  "text": "Finish the call",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
   ]
  },
  {
@@ -8816,7 +15466,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/login.tsx",
-   "apps/web/app/(app)/dispatch/log-call/intake-ui.tsx"
+   "apps/web/app/(app)/dispatch/log-call/intake-ui.tsx",
+   "apps/web/app/(app)/fire/page.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -8860,12 +15512,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Fire Dashboard",
+  "text": "Fire Dashboard",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
   "key": "Fire Extinguisher",
   "text": "Fire Extinguisher",
   "context": null,
   "where": [
    "apps/mobile/lib/inspection-187c.ts",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Fire Incidents",
+  "text": "Fire Incidents",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Fire Operations",
+  "text": "Fire Operations",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -8877,11 +15553,52 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Fire Reports",
+  "text": "Fire Reports",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Fire Safety Inspections",
+  "text": "Fire Safety Inspections",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Fire cause",
+  "text": "Fire cause",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
   "key": "Fire equipment",
   "text": "Fire equipment",
   "context": null,
   "where": [
    "apps/mobile/components/fire-shift.tsx"
+  ]
+ },
+ {
+  "key": "Fire incident report",
+  "text": "Fire incident report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Fire incident reports",
+  "text": "Fire incident reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/page.tsx"
   ]
  },
  {
@@ -8906,6 +15623,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fire-report/[id].tsx"
+  ]
+ },
+ {
+  "key": "Fire report · {value}",
+  "text": "Fire report · {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/fire-report-card.tsx"
+  ]
+ },
+ {
+  "key": "Fire reports",
+  "text": "Fire reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx",
+   "apps/web/app/(app)/fire/pir/page.tsx"
   ]
  },
  {
@@ -8941,6 +15675,9 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/end-shift.tsx",
    "apps/mobile/app/firearm-check.tsx",
    "apps/mobile/components/shift-firearm.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/firearms/new/page.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/intake.ts"
   ]
@@ -8955,11 +15692,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Firearm Checks",
+  "text": "Firearm Checks",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Firearm Reg. No.",
   "text": "Firearm Reg. No.",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Firearm authorization",
+  "text": "Firearm authorization",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Firearm checks",
+  "text": "Firearm checks",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearm-checks/page.tsx"
   ]
  },
  {
@@ -8995,6 +15756,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Firearm issue register",
+  "text": "Firearm issue register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/page.tsx"
+  ]
+ },
+ {
+  "key": "Firearm issued",
+  "text": "Firearm issued",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Firearm number",
+  "text": "Firearm number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "Firearm return",
   "text": "Firearm return",
   "context": null,
@@ -9008,6 +15793,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "Firearm serial number",
+  "text": "Firearm serial number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
   ]
  },
  {
@@ -9027,6 +15820,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Firearms booked out",
+  "text": "Firearms booked out",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx"
+  ]
+ },
+ {
   "key": "Firefighter",
   "text": "Firefighter",
   "context": null,
@@ -9039,6 +15840,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Firefighter fatalities",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -9047,6 +15849,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Firefighter fatality details",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -9055,6 +15858,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Firefighter injuries",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -9063,6 +15867,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Firefighter injury details",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -9084,10 +15889,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "First day",
+  "text": "First day",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/leave-actions.tsx"
+  ]
+ },
+ {
   "key": "First name",
   "text": "First name",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -9096,7 +15910,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "First names",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -9108,10 +15924,37 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Fix",
+  "text": "Fix",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Fix them here, or skip them. They never hold up the rest.",
+  "text": "Fix them here, or skip them. They never hold up the rest.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Flags gate availability, never authorization",
+  "text": "Flags gate availability, never authorization",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/features/page.tsx"
+  ]
+ },
+ {
   "key": "Flame spread",
   "text": "Flame spread",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -9121,6 +15964,34 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Fleet",
+  "text": "Fleet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/import/page.tsx",
+   "apps/web/app/(app)/admin/vehicles/page.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Fleet & Devices",
+  "text": "Fleet & Devices",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Fleet vehicles",
+  "text": "Fleet vehicles",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
   ]
  },
  {
@@ -9181,6 +16052,39 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Footage",
+  "text": "Footage",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx",
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
+  "key": "For a call that will never have a report: a hoax, a duplicate, or the caller cancelled.{value}",
+  "text": "For a call that will never have a report: a hoax, a duplicate, or the caller cancelled.{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-forms.tsx"
+  ]
+ },
+ {
+  "key": "For a notice issued in error. It stays on the register, marked cancelled, with your reason. Refund any money first.",
+  "text": "For a notice issued in error. It stays on the register, marked cancelled, with your reason. Refund any money first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
+  ]
+ },
+ {
+  "key": "For a notice written in a notice book. Copy it exactly as written, with the printed notice number. Notices at the roadside are issued on the phone, where the infringer signs.",
+  "text": "For a notice written in a notice book. Copy it exactly as written, with the printed notice number. Notices at the roadside are issued on the phone, where the infringer signs.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/page.tsx"
+  ]
+ },
+ {
   "key": "For example towards the taxi rank",
   "text": "For example towards the taxi rank",
   "context": null,
@@ -9193,7 +16097,68 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "For example: radio from a security guard",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "For example: the caller rang back with the right address",
+  "text": "For example: the caller rang back with the right address",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx"
+  ]
+ },
+ {
+  "key": "For leave on a form the member handed in, sick leave, or an absence such as AWOL. It is approved as captured and their duty in those dates is marked.",
+  "text": "For leave on a form the member handed in, sick leave, or an absence such as AWOL. It is approved as captured and their duty in those dates is marked.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "For someone joining between staff-list imports. Then invite them from the list above.",
+  "text": "For someone joining between staff-list imports. Then invite them from the list above.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
+  "key": "For the whole organisation. Office-hours rotations skip them, and they are not counted as leave days.",
+  "text": "For the whole organisation. Office-hours rotations skip them, and they are not counted as leave days.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "For their shift",
+  "text": "For their shift",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
+  "key": "For you, your role, your department and everyone.",
+  "text": "For you, your role, your department and everyone.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
+  ]
+ },
+ {
+  "key": "Force",
+  "text": "Force",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
   ]
  },
  {
@@ -9202,6 +16167,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Force no.",
+  "text": "Force no.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Force number",
+  "text": "Force number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/police/reports/new/report-form.tsx"
   ]
  },
  {
@@ -9221,11 +16203,86 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Forename",
+  "text": "Forename",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Form",
+  "text": "Form",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx",
+   "apps/web/app/(app)/police/reports/reports-list.tsx"
+  ]
+ },
+ {
   "key": "Form No.",
   "text": "Form No.",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Form number",
+  "text": "Form number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Form submitted",
+  "text": "Form submitted",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Form submitted (Y)",
+  "text": "Form submitted (Y)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Forms",
+  "text": "Forms",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/new/report-form.tsx"
+  ]
+ },
+ {
+  "key": "Forms (none ticked: every form)",
+  "text": "Forms (none ticked: every form)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "Forms filed",
+  "text": "Forms filed",
+  "context": null,
+  "where": [
+   "apps/web/components/report-form-chips.tsx"
+  ]
+ },
+ {
+  "key": "Forms outstanding",
+  "text": "Forms outstanding",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
   ]
  },
  {
@@ -9242,6 +16299,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Freeway cameras, overhead signs and live traffic from SANRAL's i-traffic.",
+  "text": "Freeway cameras, overhead signs and live traffic from SANRAL's i-traffic.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/page.tsx"
   ]
  },
  {
@@ -9281,7 +16346,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "From",
   "context": null,
   "where": [
-   "apps/mobile/app/leave.tsx"
+   "apps/mobile/app/leave.tsx",
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx",
+   "apps/web/app/(app)/medical/handovers/page.tsx",
+   "apps/web/app/(app)/medical/pcr/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/performance/operational/page.tsx",
+   "apps/web/app/(app)/performance/reports/page.tsx",
+   "apps/web/app/(app)/performance/role-kpis/page.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/firearms/new/page.tsx",
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
+   "apps/web/app/(app)/police/reports/reports-list.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx",
+   "apps/web/app/(app)/roster/planner.tsx"
   ]
  },
  {
@@ -9290,6 +16370,49 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "From the charge book where you can. When the book has an amount, that amount is charged; otherwise enter the amount written on the notice.",
+  "text": "From the charge book where you can. When the book has an amount, that amount is charged; otherwise enter the amount written on the notice.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
+  ]
+ },
+ {
+  "key": "From the notice’s notes page.",
+  "text": "From the notice’s notes page.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "From the staff register.",
+  "text": "From the staff register.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "From {name}",
+  "text": "From {name}",
+  "context": null,
+  "where": [
+   "apps/mobile/app/alerts.tsx",
+   "apps/mobile/components/alerts.tsx",
+   "apps/web/app/(app)/notifications/feed.tsx",
+   "apps/web/components/heads-up.tsx"
+  ]
+ },
+ {
+  "key": "From {value}",
+  "text": "From {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
   ]
  },
  {
@@ -9333,6 +16456,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Frozen while a change waits for approval.",
+  "text": "Frozen while a change waits for approval.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
   ]
  },
  {
@@ -9418,7 +16549,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/closed-incidents.tsx",
-   "apps/mobile/components/incident-sheet.tsx"
+   "apps/mobile/components/incident-sheet.tsx",
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
+  "key": "Full history",
+  "text": "Full history",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-review-card.tsx"
   ]
  },
  {
@@ -9430,11 +16570,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Full lifecycle",
+  "text": "Full lifecycle",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Full map",
   "text": "Full map",
   "context": null,
   "where": [
    "apps/mobile/components/service-home.tsx"
+  ]
+ },
+ {
+  "key": "Full name",
+  "text": "Full name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx",
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -9459,6 +16616,15 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Full screen",
+  "text": "Full screen",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/map/page.tsx",
+   "apps/web/app/(app)/sanral/itraffic-map.tsx"
   ]
  },
  {
@@ -9558,6 +16724,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Gains",
+  "text": "Gains",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/change-role-form.tsx"
+  ]
+ },
+ {
+  "key": "Gains nothing",
+  "text": "Gains nothing",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/change-role-form.tsx"
+  ]
+ },
+ {
   "key": "Gang violence",
   "text": "Gang violence",
   "context": null,
@@ -9591,11 +16773,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Generate",
+  "text": "Generate",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
   "key": "Generate Report",
   "text": "Generate Report",
   "context": null,
   "where": [
    "apps/mobile/components/shift-inspection.tsx"
+  ]
+ },
+ {
+  "key": "Generate plans for cycle",
+  "text": "Generate plans for cycle",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/page.tsx"
+  ]
+ },
+ {
+  "key": "Generate report",
+  "text": "Generate report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
   ]
  },
  {
@@ -9612,6 +16818,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "Given automatically if blank",
+  "text": "Given automatically if blank",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/new/report-form.tsx"
   ]
  },
  {
@@ -9755,6 +16969,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Goes to: {who}",
+  "text": "Goes to: {who}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx"
+  ]
+ },
+ {
   "key": "Going on duty shares your route with dispatch.",
   "text": "Going on duty shares your route with dispatch.",
   "context": null,
@@ -9783,6 +17005,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Good",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/firearms/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -9800,6 +17023,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Governance",
+  "text": "Governance",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -9860,11 +17091,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Group & summarise",
+  "text": "Group & summarise",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Guard",
+  "text": "Guard",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Guard ID",
+  "text": "Guard ID",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Guard incident register (SIRA) — {length} unresolved.",
+  "text": "Guard incident register (SIRA) — {length} unresolved.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/page.tsx"
+  ]
+ },
+ {
+  "key": "Guard name",
+  "text": "Guard name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "Gunshot wound",
   "text": "Gunshot wound",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Gusts: {fixed} km/h",
+  "text": "Gusts: {fixed} km/h",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wind-widget.tsx"
   ]
  },
  {
@@ -9901,6 +17180,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "HOLD TO TALK",
+  "text": "HOLD TO TALK",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
   "key": "HOLD…",
   "text": "HOLD…",
   "context": null,
@@ -9922,6 +17209,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "HR Centre",
+  "text": "HR Centre",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "HR Command Centre",
+  "text": "HR Command Centre",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hr/page.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -9997,6 +17301,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Handbook",
+  "text": "Handbook",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/handbook/page.tsx",
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
   "key": "Handbrakes",
   "text": "Handbrakes",
   "context": null,
@@ -10055,6 +17368,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Hawkers Beachfront — AO",
+  "text": "Hawkers Beachfront — AO",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
   "key": "Hazard",
   "text": "Hazard",
   "context": null,
@@ -10100,6 +17421,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Hazards identified",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -10132,7 +17454,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Hazmat description",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Hazmat operations",
+  "text": "Hazmat operations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
   ]
  },
  {
@@ -10168,6 +17499,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Header",
+  "text": "Header",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
   "key": "Headlights blinding",
   "text": "Headlights blinding",
   "context": null,
@@ -10192,6 +17531,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Health",
+  "text": "Health",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
   "key": "Heart attack / chest pain",
   "text": "Heart attack / chest pain",
   "context": null,
@@ -10204,6 +17551,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Heat signature",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -10221,6 +17569,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Held by",
+  "text": "Held by",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
+  ]
+ },
+ {
+  "key": "Hello {value}",
+  "text": "Hello {value}",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/chat.tsx"
   ]
  },
  {
@@ -10246,6 +17610,46 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/activate.tsx",
    "apps/mobile/app/login.tsx"
+  ]
+ },
+ {
+  "key": "Hide call signs not in use",
+  "text": "Hide call signs not in use",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Hide for 15 minutes",
+  "text": "Hide for 15 minutes",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/insight-tiles.tsx"
+  ]
+ },
+ {
+  "key": "Hide retired",
+  "text": "Hide retired",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Hide withdrawn",
+  "text": "Hide withdrawn",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Hierarchy",
+  "text": "Hierarchy",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -10284,6 +17688,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "HikTech Responder app",
+  "text": "HikTech Responder app",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
   "key": "HikTech Responder · {official_name}",
   "text": "HikTech Responder · {official_name}",
   "context": null,
@@ -10292,11 +17704,53 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "HikTech Talk",
+  "text": "HikTech Talk",
+  "context": null,
+  "where": [
+   "apps/mobile/app/_layout.tsx"
+  ]
+ },
+ {
+  "key": "HikTech Talk:",
+  "text": "HikTech Talk:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "HikTech account activation",
+  "text": "HikTech account activation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
   "key": "HikTech holds personal information about members of the public and about staff. The POPIA notice explains what is kept, why, who can see it and for how long.",
   "text": "HikTech holds personal information about members of the public and about staff. The POPIA notice explains what is kept, why, who can see it and for how long.",
   "context": null,
   "where": [
    "apps/mobile/app/activate.tsx"
+  ]
+ },
+ {
+  "key": "Hikvision camera code",
+  "text": "Hikvision camera code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx"
+  ]
+ },
+ {
+  "key": "History",
+  "text": "History",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/components/ops-map/zones/zone-card.tsx"
   ]
  },
  {
@@ -10322,6 +17776,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/map-layers.ts"
+  ]
+ },
+ {
+  "key": "Hold to talk",
+  "text": "Hold to talk",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
   ]
  },
  {
@@ -10394,6 +17856,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Hospital",
   "context": null,
   "where": [
+   "apps/web/app/(app)/medical/handovers/page.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -10414,6 +17877,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Hospital Handovers",
+  "text": "Hospital Handovers",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/handovers/page.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Hospital Ref. No.",
   "text": "Hospital Ref. No.",
   "context": null,
@@ -10427,6 +17899,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Hourly distribution",
+  "text": "Hourly distribution",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/kpi/page.tsx"
+  ]
+ },
+ {
+  "key": "Hourly distribution.",
+  "text": "Hourly distribution.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Hours",
+  "text": "Hours",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Hours this week",
+  "text": "Hours this week",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/attendance/page.tsx"
   ]
  },
  {
@@ -10454,6 +17958,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "How HikTech is designed to work, agreed between eThekwini and the build team. Visible to administrators only.",
+  "text": "How HikTech is designed to work, agreed between eThekwini and the build team. Visible to administrators only.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/handbook/page.tsx"
+  ]
+ },
+ {
   "key": "How bad is patient {n}?",
   "text": "How bad is patient {n}?",
   "context": null,
@@ -10466,6 +17978,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "How bad is the caller?",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
   ]
  },
@@ -10486,6 +17999,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "How configuration works",
+  "text": "How configuration works",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/page.tsx"
+  ]
+ },
+ {
   "key": "How far along is she?",
   "text": "How far along is she?",
   "context": null,
@@ -10499,6 +18020,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "How long this has stood",
+  "text": "How long this has stood",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/insight-tiles.tsx"
   ]
  },
  {
@@ -10531,6 +18060,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "How many feeds",
+  "text": "How many feeds",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/bodycam-wall.tsx"
   ]
  },
  {
@@ -10670,11 +18207,47 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "How often this rule is evaluated. The scheduler ticks every 5 minutes, so anything below that runs every tick.",
+  "text": "How often this rule is evaluated. The scheduler ticks every 5 minutes, so anything below that runs every tick.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/rule-card.tsx"
+  ]
+ },
+ {
   "key": "How the call came in",
   "text": "How the call came in",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "How they receive it",
+  "text": "How they receive it",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "How this works",
+  "text": "How this works",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx",
+   "apps/web/app/(app)/admin/operations/page.tsx"
+  ]
+ },
+ {
+  "key": "How to dispatch",
+  "text": "How to dispatch",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
   ]
  },
  {
@@ -10694,11 +18267,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Humidity: {humidity}%",
+  "text": "Humidity: {humidity}%",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wind-widget.tsx"
+  ]
+ },
+ {
   "key": "Hurt: {who}",
   "text": "Hurt: {who}",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "Hydrant map and register.",
+  "text": "Hydrant map and register.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/hydrants/page.tsx"
+  ]
+ },
+ {
+  "key": "Hydrant register",
+  "text": "Hydrant register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/hydrants/page.tsx"
+  ]
+ },
+ {
+  "key": "Hydrant register →",
+  "text": "Hydrant register →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
+  ]
+ },
+ {
+  "key": "Hydrants",
+  "text": "Hydrants",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Hydrants operational",
+  "text": "Hydrants operational",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
   ]
  },
  {
@@ -10786,7 +18407,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "I have read this shift",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
+  "key": "I know how your department works and I can read the live board your role can see. Ask me anything, or tell me what to do. I prepare it, and nothing changes until you confirm.",
+  "text": "I know how your department works and I can read the live board your role can see. Ask me anything, or tell me what to do. I prepare it, and nothing changes until you confirm.",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/chat.tsx"
   ]
  },
  {
@@ -10811,6 +18441,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": "I.D. No.",
+  "text": "I.D. No.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -10844,7 +18482,21 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/check.tsx",
+   "apps/web/app/(app)/police/charges/page.tsx",
+   "apps/web/app/(app)/police/fines/account/page.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
+   "apps/web/app/(app)/police/firearms/new/page.tsx",
+   "apps/web/app/(app)/police/summons/page.tsx",
+   "apps/web/app/(app)/police/warrants/page.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "ID or passport number",
+  "text": "ID or passport number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
   ]
  },
  {
@@ -10893,6 +18545,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "INC-20261008-0001",
+  "text": "INC-20261008-0001",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/audit/page.tsx"
   ]
  },
  {
@@ -10980,7 +18640,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Identification",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -10989,6 +18650,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Identity & posting",
+  "text": "Identity & posting",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
   ]
  },
  {
@@ -11040,10 +18709,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "If something here is red",
+  "text": "If something here is red",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/status/page.tsx"
+  ]
+ },
+ {
   "key": "Ignition source",
   "text": "Ignition source",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -11076,7 +18754,143 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Impact Metrics",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
+  ]
+ },
+ {
+  "key": "Import Payments",
+  "text": "Import Payments",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Import another file",
+  "text": "Import another file",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Import armoury list",
+  "text": "Import armoury list",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/import/page.tsx",
+   "apps/web/app/(app)/police/armoury/page.tsx"
+  ]
+ },
+ {
+  "key": "Import bodycam list",
+  "text": "Import bodycam list",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/import/page.tsx",
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
+  "key": "Import fine payments",
+  "text": "Import fine payments",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/page.tsx"
+  ]
+ },
+ {
+  "key": "Import fleet list",
+  "text": "Import fleet list",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/import/page.tsx",
+   "apps/web/app/(app)/admin/vehicles/page.tsx"
+  ]
+ },
+ {
+  "key": "Import payments",
+  "text": "Import payments",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "Import staff list",
+  "text": "Import staff list",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/page.tsx",
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
+  "key": "Import without email",
+  "text": "Import without email",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Import without it",
+  "text": "Import without it",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Import without number",
+  "text": "Import without number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Imported",
+  "text": "Imported",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Imported from the i-traffic feed. These also show on the live map.",
+  "text": "Imported from the i-traffic feed. These also show on the live map.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/page.tsx"
+  ]
+ },
+ {
+  "key": "Importing…",
+  "text": "Importing…",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Importing… {done} of {total}",
+  "text": "Importing… {done} of {total}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Impounded",
+  "text": "Impounded",
+  "context": null,
+  "where": [
+   "apps/web/components/police-report-view.tsx"
   ]
  },
  {
@@ -11085,6 +18899,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "In every department",
+  "text": "In every department",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx"
+  ]
+ },
+ {
+  "key": "In force ({length})",
+  "text": "In force ({length})",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-tools.tsx"
   ]
  },
  {
@@ -11104,11 +18934,32 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "In service",
+  "text": "In service",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx",
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
   "key": "In the description, say whether the caller is the patient.",
   "text": "In the description, say whether the caller is the patient.",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "In use",
+  "text": "In use",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx",
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx",
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
   ]
  },
  {
@@ -11128,13 +18979,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Inbox {value}",
+  "text": "Inbox {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
+  ]
+ },
+ {
   "key": "Incident",
   "text": "Incident",
   "context": null,
   "where": [
    "apps/mobile/app/_layout.tsx",
    "apps/mobile/components/my-incidents.tsx",
-   "apps/mobile/components/service-home.tsx"
+   "apps/mobile/components/service-home.tsx",
+   "apps/web/app/(app)/disaster/dispatch/page.tsx",
+   "apps/web/app/(app)/disaster/post-mortem/post-mortem-form.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Incident #",
+  "text": "Incident #",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/page.tsx"
+  ]
+ },
+ {
+  "key": "Incident #, caller, address",
+  "text": "Incident #, caller, address",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/report-hub/page.tsx"
+  ]
+ },
+ {
+  "key": "Incident #, caller, address, officer",
+  "text": "Incident #, caller, address, officer",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/case-ui.tsx"
+  ]
+ },
+ {
+  "key": "Incident #, caller, address…",
+  "text": "Incident #, caller, address…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/page.tsx"
+  ]
+ },
+ {
+  "key": "Incident ID",
+  "text": "Incident ID",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/post-mortem/post-mortem-form.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
   ]
  },
  {
@@ -11150,6 +19056,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Incident Overview",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
   ]
  },
@@ -11171,11 +19078,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Incident Reports",
+  "text": "Incident Reports",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Incident assigned",
   "text": "Incident assigned",
   "context": null,
   "where": [
-   "apps/mobile/components/alerts.tsx"
+   "apps/mobile/components/alerts.tsx",
+   "apps/web/components/alert-center.tsx"
   ]
  },
  {
@@ -11187,11 +19103,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Incident code",
+  "text": "Incident code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "Incident details",
   "text": "Incident details",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Incident location",
+  "text": "Incident location",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
   ]
  },
  {
@@ -11219,7 +19152,24 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Incident number",
   "context": null,
   "where": [
+   "apps/web/app/(app)/case-manager/audit/page.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Incident number, plate, badge, surname, case number…",
+  "text": "Incident number, plate, badge, surname, case number…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/search/page.tsx"
+  ]
+ },
+ {
+  "key": "Incident ownership per silo.",
+  "text": "Incident ownership per silo.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
   ]
  },
  {
@@ -11231,12 +19181,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Incident reports",
+  "text": "Incident reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/reports/incident/page.tsx",
+   "apps/web/app/(app)/police/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "Incident reports{value}",
+  "text": "Incident reports{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx"
+  ]
+ },
+ {
+  "key": "Incident severity",
+  "text": "Incident severity",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx"
+  ]
+ },
+ {
+  "key": "Incident totals update as they close cases.",
+  "text": "Incident totals update as they close cases.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx"
+  ]
+ },
+ {
   "key": "Incident type",
   "text": "Incident type",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -11254,7 +19243,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/_layout.tsx",
-   "apps/mobile/components/tab-bar.tsx"
+   "apps/mobile/components/tab-bar.tsx",
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Incidents & Cases",
+  "text": "Incidents & Cases",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -11287,6 +19285,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/closed-incidents.tsx"
+  ]
+ },
+ {
+  "key": "Incidents, personnel, fleet and reports — everything your department can see.",
+  "text": "Incidents, personnel, fleet and reports — everything your department can see.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/search/page.tsx"
   ]
  },
  {
@@ -11344,7 +19350,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/[id].tsx",
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -11368,6 +19375,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Initial observations",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/incidents/[id]/fire-report-card.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -11418,6 +19427,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Injuries / treatment",
+  "text": "Injuries / treatment",
+  "context": null,
+  "where": [
+   "apps/web/components/pcr-card.tsx"
+  ]
+ },
+ {
+  "key": "Ins paired with outs per person; someone still on the clock accrues to now.{value}",
+  "text": "Ins paired with outs per person; someone still on the clock accrues to now.{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/attendance/page.tsx"
+  ]
+ },
+ {
+  "key": "Insights & Tools",
+  "text": "Insights & Tools",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -11487,11 +19520,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Inspection {filed} filed.",
+  "text": "Inspection {filed} filed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
   "key": "Inspection {inspection_ref} is filed. The appliance is out of service and command has been notified. You remain off duty.",
   "text": "Inspection {inspection_ref} is filed. The appliance is out of service and command has been notified. You remain off duty.",
   "context": null,
   "where": [
    "apps/mobile/components/fire-shift.tsx"
+  ]
+ },
+ {
+  "key": "Inspection {value}",
+  "text": "Inspection {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
   ]
  },
  {
@@ -11521,6 +19570,40 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Instructions for a member, such as court. They print on the duty sheet.",
+  "text": "Instructions for a member, such as court. They print on the duty sheet.",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Insurance info",
+  "text": "Insurance info",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Intake Dashboard",
+  "text": "Intake Dashboard",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Integrations",
+  "text": "Integrations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Interior",
   "text": "Interior",
   "context": null,
@@ -11541,6 +19624,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Internal dispatch notes",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
   ]
  },
@@ -11550,6 +19635,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Internal messages between operators — inside the platform, on the audit trail, never on e-mail.",
+  "text": "Internal messages between operators — inside the platform, on the audit trail, never on e-mail.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
   ]
  },
  {
@@ -11593,11 +19686,136 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Inventory →",
+  "text": "Inventory →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx"
+  ]
+ },
+ {
   "key": "Investigation conducted",
   "text": "Investigation conducted",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Investigation reason",
+  "text": "Investigation reason",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Invitation link (development only)",
+  "text": "Invitation link (development only)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
+  "key": "Invitation links (development only)",
+  "text": "Invitation links (development only)",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
+  "key": "Invitation sent to",
+  "text": "Invitation sent to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Invitations",
+  "text": "Invitations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/page.tsx",
+   "apps/web/app/(app)/admin/invitations/page.tsx",
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
+  "key": "Invitations as SystemAdmin, Admin or SystemController wait for a second SystemAdmin",
+  "text": "Invitations as SystemAdmin, Admin or SystemController wait for a second SystemAdmin",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/page.tsx"
+  ]
+ },
+ {
+  "key": "Invitations{value}",
+  "text": "Invitations{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
+  "key": "Invite",
+  "text": "Invite",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Invite a SystemAdmin",
+  "text": "Invite a SystemAdmin",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Invite again",
+  "text": "Invite again",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/row-actions.tsx"
+  ]
+ },
+ {
+  "key": "Invite people who are ready, station by station, and follow progress on the",
+  "text": "Invite people who are ready, station by station, and follow progress on the",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Invite someone",
+  "text": "Invite someone",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/page.tsx",
+   "apps/web/app/(app)/admin/invitations/page.tsx",
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
+  "key": "Invite the person who will manage the organisation. Their invitation is for the SystemAdmin role.",
+  "text": "Invite the person who will manage the organisation. Their invitation is for the SystemAdmin role.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Invite {length}",
+  "text": "Invite {length}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
   ]
  },
  {
@@ -11606,6 +19824,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/activate.tsx"
+  ]
+ },
+ {
+  "key": "Invited, not activated yet ({length})",
+  "text": "Invited, not activated yet ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
+  "key": "Invites",
+  "text": "Invites",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
@@ -11845,6 +20079,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Is the caller the patient?",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/description.tsx",
    "packages/db/src/intake.ts"
@@ -12095,7 +20330,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Issue",
   "context": null,
   "where": [
-   "apps/mobile/app/firearm-check.tsx"
+   "apps/mobile/app/firearm-check.tsx",
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
+  "key": "Issue Register",
+  "text": "Issue Register",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -12115,6 +20359,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/fines-card.tsx"
+  ]
+ },
+ {
+  "key": "Issue a summons",
+  "text": "Issue a summons",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx"
   ]
  },
  {
@@ -12142,11 +20394,62 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Issue firearm",
+  "text": "Issue firearm",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Issue now (they are told)",
+  "text": "Issue now (they are told)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Issue register",
+  "text": "Issue register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/page.tsx"
+  ]
+ },
+ {
+  "key": "Issue {value} draft{value2}",
+  "text": "Issue {value} draft{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
   "key": "Issued",
   "text": "Issued",
   "context": null,
   "where": [
-   "apps/mobile/app/end-shift.tsx"
+   "apps/mobile/app/end-shift.tsx",
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Issued by",
+  "text": "Issued by",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/police/firearms/new/page.tsx",
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "Issuing court",
+  "text": "Issuing court",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/warrants/page.tsx"
   ]
  },
  {
@@ -12163,6 +20466,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "It gets the next CH- number; the arresting officer is you unless noted.",
+  "text": "It gets the next CH- number; the arresting officer is you unless noted.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
+  "key": "It gets the next DM- number; the assignee is alerted at once.",
+  "text": "It gets the next DM- number; the assignee is alerted at once.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
+  "key": "It gets the next SM- number. Service is recorded from the register below.",
+  "text": "It gets the next SM- number. Service is recorded from the register below.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
+  "key": "It gets the next WA- number. Court and expiry as issued.",
+  "text": "It gets the next WA- number. Court and expiry as issued.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/warrants/page.tsx"
   ]
  },
  {
@@ -12274,11 +20609,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "It shows on the radio with your name. Every message is kept in the audit trail.",
+  "text": "It shows on the radio with your name. Every message is kept in the audit trail.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
   "key": "It stays on this phone under your account and sends the next time you sign in with signal.",
   "text": "It stays on this phone under your account and sends the next time you sign in with signal.",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "It will go to maintenance, not back into service.",
+  "text": "It will go to maintenance, not back into service.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
+  ]
+ },
+ {
+  "key": "Item / drug",
+  "text": "Item / drug",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
+  "key": "Itemised offenses",
+  "text": "Itemised offenses",
+  "context": null,
+  "where": [
+   "apps/web/components/police-report-view.tsx"
   ]
  },
  {
@@ -12358,6 +20725,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Join date",
+  "text": "Join date",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Join {value}",
+  "text": "Join {value}",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/talk-panel.tsx"
+  ]
+ },
+ {
+  "key": "Joining…",
+  "text": "Joining…",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
   "key": "Judgment (Split-second decision confidence?)",
   "text": "Judgment (Split-second decision confidence?)",
   "context": null,
@@ -12390,6 +20781,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/ems-shift.ts"
+  ]
+ },
+ {
+  "key": "Jump to…",
+  "text": "Jump to…",
+  "context": null,
+  "where": [
+   "apps/web/components/topbar.tsx"
   ]
  },
  {
@@ -12428,6 +20827,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "KPI Dashboard",
+  "text": "KPI Dashboard",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "KPI rollup",
+  "text": "KPI rollup",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/page.tsx"
+  ]
+ },
+ {
+  "key": "KPIs ({length})",
+  "text": "KPIs ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/kpis/page.tsx"
+  ]
+ },
+ {
   "key": "KZN",
   "text": "KZN",
   "context": null,
@@ -12460,7 +20883,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx",
    "apps/mobile/app/report/[id].tsx",
-   "apps/mobile/components/sync-tray.tsx"
+   "apps/mobile/components/sync-tray.tsx",
+   "apps/web/app/(app)/admin/invitations/row-actions.tsx",
+   "apps/web/components/ops-map/zones/zone-card.tsx"
   ]
  },
  {
@@ -12469,6 +20894,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Keep watching",
+  "text": "Keep watching",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
   ]
  },
  {
@@ -12485,6 +20918,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/translations/translations-editor.tsx"
+  ]
+ },
+ {
+  "key": "Kept at",
+  "text": "Kept at",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "Kept in the database only. Radios and consoles get a 2-hour pass, never the secret.",
+  "text": "Kept in the database only. Radios and consoles get a 2-hour pass, never the secret.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
   ]
  },
  {
@@ -12517,6 +20967,15 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Kind",
+  "text": "Kind",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx",
+   "apps/web/app/(app)/police/page.tsx"
   ]
  },
  {
@@ -12568,12 +21027,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "LA code",
+  "text": "LA code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "LEAD",
   "text": "LEAD",
   "context": null,
   "where": [
    "apps/mobile/components/incident-sheet.tsx",
    "apps/mobile/components/my-incidents.tsx"
+  ]
+ },
+ {
+  "key": "LEO record added",
+  "text": "LEO record added",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "LISTEN ONLY",
+  "text": "LISTEN ONLY",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
   ]
  },
  {
@@ -12621,7 +21104,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Landmark / description",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -12652,6 +21136,74 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Last 30 days",
+  "text": "Last 30 days",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "Last 7 days",
+  "text": "Last 7 days",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/report-centre/management/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "Last armoury import:",
+  "text": "Last armoury import:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/page.tsx"
+  ]
+ },
+ {
+  "key": "Last bodycam import:",
+  "text": "Last bodycam import:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
+  "key": "Last changed by {value}",
+  "text": "Last changed by {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx",
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
+  ]
+ },
+ {
+  "key": "Last day",
+  "text": "Last day",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/leave-actions.tsx"
+  ]
+ },
+ {
+  "key": "Last fleet import:",
+  "text": "Last fleet import:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/page.tsx"
+  ]
+ },
+ {
+  "key": "Last inspection",
+  "text": "Last inspection",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx"
+  ]
+ },
+ {
   "key": "Last known GPS position sent — say where you are on the radio",
   "text": "Last known GPS position sent — say where you are on the radio",
   "context": null,
@@ -12665,6 +21217,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/map-layers.ts"
+  ]
+ },
+ {
+  "key": "Last name",
+  "text": "Last name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx"
+  ]
+ },
+ {
+  "key": "Last online {saTime}",
+  "text": "Last online {saTime}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -12692,6 +21260,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Last run",
+  "text": "Last run",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/rule-card.tsx"
+  ]
+ },
+ {
   "key": "Last seen",
   "text": "Last seen",
   "context": null,
@@ -12700,11 +21276,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Last staff-list import:",
+  "text": "Last staff-list import:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
   "key": "Late",
   "text": "Late",
   "context": null,
   "where": [
+   "apps/web/components/schedule/attendance-now.tsx",
    "packages/api/src/schedule/rules.ts"
+  ]
+ },
+ {
+  "key": "Late after (minutes)",
+  "text": "Late after (minutes)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Late after {grace} min, not started after {noshow} min. Record why from the roster.",
+  "text": "Late after {grace} min, not started after {noshow} min. Record why from the roster.",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/attendance-now.tsx"
+  ]
+ },
+ {
+  "key": "Late and not started",
+  "text": "Late and not started",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Late or not started",
+  "text": "Late or not started",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Later ({length})",
+  "text": "Later ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
+  "key": "Latest loaded",
+  "text": "Latest loaded",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/crime-hotspots/page.tsx"
   ]
  },
  {
@@ -12712,7 +21345,26 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Latitude",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
+  ]
+ },
+ {
+  "key": "Law enforcement officer record",
+  "text": "Law enforcement officer record",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Layers",
+  "text": "Layers",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/map/page.tsx",
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -12720,7 +21372,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Lead",
   "context": null,
   "where": [
-   "apps/mobile/app/incident/[id].tsx"
+   "apps/mobile/app/incident/[id].tsx",
+   "apps/web/app/(app)/incidents/[id]/departments-card.tsx"
   ]
  },
  {
@@ -12732,6 +21385,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Lead:",
+  "text": "Lead:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
   "key": "Leave",
   "text": "Leave",
   "context": null,
@@ -12740,7 +21401,77 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/_layout.tsx",
    "apps/mobile/app/leave.tsx",
    "apps/mobile/lib/modules.ts",
-   "apps/mobile/lib/outbox-policy.ts"
+   "apps/mobile/lib/outbox-policy.ts",
+   "apps/web/app/(app)/leave/page.tsx",
+   "apps/web/app/(app)/roster/mine/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/components/talk/talk-panel.tsx",
+   "apps/web/lib/nav.ts",
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Leave (approved / pending)",
+  "text": "Leave (approved / pending)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
+  ]
+ },
+ {
+  "key": "Leave ({length})",
+  "text": "Leave ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "Leave Approvals",
+  "text": "Leave Approvals",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Leave approvals",
+  "text": "Leave approvals",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "Leave approved",
+  "text": "Leave approved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/decide.tsx"
+  ]
+ },
+ {
+  "key": "Leave blank until the Hikvision platform is connected",
+  "text": "Leave blank until the Hikvision platform is connected",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx"
+  ]
+ },
+ {
+  "key": "Leave captured",
+  "text": "Leave captured",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Leave empty for one day (court) or until withdrawn.",
+  "text": "Leave empty for one day (court) or until withdrawn.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
   ]
  },
  {
@@ -12752,11 +21483,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Leave for approval",
+  "text": "Leave for approval",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "Leave overview",
+  "text": "Leave overview",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Leave register",
+  "text": "Leave register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Leave rejected",
+  "text": "Leave rejected",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/decide.tsx"
+  ]
+ },
+ {
+  "key": "Leave seq",
+  "text": "Leave seq",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
   "key": "Leave the slip on the vehicle. There is no signature from the owner.",
   "text": "Leave the slip on the vehicle. There is no signature from the owner.",
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "Leave type summary",
+  "text": "Leave type summary",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
   ]
  },
  {
@@ -12782,6 +21561,15 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/components/incident-sheet.tsx",
    "apps/mobile/lib/map-pins.ts"
+  ]
+ },
+ {
+  "key": "Ledger",
+  "text": "Ledger",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx"
   ]
  },
  {
@@ -12857,10 +21645,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Left out ({count})",
+  "text": "Left out ({count})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Legal reference",
+  "text": "Legal reference",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "Legal reference, e.g. NRTA s59(4)",
+  "text": "Legal reference, e.g. NRTA s59(4)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
   "key": "Lessons Learned / Recommendations",
   "text": "Lessons Learned / Recommendations",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
   ]
  },
@@ -12919,7 +21732,17 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/fines/[id].tsx",
    "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Licence disc",
+  "text": "Licence disc",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
   ]
  },
  {
@@ -12979,6 +21802,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Lifecycle",
+  "text": "Lifecycle",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Light",
   "text": "Light",
   "context": null,
@@ -13028,6 +21859,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Lighting",
+  "text": "Lighting",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "Lighting: poor",
   "text": "Lighting: poor",
   "context": null,
@@ -13052,11 +21891,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Line",
+  "text": "Line",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
   "key": "Link to an incident (optional)",
   "text": "Link to an incident (optional)",
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "Linked call",
+  "text": "Linked call",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx",
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
   ]
  },
  {
@@ -13072,7 +21928,50 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Live",
   "context": null,
   "where": [
-   "apps/mobile/app/route/[id].tsx"
+   "apps/mobile/app/route/[id].tsx",
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx",
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx",
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
+  "key": "Live Cases",
+  "text": "Live Cases",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Live Dispatch",
+  "text": "Live Dispatch",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Live EMS calls",
+  "text": "Live EMS calls",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Live EMS calls ({length})",
+  "text": "Live EMS calls ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx"
+  ]
+ },
+ {
+  "key": "Live Fire incidents ({length})",
+  "text": "Live Fire incidents ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
   ]
  },
  {
@@ -13096,7 +21995,133 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Live Map",
   "context": null,
   "where": [
-   "apps/mobile/app/_layout.tsx"
+   "apps/mobile/app/_layout.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Live Operations Feed",
+  "text": "Live Operations Feed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Live Responders on Duty",
+  "text": "Live Responders on Duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Live calls",
+  "text": "Live calls",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Live calls, ambulances and patient care reports.",
+  "text": "Live calls, ambulances and patient care reports.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx"
+  ]
+ },
+ {
+  "key": "Live cases",
+  "text": "Live cases",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/open/page.tsx"
+  ]
+ },
+ {
+  "key": "Live feeds",
+  "text": "Live feeds",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/bodycam-wall.tsx"
+  ]
+ },
+ {
+  "key": "Live from personnel heartbeat.",
+  "text": "Live from personnel heartbeat.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/page.tsx"
+  ]
+ },
+ {
+  "key": "Live incidents",
+  "text": "Live incidents",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx",
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
+  "key": "Live incidents, fire reports, hydrants and public releases.",
+  "text": "Live incidents, fire reports, hydrants and public releases.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
+  ]
+ },
+ {
+  "key": "Live map",
+  "text": "Live map",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx",
+   "apps/web/app/(app)/sanral/page.tsx",
+   "apps/web/components/dispatch-map-button.tsx"
+  ]
+ },
+ {
+  "key": "Live map & routes",
+  "text": "Live map & routes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Live operations",
+  "text": "Live operations",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
+  "key": "Live operations map",
+  "text": "Live operations map",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/map/page.tsx",
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
+  "key": "Live traffic incidents",
+  "text": "Live traffic incidents",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/traffic-panel.tsx"
+  ]
+ },
+ {
+  "key": "Live · {available} available · updated {localeTimeString}",
+  "text": "Live · {available} available · updated {localeTimeString}",
+  "context": null,
+  "where": [
+   "apps/web/components/dispatch-map-modal.tsx"
   ]
  },
  {
@@ -13105,6 +22130,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Load",
+  "text": "Load",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx"
   ]
  },
  {
@@ -13125,11 +22158,38 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Loading the cameras…",
+  "text": "Loading the cameras…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/live-wall.tsx"
+  ]
+ },
+ {
+  "key": "Loading the register to compare against…",
+  "text": "Loading the register to compare against…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
   "key": "Loading your leave…",
   "text": "Loading your leave…",
   "context": null,
   "where": [
    "apps/mobile/app/leave.tsx"
+  ]
+ },
+ {
+  "key": "Loading…",
+  "text": "Loading…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wind-widget.tsx",
+   "apps/web/app/(app)/sanral/traffic-panel.tsx",
+   "apps/web/components/ops-map/zones/zone-card.tsx"
   ]
  },
  {
@@ -13146,7 +22206,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/post-mortem/[id].tsx",
+   "apps/web/app/(app)/disaster/dispatch/page.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/dispatch/pending/page.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx",
+   "apps/web/app/(app)/police/reports/new/report-form.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx",
+   "apps/web/components/police-report-view.tsx",
+   "apps/web/components/post-mortem-card.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/fire-report.ts"
   ]
@@ -13200,6 +22269,31 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Location:",
+  "text": "Location:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
+  "key": "Log",
+  "text": "Log",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
+  "key": "Log Incoming Call",
+  "text": "Log Incoming Call",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Log a new call",
   "text": "Log a new call",
   "context": null,
@@ -13208,11 +22302,69 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Log periodic update…",
+  "text": "Log periodic update…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Log training",
+  "text": "Log training",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "Log update",
+  "text": "Log update",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Log usage",
+  "text": "Log usage",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
+  "key": "Logged by",
+  "text": "Logged by",
+  "context": null,
+  "where": [
+   "apps/web/components/call-edits.tsx"
+  ]
+ },
+ {
+  "key": "Logons ({length})",
+  "text": "Logons ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
   "key": "Longitude",
   "text": "Longitude",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
+  ]
+ },
+ {
+  "key": "Look up who worked a call sign, and change a duty.",
+  "text": "Look up who worked a call sign, and change a duty.",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
   ]
  },
  {
@@ -13229,6 +22381,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Loses nothing",
+  "text": "Loses nothing",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/change-role-form.tsx"
+  ]
+ },
+ {
+  "key": "Losses",
+  "text": "Losses",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/change-role-form.tsx"
   ]
  },
  {
@@ -13266,11 +22434,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Lowercase letters, digits and hyphens. Permanent once created.",
+  "text": "Lowercase letters, digits and hyphens. Permanent once created.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
   "key": "M",
   "text": "M",
   "context": null,
   "where": [
    "apps/mobile/app/pcr/[id].tsx"
+  ]
+ },
+ {
+  "key": "MDTs, radios and tablets registered per silo.",
+  "text": "MDTs, radios and tablets registered per silo.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/devices/page.tsx"
   ]
  },
  {
@@ -13335,7 +22519,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/firearm-check.tsx",
-   "apps/mobile/components/shift-firearm.tsx"
+   "apps/mobile/components/shift-firearm.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
   ]
  },
  {
@@ -13363,6 +22548,32 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Mail",
+  "text": "Mail",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Main",
+  "text": "Main",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/components/top-nav.tsx"
+  ]
+ },
+ {
+  "key": "Maintain Leave",
+  "text": "Maintain Leave",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
   "key": "Major",
   "text": "Major",
   "context": null,
@@ -13384,6 +22595,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -13393,7 +22606,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/[id].tsx",
-   "apps/mobile/app/firearm-check.tsx"
+   "apps/mobile/app/firearm-check.tsx",
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
   ]
  },
  {
@@ -13447,11 +22661,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Manager Name",
+  "text": "Manager Name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "Manual entry",
+  "text": "Manual entry",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Manual entry, not linked to a dispatched call.",
+  "text": "Manual entry, not linked to a dispatched call.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/new/page.tsx"
+  ]
+ },
+ {
   "key": "Map layers",
   "text": "Map layers",
   "context": null,
   "where": [
-   "apps/mobile/app/live-map.tsx"
+   "apps/mobile/app/live-map.tsx",
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -13530,6 +22769,39 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Mark as left",
+  "text": "Mark as left",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Mark for the crew",
+  "text": "Mark for the crew",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Mark read",
+  "text": "Mark read",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx",
+   "apps/web/app/(app)/notifications/feed.tsx"
+  ]
+ },
+ {
+  "key": "Mark the crew as they radio it in. The report is filed once they are on scene.",
+  "text": "Mark the crew as they radio it in. The report is filed once they are on scene.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
   "key": "Mark the remaining item as ✓, × or NIL.",
   "text": "Mark the remaining item as ✓, × or NIL.",
   "context": null,
@@ -13563,11 +22835,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Mark {count} read",
+  "text": "Mark {count} read",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/mark-all-read.tsx"
+  ]
+ },
+ {
   "key": "Mark {n} remaining items as ✓, × or NIL.",
   "text": "Mark {n} remaining items as ✓, × or NIL.",
   "context": null,
   "where": [
    "apps/mobile/components/shift-inspection.tsx"
+  ]
+ },
+ {
+  "key": "Mark {s}",
+  "text": "Mark {s}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
   ]
  },
  {
@@ -13579,11 +22867,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Marking…",
+  "text": "Marking…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/mark-all-read.tsx"
+  ]
+ },
+ {
   "key": "Maroon",
   "text": "Maroon",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Matches",
+  "text": "Matches",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/confirm-fields.tsx"
+  ]
+ },
+ {
+  "key": "Matching the current filters.",
+  "text": "Matching the current filters.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/report-hub/page.tsx"
   ]
  },
  {
@@ -13603,6 +22915,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Measure",
+  "text": "Measure",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Measure field",
+  "text": "Measure field",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Measurements",
+  "text": "Measurements",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
+  "key": "Measures",
+  "text": "Measures",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
   ]
  },
  {
@@ -13655,6 +22999,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Medical aid description",
+  "text": "Medical aid description",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
   "key": "Medical aid given",
   "text": "Medical aid given",
   "context": null,
@@ -13667,6 +23019,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Medical aid provided",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -13675,9 +23028,18 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Medical code",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Medical severity",
+  "text": "Medical severity",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
   ]
  },
  {
@@ -13718,6 +23080,11 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Member",
   "context": null,
   "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/roster/planner.tsx",
+   "apps/web/app/(app)/training/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -13735,6 +23102,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Member: members may ask for it themselves. Office: only the office captures it.",
+  "text": "Member: members may ask for it themselves. Office: only the office captures it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Members",
+  "text": "Members",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/role-kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "Members on leave today",
+  "text": "Members on leave today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Members:",
+  "text": "Members:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
   ]
  },
  {
@@ -13762,6 +23161,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Mental readiness ({length})",
+  "text": "Mental readiness ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/unit-compliance/page.tsx"
+  ]
+ },
+ {
   "key": "Mental readiness, vehicle selection and inspection — the gate to responding to incidents.",
   "text": "Mental readiness, vehicle selection and inspection — the gate to responding to incidents.",
   "context": null,
@@ -13783,6 +23190,54 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Message",
+  "text": "Message",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
+  ]
+ },
+ {
+  "key": "Message & recordings",
+  "text": "Message & recordings",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Message (optional)",
+  "text": "Message (optional)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx"
+  ]
+ },
+ {
+  "key": "Message to Criti",
+  "text": "Message to Criti",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/chat.tsx"
+  ]
+ },
+ {
+  "key": "Message…",
+  "text": "Message…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Method",
+  "text": "Method",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
   ]
  },
  {
@@ -13811,6 +23266,26 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Metro Police · Captain",
+  "text": "Metro Police · Captain",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Metro Police · Enforcement",
+  "text": "Metro Police · Enforcement",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx",
+   "apps/web/app/(app)/police/fines/new/page.tsx",
+   "apps/web/app/(app)/police/fines/offences/page.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/fines/payments/page.tsx"
+  ]
+ },
+ {
   "key": "Microphone permission denied.",
   "text": "Microphone permission denied.",
   "context": null,
@@ -13825,6 +23300,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx",
    "apps/mobile/components/shift-report.tsx"
+  ]
+ },
+ {
+  "key": "Milestones from call to close.",
+  "text": "Milestones from call to close.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -13866,6 +23349,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Minimise (Esc) — stays as a bar, siren off",
+  "text": "Minimise (Esc) — stays as a bar, siren off",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
+  "key": "Minimise SOS",
+  "text": "Minimise SOS",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
+  "key": "Minor",
+  "text": "Minor",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
   ]
  },
  {
@@ -13931,6 +23438,10 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/admin/devices/page.tsx",
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -13940,6 +23451,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Module",
+  "text": "Module",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -13975,6 +23494,46 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Monitoring",
+  "text": "Monitoring",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Monogram (max 4)",
+  "text": "Monogram (max 4)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
+  ]
+ },
+ {
+  "key": "Monthly call volume",
+  "text": "Monthly call volume",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/mine/page.tsx"
+  ]
+ },
+ {
+  "key": "Monthly trend",
+  "text": "Monthly trend",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
+  ]
+ },
+ {
+  "key": "More incidents in this window than the analysis cap. The figures below cover the most recent portion only — narrow the window before quoting them.",
+  "text": "More incidents in this window than the analysis cap. The figures below cover the most recent portion only — narrow the window before quoting them.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
+  ]
+ },
+ {
   "key": "More than 20",
   "text": "More than 20",
   "context": null,
@@ -13996,6 +23555,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "More than the {issued} issued.",
+  "text": "More than the {issued} issued.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
   ]
  },
  {
@@ -14023,6 +23590,38 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Most active (last 100 audit events)",
+  "text": "Most active (last 100 audit events)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/page.tsx"
+  ]
+ },
+ {
+  "key": "Most frequent call categories.",
+  "text": "Most frequent call categories.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
+  ]
+ },
+ {
+  "key": "Most recent calls. Full set via CSV export.",
+  "text": "Most recent calls. Full set via CSV export.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "Most reports filed",
+  "text": "Most reports filed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
   "key": "Motor Vehicle Accident",
   "text": "Motor Vehicle Accident",
   "context": null,
@@ -14045,6 +23644,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Motto (optional)",
+  "text": "Motto (optional)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
   ]
  },
  {
@@ -14080,6 +23687,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Multiple casualties",
+  "text": "Multiple casualties",
+  "context": null,
+  "where": [
+   "apps/web/components/pcr-card.tsx"
+  ]
+ },
+ {
   "key": "Multiple rooms",
   "text": "Multiple rooms",
   "context": null,
@@ -14109,7 +23724,56 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Mutual aid used",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Mutual-Aid Partners",
+  "text": "Mutual-Aid Partners",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Mutual-aid partner directory",
+  "text": "Mutual-aid partner directory",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/partners/page.tsx"
+  ]
+ },
+ {
+  "key": "Mutual-aid partners ({length})",
+  "text": "Mutual-aid partners ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx"
+  ]
+ },
+ {
+  "key": "Mutual-aid partners →",
+  "text": "Mutual-aid partners →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "My Duty Tasks",
+  "text": "My Duty Tasks",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "My HR portal →",
+  "text": "My HR portal →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -14117,7 +23781,26 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "My Incidents",
   "context": null,
   "where": [
-   "apps/mobile/lib/modules.ts"
+   "apps/mobile/lib/modules.ts",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "My Performance",
+  "text": "My Performance",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "My Profile",
+  "text": "My Profile",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -14126,7 +23809,58 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/_layout.tsx",
-   "apps/mobile/lib/modules.ts"
+   "apps/mobile/lib/modules.ts",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "My Work",
+  "text": "My Work",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "My calls",
+  "text": "My calls",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx",
+   "apps/web/app/(app)/shift/mental-check/page.tsx"
+  ]
+ },
+ {
+  "key": "My category breakdown",
+  "text": "My category breakdown",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/mine/page.tsx"
+  ]
+ },
+ {
+  "key": "My department",
+  "text": "My department",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "My drafts — only me ({length})",
+  "text": "My drafts — only me ({length})",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-tools.tsx"
+  ]
+ },
+ {
+  "key": "My endorsements",
+  "text": "My endorsements",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
   ]
  },
  {
@@ -14155,11 +23889,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "My incidents ({length})",
+  "text": "My incidents ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
   "key": "My leave",
   "text": "My leave",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "My leave history",
+  "text": "My leave history",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
   ]
  },
  {
@@ -14171,12 +23922,29 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "My open calls",
+  "text": "My open calls",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
   "key": "My performance",
   "text": "My performance",
   "context": null,
   "where": [
    "apps/mobile/app/_layout.tsx",
-   "apps/mobile/components/my-performance.tsx"
+   "apps/mobile/components/my-performance.tsx",
+   "apps/web/app/(app)/performance/mine/page.tsx"
+  ]
+ },
+ {
+  "key": "My position",
+  "text": "My position",
+  "context": null,
+  "where": [
+   "apps/web/components/location-picker.tsx"
   ]
  },
  {
@@ -14184,7 +23952,18 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "My schedule",
   "context": null,
   "where": [
-   "apps/mobile/components/my-shifts-card.tsx"
+   "apps/mobile/components/my-shifts-card.tsx",
+   "apps/web/app/(app)/roster/mine/page.tsx",
+   "apps/web/app/(app)/shift/mental-check/page.tsx",
+   "apps/web/components/schedule/shift-banner.tsx"
+  ]
+ },
+ {
+  "key": "My shift",
+  "text": "My shift",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
   ]
  },
  {
@@ -14204,6 +23983,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "My upcoming duty",
+  "text": "My upcoming duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
+  ]
+ },
+ {
   "key": "My work",
   "text": "My work",
   "context": null,
@@ -14212,11 +23999,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "N keeps this member out of Duty Allocation.",
+  "text": "N keeps this member out of Duty Allocation.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "N — No",
+  "text": "N — No",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "N/A",
   "text": "N/A",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "NATO phonetic call-sign generator.",
+  "text": "NATO phonetic call-sign generator.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -14309,6 +24121,18 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/[id].tsx",
+   "apps/web/app/(app)/admin/config/page.tsx",
+   "apps/web/app/(app)/admin/invitations/slip.tsx",
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx",
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx",
+   "apps/web/app/(app)/roster/setup/setup-client.tsx",
+   "apps/web/components/ops-map/zones/zone-editor.tsx",
+   "apps/web/components/pcr-card.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -14361,6 +24185,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Name or badge number",
+  "text": "Name or badge number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Name shown",
+  "text": "Name shown",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
+  "key": "Name — e.g. North Region",
+  "text": "Name — e.g. North Region",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/sections/page.tsx"
+  ]
+ },
+ {
   "key": "Name, age and clothing",
   "text": "Name, age and clothing",
   "context": null,
@@ -14377,6 +24225,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Name, badge, rank or station",
+  "text": "Name, badge, rank or station",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Name, e.g. 224",
+  "text": "Name, e.g. 224",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
   "key": "Names of attending crew",
   "text": "Names of attending crew",
   "context": null,
@@ -14389,8 +24253,26 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Narrative",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/[id]/page.tsx",
+   "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-types.ts",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Narrative & sign-off",
+  "text": "Narrative & sign-off",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Narrative summary",
+  "text": "Narrative summary",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
   ]
  },
  {
@@ -14436,6 +24318,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Navigation",
+  "text": "Navigation",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
   "key": "Nearby",
   "text": "Nearby",
   "context": null,
@@ -14452,11 +24342,37 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Nearest by road",
+  "text": "Nearest by road",
+  "context": null,
+  "where": [
+   "apps/web/components/dispatch-map-modal.tsx"
+  ]
+ },
+ {
+  "key": "Nearest units & routes",
+  "text": "Nearest units & routes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Need attention",
+  "text": "Need attention",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
   "key": "Needs cleaning",
   "text": "Needs cleaning",
   "context": null,
   "where": [
-   "apps/mobile/app/end-shift.tsx"
+   "apps/mobile/app/end-shift.tsx",
+   "apps/web/app/(app)/police/firearms/page.tsx"
   ]
  },
  {
@@ -14476,6 +24392,46 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "New",
+  "text": "New",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "New call sign",
+  "text": "New call sign",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "New call · {severity}",
+  "text": "New call · {severity}",
+  "context": null,
+  "where": [
+   "apps/web/components/toast.tsx"
+  ]
+ },
+ {
+  "key": "New call · {value}",
+  "text": "New call · {value}",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
+  "key": "New department",
+  "text": "New department",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
   "key": "New incident",
   "text": "New incident",
   "context": null,
@@ -14492,6 +24448,47 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "New inspection",
+  "text": "New inspection",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "New leave entry",
+  "text": "New leave entry",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "New notifications",
+  "text": "New notifications",
+  "context": null,
+  "where": [
+   "apps/web/components/heads-up.tsx"
+  ]
+ },
+ {
+  "key": "New police report",
+  "text": "New police report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "New role",
+  "text": "New role",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/change-role-form.tsx"
+  ]
+ },
+ {
   "key": "Newest",
   "text": "Newest",
   "context": null,
@@ -14500,12 +24497,32 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Newest first. Cancelled fines stay on the account, struck through.",
+  "text": "Newest first. Cancelled fines stay on the account, struck through.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
+  ]
+ },
+ {
+  "key": "Newest first. Open one to read its report and close it.",
+  "text": "Newest first. Open one to read its report and close it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
   "key": "Next",
   "text": "Next",
   "context": null,
   "where": [
    "apps/mobile/app/activate.tsx",
-   "apps/mobile/components/report-wizard.tsx"
+   "apps/mobile/components/report-wizard.tsx",
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/shift/readiness-review/page.tsx",
+   "apps/web/components/form-wizard.tsx"
   ]
  },
  {
@@ -14513,7 +24530,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Next month",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/leave/page.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
   ]
  },
  {
@@ -14522,6 +24541,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Next of kin",
+  "text": "Next of kin",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Next of kin & emergency contact",
+  "text": "Next of kin & emergency contact",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -14537,7 +24572,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Next →",
   "context": null,
   "where": [
-   "apps/mobile/components/shift-inspection.tsx"
+   "apps/mobile/components/shift-inspection.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
   ]
  },
  {
@@ -14598,7 +24634,10 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/disaster-shift.tsx",
    "apps/mobile/components/fire-ui.tsx",
    "apps/mobile/components/shift-form.tsx",
+   "apps/web/app/(app)/admin/devices/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/description.tsx",
+   "apps/web/app/(app)/modules/absence/page.tsx",
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -14611,11 +24650,100 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "No alerts",
-  "text": "No alerts",
+  "key": "No GPS fix",
+  "text": "No GPS fix",
   "context": null,
   "where": [
-   "apps/mobile/app/alerts.tsx"
+   "apps/web/app/(app)/dispatch/assign/[id]/officer-picker.tsx"
+  ]
+ },
+ {
+  "key": "No Hikvision camera code on the register yet.",
+  "text": "No Hikvision camera code on the register yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/bodycam-wall.tsx"
+  ]
+ },
+ {
+  "key": "No KPIs configured for this cycle.",
+  "text": "No KPIs configured for this cycle.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/kpis/page.tsx",
+   "apps/web/app/(app)/performance/plans/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "No LEO record.",
+  "text": "No LEO record.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "No account",
+  "text": "No account",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "No active disaster deployments.",
+  "text": "No active disaster deployments.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "No active incidents.",
+  "text": "No active incidents.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "No active traffic incidents in the metro area.",
+  "text": "No active traffic incidents in the metro area.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/traffic-panel.tsx"
+  ]
+ },
+ {
+  "key": "No activity recorded yet.",
+  "text": "No activity recorded yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "No activity yet — the feed fills as calls move.",
+  "text": "No activity yet — the feed fills as calls move.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "No activity.",
+  "text": "No activity.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/mine/page.tsx"
+  ]
+ },
+ {
+  "key": "No allocations for today. Build the board in Duty Allocation.",
+  "text": "No allocations for today. Build the board in Duty Allocation.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
   ]
  },
  {
@@ -14651,6 +24779,78 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No appraisal scores yet.",
+  "text": "No appraisal scores yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/mine/page.tsx"
+  ]
+ },
+ {
+  "key": "No approved leave ahead.",
+  "text": "No approved leave ahead.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "No archived reports yet.",
+  "text": "No archived reports yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "No armoury records.",
+  "text": "No armoury records.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/page.tsx"
+  ]
+ },
+ {
+  "key": "No arrest",
+  "text": "No arrest",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/reports-list.tsx"
+  ]
+ },
+ {
+  "key": "No arrival confirmations.",
+  "text": "No arrival confirmations.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
+  ]
+ },
+ {
+  "key": "No attachments.",
+  "text": "No attachments.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "No attributed activity in this window.",
+  "text": "No attributed activity in this window.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "No audit events.",
+  "text": "No audit events.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/audit/page.tsx"
+  ]
+ },
+ {
   "key": "No available cars",
   "text": "No available cars",
   "context": null,
@@ -14675,6 +24875,46 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No bodycam was out with {value} in this window.",
+  "text": "No bodycam was out with {value} in this window.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx"
+  ]
+ },
+ {
+  "key": "No call",
+  "text": "No call",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
+  ]
+ },
+ {
+  "key": "No call activity recorded in range.",
+  "text": "No call activity recorded in range.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/mine/page.tsx"
+  ]
+ },
+ {
+  "key": "No call signs yet.",
+  "text": "No call signs yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "No call-taker activity.",
+  "text": "No call-taker activity.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
   "key": "No caller number recorded.",
   "text": "No caller number recorded.",
   "context": null,
@@ -14683,11 +24923,100 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No calls in range.",
+  "text": "No calls in range.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "No calls in this window.",
+  "text": "No calls in this window.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
+  ]
+ },
+ {
+  "key": "No calls sent to you or your department right now.",
+  "text": "No calls sent to you or your department right now.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
+  "key": "No cameras imported.",
+  "text": "No cameras imported.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/page.tsx"
+  ]
+ },
+ {
+  "key": "No certifications.",
+  "text": "No certifications.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "No changes recorded yet.",
+  "text": "No changes recorded yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "No charge",
+  "text": "No charge",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
+  "key": "No charges on record.",
+  "text": "No charges on record.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
   "key": "No checklists on the register yet.",
   "text": "No checklists on the register yet.",
   "context": null,
   "where": [
    "apps/mobile/app/firearm-check.tsx"
+  ]
+ },
+ {
+  "key": "No checklists submitted yet.",
+  "text": "No checklists submitted yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearm-checks/page.tsx"
+  ]
+ },
+ {
+  "key": "No checks submitted today.",
+  "text": "No checks submitted today.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/unit-compliance/page.tsx"
+  ]
+ },
+ {
+  "key": "No clinical records found in the archive.",
+  "text": "No clinical records found in the archive.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx"
   ]
  },
  {
@@ -14747,11 +25076,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No coordinates captured for this call.",
+  "text": "No coordinates captured for this call.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "No credentials required",
+  "text": "No credentials required",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
+  ]
+ },
+ {
   "key": "No crime statistics are loaded yet.",
   "text": "No crime statistics are loaded yet.",
   "context": null,
   "where": [
    "apps/mobile/lib/police-overlays.ts"
+  ]
+ },
+ {
+  "key": "No crime statistics loaded.",
+  "text": "No crime statistics loaded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/crime-hotspots/page.tsx"
+  ]
+ },
+ {
+  "key": "No datasets are available to your role.",
+  "text": "No datasets are available to your role.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "No deployed incident is waiting for a post-mortem.",
+  "text": "No deployed incident is waiting for a post-mortem.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/post-mortem/page.tsx"
   ]
  },
  {
@@ -14763,11 +25132,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No devices enrolled.",
+  "text": "No devices enrolled.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/devices/page.tsx"
+  ]
+ },
+ {
   "key": "No dispatch desk receives a call that is not sent to it.",
   "text": "No dispatch desk receives a call that is not sent to it.",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "No dispatcher activity.",
+  "text": "No dispatcher activity.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "No duties on this call sign yet.",
+  "text": "No duties on this call sign yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "No duty allocated.",
+  "text": "No duty allocated.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
+  ]
+ },
+ {
+  "key": "No duty records.",
+  "text": "No duty records.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "No endorsements on file.",
+  "text": "No endorsements on file.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
+  ]
+ },
+ {
+  "key": "No endorsements.",
+  "text": "No endorsements.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
   ]
  },
  {
@@ -14779,6 +25205,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No entries yet.",
+  "text": "No entries yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/config/page.tsx"
+  ]
+ },
+ {
   "key": "No entry without clearance — crews included.",
   "text": "No entry without clearance — crews included.",
   "context": null,
@@ -14787,11 +25221,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No feed",
+  "text": "No feed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/live-wall.tsx"
+  ]
+ },
+ {
+  "key": "No filters — every row in {lowerCase}.",
+  "text": "No filters — every row in {lowerCase}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "No fine",
+  "text": "No fine",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
+  "key": "No fines in this view.",
+  "text": "No fines in this view.",
+  "context": null,
+  "where": [
+   "apps/web/components/fines-panel.tsx"
+  ]
+ },
+ {
   "key": "No fines yet",
   "text": "No fines yet",
   "context": null,
   "where": [
    "apps/mobile/app/fines/index.tsx"
+  ]
+ },
+ {
+  "key": "No fire reports filed.",
+  "text": "No fire reports filed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "No fire reports yet.",
+  "text": "No fire reports yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
   ]
  },
  {
@@ -14827,6 +25309,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No history recorded.",
+  "text": "No history recorded.",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
+  "key": "No history yet.",
+  "text": "No history yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "No hydrants recorded.",
+  "text": "No hydrants recorded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/hydrants/page.tsx"
+  ]
+ },
+ {
   "key": "No incident types are set up for your organisation, so a call cannot be logged yet. An administrator adds them under Admin → Configuration → Incident categories.",
   "text": "No incident types are set up for your organisation, so a call cannot be logged yet. An administrator adds them under Admin → Configuration → Incident categories.",
   "context": null,
@@ -14848,6 +25354,31 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/service-home.tsx"
+  ]
+ },
+ {
+  "key": "No incidents in range.",
+  "text": "No incidents in range.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "No incidents in this window.",
+  "text": "No incidents in this window.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "No incidents match your filters.",
+  "text": "No incidents match your filters.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/page.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx"
   ]
  },
  {
@@ -14884,11 +25415,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No inspections today.",
+  "text": "No inspections today.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/unit-compliance/page.tsx"
+  ]
+ },
+ {
+  "key": "No leave on record.",
+  "text": "No leave on record.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "No leave records.",
+  "text": "No leave records.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "No leave requests.",
+  "text": "No leave requests.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx",
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
+  ]
+ },
+ {
   "key": "No leave this month.",
   "text": "No leave this month.",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx"
+  ]
+ },
+ {
+  "key": "No live EMS calls.",
+  "text": "No live EMS calls.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx"
+  ]
+ },
+ {
+  "key": "No live Fire incidents.",
+  "text": "No live Fire incidents.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
+  ]
+ },
+ {
+  "key": "No live calls.",
+  "text": "No live calls.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
   ]
  },
  {
@@ -14908,11 +25496,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No logons recorded.",
+  "text": "No logons recorded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
   "key": "No map pin was recorded for this incident.",
   "text": "No map pin was recorded for this incident.",
   "context": null,
   "where": [
    "apps/mobile/app/route/[id].tsx"
+  ]
+ },
+ {
+  "key": "No matching pages.",
+  "text": "No matching pages.",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "No members rostered for this date.",
+  "text": "No members rostered for this date.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
+  "key": "No members with this role.",
+  "text": "No members with this role.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/role-kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "No notifications",
+  "text": "No notifications",
+  "context": null,
+  "where": [
+   "apps/mobile/app/alerts.tsx"
   ]
  },
  {
@@ -14924,10 +25552,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No offences yet.",
+  "text": "No offences yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "No officer given yet.",
+  "text": "No officer given yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "No officer given.",
+  "text": "No officer given.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "No officer has responded to this incident yet.",
+  "text": "No officer has responded to this incident yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/bodycams-card.tsx"
+  ]
+ },
+ {
   "key": "No one by that name.",
   "text": "No one by that name.",
   "context": null,
   "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx",
    "apps/web/app/(app)/translations/translators-card.tsx"
   ]
  },
@@ -14938,6 +25599,79 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "No one is on duty to receive the dispatch.",
+  "text": "No one is on duty to receive the dispatch.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
+  ]
+ },
+ {
+  "key": "No open Disaster Management incidents.",
+  "text": "No open Disaster Management incidents.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx"
+  ]
+ },
+ {
+  "key": "No open calls. Calls sent to you appear here and in the HikTech app.",
+  "text": "No open calls. Calls sent to you appear here and in the HikTech app.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "No operator profiles.",
+  "text": "No operator profiles.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx"
+  ]
+ },
+ {
+  "key": "No partners registered.",
+  "text": "No partners registered.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx"
+  ]
+ },
+ {
+  "key": "No payments recorded.",
+  "text": "No payments recorded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/account/page.tsx"
+  ]
+ },
+ {
+  "key": "No perimeters or zones are in force.",
+  "text": "No perimeters or zones are in force.",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-tools.tsx"
+  ]
+ },
+ {
+  "key": "No periodic updates yet.",
+  "text": "No periodic updates yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "No personnel records for this department yet.",
+  "text": "No personnel records for this department yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/page.tsx"
   ]
  },
  {
@@ -14957,11 +25691,220 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No plans generated yet.",
+  "text": "No plans generated yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/page.tsx"
+  ]
+ },
+ {
+  "key": "No police reports yet. They appear here as officers file them.",
+  "text": "No police reports yet. They appear here as officers file them.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/parts.tsx"
+  ]
+ },
+ {
   "key": "No position — say where you are on the radio",
   "text": "No position — say where you are on the radio",
   "context": null,
   "where": [
    "apps/mobile/components/panic-button.tsx"
+  ]
+ },
+ {
+  "key": "No post-mortems filed.",
+  "text": "No post-mortems filed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/post-mortem/page.tsx"
+  ]
+ },
+ {
+  "key": "No posts defined for this department yet. Add one below to start the board.",
+  "text": "No posts defined for this department yet. Add one below to start the board.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "No punches in the last 7 days.",
+  "text": "No punches in the last 7 days.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/attendance/page.tsx"
+  ]
+ },
+ {
+  "key": "No radios in the register yet.",
+  "text": "No radios in the register yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx"
+  ]
+ },
+ {
+  "key": "No radios yet.",
+  "text": "No radios yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "No readiness checks found.",
+  "text": "No readiness checks found.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/readiness-review/page.tsx"
+  ]
+ },
+ {
+  "key": "No reason given (a private draft).",
+  "text": "No reason given (a private draft).",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
+  "key": "No reason was recorded for this change.",
+  "text": "No reason was recorded for this change.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "No recorded activity.",
+  "text": "No recorded activity.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/page.tsx"
+  ]
+ },
+ {
+  "key": "No records match these filters.",
+  "text": "No records match these filters.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "No records match your search.",
+  "text": "No records match your search.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "No report on file",
+  "text": "No report on file",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "No reports in this view.",
+  "text": "No reports in this view.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/activity/page.tsx"
+  ]
+ },
+ {
+  "key": "No reports match.",
+  "text": "No reports match.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "No restock entries.",
+  "text": "No restock entries.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
+  "key": "No rotation set up for this department yet. An administrator adds one under Shift setup.",
+  "text": "No rotation set up for this department yet. An administrator adds one under Shift setup.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "No scores recorded.",
+  "text": "No scores recorded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "No section",
+  "text": "No section",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
+  "key": "No sections defined.",
+  "text": "No sections defined.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "No sections yet.",
+  "text": "No sections yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "No sections yet. Add them under Sections first.",
+  "text": "No sections yet. Add them under Sections first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx"
+  ]
+ },
+ {
+  "key": "No security reports filed.",
+  "text": "No security reports filed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/page.tsx"
+  ]
+ },
+ {
+  "key": "No shifts in the last 30 days.",
+  "text": "No shifts in the last 30 days.",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/punctuality.tsx"
+  ]
+ },
+ {
+  "key": "No signal",
+  "text": "No signal",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -15005,11 +25948,107 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No staff list imported yet. Send HR the",
+  "text": "No staff list imported yet. Send HR the",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
+  "key": "No station given yet.",
+  "text": "No station given yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "No station given.",
+  "text": "No station given.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "No stations yet.",
+  "text": "No stations yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "No summonses on record.",
+  "text": "No summonses on record.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
+  "key": "No swaps.",
+  "text": "No swaps.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
   "key": "No swaps. Open a day to offer one of your shifts.",
   "text": "No swaps. Open a day to offer one of your shifts.",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx"
+  ]
+ },
+ {
+  "key": "No talk group",
+  "text": "No talk group",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
+  "key": "No tasks on the board.",
+  "text": "No tasks on the board.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
+  "key": "No team",
+  "text": "No team",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "No training logged.",
+  "text": "No training logged.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "No training records.",
+  "text": "No training records.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "No transactions recorded.",
+  "text": "No transactions recorded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/transactions/page.tsx"
   ]
  },
  {
@@ -15029,6 +26068,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No undo. Refused while users are still assigned, and the founding tenant can never be deleted. To switch a customer off reversibly, suspend them instead.",
+  "text": "No undo. Refused while users are still assigned, and the founding tenant can never be deleted. To switch a customer off reversibly, suspend them instead.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
   "key": "No unpaid fines for {who}.",
   "text": "No unpaid fines for {who}.",
   "context": null,
@@ -15045,6 +26092,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No updates logged.",
+  "text": "No updates logged.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "No updates yet.",
   "text": "No updates yet.",
   "context": null,
@@ -15053,11 +26108,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No users.",
+  "text": "No users.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
   "key": "No vehicles are on the fleet register. You can continue your shift without one.",
   "text": "No vehicles are on the fleet register. You can continue your shift without one.",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "No warrants on record.",
+  "text": "No warrants on record.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/warrants/page.tsx"
   ]
  },
  {
@@ -15074,6 +26145,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": "No, retired",
+  "text": "No, retired",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
   ]
  },
  {
@@ -15109,11 +26188,133 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No. {value}",
+  "text": "No. {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Nobody (a pool radio)",
+  "text": "Nobody (a pool radio)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
+  "key": "Nobody allocated.",
+  "text": "Nobody allocated.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Nobody found.",
+  "text": "Nobody found.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Nobody has opened a bodycam yet.",
+  "text": "Nobody has opened a bodycam yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
+  "key": "Nobody has started a shift today yet.",
+  "text": "Nobody has started a shift today yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "Nobody in this department has an account yet.",
+  "text": "Nobody in this department has an account yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Nobody is on duty for this section on this date.",
+  "text": "Nobody is on duty for this section on this date.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
+  "key": "Nobody is on the issued roster right now.",
+  "text": "Nobody is on the issued roster right now.",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/attendance-now.tsx"
+  ]
+ },
+ {
   "key": "Nobody is on the issued roster today.",
   "text": "Nobody is on the issued roster today.",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
+  "key": "Nobody is waiting: everyone invited has activated.",
+  "text": "Nobody is waiting: everyone invited has activated.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/chase-list.tsx"
+  ]
+ },
+ {
+  "key": "Nobody matches these filters.",
+  "text": "Nobody matches these filters.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Nobody matches.",
+  "text": "Nobody matches.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx",
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Nobody on duty.",
+  "text": "Nobody on duty.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/page.tsx"
+  ]
+ },
+ {
+  "key": "Nobody to show.",
+  "text": "Nobody to show.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Nobody yet",
+  "text": "Nobody yet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx"
   ]
  },
  {
@@ -15137,6 +26338,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "None",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/reports/builder/builder-client.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/api/src/police/report-types.ts",
    "packages/db/src/fire-report.ts",
@@ -15176,6 +26380,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "None drawn{value}",
+  "text": "None drawn{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
   "key": "None in force for you right now.",
   "text": "None in force for you right now.",
   "context": null,
@@ -15189,6 +26401,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "None set for {incidentNumber} yet.",
+  "text": "None set for {incidentNumber} yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/zones-card.tsx"
   ]
  },
  {
@@ -15208,6 +26428,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "None.",
+  "text": "None.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "None: {noBodycam}",
+  "text": "None: {noBodycam}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
   "key": "Norinco",
   "text": "Norinco",
   "context": null,
@@ -15222,6 +26458,15 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Not Transported",
+  "text": "Not Transported",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx",
+   "apps/web/app/(app)/medical/pcr/page.tsx"
   ]
  },
  {
@@ -15246,6 +26491,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Not allocated",
+  "text": "Not allocated",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
   ]
  },
  {
@@ -15289,6 +26542,31 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Not confirmed",
+  "text": "Not confirmed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Not delivered",
+  "text": "Not delivered",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
+  "key": "Not done",
+  "text": "Not done",
+  "context": null,
+  "where": [
+   "apps/web/components/office/action-form.tsx",
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
   "key": "Not enabled",
   "text": "Not enabled",
   "context": null,
@@ -15307,11 +26585,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Not found",
+  "text": "Not found",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/not-found.tsx"
+  ]
+ },
+ {
+  "key": "Not given yet",
+  "text": "Not given yet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Not in the charge book — describe it",
+  "text": "Not in the charge book — describe it",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
+  ]
+ },
+ {
   "key": "Not in the list — describe the offence",
   "text": "Not in the list — describe the offence",
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "Not in the register.",
+  "text": "Not in the register.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Not in this list",
+  "text": "Not in this list",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Not in use",
+  "text": "Not in use",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
   ]
  },
  {
@@ -15336,7 +26662,24 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/closed-incidents.tsx",
+   "apps/web/app/(app)/incidents/[id]/case-forms.tsx",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Not on a dispatched call",
+  "text": "Not on a dispatched call",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Not on the roster this day.",
+  "text": "Not on the roster this day.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
   ]
  },
  {
@@ -15356,6 +26699,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Not recorded",
+  "text": "Not recorded",
+  "context": null,
+  "where": [
+   "apps/web/components/department-pills.tsx"
+  ]
+ },
+ {
   "key": "Not scored yet",
   "text": "Not scored yet",
   "context": null,
@@ -15364,11 +26715,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Not signed",
+  "text": "Not signed",
+  "context": null,
+  "where": [
+   "apps/web/components/pcr-card.tsx"
+  ]
+ },
+ {
   "key": "Not started",
   "text": "Not started",
   "context": null,
   "where": [
+   "apps/web/components/schedule/attendance-now.tsx",
    "packages/api/src/schedule/rules.ts"
+  ]
+ },
+ {
+  "key": "Not started after (minutes)",
+  "text": "Not started after (minutes)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
   ]
  },
  {
@@ -15377,6 +26745,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/schedule/rules.ts"
+  ]
+ },
+ {
+  "key": "Not submitted (N)",
+  "text": "Not submitted (N)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Not today",
+  "text": "Not today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
   ]
  },
  {
@@ -15431,12 +26815,33 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Note",
+  "text": "Note",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/row-actions.tsx"
+  ]
+ },
+ {
   "key": "Note (optional)",
   "text": "Note (optional)",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx",
-   "apps/mobile/app/(tabs)/shift.tsx"
+   "apps/mobile/app/(tabs)/shift.tsx",
+   "apps/web/app/(app)/admin/invitations/row-actions.tsx",
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
+  "key": "Note (required to reject; the requester is told)",
+  "text": "Note (required to reject; the requester is told)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/request-decision.tsx"
   ]
  },
  {
@@ -15448,13 +26853,46 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Note on the duty sheet (optional)",
+  "text": "Note on the duty sheet (optional)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Note on why",
+  "text": "Note on why",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
+  "key": "Note, e.g. the representation reference",
+  "text": "Note, e.g. the representation reference",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
+  ]
+ },
+ {
   "key": "Notes",
   "text": "Notes",
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx",
    "apps/mobile/components/ems-shift.tsx",
-   "apps/mobile/components/shift-bodycam.tsx"
+   "apps/mobile/components/shift-bodycam.tsx",
+   "apps/web/app/(app)/admin/radios/radio-form.tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/firearms/new/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -15462,7 +26900,11 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Notes (optional)",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/charges/page.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
+   "apps/web/app/(app)/police/summons/page.tsx",
+   "apps/web/app/(app)/police/warrants/page.tsx"
   ]
  },
  {
@@ -15474,11 +26916,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Notes (who handed it in, and why here)",
+  "text": "Notes (who handed it in, and why here)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "Notes / outcomes",
+  "text": "Notes / outcomes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
   "key": "Nothing assigned to you",
   "text": "Nothing assigned to you",
   "context": null,
   "where": [
    "apps/mobile/components/incidents-list.tsx"
+  ]
+ },
+ {
+  "key": "Nothing attached to this call.",
+  "text": "Nothing attached to this call.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
   ]
  },
  {
@@ -15498,11 +26965,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Nothing closed yet.",
+  "text": "Nothing closed yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing decided yet.",
+  "text": "Nothing decided yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/approvals/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing expiring this month.",
+  "text": "Nothing expiring this month.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hr/page.tsx"
+  ]
+ },
+ {
   "key": "Nothing found for “{value}”. Try a street or a nearby place, or click the map.",
   "text": "Nothing found for “{value}”. Try a street or a nearby place, or click the map.",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/place-search.tsx"
+  ]
+ },
+ {
+  "key": "Nothing here yet.",
+  "text": "Nothing here yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/feed.tsx"
   ]
  },
  {
@@ -15514,11 +27013,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Nothing is calling the engine",
+  "text": "Nothing is calling the engine",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing is waiting for approval.",
+  "text": "Nothing is waiting for approval.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/approvals/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing is waiting for dispatch right now.",
+  "text": "Nothing is waiting for dispatch right now.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
   "key": "Nothing matches",
   "text": "Nothing matches",
   "context": null,
   "where": [
    "apps/mobile/app/fines/index.tsx"
+  ]
+ },
+ {
+  "key": "Nothing matches “{query}”. Partial identifiers work — try fewer characters, or the surname on its own.",
+  "text": "Nothing matches “{query}”. Partial identifiers work — try fewer characters, or the surname on its own.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/search/page.tsx"
   ]
  },
  {
@@ -15530,12 +27061,118 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Nothing needs your attention right now.",
+  "text": "Nothing needs your attention right now.",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/insight-tiles.tsx"
+  ]
+ },
+ {
+  "key": "Nothing on the register for this account.",
+  "text": "Nothing on the register for this account.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
+  ]
+ },
+ {
   "key": "Nothing on your roster in the next day.",
   "text": "Nothing on your roster in the next day.",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx",
-   "apps/mobile/components/my-shifts-card.tsx"
+   "apps/mobile/components/my-shifts-card.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
+  "key": "Nothing outstanding.",
+  "text": "Nothing outstanding.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing published yet.",
+  "text": "Nothing published yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing recorded yet.",
+  "text": "Nothing recorded yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/attendance/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing recorded.",
+  "text": "Nothing recorded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing said on this radio in the last 2 hours.",
+  "text": "Nothing said on this radio in the last 2 hours.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Nothing sent yet.",
+  "text": "Nothing sent yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing sent.",
+  "text": "Nothing sent.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing that was served can be edited. These are kept on the record.",
+  "text": "Nothing that was served can be edited. These are kept on the record.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
+  ]
+ },
+ {
+  "key": "Nothing waiting.",
+  "text": "Nothing waiting.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing waiting. Every filed report has been reviewed.",
+  "text": "Nothing waiting. Every filed report has been reviewed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing waiting. 🎉",
+  "text": "Nothing waiting. 🎉",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hr/page.tsx"
   ]
  },
  {
@@ -15544,6 +27181,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "Nothing yet.",
+  "text": "Nothing yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
   ]
  },
  {
@@ -15559,7 +27204,27 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Notice",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
+  ]
+ },
+ {
+  "key": "Notice type",
+  "text": "Notice type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "Notifications",
+  "text": "Notifications",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/components/toast.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -15600,6 +27265,24 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Now in {value}. Their role for invitation is cleared, and any open invitation is cancelled.",
+  "text": "Now in {value}. Their role for invitation is cleared, and any open invitation is cancelled.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Now:",
+  "text": "Now:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
   "key": "Now: {shift}",
   "text": "Now: {shift}",
   "context": null,
@@ -15616,6 +27299,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Number in file",
+  "text": "Number in file",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
   "key": "Number of passengers",
   "text": "Number of passengers",
   "context": null,
@@ -15629,6 +27320,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx"
+  ]
+ },
+ {
+  "key": "Number of victims",
+  "text": "Number of victims",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Numbered station tasks — inspections, calibrations, restocks — with owners and due dates.",
+  "text": "Numbered station tasks — inspections, calibrations, restocks — with owners and due dates.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
+  "key": "O/N Sign",
+  "text": "O/N Sign",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
+  "key": "O/N Time",
+  "text": "O/N Time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
   ]
  },
  {
@@ -15688,11 +27411,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "OFF Sign",
+  "text": "OFF Sign",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
+  "key": "OFF Time",
+  "text": "OFF Time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
   "key": "OK",
   "text": "OK",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "OK — Save Duty",
+  "text": "OK — Save Duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx"
+  ]
+ },
+ {
+  "key": "ON AIR",
+  "text": "ON AIR",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
   ]
  },
  {
@@ -15717,6 +27472,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "OT Sign",
+  "text": "OT Sign",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
+  "key": "OT Time",
+  "text": "OT Time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
   ]
  },
  {
@@ -15779,11 +27550,37 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Off",
+  "text": "Off",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
   "key": "Off duty",
   "text": "Off duty",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/profile.tsx"
+   "apps/mobile/app/(tabs)/profile.tsx",
+   "apps/web/app/(app)/hierarchy/page.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "Off on public holidays",
+  "text": "Off on public holidays",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Off today ({length})",
+  "text": "Off today ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
   ]
  },
  {
@@ -15815,7 +27612,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Offence",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx",
+   "apps/web/app/(app)/police/summons/page.tsx"
   ]
  },
  {
@@ -15827,6 +27626,38 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Offence time",
+  "text": "Offence time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Offence {value}",
+  "text": "Offence {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
+  ]
+ },
+ {
+  "key": "Offence, as officers will read it",
+  "text": "Offence, as officers will read it",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "Offender",
+  "text": "Offender",
+  "context": null,
+  "where": [
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
   "key": "Offer a swap",
   "text": "Offer a swap",
   "context": null,
@@ -15835,11 +27666,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Office",
+  "text": "Office",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Office only (members cannot ask for it)",
+  "text": "Office only (members cannot ask for it)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
   "key": "Officer",
   "text": "Officer",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx",
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
+   "apps/web/app/(app)/police/reports/new/report-form.tsx",
+   "apps/web/app/(app)/police/reports/reports-list.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx",
+   "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -15852,11 +27707,53 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Officer ID",
+  "text": "Officer ID",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Officer emergency",
+  "text": "Officer emergency",
+  "context": null,
+  "where": [
+   "apps/web/components/panic-banner.tsx"
+  ]
+ },
+ {
+  "key": "Officer enters",
+  "text": "Officer enters",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "Officer in charge",
+  "text": "Officer in charge",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
   "key": "Officer narrative",
   "text": "Officer narrative",
   "context": null,
   "where": [
+   "apps/web/app/(app)/incidents/[id]/report-card.tsx",
    "packages/api/src/police/report-types.ts"
+  ]
+ },
+ {
+  "key": "Officer performance proxy until full analytics land.",
+  "text": "Officer performance proxy until full analytics land.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/page.tsx"
   ]
  },
  {
@@ -15876,6 +27773,55 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Officer, badge, serial, station",
+  "text": "Officer, badge, serial, station",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/bodycam-wall.tsx"
+  ]
+ },
+ {
+  "key": "Officers",
+  "text": "Officers",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "Officers on duty",
+  "text": "Officers on duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/officer-picker.tsx",
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
+  "key": "Officers out",
+  "text": "Officers out",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Officers see it on the phone the next time the app has signal.",
+  "text": "Officers see it on the phone the next time the app has signal.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "Officers, routes and minutes away",
+  "text": "Officers, routes and minutes away",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
   "key": "Official",
   "text": "Official",
   "context": null,
@@ -15892,11 +27838,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Official After-Action Reports. Filing one resolves the incident.",
+  "text": "Official After-Action Reports. Filing one resolves the incident.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/post-mortem/page.tsx"
+  ]
+ },
+ {
+  "key": "Official insignia belong to the municipality and its services, so the platform ships none — upload each department's real crest here and it appears everywhere immediately. Until then a monogram badge renders in that department's colours, so nothing ever looks unfinished. PNG or SVG with a transparent background works best; square crops read cleanest at small sizes.",
+  "text": "Official insignia belong to the municipality and its services, so the platform ships none — upload each department's real crest here and it appears everywhere immediately. Until then a monogram badge renders in that department's colours, so nothing ever looks unfinished. PNG or SVG with a transparent background works best; square crops read cleanest at small sizes.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/page.tsx"
+  ]
+ },
+ {
+  "key": "Official name",
+  "text": "Official name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
+  ]
+ },
+ {
   "key": "Official notice number",
   "text": "Official notice number",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
   ]
  },
  {
@@ -15910,6 +27881,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "On",
+  "text": "On",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
   "key": "On Scene",
   "text": "On Scene",
   "context": null,
@@ -15918,12 +27897,41 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "On Shift",
+  "text": "On Shift",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
   "key": "On duty",
   "text": "On duty",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx",
-   "apps/mobile/lib/tracker.ts"
+   "apps/mobile/lib/tracker.ts",
+   "apps/web/app/(app)/hierarchy/page.tsx",
+   "apps/web/app/(app)/profile/my-hr/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx"
+  ]
+ },
+ {
+  "key": "On duty now",
+  "text": "On duty now",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx",
+   "apps/web/app/(app)/dashboard/page.tsx",
+   "apps/web/app/(app)/performance/page.tsx"
+  ]
+ },
+ {
+  "key": "On duty{value}",
+  "text": "On duty{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
   ]
  },
  {
@@ -15932,7 +27940,36 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx",
+   "apps/web/app/(app)/roster/planner.tsx",
+   "apps/web/components/schedule/attendance-now.tsx",
    "packages/api/src/schedule/rules.ts"
+  ]
+ },
+ {
+  "key": "On leave ({length})",
+  "text": "On leave ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
+  "key": "On leave today",
+  "text": "On leave today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "On now ({length})",
+  "text": "On now ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
   ]
  },
  {
@@ -15951,7 +27988,34 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/my-performance.tsx",
    "apps/mobile/components/closed-incidents.tsx",
    "apps/mobile/components/home-header.tsx",
-   "apps/mobile/components/incidents-list.tsx"
+   "apps/mobile/components/incidents-list.tsx",
+   "apps/web/app/(app)/incidents/[id]/departments-card.tsx",
+   "apps/web/app/(app)/incidents/[id]/report-card.tsx",
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "On scene. Fill the report as the crew tells you.",
+  "text": "On scene. Fill the report as the crew tells you.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "On {absence}",
+  "text": "On {absence}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "On-duty roster",
+  "text": "On-duty roster",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/page.tsx"
   ]
  },
  {
@@ -15979,6 +28043,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Once approved, {value} prints the activation slip and hands it over in person.",
+  "text": "Once approved, {value} prints the activation slip and hands it over in person.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/approvals/page.tsx"
+  ]
+ },
+ {
   "key": "Once it has been cleaned, fleet control returns it to service.",
   "text": "Once it has been cleaned, fleet control returns it to service.",
   "context": null,
@@ -15992,6 +28064,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/report-wizard.tsx"
+  ]
+ },
+ {
+  "key": "One at a time. For many, use the import with the template.",
+  "text": "One at a time. For many, use the import with the template.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
+  "key": "One at a time. For the whole armoury, use the import with the template.",
+  "text": "One at a time. For the whole armoury, use the import with the template.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/page.tsx"
+  ]
+ },
+ {
+  "key": "One at a time. For the whole fleet, use the import with the template.",
+  "text": "One at a time. For the whole fleet, use the import with the template.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/page.tsx"
+  ]
+ },
+ {
+  "key": "One person",
+  "text": "One person",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
   ]
  },
  {
@@ -16011,6 +28115,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Online only",
+  "text": "Online only",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Only Staff Maintenance and the member can see this.",
+  "text": "Only Staff Maintenance and the member can see this.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Only a translator for this language approves. You can save drafts.",
   "text": "Only a translator for this language approves. You can save drafts.",
   "context": null,
@@ -16024,6 +28144,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/translations/page.tsx"
+  ]
+ },
+ {
+  "key": "Only fines I issued",
+  "text": "Only fines I issued",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "Only me",
+  "text": "Only me",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Only officers who went on duty in the app after today's start of shift are listed. Distance is straight-line from their last GPS heartbeat; ETA assumes {speedKmh} km/h with a {roadFactor}× road factor (Admin → Operations Settings).",
+  "text": "Only officers who went on duty in the app after today's start of shift are listed. Distance is straight-line from their last GPS heartbeat; ETA assumes {speedKmh} km/h with a {roadFactor}× road factor (Admin → Operations Settings).",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
+  ]
+ },
+ {
+  "key": "Only someone senior to the member, in their department, can approve. Nobody approves their own.",
+  "text": "Only someone senior to the member, in their department, can approve. Nobody approves their own.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
   ]
  },
  {
@@ -16091,6 +28243,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Only you",
+  "text": "Only you",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
   "key": "Opel",
   "text": "Opel",
   "context": null,
@@ -16103,7 +28263,33 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Open",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/rollout/chase-list.tsx",
+   "apps/web/app/(app)/admin/status/page.tsx",
+   "apps/web/app/(app)/dashboard/page.tsx",
+   "apps/web/app/(app)/disaster/post-mortem/page.tsx",
+   "apps/web/app/(app)/fire/page.tsx",
+   "apps/web/app/(app)/fire/reports/page.tsx",
+   "apps/web/app/(app)/incidents/page.tsx",
+   "apps/web/app/(app)/medical/page.tsx",
+   "apps/web/app/(app)/medical/pcr/page.tsx",
+   "apps/web/app/(app)/notifications/feed.tsx",
+   "apps/web/app/(app)/performance/plans/page.tsx",
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/reports/reports-list.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx",
+   "apps/web/app/(app)/reports/page.tsx",
+   "apps/web/app/(app)/sanral/page.tsx",
+   "apps/web/components/pcr-card.tsx",
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Open EMS operations →",
+  "text": "Open EMS operations →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
   ]
  },
  {
@@ -16115,11 +28301,99 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Open a charge",
+  "text": "Open a charge",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
+  "key": "Open a plan to record mid-year or final scores.",
+  "text": "Open a plan to record mid-year or final scores.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/page.tsx"
+  ]
+ },
+ {
+  "key": "Open account",
+  "text": "Open account",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
+  ]
+ },
+ {
+  "key": "Open again",
+  "text": "Open again",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
+  "key": "Open an account to change its role or deactivate it. Every change needs a reason, is recorded permanently, and reaches the person straight away. New people join by invitation.",
+  "text": "Open an account to change its role or deactivate it. Every change needs a reason, is recorded permanently, and reaches the person straight away. New people join by invitation.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
   "key": "Open and respond",
   "text": "Open and respond",
   "context": null,
   "where": [
    "apps/mobile/components/service-home.tsx"
+  ]
+ },
+ {
+  "key": "Open board →",
+  "text": "Open board →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "Open charge",
+  "text": "Open charge",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
+  "key": "Open duty board →",
+  "text": "Open duty board →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Open feed",
+  "text": "Open feed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/live-wall.tsx"
+  ]
+ },
+ {
+  "key": "Open full map",
+  "text": "Open full map",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Open full report",
+  "text": "Open full report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/fire-report-card.tsx"
   ]
  },
  {
@@ -16131,12 +28405,70 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Open in the form",
+  "text": "Open in the form",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/proposal-card.tsx"
+  ]
+ },
+ {
   "key": "Open incident",
   "text": "Open incident",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx",
-   "apps/mobile/components/service-home.tsx"
+   "apps/mobile/components/service-home.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
+  "key": "Open navigation",
+  "text": "Open navigation",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Open on i-traffic",
+  "text": "Open on i-traffic",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/itraffic-map.tsx"
+  ]
+ },
+ {
+  "key": "Open register →",
+  "text": "Open register →",
+  "context": null,
+  "where": [
+   "apps/web/components/fines-panel.tsx"
+  ]
+ },
+ {
+  "key": "Open the HikTech app and tap “I have an activation code”.",
+  "text": "Open the HikTech app and tap “I have an activation code”.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
+  "key": "Open the Radio Desk",
+  "text": "Open the Radio Desk",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx"
+  ]
+ },
+ {
+  "key": "Open the app and go to",
+  "text": "Open the app and go to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/mental-check/page.tsx"
   ]
  },
  {
@@ -16145,7 +28477,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
-   "apps/web/app/(app)/dispatch/log-call/page.tsx"
+   "apps/web/app/(app)/dispatch/log-call/page.tsx",
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx",
+   "apps/web/components/criti/proposal-card.tsx"
   ]
  },
  {
@@ -16153,7 +28487,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Open the incident",
   "context": null,
   "where": [
-   "apps/mobile/app/fire-report/[id].tsx"
+   "apps/mobile/app/fire-report/[id].tsx",
+   "apps/web/app/(app)/medical/pcr/[id]/page.tsx",
+   "apps/web/components/police-report-view.tsx"
   ]
  },
  {
@@ -16165,11 +28501,113 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Open →",
+  "text": "Open →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx",
+   "apps/web/components/toast.tsx"
+  ]
+ },
+ {
+  "key": "Opened vs closed over the last 6 months.",
+  "text": "Opened vs closed over the last 6 months.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
+  ]
+ },
+ {
+  "key": "Opening…",
+  "text": "Opening…",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
+  "key": "Operation",
+  "text": "Operation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
   "key": "Operational Analysis",
   "text": "Operational Analysis",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
+  ]
+ },
+ {
+  "key": "Operational KPI console",
+  "text": "Operational KPI console",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "Operational KPIs",
+  "text": "Operational KPIs",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Operational Systems",
+  "text": "Operational Systems",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Operational metrics · refreshed {saTime}",
+  "text": "Operational metrics · refreshed {saTime}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/kpi/page.tsx"
+  ]
+ },
+ {
+  "key": "Operational timeline",
+  "text": "Operational timeline",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Operations",
+  "text": "Operations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/components/ops-command-bar.tsx",
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Operations Settings",
+  "text": "Operations Settings",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Operations settings",
+  "text": "Operations settings",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operations/page.tsx"
   ]
  },
  {
@@ -16181,11 +28619,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Operator role",
+  "text": "Operator role",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx"
+  ]
+ },
+ {
+  "key": "Operator throughput for the period.",
+  "text": "Operator throughput for the period.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
   "key": "Operator's name",
   "text": "Operator's name",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Operators",
+  "text": "Operators",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -16247,11 +28710,37 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Order",
+  "text": "Order",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
+  ]
+ },
+ {
   "key": "Organisation",
   "text": "Organisation",
   "context": null,
   "where": [
-   "apps/mobile/app/activate.tsx"
+   "apps/mobile/app/activate.tsx",
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx",
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Organisation Settings",
+  "text": "Organisation Settings",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Organisations",
+  "text": "Organisations",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -16259,6 +28748,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Origin & cause",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -16269,6 +28759,10 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/lib/inspection-187c.ts",
    "apps/mobile/lib/performance.ts",
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/fines.ts",
    "packages/db/src/fire-report.ts",
@@ -16288,7 +28782,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Other agencies on scene",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Other answers",
+  "text": "Other answers",
+  "context": null,
+  "where": [
+   "apps/web/components/police-report-view.tsx"
   ]
  },
  {
@@ -16356,6 +28859,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Outstanding",
+  "text": "Outstanding",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "Outstanding issues highlighted — record the return inline.",
+  "text": "Outstanding issues highlighted — record the return inline.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/page.tsx"
+  ]
+ },
+ {
   "key": "Overall Patient Response to Treatment",
   "text": "Overall Patient Response to Treatment",
   "context": null,
@@ -16385,6 +28904,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/index.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/components/fines-panel.tsx",
    "packages/db/src/fines.ts"
   ]
  },
@@ -16402,6 +28923,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Overtime",
+  "text": "Overtime",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
   ]
  },
  {
@@ -16429,6 +28958,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Overview",
+  "text": "Overview",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Owes {amount} on 1 unpaid fine",
   "text": "Owes {amount} on 1 unpaid fine",
   "context": null,
@@ -16445,6 +28983,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Owing today",
+  "text": "Owing today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
   "key": "Owner",
   "text": "Owner",
   "context": null,
@@ -16457,6 +29003,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Owner contact",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -16557,6 +29104,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "PDF export lands with the Edge Function phase.",
+  "text": "PDF export lands with the Edge Function phase.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "PIR desk →",
+  "text": "PIR desk →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
+  ]
+ },
+ {
+  "key": "PIR number",
+  "text": "PIR number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
   "key": "PO (Oral)",
   "text": "PO (Oral)",
   "context": null,
@@ -16565,10 +29136,45 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "POPIA notice v{value} accepted",
+  "text": "POPIA notice v{value} accepted",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/page.tsx"
+  ]
+ },
+ {
+  "key": "Page {page} of {pages}",
+  "text": "Page {page} of {pages}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/records/page.tsx",
+   "apps/web/app/(app)/shift/readiness-review/page.tsx"
+  ]
+ },
+ {
+  "key": "Page {value} of {pages}",
+  "text": "Page {value} of {pages}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Pages",
+  "text": "Pages",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/records/page.tsx",
+   "apps/web/components/command-palette.tsx"
+  ]
+ },
+ {
   "key": "Paid",
   "text": "Paid",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
    "packages/db/src/fines.ts"
   ]
  },
@@ -16586,6 +29192,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Paid inside the 32 days keeps the AARTO discount, even when captured later.",
+  "text": "Paid inside the 32 days keeps the AARTO discount, even when captured later.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
   ]
  },
  {
@@ -16622,11 +29236,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Paper-style issue and return authorisations. The firearms themselves, and who holds each, are in the",
+  "text": "Paper-style issue and return authorisations. The firearms themselves, and who holds each, are in the",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/page.tsx"
+  ]
+ },
+ {
   "key": "Paramedic",
   "text": "Paramedic",
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": "Parameters",
+  "text": "Parameters",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
+  ]
+ },
+ {
+  "key": "Parameters (JSON)",
+  "text": "Parameters (JSON)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
+  ]
+ },
+ {
+  "key": "Parent group (leave blank to add a group)",
+  "text": "Parent group (leave blank to add a group)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/config/page.tsx"
   ]
  },
  {
@@ -16664,6 +29310,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Partner",
+  "text": "Partner",
+  "context": null,
+  "where": [
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
   "key": "Partner / crew member",
   "text": "Partner / crew member",
   "context": null,
@@ -16672,11 +29326,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Pass requires every safety item ticked — the form cannot claim otherwise.",
+  "text": "Pass requires every safety item ticked — the form cannot claim otherwise.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearm-checks/page.tsx"
+  ]
+ },
+ {
   "key": "Passed",
   "text": "Passed",
   "context": null,
   "where": [
-   "apps/mobile/app/firearm-check.tsx"
+   "apps/mobile/app/firearm-check.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx"
   ]
  },
  {
@@ -16717,7 +29380,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/activate.tsx",
-   "apps/mobile/app/login.tsx"
+   "apps/mobile/app/login.tsx",
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Password resets go through Supabase Auth — use “Forgot password” on the login page.",
+  "text": "Password resets go through Supabase Auth — use “Forgot password” on the login page.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -16725,7 +29397,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Password rules",
   "context": null,
   "where": [
-   "apps/mobile/app/activate.tsx"
+   "apps/mobile/app/activate.tsx",
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
@@ -16785,6 +29458,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Patient Care",
+  "text": "Patient Care",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
   "key": "Patient Report",
   "text": "Patient Report",
   "context": null,
@@ -16801,11 +29482,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Patient care reports, newest first.",
+  "text": "Patient care reports, newest first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/page.tsx"
+  ]
+ },
+ {
+  "key": "Patient care report{value}",
+  "text": "Patient care report{value}",
+  "context": null,
+  "where": [
+   "apps/web/components/pcr-card.tsx"
+  ]
+ },
+ {
   "key": "Patient handovers",
   "text": "Patient handovers",
   "context": null,
   "where": [
    "apps/mobile/components/doctor-home.tsx"
+  ]
+ },
+ {
+  "key": "Patient name",
+  "text": "Patient name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
   ]
  },
  {
@@ -16821,6 +29526,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Patient name, if known",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
   ]
  },
@@ -16849,6 +29555,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Patient reports today",
+  "text": "Patient reports today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
   "key": "Patient {n}",
   "text": "Patient {n}",
   "context": null,
@@ -16857,11 +29571,80 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Patients",
+  "text": "Patients",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx",
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Patients handed over by EMS crews, newest first.",
+  "text": "Patients handed over by EMS crews, newest first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/handovers/page.tsx"
+  ]
+ },
+ {
+  "key": "Patrol",
+  "text": "Patrol",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Patrol area",
+  "text": "Patrol area",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
   "key": "Pay by {date}",
   "text": "Pay by {date}",
   "context": null,
   "where": [
    "apps/mobile/app/fines/[id].tsx"
+  ]
+ },
+ {
+  "key": "Paying",
+  "text": "Paying",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
+  "key": "Payment",
+  "text": "Payment",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
+  "key": "Payments",
+  "text": "Payments",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Payments ({length})",
+  "text": "Payments ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
   ]
  },
  {
@@ -16881,6 +29664,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Penalty",
+  "text": "Penalty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
   "key": "Penalty amount (R)",
   "text": "Penalty amount (R)",
   "context": null,
@@ -16893,7 +29685,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Pending",
   "context": null,
   "where": [
-   "apps/mobile/app/my-performance.tsx"
+   "apps/mobile/app/my-performance.tsx",
+   "apps/web/app/(app)/command/page.tsx"
   ]
  },
  {
@@ -16902,6 +29695,71 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Pending Dispatch",
+  "text": "Pending Dispatch",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Pending Queue",
+  "text": "Pending Queue",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Pending approvals",
+  "text": "Pending approvals",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Pending dispatch",
+  "text": "Pending dispatch",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Pending leave approvals",
+  "text": "Pending leave approvals",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "People",
+  "text": "People",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "People & Duty",
+  "text": "People & Duty",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "People & Resources",
+  "text": "People & Resources",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -16917,6 +29775,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "People hurt",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
   ]
  },
@@ -16929,6 +29788,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "People readiness at a glance — coverage, approvals waiting, and what expires next.",
+  "text": "People readiness at a glance — coverage, approvals waiting, and what expires next.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hr/page.tsx"
+  ]
+ },
+ {
   "key": "People trapped by flood water",
   "text": "People trapped by flood water",
   "context": null,
@@ -16937,11 +29804,136 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Performance",
+  "text": "Performance",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Performance & analytics",
+  "text": "Performance & analytics",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/page.tsx"
+  ]
+ },
+ {
+  "key": "Performance KPI configuration",
+  "text": "Performance KPI configuration",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "Performance Reports",
+  "text": "Performance Reports",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Performance appraisal — {cycleLabel}",
+  "text": "Performance appraisal — {cycleLabel}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "Performance reports",
+  "text": "Performance reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "Performance snapshot — {cycleLabel}",
+  "text": "Performance snapshot — {cycleLabel}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/my-hr/page.tsx"
+  ]
+ },
+ {
+  "key": "Perimeters",
+  "text": "Perimeters",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Perimeters & zones",
   "text": "Perimeters & zones",
   "context": null,
   "where": [
-   "apps/mobile/app/live-map.tsx"
+   "apps/mobile/app/live-map.tsx",
+   "apps/web/components/ops-map/zones/zone-tools.tsx"
+  ]
+ },
+ {
+  "key": "Perimeters & zones ({length})",
+  "text": "Perimeters & zones ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/zones-card.tsx"
+  ]
+ },
+ {
+  "key": "Perimeters and zones in force",
+  "text": "Perimeters and zones in force",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
+  "key": "Period",
+  "text": "Period",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "Permanent record",
+  "text": "Permanent record",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/fire-report-card.tsx",
+   "apps/web/app/(app)/incidents/[id]/report-card.tsx"
+  ]
+ },
+ {
+  "key": "Permanent. It cannot be edited or deleted, by anyone.",
+  "text": "Permanent. It cannot be edited or deleted, by anyone.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Persal",
+  "text": "Persal",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Persal no.",
+  "text": "Persal no.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -16949,6 +29941,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Person",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -16969,6 +29963,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Personal details",
+  "text": "Personal details",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx"
+  ]
+ },
+ {
   "key": "Personal readiness",
   "text": "Personal readiness",
   "context": null,
@@ -16978,10 +29981,33 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Personnel",
+  "text": "Personnel",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx",
+   "apps/web/app/(app)/admin/personnel/import/page.tsx",
+   "apps/web/app/(app)/admin/personnel/page.tsx",
+   "apps/web/app/(app)/admin/rollout/page.tsx",
+   "apps/web/app/(app)/performance/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Personnel on duty",
+  "text": "Personnel on duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
   "key": "Persons rescued",
   "text": "Persons rescued",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -16999,6 +30025,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Phone",
+  "text": "Phone",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -17044,6 +30078,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Photos ({length}/10)",
+  "text": "Photos ({length}/10)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Photos and voice notes are stored on the phone first and filed into the {file} the moment there is signal — capture them whether or not you have coverage. Filed {media} cannot be deleted.",
   "text": "Photos and voice notes are stored on the phone first and filed into the {file} the moment there is signal — capture them whether or not you have coverage. Filed {media} cannot be deleted.",
   "context": null,
@@ -17057,6 +30099,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "Photos, voice notes and files captured at the scene.",
+  "text": "Photos, voice notes and files captured at the scene.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -17084,11 +30134,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Pick a section and dates, then pair call signs with staff.",
+  "text": "Pick a section and dates, then pair call signs with staff.",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
   "key": "Pick from the charge book instead",
   "text": "Pick from the charge book instead",
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "Pick the document it settles against — a charge or a fine, never neither.",
+  "text": "Pick the document it settles against — a charge or a fine, never neither.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
+  "key": "Pick the look that suits your control room. Saved to this browser and applied instantly.",
+  "text": "Pick the look that suits your control room. Saved to this browser and applied instantly.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -17105,6 +30179,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Pin who this member reports to, or leave it automatic (inferred from rank).",
+  "text": "Pin who this member reports to, or leave it automatic (inferred from rank).",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
   ]
  },
  {
@@ -17132,6 +30214,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Place, call, case number",
+  "text": "Place, call, case number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
   "key": "Places found",
   "text": "Places found",
   "context": null,
@@ -17148,11 +30238,96 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Plate",
+  "text": "Plate",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
+  "key": "Platform",
+  "text": "Platform",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx",
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Platform Settings",
+  "text": "Platform Settings",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Platform id",
+  "text": "Platform id",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
+  "key": "Platoon",
+  "text": "Platoon",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx",
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx"
+  ]
+ },
+ {
+  "key": "Play",
+  "text": "Play",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx"
+  ]
+ },
+ {
+  "key": "Plays a public sample video in every bodycam feed, marked as a test, until the platform is connected.",
+  "text": "Plays a public sample video in every bodycam feed, marked as a test, until the platform is connected.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
+  ]
+ },
+ {
   "key": "Please select the apparatus you will be operating for this shift.",
   "text": "Please select the apparatus you will be operating for this shift.",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "Point of origin — object",
+  "text": "Point of origin — object",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Point of origin — room/area",
+  "text": "Point of origin — room/area",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Points",
+  "text": "Points",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
   ]
  },
  {
@@ -17169,7 +30344,62 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/intake-ui.tsx",
+   "apps/web/components/sidebar.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Police Operations",
+  "text": "Police Operations",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Police Reports",
+  "text": "Police Reports",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Police operations",
+  "text": "Police operations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx"
+  ]
+ },
+ {
+  "key": "Police reports",
+  "text": "Police reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/report-centre/page.tsx",
+   "apps/web/app/(app)/police/report-centre/parts.tsx",
+   "apps/web/app/(app)/police/reports/incident/page.tsx",
+   "apps/web/app/(app)/police/reports/new/page.tsx",
+   "apps/web/app/(app)/police/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "Police reports at a glance: where they stand, what was filed, and by whom.",
+  "text": "Police reports at a glance: where they stand, what was filed, and by whom.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Police reports{value}",
+  "text": "Police reports{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx"
   ]
  },
  {
@@ -17249,7 +30479,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Post",
   "context": null,
   "where": [
-   "apps/mobile/app/incident/[id].tsx"
+   "apps/mobile/app/incident/[id].tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -17257,7 +30488,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Post code",
   "context": null,
   "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Post name",
+  "text": "Post name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
   ]
  },
  {
@@ -17265,7 +30505,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Post-Incident Vehicle Status",
   "context": null,
   "where": [
-   "apps/mobile/app/pcr/[id].tsx"
+   "apps/mobile/app/pcr/[id].tsx",
+   "apps/web/app/(app)/medical/pcr/pcr-form.tsx"
   ]
  },
  {
@@ -17274,6 +30515,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/_layout.tsx"
+  ]
+ },
+ {
+  "key": "Post-Mortems",
+  "text": "Post-Mortems",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Post-incident critique scheduled",
+  "text": "Post-incident critique scheduled",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
   ]
  },
  {
@@ -17301,11 +30558,53 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Post-mortem reports",
+  "text": "Post-mortem reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/post-mortem/page.tsx"
+  ]
+ },
+ {
+  "key": "Post-mortems",
+  "text": "Post-mortems",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Post-mortem{value}",
+  "text": "Post-mortem{value}",
+  "context": null,
+  "where": [
+   "apps/web/components/post-mortem-card.tsx"
+  ]
+ },
+ {
   "key": "Postal code",
   "text": "Postal code",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Posted location",
+  "text": "Posted location",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Posts",
+  "text": "Posts",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
   ]
  },
  {
@@ -17322,6 +30621,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "Pre-trip checklists completed today.",
+  "text": "Pre-trip checklists completed today.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/unit-compliance/page.tsx"
   ]
  },
  {
@@ -17381,11 +30688,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Previous",
+  "text": "Previous",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/shift/readiness-review/page.tsx"
+  ]
+ },
+ {
+  "key": "Previous incident ref",
+  "text": "Previous incident ref",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "Previous month",
   "text": "Previous month",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/leave/page.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
   ]
  },
  {
@@ -17421,11 +30747,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Primary colour",
+  "text": "Primary colour",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
+  ]
+ },
+ {
+  "key": "Primary colour picker",
+  "text": "Primary colour picker",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
+  ]
+ },
+ {
   "key": "Primes and holds pressure",
   "text": "Primes and holds pressure",
   "context": null,
   "where": [
    "packages/db/src/fire-shift.ts"
+  ]
+ },
+ {
+  "key": "Print",
+  "text": "Print",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/toolbar.tsx"
   ]
  },
  {
@@ -17441,7 +30791,57 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Print slip",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/[id].tsx"
+   "apps/mobile/app/fines/[id].tsx",
+   "apps/web/app/(app)/admin/invitations/slip.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Print statement",
+  "text": "Print statement",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
+  ]
+ },
+ {
+  "key": "Print {length} activation {value}",
+  "text": "Print {length} activation {value}",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
+  "key": "Print {length} {value}",
+  "text": "Print {length} {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
+  "key": "Printed code",
+  "text": "Printed code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Printed notice number",
+  "text": "Printed notice number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
+  ]
+ },
+ {
+  "key": "Priority",
+  "text": "Priority",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx"
   ]
  },
  {
@@ -17493,6 +30893,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Private security reports",
+  "text": "Private security reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/page.tsx"
+  ]
+ },
+ {
   "key": "Private towing",
   "text": "Private towing",
   "context": null,
@@ -17509,12 +30917,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Problem",
+  "text": "Problem",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
   "key": "Profile",
   "text": "Profile",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/_layout.tsx",
-   "apps/mobile/components/tab-bar.tsx"
+   "apps/mobile/components/tab-bar.tsx",
+   "apps/web/components/topbar.tsx"
+  ]
+ },
+ {
+  "key": "Profile & settings",
+  "text": "Profile & settings",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -17522,6 +30948,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Property & damage",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -17546,6 +30973,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Property owner",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -17562,7 +30990,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Property type",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Property value (R)",
+  "text": "Property value (R)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
   ]
  },
  {
@@ -17622,6 +31059,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Provisioning an organisation",
+  "text": "Provisioning an organisation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/page.tsx"
+  ]
+ },
+ {
   "key": "Prowler Report",
   "text": "Prowler Report",
   "context": null,
@@ -17654,11 +31099,116 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Public Reports",
+  "text": "Public Reports",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Public content",
+  "text": "Public content",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
+  "key": "Public holidays",
+  "text": "Public holidays",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Public incident reports",
+  "text": "Public incident reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/page.tsx"
+  ]
+ },
+ {
+  "key": "Public location (generalised)",
+  "text": "Public location (generalised)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
+  "key": "Public reports (PIR)",
+  "text": "Public reports (PIR)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
+  ]
+ },
+ {
+  "key": "Public safety advisory",
+  "text": "Public safety advisory",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
+  "key": "Public summary",
+  "text": "Public summary",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
   "key": "Public violence",
   "text": "Public violence",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Publish PIR",
+  "text": "Publish PIR",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "Publish public incident report",
+  "text": "Publish public incident report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
+  "key": "Publish public report",
+  "text": "Publish public report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/fire/reports/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Publish {drafts} draft{value}",
+  "text": "Publish {drafts} draft{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Published Duty Board",
+  "text": "Published Duty Board",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -17675,6 +31225,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fire-shift.ts"
+  ]
+ },
+ {
+  "key": "Punctuality · last 30 days",
+  "text": "Punctuality · last 30 days",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/punctuality.tsx"
   ]
  },
  {
@@ -17758,6 +31316,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Queue clear",
+  "text": "Queue clear",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Quick actions",
+  "text": "Quick actions",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
   "key": "REF. No.",
   "text": "REF. No.",
   "context": null,
@@ -17786,7 +31360,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "REQUIRED",
   "context": null,
   "where": [
-   "apps/mobile/app/report/[id].tsx"
+   "apps/mobile/app/report/[id].tsx",
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
   ]
  },
  {
@@ -17835,6 +31410,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Radio",
   "context": null,
   "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -17856,6 +31432,50 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Radio Desk",
+  "text": "Radio Desk",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Radio slip · {value}",
+  "text": "Radio slip · {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/page.tsx"
+  ]
+ },
+ {
+  "key": "Radio, warrant area and the dates they apply.",
+  "text": "Radio, warrant area and the dates they apply.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Radios",
+  "text": "Radios",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Radius",
+  "text": "Radius",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
+  ]
+ },
+ {
   "key": "Rain",
   "text": "Rain",
   "context": null,
@@ -17872,11 +31492,47 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Raise the officer on the radio for their location.",
+  "text": "Raise the officer on the radio for their location.",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
+  "key": "Raised {localeTimeString} ({timeAgo})",
+  "text": "Raised {localeTimeString} ({timeAgo})",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
   "key": "Rank",
   "text": "Rank",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx",
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Rank / Force / Staff",
+  "text": "Rank / Force / Staff",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
   ]
  },
  {
@@ -17888,11 +31544,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Ranked by calls taken.",
+  "text": "Ranked by calls taken.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/role-kpis/page.tsx"
+  ]
+ },
+ {
   "key": "Rape / sexual assault",
   "text": "Rape / sexual assault",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Raw configuration diagnostics →",
+  "text": "Raw configuration diagnostics →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/status/page.tsx"
+  ]
+ },
+ {
+  "key": "Raw operational reports — publish sanitised versions from the PIR desk.",
+  "text": "Raw operational reports — publish sanitised versions from the PIR desk.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/page.tsx"
   ]
  },
  {
@@ -17904,11 +31584,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Reached a crew",
+  "text": "Reached a crew",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
+  ]
+ },
+ {
   "key": "Reaching dispatch now.",
   "text": "Reaching dispatch now.",
   "context": null,
   "where": [
    "apps/mobile/components/panic-button.tsx"
+  ]
+ },
+ {
+  "key": "Reactivate account…",
+  "text": "Reactivate account…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/account-status-form.tsx"
+  ]
+ },
+ {
+  "key": "Reactivate the account before changing its role.",
+  "text": "Reactivate the account before changing its role.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
   ]
  },
  {
@@ -17928,6 +31632,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Read the report",
+  "text": "Read the report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-review-card.tsx"
+  ]
+ },
+ {
+  "key": "Read-only: these rules run for every municipality on the platform, so only the SuperAdmin can change or run them.",
+  "text": "Read-only: these rules run for every municipality on the platform, so only the SuperAdmin can change or run them.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "Read: {join}{value}{value2}{value3}",
+  "text": "Read: {join}{value}{value2}{value3}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
   "key": "Readiness",
   "text": "Readiness",
   "context": null,
@@ -17935,7 +31663,8 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/(tabs)/shift.tsx",
    "apps/mobile/components/disaster-shift.tsx",
    "apps/mobile/components/ems-shift.tsx",
-   "apps/mobile/components/fire-shift.tsx"
+   "apps/mobile/components/fire-shift.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx"
   ]
  },
  {
@@ -17945,6 +31674,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx",
    "apps/mobile/components/disaster-shift.tsx"
+  ]
+ },
+ {
+  "key": "Readiness Review",
+  "text": "Readiness Review",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -17966,6 +31703,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Readiness checks",
+  "text": "Readiness checks",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "Readiness checks today",
+  "text": "Readiness checks today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
   "key": "Readiness needs attention",
   "text": "Readiness needs attention",
   "context": null,
@@ -17984,11 +31737,29 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Readiness review",
+  "text": "Readiness review",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/readiness-review/page.tsx"
+  ]
+ },
+ {
+  "key": "Readiness review pages",
+  "text": "Readiness review pages",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/readiness-review/page.tsx"
+  ]
+ },
+ {
   "key": "Reading the board…",
   "text": "Reading the board…",
   "context": null,
   "where": [
-   "apps/mobile/app/assistant.tsx"
+   "apps/mobile/app/assistant.tsx",
+   "apps/web/components/criti/chat.tsx",
+   "apps/web/components/criti/insight-tiles.tsx"
   ]
  },
  {
@@ -18024,12 +31795,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Ready to add",
+  "text": "Ready to add",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
   "key": "Ready to respond.",
   "text": "Ready to respond.",
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx",
    "apps/mobile/components/fire-shift.tsx"
+  ]
+ },
+ {
+  "key": "Real-Time Incident Map",
+  "text": "Real-Time Incident Map",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Real-time",
+  "text": "Real-time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
   ]
  },
  {
@@ -18074,7 +31869,53 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/leave.tsx",
-   "apps/mobile/components/shift-bodycam.tsx"
+   "apps/mobile/components/shift-bodycam.tsx",
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/admin/users/confirm-fields.tsx",
+   "apps/web/app/(app)/modules/leave/decide.tsx",
+   "apps/web/components/schedule/leave-actions.tsx"
+  ]
+ },
+ {
+  "key": "Reason (kept on the permanent record of each invitation)",
+  "text": "Reason (kept on the permanent record of each invitation)",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
+  "key": "Reason (kept on the permanent record)",
+  "text": "Reason (kept on the permanent record)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Reason (on the bodycam’s record)",
+  "text": "Reason (on the bodycam’s record)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "Reason (on the firearm’s record)",
+  "text": "Reason (on the firearm’s record)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
+  ]
+ },
+ {
+  "key": "Reason (on the vehicle’s record)",
+  "text": "Reason (on the vehicle’s record)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx"
   ]
  },
  {
@@ -18082,7 +31923,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Reason (optional)",
   "context": null,
   "where": [
-   "apps/mobile/components/shift-firearm.tsx"
+   "apps/mobile/components/shift-firearm.tsx",
+   "apps/web/components/schedule/leave-actions.tsx"
+  ]
+ },
+ {
+  "key": "Reason for closing {incidentNumber} without a report",
+  "text": "Reason for closing {incidentNumber} without a report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-forms.tsx"
   ]
  },
  {
@@ -18094,11 +31944,56 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Reassign",
+  "text": "Reassign",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "Receipt",
+  "text": "Receipt",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
+  "key": "Receipt / reference",
+  "text": "Receipt / reference",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
   "key": "Receipt No.",
   "text": "Receipt No.",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Receive back",
+  "text": "Receive back",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "Received",
+  "text": "Received",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/page.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
   ]
  },
  {
@@ -18134,11 +32029,128 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Recent activity",
+  "text": "Recent activity",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/activity/page.tsx",
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Recent fire reports",
+  "text": "Recent fire reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
+  ]
+ },
+ {
+  "key": "Recent patient care reports",
+  "text": "Recent patient care reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/page.tsx"
+  ]
+ },
+ {
+  "key": "Recent reports",
+  "text": "Recent reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx"
+  ]
+ },
+ {
+  "key": "Recent runs",
+  "text": "Recent runs",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "Recent updates",
+  "text": "Recent updates",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Recently closed",
+  "text": "Recently closed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Recently decided",
+  "text": "Recently decided",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/approvals/page.tsx"
+  ]
+ },
+ {
+  "key": "Recipient name",
+  "text": "Recipient name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
   "key": "Recommendations",
   "text": "Recommendations",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Reconnecting…",
+  "text": "Reconnecting…",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
+  "key": "Record",
+  "text": "Record",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx",
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Record a transaction",
+  "text": "Record a transaction",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
+  "key": "Record money",
+  "text": "Record money",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
+  ]
+ },
+ {
+  "key": "Record saved",
+  "text": "Record saved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -18150,6 +32162,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Record why…",
+  "text": "Record why…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
   "key": "Recorded",
   "text": "Recorded",
   "context": null,
@@ -18158,11 +32178,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Recorded against your name automatically.",
+  "text": "Recorded against your name automatically.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
+  "key": "Recorded video, found by who had which bodycam and when. Choose a booking to play the part of it inside the window, up to 24 hours. Every playback is recorded with your name and reason.",
+  "text": "Recorded video, found by who had which bodycam and when. Choose a booking to play the part of it inside the window, up to 24 hours. Every playback is recorded with your name and reason.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/page.tsx"
+  ]
+ },
+ {
+  "key": "Recorded with your name and reason.",
+  "text": "Recorded with your name and reason.",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
   "key": "Recording · {clockOf} — tap to stop",
   "text": "Recording · {clockOf} — tap to stop",
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "Recordings, last 2 hours",
+  "text": "Recordings, last 2 hours",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Records",
+  "text": "Records",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
   ]
  },
  {
@@ -18190,6 +32250,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Ref: {digest}",
+  "text": "Ref: {digest}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/error.tsx"
+  ]
+ },
+ {
   "key": "Reference",
   "text": "Reference",
   "context": null,
@@ -18204,6 +32272,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Referred to Court",
+  "text": "Referred to Court",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx"
   ]
  },
  {
@@ -18248,6 +32324,33 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Refresh cameras",
+  "text": "Refresh cameras",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/live-wall.tsx"
+  ]
+ },
+ {
+  "key": "Refund",
+  "text": "Refund",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
+  "key": "Refuse",
+  "text": "Refuse",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx",
+   "apps/web/components/schedule/leave-actions.tsx"
+  ]
+ },
+ {
   "key": "Refused: see the slip",
   "text": "Refused: see the slip",
   "context": null,
@@ -18264,13 +32367,79 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Refuse…",
+  "text": "Refuse…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Regime",
+  "text": "Regime",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
   "key": "Region",
   "text": "Region",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/performance/operational/page.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Region (optional)",
+  "text": "Region (optional)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Register",
+  "text": "Register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/attendance/page.tsx",
+   "apps/web/app/(app)/police/charges/page.tsx",
+   "apps/web/app/(app)/police/firearm-checks/page.tsx",
+   "apps/web/app/(app)/police/summons/page.tsx",
+   "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
+  "key": "Register a warrant",
+  "text": "Register a warrant",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
+  "key": "Register operator",
+  "text": "Register operator",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx"
+  ]
+ },
+ {
+  "key": "Register operator (call sign auto-assigned)",
+  "text": "Register operator (call sign auto-assigned)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx"
   ]
  },
  {
@@ -18289,6 +32458,9 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/fines/[id].tsx",
    "apps/mobile/app/fines/check.tsx",
    "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/account/page.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -18333,6 +32505,31 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Reject",
+  "text": "Reject",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/request-decision.tsx",
+   "apps/web/app/(app)/modules/leave/decide.tsx"
+  ]
+ },
+ {
+  "key": "Related",
+  "text": "Related",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "Relationship",
+  "text": "Relationship",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Release of vehicle and charges",
   "text": "Release of vehicle and charges",
   "context": null,
@@ -18350,10 +32547,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Remaining",
+  "text": "Remaining",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
   "key": "Remarks",
   "text": "Remarks",
   "context": null,
   "where": [
+   "apps/web/app/(app)/training/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -18381,7 +32587,14 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/fines/new.tsx",
    "apps/mobile/app/report/[id].tsx",
    "apps/mobile/components/report-wizard.tsx",
-   "apps/web/app/(app)/dispatch/log-call/description.tsx"
+   "apps/web/app/(app)/admin/departments/department-card.tsx",
+   "apps/web/app/(app)/dispatch/log-call/description.tsx",
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/police/reports/new/report-form.tsx",
+   "apps/web/app/(app)/roster/planner.tsx",
+   "apps/web/app/(app)/roster/setup/setup-client.tsx",
+   "apps/web/components/form-wizard.tsx"
   ]
  },
  {
@@ -18390,6 +32603,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "Remove draft",
+  "text": "Remove draft",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Remove filter",
+  "text": "Remove filter",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Remove measure",
+  "text": "Remove measure",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
   ]
  },
  {
@@ -18418,6 +32655,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Remove this LEO record?",
+  "text": "Remove this LEO record?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Remove this charge",
+  "text": "Remove this charge",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
+  ]
+ },
+ {
   "key": "Remove {code}?",
   "text": "Remove {code}?",
   "context": null,
@@ -18431,6 +32684,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/shift-inspection.tsx"
+  ]
+ },
+ {
+  "key": "Removed",
+  "text": "Removed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -18450,6 +32711,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Repeat incident",
+  "text": "Repeat incident",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "Replace {document}",
   "text": "Replace {document}",
   "context": null,
@@ -18462,7 +32731,27 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Report",
   "context": null,
   "where": [
-   "apps/mobile/components/doctor-home.tsx"
+   "apps/mobile/components/doctor-home.tsx",
+   "apps/web/app/(app)/police/reports/new/report-form.tsx",
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
+  "key": "Report Builder",
+  "text": "Report Builder",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Report Hub",
+  "text": "Report Hub",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -18474,12 +32763,37 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Report builder",
+  "text": "Report builder",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/page.tsx"
+  ]
+ },
+ {
+  "key": "Report by radio",
+  "text": "Report by radio",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/departments-card.tsx"
+  ]
+ },
+ {
+  "key": "Report date:",
+  "text": "Report date:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
   "key": "Report filed",
   "text": "Report filed",
   "context": null,
   "where": [
    "apps/mobile/app/report/[id].tsx",
-   "apps/mobile/components/closed-incidents.tsx"
+   "apps/mobile/components/closed-incidents.tsx",
+   "apps/web/app/(app)/incidents/[id]/departments-card.tsx"
   ]
  },
  {
@@ -18507,6 +32821,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Report hub",
+  "text": "Report hub",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/report-hub/page.tsx"
+  ]
+ },
+ {
   "key": "Report lost",
   "text": "Report lost",
   "context": null,
@@ -18515,11 +32837,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Report name",
+  "text": "Report name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
   "key": "Report number",
   "text": "Report number",
   "context": null,
   "where": [
-   "apps/mobile/app/fire-report/[id].tsx"
+   "apps/mobile/app/fire-report/[id].tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Report parameters",
+  "text": "Report parameters",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
   ]
  },
  {
@@ -18539,6 +32878,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Report type breakdown",
+  "text": "Report type breakdown",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Report:",
+  "text": "Report:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
   "key": "Reported {timeAgo}",
   "text": "Reported {timeAgo}",
   "context": null,
@@ -18551,7 +32906,82 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Reporting Officer Name",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
+  ]
+ },
+ {
+  "key": "Reporting line",
+  "text": "Reporting line",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "Reporting line pinned",
+  "text": "Reporting line pinned",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/page.tsx"
+  ]
+ },
+ {
+  "key": "Reporting officer",
+  "text": "Reporting officer",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Reports",
+  "text": "Reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Reports Archive",
+  "text": "Reports Archive",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Reports Centre",
+  "text": "Reports Centre",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Reports archive",
+  "text": "Reports archive",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "Reports as officers file them, newest first. Open one to read it in full.",
+  "text": "Reports as officers file them, newest first. Open one to read it in full.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/activity/page.tsx"
+  ]
+ },
+ {
+  "key": "Reports by form",
+  "text": "Reports by form",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/page.tsx"
   ]
  },
  {
@@ -18563,10 +32993,67 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Reports filed from the console, not tied to a dispatched call.",
+  "text": "Reports filed from the console, not tied to a dispatched call.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "Reports management",
+  "text": "Reports management",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Reports officers filed on dispatched calls.",
+  "text": "Reports officers filed on dispatched calls.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/incident/page.tsx"
+  ]
+ },
+ {
+  "key": "Reports to",
+  "text": "Reports to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "Reports to Review",
+  "text": "Reports to Review",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Reports — last 7 days",
+  "text": "Reports — last 7 days",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Reports, fines, armoury and records.",
+  "text": "Reports, fines, armoury and records.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx"
+  ]
+ },
+ {
   "key": "Representation",
   "text": "Representation",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
    "packages/db/src/fines.ts"
   ]
  },
@@ -18579,11 +33066,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Request GPS via SMS",
+  "text": "Request GPS via SMS",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
   "key": "Request submitted. Your supervisor sees it on the approvals board, and you get an alert when they decide.",
   "text": "Request submitted. Your supervisor sees it on the approvals board, and you get an alert when they decide.",
   "context": null,
   "where": [
    "apps/mobile/app/leave.tsx"
+  ]
+ },
+ {
+  "key": "Requested by {value} {timeAgo}{value2}",
+  "text": "Requested by {value} {timeAgo}{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/approvals/page.tsx"
+  ]
+ },
+ {
+  "key": "Requested by {value} {timeAgo}{value2}. Reason: “{reason}”. The account is frozen until this is decided.",
+  "text": "Requested by {value} {timeAgo}{value2}. Reason: “{reason}”. The account is frozen until this is decided.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
   ]
  },
  {
@@ -18621,6 +33132,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Rescue location",
+  "text": "Rescue location",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
   "key": "Rescue — Heights",
   "text": "Rescue — Heights",
   "context": null,
@@ -18645,6 +33164,23 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Reset",
+  "text": "Reset",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "Reset to my desk's defaults",
+  "text": "Reset to my desk's defaults",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Residential / home address",
   "text": "Residential / home address",
   "context": null,
@@ -18661,6 +33197,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Resign date",
+  "text": "Resign date",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Resolution…",
+  "text": "Resolution…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/page.tsx"
+  ]
+ },
+ {
+  "key": "Resolve",
+  "text": "Resolve",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/page.tsx"
+  ]
+ },
+ {
   "key": "Resolved",
   "text": "Resolved",
   "context": null,
@@ -18673,7 +33233,41 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Resolved Time",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
+  ]
+ },
+ {
+  "key": "Resolved calls whose report is filed. Read each case file, then close it.",
+  "text": "Resolved calls whose report is filed. Read each case file, then close it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/review/page.tsx"
+  ]
+ },
+ {
+  "key": "Resolved {saTime}",
+  "text": "Resolved {saTime}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/page.tsx"
+  ]
+ },
+ {
+  "key": "Resource type",
+  "text": "Resource type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx",
+   "apps/web/app/(app)/disaster/partners/page.tsx"
+  ]
+ },
+ {
+  "key": "Resources sent to an open incident. Dispatching again updates its deployment.",
+  "text": "Resources sent to an open incident. Dispatching again updates its deployment.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx"
   ]
  },
  {
@@ -18685,6 +33279,46 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Respond, mark en route and on scene, and file the report in the",
+  "text": "Respond, mark en route and on scene, and file the report in the",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
+  "key": "Responder",
+  "text": "Responder",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Responder app",
+  "text": "Responder app",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/features/page.tsx"
+  ]
+ },
+ {
+  "key": "Responder fatalities",
+  "text": "Responder fatalities",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
+  "key": "Responder injuries",
+  "text": "Responder injuries",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
   "key": "Responder sign in",
   "text": "Responder sign in",
   "context": null,
@@ -18693,11 +33327,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Responders on duty",
+  "text": "Responders on duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
   "key": "Responding",
   "text": "Responding",
   "context": null,
   "where": [
-   "apps/mobile/app/fire-report/[id].tsx"
+   "apps/mobile/app/fire-report/[id].tsx",
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Responding ({length})",
+  "text": "Responding ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -18705,6 +33356,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Response",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx",
    "packages/api/src/police/report-types.ts"
   ]
  },
@@ -18722,6 +33374,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fire-report/[id].tsx"
+  ]
+ },
+ {
+  "key": "Response timings (minutes)",
+  "text": "Response timings (minutes)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
   ]
  },
  {
@@ -18765,12 +33425,55 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Restricted to command and supervisory staff. Open a row to review all six answers.",
+  "text": "Restricted to command and supervisory staff. Open a row to review all six answers.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/readiness-review/page.tsx"
+  ]
+ },
+ {
+  "key": "Result",
+  "text": "Result",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx",
+   "apps/web/app/(app)/fire/inspections/page.tsx",
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
   "key": "Retake check",
   "text": "Retake check",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx",
    "apps/mobile/components/disaster-shift.tsx"
+  ]
+ },
+ {
+  "key": "Retire",
+  "text": "Retire",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "Retired",
+  "text": "Retired",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx",
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "Retired (kept on record)",
+  "text": "Retired (kept on record)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
   ]
  },
  {
@@ -18787,7 +33490,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Return",
   "context": null,
   "where": [
-   "apps/mobile/app/firearm-check.tsx"
+   "apps/mobile/app/firearm-check.tsx",
+   "apps/web/app/(app)/police/firearms/page.tsx"
+  ]
+ },
+ {
+  "key": "Returned {saTime} ({value} rounds)",
+  "text": "Returned {saTime} ({value} rounds)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/page.tsx"
   ]
  },
  {
@@ -18795,7 +33507,18 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Review",
   "context": null,
   "where": [
-   "apps/mobile/lib/inspection-187c.ts"
+   "apps/mobile/lib/inspection-187c.ts",
+   "apps/web/app/(app)/admin/invitations/row-actions.tsx",
+   "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Review & confirm",
+  "text": "Review & confirm",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx"
   ]
  },
  {
@@ -18807,11 +33530,69 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Review note",
+  "text": "Review note",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-forms.tsx"
+  ]
+ },
+ {
+  "key": "Review queue",
+  "text": "Review queue",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-review-card.tsx"
+  ]
+ },
+ {
+  "key": "Review queue ({awaitingReview})",
+  "text": "Review queue ({awaitingReview})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Review the raw report",
+  "text": "Review the raw report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
   "key": "Review the record before you sign. Your name and the filing time are recorded with these checks.",
   "text": "Review the record before you sign. Your name and the filing time are recorded with these checks.",
   "context": null,
   "where": [
    "apps/mobile/components/fire-shift.tsx"
+  ]
+ },
+ {
+  "key": "Review {value} {value2} not in this list",
+  "text": "Review {value} {value2} not in this list",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Review →",
+  "text": "Review →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
+  "key": "Reviewed",
+  "text": "Reviewed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/police/report-centre/management/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
   ]
  },
  {
@@ -19080,6 +33861,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Road traffic offences carry the AARTO Schedule 3 charge code and penalty; by-law offences carry the by-law section and the admission of guilt amount. Enter both from the official schedules, then verify. Changing a verified code or amount takes the verification off until someone checks it again.",
+  "text": "Road traffic offences carry the AARTO Schedule 3 charge code and penalty; by-law offences carry the by-law section and the admission of guilt amount. Enter both from the official schedules, then verify. Changing a verified code or amount takes the verification off until someone checks it again.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/page.tsx"
+  ]
+ },
+ {
+  "key": "Road traffic offences on AARTO 01 notices; by-law offences on Section 56 (offender present) or Section 341 (unattended vehicle) notices. Every charge has its own FN- number, and a served notice can never be edited or deleted — only cancelled, with a reason.",
+  "text": "Road traffic offences on AARTO 01 notices; by-law offences on Section 56 (offender present) or Section 341 (unattended vehicle) notices. Every charge has its own FN- number, and a served notice can never be edited or deleted — only cancelled, with a reason.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
   "key": "Road works",
   "text": "Road works",
   "context": null,
@@ -19125,7 +33922,45 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Role",
   "context": null,
   "where": [
-   "apps/mobile/app/activate.tsx"
+   "apps/mobile/app/activate.tsx",
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
+   "apps/web/app/(app)/admin/invitations/slip.tsx",
+   "apps/web/app/(app)/performance/role-kpis/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx"
+  ]
+ },
+ {
+  "key": "Role and department",
+  "text": "Role and department",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Role for invitation",
+  "text": "Role for invitation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Role to confirm",
+  "text": "Role to confirm",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Rollout",
+  "text": "Rollout",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx",
+   "apps/web/app/(app)/admin/personnel/page.tsx",
+   "apps/web/app/(app)/admin/rollout/page.tsx"
   ]
  },
  {
@@ -19150,7 +33985,40 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Root Cause Analysis",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
+  ]
+ },
+ {
+  "key": "Roster",
+  "text": "Roster",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/attendance-now.tsx"
+  ]
+ },
+ {
+  "key": "Roster · {monthLabel}",
+  "text": "Roster · {monthLabel}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/page.tsx"
+  ]
+ },
+ {
+  "key": "Rotation",
+  "text": "Rotation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Rotations",
+  "text": "Rotations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
   ]
  },
  {
@@ -19192,7 +34060,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Rounds handed back",
   "context": null,
   "where": [
-   "apps/mobile/app/end-shift.tsx"
+   "apps/mobile/app/end-shift.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
   ]
  },
  {
@@ -19201,6 +34070,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/firearm-check.tsx",
+   "apps/web/app/(app)/police/firearms/new/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -19227,6 +34097,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/_layout.tsx",
    "apps/mobile/app/route/[id].tsx",
+   "apps/web/components/ops-map/ops-map.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/map-layers.ts",
    "packages/db/src/pcr.ts"
@@ -19265,6 +34136,32 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Row",
+  "text": "Row",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Row limit",
+  "text": "Row limit",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Rows that need attention",
+  "text": "Rows that need attention",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
   "key": "Rubbish",
   "text": "Rubbish",
   "context": null,
@@ -19286,6 +34183,79 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Rule",
+  "text": "Rule",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "Rules",
+  "text": "Rules",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "Rules that watch the board when nobody is watching it — ageing calls, lapsing certifications, duties nobody confirmed. They run in the database on a five-minute tick.",
+  "text": "Rules that watch the board when nobody is watching it — ageing calls, lapsing certifications, duties nobody confirmed. They run in the database on a five-minute tick.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "Run",
+  "text": "Run",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "Run by",
+  "text": "Run by",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
+  "key": "Run by:",
+  "text": "Run by:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
+  "key": "Run now",
+  "text": "Run now",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/rule-card.tsx"
+  ]
+ },
+ {
+  "key": "Run report",
+  "text": "Run report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/report-hub/page.tsx"
+  ]
+ },
+ {
+  "key": "Running…",
+  "text": "Running…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
   ]
  },
  {
@@ -19313,6 +34283,23 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "SANRAL CCTV matrix",
+  "text": "SANRAL CCTV matrix",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/itraffic-map.tsx"
+  ]
+ },
+ {
+  "key": "SANRAL Cameras",
+  "text": "SANRAL Cameras",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/page.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "SANRAL Eastern Region",
   "text": "SANRAL Eastern Region",
   "context": null,
@@ -19326,6 +34313,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "SANRAL freeway cameras nearby",
+  "text": "SANRAL freeway cameras nearby",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "SANRAL freeway cameras on i-traffic",
+  "text": "SANRAL freeway cameras on i-traffic",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/itraffic-map.tsx"
+  ]
+ },
+ {
+  "key": "SANRAL registry",
+  "text": "SANRAL registry",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/live-wall.tsx"
   ]
  },
  {
@@ -19386,6 +34397,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "SAPS case ref (optional)",
+  "text": "SAPS case ref (optional)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
+  "key": "SAPS financial year {crimeYear}",
+  "text": "SAPS financial year {crimeYear}",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "SAPS radio control notified — time",
   "text": "SAPS radio control notified — time",
   "context": null,
@@ -19431,6 +34458,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/live-map.tsx"
+  ]
+ },
+ {
+  "key": "SAPS station-level statistics (2008–2023 dataset). Ranked by combined incident count.",
+  "text": "SAPS station-level statistics (2008–2023 dataset). Ranked by combined incident count.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/crime-hotspots/page.tsx"
   ]
  },
  {
@@ -19514,6 +34549,38 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "SIM number",
+  "text": "SIM number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx"
+  ]
+ },
+ {
+  "key": "SIRA grade",
+  "text": "SIRA grade",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
+  "key": "SIRA number",
+  "text": "SIRA number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
+  "key": "SIRA-compliant register entry.",
+  "text": "SIRA-compliant register entry.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "SOS",
   "text": "SOS",
   "context": null,
@@ -19522,6 +34589,14 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/alerts.tsx",
    "apps/mobile/components/panic-button.tsx",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "SOS active",
+  "text": "SOS active",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -19538,6 +34613,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/panic-button.tsx"
+  ]
+ },
+ {
+  "key": "SOS from the radio button",
+  "text": "SOS from the radio button",
+  "context": null,
+  "where": [
+   "apps/mobile/components/panic-button.tsx"
+  ]
+ },
+ {
+  "key": "SOS · officer emergency",
+  "text": "SOS · officer emergency",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
+  "key": "SOS · unanswered",
+  "text": "SOS · unanswered",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
   ]
  },
  {
@@ -19675,6 +34774,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Salvage / overhaul",
+  "text": "Salvage / overhaul",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
   "key": "Same as last inspection",
   "text": "Same as last inspection",
   "context": null,
@@ -19691,11 +34798,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Same one: update",
+  "text": "Same one: update",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Same person: update",
+  "text": "Same person: update",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
   "key": "Sanitisation check",
   "text": "Sanitisation check",
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": "Sanitised releases authorized by the Chief. Publish from a raw report in",
+  "text": "Sanitised releases authorized by the Chief. Publish from a raw report in",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/page.tsx"
   ]
  },
  {
@@ -19723,6 +34854,54 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Save",
+  "text": "Save",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/rule-card.tsx",
+   "apps/web/app/(app)/duty-tasks/page.tsx",
+   "apps/web/app/(app)/modules/absence/page.tsx",
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/edit-duty.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/performance/plans/[id]/page.tsx",
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Save access",
+  "text": "Save access",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Save as new",
+  "text": "Save as new",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Save changes",
+  "text": "Save changes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx"
+  ]
+ },
+ {
+  "key": "Save current filters as…",
+  "text": "Save current filters as…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/report-hub/page.tsx"
+  ]
+ },
+ {
   "key": "Save draft",
   "text": "Save draft",
   "context": null,
@@ -19731,11 +34910,91 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Save endorsement",
+  "text": "Save endorsement",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Save identity",
+  "text": "Save identity",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
+  ]
+ },
+ {
+  "key": "Save parameters",
+  "text": "Save parameters",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
+  ]
+ },
+ {
+  "key": "Save post",
+  "text": "Save post",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Save profile",
+  "text": "Save profile",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/page.tsx"
+  ]
+ },
+ {
+  "key": "Save reporting line",
+  "text": "Save reporting line",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "Save template",
+  "text": "Save template",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/report-hub/page.tsx"
+  ]
+ },
+ {
+  "key": "Saved",
+  "text": "Saved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
   "key": "Saved as {number}",
   "text": "Saved as {number}",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Saved reports",
+  "text": "Saved reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Saved templates:",
+  "text": "Saved templates:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/report-hub/page.tsx"
   ]
  },
  {
@@ -19756,6 +35015,14 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/pcr/[id].tsx",
    "apps/mobile/app/post-mortem/[id].tsx",
    "apps/mobile/app/report/[id].tsx"
+  ]
+ },
+ {
+  "key": "Saving…",
+  "text": "Saving…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
   ]
  },
  {
@@ -19831,6 +35098,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Scene",
+  "text": "Scene",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "Scene & Transport",
   "text": "Scene & Transport",
   "context": null,
@@ -19871,6 +35146,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Scene observations",
+  "text": "Scene observations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
   "key": "Scene photos",
   "text": "Scene photos",
   "context": null,
@@ -19884,6 +35167,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/tab-bar.tsx"
+  ]
+ },
+ {
+  "key": "Schedule a task",
+  "text": "Schedule a task",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
+  "key": "Scheduled station tasks and their status.",
+  "text": "Scheduled station tasks and their status.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
   ]
  },
  {
@@ -19908,7 +35207,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/report-wizard.tsx",
+   "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/incidents/page.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx",
+   "apps/web/app/(app)/police/warrants/page.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx",
+   "apps/web/app/(app)/reports/page.tsx",
+   "apps/web/app/(app)/search/page.tsx",
    "apps/web/app/(app)/translations/translations-editor.tsx"
+  ]
+ },
+ {
+  "key": "Search & rescue performed",
+  "text": "Search & rescue performed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
   ]
  },
  {
@@ -19920,6 +35235,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Search a call, type, place or officer",
+  "text": "Search a call, type, place or officer",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Search a fine or notice number, a registration, an ID number, a name or an offence.",
+  "text": "Search a fine or notice number, a registration, an ID number, a name or an offence.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
   "key": "Search area",
   "text": "Search area",
   "context": null,
@@ -19928,11 +35259,100 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Search bodycams",
+  "text": "Search bodycams",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/bodycam-wall.tsx"
+  ]
+ },
+ {
+  "key": "Search business, address, contact or reference",
+  "text": "Search business, address, contact or reference",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "Search by name, code or instruction…",
+  "text": "Search by name, code or instruction…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Search by staff no., name or service no…",
+  "text": "Search by staff no., name or service no…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Search call sign or staff…",
+  "text": "Search call sign or staff…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "Search call sign…",
+  "text": "Search call sign…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Search case #, location, officer, suspect",
+  "text": "Search case #, location, officer, suspect",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/page.tsx"
+  ]
+ },
+ {
+  "key": "Search case #, location, suspect, charges",
+  "text": "Search case #, location, suspect, charges",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/reports-list.tsx"
+  ]
+ },
+ {
+  "key": "Search doctor, hospital or condition",
+  "text": "Search doctor, hospital or condition",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/handovers/page.tsx"
+  ]
+ },
+ {
   "key": "Search handovers",
   "text": "Search handovers",
   "context": null,
   "where": [
-   "apps/mobile/components/doctor-home.tsx"
+   "apps/mobile/components/doctor-home.tsx",
+   "apps/web/app/(app)/medical/handovers/page.tsx"
+  ]
+ },
+ {
+  "key": "Search incident #, caller, address…",
+  "text": "Search incident #, caller, address…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "Search incident #, caller, phone, address, type",
+  "text": "Search incident #, caller, phone, address, type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
   ]
  },
  {
@@ -19961,6 +35381,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Search inspections",
+  "text": "Search inspections",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "Search name or force number",
+  "text": "Search name or force number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "Search name, badge or rank…",
+  "text": "Search name, badge or rank…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
   "key": "Search number, registration, name, offence",
   "text": "Search number, registration, name, offence",
   "context": null,
@@ -19977,11 +35421,69 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Search officer…",
+  "text": "Search officer…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Search pages",
+  "text": "Search pages",
+  "context": null,
+  "where": [
+   "apps/web/components/topbar.tsx"
+  ]
+ },
+ {
+  "key": "Search pages, incidents, people, vehicles…",
+  "text": "Search pages, incidents, people, vehicles…",
+  "context": null,
+  "where": [
+   "apps/web/components/command-palette.tsx"
+  ]
+ },
+ {
   "key": "Search patient, hospital or doctor",
   "text": "Search patient, hospital or doctor",
   "context": null,
   "where": [
    "apps/mobile/components/doctor-home.tsx"
+  ]
+ },
+ {
+  "key": "Search patient, incident ref, complaint, crew",
+  "text": "Search patient, incident ref, complaint, crew",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/page.tsx"
+  ]
+ },
+ {
+  "key": "Search reports",
+  "text": "Search reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/pcr/page.tsx",
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/reports/reports-list.tsx"
+  ]
+ },
+ {
+  "key": "Search section…",
+  "text": "Search section…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Search staff or leave seq…",
+  "text": "Search staff or leave seq…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
   ]
  },
  {
@@ -19993,11 +35495,83 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Search the armoury",
+  "text": "Search the armoury",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
+  ]
+ },
+ {
+  "key": "Search the bodycams",
+  "text": "Search the bodycams",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "Search the crew",
+  "text": "Search the crew",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "Search the fleet",
+  "text": "Search the fleet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx"
+  ]
+ },
+ {
+  "key": "Search the queue",
+  "text": "Search the queue",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
+  ]
+ },
+ {
+  "key": "Search the register",
+  "text": "Search the register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Search the staff register",
+  "text": "Search the staff register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "Search: gun, crash, fire, chest pain…",
   "text": "Search: gun, crash, fire, chest pain…",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/type-picker.tsx"
+  ]
+ },
+ {
+  "key": "Searching records…",
+  "text": "Searching records…",
+  "context": null,
+  "where": [
+   "apps/web/components/command-palette.tsx"
+  ]
+ },
+ {
+  "key": "Search…",
+  "text": "Search…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
   ]
  },
  {
@@ -20033,11 +35607,33 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Secrets live in server environment variables and are never stored in the database or sent to the browser — this page only reports whether each one is present. The switch and the JSON parameters below are stored in the database and take effect immediately, with no redeploy. Adding or changing a secret requires setting it on the host and redeploying.",
+  "text": "Secrets live in server environment variables and are never stored in the database or sent to the browser — this page only reports whether each one is present. The switch and the JSON parameters below are stored in the database and take effect immediately, with no redeploy. Adding or changing a secret requires setting it on the host and redeploying.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/page.tsx"
+  ]
+ },
+ {
   "key": "Section",
   "text": "Section",
   "context": null,
   "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Section & duty period",
+  "text": "Section & duty period",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx"
   ]
  },
  {
@@ -20153,11 +35749,109 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Section Details",
+  "text": "Section Details",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Section code",
+  "text": "Section code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx"
+  ]
+ },
+ {
+  "key": "Section saved",
+  "text": "Section saved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Section:",
+  "text": "Section:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
+  "key": "Sections",
+  "text": "Sections",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/sections/page.tsx",
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Sector",
+  "text": "Sector",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
   "key": "Secure connection · session audited",
   "text": "Secure connection · session audited",
   "context": null,
   "where": [
    "apps/mobile/app/login.tsx"
+  ]
+ },
+ {
+  "key": "Security Reports",
+  "text": "Security Reports",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Security guard incident report",
+  "text": "Security guard incident report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
+  "key": "See all",
+  "text": "See all",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "See them all in Records",
+  "text": "See them all in Records",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/activity/page.tsx"
+  ]
+ },
+ {
+  "key": "See them all in the register",
+  "text": "See them all in the register",
+  "context": null,
+  "where": [
+   "apps/web/components/fines-panel.tsx"
+  ]
+ },
+ {
+  "key": "See who worked a call sign and when, book a single duty, or change one. A duty that has started keeps its member and hours.",
+  "text": "See who worked a call sign and when, book a single duty, or change one. A duty that has started keeps its member and hours.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
   ]
  },
  {
@@ -20201,11 +35895,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Select a department to see who is on duty.",
+  "text": "Select a department to see who is on duty.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
+  ]
+ },
+ {
   "key": "Select a firearm above",
   "text": "Select a firearm above",
   "context": null,
   "where": [
    "apps/mobile/components/shift-firearm.tsx"
+  ]
+ },
+ {
+  "key": "Select all {length}",
+  "text": "Select all {length}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
   ]
  },
  {
@@ -20217,6 +35927,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Select an organisation",
+  "text": "Select an organisation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx"
+  ]
+ },
+ {
   "key": "Select appliance",
   "text": "Select appliance",
   "context": null,
@@ -20225,10 +35943,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Select everyone on this page",
+  "text": "Select everyone on this page",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
   "key": "Select priority…",
   "text": "Select priority…",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
   ]
  },
@@ -20237,6 +35964,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Select region…",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
   ]
  },
@@ -20297,6 +36025,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Select…",
+  "text": "Select…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
   "key": "Self-service",
   "text": "Self-service",
   "context": null,
@@ -20317,7 +36053,11 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Send",
   "context": null,
   "where": [
-   "apps/mobile/app/assistant.tsx"
+   "apps/mobile/app/assistant.tsx",
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
+   "apps/web/app/(app)/mail/page.tsx",
+   "apps/web/app/(app)/notifications/send-form.tsx",
+   "apps/web/components/criti/chat.tsx"
   ]
  },
  {
@@ -20326,6 +36066,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/panic-button.tsx"
+  ]
+ },
+ {
+  "key": "Send SOS now",
+  "text": "Send SOS now",
+  "context": null,
+  "where": [
+   "apps/mobile/components/panic-button.tsx"
+  ]
+ },
+ {
+  "key": "Send a new {thing}? The one {firstName} has stops working.",
+  "text": "Send a new {thing}? The one {firstName} has stops working.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/row-actions.tsx"
+  ]
+ },
+ {
+  "key": "Send a notification",
+  "text": "Send a notification",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
+  ]
+ },
+ {
+  "key": "Send again to {length} who {value} not opened theirs",
+  "text": "Send again to {length} who {value} not opened theirs",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/chase-list.tsx"
   ]
  },
  {
@@ -20396,8 +36168,24 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Send to…",
+  "text": "Send to…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
+  ]
+ },
+ {
   "key": "Sending SOS…",
   "text": "Sending SOS…",
+  "context": null,
+  "where": [
+   "apps/mobile/components/panic-button.tsx"
+  ]
+ },
+ {
+  "key": "Sending to dispatch and command in {s} seconds. Cancel if it was pressed by mistake.",
+  "text": "Sending to dispatch and command in {s} seconds. Cancel if it was pressed by mistake.",
   "context": null,
   "where": [
    "apps/mobile/components/panic-button.tsx"
@@ -20417,7 +36205,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/sync-tray.tsx",
-   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/notifications/send-form.tsx"
   ]
  },
  {
@@ -20425,7 +36214,34 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Sent",
   "context": null,
   "where": [
-   "apps/mobile/components/incident-sheet.tsx"
+   "apps/mobile/components/incident-sheet.tsx",
+   "apps/web/app/(app)/mail/page.tsx",
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
+  "key": "Sent early on an urgent call. The call taker is still adding the details.",
+  "text": "Sent early on an urgent call. The call taker is still adding the details.",
+  "context": null,
+  "where": [
+   "apps/web/components/details-to-follow.tsx"
+  ]
+ },
+ {
+  "key": "Sent out — waiting for an officer to respond. Dispatching again re-alerts everyone on duty.",
+  "text": "Sent out — waiting for an officer to respond. Dispatching again re-alerts everyone on duty.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
+  ]
+ },
+ {
+  "key": "Sent to",
+  "text": "Sent to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/page.tsx",
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
   ]
  },
  {
@@ -20434,6 +36250,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/incident-sheet.tsx"
+  ]
+ },
+ {
+  "key": "Sent to any desk",
+  "text": "Sent to any desk",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
+  ]
+ },
+ {
+  "key": "Sent to dispatch: {value}",
+  "text": "Sent to dispatch: {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -20493,6 +36325,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Sent.",
+  "text": "Sent.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx"
+  ]
+ },
+ {
   "key": "Sent. Add a department if it is needed.",
   "text": "Sent. Add a department if it is needed.",
   "context": null,
@@ -20532,7 +36372,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Serial",
   "context": null,
   "where": [
-   "apps/mobile/app/end-shift.tsx"
+   "apps/mobile/app/end-shift.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
   ]
  },
  {
@@ -20557,7 +36399,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/firearm-check.tsx",
-   "apps/mobile/components/shift-firearm.tsx"
+   "apps/mobile/components/shift-firearm.tsx",
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx"
   ]
  },
  {
@@ -20577,10 +36421,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Serial, holder, SIM, station",
+  "text": "Serial, holder, SIM, station",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "Serial, make, holder, station",
+  "text": "Serial, make, holder, station",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
+  ]
+ },
+ {
   "key": "Serious",
   "text": "Serious",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/charges/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -20597,7 +36458,32 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Served",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/[id].tsx"
+   "apps/mobile/app/fines/[id].tsx",
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
+  "key": "Served (date and time)",
+  "text": "Served (date and time)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
+  ]
+ },
+ {
+  "key": "Served {when} by {value}{value2}{value3}{value4}",
+  "text": "Served {when} by {value}{value2}{value3}{value4}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Server address",
+  "text": "Server address",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
   ]
  },
  {
@@ -20609,10 +36495,29 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Service address",
+  "text": "Service address",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
+  "key": "Service no.",
+  "text": "Service no.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
   "key": "Service number",
   "text": "Service number",
   "context": null,
   "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -20625,6 +36530,55 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Serving",
+  "text": "Serving",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Serving records when it was served.",
+  "text": "Serving records when it was served.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
+  "key": "Set",
+  "text": "Set",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx",
+   "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
+  "key": "Set by",
+  "text": "Set by",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
+  "key": "Set by {updatedBy}",
+  "text": "Set by {updatedBy}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operations/setting-row.tsx"
+  ]
+ },
+ {
+  "key": "Set by {value}{value2} · {saTime}",
+  "text": "Set by {value}{value2} · {saTime}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/zones-card.tsx"
+  ]
+ },
+ {
   "key": "Set from the map pin",
   "text": "Set from the map pin",
   "context": null,
@@ -20633,11 +36587,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Set it up in Admin → Radios",
+  "text": "Set it up in Admin → Radios",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Set role for invitation…",
+  "text": "Set role for invitation…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Set:",
+  "text": "Set:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
+  ]
+ },
+ {
+  "key": "Settings",
+  "text": "Settings",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Settings & Account",
+  "text": "Settings & Account",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
   "key": "Several shacks",
   "text": "Several shacks",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Severe",
+  "text": "Severe",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
   ]
  },
  {
@@ -20654,9 +36656,39 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/incidents-list.tsx",
+   "apps/web/app/(app)/case-manager/case-ui.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/dispatch/pending/page.tsx",
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Severity analysis",
+  "text": "Severity analysis",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Severity distribution",
+  "text": "Severity distribution",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
+  ]
+ },
+ {
+  "key": "Severity mix",
+  "text": "Severity mix",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx",
+   "apps/web/app/(app)/dispatch/kpi/page.tsx",
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
   ]
  },
  {
@@ -20673,6 +36705,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/components/pcr-card.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/pcr.ts"
   ]
@@ -20691,6 +36725,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/[id].tsx"
+  ]
+ },
+ {
+  "key": "Sharing",
+  "text": "Sharing",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
   ]
  },
  {
@@ -20722,7 +36764,26 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/shift-report.tsx",
    "apps/mobile/components/tab-bar.tsx",
    "apps/mobile/lib/shift-reminders.tsx",
+   "apps/web/app/(app)/shift/mental-check/page.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Shift & Crews",
+  "text": "Shift & Crews",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Shift Setup",
+  "text": "Shift Setup",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -20731,6 +36792,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "Shift attendance now · {departmentName}",
+  "text": "Shift attendance now · {departmentName}",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/attendance-now.tsx"
   ]
  },
  {
@@ -20750,11 +36819,52 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Shift for anyone not on the roster that day",
+  "text": "Shift for anyone not on the roster that day",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Shift group",
+  "text": "Shift group",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Shift not started",
   "text": "Shift not started",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/index.tsx"
+  ]
+ },
+ {
+  "key": "Shift setup",
+  "text": "Shift setup",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/page.tsx",
+   "apps/web/app/(app)/roster/setup/page.tsx"
+  ]
+ },
+ {
+  "key": "Shift swaps to approve",
+  "text": "Shift swaps to approve",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Shift types",
+  "text": "Shift types",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
   ]
  },
  {
@@ -20798,6 +36908,46 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Short and permanent, e.g. V for Bylaws Unit A.",
+  "text": "Short and permanent, e.g. V for Bylaws Unit A.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Short desc",
+  "text": "Short desc",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Short description",
+  "text": "Short description",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx"
+  ]
+ },
+ {
+  "key": "Short name",
+  "text": "Short name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
+  ]
+ },
+ {
+  "key": "Short-crewed",
+  "text": "Short-crewed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
   "key": "Shotgun",
   "text": "Shotgun",
   "context": null,
@@ -20820,7 +36970,19 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/activate.tsx",
    "apps/mobile/app/live-map.tsx",
-   "apps/mobile/app/login.tsx"
+   "apps/mobile/app/login.tsx",
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/case-manager/audit/page.tsx",
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/notifications/feed.tsx",
+   "apps/web/app/(app)/roster/page.tsx",
+   "apps/web/app/(app)/roster/setup/page.tsx",
+   "apps/web/components/office/office-header.tsx"
   ]
  },
  {
@@ -20832,6 +36994,54 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Show call signs not in use",
+  "text": "Show call signs not in use",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Show officers on calls",
+  "text": "Show officers on calls",
+  "context": null,
+  "where": [
+   "apps/web/components/dispatch-map-modal.tsx"
+  ]
+ },
+ {
+  "key": "Show on the map →",
+  "text": "Show on the map →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/zones-card.tsx"
+  ]
+ },
+ {
+  "key": "Show only unallocated",
+  "text": "Show only unallocated",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Show retired",
+  "text": "Show retired",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Show the SOS",
+  "text": "Show the SOS",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
   "key": "Show the whole route",
   "text": "Show the whole route",
   "context": null,
@@ -20840,11 +37050,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Show them",
+  "text": "Show them",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
+  "key": "Show withdrawn",
+  "text": "Show withdrawn",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Showing 60 of {length} — narrow with the filter.",
+  "text": "Showing 60 of {length} — narrow with the filter.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/live-wall.tsx"
+  ]
+ },
+ {
+  "key": "Showing the first {localeString} rows — there are more. Totals below cover only what is shown, so narrow the filters or raise the row limit before relying on them.",
+  "text": "Showing the first {localeString} rows — there are more. Totals below cover only what is shown, so narrow the filters or raise the row limit before relying on them.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Showing the latest 12 of {length}.",
+  "text": "Showing the latest 12 of {length}.",
+  "context": null,
+  "where": [
+   "apps/web/components/fines-panel.tsx"
+  ]
+ },
+ {
   "key": "Shown with live incidents. Remembered on this phone.",
   "text": "Shown with live incidents. Remembered on this phone.",
   "context": null,
   "where": [
    "apps/mobile/app/live-map.tsx"
+  ]
+ },
+ {
+  "key": "Shows how many in the department would be away if granted.",
+  "text": "Shows how many in the department would be away if granted.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
   ]
  },
  {
@@ -20878,6 +37136,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/lib/inspection-187c.ts",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Sidebar",
+  "text": "Sidebar",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Sidebar · {label}",
+  "text": "Sidebar · {label}",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Sidebar: how it shows",
+  "text": "Sidebar: how it shows",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
   ]
  },
  {
@@ -20957,7 +37239,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Sign Off & Handover",
   "context": null,
   "where": [
-   "apps/mobile/app/pcr/[id].tsx"
+   "apps/mobile/app/pcr/[id].tsx",
+   "apps/web/app/(app)/medical/pcr/pcr-form.tsx",
+   "apps/web/components/pcr-card.tsx"
   ]
  },
  {
@@ -21035,7 +37319,8 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/disaster-shift.tsx",
    "apps/mobile/components/doctor-home.tsx",
    "apps/mobile/components/ems-shift.tsx",
-   "apps/mobile/components/fire-shift.tsx"
+   "apps/mobile/components/fire-shift.tsx",
+   "apps/web/components/topbar.tsx"
   ]
  },
  {
@@ -21079,6 +37364,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Signatures",
+  "text": "Signatures",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Signing out clears your duty status. At the end of a shift, use End shift first.",
   "text": "Signing out clears your duty status. At the end of a shift, use End shift first.",
   "context": null,
@@ -21108,6 +37401,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Silo",
+  "text": "Silo",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/devices/page.tsx",
+   "apps/web/app/(app)/incidents/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx"
   ]
  },
  {
@@ -21151,11 +37454,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Site Address",
+  "text": "Site Address",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
   "key": "Site Media & Audio Log",
   "text": "Site Media & Audio Log",
   "context": null,
   "where": [
    "apps/mobile/app/pcr/[id].tsx"
+  ]
+ },
+ {
+  "key": "Situation description",
+  "text": "Situation description",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/dispatch/page.tsx"
   ]
  },
  {
@@ -21172,6 +37491,25 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Skip row",
+  "text": "Skip row",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "Skipped",
+  "text": "Skipped",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx",
+   "apps/web/components/register/bulk-run.tsx"
   ]
  },
  {
@@ -21223,11 +37561,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Slips to print",
+  "text": "Slips to print",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
   "key": "Slow Lane",
   "text": "Slow Lane",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Slug",
+  "text": "Slug",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/page.tsx",
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
   ]
  },
  {
@@ -21251,6 +37606,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Smoke conditions",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -21287,6 +37643,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Solid: approved. Outlined: waiting for a decision.",
+  "text": "Solid: approved. Outlined: waiting for a decision.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
+  ]
+ },
+ {
   "key": "Some TS out of order",
   "text": "Some TS out of order",
   "context": null,
@@ -21311,11 +37675,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Someone not started this many minutes after their shift begins is told they are late, and so is whoever oversees them. After the second number, command is told as well.",
+  "text": "Someone not started this many minutes after their shift begins is told they are late, and so is whoever oversees them. After the second number, command is told as well.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Someone with an account is not invited again: change their role on their account page. Not in the staff register?",
+  "text": "Someone with an account is not invited again: change their role on their account page. Not in the staff register?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "Something is wrong with the {unitWord}",
   "text": "Something is wrong with the {unitWord}",
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "Something went wrong",
+  "text": "Something went wrong",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/error.tsx"
   ]
  },
  {
@@ -21332,6 +37720,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/incidents-list.tsx"
+  ]
+ },
+ {
+  "key": "Sorted by expiry — expiring rows are highlighted.",
+  "text": "Sorted by expiry — expiring rows are highlighted.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "Source",
+  "text": "Source",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
   ]
  },
  {
@@ -21375,6 +37779,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/fire-shift.tsx"
+  ]
+ },
+ {
+  "key": "Special events / operations",
+  "text": "Special events / operations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
+  "key": "Specialised report",
+  "text": "Specialised report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
   ]
  },
  {
@@ -21458,6 +37878,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Spreadsheet",
+  "text": "Spreadsheet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
   "key": "St. Augustines Hospital",
   "text": "St. Augustines Hospital",
   "context": null,
@@ -21490,6 +37918,66 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Staff",
+  "text": "Staff",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Staff / Name",
+  "text": "Staff / Name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx"
+  ]
+ },
+ {
+  "key": "Staff Maintenance",
+  "text": "Staff Maintenance",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "Staff member",
+  "text": "Staff member",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/edit-duty.tsx"
+  ]
+ },
+ {
+  "key": "Staff no.",
+  "text": "Staff no.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Staff no. / name",
+  "text": "Staff no. / name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Staff — available for allocation",
+  "text": "Staff — available for allocation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
   "key": "Staggered junction",
   "text": "Staggered junction",
   "context": null,
@@ -21506,11 +37994,48 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Stand down",
+  "text": "Stand down",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
+  "key": "Stands until",
+  "text": "Stands until",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx",
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
+  ]
+ },
+ {
+  "key": "Start",
+  "text": "Start",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "Start Time",
   "text": "Start Time",
   "context": null,
   "where": [
+   "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
+  ]
+ },
+ {
+  "key": "Start again",
+  "text": "Start again",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx",
+   "apps/web/components/criti/chat.tsx"
   ]
  },
  {
@@ -21520,7 +38045,25 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx",
    "apps/mobile/components/disaster-shift.tsx",
-   "apps/mobile/lib/modules.ts"
+   "apps/mobile/lib/modules.ts",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Start of shift",
+  "text": "Start of shift",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/mental-check/page.tsx"
+  ]
+ },
+ {
+  "key": "Start of shift not done →",
+  "text": "Start of shift not done →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
   ]
  },
  {
@@ -21560,7 +38103,18 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Start shift",
   "context": null,
   "where": [
-   "apps/mobile/components/service-home.tsx"
+   "apps/mobile/components/service-home.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
+  "key": "Start time",
+  "text": "Start time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/edit-duty.tsx"
   ]
  },
  {
@@ -21572,6 +38126,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Start your shift in the app: going on duty checks you in.",
+  "text": "Start your shift in the app: going on duty checks you in.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
   "key": "Start your shift.",
   "text": "Start your shift.",
   "context": null,
@@ -21580,10 +38142,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Start-of-shift readiness and vehicle inspections.",
+  "text": "Start-of-shift readiness and vehicle inspections.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/unit-compliance/page.tsx"
+  ]
+ },
+ {
   "key": "Started",
   "text": "Started",
   "context": null,
   "where": [
+   "apps/web/components/schedule/attendance-now.tsx",
    "packages/api/src/schedule/rules.ts"
   ]
  },
@@ -21616,6 +38187,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Starting",
   "context": null,
   "where": [
+   "apps/web/components/schedule/attendance-now.tsx",
    "packages/api/src/schedule/rules.ts"
   ]
  },
@@ -21636,12 +38208,54 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Starts: 0 2 4 6",
+  "text": "Starts: 0 2 4 6",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "State",
+  "text": "State",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
   "key": "Station",
   "text": "Station",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx",
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/admin/rollout/chase-list.tsx",
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
+   "apps/web/app/(app)/police/reports/new/report-form.tsx",
+   "apps/web/app/(app)/profile/my-hr/page.tsx",
+   "apps/web/app/(app)/profile/page.tsx",
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx",
+   "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Station Tasks",
+  "text": "Station Tasks",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -21649,7 +38263,53 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Station number",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Station saved",
+  "text": "Station saved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Stations",
+  "text": "Stations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "Status",
+  "text": "Status",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx",
+   "apps/web/app/(app)/admin/radios/radio-form.tsx",
+   "apps/web/app/(app)/admin/tenants/page.tsx",
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/app/(app)/incidents/page.tsx",
+   "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx"
+  ]
+ },
+ {
+  "key": "Status and last inspection.",
+  "text": "Status and last inspection.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/hydrants/page.tsx"
   ]
  },
  {
@@ -21661,11 +38321,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Status now",
+  "text": "Status now",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
+  "key": "Status now:",
+  "text": "Status now:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Status {status}. Mid-year average {value} / 5.",
+  "text": "Status {status}. Mid-year average {value} / 5.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
   "key": "Status → {status}",
   "text": "Status → {status}",
   "context": null,
   "where": [
    "apps/mobile/lib/outbox-policy.ts"
+  ]
+ },
+ {
+  "key": "Statute / act",
+  "text": "Statute / act",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
   ]
  },
  {
@@ -21702,6 +38394,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Step {value} of {length} ·",
+  "text": "Step {value} of {length} ·",
+  "context": null,
+  "where": [
+   "apps/web/components/form-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Steps",
+  "text": "Steps",
+  "context": null,
+  "where": [
+   "apps/web/components/form-wizard.tsx"
+  ]
+ },
+ {
+  "key": "Still being worked; newest first.",
+  "text": "Still being worked; newest first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
   "key": "Still needed to send",
   "text": "Still needed to send",
   "context": null,
@@ -21714,7 +38430,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Still needed:",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx"
+   "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
+   "apps/web/components/criti/proposal-card.tsx"
   ]
  },
  {
@@ -21758,6 +38475,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Still watching?",
+  "text": "Still watching?",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
   "key": "Stock",
   "text": "Stock",
   "context": null,
@@ -21782,6 +38507,31 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Stood down by {value} · {saTime}{value2}",
+  "text": "Stood down by {value} · {saTime}{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/zones-card.tsx"
+  ]
+ },
+ {
+  "key": "Stop",
+  "text": "Stop",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Stop after this batch",
+  "text": "Stop after this batch",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
   "key": "Stop recording and file the voice note",
   "text": "Stop recording and file the voice note",
   "context": null,
@@ -21795,6 +38545,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Stop time",
+  "text": "Stop time",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Stopped after {done} of {length}. The rest were not touched; run it again for them.",
+  "text": "Stopped after {done} of {length}. The rest were not touched; run it again for them.",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
   ]
  },
  {
@@ -21834,7 +38600,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Street",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/new.tsx"
+   "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -21911,6 +38678,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Subject",
+  "text": "Subject",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
+  ]
+ },
+ {
+  "key": "Subject name",
+  "text": "Subject name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
   "key": "Subjective, Objective, Assessment, Plan...",
   "text": "Subjective, Objective, Assessment, Plan...",
   "context": null,
@@ -21944,6 +38727,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Submit fire report",
+  "text": "Submit fire report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Submit leave",
+  "text": "Submit leave",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
   "key": "Submit request",
   "text": "Submit request",
   "context": null,
@@ -21960,13 +38759,32 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Submitted officer declarations, including failed checks and retakes. Records are shown newest first. For who is working now, with which vehicle and firearm, see",
+  "text": "Submitted officer declarations, including failed checks and retakes. Records are shown newest first. For who is working now, with which vehicle and firearm, see",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/readiness-review/page.tsx"
+  ]
+ },
+ {
   "key": "Suburb",
   "text": "Suburb",
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Successes",
+  "text": "Successes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
   ]
  },
  {
@@ -22030,6 +38848,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Summary",
   "context": null,
   "where": [
+   "apps/web/app/(app)/incidents/[id]/fire-report-card.tsx",
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -22039,6 +38860,15 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Summons",
+  "text": "Summons",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -22098,6 +38928,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Supervisor",
+  "text": "Supervisor",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Supervisor remarks",
+  "text": "Supervisor remarks",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "Support operations",
   "text": "Support operations",
   "context": null,
@@ -22110,6 +38956,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Suppression details",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -22119,6 +38966,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -22135,6 +38984,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Suspect",
   "context": null,
   "where": [
+   "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -22176,6 +39026,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Suspended today",
+  "text": "Suspended today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
   ]
  },
  {
@@ -22239,7 +39097,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Swaps",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
   ]
  },
  {
@@ -22273,6 +39132,58 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "System Modules",
+  "text": "System Modules",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/page.tsx",
+   "apps/web/components/office/module-strip.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "System Status",
+  "text": "System Status",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "System analytics",
+  "text": "System analytics",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
+  ]
+ },
+ {
+  "key": "System configuration",
+  "text": "System configuration",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/config/page.tsx"
+  ]
+ },
+ {
+  "key": "System modules",
+  "text": "System modules",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "System status",
+  "text": "System status",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/status/page.tsx"
   ]
  },
  {
@@ -22377,6 +39288,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Take back",
+  "text": "Take back",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx"
+  ]
+ },
+ {
   "key": "Take care",
   "text": "Take care",
   "context": null,
@@ -22390,6 +39309,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/shift-documents.tsx"
+  ]
+ },
+ {
+  "key": "Take this notification back? It disappears for everyone it went to.",
+  "text": "Take this notification back? It disappears for everyone it went to.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx"
   ]
  },
  {
@@ -22409,11 +39336,67 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Taken back",
+  "text": "Taken back",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
+  ]
+ },
+ {
   "key": "Taken over by SAPS",
   "text": "Taken over by SAPS",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Takes effect on their next sign-in. Their existing records do not move — a person changes tenant; history stays where it happened.",
+  "text": "Takes effect on their next sign-in. Their existing records do not move — a person changes tenant; history stays where it happened.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "Talk",
+  "text": "Talk",
+  "context": null,
+  "where": [
+   "apps/mobile/components/alerts-bell.tsx"
+  ]
+ },
+ {
+  "key": "Talk is not set up for you yet. Ask your administrator.",
+  "text": "Talk is not set up for you yet. Ask your administrator.",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
+  "key": "Talk needs the new app",
+  "text": "Talk needs the new app",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
+  "key": "Talk on this call",
+  "text": "Talk on this call",
+  "context": null,
+  "where": [
+   "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "Talk to the crew",
+  "text": "Talk to the crew",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
   ]
  },
  {
@@ -22465,6 +39448,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Task — e.g. Vehicle inspection — Unit 14",
+  "text": "Task — e.g. Vehicle inspection — Unit 14",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
   "key": "Taurus",
   "text": "Taurus",
   "context": null,
@@ -22489,6 +39480,95 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Team",
+  "text": "Team",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Team & Duty",
+  "text": "Team & Duty",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Team Dashboard",
+  "text": "Team Dashboard",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Team Readiness",
+  "text": "Team Readiness",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Team bodycams on",
+  "text": "Team bodycams on",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Team members",
+  "text": "Team members",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Team status",
+  "text": "Team status",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Team {t}",
+  "text": "Team {t}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Teams",
+  "text": "Teams",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx",
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Teams {join} · from {anchor}{value}",
+  "text": "Teams {join} · from {anchor}{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "Teams: A B C D",
+  "text": "Teams: A B C D",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
   "key": "Telephone / cellphone",
   "text": "Telephone / cellphone",
   "context": null,
@@ -22505,11 +39585,79 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Temperature: {fixed} °C",
+  "text": "Temperature: {fixed} °C",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wind-widget.tsx"
+  ]
+ },
+ {
+  "key": "Template",
+  "text": "Template",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/page.tsx",
+   "apps/web/app/(app)/police/armoury/page.tsx",
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
+  "key": "Template for HR",
+  "text": "Template for HR",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
+  "key": "Tenant",
+  "text": "Tenant",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/page.tsx",
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "Tenants",
+  "text": "Tenants",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/page.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Terms",
   "text": "Terms",
   "context": null,
   "where": [
    "apps/mobile/app/activate.tsx"
+  ]
+ },
+ {
+  "key": "Test video is on.",
+  "text": "Test video is on.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/page.tsx"
+  ]
+ },
+ {
+  "key": "Test video — not the bodycam",
+  "text": "Test video — not the bodycam",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
+  "key": "Text to the radio",
+  "text": "Text to the radio",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -22545,11 +39693,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The Hikvision platform is not connected yet",
+  "text": "The Hikvision platform is not connected yet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/page.tsx"
+  ]
+ },
+ {
   "key": "The K9 deployment: the incident, members and dogs, victims, suspects and medical treatment.",
   "text": "The K9 deployment: the incident, members and dogs, victims, suspects and medical treatment.",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "The absence codes: AL, SL, AWOL and the rest.",
+  "text": "The absence codes: AL, SL, AWOL and the rest.",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "The account can be reactivated later, with a reason.",
+  "text": "The account can be reactivated later, with a reason.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/account-status-form.tsx"
+  ]
+ },
+ {
+  "key": "The account could not be loaded.",
+  "text": "The account could not be loaded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
+  ]
+ },
+ {
+  "key": "The account is active as soon as you create it. You will know {value} password, and they do not confirm their badge number or accept the POPIA notice. Use an invitation where you can.",
+  "text": "The account is active as soon as you create it. You will know {value} password, and they do not confirm their badge number or accept the POPIA notice. Use an invitation where you can.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "The account this member signs in with. Accounts are made by invitation.",
+  "text": "The account this member signs in with. Accounts are made by invitation.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -22617,6 +39813,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The camera registry (for the live map layer) is empty. It fills from the i-traffic API once SANRAL issues a key (",
+  "text": "The camera registry (for the live map layer) is empty. It fills from the i-traffic API once SANRAL issues a key (",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/page.tsx"
+  ]
+ },
+ {
+  "key": "The camera’s code on the Hikvision platform (cameraIndexCode). Live video needs it.",
+  "text": "The camera’s code on the Hikvision platform (cameraIndexCode). Live video needs it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx"
+  ]
+ },
+ {
   "key": "The case file is closed.",
   "text": "The case file is closed.",
   "context": null,
@@ -22641,6 +39853,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The clock register — append-only, corrections are new punches.",
+  "text": "The clock register — append-only, corrections are new punches.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/attendance/page.tsx"
+  ]
+ },
+ {
+  "key": "The command dashboard's launcher honours these rules too.",
+  "text": "The command dashboard's launcher honours these rules too.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/access/page.tsx"
+  ]
+ },
+ {
   "key": "The control room is viewing your bodycam",
   "text": "The control room is viewing your bodycam",
   "context": null,
@@ -22657,6 +39885,70 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The cycle every team works, a day at a time: shift codes ({value}) and a dash for a day off. Each team starts its cycle on a different day.",
+  "text": "The cycle every team works, a day at a time: shift codes ({value}) and a dash for a day off. Each team starts its cycle on a different day.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "The daily duty sheet for parade. Choose the section, the date and the operation, then print. Times members signed on or off in the app fill in.",
+  "text": "The daily duty sheet for parade. Choose the section, the date and the operation, then print. Times members signed on or off in the app fill in.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
+  "key": "The daily duty sheet for parade: sign on, sign off and overtime.",
+  "text": "The daily duty sheet for parade: sign on, sign off and overtime.",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
+  "key": "The dashboard, leave, search and their own profile only.",
+  "text": "The dashboard, leave, search and their own profile only.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "The data SIM in the bodycam",
+  "text": "The data SIM in the bodycam",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx"
+  ]
+ },
+ {
+  "key": "The day the first team is on day one of the cycle.",
+  "text": "The day the first team is on day one of the cycle.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "The department administrator sets shift types, rotations and the late minutes. You can put people in teams.",
+  "text": "The department administrator sets shift types, rotations and the late minutes. You can put people in teams.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "The duty office screens. The systems controller decides who may open each one, and whether they may change it.",
+  "text": "The duty office screens. The systems controller decides who may open each one, and whether they may change it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/page.tsx"
+  ]
+ },
+ {
   "key": "The electronic vehicle inspection report has been finalised.",
   "text": "The electronic vehicle inspection report has been finalised.",
   "context": null,
@@ -22670,6 +39962,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/leave.tsx"
+  ]
+ },
+ {
+  "key": "The engine has not run yet.",
+  "text": "The engine has not run yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "The file is read on this computer. Nothing is saved until you confirm, and the file itself is never stored.",
+  "text": "The file is read on this computer. Nothing is saved until you confirm, and the file itself is never stored.",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "The file is read on this computer. Nothing reaches HikTech until you confirm, and then only the rows you confirm. The file itself is never stored.",
+  "text": "The file is read on this computer. Nothing reaches HikTech until you confirm, and then only the rows you confirm. The file itself is never stored.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
   ]
  },
  {
@@ -22713,6 +40029,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The force number printed on the duty sheet.",
+  "text": "The force number printed on the duty sheet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "The heading the sheet prints under. The list is kept in Configuration.",
+  "text": "The heading the sheet prints under. The list is kept in Configuration.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
   "key": "The incident record is closed.",
   "text": "The incident record is closed.",
   "context": null,
@@ -22753,11 +40085,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The latest reports filed.",
+  "text": "The latest reports filed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "The latest views of these bodycams, live or recorded, with the reason given. Every one is also in the audit log.",
+  "text": "The latest views of these bodycams, live or recorded, with the reason given. Every one is also in the audit log.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
   "key": "The lead filed the report.",
   "text": "The lead filed the report.",
   "context": null,
   "where": [
    "apps/mobile/components/closed-incidents.tsx"
+  ]
+ },
+ {
+  "key": "The ledger sets Paid and Partially Paid. Entries are never edited or deleted.",
+  "text": "The ledger sets Paid and Partially Paid. Entries are never edited or deleted.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
   ]
  },
  {
@@ -22771,6 +40127,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The money that moves against fines and charges — {length} entries, net R{fixed}.",
+  "text": "The money that moves against fines and charges — {length} entries, net R{fixed}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
+  "key": "The municipality's crest: it also appears on report PDFs, report screens in the app and the menu. Use a PNG for the PDFs.",
+  "text": "The municipality's crest: it also appears on report PDFs, report screens in the app and the menu. Use a PNG for the PDFs.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
+  ]
+ },
+ {
   "key": "The notice could not be saved on this phone.",
   "text": "The notice could not be saved on this phone.",
   "context": null,
@@ -22779,11 +40151,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The number this member is found by everywhere in the system.",
+  "text": "The number this member is found by everywhere in the system.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "The only vehicle is taken. You can continue your shift without one.",
   "text": "The only vehicle is taken. You can continue your shift without one.",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "The operational areas that appear beside every officer on the duty board — NR, DR, B, CH…",
+  "text": "The operational areas that appear beside every officer on the duty board — NR, DR, B, CH…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "The organisation must keep at least {value}. Until it has them, the current SystemAdmin cannot be demoted or deactivated, and if they are unavailable nobody can manage accounts. A new SystemAdmin needs a second approval; with nobody else to give it, the SuperAdmin decides.",
+  "text": "The organisation must keep at least {value}. Until it has them, the current SystemAdmin cannot be demoted or deactivated, and if they are unavailable nobody can manage accounts. A new SystemAdmin needs a second approval; with nobody else to give it, the SuperAdmin decides.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
+  "key": "The overtime code this section books overtime against.",
+  "text": "The overtime code this section books overtime against.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "The partner organisations the disaster desk works with.",
+  "text": "The partner organisations the disaster desk works with.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/partners/page.tsx"
   ]
  },
  {
@@ -22811,6 +40223,62 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The platform has not reported this radio.",
+  "text": "The platform has not reported this radio.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "The platform sent an insecure (http) stream address, which the browser may refuse. Ask Hikvision to stream over HTTPS.",
+  "text": "The platform sent an insecure (http) stream address, which the browser may refuse. Ask Hikvision to stream over HTTPS.",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
+  "key": "The platforms report {length} account{value} not in the register",
+  "text": "The platforms report {length} account{value} not in the register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx"
+  ]
+ },
+ {
+  "key": "The queue is clear.",
+  "text": "The queue is clear.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "The rank this call sign needs, e.g. ST for the sergeant in charge.",
+  "text": "The rank this call sign needs, e.g. ST for the sergeant in charge.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "The recipient also gets a low-priority alert, phone included.",
+  "text": "The recipient also gets a low-priority alert, phone included.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
+  ]
+ },
+ {
+  "key": "The record you're looking for doesn't exist or you don't have access to it.",
+  "text": "The record you're looking for doesn't exist or you don't have access to it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/not-found.tsx"
+  ]
+ },
+ {
   "key": "The recording produced no audio.",
   "text": "The recording produced no audio.",
   "context": null,
@@ -22827,11 +40295,67 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The report cannot be filed yet:",
+  "text": "The report cannot be filed yet:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/new/report-form.tsx"
+  ]
+ },
+ {
   "key": "The report on {incident_number} becomes a permanent record — it cannot be edited or deleted afterwards.",
   "text": "The report on {incident_number} becomes a permanent record — it cannot be edited or deleted afterwards.",
   "context": null,
   "where": [
    "apps/mobile/app/report/[id].tsx"
+  ]
+ },
+ {
+  "key": "The reports",
+  "text": "The reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "The request to send with it",
+  "text": "The request to send with it",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "The rules are installed and correct, but no scheduler is ticking them, so no escalation will fire on its own. Either enable",
+  "text": "The rules are installed and correct, but no scheduler is ticking them, so no escalation will fire on its own. Either enable",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "The same response metrics at every level — organisation, department, area and member. Drill in; the definitions never change, only the calls they cover.",
+  "text": "The same response metrics at every level — organisation, department, area and member. Drill in; the definitions never change, only the calls they cover.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/page.tsx"
+  ]
+ },
+ {
+  "key": "The same screens and powers as now.",
+  "text": "The same screens and powers as now.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/change-role-form.tsx"
+  ]
+ },
+ {
+  "key": "The same window cut three ways — by member, by department, by incident type.",
+  "text": "The same window cut three ways — by member, by department, by incident type.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/reports/page.tsx"
   ]
  },
  {
@@ -22851,11 +40375,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The staff register is empty. Import HR’s staff list first.",
+  "text": "The staff register is empty. Import HR’s staff list first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
+  "key": "The staff register: everyone who works here, with or without an account. Being in the register gives nobody access; only an invitation they accept does.",
+  "text": "The staff register: everyone who works here, with or without an account. Being in the register gives nobody access; only an invitation they accept does.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
+  "key": "The station the call sign works from.",
+  "text": "The station the call sign works from.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "The team a rotation rosters (A, B, C, D or Red, Blue, Green).",
+  "text": "The team a rotation rosters (A, B, C, D or Red, Blue, Green).",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "The units duty is allocated to, and the stations they work from.",
+  "text": "The units duty is allocated to, and the stations they work from.",
+  "context": null,
+  "where": [
+   "packages/api/src/office/index.ts"
+  ]
+ },
+ {
   "key": "The vehicle, item by item: OK, Fault or NIL.",
   "text": "The vehicle, item by item: OK, Fault or NIL.",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "The yearly entitlement shown on leave balances. Empty for none.",
+  "text": "The yearly entitlement shown on leave balances. Empty for none.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
   ]
  },
  {
@@ -22899,6 +40471,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Their invitation goes here",
+  "text": "Their invitation goes here",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx"
+  ]
+ },
+ {
   "key": "Their vehicle and registration",
   "text": "Their vehicle and registration",
   "context": null,
@@ -22907,11 +40487,67 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Theme",
+  "text": "Theme",
+  "context": null,
+  "where": [
+   "apps/web/components/theme-picker.tsx"
+  ]
+ },
+ {
+  "key": "These are safe for media and community distribution.",
+  "text": "These are safe for media and community distribution.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/page.tsx"
+  ]
+ },
+ {
+  "key": "These email addresses and cellphone numbers come from HR’s staff list.",
+  "text": "These email addresses and cellphone numbers come from HR’s staff list.",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
+  "key": "They accept, then your supervisor approves. Until then your shift stays yours.",
+  "text": "They accept, then your supervisor approves. Until then your shift stays yours.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
+  "key": "They come off duty and off rosters straight away.",
+  "text": "They come off duty and off rosters straight away.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/account-status-form.tsx"
+  ]
+ },
+ {
+  "key": "They go back on rosters, and on duty only after their next start of shift.",
+  "text": "They go back on rosters, and on duty only after their next start of shift.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/account-status-form.tsx"
+  ]
+ },
+ {
   "key": "This account has been deactivated. If you think this is a mistake, speak to your station commander or system administrator.",
   "text": "This account has been deactivated. If you think this is a mistake, speak to your station commander or system administrator.",
   "context": null,
   "where": [
    "apps/mobile/app/login.tsx"
+  ]
+ },
+ {
+  "key": "This account holds a powerful role, so a second SystemAdmin must approve. Nothing changes until they do.",
+  "text": "This account holds a powerful role, so a second SystemAdmin must approve. Nothing changes until they do.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/account-status-form.tsx"
   ]
  },
  {
@@ -22963,6 +40599,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "This cannot be undone. Press again to go ahead.",
+  "text": "This cannot be undone. Press again to go ahead.",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/proposal-card.tsx"
+  ]
+ },
+ {
   "key": "This checklist will file as NOT PASSED until every safety item above is ticked. The record cannot claim otherwise.",
   "text": "This checklist will file as NOT PASSED until every safety item above is ticked. The record cannot claim otherwise.",
   "context": null,
@@ -22979,6 +40623,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "This code is shown",
+  "text": "This code is shown",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
   "key": "This cycle",
   "text": "This cycle",
   "context": null,
@@ -22987,11 +40639,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "This feed stops in {secondsToAnswer} s to save the bodycam’s mobile data.",
+  "text": "This feed stops in {secondsToAnswer} s to save the bodycam’s mobile data.",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
   "key": "This firearm will not be issued",
   "text": "This firearm will not be issued",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "This import changes nothing about them. They may have left: review them on the Personnel page afterwards.",
+  "text": "This import changes nothing about them. They may have left: review them on the Personnel page afterwards.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
   ]
  },
  {
@@ -23019,11 +40687,29 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "This list covers {join}. People in those departments it leaves out are shown for review; nobody is removed.",
+  "text": "This list covers {join}. People in those departments it leaves out are shown for review; nobody is removed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "This member has no account yet, so they cannot be given screens.",
+  "text": "This member has no account yet, so they cannot be given screens.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "This month",
   "text": "This month",
   "context": null,
   "where": [
-   "apps/mobile/lib/performance.ts"
+   "apps/mobile/lib/performance.ts",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx"
   ]
  },
  {
@@ -23043,6 +40729,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "This page hit an error",
+  "text": "This page hit an error",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/error.tsx"
+  ]
+ },
+ {
+  "key": "This page shows calls sent to you yourself, as a field officer sees them.",
+  "text": "This page shows calls sent to you yourself, as a field officer sees them.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
   "key": "This phone could not be registered for dispatch notifications. Alerts still arrive while the app is open — report this so the handset can be checked.",
   "text": "This phone could not be registered for dispatch notifications. Alerts still arrive while the app is open — report this so the handset can be checked.",
   "context": null,
@@ -23059,11 +40761,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "This request is about your account, so another SystemAdmin decides it.",
+  "text": "This request is about your account, so another SystemAdmin decides it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/request-decision.tsx"
+  ]
+ },
+ {
+  "key": "This section has no call signs. Add them under Call Signs.",
+  "text": "This section has no call signs. Add them under Call Signs.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "This version of the app cannot carry voice yet. Install the latest HikTech app from your administrator.",
+  "text": "This version of the app cannot carry voice yet. Install the latest HikTech app from your administrator.",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
+  "key": "This week",
+  "text": "This week",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
   "key": "This {file} already holds {MAX_PHOTOS} photos — the maximum.",
   "text": "This {file} already holds {MAX_PHOTOS} photos — the maximum.",
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "Throughput for a control-room role's members — distinct from field-officer scoring.",
+  "text": "Throughput for a control-room role's members — distinct from field-officer scoring.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/role-kpis/page.tsx"
   ]
  },
  {
@@ -23091,12 +40833,56 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Tick at least one call sign and one member",
+  "text": "Tick at least one call sign and one member",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Tick call signs and staff above, then Allocate selected.",
+  "text": "Tick call signs and staff above, then Allocate selected.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Ticket #",
+  "text": "Ticket #",
+  "context": null,
+  "where": [
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
+  "key": "Ticket #{value} ({shortCode})",
+  "text": "Ticket #{value} ({shortCode})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
   "key": "Time",
   "text": "Time",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
+   "apps/web/app/(app)/modules/duty-operations/page.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Time & Attendance",
+  "text": "Time & Attendance",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/attendance/page.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -23140,6 +40926,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Time of offence",
+  "text": "Time of offence",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/new/report-form.tsx"
+  ]
+ },
+ {
   "key": "Time of tow",
   "text": "Time of tow",
   "context": null,
@@ -23152,7 +40946,24 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Time on Scene",
   "context": null,
   "where": [
-   "apps/mobile/app/pcr/[id].tsx"
+   "apps/mobile/app/pcr/[id].tsx",
+   "apps/web/app/(app)/medical/pcr/pcr-form.tsx"
+  ]
+ },
+ {
+  "key": "Time on scene",
+  "text": "Time on scene",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Time on scene {saTime}",
+  "text": "Time on scene {saTime}",
+  "context": null,
+  "where": [
+   "apps/web/components/pcr-card.tsx"
   ]
  },
  {
@@ -23161,6 +40972,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Time to dispatch (p50)",
+  "text": "Time to dispatch (p50)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
   ]
  },
  {
@@ -23176,7 +40995,26 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Timeline",
   "context": null,
   "where": [
-   "apps/mobile/app/post-mortem/[id].tsx"
+   "apps/mobile/app/post-mortem/[id].tsx",
+   "apps/web/components/post-mortem-card.tsx"
+  ]
+ },
+ {
+  "key": "Timeline ({length})",
+  "text": "Timeline ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Timestamp",
+  "text": "Timestamp",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx"
   ]
  },
  {
@@ -23188,11 +41026,52 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Title",
+  "text": "Title",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx",
+   "apps/web/app/(app)/performance/kpis/page.tsx"
+  ]
+ },
+ {
   "key": "To",
   "text": "To",
   "context": null,
   "where": [
-   "apps/mobile/app/leave.tsx"
+   "apps/mobile/app/leave.tsx",
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx",
+   "apps/web/app/(app)/medical/handovers/page.tsx",
+   "apps/web/app/(app)/medical/pcr/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/notifications/send-form.tsx",
+   "apps/web/app/(app)/performance/operational/page.tsx",
+   "apps/web/app/(app)/performance/reports/page.tsx",
+   "apps/web/app/(app)/performance/role-kpis/page.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/firearms/new/page.tsx",
+   "apps/web/app/(app)/police/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx",
+   "apps/web/app/(app)/police/reports/reports-list.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx",
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "To (blank: one day for court, open-ended otherwise)",
+  "text": "To (blank: one day for court, open-ended otherwise)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "To a person, a group, a role or your department.",
+  "text": "To a person, a group, a role or your department.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
   ]
  },
  {
@@ -23212,6 +41091,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "To confirm, type the {kind}",
+  "text": "To confirm, type the {kind}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/confirm-fields.tsx"
+  ]
+ },
+ {
+  "key": "To one person at a time.",
+  "text": "To one person at a time.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
+  ]
+ },
+ {
   "key": "To pay",
   "text": "To pay",
   "context": null,
@@ -23225,6 +41120,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "To resend an unused invitation, submit the same email and organisation again.",
+  "text": "To resend an unused invitation, submit the same email and organisation again.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx"
   ]
  },
  {
@@ -23244,13 +41147,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "To {value} · {value2}",
+  "text": "To {value} · {value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
+  ]
+ },
+ {
   "key": "Today",
   "text": "Today",
   "context": null,
   "where": [
    "apps/mobile/app/fines/index.tsx",
    "apps/mobile/components/report-wizard.tsx",
-   "apps/mobile/lib/performance.ts"
+   "apps/mobile/lib/performance.ts",
+   "apps/web/app/(app)/notifications/feed.tsx",
+   "apps/web/app/(app)/police/fines/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "Today's call volume by hour.",
+  "text": "Today's call volume by hour.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/kpi/page.tsx"
+  ]
+ },
+ {
+  "key": "Today's shift assignments — {board}.",
+  "text": "Today's shift assignments — {board}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "Today’s Shift",
+  "text": "Today’s Shift",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Today’s shift",
+  "text": "Today’s shift",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/page.tsx",
+   "apps/web/app/(app)/police/armoury/page.tsx",
+   "apps/web/app/(app)/police/bodycams/page.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx"
   ]
  },
  {
@@ -23262,11 +41211,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "TomTom feed for the Durban metro bbox — refreshed every 2 min.",
+  "text": "TomTom feed for the Durban metro bbox — refreshed every 2 min.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/traffic-panel.tsx"
+  ]
+ },
+ {
   "key": "Tomorrow: {shift} {time}",
   "text": "Tomorrow: {shift} {time}",
   "context": null,
   "where": [
    "apps/mobile/lib/shift-reminders-policy.ts"
+  ]
+ },
+ {
+  "key": "Top incident types",
+  "text": "Top incident types",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
+  ]
+ },
+ {
+  "key": "Total",
+  "text": "Total",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -23278,6 +41251,62 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Total absence types",
+  "text": "Total absence types",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Total call signs",
+  "text": "Total call signs",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Total calls logged",
+  "text": "Total calls logged",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Total calls taken",
+  "text": "Total calls taken",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/role-kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "Total calls today",
+  "text": "Total calls today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Total dispatched",
+  "text": "Total dispatched",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/role-kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "Total endorsements",
+  "text": "Total endorsements",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
   "key": "Total estimated value (R)",
   "text": "Total estimated value (R)",
   "context": null,
@@ -23286,11 +41315,67 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Total fine",
+  "text": "Total fine",
+  "context": null,
+  "where": [
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
+  "key": "Total incidents",
+  "text": "Total incidents",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/analytics/page.tsx"
+  ]
+ },
+ {
+  "key": "Total incidents handled",
+  "text": "Total incidents handled",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/profile/page.tsx"
+  ]
+ },
+ {
   "key": "Total injuries",
   "text": "Total injuries",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Total members:",
+  "text": "Total members:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx"
+  ]
+ },
+ {
+  "key": "Total reports",
+  "text": "Total reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Total response (p50)",
+  "text": "Total response (p50)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
+  ]
+ },
+ {
+  "key": "Total time on scene",
+  "text": "Total time on scene",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
   ]
  },
  {
@@ -23462,6 +41547,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Traffic feed unavailable ({error}).",
+  "text": "Traffic feed unavailable ({error}).",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/traffic-panel.tsx"
+  ]
+ },
+ {
   "key": "Traffic information — road closure",
   "text": "Traffic information — road closure",
   "context": null,
@@ -23494,11 +41587,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Trail for",
+  "text": "Trail for",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/audit/page.tsx"
+  ]
+ },
+ {
   "key": "Trailer",
   "text": "Trailer",
   "context": null,
   "where": [
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Trails for {length} cases numbered",
+  "text": "Trails for {length} cases numbered",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/audit/page.tsx"
+  ]
+ },
+ {
+  "key": "Training",
+  "text": "Training",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Training & certifications",
+  "text": "Training & certifications",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "Training ({length})",
+  "text": "Training ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
+  "key": "Training name",
+  "text": "Training name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "Training records ({length})",
+  "text": "Training records ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/training/page.tsx"
   ]
  },
  {
@@ -23532,6 +41682,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/home-header.tsx",
+   "apps/web/app/(app)/responder/monitor/responder-board.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -23552,6 +41703,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Travel time (p50)",
+  "text": "Travel time (p50)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/rollup/rollup-client.tsx"
+  ]
+ },
+ {
+  "key": "Treatment details",
+  "text": "Treatment details",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Treatment provided on scene",
+  "text": "Treatment provided on scene",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
   "key": "Tree fallen on a home or road",
   "text": "Tree fallen on a home or road",
   "context": null,
@@ -23565,6 +41740,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Triage",
+  "text": "Triage",
+  "context": null,
+  "where": [
+   "apps/web/components/pcr-card.tsx"
   ]
  },
  {
@@ -23599,7 +41782,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/_layout.tsx",
    "apps/mobile/app/end-shift.tsx",
-   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/error.tsx"
   ]
  },
  {
@@ -23659,6 +41843,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Tune the service to your standing orders — SLA clocks, alert behaviour, the ETA model. Changes apply immediately, no deployment needed.",
+  "text": "Tune the service to your standing orders — SLA clocks, alert behaviour, the ETA model. Changes apply immediately, no deployment needed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operations/page.tsx"
+  ]
+ },
+ {
   "key": "Turbulent / black",
   "text": "Turbulent / black",
   "context": null,
@@ -23697,7 +41889,25 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/fines/new.tsx",
    "apps/mobile/app/post-mortem/[id].tsx",
+   "apps/web/app/(app)/admin/devices/page.tsx",
+   "apps/web/app/(app)/admin/vehicles/vehicle-form.tsx",
+   "apps/web/app/(app)/dispatch/pending/page.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx",
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx",
+   "apps/web/components/ops-map/zones/zone-editor.tsx",
+   "apps/web/components/post-mortem-card.tsx",
+   "apps/web/components/schedule/leave-actions.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Type at least {value} characters — a single character matches most of the database and tells you nothing.",
+  "text": "Type at least {value} characters — a single character matches most of the database and tells you nothing.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/search/page.tsx"
   ]
  },
  {
@@ -23731,6 +41941,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Type the slug to confirm",
+  "text": "Type the slug to confirm",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "Type: {type} · Location: {location}",
+  "text": "Type: {type} · Location: {location}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/post-mortem/post-mortem-form.tsx"
   ]
  },
  {
@@ -23816,10 +42042,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Unallocated",
+  "text": "Unallocated",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Unassigned",
+  "text": "Unassigned",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
+  "key": "Unavailable",
+  "text": "Unavailable",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Unchanged",
   "text": "Unchanged",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx",
    "packages/db/src/pcr.ts"
   ]
  },
@@ -23864,6 +42116,23 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Undo",
+  "text": "Undo",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-tools.tsx"
+  ]
+ },
+ {
+  "key": "Undo skip",
+  "text": "Undo skip",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
   "key": "Uninjured",
   "text": "Uninjured",
   "context": null,
@@ -23877,7 +42146,83 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx",
-   "apps/mobile/components/shift-report.tsx"
+   "apps/mobile/components/shift-report.tsx",
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
+  "key": "Unit / apparatus (optional)",
+  "text": "Unit / apparatus (optional)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
+  "key": "Unit Compliance",
+  "text": "Unit Compliance",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Unit arrivals",
+  "text": "Unit arrivals",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
+  ]
+ },
+ {
+  "key": "Unit compliance",
+  "text": "Unit compliance",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "Unit compliance — today",
+  "text": "Unit compliance — today",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/unit-compliance/page.tsx"
+  ]
+ },
+ {
+  "key": "Unit status",
+  "text": "Unit status",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Unit type",
+  "text": "Unit type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Unit, plate, driver, station",
+  "text": "Unit, plate, driver, station",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx"
+  ]
+ },
+ {
+  "key": "Units dispatched per operator.",
+  "text": "Units dispatched per operator.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
   ]
  },
  {
@@ -23932,12 +42277,44 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Unloaded, serial checked, action and safety work",
+  "text": "Unloaded, serial checked, action and safety work",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
+  ]
+ },
+ {
+  "key": "Unmanned",
+  "text": "Unmanned",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Unnamed",
+  "text": "Unnamed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
+  ]
+ },
+ {
   "key": "Unpaid",
   "text": "Unpaid",
   "context": null,
   "where": [
    "apps/mobile/app/leave.tsx",
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Unread",
+  "text": "Unread",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/feed.tsx"
   ]
  },
  {
@@ -23965,11 +42342,44 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Until",
+  "text": "Until",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "Untitled report",
+  "text": "Untitled report",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Unverified",
+  "text": "Unverified",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
+  ]
+ },
+ {
+  "key": "Up to two months. Every day in the range is booked.",
+  "text": "Up to two months. Every day in the range is booked.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx"
+  ]
+ },
+ {
   "key": "Update",
   "text": "Update",
   "context": null,
   "where": [
-   "apps/mobile/lib/outbox-policy.ts"
+   "apps/mobile/lib/outbox-policy.ts",
+   "apps/web/app/(app)/police/charges/[id]/page.tsx"
   ]
  },
  {
@@ -23985,7 +42395,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Updates ({length})",
   "context": null,
   "where": [
-   "apps/mobile/app/incident/[id].tsx"
+   "apps/mobile/app/incident/[id].tsx",
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Updates by itself as crews move. A Fire incident is resolved when its fire report is filed.",
+  "text": "Updates by itself as crews move. A Fire incident is resolved when its fire report is filed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx"
   ]
  },
  {
@@ -23997,12 +42416,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Updating",
+  "text": "Updating",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
+  ]
+ },
+ {
   "key": "Upholstery",
   "text": "Upholstery",
   "context": null,
   "where": [
    "apps/mobile/lib/inspection-187c.ts",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Upload evidence",
+  "text": "Upload evidence",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
+  "key": "Upload the day’s receipts from the cashier or the bank. Each row is matched to a fine by its FN- number or its notice number, and recorded with the date on the receipt — so a payment made inside the 32 days keeps the AARTO discount even when it is captured later. A receipt already on a fine is skipped, so importing the same file twice records nothing twice.",
+  "text": "Upload the day’s receipts from the cashier or the bank. Each row is matched to a fine by its FN- number or its notice number, and recorded with the date on the receipt — so a payment made inside the 32 days keeps the AARTO discount even when it is captured later. A receipt already on a fine is skipped, so importing the same file twice records nothing twice.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/page.tsx"
   ]
  },
  {
@@ -24042,7 +42485,85 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Use of force",
   "context": null,
   "where": [
+   "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-types.ts"
+  ]
+ },
+ {
+  "key": "Used",
+  "text": "Used",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
+  "key": "User",
+  "text": "User",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "User Logon report from the audit trail.",
+  "text": "User Logon report from the audit trail.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx"
+  ]
+ },
+ {
+  "key": "User-role KPIs",
+  "text": "User-role KPIs",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/role-kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "Username",
+  "text": "Username",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Users",
+  "text": "Users",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/page.tsx",
+   "apps/web/app/(app)/admin/users/[id]/page.tsx",
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "Users & Roles",
+  "text": "Users & Roles",
+  "context": null,
+  "where": [
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Users, vehicles, devices and the audit trail.",
+  "text": "Users, vehicles, devices and the audit trail.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
+  "key": "Using the monogram badge until a crest is uploaded.",
+  "text": "Using the monogram badge until a crest is uploaded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/departments/department-card.tsx"
   ]
  },
  {
@@ -24058,7 +42579,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Utilities secured",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Utility details",
+  "text": "Utility details",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
   ]
  },
  {
@@ -24102,11 +42632,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Valid until",
+  "text": "Valid until",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
+  "key": "Value",
+  "text": "Value",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Value issued",
+  "text": "Value issued",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
   "key": "Value of recovered stolen vehicle (R)",
   "text": "Value of recovered stolen vehicle (R)",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Values",
+  "text": "Values",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
   ]
  },
  {
@@ -24126,6 +42688,13 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/(tabs)/shift.tsx",
    "apps/mobile/app/fines/new.tsx",
    "apps/mobile/components/ems-shift.tsx",
+   "apps/web/app/(app)/admin/radios/radio-form.tsx",
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx",
+   "apps/web/app/(app)/roster/duty-sheet/page.tsx",
+   "apps/web/app/(app)/shift/today/page.tsx",
+   "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/intake.ts"
   ]
@@ -24192,7 +42761,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Vehicle and place",
   "context": null,
   "where": [
-   "apps/mobile/app/fines/[id].tsx"
+   "apps/mobile/app/fines/[id].tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -24261,6 +42832,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Vehicle inspections ({length})",
+  "text": "Vehicle inspections ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/unit-compliance/page.tsx"
+  ]
+ },
+ {
   "key": "Vehicle licence & disc number",
   "text": "Vehicle licence & disc number",
   "context": null,
@@ -24285,11 +42864,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Vehicle off road for cleaning",
+  "text": "Vehicle off road for cleaning",
+  "context": null,
+  "where": [
+   "apps/web/components/pcr-card.tsx"
+  ]
+ },
+ {
   "key": "Vehicle on fire",
   "text": "Vehicle on fire",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Vehicle registration",
+  "text": "Vehicle registration",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
   ]
  },
  {
@@ -24325,6 +42920,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Vehicles",
+  "text": "Vehicles",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
   "key": "Vehicles / objects involved",
   "text": "Vehicles / objects involved",
   "context": null,
@@ -24338,6 +42941,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Vehicles off the road",
+  "text": "Vehicles off the road",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
   ]
  },
  {
@@ -24373,10 +42984,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Ventilation conducted",
+  "text": "Ventilation conducted",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx"
+  ]
+ },
+ {
   "key": "Ventilation type",
   "text": "Ventilation type",
   "context": null,
   "where": [
+   "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
   ]
  },
@@ -24394,6 +43014,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-types.ts"
+  ]
+ },
+ {
+  "key": "Verified",
+  "text": "Verified",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/offence-table.tsx"
   ]
  },
  {
@@ -24417,6 +43045,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Victim",
   "context": null,
   "where": [
+   "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -24433,7 +43062,26 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Victim injuries",
   "context": null,
   "where": [
+   "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Victims",
+  "text": "Victims",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "View",
+  "text": "View",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/police/report-centre/records/page.tsx",
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
   ]
  },
  {
@@ -24456,6 +43104,31 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "View all ({length})",
+  "text": "View all ({length})",
+  "context": null,
+  "where": [
+   "apps/web/components/criti/insight-tiles.tsx"
+  ]
+ },
+ {
+  "key": "View all →",
+  "text": "View all →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx",
+   "apps/web/app/(app)/medical/page.tsx"
+  ]
+ },
+ {
+  "key": "View answers",
+  "text": "View answers",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/readiness-review/page.tsx"
+  ]
+ },
+ {
   "key": "View incident",
   "text": "View incident",
   "context": null,
@@ -24464,11 +43137,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "View incident lifecycle",
+  "text": "View incident lifecycle",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/incident-row.tsx"
+  ]
+ },
+ {
   "key": "View my incidents →",
   "text": "View my incidents →",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "View only",
+  "text": "View only",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/page.tsx",
+   "apps/web/components/office/office-header.tsx"
   ]
  },
  {
@@ -24536,6 +43226,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Voice notes ({length})",
+  "text": "Voice notes ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Voice server (HikTech Talk)",
+  "text": "Voice server (HikTech Talk)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
+  ]
+ },
+ {
   "key": "Volkswagen",
   "text": "Volkswagen",
   "context": null,
@@ -24544,11 +43250,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Volume, closure, staffing and leave burden side by side.",
+  "text": "Volume, closure, staffing and leave burden side by side.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/reports/page.tsx"
+  ]
+ },
+ {
   "key": "Volvo",
   "text": "Volvo",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "W/E",
+  "text": "W/E",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx",
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
   ]
  },
  {
@@ -24577,6 +43300,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Waiting for a SystemAdmin to decide.",
+  "text": "Waiting for a SystemAdmin to decide.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/request-decision.tsx"
+  ]
+ },
+ {
+  "key": "Waiting for a case manager to read the report and close the case.",
+  "text": "Waiting for a case manager to read the report and close the case.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-review-card.tsx"
+  ]
+ },
+ {
   "key": "Waiting for case review",
   "text": "Waiting for case review",
   "context": null,
@@ -24585,11 +43324,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Waiting for review, and still live.",
+  "text": "Waiting for review, and still live.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
   "key": "Waiting for them",
   "text": "Waiting for them",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx"
+  ]
+ },
+ {
+  "key": "Waiting for you ({length})",
+  "text": "Waiting for you ({length})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
   ]
  },
  {
@@ -24625,6 +43380,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Warrant area",
+  "text": "Warrant area",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Warrants",
+  "text": "Warrants",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/warrants/page.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -24668,6 +43440,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Watch live",
+  "text": "Watch live",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/bodycams-card.tsx"
+  ]
+ },
+ {
   "key": "Water / booster tank full",
   "text": "Water / booster tank full",
   "context": null,
@@ -24681,6 +43461,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Weapon",
+  "text": "Weapon",
+  "context": null,
+  "where": [
+   "apps/web/components/police-report-view.tsx"
   ]
  },
  {
@@ -24704,6 +43492,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Weather",
   "context": null,
   "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx",
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/fines.ts"
   ]
@@ -24725,11 +43514,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Weather needs OPENWEATHER_API_KEY on the server.",
+  "text": "Weather needs OPENWEATHER_API_KEY on the server.",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Weather now: {sentence}, {weatherNow}",
   "text": "Weather now: {sentence}, {weatherNow}",
   "context": null,
   "where": [
    "apps/mobile/app/live-map.tsx"
+  ]
+ },
+ {
+  "key": "Weather service unavailable ({error}).",
+  "text": "Weather service unavailable ({error}).",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wind-widget.tsx"
   ]
  },
  {
@@ -24757,11 +43562,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Weekend",
+  "text": "Weekend",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Weekend group A or B. Prints as W/E on the duty sheet.",
+  "text": "Weekend group A or B. Prints as W/E on the duty sheet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Weight",
   "text": "Weight",
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Weight (%)",
+  "text": "Weight (%)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/kpis/page.tsx"
   ]
  },
  {
@@ -24780,6 +43609,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/home-header.tsx"
+  ]
+ },
+ {
+  "key": "Welcome back, {first}",
+  "text": "Welcome back, {first}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
   ]
  },
  {
@@ -24821,6 +43658,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "What I sent",
+  "text": "What I sent",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/page.tsx"
   ]
  },
  {
@@ -24904,6 +43749,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "What changes for {first}",
+  "text": "What changes for {first}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/change-role-form.tsx"
+  ]
+ },
+ {
   "key": "What crime",
   "text": "What crime",
   "context": null,
@@ -24933,6 +43786,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "What each tenant's portal offers, module by module — hide one for the whole organisation or deny it to specific roles. Rules only ever subtract from the built-in role matrix, and take effect everywhere within a minute.",
+  "text": "What each tenant's portal offers, module by module — hide one for the whole organisation or deny it to specific roles. Rules only ever subtract from the built-in role matrix, and take effect everywhere within a minute.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/access/page.tsx"
   ]
  },
  {
@@ -25016,6 +43877,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "What is sent to you, your role, your department and everyone lands here. High and Critical incidents also open a full-screen alert you have to acknowledge.",
+  "text": "What is sent to you, your role, your department and everyone lands here. High and Critical incidents also open a full-screen alert you have to acknowledge.",
+  "context": null,
+  "where": [
+   "apps/mobile/app/alerts.tsx"
+  ]
+ },
+ {
+  "key": "What is switched on for {value}. Changes apply to every user in the organisation, take effect on their next page load — the responder app follows within moments over realtime — and are written to the audit trail with your name.",
+  "text": "What is switched on for {value}. Changes apply to every user in the organisation, take effect on their next page load — the responder app follows within moments over realtime — and are written to the audit trail with your name.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/features/page.tsx"
+  ]
+ },
+ {
   "key": "What is the damage?",
   "text": "What is the damage?",
   "context": null,
@@ -25085,6 +43962,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "What the city is actually calling about, and how it resolves.",
+  "text": "What the city is actually calling about, and how it resolves.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/reports/page.tsx"
   ]
  },
  {
@@ -25224,6 +44109,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "What you handled most.",
+  "text": "What you handled most.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/mine/page.tsx"
+  ]
+ },
+ {
   "key": "WhatsApp",
   "text": "WhatsApp",
   "context": null,
@@ -25238,6 +44131,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/lib/inspection-187c.ts",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "When",
+  "text": "When",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
   ]
  },
  {
@@ -25265,6 +44166,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "When the officer radios a step in instead of pressing it in the app.",
+  "text": "When the officer radios a step in instead of pressing it in the app.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "When was it last seen?",
   "text": "When was it last seen?",
   "context": null,
@@ -25279,6 +44188,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/fines/[id].tsx",
    "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -25395,11 +44305,44 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Where it is kept",
+  "text": "Where it is kept",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx"
+  ]
+ },
+ {
+  "key": "Where it is kept and charged",
+  "text": "Where it is kept and charged",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx"
+  ]
+ },
+ {
   "key": "Where it is raining now (OpenWeather).",
   "text": "Where it is raining now (OpenWeather).",
   "context": null,
   "where": [
    "apps/mobile/app/live-map.tsx"
+  ]
+ },
+ {
+  "key": "Where sections and call signs work from. They appear as Patrol area on call signs.",
+  "text": "Where sections and call signs work from. They appear as Patrol area on call signs.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Where the crew is",
+  "text": "Where the crew is",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx",
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
   ]
  },
  {
@@ -25448,6 +44391,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Which duty office screens this member may open, and whether they may change them. Only the systems controller sets this.",
+  "text": "Which duty office screens this member may open, and whether they may change them. Only the systems controller sets this.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -25547,11 +44498,84 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Who",
+  "text": "Who",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Who captures",
+  "text": "Who captures",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/absence/page.tsx"
+  ]
+ },
+ {
+  "key": "Who closed each case, and how.",
+  "text": "Who closed each case, and how.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
   "key": "Who else is on duty in my department?",
   "text": "Who else is on duty in my department?",
   "context": null,
   "where": [
    "apps/mobile/app/assistant.tsx"
+  ]
+ },
+ {
+  "key": "Who has a working account, who is invited, and who has not been reached yet.",
+  "text": "Who has a working account, who is invited, and who has not been reached yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
+  "key": "Who has started{value}, with which vehicle, firearm and bodycam, and who has ended. Problems come first. Updates by itself.",
+  "text": "Who has started{value}, with which vehicle, firearm and bodycam, and who has ended. Problems come first. Updates by itself.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "Who has watched",
+  "text": "Who has watched",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/page.tsx"
+  ]
+ },
+ {
+  "key": "Who has which vehicle and firearm is on",
+  "text": "Who has which vehicle and firearm is on",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/unit-compliance/page.tsx"
+  ]
+ },
+ {
+  "key": "Who radioed it in?",
+  "text": "Who radioed it in?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "Who sees it",
+  "text": "Who sees it",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx",
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
   ]
  },
  {
@@ -25563,11 +44587,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Who's away · {monthName}",
+  "text": "Who's away · {monthName}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
+  ]
+ },
+ {
   "key": "Who's on today",
   "text": "Who's on today",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
+  "key": "Whole department",
+  "text": "Whole department",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
   ]
  },
  {
@@ -25579,11 +44620,101 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Whose radio, whose hard hat. The Radio Desk, the map and SOS alerts use this list.",
+  "text": "Whose radio, whose hard hat. The Radio Desk, the map and SOS alerts use this list.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx"
+  ]
+ },
+ {
+  "key": "Why",
+  "text": "Why",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
+   "apps/web/app/(app)/incidents/[id]/departments-card.tsx",
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
+  "key": "Why are you opening this bodycam?",
+  "text": "Why are you opening this bodycam?",
+  "context": null,
+  "where": [
+   "apps/web/components/bodycam/bodycam-viewer.tsx"
+  ]
+ },
+ {
+  "key": "Why is it being stood down?",
+  "text": "Why is it being stood down?",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
+  "key": "Why it changed (optional)",
+  "text": "Why it changed (optional)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx"
+  ]
+ },
+ {
+  "key": "Why it is cancelled",
+  "text": "Why it is cancelled",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/leave-actions.tsx"
+  ]
+ },
+ {
+  "key": "Why it is cancelled (at least 10 characters)",
+  "text": "Why it is cancelled (at least 10 characters)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
+  ]
+ },
+ {
+  "key": "Why it is not approved",
+  "text": "Why it is not approved",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/leave-actions.tsx"
+  ]
+ },
+ {
   "key": "Why no photos *",
   "text": "Why no photos *",
   "context": null,
   "where": [
    "apps/mobile/app/fire-report/[id].tsx"
+  ]
+ },
+ {
+  "key": "Why not",
+  "text": "Why not",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "Why this call is being closed (at least 10 characters)",
+  "text": "Why this call is being closed (at least 10 characters)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-forms.tsx"
+  ]
+ },
+ {
+  "key": "Why {value}",
+  "text": "Why {value}",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
   ]
  },
  {
@@ -25595,11 +44726,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Why:",
+  "text": "Why:",
+  "context": null,
+  "where": [
+   "apps/web/components/call-edits.tsx"
+  ]
+ },
+ {
+  "key": "Will update",
+  "text": "Will update",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
   "key": "Winchester",
   "text": "Winchester",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Wind & weather",
+  "text": "Wind & weather",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wind-widget.tsx"
   ]
  },
  {
@@ -25617,6 +44773,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/lib/inspection-187c.ts",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Windows are capped at 24 hours: this shows the first day.",
+  "text": "Windows are capped at 24 hours: this shows the first day.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/footage/footage-browser.tsx"
   ]
  },
  {
@@ -25647,11 +44811,45 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "With",
+  "text": "With",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "With an arrest",
+  "text": "With an arrest",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
   "key": "Withdraw",
   "text": "Withdraw",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
+  ]
+ },
+ {
+  "key": "Withdraw request",
+  "text": "Withdraw request",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/request-decision.tsx"
+  ]
+ },
+ {
+  "key": "Withdraw this endorsement? It stays on record.",
+  "text": "Withdraw this endorsement? It stays on record.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
   ]
  },
  {
@@ -25659,7 +44857,10 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Withdrawn",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/modules/endorsements/page.tsx",
+   "apps/web/app/(app)/police/charges/[id]/page.tsx",
+   "apps/web/app/(app)/police/summons/page.tsx"
   ]
  },
  {
@@ -25676,6 +44877,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Without an arrest",
+  "text": "Without an arrest",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
   ]
  },
  {
@@ -25711,6 +44920,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Words",
+  "text": "Words",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
   "key": "Words not translated yet show in English. What people type, names and incident numbers stay as written.",
   "text": "Words not translated yet show in English. What people type, names and incident numbers stay as written.",
   "context": null,
@@ -25727,6 +44944,47 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Work cellphone",
+  "text": "Work cellphone",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Work email",
+  "text": "Work email",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/add-person-form.tsx"
+  ]
+ },
+ {
+  "key": "Workforce",
+  "text": "Workforce",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Working… {done} of {length}",
+  "text": "Working… {done} of {length}",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
+  "key": "Works once. Issued by {issuedBy}. Hand only to the person named above. Destroy after use.",
+  "text": "Works once. Issued by {issuedBy}. Hand only to the person named above. Destroy after use.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
   "key": "Write it up",
   "text": "Write it up",
   "context": null,
@@ -25735,11 +44993,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Wrong department? Change it in Personnel",
+  "text": "Wrong department? Change it in Personnel",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "XXXX-XXXX",
   "text": "XXXX-XXXX",
   "context": null,
   "where": [
    "apps/mobile/app/activate.tsx"
+  ]
+ },
+ {
+  "key": "Y when the member’s signed leave form has been handed in.",
+  "text": "Y when the member’s signed leave form has been handed in.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "Y — Yes",
+  "text": "Y — Yes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -25802,6 +45085,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Year",
+  "text": "Year",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/crime-hotspots/page.tsx"
+  ]
+ },
+ {
   "key": "Yellow",
   "text": "Yellow",
   "context": null,
@@ -25826,7 +45117,14 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/disaster-shift.tsx",
    "apps/mobile/components/fire-ui.tsx",
    "apps/mobile/components/shift-form.tsx",
+   "apps/web/app/(app)/admin/devices/page.tsx",
+   "apps/web/app/(app)/admin/operators/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/description.tsx",
+   "apps/web/app/(app)/hierarchy/person/page.tsx",
+   "apps/web/app/(app)/modules/absence/page.tsx",
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/app/(app)/modules/sections/page.tsx",
+   "apps/web/app/(app)/performance/mine/page.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -25867,7 +45165,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Yesterday",
   "context": null,
   "where": [
-   "apps/mobile/components/report-wizard.tsx"
+   "apps/mobile/components/report-wizard.tsx",
+   "apps/web/app/(app)/notifications/feed.tsx"
   ]
  },
  {
@@ -25968,6 +45267,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "You are on the air. Let go to listen.",
+  "text": "You are on the air. Let go to listen.",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx",
+   "apps/web/components/talk/talk-panel.tsx"
+  ]
+ },
+ {
   "key": "You are on {incident_number}",
   "text": "You are on {incident_number}",
   "context": null,
@@ -25981,6 +45289,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "You cannot change your own account. Ask another administrator.",
+  "text": "You cannot change your own account. Ask another administrator.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "You cannot deactivate your own account.",
+  "text": "You cannot deactivate your own account.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
   ]
  },
  {
@@ -26006,6 +45330,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/route/[id].tsx"
+  ]
+ },
+ {
+  "key": "You have no duty office screens yet. Ask the systems controller for access.",
+  "text": "You have no duty office screens yet. Ask the systems controller for access.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/page.tsx"
   ]
  },
  {
@@ -26038,6 +45370,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/closed-incidents.tsx"
+  ]
+ },
+ {
+  "key": "You made this request, so a second SystemAdmin decides it. You can withdraw it.",
+  "text": "You made this request, so a second SystemAdmin decides it. You can withdraw it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/request-decision.tsx"
   ]
  },
  {
@@ -26080,6 +45420,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": "You will print a slip with a one-time code and hand it to {first} in person. They sign in with{value}.",
+  "text": "You will print a slip with a one-time code and hand it to {first} in person. They sign in with{value}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
@@ -26204,6 +45552,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Your operational throughput vs the team, plus your annual appraisal ({cycleLabel}).",
+  "text": "Your operational throughput vs the team, plus your annual appraisal ({cycleLabel}).",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/mine/page.tsx"
+  ]
+ },
+ {
   "key": "Your patient report is on record.",
   "text": "Your patient report is on record.",
   "context": null,
@@ -26310,6 +45666,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Your role cannot change this account.",
+  "text": "Your role cannot change this account.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Your role cannot change this account.{value}",
+  "text": "Your role cannot change this account.{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Your saved draft has been restored. Verify every answer before filing.",
   "text": "Your saved draft has been restored. Verify every answer before filing.",
   "context": null,
@@ -26406,11 +45778,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Your team, at a glance",
+  "text": "Your team, at a glance",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
   "key": "Your unfinished notice was kept. Carry on, or tap Start over below.",
   "text": "Your unfinished notice was kept. Carry on, or tap Start over below.",
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
+  ]
+ },
+ {
+  "key": "Your {describe} for {value}'s {describe2}",
+  "text": "Your {describe} for {value}'s {describe2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
   ]
  },
  {
@@ -26447,11 +45835,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Zone",
+  "text": "Zone",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Zone code",
+  "text": "Zone code",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/security/new/page.tsx"
+  ]
+ },
+ {
   "key": "a colleague",
   "text": "a colleague",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx"
+  ]
+ },
+ {
+  "key": "across all leave on record",
+  "text": "across all leave on record",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "activated",
+  "text": "activated",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
+  "key": "admin@municipality.gov.za",
+  "text": "admin@municipality.gov.za",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "administrator@gmail.com",
+  "text": "administrator@gmail.com",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx"
   ]
  },
  {
@@ -26471,6 +45907,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "and",
+  "text": "and",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "and is not stored anywhere. Print it now and hand it to {first} in person. If it is lost, issue a new slip from the invitations list; that cancels this one.",
+  "text": "and is not stored anywhere. Print it now and hand it to {first} in person. If it is lost, issue a new slip from the invitations list; that cancels this one.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
+  "key": "and sanitise it for release. Remove names, exact addresses and investigative details.",
+  "text": "and sanitise it for release. Remove names, exact addresses and investigative details.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx"
+  ]
+ },
+ {
   "key": "and your supervisor has been told. Choose another one, or tick No bodycam today, to complete your start of shift.",
   "text": "and your supervisor has been told. Choose another one, or tick No bodycam today, to complete your start of shift.",
   "context": null,
@@ -26487,6 +45947,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "and {value} more",
+  "text": "and {value} more",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
   "key": "another {person}",
   "text": "another {person}",
   "context": null,
@@ -26495,11 +45963,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "app",
+  "text": "app",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-operations/page.tsx"
+  ]
+ },
+ {
   "key": "appliance",
   "text": "appliance",
   "context": null,
   "where": [
    "apps/mobile/lib/department.ts"
+  ]
+ },
+ {
+  "key": "approved",
+  "text": "approved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
   ]
  },
  {
@@ -26516,6 +46000,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/my-performance.tsx"
+  ]
+ },
+ {
+  "key": "available to allocate",
+  "text": "available to allocate",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
   ]
  },
  {
@@ -26540,6 +46032,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/my-performance.tsx"
+  ]
+ },
+ {
+  "key": "awaiting dispatch{value}",
+  "text": "awaiting dispatch{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/page.tsx"
   ]
  },
  {
@@ -26575,6 +46075,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "by SMS to",
+  "text": "by SMS to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "by email to",
+  "text": "by email to",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "by {value}{value2}",
+  "text": "by {value}{value2}",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
   "key": "carjacking",
   "text": "carjacking",
   "context": null,
@@ -26599,11 +46123,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "does this where the platform allows it), or call",
+  "text": "does this where the platform allows it), or call",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
   "key": "done",
   "text": "done",
   "context": null,
   "where": [
    "apps/mobile/app/report/[id].tsx"
+  ]
+ },
+ {
+  "key": "draft",
+  "text": "draft",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
   ]
  },
  {
@@ -26639,6 +46179,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "e.g. 17 Gen 5",
+  "text": "e.g. 17 Gen 5",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx"
+  ]
+ },
+ {
   "key": "e.g. 1mg, 500ml",
   "text": "e.g. 1mg, 500ml",
   "context": null,
@@ -26652,6 +46200,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "e.g. 222",
+  "text": "e.g. 222",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/endorsements/page.tsx"
+  ]
+ },
+ {
+  "key": "e.g. 9mm",
+  "text": "e.g. 9mm",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx"
   ]
  },
  {
@@ -26679,6 +46243,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "e.g. DS-MCW407",
+  "text": "e.g. DS-MCW407",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-form.tsx"
+  ]
+ },
+ {
   "key": "e.g. Downed power lines",
   "text": "e.g. Downed power lines",
   "context": null,
@@ -26695,6 +46267,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "e.g. FIRE ALPHA",
+  "text": "e.g. FIRE ALPHA",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
   "key": "e.g. Firearm not on the register, unarmed duty…",
   "text": "e.g. Firearm not on the register, unarmed duty…",
   "context": null,
@@ -26708,6 +46288,39 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "e.g. Glock",
+  "text": "e.g. Glock",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/firearm-form.tsx"
+  ]
+ },
+ {
+  "key": "e.g. Go-live preparation, HR staff list of 1 October 2026",
+  "text": "e.g. Go-live preparation, HR staff list of 1 October 2026",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "e.g. Go-live wave 1: Durban Central, briefing 6 October",
+  "text": "e.g. Go-live wave 1: Durban Central, briefing 6 October",
+  "context": null,
+  "where": [
+   "apps/web/components/register/bulk-run.tsx"
+  ]
+ },
+ {
+  "key": "e.g. Handed in by Sgt Dlamini at the front desk; phone flat",
+  "text": "e.g. Handed in by Sgt Dlamini at the front desk; phone flat",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
   ]
  },
  {
@@ -26784,6 +46397,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "e.g. New appointment, HR memo 2026/140",
+  "text": "e.g. New appointment, HR memo 2026/140",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "e.g. Night, no safe vantage point",
   "text": "e.g. Night, no safe vantage point",
   "context": null,
@@ -26816,6 +46437,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "e.g. Report complete; statement and photos on file.",
+  "text": "e.g. Report complete; statement and photos on file.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/case-forms.tsx"
+  ]
+ },
+ {
   "key": "e.g. Robbery with aggravating circumstances",
   "text": "e.g. Robbery with aggravating circumstances",
   "context": null,
@@ -26832,11 +46461,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "e.g. Scene cleared by the bomb squad at 14:20.",
+  "text": "e.g. Scene cleared by the bomb squad at 14:20.",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
+  "key": "e.g. Sector 1 Patrol Vehicle",
+  "text": "e.g. Sector 1 Patrol Vehicle",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "e.g. Skyline Mall",
+  "text": "e.g. Skyline Mall",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "e.g. Station 3 spare",
+  "text": "e.g. Station 3 spare",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
+  "key": "e.g. Suspect package at the entrance — keep the public 100 m back until the bomb squad clears it.",
+  "text": "e.g. Suspect package at the entrance — keep the public 100 m back until the bomb squad clears it.",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
+  ]
+ },
+ {
   "key": "e.g. Vektor Z88 9mm",
   "text": "e.g. Vektor Z88 9mm",
   "context": null,
   "where": [
    "apps/mobile/app/firearm-check.tsx"
+  ]
+ },
+ {
+  "key": "e.g. Works in Metro Police, per HR staff list 2026/10",
+  "text": "e.g. Works in Metro Police, per HR staff list 2026/10",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
   ]
  },
  {
@@ -26892,7 +46569,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "ePCR: Medical Incident Report",
   "context": null,
   "where": [
-   "apps/mobile/app/pcr/[id].tsx"
+   "apps/mobile/app/pcr/[id].tsx",
+   "apps/web/app/(app)/medical/pcr/new/page.tsx"
   ]
  },
  {
@@ -26901,6 +46579,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/login.tsx"
+  ]
+ },
+ {
+  "key": "every five minutes from an external scheduler. “Run now” below still works in the meantime.",
+  "text": "every five minutes from an external scheduler. “Run now” below still works in the meantime.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
   ]
  },
  {
@@ -26960,6 +46646,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "for",
+  "text": "for",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/tenants/invite-form.tsx",
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
   "key": "go off duty",
   "text": "go off duty",
   "context": null,
@@ -26976,11 +46671,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "has the procedure for each subsystem, in the order to work through them. It opens with the thing worth remembering: every procedure in it is slower than the radio. If crews are waiting, put the control room on radio and paper first, then fix the platform.",
+  "text": "has the procedure for each subsystem, in the order to work through them. It opens with the thing worth remembering: every procedure in it is slower than the radio. If crews are waiting, put the control room on radio and paper first, then fix the platform.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/status/page.tsx"
+  ]
+ },
+ {
   "key": "humidity {n}%",
   "text": "humidity {n}%",
   "context": null,
   "where": [
    "apps/mobile/app/live-map.tsx"
+  ]
+ },
+ {
+  "key": "i-traffic live",
+  "text": "i-traffic live",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/itraffic-map.tsx"
+  ]
+ },
+ {
+  "key": "in",
+  "text": "in",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "inactive",
+  "text": "inactive",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/access/page.tsx"
   ]
  },
  {
@@ -27000,6 +46727,47 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "invited",
+  "text": "invited",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
+  "key": "invited by {value} {timeAgo}{value2}",
+  "text": "invited by {value} {timeAgo}{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/page.tsx"
+  ]
+ },
+ {
+  "key": "is a powerful role, so a second SystemAdmin must approve this invitation. Nothing reaches {first} until they do.",
+  "text": "is a powerful role, so a second SystemAdmin must approve this invitation. Nothing reaches {first} until they do.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "is a powerful role, so a second SystemAdmin must approve this. Nothing changes until they do, and you can withdraw it meanwhile.",
+  "text": "is a powerful role, so a second SystemAdmin must approve this. Nothing changes until they do, and you can withdraw it meanwhile.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/change-role-form.tsx"
+  ]
+ },
+ {
+  "key": "is talking",
+  "text": "is talking",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx",
+   "apps/web/components/talk/talk-panel.tsx"
+  ]
+ },
+ {
   "key": "joined others",
   "text": "joined others",
   "context": null,
@@ -27016,6 +46784,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "km/h",
+  "text": "km/h",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wind-widget.tsx"
+  ]
+ },
+ {
   "key": "last 6 months",
   "text": "last 6 months",
   "context": null,
@@ -27029,6 +46805,39 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/my-performance.tsx"
+  ]
+ },
+ {
+  "key": "leads {departmentName} on this call. The report is filed in their name.",
+  "text": "leads {departmentName} on this call. The report is filed in their name.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "members",
+  "text": "members",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/page.tsx"
+  ]
+ },
+ {
+  "key": "min",
+  "text": "min",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx",
+   "apps/web/components/dispatch-map-modal.tsx"
+  ]
+ },
+ {
+  "key": "minutes",
+  "text": "minutes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/rule-card.tsx"
   ]
  },
  {
@@ -27064,11 +46873,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "name@example.org",
+  "text": "name@example.org",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "navigate",
+  "text": "navigate",
+  "context": null,
+  "where": [
+   "apps/web/components/command-palette.tsx"
+  ]
+ },
+ {
   "key": "near {place}",
   "text": "near {place}",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/place-search.tsx"
+  ]
+ },
+ {
+  "key": "no voice server yet.",
+  "text": "no voice server yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -27112,11 +46945,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "not rostered: adds a shift",
+  "text": "not rostered: adds a shift",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
   "key": "not the caller",
   "text": "not the caller",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "now",
+  "text": "now",
+  "context": null,
+  "where": [
+   "apps/mobile/components/alerts.tsx",
+   "apps/web/components/heads-up.tsx"
+  ]
+ },
+ {
+  "key": "of {length} personnel",
+  "text": "of {length} personnel",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
   ]
  },
  {
@@ -27128,12 +46986,100 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "officer’s amount",
+  "text": "officer’s amount",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "on duty",
+  "text": "on duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/page.tsx"
+  ]
+ },
+ {
+  "key": "on leave",
+  "text": "on leave",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "on since {value}",
+  "text": "on since {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/officer-picker.tsx"
+  ]
+ },
+ {
+  "key": "on the",
+  "text": "on the",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/page.tsx"
+  ]
+ },
+ {
+  "key": "on the database (migration",
+  "text": "on the database (migration",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "on the roster",
+  "text": "on the roster",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "on {absence}",
+  "text": "on {absence}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "once",
+  "text": "once",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
+  "key": "open",
+  "text": "open",
+  "context": null,
+  "where": [
+   "apps/web/components/command-palette.tsx"
+  ]
+ },
+ {
   "key": "or",
   "text": "or",
   "context": null,
   "where": [
    "apps/mobile/components/call-details.tsx",
    "apps/web/components/call-details.tsx"
+  ]
+ },
+ {
+  "key": "page",
+  "text": "page",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/page.tsx"
   ]
  },
  {
@@ -27150,6 +47096,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/lib/department.ts"
+  ]
+ },
+ {
+  "key": "pay by {day}",
+  "text": "pay by {day}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/account/page.tsx"
+  ]
+ },
+ {
+  "key": "pending",
+  "text": "pending",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
   ]
  },
  {
@@ -27177,11 +47139,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "rejected",
+  "text": "rejected",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
   "key": "robbery at homes",
   "text": "robbery at homes",
   "context": null,
   "where": [
    "apps/mobile/lib/police-overlays.ts"
+  ]
+ },
+ {
+  "key": "rollout page",
+  "text": "rollout page",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "seen {timeAgo}",
+  "text": "seen {timeAgo}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/officer-picker.tsx"
+  ]
+ },
+ {
+  "key": "sent to the {value} desk",
+  "text": "sent to the {value} desk",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/page.tsx"
+  ]
+ },
+ {
+  "key": "shared badge",
+  "text": "shared badge",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
   ]
  },
  {
@@ -27198,6 +47200,47 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "since {saTime}",
+  "text": "since {saTime}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "since {saTime}. Use this when the officer cannot hand it back in the app. Any live view of it ends.",
+  "text": "since {saTime}. Use this when the officer cannot hand it back in the app. Any live view of it ends.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "since {saTime}{value}",
+  "text": "since {saTime}{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx",
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "since {saTime}{value}. Use this when the officer cannot return it in the app.",
+  "text": "since {saTime}{value}. Use this when the officer cannot return it in the app.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
+  ]
+ },
+ {
+  "key": "template",
+  "text": "template",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
   ]
  },
  {
@@ -27249,11 +47292,44 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "today’s shift",
+  "text": "today’s shift",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/readiness-review/page.tsx",
+   "apps/web/app/(app)/shift/unit-compliance/page.tsx"
+  ]
+ },
+ {
   "key": "unknown reason",
   "text": "unknown reason",
   "context": null,
   "where": [
    "apps/mobile/app/fines/[id].tsx"
+  ]
+ },
+ {
+  "key": "urgent",
+  "text": "urgent",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "urgent = starts within 7 days",
+  "text": "urgent = starts within 7 days",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "value, value, value",
+  "text": "value, value, value",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/builder/builder-client.tsx"
   ]
  },
  {
@@ -27282,6 +47358,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "with a printed activation code.",
+  "text": "with a printed activation code.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "working",
   "text": "working",
   "context": null,
@@ -27290,11 +47374,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "wss://your-project.livekit.cloud",
+  "text": "wss://your-project.livekit.cloud",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
+  ]
+ },
+ {
   "key": "yesterday",
   "text": "yesterday",
   "context": null,
   "where": [
    "apps/mobile/lib/theme.ts"
+  ]
+ },
+ {
+  "key": "you",
+  "text": "you",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
+  "key": "{activeCalls} INCIDENT{value}",
+  "text": "{activeCalls} INCIDENT{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/officer-picker.tsx"
+  ]
+ },
+ {
+  "key": "{added} added, {updated} updated, {unchanged} unchanged, {skipped} not imported. Nobody has any new access: invitations come next.",
+  "text": "{added} added, {updated} updated, {unchanged} unchanged, {skipped} not imported. Nobody has any new access: invitations come next.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "{added} added, {updated} updated, {unchanged} unchanged. It is on the permanent record with your reason.",
+  "text": "{added} added, {updated} updated, {unchanged} unchanged. It is on the permanent record with your reason.",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
   ]
  },
  {
@@ -27322,6 +47446,126 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{assigned}/{required} crewed · {date}",
+  "text": "{assigned}/{required} crewed · {date}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "{audience} · updated {localeDateString}",
+  "text": "{audience} · updated {localeDateString}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/handbook/page.tsx"
+  ]
+ },
+ {
+  "key": "{awaiting} awaiting",
+  "text": "{awaiting} awaiting",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "{count} duties allocated",
+  "text": "{count} duties allocated",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "{count} free",
+  "text": "{count} free",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "{count} on duty",
+  "text": "{count} on duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
+  ]
+ },
+ {
+  "key": "{count} pending",
+  "text": "{count} pending",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "{count} sections shown",
+  "text": "{count} sections shown",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "{count} staff",
+  "text": "{count} staff",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "{days} day{value} to {day}, by where each report stands.",
+  "text": "{days} day{value} to {day}, by where each report stands.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
+  ]
+ },
+ {
+  "key": "{departmentName} report filed",
+  "text": "{departmentName} report filed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "{departmentName} · issued shifts that have started, and how each was started.",
+  "text": "{departmentName} · issued shifts that have started, and how each was started.",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/punctuality.tsx"
+  ]
+ },
+ {
+  "key": "{departmentName} · {roleName}. Ask about the live board or how something works, or tell Criti what to do. It prepares the task and nothing changes until you confirm.",
+  "text": "{departmentName} · {roleName}. Ask about the live board or how something works, or tell Criti what to do. It prepares the task and nothing changes until you confirm.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/assistant/page.tsx"
+  ]
+ },
+ {
+  "key": "{deptLabel}: {value} Dispatching again re-alerts them.",
+  "text": "{deptLabel}: {value} Dispatching again re-alerts them.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
+  ]
+ },
+ {
+  "key": "{description} — {severity}, opened {saTime}{value}.",
+  "text": "{description} — {severity}, opened {saTime}{value}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "{distance} away",
   "text": "{distance} away",
   "context": null,
@@ -27338,11 +47582,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{enabled} of {total} rules enabled",
+  "text": "{enabled} of {total} rules enabled",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
   "key": "{file} is on {number}.",
   "text": "{file} is on {number}.",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "{fineNumber}: {rand} due now.",
+  "text": "{fineNumber}: {rand} due now.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/fine-actions.tsx"
   ]
  },
  {
@@ -27362,12 +47622,60 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{first} can sign in again with their existing password, in the same role.",
+  "text": "{first} can sign in again with their existing password, in the same role.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/account-status-form.tsx"
+  ]
+ },
+ {
+  "key": "{first} is in {value} in the staff register, and you invite into {join} only. A system administrator can change their department in Personnel.",
+  "text": "{first} is in {value} in the staff register, and you invite into {join} only. A system administrator can change their department in Personnel.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "{first} is signed out everywhere and can no longer sign in.",
+  "text": "{first} is signed out everywhere and can no longer sign in.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/users/account-status-form.tsx"
+  ]
+ },
+ {
+  "key": "{flagged} {value} attention",
+  "text": "{flagged} {value} attention",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
   "key": "{from} to {to}",
   "text": "{from} to {to}",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx",
    "apps/mobile/lib/outbox-policy.ts"
+  ]
+ },
+ {
+  "key": "{fullName} · Crew readiness, live incidents and your own assignments.",
+  "text": "{fullName} · Crew readiness, live incidents and your own assignments.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "{fullName} · Crews, ambulances, live calls and patient reports.",
+  "text": "{fullName} · Crews, ambulances, live calls and patient reports.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
   ]
  },
  {
@@ -27387,6 +47695,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{importError} Nothing was imported.",
+  "text": "{importError} Nothing was imported.",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
   "key": "{issued} were issued.",
   "text": "{issued} were issued.",
   "context": null,
@@ -27403,11 +47719,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{kmh} km/h {compass} ·",
+  "text": "{kmh} km/h {compass} ·",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "{label} comes off this report and its answers are cleared.",
   "text": "{label} comes off this report and its answers are cleared.",
   "context": null,
   "where": [
    "apps/mobile/app/report/[id].tsx"
+  ]
+ },
+ {
+  "key": "{label} · since {saTime}",
+  "text": "{label} · since {saTime}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
   ]
  },
  {
@@ -27428,11 +47760,180 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{length} account {value} waiting for your approval.",
+  "text": "{length} account {value} waiting for your approval.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} activation {value}",
+  "text": "{length} activation {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
+  "key": "{length} archived reports",
+  "text": "{length} archived reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} authorizations",
+  "text": "{length} authorizations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} awaiting a decision.",
+  "text": "{length} awaiting a decision.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} badge {value} used by more than one person",
+  "text": "{length} badge {value} used by more than one person",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} bodycam{value} out",
+  "text": "{length} bodycam{value} out",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/bodycam-wall.tsx"
+  ]
+ },
+ {
+  "key": "{length} cameras",
+  "text": "{length} cameras",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/sanral/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} charge{value}",
+  "text": "{length} charge{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} checklists from the field · {failed} did not pass. Captured on the phone, read-only here.",
+  "text": "{length} checklists from the field · {failed} did not pass. Captured on the phone, read-only here.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearm-checks/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} devices",
+  "text": "{length} devices",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/devices/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} entries",
+  "text": "{length} entries",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} filed",
+  "text": "{length} filed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/post-mortem/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} hydrants",
+  "text": "{length} hydrants",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/hydrants/page.tsx"
+  ]
+ },
+ {
   "key": "{length} in force: cordons, closures and points set by command.",
   "text": "{length} in force: cordons, closures and points set by command.",
   "context": null,
   "where": [
    "apps/mobile/app/live-map.tsx"
+  ]
+ },
+ {
+  "key": "{length} in the register",
+  "text": "{length} in the register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} incidents",
+  "text": "{length} incidents",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/page.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} inspection{value}",
+  "text": "{length} inspection{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/inspections/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} ledger entr{value}",
+  "text": "{length} ledger entr{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} members ·",
+  "text": "{length} members ·",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "{length} member{value}",
+  "text": "{length} member{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} messages.",
+  "text": "{length} messages.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/mail/page.tsx"
   ]
  },
  {
@@ -27444,6 +47945,183 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{length} of {length2} ready to record ({rand}).{value}{value2}",
+  "text": "{length} of {length2} ready to record ({rand}).{value}{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
+  "key": "{length} on duty without a position yet: {join}.",
+  "text": "{length} on duty without a position yet: {join}.",
+  "context": null,
+  "where": [
+   "apps/web/components/dispatch-map-modal.tsx"
+  ]
+ },
+ {
+  "key": "{length} on record · {active} active.",
+  "text": "{length} on record · {active} active.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} on record · {open} active. Open the ledger for bail and fees.",
+  "text": "{length} on record · {open} active. Open the ledger for bail and fees.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} on record · {outstanding} awaiting service.",
+  "text": "{length} on record · {outstanding} awaiting service.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/summons/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} operators",
+  "text": "{length} operators",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/operators/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} page{value}{value2}",
+  "text": "{length} page{value}{value2}",
+  "context": null,
+  "where": [
+   "apps/web/components/command-palette.tsx"
+  ]
+ },
+ {
+  "key": "{length} partners",
+  "text": "{length} partners",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/partners/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} plans",
+  "text": "{length} plans",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} published",
+  "text": "{length} published",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/pir/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} record{value}{value2}",
+  "text": "{length} record{value}{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} relief stock item{value} running low.",
+  "text": "{length} relief stock item{value} running low.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} reports",
+  "text": "{length} reports",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/page.tsx",
+   "apps/web/app/(app)/police/security/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} report{value}{value2}, newest first",
+  "text": "{length} report{value}{value2}, newest first",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/reports/reports-list.tsx"
+  ]
+ },
+ {
+  "key": "{length} report{value}{value2}.",
+  "text": "{length} report{value}{value2}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/activity/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} rows{value} · headings on row {value2}{value3}",
+  "text": "{length} rows{value} · headings on row {value2}{value3}",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "{length} rule{value} erroring",
+  "text": "{length} rule{value} erroring",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/automations/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} sections",
+  "text": "{length} sections",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} stations",
+  "text": "{length} stations",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/crime-hotspots/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} tasks",
+  "text": "{length} tasks",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/duty-tasks/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} transactions · net R{fixed}.",
+  "text": "{length} transactions · net R{fixed}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/charges/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "{length} users",
+  "text": "{length} users",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
   "key": "{length} waiting to send",
   "text": "{length} waiting to send",
   "context": null,
@@ -27452,11 +48130,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{length} {value}{value2}{value3} · headings on row {value4} · fingerprint",
+  "text": "{length} {value}{value2}{value3} · headings on row {value4} · fingerprint",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "{length}{value} case{value2}",
+  "text": "{length}{value} case{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/case-ui.tsx"
+  ]
+ },
+ {
   "key": "{list} and {last}",
   "text": "{list} and {last}",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "{live} live",
+  "text": "{live} live",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "{localeDateString} · {board} board",
+  "text": "{localeDateString} · {board} board",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "{magazines} mag · {value} out{value2}",
+  "text": "{magazines} mag · {value} out{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearm-checks/page.tsx"
   ]
  },
  {
@@ -27524,6 +48242,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{name} · {slice} for {value} h{value2}",
+  "text": "{name} · {slice} for {value} h{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/setup/setup-client.tsx"
+  ]
+ },
+ {
+  "key": "{name}. Each fine’s status was updated from its ledger.{value}",
+  "text": "{name}. Each fine’s status was updated from its ledger.{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
   "key": "{name}. Read the odometer before you leave the {unitWord}.",
   "text": "{name}. Read the odometer before you leave the {unitWord}.",
   "context": null,
@@ -27548,6 +48282,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{number} finished",
+  "text": "{number} finished",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
   "key": "{number} has all its details.",
   "text": "{number} has all its details.",
   "context": null,
@@ -27561,6 +48303,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/page.tsx"
+  ]
+ },
+ {
+  "key": "{number} is not complete yet. Check the caller, the number, the description and, for EMS, whether the caller is the patient.",
+  "text": "{number} is not complete yet. Check the caller, the number, the description and, for EMS, whether the caller is the patient.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
   ]
  },
  {
@@ -27798,6 +48548,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} listening",
+  "text": "{n} listening",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
   "key": "{n} live",
   "text": "{n} live",
   "context": null,
@@ -27847,11 +48605,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} notifications",
+  "text": "{n} notifications",
+  "context": null,
+  "where": [
+   "apps/mobile/app/alerts.tsx"
+  ]
+ },
+ {
   "key": "{n} on duty",
   "text": "{n} on duty",
   "context": null,
   "where": [
    "apps/mobile/components/service-home.tsx"
+  ]
+ },
+ {
+  "key": "{n} people",
+  "text": "{n} people",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/notifications/send-form.tsx"
   ]
  },
  {
@@ -27985,6 +48759,31 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{onDuty} on duty · {free} available · nearest first",
+  "text": "{onDuty} on duty · {free} available · nearest first",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
+  ]
+ },
+ {
+  "key": "{pairs} pairs × {days} days",
+  "text": "{pairs} pairs × {days} days",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "{pct}% away",
+  "text": "{pct}% away",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hr/page.tsx",
+   "apps/web/app/(app)/leave/page.tsx"
+  ]
+ },
+ {
   "key": "{pct}% translated",
   "text": "{pct}% translated",
   "context": null,
@@ -28001,6 +48800,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{rand} if paid by {value}",
+  "text": "{rand} if paid by {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "{rand} if paid within 32 days",
   "text": "{rand} if paid within 32 days",
   "context": null,
@@ -28009,11 +48816,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{rand} paid",
+  "text": "{rand} paid",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "{ready} ready to invite →",
+  "text": "{ready} ready to invite →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
   "key": "{reason} It is in the pending queue.",
   "text": "{reason} It is in the pending queue.",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "{recorded} payment{value} recorded · {rand}",
+  "text": "{recorded} payment{value} recorded · {rand}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
   ]
  },
  {
@@ -28049,11 +48880,59 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{reviewed} reviewed",
+  "text": "{reviewed} reviewed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "{review} to review",
+  "text": "{review} to review",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "{roleName} needs a second SystemAdmin’s approval, so it cannot be created with a password. Choose email, SMS or a printed code.",
+  "text": "{roleName} needs a second SystemAdmin’s approval, so it cannot be created with a password. Choose email, SMS or a printed code.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "{roleName} · {departmentName} · live operations for your role.",
+  "text": "{roleName} · {departmentName} · live operations for your role.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "{role} members",
+  "text": "{role} members",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/role-kpis/page.tsx"
+  ]
+ },
+ {
   "key": "{round}°C",
   "text": "{round}°C",
   "context": null,
   "where": [
    "apps/mobile/app/live-map.tsx"
+  ]
+ },
+ {
+  "key": "{serial} · since {saTime}{value}",
+  "text": "{serial} · since {saTime}{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/cameras/bodycam-wall.tsx"
   ]
  },
  {
@@ -28073,6 +48952,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{shortCode} at {value}",
+  "text": "{shortCode} at {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
   "key": "{short_name} · STEP 1 OF {length}",
   "text": "{short_name} · STEP 1 OF {length}",
   "context": null,
@@ -28089,6 +48976,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{short} short: say why in the notes. Command is alerted.",
+  "text": "{short} short: say why in the notes. Command is alerted.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
+  ]
+ },
+ {
   "key": "{silo} · modules are set by your organisation",
   "text": "{silo} · modules are set by your organisation",
   "context": null,
@@ -28097,11 +48992,83 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{size} selected",
+  "text": "{size} selected",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "{skipped} left out",
+  "text": "{skipped} left out",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "{sos} SOS active",
+  "text": "{sos} SOS active",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
+  "key": "{stateWords} · {floor} min",
+  "text": "{stateWords} · {floor} min",
+  "context": null,
+  "where": [
+   "apps/web/components/schedule/attendance-now.tsx"
+  ]
+ },
+ {
   "key": "{stepProblems} answers need fixing",
   "text": "{stepProblems} answers need fixing",
   "context": null,
   "where": [
    "apps/mobile/components/report-wizard.tsx"
+  ]
+ },
+ {
+  "key": "{sum} invited · {sum2} not invited yet",
+  "text": "{sum} invited · {sum2} not invited yet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
+  "key": "{sum} of {sum2} activated",
+  "text": "{sum} of {sum2} activated",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
+  "key": "{taken} taken{value}",
+  "text": "{taken} taken{value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/leave/page.tsx"
+  ]
+ },
+ {
+  "key": "{toConfirm} need a role first →",
+  "text": "{toConfirm} need a role first →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/rollout/page.tsx"
+  ]
+ },
+ {
+  "key": "{total} shift{value} this month",
+  "text": "{total} shift{value} this month",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/mine/mine-client.tsx"
   ]
  },
  {
@@ -28209,11 +49176,228 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{unplaced} call{value} without a map position",
+  "text": "{unplaced} call{value} without a map position",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "{unread} unread of {length}",
   "text": "{unread} unread of {length}",
   "context": null,
   "where": [
    "apps/mobile/app/alerts.tsx"
+  ]
+ },
+ {
+  "key": "{unverified} offence{value} not verified",
+  "text": "{unverified} offence{value} not verified",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/offences/page.tsx"
+  ]
+ },
+ {
+  "key": "{value} Appoint{value2}.",
+  "text": "{value} Appoint{value2}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
+  "key": "{value} Open one for the slip, payments and its history.",
+  "text": "{value} Open one for the slip, payments and its history.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/page.tsx"
+  ]
+ },
+ {
+  "key": "{value} at {time}",
+  "text": "{value} at {time}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/today/page.tsx"
+  ]
+ },
+ {
+  "key": "{value} be able to open",
+  "text": "{value} be able to open",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "{value} desk",
+  "text": "{value} desk",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/send-to-desk.tsx"
+  ]
+ },
+ {
+  "key": "{value} has this vehicle on their shift. Its status can change once they end the shift and hand it back.",
+  "text": "{value} has this vehicle on their shift. Its status can change once they end the shift and hand it back.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/vehicles/fleet-table.tsx"
+  ]
+ },
+ {
+  "key": "{value} inj · {value2} fat",
+  "text": "{value} inj · {value2} fat",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/page.tsx",
+   "apps/web/app/(app)/fire/pir/page.tsx"
+  ]
+ },
+ {
+  "key": "{value} is back and now",
+  "text": "{value} is back and now",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
+  ]
+ },
+ {
+  "key": "{value} is back in the armoury and is now",
+  "text": "{value} is back in the armoury and is now",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/armoury/armoury-table.tsx"
+  ]
+ },
+ {
+  "key": "{value} more — keep typing to narrow down.",
+  "text": "{value} more — keep typing to narrow down.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/officer-picker.tsx"
+  ]
+ },
+ {
+  "key": "{value} not ready (role, account or invitation)",
+  "text": "{value} not ready (role, account or invitation)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/register-table.tsx"
+  ]
+ },
+ {
+  "key": "{value} submitted checks",
+  "text": "{value} submitted checks",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/shift/readiness-review/page.tsx"
+  ]
+ },
+ {
+  "key": "{value} today · last {volumeDays} days shown",
+  "text": "{value} today · last {volumeDays} days shown",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "{value} will sign in with this address.",
+  "text": "{value} will sign in with this address.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "{value} will sign in with {value2}.",
+  "text": "{value} will sign in with {value2}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "{value} · Report by radio",
+  "text": "{value} · Report by radio",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/page.tsx"
+  ]
+ },
+ {
+  "key": "{value} · {location} · {value2} deployed {timeAgo}",
+  "text": "{value} · {location} · {value2} deployed {timeAgo}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "{value} · {value2} {value3} · filed {saTime}",
+  "text": "{value} · {value2} {value3} · filed {saTime}",
+  "context": null,
+  "where": [
+   "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
+  "key": "{value} · {value2} · {value3} day{value4}",
+  "text": "{value} · {value2} · {value3} day{value4}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hr/page.tsx"
+  ]
+ },
+ {
+  "key": "{value} · ≈{minutes} min",
+  "text": "{value} · ≈{minutes} min",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/officer-picker.tsx"
+  ]
+ },
+ {
+  "key": "{value} — appraisal",
+  "text": "{value} — appraisal",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "{value}: marked in red.",
+  "text": "{value}: marked in red.",
+  "context": null,
+  "where": [
+   "apps/web/components/form-wizard.tsx"
+  ]
+ },
+ {
+  "key": "{value}Details are updated; {untouched}.",
+  "text": "{value}Details are updated; {untouched}.",
+  "context": null,
+  "where": [
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "{value}Importing gives nobody access. It is recorded with your name, the reason and the file’s fingerprint.",
+  "text": "{value}Importing gives nobody access. It is recorded with your name, the reason and the file’s fingerprint.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "{value}filed from your desk. Dispatch and command have been told.",
+  "text": "{value}filed from your desk. Dispatch and command have been told.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
   ]
  },
  {
@@ -28233,6 +49417,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{week} this week · {reviewed} reviewed · {awaiting} awaiting",
+  "text": "{week} this week · {reviewed} reviewed · {awaiting} awaiting",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/page.tsx"
+  ]
+ },
+ {
+  "key": "{when} by {value}: {value2}",
+  "text": "{when} by {value}: {value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "{words}. Other crews can join it as backup from the app.",
+  "text": "{words}. Other crews can join it as backup from the app.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx"
+  ]
+ },
+ {
   "key": "°C",
   "text": "°C",
   "context": null,
@@ -28241,11 +49449,68 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "· as radioed in by",
+  "text": "· as radioed in by",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "· dispatched {timeAgo}",
+  "text": "· dispatched {timeAgo}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/responder/page.tsx"
+  ]
+ },
+ {
+  "key": "· last checked {lastTest}",
+  "text": "· last checked {lastTest}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/integrations/integration-card.tsx"
+  ]
+ },
+ {
+  "key": "· logged {timeAgo}",
+  "text": "· logged {timeAgo}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "· row {line}",
+  "text": "· row {line}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/personnel/import/import-wizard.tsx",
+   "apps/web/components/register/asset-import.tsx"
+  ]
+ },
+ {
+  "key": "· sent offline, arrived late",
+  "text": "· sent offline, arrived late",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
   "key": "· waiting to send",
   "text": "· waiting to send",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx"
+  ]
+ },
+ {
+  "key": "· {rand} if paid within 32 days",
+  "text": "· {rand} if paid within 32 days",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/new/capture-form.tsx"
   ]
  },
  {
@@ -28265,6 +49530,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "— Top of chain (no manager) —",
+  "text": "— Top of chain (no manager) —",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/person/page.tsx"
+  ]
+ },
+ {
   "key": "— assigned",
   "text": "— assigned",
   "context": null,
@@ -28278,6 +49551,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/report-wizard.tsx"
+  ]
+ },
+ {
+  "key": "← Admin",
+  "text": "← Admin",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/handbook/page.tsx"
   ]
  },
  {
@@ -28297,11 +49578,55 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "← Fines register",
+  "text": "← Fines register",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/fines/[id]/page.tsx",
+   "apps/web/app/(app)/police/fines/account/page.tsx",
+   "apps/web/app/(app)/police/fines/new/page.tsx",
+   "apps/web/app/(app)/police/fines/offences/page.tsx",
+   "apps/web/app/(app)/police/fines/payments/page.tsx"
+  ]
+ },
+ {
+  "key": "← Previous",
+  "text": "← Previous",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "← Users",
+  "text": "← Users",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/approvals/page.tsx"
+  ]
+ },
+ {
+  "key": "○ Not found in a known data breach (checked when you create it)",
+  "text": "○ Not found in a known data breach (checked when you create it)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "☑ Essential checks",
   "text": "☑ Essential checks",
   "context": null,
   "where": [
    "apps/mobile/components/shift-inspection.tsx"
+  ]
+ },
+ {
+  "key": "⚠ Start-of-shift checks pending — complete your readiness & vehicle inspection to go on duty →",
+  "text": "⚠ Start-of-shift checks pending — complete your readiness & vehicle inspection to go on duty →",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/page.tsx"
   ]
  },
  {
@@ -28362,6 +49687,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "✓ approved",
+  "text": "✓ approved",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/plans/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "✕ Clear",
   "text": "✕ Clear",
   "context": null,
@@ -28378,6 +49711,47 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "⬇ Case PDF",
+  "text": "⬇ Case PDF",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "⬇ Export CSV",
+  "text": "⬇ Export CSV",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/performance/operational/page.tsx",
+   "apps/web/app/(app)/report-hub/page.tsx"
+  ]
+ },
+ {
+  "key": "⬇ PDF",
+  "text": "⬇ PDF",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/fire/reports/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "📌 = pinned reporting line · Border colour = tier (Command · Supervision · Operations · Field)",
+  "text": "📌 = pinned reporting line · Border colour = tier (Command · Supervision · Operations · Field)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/hierarchy/page.tsx"
+  ]
+ },
+ {
+  "key": "📍 Request citizen GPS via SMS",
+  "text": "📍 Request citizen GPS via SMS",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "📷 Capture",
   "text": "📷 Capture",
   "context": null,
@@ -28391,6 +49765,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/shift-inspection.tsx"
+  ]
+ },
+ {
+  "key": "🖨 Print",
+  "text": "🖨 Print",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/roster/duty-sheet/print-button.tsx"
   ]
  },
  {

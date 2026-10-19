@@ -1,24 +1,23 @@
 import { History } from 'lucide-react';
 import { editKindName, editLines, type IncidentEdit } from '@criticom/db';
 import { formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 /**
  * Every change to a call after it was sent (0079), oldest first: who made it
  * and in which role, when, why, and each field as it was and as it became.
  * Shown on the dispatch page and the call page; the case PDF prints the same.
  */
-export function CallEdits({ edits, loggedBy }: { edits: IncidentEdit[]; loggedBy: string | null }) {
+export async function CallEdits({ edits, loggedBy }: { edits: IncidentEdit[]; loggedBy: string | null }) {
+  const { t } = await requestT();
   if (!edits.length) return null;
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-bg-card">
       <h2 className="flex items-center justify-center gap-2 border-b border-border bg-bg-soft px-5 py-3 text-xs font-bold uppercase tracking-[0.18em]">
-        <History className="h-3.5 w-3.5" aria-hidden /> Changes since it was logged
-      </h2>
+        <History className="h-3.5 w-3.5" aria-hidden /> {' '}{t('Changes since it was logged')}</h2>
       <div className="space-y-4 p-5">
         <p className="text-xs text-muted-foreground">
-          Logged by <span className="font-semibold text-fg">{loggedBy ?? 'the call taker'}</span>. Each change below keeps what the
-          call said before it.
-        </p>
+          {t('Logged by')}{' '}<span className="font-semibold text-fg">{loggedBy ?? 'the call taker'}</span>{t('. Each change below keeps what the call said before it.')}</p>
         <ol className="space-y-3">
           {edits.map((e) => (
             <li key={e.id} className="rounded-xl border border-border">
@@ -30,11 +29,11 @@ export function CallEdits({ edits, loggedBy }: { edits: IncidentEdit[]; loggedBy
                 </span>
                 <span className="font-mono text-muted-foreground">{formatSaTime(e.edited_at)}</span>
               </div>
-              {e.reason ? <p className="px-3 pt-2 text-xs"><span className="font-semibold">Why:</span> {e.reason}</p> : null}
+              {e.reason ? <p className="px-3 pt-2 text-xs"><span className="font-semibold">{t('Why:')}</span> {e.reason}</p> : null}
               <div className="overflow-x-auto p-3">
                 <table className="w-full text-left text-xs">
                   <thead className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                    <tr><th className="w-36 pb-1.5 pr-3 font-bold">Field</th><th className="pb-1.5 pr-3 font-bold">Before</th><th className="pb-1.5 font-bold">After</th></tr>
+                    <tr><th className="w-36 pb-1.5 pr-3 font-bold">{t('Field')}</th><th className="pb-1.5 pr-3 font-bold">{t('Before')}</th><th className="pb-1.5 font-bold">{t('After')}</th></tr>
                   </thead>
                   <tbody className="align-top">
                     {editLines(e.changes).map((l) => (

@@ -273,12 +273,55 @@ export const DISASTER_ROLES: UserRole[] = ['Disaster'];
  * Who opens Case Management (the review queue, registers and case audit):
  * CaseManagerController's wide authorize list, plus department command, who
  * review their own officers' reports. Opening it is reading; closing is
- * narrower (CASE_CLOSE_ROLES).
+ * narrower (CASE_CLOSE_ROLES). Not the call logger: they log calls and watch
+ * them unfold on the incident pages, and never review or close a case.
  */
 export const CASE_MANAGER_ROLES: UserRole[] = [
   ...ADMIN_ROLES, 'CaseManager', 'Dispatcher', 'ControlRoom',
-  'IncidentLogger', 'Supervisor', 'System', 'Viewer', 'Captain', 'FireChief',
+  'Supervisor', 'System', 'Viewer', 'Captain', 'FireChief',
 ];
+
+/* ── Police reports: management, records, activity, specialised (V4 Reports) ── */
+
+/** The roles that open the police reporting pages; the department each must be on is in mayViewPoliceReports(). */
+export const POLICE_REPORT_VIEW_ROLES: UserRole[] = ['SuperAdmin', 'SystemAdmin', 'Admin', 'Captain', 'Dispatcher', 'CaseManager', 'SystemController'];
+
+/**
+ * Who opens the police reporting pages: police dispatch, the captain, the case
+ * manager, the police administrator and the system administrators. A
+ * department's own people only for police: a Fire dispatcher or the EMS
+ * administrator does not. What each page shows is still what the database
+ * lets that person read (metro_reports, 0081).
+ */
+export function mayViewPoliceReports(role: UserRole | string, silo: Silo | string): boolean {
+  if (role === 'SuperAdmin' || role === 'SystemAdmin' || role === 'SystemController') return true;
+  if (role === 'CaseManager') return silo === 'MetroPolice' || silo === 'Ethekwini';
+  return (role === 'Admin' || role === 'Captain' || role === 'Dispatcher') && silo === 'MetroPolice';
+}
+
+/* ── Active Responders (V4 Responder → Monitor) ── */
+
+/**
+ * Who opens the Active Responders terminal: V4's Monitor list (Dispatcher,
+ * Viewer, ControlRoom, and the SuperAdmin it meant to let in), mapped to
+ * HikTech's dispatch desk, command seat and administrators. Which calls each
+ * sees is the database's rule: a department's administrator or desk sees
+ * its own department's, the organisation-wide roles every department's.
+ * Not the call logger (they watch calls on the incident pages, 0081), and
+ * not field officers (their own calls are on My calls).
+ */
+export const RESPONDER_MONITOR_ROLES: UserRole[] = [
+  'SuperAdmin', 'SystemAdmin', 'Admin', 'SystemController', 'System',
+  'Dispatcher', 'ControlRoom', 'Supervisor', 'Viewer',
+];
+
+/** Who may act from it (talk to a crew, export the log): everyone above but the Viewer, as V4 hid its buttons. */
+export const RESPONDER_MONITOR_ACT_ROLES: UserRole[] = RESPONDER_MONITOR_ROLES.filter((r) => r !== 'Viewer');
+
+export const RESPONDER_MONITOR_PATH = '/responder/monitor';
+
+/** Where the police reporting pages live. */
+export const POLICE_REPORTS_PATH = '/police/report-centre';
 
 /**
  * Who follows the routes crews drove, offline stretches included, on the map
@@ -556,6 +599,8 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/report-hub',   roles: [...DISPATCH_ROLES, 'Viewer', 'CaseManager', 'Supervisor'] },
   { prefix: '/case-manager', roles: CASE_MANAGER_ROLES },
   { prefix: '/hierarchy',    roles: [...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'CaseManager', 'Viewer'] },
+  // The terminal (V4 Monitor) is the desks'; My calls is the field's.
+  { prefix: '/responder/monitor', roles: RESPONDER_MONITOR_ROLES },
   { prefix: '/responder',    roles: [...RESPONDER_ROLES, ...ADMIN_ROLES] },
   { prefix: '/shift/readiness-review', roles: [...SUPERVISORY_ROLES, 'SystemController'] },
   // Today's shift board (0051): who has started, with what kit. Command staff.
@@ -582,6 +627,9 @@ export const ROUTE_RULES: RouteRule[] = [
   // Everyone sees their own schedule; only supervisors build the roster.
   { prefix: '/roster/allocation', roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'Staff', 'CaseManager'] },
   { prefix: '/roster/mine',  roles: undefined },
+  // The duty office (0085): open to everyone; each screen checks the person's
+  // own access (View or Edit, given per person by the systems controller).
+  { prefix: '/modules',      roles: undefined },
   // Shift setup (0072): the department admin sets it up; those who roster
   // see it and put people in teams. The database holds the same line.
   { prefix: '/roster/setup', roles: [...SUPERVISORY_ROLES, 'SystemController'] },
@@ -631,6 +679,11 @@ export const ROUTE_RULES: RouteRule[] = [
  * Returns true when `role`/`silo` may open `pathname`.
  */
 export function canAccess(pathname: string, role: UserRole, silo: Silo): boolean {
+  // The police reporting pages are for named roles on the police side, wider
+  // than /police in roles (dispatch, the case manager) and narrower in reach.
+  if (pathname === POLICE_REPORTS_PATH || pathname.startsWith(`${POLICE_REPORTS_PATH}/`)) {
+    return mayViewPoliceReports(role, silo);
+  }
   // The SystemController is a command-and-reporting seat over every module in
   // every silo. The only doors it does not hold keys to are tenant, feature
   // and access administration — those belong to the SuperAdmin desk.

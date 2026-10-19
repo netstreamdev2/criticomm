@@ -12,6 +12,7 @@ import { PendingRealtimeBridge } from './realtime-bridge';
 import { IncidentRow, StopClick } from './incident-row';
 import { QueueFilters } from './queue-filters';
 import { CritiTiles } from '@/components/criti/insight-tiles';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Pending queue · HikTech' };
@@ -30,6 +31,7 @@ const DESK_ROLES = ['Dispatcher', 'ControlRoom', 'IncidentLogger'];
 const FIELD: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
 
 export default async function PendingPage({ searchParams }: { searchParams: Promise<QueueParams> }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const params = await searchParams;
   const sort = (SORTS.find(([s]) => s === params.sort)?.[0] ?? 'newest') as QueueSort;
@@ -63,8 +65,8 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
           >
             {pending.length}
           </span>
-          <h1 className="font-semibold">awaiting dispatch{filtered ? ' (filtered)' : ''}</h1>
-          {deskOf ? <span className="text-xs text-muted-foreground">sent to the {DEPARTMENT_NAMES[deskOf]} desk</span> : null}
+          <h1 className="font-semibold">{t('awaiting dispatch{value}', { value: filtered ? ' (filtered)' : '' })}</h1>
+          {deskOf ? <span className="text-xs text-muted-foreground">{t('sent to the {value} desk', { value: DEPARTMENT_NAMES[deskOf] })}</span> : null}
         </div>
         <span
           className={`inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-semibold ${
@@ -79,8 +81,7 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
         </span>
         {canLogCall ? (
           <Link href="/dispatch/log-call" className="inline-flex h-9 items-center rounded-md bg-primary px-3.5 text-sm font-semibold">
-            + Log new call
-          </Link>
+            {t('+ Log new call')}</Link>
         ) : null}
       </header>
 
@@ -96,13 +97,13 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
           <table className="w-full text-sm">
             <thead className="text-xs uppercase tracking-wide text-muted-foreground">
               <tr className="border-b border-border">
-                <th className="px-4 py-3 text-left">Incident #</th>
-                <th className="px-4 py-3 text-left">Severity</th>
-                <th className="px-4 py-3 text-left">Type</th>
-                <th className="px-4 py-3 text-left">Sent to</th>
-                <th className="px-4 py-3 text-left">Caller</th>
-                <th className="px-4 py-3 text-left">Location</th>
-                <th className="px-4 py-3 text-left">Received</th>
+                <th className="px-4 py-3 text-left">{t('Incident #')}</th>
+                <th className="px-4 py-3 text-left">{t('Severity')}</th>
+                <th className="px-4 py-3 text-left">{t('Type')}</th>
+                <th className="px-4 py-3 text-left">{t('Sent to')}</th>
+                <th className="px-4 py-3 text-left">{t('Caller')}</th>
+                <th className="px-4 py-3 text-left">{t('Location')}</th>
+                <th className="px-4 py-3 text-left">{t('Received')}</th>
                 <th className="px-4 py-3 text-left"></th>
               </tr>
             </thead>
@@ -151,7 +152,7 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
                               {DEPARTMENT_NAMES[d]}
                             </span>
                           ))}
-                      {!i.departments?.length && deskTags(i).length === 0 ? <span className="text-xs text-severity-medium-ink">Control room only</span> : null}
+                      {!i.departments?.length && deskTags(i).length === 0 ? <span className="text-xs text-severity-medium-ink">{t('Control room only')}</span> : null}
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -184,8 +185,7 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
                         href={`/dispatch/assign/${i.id}`}
                         className="inline-flex h-8 items-center rounded-md bg-accent px-3 text-xs font-semibold"
                       >
-                        Dispatch
-                      </Link>
+                        {t('Dispatch')}</Link>
                     </StopClick>
                   </td>
                 </IncidentRow>

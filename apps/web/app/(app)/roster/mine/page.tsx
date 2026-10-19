@@ -8,6 +8,7 @@ import { DeptBadge } from '@/components/dept-badge';
 import { getSession } from '@/lib/session';
 import { getBrandingMap } from '@/lib/branding';
 import { MySchedule } from './mine-client';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'My Schedule · HikTech' };
@@ -18,6 +19,7 @@ export const metadata = { title: 'My Schedule · HikTech' };
  * their shift in the app; that checks them in.
  */
 export default async function MySchedulePage({ searchParams }: { searchParams: Promise<{ m?: string }> }) {
+  const { t } = await requestT();
   const { supabase, userId, silo, fullName, role } = await getSession();
   const { m } = await searchParams;
   const today = saDay();
@@ -42,12 +44,11 @@ export default async function MySchedulePage({ searchParams }: { searchParams: P
       >
         <DeptBadge branding={dept} logoUrl={dept.logoUrl} size="lg" />
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-bold">My schedule</h1>
+          <h1 className="text-2xl font-bold">{t('My schedule')}</h1>
           <p className="text-sm text-muted-foreground">{fullName} · {dept.short_name}</p>
         </div>
         <Link href="/leave" className="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold hover:bg-muted">
-          <Umbrella className="h-4 w-4" /> Leave
-        </Link>
+          <Umbrella className="h-4 w-4" /> {' '}{t('Leave')}</Link>
       </header>
 
       <MySchedule

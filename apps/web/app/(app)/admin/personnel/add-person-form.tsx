@@ -8,12 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/toast';
 import { createPersonnelAction } from './actions';
+import { useT } from '@/components/i18n';
 
 /**
  * One person into the staff register, for someone joining between staff-list
  * imports. Their work email or cellphone is what their invitation will use.
  */
 export function AddPersonForm({ departments }: { departments: Silo[] }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const form = useRef<HTMLFormElement>(null);
@@ -35,21 +37,21 @@ export function AddPersonForm({ departments }: { departments: Silo[] }) {
     <form ref={form} action={submit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div>
-          <Label htmlFor="silo">Department<span className="text-severity-critical-ink"> *</span></Label>
+          <Label htmlFor="silo">{t('Department')}<span className="text-severity-critical-ink"> *</span></Label>
           <select id="silo" name="silo" required defaultValue={departments[0]} className="mt-1 h-10 w-full rounded-md border border-border bg-bg-soft px-3 text-sm">
             {departments.map((d) => <option key={d} value={d}>{DEPARTMENT_NAMES[d]}</option>)}
           </select>
         </div>
-        <TextField name="first_name" label="First names" required />
-        <TextField name="last_name" label="Surname" required />
-        <TextField name="badge_number" label="Badge number" required placeholder="As on their ID card" />
-        <TextField name="rank" label="Rank" required />
-        <TextField name="station" label="Station" />
-        <TextField name="work_email" label="Work email" type="email" placeholder="Their invitation goes here" />
-        <TextField name="work_cellphone" label="Work cellphone" type="tel" placeholder="082 123 4567" />
-        <TextField name="unit" label="Unit" />
-        <TextField name="platoon" label="Platoon" />
-        <TextField name="emergency_contact" label="Emergency contact" />
+        <TextField name="first_name" label={t('First names')} required />
+        <TextField name="last_name" label={t('Surname')} required />
+        <TextField name="badge_number" label={t('Badge number')} required placeholder={t('As on their ID card')} />
+        <TextField name="rank" label={t('Rank')} required />
+        <TextField name="station" label={t('Station')} />
+        <TextField name="work_email" label={t('Work email')} type="email" placeholder={t('Their invitation goes here')} />
+        <TextField name="work_cellphone" label={t('Work cellphone')} type="tel" placeholder="082 123 4567" />
+        <TextField name="unit" label={t('Unit')} />
+        <TextField name="platoon" label={t('Platoon')} />
+        <TextField name="emergency_contact" label={t('Emergency contact')} />
       </div>
       {error ? (
         <p role="alert" className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical-ink">{error}</p>

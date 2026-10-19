@@ -1003,3 +1003,104 @@ main table td {
 }
 /* The dark themes invert the date picker's icon; on paper it stays dark. */
 :root .paper-slip input::-webkit-calendar-picker-indicator { filter: none; }
+
+/* ── Frosted tiles ───────────────────────────────────────────────────────
+   Over the console backdrop a tinted, see-through tile loses its words to
+   the photograph. Frost keeps the card colour mostly opaque over a strong
+   blur, the way X's bars and One UI's panels do: what is behind softens to
+   colour, the tile stays readable. A tile's own tint goes on as
+   background-image, over the frost. Outside the layers so it outranks a
+   card's own bg-bg-card; a hover:bg-* still wins (more specific). */
+.frost {
+  background-color: rgb(var(--c-bg-card) / 0.62);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  backdrop-filter: blur(22px) saturate(170%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.07), 0 10px 28px -16px rgb(0 0 0 / 0.55);
+}
+.frost-pill {
+  background-color: rgb(var(--c-bg-card) / 0.55);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+  backdrop-filter: blur(14px) saturate(170%);
+}
+[data-theme='criticom-light'] .frost,
+[data-theme='macos'] .frost,
+[data-theme='windows'] .frost,
+[data-theme='daylight'] .frost {
+  background-color: rgb(var(--c-bg-card) / 0.7);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8), 0 10px 28px -18px rgb(15 23 42 / 0.25);
+}
+
+/* ── Notification bubbles ────────────────────────────────────────────────
+   The same frost with a milky white tint: notifications read as their own
+   thing, apart from the tiles and the emergency pop-ups. On the dark themes
+   a white haze over the card colour; on the light ones nearly white glass.
+   .frost-white-strong is the pop-up that slides down from the top: it
+   floats over any page, so it is thicker. */
+.frost-white {
+  background-color: rgb(var(--c-bg-card) / 0.5);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.13), rgb(255 255 255 / 0.07));
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 12px 30px -18px rgb(0 0 0 / 0.6);
+}
+.frost-white-strong {
+  background-color: rgb(var(--c-bg-card) / 0.72);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0.1));
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  backdrop-filter: blur(30px) saturate(190%);
+  border: 1px solid rgb(255 255 255 / 0.2);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.16), 0 22px 48px -18px rgb(0 0 0 / 0.7);
+}
+[data-theme='criticom-light'] .frost-white,
+[data-theme='macos'] .frost-white,
+[data-theme='windows'] .frost-white,
+[data-theme='daylight'] .frost-white {
+  background-color: rgb(255 255 255 / 0.66);
+  background-image: none;
+  border-color: rgb(255 255 255 / 0.85);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 12px 30px -20px rgb(15 23 42 / 0.3);
+}
+[data-theme='criticom-light'] .frost-white-strong,
+[data-theme='macos'] .frost-white-strong,
+[data-theme='windows'] .frost-white-strong,
+[data-theme='daylight'] .frost-white-strong {
+  background-color: rgb(255 255 255 / 0.82);
+  background-image: none;
+  border-color: rgb(255 255 255 / 0.95);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1), 0 22px 48px -20px rgb(15 23 42 / 0.38);
+}
+
+/* The pop-up drops in from the top, the way a phone's heads-up does, and
+   lifts away when it is done. */
+@keyframes heads-up-in {
+  from { opacity: 0; transform: translateY(-120%) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes heads-up-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-70%) scale(0.97); }
+}
+.heads-up-enter { animation: heads-up-in 420ms cubic-bezier(0.2, 1.1, 0.3, 1); }
+.heads-up-leave { animation: heads-up-out 260ms ease-in forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .heads-up-enter, .heads-up-leave { animation: none; }
+}
+
+/* A chosen chip on the notification bubbles: white on the dark themes, ink
+   on the light ones. In a layer so peer-checked: and hover: can use it. */
+@layer components {
+  .chip-on {
+    background-color: rgb(255 255 255 / 0.92);
+    border-color: rgb(255 255 255);
+    color: rgb(15 23 42);
+  }
+  [data-theme='criticom-light'] .chip-on,
+  [data-theme='macos'] .chip-on,
+  [data-theme='windows'] .chip-on,
+  [data-theme='daylight'] .chip-on {
+    background-color: rgb(15 23 42 / 0.88);
+    border-color: rgb(15 23 42 / 0.9);
+    color: rgb(255 255 255);
+  }
+}

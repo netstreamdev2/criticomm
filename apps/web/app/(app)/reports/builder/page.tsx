@@ -3,6 +3,7 @@ import { requireFeaturePage } from '@/lib/features';
 import { type ChartSpec, type ReportDefinition, datasetsForRole, getReport, listReports } from '@criticom/api';
 import { getSession } from '@/lib/session';
 import { ReportBuilder } from './builder-client';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Report builder · HikTech' };
@@ -12,6 +13,7 @@ export default async function ReportBuilderPage({
 }: {
   searchParams: Promise<{ id?: string; dataset?: string }>;
 }) {
+  const { t } = await requestT();
   await requireFeaturePage('web.reports_builder');
   const { supabase, role, userId } = await getSession();
   const params = await searchParams;
@@ -46,10 +48,9 @@ export default async function ReportBuilderPage({
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Report builder</h1>
+        <h1 className="text-2xl font-bold">{t('Report builder')}</h1>
         <p className="text-muted-foreground">
-          Build a report from any data source, save it, and share it with your department.
-        </p>
+          {t('Build a report from any data source, save it, and share it with your department.')}</p>
       </header>
 
       <ReportBuilder

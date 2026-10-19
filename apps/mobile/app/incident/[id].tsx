@@ -422,6 +422,15 @@ export default function IncidentDetailScreen() {
             <Button label={t('Call caller')} icon="call" variant="outline" onPress={callCaller} />
           </View>
         </View>
+        {/* The call's own talk group (0083): whoever works the call talks on it. */}
+        <View style={{ marginTop: space.sm }}>
+          <Button
+            label={t('Talk on this call')}
+            icon="radio-outline"
+            variant="outline"
+            onPress={() => router.push({ pathname: '/talk', params: { channel: `incident:${incident.id}` } })}
+          />
+        </View>
       </Card>
 
       {/* Photos and voice notes — captured while the call is worked; permanent once filed. */}

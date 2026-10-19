@@ -2,6 +2,7 @@ import { listCrimeStats } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Crime Hotspots · HikTech' };
@@ -11,6 +12,7 @@ export default async function CrimeHotspotsPage({
 }: {
   searchParams: Promise<{ year?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const { year } = await searchParams;
   const stats = await listCrimeStats(supabase, year);
@@ -24,26 +26,25 @@ export default async function CrimeHotspotsPage({
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Crime hotspots</h1>
+        <h1 className="text-2xl font-bold">{t('Crime hotspots')}</h1>
         <p className="text-muted-foreground">
-          SAPS station-level statistics (2008–2023 dataset). Ranked by combined incident count.
-        </p>
+          {t('SAPS station-level statistics (2008–2023 dataset). Ranked by combined incident count.')}</p>
       </header>
 
       <form method="get" className="flex items-end gap-3">
         <div>
-          <label className="text-xs uppercase text-muted-foreground" htmlFor="year">Year</label>
+          <label className="text-xs uppercase text-muted-foreground" htmlFor="year">{t('Year')}</label>
           <select id="year" name="year" defaultValue={year ?? ''} className="mt-1 block h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-            <option value="">Latest loaded</option>
+            <option value="">{t('Latest loaded')}</option>
             {years.map((y) => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
-        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Filter</button>
+        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Filter')}</button>
       </form>
 
       <Card>
         <CardHeader>
-          <CardTitle>{ranked.length} stations</CardTitle>
+          <CardTitle>{t('{length} stations', { length: ranked.length })}</CardTitle>
           <CardDescription>
             {ranked.length === 0
               ? 'Dataset not loaded yet — import sapacr CSV into crime_stats (see docs/03-PHASES.md Phase 4).'
@@ -53,7 +54,7 @@ export default async function CrimeHotspotsPage({
         <CardContent className="p-0">
           <SimpleTable
             headers={['Station', 'Municipality', 'Murder', 'Carjacking', 'Burglary', 'Robbery', 'Drugs', 'DUI', 'Total']}
-            empty="No crime statistics loaded."
+            empty={t('No crime statistics loaded.')}
           >
             {ranked.slice(0, 60).map((s) => (
               <Tr key={s.id}>

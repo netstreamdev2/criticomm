@@ -8,6 +8,7 @@ import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
 import { CritiTiles } from '@/components/criti/insight-tiles';
 import { AttendanceNow } from '@/components/schedule/attendance-now';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Fire & Rescue · HikTech' };
@@ -24,6 +25,7 @@ const STATUS_LABEL: Record<string, string> = {
  * reports that closed them, with hydrants and public releases.
  */
 export default async function FirePage() {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const [active, reports, hydrants, pirs] = await Promise.all([
     listActiveIncidents(supabase, 'MetroFire').catch(() => []),
@@ -43,12 +45,11 @@ export default async function FirePage() {
       <IncidentLive />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Fire & Rescue</h1>
-          <p className="text-muted-foreground">Live incidents, fire reports, hydrants and public releases.</p>
+          <h1 className="text-2xl font-bold">{t('Fire & Rescue')}</h1>
+          <p className="text-muted-foreground">{t('Live incidents, fire reports, hydrants and public releases.')}</p>
         </div>
         <Link href="/fire/reports/new" className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-semibold hover:bg-muted">
-          + Capture a fire report
-        </Link>
+          {t('+ Capture a fire report')}</Link>
       </header>
 
       {/* Criti: what needs attention now, for this person. */}
@@ -72,11 +73,11 @@ export default async function FirePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Live Fire incidents ({live.length})</CardTitle>
-          <CardDescription>Updates by itself as crews move. A Fire incident is resolved when its fire report is filed.</CardDescription>
+          <CardTitle>{t('Live Fire incidents ({length})', { length: live.length })}</CardTitle>
+          <CardDescription>{t('Updates by itself as crews move. A Fire incident is resolved when its fire report is filed.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Incident', 'Type', 'Severity', 'Crew', 'Lead', 'Location', 'Dispatched', '']} empty="No live Fire incidents.">
+          <SimpleTable headers={['Incident', 'Type', 'Severity', 'Crew', 'Lead', 'Location', 'Dispatched', '']} empty={t('No live Fire incidents.')}>
             {live.map((i) => (
               <Tr key={i.id}>
                 <Td className="font-mono">{i.incident_number}</Td>
@@ -86,7 +87,7 @@ export default async function FirePage() {
                 <Td className="text-xs">{i.responding_officer ?? '—'}</Td>
                 <Td className="max-w-[220px] truncate">{i.location_address}</Td>
                 <Td className="text-xs text-muted-foreground">{timeAgo(i.dispatch_time ?? i.incident_created_at)}</Td>
-                <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">Open</Link></Td>
+                <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">{t('Open')}</Link></Td>
               </Tr>
             ))}
           </SimpleTable>
@@ -95,26 +96,26 @@ export default async function FirePage() {
 
       <section className="grid gap-3 sm:grid-cols-3">
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Fire reports</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Fire reports')}</p>
           <p className="mt-2 text-3xl font-bold">{reports.length}</p>
-          <Link href="/fire/reports" className="text-sm text-accent hover:underline">View all →</Link>
+          <Link href="/fire/reports" className="text-sm text-accent hover:underline">{t('View all →')}</Link>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Hydrants operational</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Hydrants operational')}</p>
           <p className="mt-2 text-3xl font-bold text-severity-low-ink">{operationalHydrants}/{hydrants.length}</p>
-          <Link href="/fire/hydrants" className="text-sm text-accent hover:underline">Hydrant register →</Link>
+          <Link href="/fire/hydrants" className="text-sm text-accent hover:underline">{t('Hydrant register →')}</Link>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Public reports (PIR)</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Public reports (PIR)')}</p>
           <p className="mt-2 text-3xl font-bold">{pirs.length}</p>
-          <Link href="/fire/pir" className="text-sm text-accent hover:underline">PIR desk →</Link>
+          <Link href="/fire/pir" className="text-sm text-accent hover:underline">{t('PIR desk →')}</Link>
         </CardContent></Card>
       </section>
 
       <Card>
-        <CardHeader><CardTitle>Recent fire reports</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('Recent fire reports')}</CardTitle></CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Report #', 'Date', 'Type', 'Location', 'Casualties', 'Filed by', '']} empty="No fire reports yet.">
+          <SimpleTable headers={['Report #', 'Date', 'Type', 'Location', 'Casualties', 'Filed by', '']} empty={t('No fire reports yet.')}>
             {reports.slice(0, 10).map((r) => (
               <Tr key={r.id}>
                 <Td className="font-mono">{r.report_number}</Td>
@@ -122,12 +123,10 @@ export default async function FirePage() {
                 <Td>{r.type_of_incident ?? '—'}</Td>
                 <Td className="max-w-[240px] truncate">{r.location ?? '—'}</Td>
                 <Td>
-                  {r.civilian_injuries + r.firefighter_injuries} inj ·{' '}
-                  {r.civilian_fatalities + r.firefighter_fatalities} fat
-                </Td>
+                  {t('{value} inj · {value2} fat', { value: r.civilian_injuries + r.firefighter_injuries, value2: r.civilian_fatalities + r.firefighter_fatalities })}</Td>
                 <Td className="text-xs">{r.reporting_officer_name ?? '—'}</Td>
                 <Td>
-                  <Link href={r.incident_id ? `/incidents/${r.incident_id}` : `/fire/reports/${r.id}`} className="text-accent hover:underline">Open</Link>
+                  <Link href={r.incident_id ? `/incidents/${r.incident_id}` : `/fire/reports/${r.id}`} className="text-accent hover:underline">{t('Open')}</Link>
                 </Td>
               </Tr>
             ))}

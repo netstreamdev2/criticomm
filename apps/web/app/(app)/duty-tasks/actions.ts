@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createDutyTask, logAudit, raiseAlert, updateDutyTask } from '@criticom/api';
+import { createDutyTask, logAudit, sendNotification, updateDutyTask } from '@criticom/api';
 import type { Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
@@ -36,15 +36,11 @@ export async function createDutyTaskAction(formData: FormData) {
 
   // The assignee hears about it immediately, phone included.
   if (assignedUserId) {
-    await raiseAlert(supabase, {
-      silo: boardSilo,
-      targetUserId: assignedUserId,
-      kind: 'info',
-      severity: 'Low',
-      title: `Task assigned: ${task.title}`,
+    await sendNotification(supabase, { audience: 'person', userId: assignedUserId }, {
+      kind: 'task',
+      title: `Task assigned: ${task.title}`.slice(0, 140),
       body: `${task.task_number}${task.due_date ? ` · due ${task.due_date}` : ''}`,
       link: '/duty-tasks',
-      createdByName: fullName,
     }).catch(() => {});
   }
 

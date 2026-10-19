@@ -8,6 +8,7 @@ import {
 import { rowCount, rowLabel, rowsKey, sectionFields, type ReportSection } from '@criticom/api';
 import { cn } from '@/lib/utils';
 import type { DeskField, DeskForm, DeskSection } from '@/lib/radio-forms';
+import { useT } from '@/components/i18n';
 
 const ICONS = {
   hand: Hand, car: Car, wrench: Wrench, crosshair: Crosshair, alert: AlertTriangle, truck: Truck, paw: PawPrint,
@@ -59,6 +60,7 @@ export function FormWizard({ form, answers, set, onDone, onClose, onRemove }: {
   onClose: () => void;
   onRemove?: () => void;
 }) {
+  const { t } = useT();
   const [step, setStep] = useState(0);
   const [bad, setBad] = useState<Set<string>>(new Set());
   const sections = form.sections;
@@ -123,16 +125,15 @@ export function FormWizard({ form, answers, set, onDone, onClose, onRemove }: {
           </div>
           {onRemove ? (
             <button type="button" onClick={onRemove} className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold text-severity-critical-ink hover:bg-severity-critical/10">
-              <Trash2 className="h-4 w-4" /> Remove
-            </button>
+              <Trash2 className="h-4 w-4" /> {' '}{t('Remove')}</button>
           ) : null}
-          <button type="button" onClick={onClose} aria-label="Close, keep answers" className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted">
+          <button type="button" onClick={onClose} aria-label={t('Close, keep answers')} className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted">
             <X className="h-5 w-5" />
           </button>
         </header>
 
         <div className="px-5 pt-4">
-          <ol className="flex gap-1.5" aria-label="Steps">
+          <ol className="flex gap-1.5" aria-label={t('Steps')}>
             {sections.map((s, i) => (
               <li key={s.key ?? s.title} className="flex-1">
                 <button
@@ -147,7 +148,7 @@ export function FormWizard({ form, answers, set, onDone, onClose, onRemove }: {
             ))}
           </ol>
           <p className="mt-2 text-sm font-semibold text-muted-foreground">
-            Step {step + 1} of {sections.length} · <span className="text-fg">{stepTitle}</span>
+            {t('Step {value} of {length} ·', { value: step + 1, length: sections.length })}{' '}<span className="text-fg">{stepTitle}</span>
           </p>
         </div>
 
@@ -158,7 +159,7 @@ export function FormWizard({ form, answers, set, onDone, onClose, onRemove }: {
                 <div className="mb-3 flex items-center justify-between">
                   <p className="text-sm font-black tracking-wide" style={{ color: tone }}>{rowLabel(section as ReportSection, row)}</p>
                   {row === rows && rows > section.repeat.min ? (
-                    <button type="button" onClick={removeRow} className="text-xs font-semibold text-severity-critical-ink hover:underline">Remove</button>
+                    <button type="button" onClick={removeRow} className="text-xs font-semibold text-severity-critical-ink hover:underline">{t('Remove')}</button>
                   ) : null}
                 </div>
               ) : null}
@@ -184,7 +185,7 @@ export function FormWizard({ form, answers, set, onDone, onClose, onRemove }: {
               className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed text-sm font-bold"
               style={{ borderColor: `${tone}88`, color: tone }}
             >
-              <Plus className="h-4 w-4" /> Add {section.repeat.noun.toLowerCase()}
+              <Plus className="h-4 w-4" /> {' '}{t('Add {lowerCase}', { lowerCase: section.repeat.noun.toLowerCase() })}
             </button>
           ) : null}
         </div>
@@ -192,8 +193,7 @@ export function FormWizard({ form, answers, set, onDone, onClose, onRemove }: {
         <footer className="space-y-2 border-t border-border bg-bg-soft px-5 py-4">
           {stepProblems ? (
             <p className="text-center text-xs font-bold text-severity-critical-ink">
-              {stepProblems === 1 ? 'One answer needs fixing' : `${stepProblems} answers need fixing`}: marked in red.
-            </p>
+              {t('{value}: marked in red.', { value: stepProblems === 1 ? 'One answer needs fixing' : `${stepProblems} answers need fixing` })}</p>
           ) : null}
           <div className="flex gap-3">
             <button
@@ -209,7 +209,7 @@ export function FormWizard({ form, answers, set, onDone, onClose, onRemove }: {
               className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg text-base font-black transition-opacity hover:opacity-90"
               style={{ backgroundColor: tone, color: ink }}
             >
-              {last ? <>Done <Check className="h-5 w-5" /></> : <>Next <ChevronRight className="h-5 w-5" /></>}
+              {last ? <>{t('Done')}{' '}<Check className="h-5 w-5" /></> : <>{t('Next')}{' '}<ChevronRight className="h-5 w-5" /></>}
             </button>
           </div>
         </footer>
@@ -221,6 +221,7 @@ export function FormWizard({ form, answers, set, onDone, onClose, onRemove }: {
 function WizardField({ id, field, value, tone, invalid, onChange }: {
   id: string; field: DeskField; value: string; tone: string; invalid: boolean; onChange: (v: string) => void;
 }) {
+  const { t } = useT();
   const label = (
     <span className="text-sm font-medium">
       {field.label}{field.required ? <span className="text-severity-critical-ink"> *</span> : null}
@@ -269,7 +270,7 @@ function WizardField({ id, field, value, tone, invalid, onChange }: {
         <div className={wrap}>
           <label htmlFor={id}>{label}</label>
           <select id={id} value={value} onChange={(e) => onChange(e.target.value)} className={cn(input, ring)} aria-invalid={invalid || undefined}>
-            <option value="">Choose…</option>
+            <option value="">{t('Choose…')}</option>
             {options.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
         </div>

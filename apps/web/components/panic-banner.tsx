@@ -5,6 +5,7 @@ import { receivesLiveOperations, type UserRole } from '@criticom/db';
 import { getServerSupabase } from '@/lib/supabase';
 import { timeAgo } from '@/lib/utils';
 import { clearSosAction } from './panic-banner-actions';
+import { requestT } from '@/lib/i18n';
 
 /**
  * Live officer-emergency banner.
@@ -23,6 +24,7 @@ import { clearSosAction } from './panic-banner-actions';
  * furniture that operators learn to scroll past.
  */
 export async function PanicBanner({ userId, role }: { userId: string; role: UserRole }) {
+  const { t } = await requestT();
   if (!receivesLiveOperations(role)) return null;
 
   const supabase = await getServerSupabase();
@@ -45,8 +47,7 @@ export async function PanicBanner({ userId, role }: { userId: string; role: User
                 className="inline-block size-2.5 animate-pulse rounded-full bg-severity-critical"
                 aria-hidden
               />
-              Officer emergency
-            </span>
+              {t('Officer emergency')}</span>
             <span className="font-semibold">{panic.responding_officer ?? panic.caller_name}</span>
             <span className="text-sm text-muted-foreground">{panic.location_address}</span>
             <span className="ml-auto text-sm tabular-nums text-muted-foreground">
@@ -58,7 +59,7 @@ export async function PanicBanner({ userId, role }: { userId: string; role: User
             <button
               type="submit"
               aria-label={`Clear SOS ${panic.incident_number}`}
-              title="Clear — marks it acknowledged for you"
+              title={t('Clear — marks it acknowledged for you')}
               className="rounded-md p-1.5 text-severity-critical hover:bg-severity-critical/20"
             >
               <X className="h-4 w-4" />

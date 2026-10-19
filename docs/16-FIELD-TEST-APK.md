@@ -13,7 +13,8 @@ In the Supabase SQL editor run, in order, any not yet applied:
 `0071_duty_tracks.sql`, `0072_schedules.sql`, `0073_department_parts.sql`,
 `0074_officer_close.sql`, `0075_desk_radio_filing.sql`, `0076_call_intake.sql`,
 `0077_call_details_numbers.sql`, `0078_languages.sql`, `0079_dispatcher_edits.sql`,
-`0080_call_channel_patients.sql`.
+`0080_call_channel_patients.sql`, `0081_logger_observes.sql`, `0082_radio_register.sql`, `0083_talk.sql`,
+`0084_notification_audience.sql`.
 
 Schedules (0072) also need pg_cron and pg_net turned on (Database →
 Extensions). See `docs/20-SCHEDULES.md`.
@@ -23,6 +24,12 @@ The details by type, the incident codes and the new incident numbers (0077),
 and the languages (0078), are in `docs/23-NEXT-CHANGES.md`.
 The dispatcher editing a call before dispatch (0079), and how the call came in
 with each patient's severity (0080), are in `docs/22-CALL-INTAKE.md`.
+The call logger watching calls only, and the police reports pages (0081), are
+in `docs/24-POLICE-REPORTS.md`.
+The radio register, the Radio Desk, the E977 SOS key (0082) and HikTech Talk (0083) are in
+`docs/25-RADIOS.md`.
+Who each notification is for, who may send one, and the new pop-ups (0084) are in
+`docs/27-NOTIFICATIONS.md`.
 
 ## 2. Push notifications (once)
 

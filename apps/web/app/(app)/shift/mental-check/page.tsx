@@ -3,6 +3,7 @@ import { Check, Circle, Smartphone } from 'lucide-react';
 import { getMyPersonnel, getShiftGateProgress } from '@criticom/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Start of Shift · HikTech' };
@@ -26,6 +27,7 @@ const VEHICLE_STEP: Record<string, string> = {
  * vehicle reserved. This page shows where the officer is instead.
  */
 export default async function StartOfShiftPage() {
+  const { t } = await requestT();
   const { supabase, userId, silo } = await getSession();
   const [progress, me] = await Promise.all([
     getShiftGateProgress(supabase).catch(() => null),
@@ -44,17 +46,15 @@ export default async function StartOfShiftPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Start of shift</h1>
-        <p className="text-muted-foreground">Done in the HikTech Responder app. This page shows how far you are today.</p>
+        <h1 className="text-2xl font-bold">{t('Start of shift')}</h1>
+        <p className="text-muted-foreground">{t('Done in the HikTech Responder app. This page shows how far you are today.')}</p>
       </header>
 
       <Card>
         <CardContent className="flex items-start gap-3 p-4 text-sm">
           <Smartphone className="mt-0.5 h-5 w-5 shrink-0 text-accent" aria-hidden />
           <p className="text-muted-foreground">
-            Open the app and go to <strong className="text-fg">Shift</strong>. Each step is saved as you finish it,
-            so you can stop and pick up where you left off. Your supervisor sees the result on Today&apos;s shift.
-          </p>
+            {t('Open the app and go to')}{' '}<strong className="text-fg">{t('Shift')}</strong>{t('. Each step is saved as you finish it, so you can stop and pick up where you left off. Your supervisor sees the result on Today\'s shift.')}</p>
         </CardContent>
       </Card>
 
@@ -86,8 +86,8 @@ export default async function StartOfShiftPage() {
       </Card>
 
       <div className="flex flex-wrap gap-2">
-        <Link href="/responder" className="rounded-md bg-primary px-4 py-2 text-sm font-semibold">My calls</Link>
-        <Link href="/roster/mine" className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted">My schedule</Link>
+        <Link href="/responder" className="rounded-md bg-primary px-4 py-2 text-sm font-semibold">{t('My calls')}</Link>
+        <Link href="/roster/mine" className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted">{t('My schedule')}</Link>
       </div>
     </div>
   );

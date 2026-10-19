@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { addVehicleAction, updateVehicleAction, type VehicleDetails } from './actions';
 import { blankVehicle } from './blank';
+import { useT } from '@/components/i18n';
 
 const SELECT = 'mt-1.5 h-10 w-full rounded-md border border-border bg-bg-soft px-3 text-sm';
 
@@ -20,6 +21,7 @@ const SELECT = 'mt-1.5 h-10 w-full rounded-md border border-border bg-bg-soft px
 export function VehicleForm({ initial, id, departments, onDone }: {
   initial: VehicleDetails; id?: string; departments: Silo[]; onDone?: () => void;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const [d, setD] = useState(initial);
   const [busy, setBusy] = useState(false);
@@ -51,9 +53,9 @@ export function VehicleForm({ initial, id, departments, onDone }: {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {field('unit_number', 'Unit number', { required: true, maxLength: 30, autoComplete: 'off', className: 'mt-1.5 font-mono' })}
         <div>
-          <Label htmlFor={`v-type-${k}`}>Type</Label>
+          <Label htmlFor={`v-type-${k}`}>{t('Type')}</Label>
           <select id={`v-type-${k}`} value={d.type} onChange={set('type')} required className={SELECT}>
-            <option value="" disabled>Choose</option>
+            <option value="" disabled>{t('Choose')}</option>
             {VEHICLE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
@@ -68,7 +70,7 @@ export function VehicleForm({ initial, id, departments, onDone }: {
         {field('vin', 'VIN', { maxLength: 30, className: 'mt-1.5 font-mono uppercase' })}
         {departments.length > 1 ? (
           <div>
-            <Label htmlFor={`v-silo-${k}`}>Department</Label>
+            <Label htmlFor={`v-silo-${k}`}>{t('Department')}</Label>
             <select id={`v-silo-${k}`} value={d.silo} onChange={set('silo')} className={SELECT}>
               {departments.map((s) => <option key={s} value={s}>{DEPARTMENT_NAMES[s]}</option>)}
             </select>
@@ -79,7 +81,7 @@ export function VehicleForm({ initial, id, departments, onDone }: {
       {saved ? <output className="block text-sm text-success">{saved}</output> : null}
       <div className="flex gap-2">
         <Button type="submit" disabled={busy}>{busy ? 'Saving…' : id ? 'Save changes' : 'Add vehicle'}</Button>
-        {onDone ? <Button type="button" variant="ghost" onClick={onDone} disabled={busy}>Cancel</Button> : null}
+        {onDone ? <Button type="button" variant="ghost" onClick={onDone} disabled={busy}>{t('Cancel')}</Button> : null}
       </div>
     </form>
   );

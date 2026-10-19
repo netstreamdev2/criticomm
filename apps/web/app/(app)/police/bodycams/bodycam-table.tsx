@@ -14,6 +14,7 @@ import { Modal } from '@/components/ui/modal';
 import { cn, formatSaTime } from '@/lib/utils';
 import { receiveBodycamAction, setBodycamStatusAction } from './actions';
 import { BodycamForm } from './bodycam-form';
+import { useT } from '@/components/i18n';
 
 export type BodycamFilter = 'current' | 'Available' | 'Booked out' | 'overdue' | 'In repair' | 'Lost' | 'Retired' | 'all';
 
@@ -38,6 +39,7 @@ type Dialog = { kind: 'edit' | 'status' | 'receive'; cam: RegisterBodycam } | nu
 export function BodycamTable({ cams, canManage, departments, overdueBefore, initialFilter }: {
   cams: RegisterBodycam[]; canManage: boolean; departments: Silo[]; overdueBefore: string; initialFilter: BodycamFilter;
 }) {
+  const { t } = useT();
   const [filter, setFilter] = useState<BodycamFilter>(initialFilter);
   const [q, setQ] = useState('');
   const [dialog, setDialog] = useState<Dialog>(null);
@@ -66,7 +68,7 @@ export function BodycamTable({ cams, canManage, departments, overdueBefore, init
         })}
         <div className="relative ml-auto w-full sm:w-64">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" aria-hidden />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Serial, holder, SIM, station" aria-label="Search the bodycams" className="pl-8" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Serial, holder, SIM, station')} aria-label={t('Search the bodycams')} className="pl-8" />
         </div>
       </div>
 
@@ -79,12 +81,12 @@ export function BodycamTable({ cams, canManage, departments, overdueBefore, init
           <table className="w-full min-w-[56rem] text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="px-3 py-2">Serial</th>
-                <th className="px-3 py-2">Bodycam</th>
-                <th className="px-3 py-2">Kept at</th>
-                <th className="px-3 py-2">Status</th>
-                <th className="px-3 py-2">With</th>
-                {canManage ? <th className="px-3 py-2"><span className="sr-only">Actions</span></th> : null}
+                <th className="px-3 py-2">{t('Serial')}</th>
+                <th className="px-3 py-2">{t('Bodycam')}</th>
+                <th className="px-3 py-2">{t('Kept at')}</th>
+                <th className="px-3 py-2">{t('Status')}</th>
+                <th className="px-3 py-2">{t('With')}</th>
+                {canManage ? <th className="px-3 py-2"><span className="sr-only">{t('Actions')}</span></th> : null}
               </tr>
             </thead>
             <tbody>
@@ -114,7 +116,7 @@ export function BodycamTable({ cams, canManage, departments, overdueBefore, init
                       <>
                         <span className="font-medium">{c.holder.name}</span>
                         <span className={cn('block text-xs', isOverdue(c, overdueBefore) ? 'font-semibold text-severity-high-ink' : 'text-muted-foreground')}>
-                          since {formatSaTime(c.booked_at)}{c.holder.onDuty ? '' : ' · off duty'}
+                          {t('since {saTime}{value}', { saTime: formatSaTime(c.booked_at), value: c.holder.onDuty ? '' : ' · off duty' })}
                         </span>
                       </>
                     ) : <span className="text-muted-foreground">—</span>}
@@ -123,11 +125,11 @@ export function BodycamTable({ cams, canManage, departments, overdueBefore, init
                     <td className="px-3 py-2">
                       <div className="flex justify-end gap-1.5">
                         {c.status === 'Booked out' ? (
-                          <Button size="sm" variant="outline" onClick={() => setDialog({ kind: 'receive', cam: c })}>Receive back</Button>
+                          <Button size="sm" variant="outline" onClick={() => setDialog({ kind: 'receive', cam: c })}>{t('Receive back')}</Button>
                         ) : (
-                          <Button size="sm" variant="outline" onClick={() => setDialog({ kind: 'status', cam: c })}>Status</Button>
+                          <Button size="sm" variant="outline" onClick={() => setDialog({ kind: 'status', cam: c })}>{t('Status')}</Button>
                         )}
-                        <Button size="sm" variant="ghost" onClick={() => setDialog({ kind: 'edit', cam: c })}>Edit</Button>
+                        <Button size="sm" variant="ghost" onClick={() => setDialog({ kind: 'edit', cam: c })}>{t('Edit')}</Button>
                       </div>
                     </td>
                   ) : null}
@@ -160,6 +162,7 @@ export function BodycamTable({ cams, canManage, departments, overdueBefore, init
 type SettableStatus = Exclude<BodycamStatus, 'Booked out'>;
 
 function StatusDialog({ cam, onClose }: { cam: RegisterBodycam; onClose: () => void }) {
+  const { t } = useT();
   const router = useRouter();
   const options = (['Available', 'In repair', 'Lost', 'Retired'] as const).filter((s) => s !== cam.status);
   const [status, setStatus] = useState<SettableStatus>(options[0]!);
@@ -183,9 +186,9 @@ function StatusDialog({ cam, onClose }: { cam: RegisterBodycam; onClose: () => v
   };
   return (
     <Modal title={`${cam.serial_number}${cam.model ? ` · ${cam.model}` : ''}`} onClose={onClose} busy={busy}>
-      <p className="text-sm text-muted-foreground">Now: <b className="text-fg">{cam.status}</b>{cam.status_note ? ` (${cam.status_note})` : ''}</p>
+      <p className="text-sm text-muted-foreground">{t('Now:')}{' '}<b className="text-fg">{cam.status}</b>{cam.status_note ? ` (${cam.status_note})` : ''}</p>
       <fieldset className="space-y-2">
-        <legend className="mb-1 text-sm font-semibold">Change to</legend>
+        <legend className="mb-1 text-sm font-semibold">{t('Change to')}</legend>
         {options.map((s) => (
           <label key={s} className={cn('flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2 text-sm', status === s ? 'border-primary bg-primary/5' : 'border-border')}>
             <input type="radio" name="bc-status" checked={status === s} onChange={() => setStatus(s)} className="mt-1 accent-[rgb(var(--c-primary))]" />
@@ -194,20 +197,21 @@ function StatusDialog({ cam, onClose }: { cam: RegisterBodycam; onClose: () => v
         ))}
       </fieldset>
       <div>
-        <Label htmlFor="bc-status-reason">Reason (on the bodycam’s record)</Label>
+        <Label htmlFor="bc-status-reason">{t('Reason (on the bodycam’s record)')}</Label>
         <Input id="bc-status-reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} className="mt-1.5"
           placeholder={status === 'In repair' ? 'e.g. Will not charge, sent to supplier' : status === 'Lost' ? 'e.g. Lost during arrest, CAS 45/10/2026' : 'e.g. Repaired and tested'} />
       </div>
       {error ? <p role="alert" className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical-ink">{error}</p> : null}
       <div className="flex gap-2">
         <Button onClick={save} disabled={busy || reason.trim().length < 5}>{busy ? 'Saving…' : 'Save'}</Button>
-        <Button variant="ghost" onClick={onClose} disabled={busy}>Cancel</Button>
+        <Button variant="ghost" onClick={onClose} disabled={busy}>{t('Cancel')}</Button>
       </div>
     </Modal>
   );
 }
 
 function ReceiveDialog({ cam, onClose }: { cam: RegisterBodycam; onClose: () => void }) {
+  const { t } = useT();
   const router = useRouter();
   const [condition, setCondition] = useState<BodycamCondition>('ok');
   const [notes, setNotes] = useState('');
@@ -225,12 +229,12 @@ function ReceiveDialog({ cam, onClose }: { cam: RegisterBodycam; onClose: () => 
 
   if (done) {
     return (
-      <Modal title="Received" onClose={onClose}>
+      <Modal title={t('Received')} onClose={onClose}>
         <p className="text-sm">
-          {cam.serial_number} is back and now <b>{done === 'Available' ? 'available' : done.toLowerCase()}</b>.
+          {t('{value} is back and now', { value: cam.serial_number })}{' '}<b>{done === 'Available' ? 'available' : done.toLowerCase()}</b>.
           {done !== 'Available' ? ' Command has been told.' : ''}
         </p>
-        <Button onClick={onClose}>Done</Button>
+        <Button onClick={onClose}>{t('Done')}</Button>
       </Modal>
     );
   }
@@ -238,11 +242,9 @@ function ReceiveDialog({ cam, onClose }: { cam: RegisterBodycam; onClose: () => 
   return (
     <Modal title={`Receive back ${cam.serial_number}`} onClose={onClose} busy={busy}>
       <p className="text-sm text-muted-foreground">
-        Booked out to <b className="text-fg">{cam.holder?.name ?? 'an officer'}</b> since {formatSaTime(cam.booked_at)}. Use this when the officer
-        cannot hand it back in the app. Any live view of it ends.
-      </p>
+        {t('Booked out to')}{' '}<b className="text-fg">{cam.holder?.name ?? 'an officer'}</b> {' '}{t('since {saTime}. Use this when the officer cannot hand it back in the app. Any live view of it ends.', { saTime: formatSaTime(cam.booked_at) })}</p>
       <fieldset>
-        <legend className="mb-1.5 text-sm font-semibold">Condition</legend>
+        <legend className="mb-1.5 text-sm font-semibold">{t('Condition')}</legend>
         <div className="flex flex-wrap gap-2">
           {([['ok', 'In order'], ['damaged', 'Damaged'], ['lost', 'Lost']] as const).map(([v, l]) => (
             <label key={v} className={cn('cursor-pointer rounded-md border px-3 py-1.5 text-sm', condition === v ? 'border-primary bg-primary/10 font-semibold' : 'border-border')}>
@@ -252,14 +254,14 @@ function ReceiveDialog({ cam, onClose }: { cam: RegisterBodycam; onClose: () => 
         </div>
       </fieldset>
       <div>
-        <Label htmlFor="bc-rcv-notes">Notes (who handed it in, and why here)</Label>
+        <Label htmlFor="bc-rcv-notes">{t('Notes (who handed it in, and why here)')}</Label>
         <Input id="bc-rcv-notes" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} className="mt-1.5"
-          placeholder="e.g. Handed in by Sgt Dlamini at the front desk; phone flat" />
+          placeholder={t('e.g. Handed in by Sgt Dlamini at the front desk; phone flat')} />
       </div>
       {error ? <p role="alert" className="rounded-md border border-severity-critical/40 bg-severity-critical/10 px-3 py-2 text-sm text-severity-critical-ink">{error}</p> : null}
       <div className="flex gap-2">
         <Button onClick={save} disabled={busy || notes.trim().length < 5}>{busy ? 'Saving…' : 'Receive it'}</Button>
-        <Button variant="ghost" onClick={onClose} disabled={busy}>Cancel</Button>
+        <Button variant="ghost" onClick={onClose} disabled={busy}>{t('Cancel')}</Button>
       </div>
     </Modal>
   );

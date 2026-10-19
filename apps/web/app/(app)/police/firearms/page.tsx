@@ -5,11 +5,13 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { returnFirearmAction } from '../actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Issue register · HikTech' };
 
 export default async function FirearmsPage() {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const records = await listFirearmAuthorizations(supabase);
 
@@ -17,26 +19,25 @@ export default async function FirearmsPage() {
     <div className="space-y-4">
       <header className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Firearm issue register</h1>
+          <h1 className="text-2xl font-bold">{t('Firearm issue register')}</h1>
           <p className="text-muted-foreground">
-            Paper-style issue and return authorisations. The firearms themselves, and who holds each, are in the{' '}
-            <Link href="/police/armoury" className="text-primary hover:underline">Armoury</Link>.
+            {t('Paper-style issue and return authorisations. The firearms themselves, and who holds each, are in the')}{' '}
+            <Link href="/police/armoury" className="text-primary hover:underline">{t('Armoury')}</Link>.
           </p>
         </div>
         <Link href="/police/firearms/new" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold">
-          + Issue firearm
-        </Link>
+          {t('+ Issue firearm')}</Link>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>{records.length} authorizations</CardTitle>
-          <CardDescription>Outstanding issues highlighted — record the return inline.</CardDescription>
+          <CardTitle>{t('{length} authorizations', { length: records.length })}</CardTitle>
+          <CardDescription>{t('Outstanding issues highlighted — record the return inline.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['Form #', 'Employee', 'Firearm', 'Rounds out', 'From', 'To', 'Return']}
-            empty="No armoury records."
+            empty={t('No armoury records.')}
           >
             {records.map((f) => (
               <Tr key={f.id}>
@@ -49,8 +50,7 @@ export default async function FirearmsPage() {
                 <Td>
                   {f.date_received ? (
                     <span className="text-severity-low-ink">
-                      Returned {formatSaTime(f.date_received)} ({f.rounds_returned} rounds)
-                    </span>
+                      {t('Returned {saTime} ({value} rounds)', { saTime: formatSaTime(f.date_received), value: f.rounds_returned })}</span>
                   ) : (
                     <form action={returnFirearmAction} className="flex items-center gap-2">
                       <input type="hidden" name="id" value={f.id} />
@@ -59,13 +59,12 @@ export default async function FirearmsPage() {
                         className="h-8 w-20 rounded-md border border-border bg-bg-soft px-2 text-xs"
                       />
                       <select name="condition" className="h-8 rounded-md border border-border bg-bg-soft px-2 text-xs">
-                        <option value="Good">Good</option>
-                        <option value="Needs cleaning">Needs cleaning</option>
-                        <option value="Damaged">Damaged</option>
+                        <option value="Good">{t('Good')}</option>
+                        <option value="Needs cleaning">{t('Needs cleaning')}</option>
+                        <option value="Damaged">{t('Damaged')}</option>
                       </select>
                       <button type="submit" className="h-8 rounded-md bg-accent px-3 text-xs font-semibold">
-                        Return
-                      </button>
+                        {t('Return')}</button>
                     </form>
                   )}
                 </Td>

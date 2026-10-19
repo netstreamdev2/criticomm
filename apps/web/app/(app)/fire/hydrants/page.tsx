@@ -4,6 +4,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { LeafletMap } from '@/components/leaflet-map';
 import { getSession } from '@/lib/session';
 import { escapeHtml, formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Hydrants · HikTech' };
@@ -15,16 +16,16 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default async function HydrantsPage() {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const hydrants = await listHydrants(supabase);
 
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Hydrant register</h1>
+        <h1 className="text-2xl font-bold">{t('Hydrant register')}</h1>
         <p className="text-muted-foreground">
-          Hydrant map and register.
-        </p>
+          {t('Hydrant map and register.')}</p>
       </header>
 
       <Card>
@@ -44,11 +45,11 @@ export default async function HydrantsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{hydrants.length} hydrants</CardTitle>
-          <CardDescription>Status and last inspection.</CardDescription>
+          <CardTitle>{t('{length} hydrants', { length: hydrants.length })}</CardTitle>
+          <CardDescription>{t('Status and last inspection.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Location', 'Coordinates', 'Status', 'Last inspected']} empty="No hydrants recorded.">
+          <SimpleTable headers={['Location', 'Coordinates', 'Status', 'Last inspected']} empty={t('No hydrants recorded.')}>
             {hydrants.map((h) => (
               <Tr key={h.id}>
                 <Td>{h.location_name}</Td>

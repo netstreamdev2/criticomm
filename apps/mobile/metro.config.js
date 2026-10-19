@@ -38,6 +38,12 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     || moduleName === 'react-dom' || moduleName.startsWith('react-dom/')) {
     return resolve({ ...context, originModulePath: fromThisApp }, moduleName, platform);
   }
+  // One LiveKit client too: the app's own (2.9, the one @livekit/react-native
+  // is built for), even when the shared talk session in @criticom/api asks.
+  // The console's newer client uses WeakRef and other features Hermes lacks.
+  if (moduleName === 'livekit-client' || moduleName.startsWith('livekit-client/')) {
+    return resolve({ ...context, originModulePath: fromThisApp }, moduleName, platform);
+  }
   return resolve(context, moduleName, platform);
 };
 

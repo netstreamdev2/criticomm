@@ -8,6 +8,10 @@ import {
   AlertTriangle, Bell, CheckCircle2, Info, MapPin, Radio, Siren, X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
+import { HeadsUpViewport, useHeadsUpStack, type HeadsUpInput } from '@/components/heads-up';
+
+export type { HeadsUpInput };
 
 export type ToastTone = 'info' | 'success' | 'warning' | 'critical' | 'dispatch';
 export type Severity = 'Low' | 'Medium' | 'High' | 'Critical';
@@ -48,6 +52,8 @@ type ToastApi = {
   chime: (tone?: ToastTone) => void;
   /** A distinct tone per severity, so a dispatcher can tell a call's weight by ear. */
   chimeSeverity: (severity: Severity) => void;
+  /** A notification: the white bubble that drops in from the top (heads-up.tsx). */
+  notify: (n: HeadsUpInput) => string;
 };
 
 const ToastContext = createContext<ToastApi | null>(null);
@@ -58,7 +64,7 @@ export function useToast(): ToastApi {
   return ctx ?? NOOP;
 }
 
-const NOOP: ToastApi = { push: () => '', dismiss: () => {}, chime: () => {}, chimeSeverity: () => {} };
+const NOOP: ToastApi = { push: () => '', dismiss: () => {}, chime: () => {}, chimeSeverity: () => {}, notify: () => '' };
 
 const MAX_VISIBLE = 4;
 
@@ -175,6 +181,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   const chime = useChime();
   const chimeSeverity = useSeverityChime();
+  const headsUp = useHeadsUpStack();
 
   const dismiss = useCallback((id: string) => {
     setToasts((cur) => cur.filter((t) => t.id !== id));
@@ -223,24 +230,26 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const api = useMemo<ToastApi>(
-    () => ({ push, dismiss, chime, chimeSeverity }),
-    [push, dismiss, chime, chimeSeverity],
+    () => ({ push, dismiss, chime, chimeSeverity, notify: headsUp.notify }),
+    [push, dismiss, chime, chimeSeverity, headsUp.notify],
   );
 
   return (
     <ToastContext.Provider value={api}>
       {children}
       <ToastViewport toasts={toasts} onDismiss={dismiss} />
+      <HeadsUpViewport items={headsUp.items} onDismiss={headsUp.dismiss} />
     </ToastContext.Provider>
   );
 }
 
 function ToastViewport({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: string) => void }) {
+  const { t } = useT();
   if (toasts.length === 0) return null;
   return (
     <div
       aria-live="polite"
-      aria-label="Notifications"
+      aria-label={t('Notifications')}
       className="pointer-events-none fixed bottom-4 right-4 z-[70] flex w-[24rem] max-w-[calc(100vw-2rem)] flex-col-reverse gap-2"
     >
       {toasts.map((t) => (
@@ -251,6 +260,7 @@ function ToastViewport({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id:
 }
 
 function ToastCard({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {
+  const { t } = useT();
   if (toast.incident) return <IncidentToastCard toast={toast} incident={toast.incident} onDismiss={onDismiss} />;
   const { rail, icon: Icon, fg } = TONE_STYLE[toast.tone];
 
@@ -270,7 +280,7 @@ function ToastCard({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
           <p className="mt-1 break-words text-xs leading-relaxed text-muted-foreground">{toast.body}</p>
         ) : null}
         {toast.href ? (
-          <span className={cn('mt-1.5 inline-block text-xs font-semibold', fg)}>Open →</span>
+          <span className={cn('mt-1.5 inline-block text-xs font-semibold', fg)}>{t('Open →')}</span>
         ) : null}
       </div>
     </div>
@@ -294,7 +304,7 @@ function ToastCard({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
         )}
         <button
           type="button"
-          aria-label="Dismiss notification"
+          aria-label={t('Dismiss notification')}
           onClick={() => onDismiss(toast.id)}
           className="-mr-1 -mt-1 shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-fg"
         >
@@ -337,6 +347,7 @@ const SEVERITY_STYLE: Record<Severity, { band: string; border: string; ink: stri
 function IncidentToastCard({
   toast, incident, onDismiss,
 }: { toast: Toast; incident: IncidentToastData; onDismiss: (id: string) => void }) {
+  const { t } = useT();
   const style = SEVERITY_STYLE[incident.severity] ?? SEVERITY_STYLE.Low;
   const critical = incident.severity === 'Critical';
   const loggedAt = new Date(toast.createdAt).toLocaleTimeString('en-ZA', {
@@ -355,12 +366,12 @@ function IncidentToastCard({
       <div className={cn('flex items-center gap-2 px-3 py-2', style.band)}>
         <Siren className={cn('h-4 w-4 shrink-0', critical && 'animate-pulse')} />
         <span className="text-[11px] font-extrabold uppercase tracking-[0.18em]">
-          New call · {incident.severity}
+          {t('New call · {severity}', { severity: incident.severity })}
         </span>
         <span className="ml-auto font-mono text-xs font-bold opacity-90">{incident.number}</span>
         <button
           type="button"
-          aria-label="Dismiss notification"
+          aria-label={t('Dismiss notification')}
           onClick={() => onDismiss(toast.id)}
           className="-mr-1 rounded-md p-0.5 opacity-80 transition-opacity hover:opacity-100"
         >

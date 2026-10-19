@@ -23,6 +23,7 @@ import { BoardLive } from './board-live';
 import { getSession, siloFilter } from '@/lib/session';
 import { hasSidebar, isDisasterDesk, isEmsAdmin, isFireCommand } from '@/lib/nav';
 import { timeAgo } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Dashboard · HikTech' };
@@ -120,15 +121,16 @@ function Tile({ label, value, accent = 'text-fg' }: { label: string; value: Reac
   );
 }
 
-function ActiveIncidentsPanel({ rows }: { rows: Awaited<ReturnType<typeof listActiveIncidents>> }) {
+async function ActiveIncidentsPanel({ rows }: { rows: Awaited<ReturnType<typeof listActiveIncidents>> }) {
+  const { t } = await requestT();
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Active incidents ({rows.length})</CardTitle>
-        <CardDescription>Dispatched, en route, on scene or transporting — updates in realtime.</CardDescription>
+        <CardTitle>{t('Active incidents ({length})', { length: rows.length })}</CardTitle>
+        <CardDescription>{t('Dispatched, en route, on scene or transporting — updates in realtime.')}</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
-        <SimpleTable headers={['Incident', 'Type', 'Severity', 'Status', 'Location', 'Logged', '']} empty="No active incidents.">
+        <SimpleTable headers={['Incident', 'Type', 'Severity', 'Status', 'Location', 'Logged', '']} empty={t('No active incidents.')}>
           {rows.slice(0, 10).map((i) => (
             <Tr key={i.id}>
               <Td className="font-mono">{i.incident_number}</Td>
@@ -137,7 +139,7 @@ function ActiveIncidentsPanel({ rows }: { rows: Awaited<ReturnType<typeof listAc
               <Td><span className="status-badge" data-status={i.status}>{i.status}</span></Td>
               <Td className="max-w-[240px] truncate">{i.location_address}</Td>
               <Td className="text-muted-foreground">{timeAgo(i.incident_created_at)}</Td>
-              <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">Open</Link></Td>
+              <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">{t('Open')}</Link></Td>
             </Tr>
           ))}
         </SimpleTable>
@@ -149,6 +151,7 @@ function ActiveIncidentsPanel({ rows }: { rows: Awaited<ReturnType<typeof listAc
 type SearchParams = Record<string, string | string[] | undefined>;
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const { t } = await requestT();
   const { supabase, silo, role, fullName, userId } = await getSession();
   if (role === 'SystemController') redirect('/command');
   // The case manager's dashboard is Case Management (0061); one place, not two.
@@ -181,7 +184,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <CritiTiles />
         <DispatchBoard supabase={supabase} sf={sf} role={role} silo={silo} userId={userId} />
         <section className="space-y-3 pt-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t('Quick actions')}</h2>
           <QuickLinks links={LINKS.command} role={role} silo={silo} />
         </section>
       </div>
@@ -196,10 +199,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       {/* Hero */}
       <section className="overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-primary/15 via-bg-card to-bg-soft p-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">{PERSONA_TITLE[persona]}</p>
-        <h1 className="mt-1 text-2xl font-bold">Welcome back, {first}</h1>
+        <h1 className="mt-1 text-2xl font-bold">{t('Welcome back, {first}', { first })}</h1>
         <p className="text-sm text-muted-foreground">
-          {roleName(role)} · {departmentName(silo)} · live operations for your role.
-        </p>
+          {t('{roleName} · {departmentName} · live operations for your role.', { roleName: roleName(role), departmentName: departmentName(silo) })}</p>
       </section>
 
       <CritiTiles />
@@ -208,7 +210,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
       {/* Quick links — "all those links and so forth", tailored per role */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Quick actions</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{t('Quick actions')}</h2>
         <QuickLinks links={LINKS[persona]} role={role} silo={silo} />
       </section>
 
@@ -231,6 +233,7 @@ async function CaptainDashboard({
   supabase: Awaited<ReturnType<typeof getSession>>['supabase'];
   silo: Silo; fullName: string; userId: string; params: SearchParams; showFines: boolean;
 }) {
+  const { t } = await requestT();
   const sf = siloFilter(silo);
   const me = await getMyPersonnel(supabase, userId).catch(() => null);
   const [personnel, active, compliance, mine, cams] = await Promise.all([
@@ -251,13 +254,12 @@ async function CaptainDashboard({
         <div aria-hidden className="pointer-events-none absolute -right-10 -top-20 h-56 w-56 rounded-full bg-accent/10 blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent">Metro Police · Captain</p>
-            <h1 className="mt-2 text-2xl font-bold text-fg sm:text-3xl">Your team, at a glance</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{fullName} · Crew readiness, live incidents and your own assignments.</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent">{t('Metro Police · Captain')}</p>
+            <h1 className="mt-2 text-2xl font-bold text-fg sm:text-3xl">{t('Your team, at a glance')}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t('{fullName} · Crew readiness, live incidents and your own assignments.', { fullName })}</p>
           </div>
           <Link href="/roster/allocation" className="inline-flex min-h-10 items-center rounded-lg bg-accent px-4 text-sm font-bold text-bg shadow-sm transition-opacity hover:opacity-90">
-            Open duty board →
-          </Link>
+            {t('Open duty board →')}</Link>
         </div>
       </section>
 
@@ -265,12 +267,12 @@ async function CaptainDashboard({
       {/* Who has started their shift, and who is late (0072). */}
       <Suspense fallback={null}><AttendanceNow viewerRole={'Captain'} silo={silo} /></Suspense>
 
-      <section aria-label="Team status" className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
-        <Tile label="Team members" value={personnel.length} />
-        <Tile label="On duty now" value={onDuty} accent="text-severity-low-ink" />
-        <Tile label="Readiness checks today" value={compliance.mentalChecks.length} accent="text-accent" />
-        <Tile label="Active police incidents" value={active.length} accent="text-severity-medium-ink" />
-        <Tile label="Team bodycams on" value={camsOn} accent="text-severity-critical-ink" />
+      <section aria-label={t('Team status')} className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5">
+        <Tile label={t('Team members')} value={personnel.length} />
+        <Tile label={t('On duty now')} value={onDuty} accent="text-severity-low-ink" />
+        <Tile label={t('Readiness checks today')} value={compliance.mentalChecks.length} accent="text-accent" />
+        <Tile label={t('Active police incidents')} value={active.length} accent="text-severity-medium-ink" />
+        <Tile label={t('Team bodycams on')} value={camsOn} accent="text-severity-critical-ink" />
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -301,6 +303,7 @@ async function EmsAdminDashboard({
 }: {
   supabase: Awaited<ReturnType<typeof getSession>>['supabase']; fullName: string;
 }) {
+  const { t } = await requestT();
   const [personnel, ambulances, active, compliance, pcrs] = await Promise.all([
     listPersonnel(supabase, 'Medical').catch(() => []),
     listApparatus(supabase, 'Medical').catch(() => []),
@@ -324,13 +327,12 @@ async function EmsAdminDashboard({
         <div aria-hidden className="pointer-events-none absolute -right-10 -top-20 h-56 w-56 rounded-full bg-accent/10 blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent">Emergency Medical Services · Administration</p>
-            <h1 className="mt-2 text-2xl font-bold text-fg sm:text-3xl">EMS at a glance</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{fullName} · Crews, ambulances, live calls and patient reports.</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent">{t('Emergency Medical Services · Administration')}</p>
+            <h1 className="mt-2 text-2xl font-bold text-fg sm:text-3xl">{t('EMS at a glance')}</h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t('{fullName} · Crews, ambulances, live calls and patient reports.', { fullName })}</p>
           </div>
           <Link href="/medical" className="inline-flex min-h-10 items-center rounded-lg bg-accent px-4 text-sm font-bold text-bg shadow-sm transition-opacity hover:opacity-90">
-            Open EMS operations →
-          </Link>
+            {t('Open EMS operations →')}</Link>
         </div>
       </section>
 
@@ -338,13 +340,13 @@ async function EmsAdminDashboard({
       {/* Who has started their shift, and who is late (0072). */}
       <Suspense fallback={null}><AttendanceNow viewerRole={'Admin'} silo={'Medical'} /></Suspense>
 
-      <section aria-label="EMS status" className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-        <Tile label="Crew on duty" value={onDuty} accent="text-severity-low-ink" />
-        <Tile label="Readiness checks today" value={compliance.mentalChecks.length} accent="text-accent" />
-        <Tile label="Ambulances in service" value={`${inService}/${fleet.length}`} />
-        <Tile label="Ambulances off road" value={offRoad} accent="text-severity-high-ink" />
-        <Tile label="Live EMS calls" value={live.length} accent="text-severity-medium-ink" />
-        <Tile label="Patient reports today" value={filedToday} />
+      <section aria-label={t('EMS status')} className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
+        <Tile label={t('Crew on duty')} value={onDuty} accent="text-severity-low-ink" />
+        <Tile label={t('Readiness checks today')} value={compliance.mentalChecks.length} accent="text-accent" />
+        <Tile label={t('Ambulances in service')} value={`${inService}/${fleet.length}`} />
+        <Tile label={t('Ambulances off road')} value={offRoad} accent="text-severity-high-ink" />
+        <Tile label={t('Live EMS calls')} value={live.length} accent="text-severity-medium-ink" />
+        <Tile label={t('Patient reports today')} value={filedToday} />
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -372,6 +374,7 @@ async function CommandBody({
 }: {
   supabase: Awaited<ReturnType<typeof getSession>>['supabase']; sf: Silo | undefined; persona: Persona;
 }) {
+  const { t } = await requestT();
   const [kpi, active, pending, adminCounts] = await Promise.all([
     getDispatcherKpis(supabase, sf),
     listActiveIncidents(supabase, sf),
@@ -391,28 +394,28 @@ async function CommandBody({
   return (
     <>
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-        <Tile label="Active deployments" value={kpi.activeDeployments} accent="text-accent" />
-        <Tile label="Pending dispatch" value={pending.length} accent="text-severity-medium-ink" />
-        <Tile label="Critical today" value={kpi.criticalAlertsToday} accent="text-severity-critical-ink" />
-        <Tile label="Total calls today" value={kpi.totalIncidentsToday} />
-        <Tile label="Personnel on duty" value={kpi.personnelOnDuty} accent="text-severity-low-ink" />
+        <Tile label={t('Active deployments')} value={kpi.activeDeployments} accent="text-accent" />
+        <Tile label={t('Pending dispatch')} value={pending.length} accent="text-severity-medium-ink" />
+        <Tile label={t('Critical today')} value={kpi.criticalAlertsToday} accent="text-severity-critical-ink" />
+        <Tile label={t('Total calls today')} value={kpi.totalIncidentsToday} />
+        <Tile label={t('Personnel on duty')} value={kpi.personnelOnDuty} accent="text-severity-low-ink" />
       </section>
 
       {adminCounts && (
         <section className="grid grid-cols-3 gap-3">
-          <Tile label="Users" value={adminCounts[0]} />
-          <Tile label="Fleet vehicles" value={adminCounts[1]} />
-          <Tile label="Devices" value={adminCounts[2]} />
+          <Tile label={t('Users')} value={adminCounts[0]} />
+          <Tile label={t('Fleet vehicles')} value={adminCounts[1]} />
+          <Tile label={t('Devices')} value={adminCounts[2]} />
         </section>
       )}
 
       <section className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader><CardTitle>Call volume — today</CardTitle><CardDescription>Hourly distribution.</CardDescription></CardHeader>
+          <CardHeader><CardTitle>{t('Call volume — today')}</CardTitle><CardDescription>{t('Hourly distribution.')}</CardDescription></CardHeader>
           <CardContent><HourlyAreaChart data={hourly} /></CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle>Severity mix</CardTitle><CardDescription>All calls by priority.</CardDescription></CardHeader>
+          <CardHeader><CardTitle>{t('Severity mix')}</CardTitle><CardDescription>{t('All calls by priority.')}</CardDescription></CardHeader>
           <CardContent><SeverityDonut data={severity} /></CardContent>
         </Card>
       </section>
@@ -428,6 +431,7 @@ async function SupervisorBody({
 }: {
   supabase: Awaited<ReturnType<typeof getSession>>['supabase']; sf: Silo | undefined;
 }) {
+  const { t } = await requestT();
   const [kpi, active, personnel, compliance] = await Promise.all([
     getDispatcherKpis(supabase, sf),
     listActiveIncidents(supabase, sf),
@@ -439,10 +443,10 @@ async function SupervisorBody({
   return (
     <>
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Tile label="Team members" value={personnel.length} />
-        <Tile label="On duty now" value={onDuty} accent="text-severity-low-ink" />
-        <Tile label="Readiness checks today" value={compliance.mentalChecks.length} accent="text-accent" />
-        <Tile label="Active incidents" value={active.length} accent="text-severity-medium-ink" />
+        <Tile label={t('Team members')} value={personnel.length} />
+        <Tile label={t('On duty now')} value={onDuty} accent="text-severity-low-ink" />
+        <Tile label={t('Readiness checks today')} value={compliance.mentalChecks.length} accent="text-accent" />
+        <Tile label={t('Active incidents')} value={active.length} accent="text-severity-medium-ink" />
       </section>
       <ActiveIncidentsPanel rows={active} />
     </>
@@ -455,6 +459,7 @@ async function ResponderBody({
 }: {
   supabase: Awaited<ReturnType<typeof getSession>>['supabase']; userId: string; silo: Silo; fullName: string;
 }) {
+  const { t } = await requestT();
   const now = new Date();
   const cycleStart = now.getMonth() >= 6 ? new Date(now.getFullYear(), 6, 1) : new Date(now.getFullYear() - 1, 6, 1);
 
@@ -473,28 +478,27 @@ async function ResponderBody({
     <>
       {!shiftDone && (
         <Link href="/shift/mental-check" className="block rounded-xl border border-severity-medium/40 bg-severity-medium/10 p-4 text-sm font-semibold text-severity-medium-ink hover:bg-severity-medium/20">
-          ⚠ Start-of-shift checks pending — complete your readiness & vehicle inspection to go on duty →
-        </Link>
+          {t('⚠ Start-of-shift checks pending — complete your readiness & vehicle inspection to go on duty →')}</Link>
       )}
 
       {perf && (
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Tile label="My open calls" value={mine.length} accent="text-accent" />
-          <Tile label="Attended (cycle)" value={perf.asResponder.total} />
-          <Tile label="Closed" value={perf.asResponder.closed} accent="text-severity-low-ink" />
-          <Tile label="Appraisal /5" value={perf.finalAverage ?? perf.midYearAverage ?? '—'} accent="text-severity-medium-ink" />
+          <Tile label={t('My open calls')} value={mine.length} accent="text-accent" />
+          <Tile label={t('Attended (cycle)')} value={perf.asResponder.total} />
+          <Tile label={t('Closed')} value={perf.asResponder.closed} accent="text-severity-low-ink" />
+          <Tile label={t('Appraisal /5')} value={perf.finalAverage ?? perf.midYearAverage ?? '—'} accent="text-severity-medium-ink" />
         </section>
       )}
 
       <Card>
         <CardHeader>
-          <CardTitle>My incidents ({mine.length})</CardTitle>
+          <CardTitle>{t('My incidents ({length})', { length: mine.length })}</CardTitle>
           <CardDescription>
             {me ? `Unit ${me.apparatus?.unit_number ?? '—'} · ${me.is_on_duty ? 'On duty' : 'Off duty'}` : 'No personnel record linked to your account.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Incident', 'Type', 'Severity', 'Status', 'Location', '']} empty="No open calls. Calls sent to you appear here and in the HikTech app.">
+          <SimpleTable headers={['Incident', 'Type', 'Severity', 'Status', 'Location', '']} empty={t('No open calls. Calls sent to you appear here and in the HikTech app.')}>
             {mine.map((i) => (
               <Tr key={i.id}>
                 <Td className="font-mono">{i.incident_number}</Td>
@@ -502,7 +506,7 @@ async function ResponderBody({
                 <Td><span className="severity-pill" data-sev={i.incident_severity}>{i.incident_severity}</span></Td>
                 <Td><span className="status-badge" data-status={i.status}>{i.status}</span></Td>
                 <Td className="max-w-[240px] truncate">{i.location_address}</Td>
-                <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">Open</Link></Td>
+                <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">{t('Open')}</Link></Td>
               </Tr>
             ))}
           </SimpleTable>

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { deskFormsFor, type DeskForm } from '@/lib/radio-forms';
 import { answered, FormIcon, FormWizard, onTone } from '@/components/form-wizard';
 import { closeFromDeskAction, fileRadioReportAction, markPartAction } from './actions';
+import { useT } from '@/components/i18n';
 
 type CrewMember = { id: string; name: string; badge: string | null; onDuty: boolean };
 
@@ -29,6 +30,7 @@ export function RadioReport({ incidentId, incidentNumber, silo, departmentName, 
   part: { status: string; leadId: string | null; leadName: string | null; reportFiledAt: string | null; closedAt: string | null };
   crew: CrewMember[];
 }) {
+  const { t } = useT();
   const router = useRouter();
   // Stable per department: the draft loader below depends on it.
   const set = useMemo(() => deskFormsFor(silo)!, [silo]);
@@ -118,26 +120,22 @@ export function RadioReport({ incidentId, incidentNumber, silo, departmentName, 
       <section className="space-y-4 rounded-2xl border border-severity-low/40 bg-severity-low/10 p-6 text-center">
         <CheckCircle2 className="mx-auto h-10 w-10 text-severity-low-ink" aria-hidden />
         <div>
-          <h2 className="text-lg font-bold">{departmentName} report filed</h2>
+          <h2 className="text-lg font-bold">{t('{departmentName} report filed', { departmentName })}</h2>
           <p className="text-sm text-muted-foreground">
-            {officerName ? `In ${officerName}'s name, ` : ''}filed from your desk. Dispatch and command have been told.
-          </p>
+            {t('{value}filed from your desk. Dispatch and command have been told.', { value: officerName ? `In ${officerName}'s name, ` : '' })}</p>
         </div>
         {error ? <p role="alert" className="text-sm font-semibold text-severity-critical-ink">{error}</p> : null}
         <div className="flex flex-wrap justify-center gap-3">
           {closed ? (
             <span className="inline-flex h-11 items-center gap-2 rounded-lg border border-severity-low/40 px-4 text-sm font-bold text-severity-low-ink">
-              <Lock className="h-4 w-4" /> Closed on scene
-            </span>
+              <Lock className="h-4 w-4" /> {' '}{t('Closed on scene')}</span>
           ) : (
             <button type="button" onClick={close} disabled={pending}
               className="inline-flex h-11 items-center gap-2 rounded-lg bg-severity-low px-5 text-sm font-bold text-white disabled:opacity-60">
-              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Close {departmentName} on scene
-            </button>
+              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} {' '}{t('Close {departmentName} on scene', { departmentName })}</button>
           )}
           <Link href={`/incidents/${incidentId}`} className="inline-flex h-11 items-center rounded-lg border border-border px-5 text-sm font-semibold hover:bg-muted">
-            Back to the incident
-          </Link>
+            {t('Back to the incident')}</Link>
         </div>
       </section>
     );
@@ -152,11 +150,11 @@ export function RadioReport({ incidentId, incidentNumber, silo, departmentName, 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* 1. Who radioed it in */}
         <section className="rounded-xl border border-border bg-bg-card p-4">
-          <h2 className="flex items-center gap-2 font-semibold"><UserRound className="h-4 w-4 text-accent" /> Who radioed it in?</h2>
+          <h2 className="flex items-center gap-2 font-semibold"><UserRound className="h-4 w-4 text-accent" /> {' '}{t('Who radioed it in?')}</h2>
           {part.leadId ? (
             <p className="mt-2 text-sm">
               <span className="font-semibold">{part.leadName ?? 'The lead'}</span>
-              <span className="text-muted-foreground"> leads {departmentName} on this call. The report is filed in their name.</span>
+              <span className="text-muted-foreground"> {' '}{t('leads {departmentName} on this call. The report is filed in their name.', { departmentName })}</span>
             </p>
           ) : (
             <>
@@ -164,9 +162,9 @@ export function RadioReport({ incidentId, incidentNumber, silo, departmentName, 
                 type="search"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                placeholder="Search name or force number"
+                placeholder={t('Search name or force number')}
                 className="mt-2 h-10 w-full rounded-md border border-border bg-bg-soft px-3 text-sm"
-                aria-label="Search the crew"
+                aria-label={t('Search the crew')}
               />
               <ul className="mt-2 max-h-56 space-y-1 overflow-y-auto" aria-label={`${departmentName} crew`}>
                 {shown.map((c) => {
@@ -184,7 +182,7 @@ export function RadioReport({ incidentId, incidentNumber, silo, departmentName, 
                     </li>
                   );
                 })}
-                {shown.length === 0 ? <li className="px-3 py-2 text-sm text-muted-foreground">Nobody matches.</li> : null}
+                {shown.length === 0 ? <li className="px-3 py-2 text-sm text-muted-foreground">{t('Nobody matches.')}</li> : null}
               </ul>
             </>
           )}
@@ -192,7 +190,7 @@ export function RadioReport({ incidentId, incidentNumber, silo, departmentName, 
 
         {/* 2. Where the crew is */}
         <section className="rounded-xl border border-border bg-bg-card p-4">
-          <h2 className="flex items-center gap-2 font-semibold"><MapPin className="h-4 w-4 text-accent" /> Where the crew is</h2>
+          <h2 className="flex items-center gap-2 font-semibold"><MapPin className="h-4 w-4 text-accent" /> {' '}{t('Where the crew is')}</h2>
           <p className="mt-2 text-sm">
             <span className={cn('inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold',
               onScene ? 'border-severity-low/40 bg-severity-low/10 text-severity-low-ink' : 'border-severity-medium/40 bg-severity-medium/10 text-severity-medium-ink')}>
@@ -201,19 +199,19 @@ export function RadioReport({ incidentId, incidentNumber, silo, departmentName, 
           </p>
           {!onScene ? (
             <>
-              <p className="mt-2 text-sm text-muted-foreground">Mark the crew as they radio it in. The report is filed once they are on scene.</p>
+              <p className="mt-2 text-sm text-muted-foreground">{t('Mark the crew as they radio it in. The report is filed once they are on scene.')}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {['En Route', 'On Scene'].map((s) => (
                   <button key={s} type="button" onClick={() => mark(s)} disabled={pending}
                     className={cn('h-9 rounded-md px-3 text-sm font-semibold disabled:opacity-60',
                       s === 'On Scene' ? 'bg-accent text-white' : 'border border-border hover:bg-muted')}>
-                    Mark {s}
+                    {t('Mark {s}', { s })}
                   </button>
                 ))}
               </div>
             </>
           ) : (
-            <p className="mt-2 text-sm text-muted-foreground">On scene. Fill the report as the crew tells you.</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t('On scene. Fill the report as the crew tells you.')}</p>
           )}
         </section>
       </div>
@@ -224,7 +222,7 @@ export function RadioReport({ incidentId, incidentNumber, silo, departmentName, 
       {/* 4. Police: the DMPS forms, optional */}
       {set.optional.length ? (
         <section>
-          <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">DMPS forms · optional</h2>
+          <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('DMPS forms · optional')}</h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {set.optional.map((f) => (
               <FormTile key={f.id} form={f} answers={answers} done={forms.includes(f.id)} onOpen={() => setOpen(f.id)} />
@@ -235,13 +233,12 @@ export function RadioReport({ incidentId, incidentNumber, silo, departmentName, 
 
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-bg-soft p-4">
         <p className="min-w-0 flex-1 text-sm text-muted-foreground">
-          Filing: <span className="font-semibold text-fg">{[set.required.title, ...set.optional.filter((f) => forms.includes(f.id)).map((f) => f.code)].join(' · ')}</span>
-          {officerName ? <> · as radioed in by <span className="font-semibold text-fg">{officerName}</span></> : null}
+          {t('Filing:')}{' '}<span className="font-semibold text-fg">{[set.required.title, ...set.optional.filter((f) => forms.includes(f.id)).map((f) => f.code)].join(' · ')}</span>
+          {officerName ? <> {' '}{t('· as radioed in by')}{' '}<span className="font-semibold text-fg">{officerName}</span></> : null}
         </p>
         <button type="button" onClick={file} disabled={pending || !onScene || !officerId}
           className="inline-flex h-11 items-center gap-2 rounded-lg bg-severity-low px-6 text-sm font-bold text-white disabled:opacity-50">
-          {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />} File report
-        </button>
+          {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />} {' '}{t('File report')}</button>
       </div>
 
       {openForm ? (
@@ -261,6 +258,7 @@ export function RadioReport({ incidentId, incidentNumber, silo, departmentName, 
 function ReportCard({ form, answers, done, required, onOpen }: {
   form: DeskForm; answers: Record<string, string>; done: boolean; required?: boolean; onOpen: () => void;
 }) {
+  const { t } = useT();
   const { done: n, total } = answered(form, answers);
   return (
     <button type="button" onClick={onOpen}
@@ -276,7 +274,7 @@ function ReportCard({ form, answers, done, required, onOpen }: {
       {done ? (
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-severity-low text-white"><Check className="h-4 w-4" /></span>
       ) : required ? (
-        <span className="rounded-full px-2.5 py-1 text-[10px] font-black tracking-wider" style={{ backgroundColor: form.tone, color: onTone(form.tone) }}>REQUIRED</span>
+        <span className="rounded-full px-2.5 py-1 text-[10px] font-black tracking-wider" style={{ backgroundColor: form.tone, color: onTone(form.tone) }}>{t('REQUIRED')}</span>
       ) : null}
     </button>
   );

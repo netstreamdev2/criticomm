@@ -5,6 +5,7 @@
 import { PCR_SECTIONS, PCR_SIGNATURES, type PcrField } from '@criticom/db/pcr';
 import { FormSection, TextField, TextAreaField, SelectField, CheckField } from '@/components/fields';
 import { SignaturePad } from '@/components/signature-pad';
+import { requestT } from '@/lib/i18n';
 
 export type PcrDefaults = Record<string, string>;
 
@@ -32,14 +33,15 @@ function Field({ f, d }: { f: PcrField; d: PcrDefaults }) {
   }
 }
 
-export function PcrFormSections({ d = {}, timeOnScene }: { d?: PcrDefaults; timeOnScene?: string | null }) {
+export async function PcrFormSections({ d = {}, timeOnScene }: { d?: PcrDefaults; timeOnScene?: string | null }) {
+  const { t } = await requestT();
   return (
     <>
       {PCR_SECTIONS.map((s) => (
         <FormSection key={s.id} title={s.title}>
           {s.id === 'scene' && timeOnScene ? (
             <div>
-              <p className="text-sm font-medium">Time on Scene</p>
+              <p className="text-sm font-medium">{t('Time on Scene')}</p>
               <p className="mt-2 text-sm">{timeOnScene}</p>
             </div>
           ) : null}
@@ -56,14 +58,14 @@ export function PcrFormSections({ d = {}, timeOnScene }: { d?: PcrDefaults; time
         </FormSection>
       ))}
 
-      <FormSection title="Sign Off & Handover">
+      <FormSection title={t('Sign Off & Handover')}>
         {PCR_SIGNATURES.map((s) => (
           <SignaturePad key={s.key} name={s.key} label={s.required ? `${s.label} *` : s.label} defaultValue={d[s.key] || null} />
         ))}
       </FormSection>
 
-      <FormSection title="Post-Incident Vehicle Status">
-        <CheckField name="requires_cleaning" label="Does the vehicle require cleaning?" defaultChecked={d.requires_cleaning === 'true'} />
+      <FormSection title={t('Post-Incident Vehicle Status')}>
+        <CheckField name="requires_cleaning" label={t('Does the vehicle require cleaning?')} defaultChecked={d.requires_cleaning === 'true'} />
       </FormSection>
     </>
   );

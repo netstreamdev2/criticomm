@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/toast';
 import { changeRoleAction } from './actions';
 import { ConfirmFields, confirmReady, type ConfirmWord } from './confirm-fields';
+import { useT } from '@/components/i18n';
 
 const SILO_LABELS: Record<Silo, string> = {
   Ethekwini: 'Control Room (all departments)',
@@ -42,6 +43,7 @@ export function ChangeRoleForm({
   departments: Silo[] | null;
   confirm: ConfirmWord;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -91,7 +93,7 @@ export function ChangeRoleForm({
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <Label htmlFor="new-silo">Department</Label>
+          <Label htmlFor="new-silo">{t('Department')}</Label>
           {departments ? (
             <select id="new-silo" value={silo} onChange={(e) => chooseDepartment(e.target.value as Silo)} className={selectClass}>
               {departments.map((s) => (
@@ -105,9 +107,9 @@ export function ChangeRoleForm({
           )}
         </div>
         <div>
-          <Label htmlFor="new-role">New role</Label>
+          <Label htmlFor="new-role">{t('New role')}</Label>
           <select id="new-role" value={role} onChange={(e) => setRole(e.target.value as UserRole)} className={selectClass}>
-            {role === '' ? <option value="" disabled>Choose a role</option> : null}
+            {role === '' ? <option value="" disabled>{t('Choose a role')}</option> : null}
             {offered.map((r) => (
               <option key={r} value={r}>{roleName(r)}{r === currentRole ? ' (current)' : ''}</option>
             ))}
@@ -117,21 +119,21 @@ export function ChangeRoleForm({
 
       {changed ? (
         <div className="rounded-lg border border-border bg-bg-soft p-4">
-          <p className="text-sm font-semibold">What changes for {first}</p>
+          <p className="text-sm font-semibold">{t('What changes for {first}', { first })}</p>
           {diff.gains.length === 0 && diff.losses.length === 0 ? (
-            <p className="mt-2 text-sm text-muted-foreground">The same screens and powers as now.</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t('The same screens and powers as now.')}</p>
           ) : (
             <div className="mt-3 grid gap-4 sm:grid-cols-2">
-              <ul className="space-y-1.5 text-sm" aria-label="Gains">
-                {diff.gains.length === 0 ? <li className="text-muted-foreground">Gains nothing</li> : null}
+              <ul className="space-y-1.5 text-sm" aria-label={t('Gains')}>
+                {diff.gains.length === 0 ? <li className="text-muted-foreground">{t('Gains nothing')}</li> : null}
                 {diff.gains.map((g) => (
                   <li key={g} className="flex items-start gap-2">
                     <Plus className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />{g}
                   </li>
                 ))}
               </ul>
-              <ul className="space-y-1.5 text-sm" aria-label="Losses">
-                {diff.losses.length === 0 ? <li className="text-muted-foreground">Loses nothing</li> : null}
+              <ul className="space-y-1.5 text-sm" aria-label={t('Losses')}>
+                {diff.losses.length === 0 ? <li className="text-muted-foreground">{t('Loses nothing')}</li> : null}
                 {diff.losses.map((l) => (
                   <li key={l} className="flex items-start gap-2">
                     <Minus className="mt-0.5 h-4 w-4 shrink-0 text-severity-critical" aria-hidden />{l}
@@ -147,9 +149,7 @@ export function ChangeRoleForm({
         <p className="flex items-start gap-2 rounded-lg border border-severity-medium/40 bg-severity-medium/10 px-3 py-2.5 text-sm">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-severity-medium-ink" aria-hidden />
           <span>
-            <b>{roleName(role)}</b> is a powerful role, so a second SystemAdmin must approve
-            this. Nothing changes until they do, and you can withdraw it meanwhile.
-          </span>
+            <b>{roleName(role)}</b> {' '}{t('is a powerful role, so a second SystemAdmin must approve this. Nothing changes until they do, and you can withdraw it meanwhile.')}</span>
         </p>
       ) : null}
 

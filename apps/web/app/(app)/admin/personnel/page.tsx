@@ -11,6 +11,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { AddPersonForm } from './add-person-form';
 import { RegisterTable, type StatusFilter } from './register-table';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Personnel · HikTech' };
@@ -25,6 +26,7 @@ const FILTERS: StatusFilter[] = ['current', 'to-confirm', 'no-role', 'ready', 'i
  * marked, never deleted.
  */
 export default async function AdminPersonnelPage({ searchParams }: { searchParams: Promise<{ status?: string; q?: string }> }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const { status, q } = await searchParams;
   const canManage = ADMIN_ROLES.includes(role);
@@ -54,25 +56,21 @@ export default async function AdminPersonnelPage({ searchParams }: { searchParam
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Personnel</h1>
+          <h1 className="text-2xl font-bold">{t('Personnel')}</h1>
           <p className="max-w-2xl text-muted-foreground">
-            The staff register: everyone who works here, with or without an account. Being in the register gives
-            nobody access; only an invitation they accept does.
-          </p>
+            {t('The staff register: everyone who works here, with or without an account. Being in the register gives nobody access; only an invitation they accept does.')}</p>
         </div>
         <div className="flex flex-wrap gap-2 text-sm">
           {canImport ? (
             <Link href="/admin/personnel/import" className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground hover:bg-primary/90">
-              <FileUp className="h-4 w-4" /> Import staff list
-            </Link>
+              <FileUp className="h-4 w-4" /> {' '}{t('Import staff list')}</Link>
           ) : null}
           {canManage ? (
             <>
               <a href="/admin/personnel/template" className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 hover:bg-muted">
-                <Download className="h-4 w-4" /> Template for HR
-              </a>
-              <Link href="/admin/rollout" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Rollout</Link>
-              <Link href="/admin/invitations" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Invitations</Link>
+                <Download className="h-4 w-4" /> {' '}{t('Template for HR')}</a>
+              <Link href="/admin/rollout" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Rollout')}</Link>
+              <Link href="/admin/invitations" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Invitations')}</Link>
             </>
           ) : null}
         </div>
@@ -102,25 +100,18 @@ export default async function AdminPersonnelPage({ searchParams }: { searchParam
             <p className="flex items-start gap-2 rounded-lg border border-severity-medium/50 bg-severity-medium/10 px-4 py-3 text-sm">
               <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-severity-medium-ink" aria-hidden />
               <span>
-                <b>{shared.length} badge {shared.length === 1 ? 'number is' : 'numbers are'} used by more than one person</b>{' '}
-                ({shared.slice(0, 3).map((g) => g[0]!.badge_number).join(', ')}{shared.length > 3 ? '…' : ''}). A badge number proves who
-                someone is, so each should belong to one person: correct the badge, or mark the extra record as left.{' '}
-                <Link href="/admin/personnel?status=shared-badge" className="font-semibold underline">Show them</Link>
+                <b>{t('{length} badge {value} used by more than one person', { length: shared.length, value: shared.length === 1 ? 'number is' : 'numbers are' })}</b>{' '}{t('({join}{value}). A badge number proves who someone is, so each should belong to one person: correct the badge, or mark the extra record as left.', { join: shared.slice(0, 3).map((g) => g[0]!.badge_number).join(', '), value: shared.length > 3 ? '…' : '' })}{' '}
+                <Link href="/admin/personnel?status=shared-badge" className="font-semibold underline">{t('Show them')}</Link>
               </span>
             </p>
           ) : null}
 
           {latest ? (
             <p className="text-sm text-muted-foreground">
-              Last staff-list import: <b className="text-fg">{latest.file_name}</b>, {formatSaTime(latest.finished_at ?? latest.started_at)} by{' '}
-              {latest.imported_by_name ?? 'an administrator'}. {latest.added} added, {latest.updated} updated
-              {latest.status === 'in_progress' ? ' · not finished: import the file again to complete it' : ''}.
-            </p>
+              {t('Last staff-list import:')}{' '}<b className="text-fg">{latest.file_name}</b>{t(', {saTime} by {value}. {added} added, {updated} updated{value2}.', { saTime: formatSaTime(latest.finished_at ?? latest.started_at), value: latest.imported_by_name ?? 'an administrator', added: latest.added, updated: latest.updated, value2: latest.status === 'in_progress' ? ' · not finished: import the file again to complete it' : '' })}</p>
           ) : canImport ? (
             <p className="text-sm text-muted-foreground">
-              No staff list imported yet. Send HR the <a href="/admin/personnel/template" className="font-semibold text-primary hover:underline">template</a>, then
-              import what they return.
-            </p>
+              {t('No staff list imported yet. Send HR the')}{' '}<a href="/admin/personnel/template" className="font-semibold text-primary hover:underline">{t('template')}</a>{t(', then import what they return.')}</p>
           ) : null}
 
           <RegisterTable
@@ -140,8 +131,8 @@ export default async function AdminPersonnelPage({ searchParams }: { searchParam
       {canManage ? (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base"><UserPlus className="h-4 w-4" /> Add one person</CardTitle>
-            <CardDescription>For someone joining between staff-list imports. Then invite them from the list above.</CardDescription>
+            <CardTitle className="flex items-center gap-2 text-base"><UserPlus className="h-4 w-4" /> {' '}{t('Add one person')}</CardTitle>
+            <CardDescription>{t('For someone joining between staff-list imports. Then invite them from the list above.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <AddPersonForm departments={departments} />

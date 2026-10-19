@@ -4,11 +4,13 @@ import { getPcr } from '@criticom/api';
 import { PcrCard } from '@/components/pcr-card';
 import { getSession } from '@/lib/session';
 import { PrintButton } from '@/app/(app)/roster/duty-sheet/print-button';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'PCR · HikTech' };
 
 export default async function PcrDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = await requestT();
   const { id } = await params;
   const { supabase, role } = await getSession();
   const p = await getPcr(supabase, id).catch(() => null);
@@ -24,15 +26,14 @@ export default async function PcrDetailPage({ params }: { params: Promise<{ id: 
         <div>
           <h1 className="text-2xl font-bold">{p.patient_name ?? 'Unknown patient'}</h1>
           {p.incident_id ? (
-            <Link href={`/incidents/${p.incident_id}`} className="text-sm text-accent hover:underline">Open the incident</Link>
-          ) : <p className="text-sm text-muted-foreground">Manual entry</p>}
+            <Link href={`/incidents/${p.incident_id}`} className="text-sm text-accent hover:underline">{t('Open the incident')}</Link>
+          ) : <p className="text-sm text-muted-foreground">{t('Manual entry')}</p>}
         </div>
         <div className="flex items-center gap-2">
           <PrintButton />
           {closed || role === 'Doctor' ? null : (
             <Link href={`/medical/pcr/${p.id}/edit`} className="inline-flex h-10 items-center rounded-md bg-accent px-4 text-sm font-semibold">
-              Edit PCR
-            </Link>
+              {t('Edit PCR')}</Link>
           )}
         </div>
       </header>

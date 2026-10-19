@@ -7,6 +7,7 @@ import { ChevronDown } from 'lucide-react';
 import { canAccess, type Silo, type UserRole } from '@criticom/db';
 import { NAV_GROUPS } from '@/lib/nav';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 /**
  * Horizontal navigation for operational roles.
@@ -21,6 +22,7 @@ import { cn } from '@/lib/utils';
  * so this can never advertise a destination that would bounce to /403.
  */
 export function TopNav({ role, silo, hiddenHrefs = [] }: { role: string; silo: string; hiddenHrefs?: string[] }) {
+  const { t } = useT();
   const pathname = usePathname();
   const [open, setOpen] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -56,7 +58,7 @@ export function TopNav({ role, silo, hiddenHrefs = [] }: { role: string; silo: s
   return (
     <nav
       ref={navRef}
-      aria-label="Main"
+      aria-label={t('Main')}
       className="relative z-40 flex flex-wrap items-center justify-center gap-1"
     >
       {groups.map((g) => {

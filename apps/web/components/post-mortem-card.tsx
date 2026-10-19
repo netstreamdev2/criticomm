@@ -1,6 +1,7 @@
 import { noteText } from '@criticom/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 type PostMortem = {
   report_number: string | null; incident_type: string | null; location: string | null;
@@ -20,44 +21,45 @@ function Item({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 /** A filed post-mortem (Official After-Action Report), read back in V4's sections. */
-export function PostMortemCard({ report }: { report: PostMortem }) {
+export async function PostMortemCard({ report }: { report: PostMortem }) {
+  const { t } = await requestT();
   const timeline = Array.isArray(report.timeline_snapshot) ? (report.timeline_snapshot as Array<{ timestamp?: string; text?: string }>) : [];
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Post-mortem{report.report_number ? ` · ${report.report_number}` : ''}</CardTitle>
+        <CardTitle>{t('Post-mortem{value}', { value: report.report_number ? ` · ${report.report_number}` : '' })}</CardTitle>
         <CardDescription>{report.reporting_officer ?? 'Disaster Management'} · {formatSaTime(report.report_filed_at)}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
         <div>
-          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Incident Overview</p>
+          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('Incident Overview')}</p>
           <dl className="grid gap-x-4 gap-y-2 rounded-md border border-border/60 bg-bg-soft p-3 sm:grid-cols-2">
-            <Item label="Type" value={report.incident_type} />
-            <Item label="Location" value={report.location} />
-            <Item label="Start Time" value={report.start_time ? formatSaTime(report.start_time) : null} />
-            <Item label="Resolved Time" value={report.end_time ? formatSaTime(report.end_time) : null} />
-            <Item label="Duration" value={report.total_duration_hours != null ? `${report.total_duration_hours} hours` : null} />
+            <Item label={t('Type')} value={report.incident_type} />
+            <Item label={t('Location')} value={report.location} />
+            <Item label={t('Start Time')} value={report.start_time ? formatSaTime(report.start_time) : null} />
+            <Item label={t('Resolved Time')} value={report.end_time ? formatSaTime(report.end_time) : null} />
+            <Item label={t('Duration')} value={report.total_duration_hours != null ? `${report.total_duration_hours} hours` : null} />
           </dl>
         </div>
         <div>
-          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Impact Metrics</p>
+          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('Impact Metrics')}</p>
           <dl className="grid gap-x-4 gap-y-2 rounded-md border border-border/60 bg-bg-soft p-3 sm:grid-cols-3">
-            <Item label="Confirmed Injuries" value={report.injuries} />
-            <Item label="Confirmed Fatalities" value={report.fatalities} />
-            <Item label="Displaced Persons (Requiring Shelter)" value={report.displaced_people} />
+            <Item label={t('Confirmed Injuries')} value={report.injuries} />
+            <Item label={t('Confirmed Fatalities')} value={report.fatalities} />
+            <Item label={t('Displaced Persons (Requiring Shelter)')} value={report.displaced_people} />
           </dl>
         </div>
         <div>
-          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Operational Analysis</p>
+          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('Operational Analysis')}</p>
           <dl className="grid gap-x-4 gap-y-2 rounded-md border border-border/60 bg-bg-soft p-3">
-            <Item label="Root Cause Analysis" value={report.root_cause} />
-            <Item label="Lessons Learned / Recommendations" value={report.lessons_learned} />
-            <Item label="Reporting Officer Name" value={report.reporting_officer} />
+            <Item label={t('Root Cause Analysis')} value={report.root_cause} />
+            <Item label={t('Lessons Learned / Recommendations')} value={report.lessons_learned} />
+            <Item label={t('Reporting Officer Name')} value={report.reporting_officer} />
           </dl>
         </div>
         {timeline.length ? (
           <div>
-            <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Timeline</p>
+            <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('Timeline')}</p>
             <ul className="space-y-1 rounded-md border border-border/60 bg-bg-soft p-3">
               {timeline.map((e, n) => (
                 <li key={`${e.timestamp}-${n}`} className="flex gap-3">

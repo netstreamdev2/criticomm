@@ -11,6 +11,7 @@ import {
 import { canAccess, type Silo, type UserRole } from '@criticom/db';
 import type { OpsLink } from '@criticom/api';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 const COLLAPSE_KEY = 'criticom:ops-bar-collapsed';
 
@@ -37,7 +38,7 @@ const OPERATIONS: Array<{ href: string; label: string; icon: typeof MapIcon }> =
   { href: '/incidents/map', label: 'Live Map', icon: MapIcon },
   { href: '/incidents', label: 'All Incidents', icon: ListChecks },
   { href: '/case-manager', label: 'Case Manager', icon: FolderClosed },
-  { href: '/dispatch/ptt', label: 'PTT Radio', icon: RadioTower },
+  { href: '/dispatch/ptt', label: 'Radio Desk', icon: RadioTower },
   { href: '/hierarchy', label: 'Dept Hierarchy', icon: Network },
   { href: '/report-hub', label: 'Report Hub', icon: BarChart3 },
 ];
@@ -49,7 +50,7 @@ const CONTROLLER_SHORTCUTS = [
   { href: '/cameras', label: 'Body Cams', icon: Video },
   { href: '/cameras/footage', label: 'Body Cam Footage', icon: Film },
   { href: '/sanral', label: 'SANRAL Cameras', icon: Cctv },
-  { href: '/dispatch/ptt', label: 'PTT Radio', icon: RadioTower },
+  { href: '/dispatch/ptt', label: 'Radio Desk', icon: RadioTower },
   { href: '/dispatch/kpi', label: 'KPIs', icon: BarChart3 },
 ];
 
@@ -77,6 +78,7 @@ export function OpsCommandBar({
 }: {
   role: string; silo: string; links: OpsLink[]; hiddenHrefs?: string[];
 }) {
+  const { t } = useT();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [opsOpen, setOpsOpen] = useState(false);
@@ -178,7 +180,7 @@ export function OpsCommandBar({
                 ) : (
                   <span
                     key={l.id}
-                    title="Awaiting its endpoint — set the URL under Admin → Configuration → OpsLink"
+                    title={t('Awaiting its endpoint — set the URL under Admin → Configuration → OpsLink')}
                     className="inline-flex cursor-not-allowed items-center rounded-lg border border-border/60 bg-bg-card/50 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60"
                   >
                     {l.label}
@@ -222,8 +224,7 @@ export function OpsCommandBar({
                     className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-card px-4 py-2 text-xs font-bold uppercase tracking-wider text-fg/85 transition-colors hover:border-accent/50 hover:text-fg"
                   >
                     <Landmark className="h-4 w-4 text-accent" aria-hidden />
-                    Operations
-                    <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', opsOpen && 'rotate-180')} aria-hidden />
+                    {t('Operations')}<ChevronDown className={cn('h-3.5 w-3.5 transition-transform', opsOpen && 'rotate-180')} aria-hidden />
                   </button>
                   {opsOpen && (
                     <div
@@ -262,7 +263,7 @@ export function OpsCommandBar({
         className="mx-auto flex w-full items-center justify-center gap-1 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 transition-colors hover:text-muted-foreground"
       >
         {collapsed
-          ? <><ChevronDown className="h-3 w-3" aria-hidden /> Command bar <Radio className="h-3 w-3" aria-hidden /></>
+          ? <><ChevronDown className="h-3 w-3" aria-hidden /> {' '}{t('Command bar')}{' '}<Radio className="h-3 w-3" aria-hidden /></>
           : <ChevronUp className="h-3 w-3" aria-hidden />}
       </button>
     </div>

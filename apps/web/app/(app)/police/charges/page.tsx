@@ -6,6 +6,7 @@ import { requireFeaturePage } from '@/lib/features';
 import { getSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import { openChargeAction } from '../enforcement-actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Charges · HikTech' };
@@ -19,6 +20,7 @@ const STATUS_TONE: Record<string, string> = {
 };
 
 export default async function ChargesPage() {
+  const { t } = await requestT();
   await requireFeaturePage('web.enforcement');
   const { supabase } = await getSession();
   const charges = await listCharges(supabase);
@@ -27,50 +29,50 @@ export default async function ChargesPage() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Charges</h1>
-        <p className="text-muted-foreground">{charges.length} on record · {open} active. Open the ledger for bail and fees.</p>
+        <h1 className="text-2xl font-bold">{t('Charges')}</h1>
+        <p className="text-muted-foreground">{t('{length} on record · {open} active. Open the ledger for bail and fees.', { length: charges.length, open })}</p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Open a charge</CardTitle>
-          <CardDescription>It gets the next CH- number; the arresting officer is you unless noted.</CardDescription>
+          <CardTitle>{t('Open a charge')}</CardTitle>
+          <CardDescription>{t('It gets the next CH- number; the arresting officer is you unless noted.')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form action={openChargeAction} className="grid gap-3 md:grid-cols-4">
-            <input name="accused_name" required placeholder="Accused name"
+            <input name="accused_name" required placeholder={t('Accused name')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <input name="accused_id_number" placeholder="ID number"
+            <input name="accused_id_number" placeholder={t('ID number')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <input name="charge_code" placeholder="Charge code"
+            <input name="charge_code" placeholder={t('Charge code')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
             <select name="severity" defaultValue="Serious" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-              <option>Minor</option><option>Serious</option><option>Severe</option>
+              <option>{t('Minor')}</option><option>{t('Serious')}</option><option>{t('Severe')}</option>
             </select>
-            <input name="description" required placeholder="Description of the charge"
+            <input name="description" required placeholder={t('Description of the charge')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm md:col-span-2" />
-            <input name="statute" placeholder="Statute / act"
+            <input name="statute" placeholder={t('Statute / act')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <input name="case_ref" placeholder="SAPS case ref (optional)"
+            <input name="case_ref" placeholder={t('SAPS case ref (optional)')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <input name="court_name" placeholder="Court (optional)"
+            <input name="court_name" placeholder={t('Court (optional)')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
             <input name="court_date" type="date" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <input name="notes" placeholder="Notes (optional)"
+            <input name="notes" placeholder={t('Notes (optional)')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Open charge</button>
+            <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Open charge')}</button>
           </form>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Register</CardTitle>
+          <CardTitle>{t('Register')}</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['#', 'Accused', 'Charge', 'Severity', 'Court', 'Status', 'Ledger']}
-            empty="No charges on record."
+            empty={t('No charges on record.')}
           >
             {charges.map((c) => (
               <Tr key={c.id}>
@@ -96,8 +98,7 @@ export default async function ChargesPage() {
                 </Td>
                 <Td>
                   <Link href={`/police/charges/${c.id}`} className="text-xs font-semibold text-accent hover:underline">
-                    Open →
-                  </Link>
+                    {t('Open →')}</Link>
                 </Td>
               </Tr>
             ))}

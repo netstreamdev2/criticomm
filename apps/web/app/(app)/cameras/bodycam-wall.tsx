@@ -8,6 +8,7 @@ import { MAX_LIVE_FEEDS } from '@criticom/db/bodycams';
 import { BodycamViewer, type BodycamTarget, type ViewReason } from '@/components/bodycam/bodycam-viewer';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { cn, formatSaTime } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 export type WallBodycam = {
   bodycamId: string;
@@ -28,6 +29,7 @@ const LAYOUT_KEY = 'criticom:bodycam-layout';
  * the next free place.
  */
 export function BodycamWall({ cams, testVideo }: { cams: WallBodycam[]; testVideo: boolean }) {
+  const { t } = useT();
   const router = useRouter();
   const [layout, setLayout] = useState<1 | 4>(1);
   const [slots, setSlots] = useState<Array<BodycamTarget | null>>(() => Array(MAX_LIVE_FEEDS).fill(null));
@@ -89,11 +91,11 @@ export function BodycamWall({ cams, testVideo }: { cams: WallBodycam[]; testVide
 
   return (
     <div className="grid gap-4 xl:grid-cols-[20rem_1fr]">
-      <section aria-label="Bodycams out with officers" className="space-y-2">
+      <section aria-label={t('Bodycams out with officers')} className="space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-sm font-bold">{cams.length} bodycam{cams.length === 1 ? '' : 's'} out</h2>
+          <h2 className="text-sm font-bold">{t('{length} bodycam{value} out', { length: cams.length, value: cams.length === 1 ? '' : 's' })}</h2>
           <fieldset className="flex rounded-lg border border-border p-0.5">
-            <legend className="sr-only">How many feeds</legend>
+            <legend className="sr-only">{t('How many feeds')}</legend>
             {([1, 4] as const).map((n) => (
               <button key={n} type="button" onClick={() => chooseLayout(n)} aria-pressed={layout === n}
                 className={cn('inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold',
@@ -105,8 +107,8 @@ export function BodycamWall({ cams, testVideo }: { cams: WallBodycam[]; testVide
         </div>
         <div className="relative">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" aria-hidden />
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Officer, badge, serial, station"
-            aria-label="Search bodycams" className="h-9 w-full rounded-md border border-border bg-bg-soft pl-8 pr-2 text-sm" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Officer, badge, serial, station')}
+            aria-label={t('Search bodycams')} className="h-9 w-full rounded-md border border-border bg-bg-soft pl-8 pr-2 text-sm" />
         </div>
         {notice ? <output className="block text-xs text-severity-medium-ink">{notice}</output> : null}
         {shown.length === 0 ? (
@@ -125,10 +127,10 @@ export function BodycamWall({ cams, testVideo }: { cams: WallBodycam[]; testVide
                     {[c.officer?.badge, c.officer?.station ?? c.station].filter(Boolean).join(' · ') || '—'}
                   </p>
                   <p className="truncate font-mono text-[11px] text-muted-foreground">
-                    {c.serial} · since {formatSaTime(c.bookedAt)}{c.officer && !c.officer.onDuty ? ' · off duty' : ''}
+                    {t('{serial} · since {saTime}{value}', { serial: c.serial, saTime: formatSaTime(c.bookedAt), value: c.officer && !c.officer.onDuty ? ' · off duty' : '' })}
                   </p>
                   {!c.hasCode && !testVideo ? (
-                    <p className="text-[11px] text-severity-medium-ink">No Hikvision camera code on the register yet.</p>
+                    <p className="text-[11px] text-severity-medium-ink">{t('No Hikvision camera code on the register yet.')}</p>
                   ) : null}
                 </div>
                 <button type="button" onClick={() => place(c)} disabled={open.has(c.bodycamId)}
@@ -141,7 +143,7 @@ export function BodycamWall({ cams, testVideo }: { cams: WallBodycam[]; testVide
         )}
       </section>
 
-      <section aria-label="Live feeds" className={cn('grid content-start gap-3', layout === 4 && 'md:grid-cols-2')}>
+      <section aria-label={t('Live feeds')} className={cn('grid content-start gap-3', layout === 4 && 'md:grid-cols-2')}>
         {slots.slice(0, layout).map((s, i) => (s ? (
           <BodycamViewer
             key={`${i}-${s.bodycamId}`}
@@ -153,8 +155,7 @@ export function BodycamWall({ cams, testVideo }: { cams: WallBodycam[]; testVide
           />
         ) : (
           <div key={`empty-${i}`} className="flex aspect-video items-center justify-center rounded-xl border border-dashed border-border bg-bg-card p-4 text-center text-sm text-muted-foreground">
-            Choose a bodycam from the list to watch it here.
-          </div>
+            {t('Choose a bodycam from the list to watch it here.')}</div>
         )))}
       </section>
     </div>

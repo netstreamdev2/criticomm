@@ -19,6 +19,7 @@ import { SEVERITIES, SEVERITY_ON, fieldCls, labelCls } from '../../log-call/inta
 import { PlaceSearch, type Place } from '../../log-call/place-search';
 import { TypePicker, type TypeOption } from '../../log-call/type-picker';
 import { editCallAction } from '../../actions';
+import { useT } from '@/components/i18n';
 
 const REGIONS = ['Central', 'North', 'South', 'West', 'Outer'] as const;
 
@@ -97,6 +98,7 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
   /** EMS is on the call: the patient's questions apply. */
   emsOnCall: boolean;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [open, setOpen] = useState(false);
@@ -281,12 +283,10 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
       </span>
       <button type="button" onClick={close} disabled={pending}
         className="h-10 rounded-lg border border-border px-4 text-sm font-semibold hover:bg-muted disabled:opacity-60">
-        Cancel
-      </button>
+        {t('Cancel')}</button>
       <button type="button" onClick={save} disabled={pending || changed === 0}
         className="inline-flex h-10 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-60">
-        {pending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null} Save changes
-      </button>
+        {pending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null} {' '}{t('Save changes')}</button>
     </div>
   );
 
@@ -297,8 +297,7 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
         onClick={() => { reset(); setOpen(true); }}
         className="inline-flex items-center gap-2 rounded-lg border border-accent/50 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent hover:bg-accent/15"
       >
-        <PenLine className="h-4 w-4" aria-hidden /> Edit before dispatch
-      </button>
+        <PenLine className="h-4 w-4" aria-hidden /> {' '}{t('Edit before dispatch')}</button>
 
       {open ? (
         <Modal
@@ -310,20 +309,18 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
           confirmClose={changed > 0 ? { title: 'Close without saving?', body: 'Your changes to this call will be lost.' } : null}
         >
           <p className="text-sm text-muted-foreground">
-            Correct what the caller said or what was captured. Every change is kept with your name, what it was and what it
-            became: on the call, in the audit trail and on the case PDF.
-          </p>
+            {t('Correct what the caller said or what was captured. Every change is kept with your name, what it was and what it became: on the call, in the audit trail and on the case PDF.')}</p>
 
           <div className="grid gap-5 lg:grid-cols-2">
             {/* What and how serious */}
             <div className="space-y-4">
               <div>
-                <p className={labelCls}>Incident type</p>
+                <p className={labelCls}>{t('Incident type')}</p>
                 <TypePicker types={types} value={type} onChange={chooseType} invalid={Boolean(problem('type', type !== call.incident_type))} />
                 <Problem k="type" dirty={type !== call.incident_type} />
               </div>
               <div>
-                <p className={labelCls}>Incident severity</p>
+                <p className={labelCls}>{t('Incident severity')}</p>
                 <div className="grid grid-cols-4 gap-1.5">
                   {SEVERITIES.map((s) => (
                     <button key={s} type="button" aria-pressed={severity === s} onClick={() => setSeverity(s)}
@@ -335,14 +332,14 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
                 </div>
               </div>
               <div>
-                <label className={labelCls} htmlFor="edit-desc">Description</label>
+                <label className={labelCls} htmlFor="edit-desc">{t('Description')}</label>
                 <textarea id="edit-desc" className={cn(textArea, bad('description', description !== call.call_description))} rows={5} maxLength={2000}
                   value={description} onChange={(e) => setDescription(e.target.value)} />
                 <Problem k="description" dirty={description !== call.call_description} />
               </div>
               {detailIds.length ? (
                 <div className="space-y-3 rounded-xl border border-border bg-bg-soft/50 p-3">
-                  <p className={labelCls}>Details for the type</p>
+                  <p className={labelCls}>{t('Details for the type')}</p>
                   {detailIds.map((k) => {
                     const field = DETAIL_FIELDS[k];
                     if (!field) return null;
@@ -360,7 +357,7 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
                 </div>
               ) : null}
               <div>
-                <label className={labelCls} htmlFor="edit-notes">Internal dispatch notes</label>
+                <label className={labelCls} htmlFor="edit-notes">{t('Internal dispatch notes')}</label>
                 <textarea id="edit-notes" className={textArea} rows={3} maxLength={2000} value={notes} onChange={(e) => setNotes(e.target.value)} />
               </div>
             </div>
@@ -368,7 +365,7 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
             {/* How it came in, who called, where, and the patients */}
             <div className="space-y-4">
               <div>
-                <p className={labelCls}>How the call came in</p>
+                <p className={labelCls}>{t('How the call came in')}</p>
                 <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
                   {CALL_CHANNELS.map((c) => (
                     <button key={c} type="button" aria-pressed={channel === c} onClick={() => setChannel(c)} className={cn(chip(channel === c), 'h-9 px-2')}>{c}</button>
@@ -376,26 +373,26 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
                 </div>
                 {channel === 'Other' ? (
                   <input className={cn(fieldCls, 'mt-2', bad('channel', channelOther !== (call.call_channel_other ?? '')))} maxLength={60}
-                    placeholder="For example: radio from a security guard" value={channelOther} onChange={(e) => setChannelOther(e.target.value)} />
+                    placeholder={t('For example: radio from a security guard')} value={channelOther} onChange={(e) => setChannelOther(e.target.value)} />
                 ) : null}
                 <Problem k="channel" dirty={channel !== (call.call_channel ?? '')} />
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className={labelCls} htmlFor="edit-caller">Caller name</label>
+                  <label className={labelCls} htmlFor="edit-caller">{t('Caller name')}</label>
                   <input id="edit-caller" className={cn(fieldCls, bad('callerName', callerName !== call.caller_name))} maxLength={100}
                     value={callerName} onChange={(e) => setCallerName(e.target.value)} />
                   <Problem k="callerName" dirty={callerName !== call.caller_name} />
                 </div>
                 <div>
-                  <label className={labelCls} htmlFor="edit-phone">Caller number</label>
+                  <label className={labelCls} htmlFor="edit-phone">{t('Caller number')}</label>
                   <input id="edit-phone" className={cn(fieldCls, bad('phone', phone !== (call.caller_number ?? '')))} inputMode="tel"
                     value={phone} placeholder="+27 82 123 4567" onChange={(e) => setPhone(e.target.value)} />
                   <Problem k="phone" dirty={phone !== (call.caller_number ?? '')} />
                 </div>
               </div>
               <div>
-                <p className={labelCls}>Location</p>
+                <p className={labelCls}>{t('Location')}</p>
                 <PlaceSearch value={address} onChange={setAddress} onPick={applyPlace} invalid={Boolean(problem('location', address !== call.location_address))} />
                 <div className={cn('mt-2 overflow-hidden rounded-lg border', problem('location', false) ? 'border-severity-critical' : 'border-border')}>
                   <LocationPicker lat={lat} lng={lng} onPick={(p) => void onPickPoint(p)} height={240} />
@@ -404,39 +401,39 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className={labelCls} htmlFor="edit-suburb">Suburb</label>
+                  <label className={labelCls} htmlFor="edit-suburb">{t('Suburb')}</label>
                   <input id="edit-suburb" className={fieldCls} maxLength={100} value={suburb} onChange={(e) => setSuburb(e.target.value)} />
                 </div>
                 <div>
-                  <label className={labelCls} htmlFor="edit-region">Region</label>
+                  <label className={labelCls} htmlFor="edit-region">{t('Region')}</label>
                   <select id="edit-region" className={fieldCls} value={region} onChange={(e) => setRegion(e.target.value)}>
-                    <option value="">Select region…</option>
+                    <option value="">{t('Select region…')}</option>
                     {REGIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={labelCls} htmlFor="edit-city">City</label>
+                  <label className={labelCls} htmlFor="edit-city">{t('City')}</label>
                   <input id="edit-city" className={fieldCls} maxLength={100} value={city} onChange={(e) => setCity(e.target.value)} />
                 </div>
                 <div>
-                  <label className={labelCls} htmlFor="edit-postal">Postal code</label>
+                  <label className={labelCls} htmlFor="edit-postal">{t('Postal code')}</label>
                   <input id="edit-postal" className={fieldCls} maxLength={20} value={postal} onChange={(e) => setPostal(e.target.value)} />
                 </div>
               </div>
 
               {emsOnCall || call.is_caller_patient !== null || call.patients.length ? (
                 <div className={cn('space-y-3 rounded-xl border p-3', problem('patients', false) ? 'border-severity-critical' : 'border-border bg-bg-soft/50')}>
-                  <p className={labelCls}>Patients</p>
+                  <p className={labelCls}>{t('Patients')}</p>
                   <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                    <span className="mr-1 font-semibold">Is the caller the patient?</span>
+                    <span className="mr-1 font-semibold">{t('Is the caller the patient?')}</span>
                     {([[true, 'Yes'], [false, 'No']] as const).map(([v, label]) => (
                       <button key={label} type="button" aria-pressed={isPatient === v} onClick={() => setIsPatient(v)} className={chip(isPatient === v)}>{label}</button>
                     ))}
                   </div>
                   {isPatient === true ? (
                     <div>
-                      <p className="mb-1 text-xs font-semibold">How bad is the caller?</p>
-                      <SeverityRow value={callerSeverity} onPick={setCallerSeverity} label="How bad is the caller?" />
+                      <p className="mb-1 text-xs font-semibold">{t('How bad is the caller?')}</p>
+                      <SeverityRow value={callerSeverity} onPick={setCallerSeverity} label={t('How bad is the caller?')} />
                     </div>
                   ) : null}
                   {isPatient === false ? (
@@ -444,7 +441,7 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
                       {patientRows.map((p, i) => (
                         <div key={`patient-${i}`} className="space-y-1.5 rounded-lg border border-border bg-bg-card/60 p-2">
                           <div className="flex gap-2">
-                            <input className={cn(fieldCls, 'h-9 text-sm')} maxLength={200} placeholder="Patient name, if known" aria-label={`Patient ${i + 1} name`}
+                            <input className={cn(fieldCls, 'h-9 text-sm')} maxLength={200} placeholder={t('Patient name, if known')} aria-label={`Patient ${i + 1} name`}
                               value={p.name} onChange={(e) => setPatientRows((rows) => rows.map((r, j) => (j === i ? { ...r, name: e.target.value } : r)))} />
                             {patientRows.length > 1 ? (
                               <button type="button" aria-label={`Remove patient ${i + 1}`} onClick={() => setPatientRows((rows) => rows.filter((_, j) => j !== i))}
@@ -460,23 +457,22 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
                       {patientRows.length < 20 ? (
                         <button type="button" onClick={() => setPatientRows((rows) => [...rows, { name: '', severity: '' }])}
                           className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent hover:underline">
-                          <Plus className="h-3.5 w-3.5" /> Add another patient
-                        </button>
+                          <Plus className="h-3.5 w-3.5" /> {' '}{t('Add another patient')}</button>
                       ) : null}
                     </div>
                   ) : null}
                   <Problem k="patients" dirty={false} />
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
-                      <label className={labelCls} htmlFor="edit-hurt">People hurt</label>
+                      <label className={labelCls} htmlFor="edit-hurt">{t('People hurt')}</label>
                       <input id="edit-hurt" className={cn(fieldCls, bad('victims', victims !== String(call.number_of_victims ?? '')))} inputMode="numeric"
                         value={victims} onChange={(e) => setVictims(e.target.value.replace(/[^0-9]/g, ''))} />
                       <Problem k="victims" dirty={victims !== String(call.number_of_victims ?? '')} />
                     </div>
                     <div>
-                      <label className={labelCls} htmlFor="edit-medical">Medical code</label>
+                      <label className={labelCls} htmlFor="edit-medical">{t('Medical code')}</label>
                       <select id="edit-medical" className={fieldCls} value={medical} onChange={(e) => setMedical(e.target.value)}>
-                        <option value="">Select priority…</option>
+                        <option value="">{t('Select priority…')}</option>
                         {MED_PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
                       </select>
                     </div>
@@ -487,9 +483,9 @@ export function EditCall({ incidentId, incidentNumber, call, types, emsOnCall }:
           </div>
 
           <div>
-            <label className={labelCls} htmlFor="edit-reason">Why it changed (optional)</label>
+            <label className={labelCls} htmlFor="edit-reason">{t('Why it changed (optional)')}</label>
             <input id="edit-reason" className={cn(fieldCls, bad('reason', reason !== ''))} maxLength={500} value={reason}
-              placeholder="For example: the caller rang back with the right address" onChange={(e) => setReason(e.target.value)} />
+              placeholder={t('For example: the caller rang back with the right address')} onChange={(e) => setReason(e.target.value)} />
             <Problem k="reason" dirty={reason !== ''} />
           </div>
         </Modal>

@@ -76,7 +76,9 @@ export default function LeaveScreen() {
     // Leave types are configuration, not code (Admin → Configuration). If the
     // table is unreachable the form must still work, so fall back to the set
     // every service has rather than rendering an empty picker.
+    // Office-only codes (AWOL, Suspended …) are captured by the office, never asked for.
     const names = configured
+      .filter((c) => c.detail2 !== 'Office')
       .map((c) => c.name)
       .filter((n): n is string => Boolean(n));
     const options = names.length > 0 ? names : [tx('Annual'), tx('Sick'), tx('Family Responsibility'), tx('Unpaid')];

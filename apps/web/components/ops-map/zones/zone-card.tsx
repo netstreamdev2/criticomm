@@ -11,6 +11,7 @@ import {
 } from '@/lib/ops-map/zones';
 import { cn, formatSaTime, timeAgo } from '@/lib/utils';
 import { endZoneAction } from '@/app/(app)/incidents/map/actions';
+import { useT } from '@/components/i18n';
 
 /**
  * Everything about one zone: what it is, who set it and why, who receives
@@ -31,6 +32,7 @@ export function ZoneCard({
   /** Stood down: the map closes the card and drops the zone straight away. */
   onEnded: () => void;
 }) {
+  const { t } = useT();
   const kind = zoneKind(zone.kind);
   const points = fromGeometry(zone.shape, zone.geometry);
   const centre = shapeCentre({ shape: zone.shape, points, radiusM: zone.radius_m });
@@ -85,34 +87,33 @@ export function ZoneCard({
             <span className="h-2.5 w-2.5 rounded-full" style={{ background: kind.colour }} /> {kind.label}
             {zone.visibility === 'private' && (
               <span className="ml-1 inline-flex items-center gap-1 rounded bg-white/10 px-1.5 py-0.5 text-[10px] text-slate-300">
-                <Lock className="h-3 w-3" /> Only you
-              </span>
+                <Lock className="h-3 w-3" /> {' '}{t('Only you')}</span>
             )}
           </p>
           <h3 className="mt-1 text-lg font-bold leading-tight">{zone.name}</h3>
         </div>
-        <button type="button" onClick={onClose} aria-label="Close" className="text-slate-300 hover:text-white">
+        <button type="button" onClick={onClose} aria-label={t('Close')} className="text-slate-300 hover:text-white">
           <X className="h-4 w-4" />
         </button>
       </div>
 
       <dl className="mt-3 space-y-2.5 text-sm">
         <div>
-          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Set by</dt>
+          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('Set by')}</dt>
           <dd>{setBy}</dd>
           <dd className="text-xs text-slate-400">{formatSaTime(zone.created_at)} · {timeAgo(zone.created_at)}</dd>
         </div>
         <div>
-          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Why</dt>
-          <dd className="whitespace-pre-wrap">{zone.reason || <span className="text-slate-400">No reason given (a private draft).</span>}</dd>
+          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('Why')}</dt>
+          <dd className="whitespace-pre-wrap">{zone.reason || <span className="text-slate-400">{t('No reason given (a private draft).')}</span>}</dd>
         </div>
         <div>
-          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Who sees it</dt>
+          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('Who sees it')}</dt>
           <dd>{describeAudience(zone, deptName, zone.incident?.incident_number)}</dd>
         </div>
         {zone.incident && (
           <div>
-            <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Linked call</dt>
+            <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('Linked call')}</dt>
             <dd>
               <Link href={`/incidents/${zone.incident.id}`} className="text-sky-300 hover:underline">
                 {zone.incident.incident_number}
@@ -122,11 +123,11 @@ export function ZoneCard({
           </div>
         )}
         <div>
-          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Stands until</dt>
+          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('Stands until')}</dt>
           <dd>{zone.active_until ? `${formatSaTime(zone.active_until)}` : 'Stood down by hand'}</dd>
         </div>
         <div>
-          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Measurements</dt>
+          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('Measurements')}</dt>
           <dd className="font-mono text-xs tabular-nums">
             {describeShape(
               { shape: zone.shape, points, radiusM: zone.radius_m },
@@ -136,7 +137,7 @@ export function ZoneCard({
           {centre && (
             <dd className="mt-0.5 flex items-center gap-2 font-mono text-xs tabular-nums text-slate-300">
               {zone.shape === 'circle' || zone.shape === 'point' ? 'Centre' : 'Middle'} {formatCoord(centre)}
-              <button type="button" onClick={copy} title="Copy coordinates" className="inline-flex items-center gap-1 rounded bg-white/10 px-1.5 py-0.5 font-sans text-[10px] font-semibold hover:bg-white/20">
+              <button type="button" onClick={copy} title={t('Copy coordinates')} className="inline-flex items-center gap-1 rounded bg-white/10 px-1.5 py-0.5 font-sans text-[10px] font-semibold hover:bg-white/20">
                 <Copy className="h-3 w-3" /> {copied ? 'Copied' : 'Copy'}
               </button>
             </dd>
@@ -145,17 +146,16 @@ export function ZoneCard({
       </dl>
 
       <div className="mt-3 border-t border-white/10 pt-2.5">
-        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">History</p>
+        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('History')}</p>
         {events === null ? (
-          <p className="text-xs text-slate-400">Loading…</p>
+          <p className="text-xs text-slate-400">{t('Loading…')}</p>
         ) : events.length === 0 ? (
-          <p className="text-xs text-slate-400">No history recorded.</p>
+          <p className="text-xs text-slate-400">{t('No history recorded.')}</p>
         ) : (
           <ol className="space-y-1.5">
             {events.map((ev) => (
               <li key={ev.id} className="text-xs">
-                <span className="font-semibold">{ACTION_WORDS[ev.action]}</span>{' '}
-                by {ev.actor_name ?? 'unknown'}{ev.actor_role ? ` (${roleWords(ev.actor_role)})` : ''}
+                <span className="font-semibold">{ACTION_WORDS[ev.action]}</span>{' '}{t('by {value}{value2}', { value: ev.actor_name ?? 'unknown', value2: ev.actor_role ? ` (${roleWords(ev.actor_role)})` : '' })}
                 <span className="text-slate-400"> · {formatSaTime(ev.at)}</span>
                 {ev.details && <span className="block text-slate-300">{ev.details}</span>}
               </li>
@@ -172,21 +172,19 @@ export function ZoneCard({
                 <Pencil className="h-4 w-4" /> {mine && zone.visibility === 'private' ? 'Edit or share' : 'Change'}
               </button>
               <button type="button" onClick={() => setEnding(true)} className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-500/20 px-3 py-1.5 text-sm font-semibold text-red-200 hover:bg-red-500/30">
-                <ShieldOff className="h-4 w-4" /> Stand down
-              </button>
+                <ShieldOff className="h-4 w-4" /> {' '}{t('Stand down')}</button>
             </div>
           ) : (
             <div className="space-y-2">
               <label className="block">
                 <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  Why is it being stood down?
-                </span>
+                  {t('Why is it being stood down?')}</span>
                 <textarea
                   value={endReason}
                   onChange={(e) => setEndReason(e.target.value)}
                   rows={2}
                   maxLength={1000}
-                  placeholder="e.g. Scene cleared by the bomb squad at 14:20."
+                  placeholder={t('e.g. Scene cleared by the bomb squad at 14:20.')}
                   className="w-full rounded-md border border-white/15 bg-slate-900 px-2 py-1.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
                 />
               </label>
@@ -201,8 +199,7 @@ export function ZoneCard({
                   {busy ? 'Standing down…' : 'Confirm stand down'}
                 </button>
                 <button type="button" onClick={() => { setEnding(false); setError(null); }} className="rounded-lg border border-white/15 px-3 py-1.5 text-sm font-semibold hover:bg-white/10">
-                  Keep it
-                </button>
+                  {t('Keep it')}</button>
               </div>
             </div>
           )}

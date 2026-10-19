@@ -4,6 +4,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { SimpleBarChart } from '@/components/charts';
 import { getSession } from '@/lib/session';
 import { PerfNav, cycleWindow } from '../perf-nav';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'My Performance · HikTech' };
@@ -13,6 +14,7 @@ export default async function MyPerformancePage({
 }: {
   searchParams: Promise<{ from?: string; to?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, userId, silo, fullName } = await getSession();
   const params = await searchParams;
   const { from, to } = cycleWindow(params.from, params.to);
@@ -32,10 +34,9 @@ export default async function MyPerformancePage({
     <div className="space-y-6">
       <PerfNav active="/performance/mine" />
       <header>
-        <h1 className="text-2xl font-bold">My performance</h1>
+        <h1 className="text-2xl font-bold">{t('My performance')}</h1>
         <p className="text-muted-foreground">
-          Your operational throughput vs the team, plus your annual appraisal ({perf.cycleLabel}).
-        </p>
+          {t('Your operational throughput vs the team, plus your annual appraisal ({cycleLabel}).', { cycleLabel: perf.cycleLabel })}</p>
       </header>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -53,25 +54,25 @@ export default async function MyPerformancePage({
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Monthly call volume</CardTitle>
-            <CardDescription>Calls you took, by month.</CardDescription>
+            <CardTitle>{t('Monthly call volume')}</CardTitle>
+            <CardDescription>{t('Calls you took, by month.')}</CardDescription>
           </CardHeader>
           <CardContent>
             {trendData.length > 0 ? (
               <SimpleBarChart data={trendData} xKey="month" yKey="count" />
             ) : (
-              <p className="py-8 text-center text-sm text-muted-foreground">No call activity recorded in range.</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">{t('No call activity recorded in range.')}</p>
             )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>My category breakdown</CardTitle>
-            <CardDescription>What you handled most.</CardDescription>
+            <CardTitle>{t('My category breakdown')}</CardTitle>
+            <CardDescription>{t('What you handled most.')}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Category', 'Sub-category', 'Region', 'Total']} empty="No activity.">
+            <SimpleTable headers={['Category', 'Sub-category', 'Region', 'Total']} empty={t('No activity.')}>
               {perf.myCategoryBreakdown.slice(0, 12).map((r, i) => (
                 <Tr key={i}>
                   <Td>{r.category}</Td>
@@ -87,7 +88,7 @@ export default async function MyPerformancePage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Annual appraisal — {perf.cycleLabel}</CardTitle>
+          <CardTitle>{t('Annual appraisal — {cycleLabel}', { cycleLabel: perf.cycleLabel })}</CardTitle>
           <CardDescription>
             {perf.hasPlan
               ? `Plan status: ${perf.planStatus}. Mid-year avg ${perf.midYearAverage ?? '—'}, final avg ${perf.finalAverage ?? '—'} (out of 5).`
@@ -95,13 +96,13 @@ export default async function MyPerformancePage({
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['KPI', 'Mid-year', 'Final', 'Approved']} empty="No appraisal scores yet.">
+          <SimpleTable headers={['KPI', 'Mid-year', 'Final', 'Approved']} empty={t('No appraisal scores yet.')}>
             {perf.appraisal.map((a, i) => (
               <Tr key={i}>
                 <Td className="font-semibold">{a.kpiTitle}</Td>
                 <Td className="font-mono">{a.midYearScore ?? '—'}</Td>
                 <Td className="font-mono">{a.finalScore ?? '—'}</Td>
-                <Td>{a.approved ? <span className="text-severity-low-ink">Yes</span> : 'Pending'}</Td>
+                <Td>{a.approved ? <span className="text-severity-low-ink">{t('Yes')}</span> : 'Pending'}</Td>
               </Tr>
             ))}
           </SimpleTable>

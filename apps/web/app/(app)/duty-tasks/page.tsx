@@ -6,6 +6,8 @@ import { requireFeaturePage } from '@/lib/features';
 import { getSession, siloFilter } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import { createDutyTaskAction, updateDutyTaskAction } from './actions';
+import { requestT } from '@/lib/i18n';
+import { T } from '@/components/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Duty Maintenance · HikTech' };
@@ -13,6 +15,7 @@ export const metadata = { title: 'Duty Maintenance · HikTech' };
 const SILOS: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
 
 export default async function DutyTasksPage() {
+  const { t } = await requestT();
   await requireFeaturePage('web.duty_maintenance');
   const { supabase, silo, role, userId } = await getSession();
   const own = siloFilter(silo);
@@ -30,10 +33,9 @@ export default async function DutyTasksPage() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Duty Maintenance</h1>
+        <h1 className="text-2xl font-bold">{t('Duty Maintenance')}</h1>
         <p className="text-muted-foreground">
-          Numbered station tasks — inspections, calibrations, restocks — with owners and due dates.
-        </p>
+          {t('Numbered station tasks — inspections, calibrations, restocks — with owners and due dates.')}</p>
       </header>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -53,33 +55,32 @@ export default async function DutyTasksPage() {
       {maySchedule && (
         <Card>
           <CardHeader>
-            <CardTitle>Schedule a task</CardTitle>
-            <CardDescription>It gets the next DM- number; the assignee is alerted at once.</CardDescription>
+            <CardTitle>{t('Schedule a task')}</CardTitle>
+            <CardDescription>{t('It gets the next DM- number; the assignee is alerted at once.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <form action={createDutyTaskAction} className="grid gap-3 md:grid-cols-3">
-              <input name="title" required placeholder="Task — e.g. Vehicle inspection — Unit 14"
+              <input name="title" required placeholder={t('Task — e.g. Vehicle inspection — Unit 14')}
                 className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm md:col-span-2" />
               <select name="silo" defaultValue={board} className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
                 {SILOS.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
               <select name="assigned_user_id" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-                <option value="">Unassigned</option>
+                <option value="">{t('Unassigned')}</option>
                 {people.map((p) => <option key={p.id} value={p.id}>{p.full_name ?? p.email ?? p.id}</option>)}
               </select>
-              <input name="unit_ref" placeholder="Unit / apparatus (optional)"
+              <input name="unit_ref" placeholder={t('Unit / apparatus (optional)')}
                 className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
               <select name="section_code" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-                <option value="">No section</option>
+                <option value="">{t('No section')}</option>
                 {sections.map((s) => <option key={s.id} value={s.code}>{s.code} — {s.name}</option>)}
               </select>
               <input name="due_date" type="date" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-              <textarea name="details" rows={2} placeholder="Detail (optional)"
+              <textarea name="details" rows={2} placeholder={t('Detail (optional)')}
                 className="rounded-md border border-border bg-bg-soft px-3 py-2 text-sm md:col-span-2" />
               <div className="flex items-end">
                 <button type="submit" className="h-10 w-full rounded-md bg-primary px-4 text-sm font-semibold">
-                  Create task
-                </button>
+                  {t('Create task')}</button>
               </div>
             </form>
           </CardContent>
@@ -88,13 +89,13 @@ export default async function DutyTasksPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{tasks.length} tasks</CardTitle>
-          <CardDescription>Assignees may advance their own; supervisors may advance any.</CardDescription>
+          <CardTitle>{t('{length} tasks', { length: tasks.length })}</CardTitle>
+          <CardDescription>{t('Assignees may advance their own; supervisors may advance any.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['#', 'Task', 'Assigned', 'Where', 'Due', 'Progress', 'Status', 'Advance']}
-            empty="No tasks on the board."
+            empty={t('No tasks on the board.')}
           >
             {tasks.map((t) => {
               const overdue = t.due_date && t.due_date < today && t.status !== 'Completed' && t.status !== 'Cancelled';
@@ -136,7 +137,7 @@ export default async function DutyTasksPage() {
                           <option>Completed</option>
                           {maySchedule && <option>Cancelled</option>}
                         </select>
-                        <button type="submit" className="h-8 rounded-md bg-accent px-2.5 text-xs font-semibold">Save</button>
+                        <button type="submit" className="h-8 rounded-md bg-accent px-2.5 text-xs font-semibold"><T s="Save" /></button>
                       </form>
                     ) : (
                       <span className="text-xs text-muted-foreground">{t.completed_at ? 'Closed' : '—'}</span>

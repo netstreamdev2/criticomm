@@ -8,6 +8,7 @@ import { getBrandingMap } from '@/lib/branding';
 import { getSession } from '@/lib/session';
 import { DEPARTMENT_TONE } from '@/lib/radio-forms';
 import { RadioReport } from './radio-report';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Report by radio · HikTech' };
@@ -23,6 +24,7 @@ export default async function RadioReportPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ dept?: string }>;
 }) {
+  const { t } = await requestT();
   const { id } = await params;
   const { dept } = await searchParams;
   const { supabase, role, silo } = await getSession();
@@ -52,7 +54,7 @@ export default async function RadioReportPage({
   return (
     <div className="mx-auto max-w-5xl space-y-4 pb-10">
       <Link href={`/incidents/${id}`} className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline">
-        <ArrowLeft className="h-4 w-4" /> Back to {incident.incident_number}
+        <ArrowLeft className="h-4 w-4" /> {' '}{t('Back to {value}', { value: incident.incident_number })}
       </Link>
 
       {/* The slip: white paper on the console, whatever the theme. */}
@@ -63,7 +65,7 @@ export default async function RadioReportPage({
           {org.official_name}
         </span>
         <span className="font-mono text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-          Radio slip · {incident.incident_number}
+          {t('Radio slip · {value}', { value: incident.incident_number })}
         </span>
       </div>
 
@@ -75,8 +77,7 @@ export default async function RadioReportPage({
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold uppercase tracking-wider" style={{ color: tone }}>
-              {DEPARTMENT_NAMES[dept as Silo]} · Report by radio
-            </p>
+              {t('{value} · Report by radio', { value: DEPARTMENT_NAMES[dept as Silo] })}</p>
             <h1 className="mt-0.5 text-xl font-bold">
               <span className="font-mono">{incident.incident_number}</span> · {incident.incident_type}
             </h1>

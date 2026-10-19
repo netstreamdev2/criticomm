@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FormSection, SelectField, TextAreaField, TextField } from '@/components/fields';
 import { getSession } from '@/lib/session';
 import { dispatchResourcesAction } from '../actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Dispatch Resources · HikTech' };
@@ -22,6 +23,7 @@ const ERRORS: Record<string, string> = {
 };
 
 export default async function DispatchResourcesPage({ searchParams }: { searchParams: Promise<{ error?: string; incident?: string }> }) {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const params = await searchParams;
   const [partners, incidents] = await Promise.all([
@@ -32,8 +34,8 @@ export default async function DispatchResourcesPage({ searchParams }: { searchPa
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Dispatch resources</h1>
-        <p className="text-muted-foreground">Resources sent to an open incident. Dispatching again updates its deployment.</p>
+        <h1 className="text-2xl font-bold">{t('Dispatch resources')}</h1>
+        <p className="text-muted-foreground">{t('Resources sent to an open incident. Dispatching again updates its deployment.')}</p>
       </header>
 
       {params.error && ERRORS[params.error] ? (
@@ -43,30 +45,30 @@ export default async function DispatchResourcesPage({ searchParams }: { searchPa
       ) : null}
 
       {incidents.length === 0 ? (
-        <Card><CardContent className="p-8 text-center text-muted-foreground">No open Disaster Management incidents.</CardContent></Card>
+        <Card><CardContent className="p-8 text-center text-muted-foreground">{t('No open Disaster Management incidents.')}</CardContent></Card>
       ) : (
         <form action={dispatchResourcesAction} className="space-y-4">
-          <FormSection title="Deployment">
+          <FormSection title={t('Deployment')}>
             <SelectField
-              name="incident_id" label="Incident" required className="sm:col-span-2 lg:col-span-3"
+              name="incident_id" label={t('Incident')} required className="sm:col-span-2 lg:col-span-3"
               defaultValue={params.incident ?? null}
               options={[{ value: '', label: '-- Select incident --' }, ...incidents.map((i) => ({
                 value: i.id, label: `${i.incident_number} · ${i.disaster_type || i.incident_type} · ${i.location_address}`,
               }))]}
             />
-            <SelectField name="incident_type" label="Disaster type" options={[{ value: '', label: 'As logged' }, ...DISASTER_TYPES.map((t) => ({ value: t, label: t }))]} />
-            <SelectField name="resource_type" label="Resource type" required options={[{ value: '', label: '-- Select --' }, ...RESOURCE_TYPES.map((t) => ({ value: t, label: t }))]} />
-            <TextField name="location" label="Location" placeholder="As logged" />
-            <TextAreaField name="description" label="Situation description" required className="sm:col-span-2 lg:col-span-3" />
+            <SelectField name="incident_type" label={t('Disaster type')} options={[{ value: '', label: 'As logged' }, ...DISASTER_TYPES.map((t) => ({ value: t, label: t }))]} />
+            <SelectField name="resource_type" label={t('Resource type')} required options={[{ value: '', label: '-- Select --' }, ...RESOURCE_TYPES.map((t) => ({ value: t, label: t }))]} />
+            <TextField name="location" label={t('Location')} placeholder={t('As logged')} />
+            <TextAreaField name="description" label={t('Situation description')} required className="sm:col-span-2 lg:col-span-3" />
           </FormSection>
-          <button type="submit" className="h-11 w-full rounded-md bg-primary text-sm font-semibold">Dispatch resources</button>
+          <button type="submit" className="h-11 w-full rounded-md bg-primary text-sm font-semibold">{t('Dispatch resources')}</button>
         </form>
       )}
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Mutual-aid partners ({partners.length})</CardTitle>
-          <Link href="/disaster/partners" className="text-sm text-accent hover:underline">All partners</Link>
+          <CardTitle>{t('Mutual-aid partners ({length})', { length: partners.length })}</CardTitle>
+          <Link href="/disaster/partners" className="text-sm text-accent hover:underline">{t('All partners')}</Link>
         </CardHeader>
         <CardContent className="grid gap-2 sm:grid-cols-2">
           {partners.slice(0, 10).map((p) => (
@@ -77,7 +79,7 @@ export default async function DispatchResourcesPage({ searchParams }: { searchPa
               </p>
             </div>
           ))}
-          {partners.length === 0 ? <p className="text-sm text-muted-foreground sm:col-span-2">No partners registered.</p> : null}
+          {partners.length === 0 ? <p className="text-sm text-muted-foreground sm:col-span-2">{t('No partners registered.')}</p> : null}
         </CardContent>
       </Card>
     </div>

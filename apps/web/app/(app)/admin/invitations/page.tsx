@@ -13,6 +13,7 @@ import { deliveryOptions, invitationTtlHours } from '@/lib/onboarding/server';
 import { getSession } from '@/lib/session';
 import { cn, formatSaTime, timeAgo } from '@/lib/utils';
 import { InvitationRowActions } from './row-actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Invitations · HikTech' };
@@ -44,6 +45,7 @@ function deliveryLine(inv: Invitation) {
  * it ended.
  */
 export default async function InvitationsPage({ searchParams }: { searchParams: Promise<{ view?: string }> }) {
+  const { t } = await requestT();
   const { supabase, userId, role } = await getSession();
   if (rolesInvitableBy(role).length === 0) redirect('/admin');
 
@@ -72,17 +74,14 @@ export default async function InvitationsPage({ searchParams }: { searchParams: 
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1">
           <Link href="/admin" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-fg">
-            <ArrowLeft className="h-4 w-4" /> Users
-          </Link>
-          <h1 className="text-2xl font-bold">Invitations</h1>
+            <ArrowLeft className="h-4 w-4" /> {' '}{t('Users')}</Link>
+          <h1 className="text-2xl font-bold">{t('Invitations')}</h1>
           <p className="text-muted-foreground">
-            Each link or code works once and expires after {invitationTtlHours()} hours. Sending again cancels the old one.
-          </p>
+            {t('Each link or code works once and expires after {invitationTtlHours} hours. Sending again cancels the old one.', { invitationTtlHours: invitationTtlHours() })}</p>
         </div>
         <Link href="/admin/invitations/new"
           className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-          <UserPlus className="h-4 w-4" /> Invite someone
-        </Link>
+          <UserPlus className="h-4 w-4" /> {' '}{t('Invite someone')}</Link>
       </header>
 
       {!delivery.sms || delivery.emailIsLinkOnly ? (
@@ -99,7 +98,7 @@ export default async function InvitationsPage({ searchParams }: { searchParams: 
         </p>
       ) : null}
 
-      <nav className="flex gap-1 border-b border-border" aria-label="Invitations">
+      <nav className="flex gap-1 border-b border-border" aria-label={t('Invitations')}>
         {tabs.map((t) => (
           <Link key={t.id} href={t.id === 'open' ? '/admin/invitations' : `/admin/invitations?view=${t.id}`}
             aria-current={view === t.id ? 'page' : undefined}
@@ -135,8 +134,7 @@ export default async function InvitationsPage({ searchParams }: { searchParams: 
                     <span className="font-semibold">{inv.full_name}</span>
                     <div className="font-mono text-xs text-muted-foreground">{inv.badge_number}</div>
                     <div className="text-xs text-muted-foreground">
-                      invited by {inv.invited_by_name ?? 'an administrator'} {timeAgo(inv.created_at)}
-                      {inv.approved_by_name ? ` · approved by ${inv.approved_by_name}` : ''}
+                      {t('invited by {value} {timeAgo}{value2}', { value: inv.invited_by_name ?? 'an administrator', timeAgo: timeAgo(inv.created_at), value2: inv.approved_by_name ? ` · approved by ${inv.approved_by_name}` : '' })}
                     </div>
                   </Td>
                   <Td>
@@ -151,7 +149,7 @@ export default async function InvitationsPage({ searchParams }: { searchParams: 
                     {view === 'accepted' ? (
                       <>
                         {formatSaTime(inv.accepted_at)}
-                        <div className="text-xs text-muted-foreground">POPIA notice v{inv.policy_version ?? '—'} accepted</div>
+                        <div className="text-xs text-muted-foreground">{t('POPIA notice v{value} accepted', { value: inv.policy_version ?? '—' })}</div>
                       </>
                     ) : (
                       <>
@@ -169,8 +167,7 @@ export default async function InvitationsPage({ searchParams }: { searchParams: 
                     {view === 'accepted' ? (
                       inv.accepted_user_id ? (
                         <Link href={`/admin/users/${inv.accepted_user_id}`} className="text-sm font-semibold text-primary hover:underline">
-                          Account →
-                        </Link>
+                          {t('Account →')}</Link>
                       ) : null
                     ) : (
                       <InvitationRowActions
@@ -197,10 +194,7 @@ export default async function InvitationsPage({ searchParams }: { searchParams: 
       )}
 
       <p className="text-xs text-muted-foreground">
-        Invitations as SystemAdmin, Admin or SystemController wait for a second SystemAdmin
-        {approver ? <> on the <Link href="/admin/approvals" className="font-semibold text-primary hover:underline">Approvals</Link> page</> : ''}.
-        Someone who reports an invitation as “not me” closes it, and whoever sent it is told.
-      </p>
+        {t('Invitations as SystemAdmin, Admin or SystemController wait for a second SystemAdmin')}{approver ? <> {' '}{t('on the')}{' '}<Link href="/admin/approvals" className="font-semibold text-primary hover:underline">{t('Approvals')}</Link> {' '}{t('page')}</> : ''}{t('. Someone who reports an invitation as “not me” closes it, and whoever sent it is told.')}</p>
     </div>
   );
 }

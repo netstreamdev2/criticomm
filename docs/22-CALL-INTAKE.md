@@ -52,7 +52,7 @@ caller next, what is still missing). **View all** shows everything.
 3. The form stays open, with a green banner. Each change is added to the call
    (`complete_call_intake`): choices within a second, typed text after a short
    pause or when the call taker moves to the next field. The call's timeline
-   says what was added. **Done · open the call** finishes.
+   says what was added. **Finish the call** checks that the caller, number, description and (for EMS) the patient question are in, saves, and confirms from the database that the call is complete before saying so.
 4. The queue row, the dispatch page, the call page and the new-call toast show
    **⧗ Details to follow** until the caller's name, number and the description
    are in (and, for EMS, whether the caller is the patient). The dispatch page

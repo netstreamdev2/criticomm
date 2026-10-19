@@ -1,10 +1,12 @@
 import 'server-only';
+import { cache as perRequest } from 'react';
 import { cookies } from 'next/headers';
 import type { CriticomClient } from '@criticom/db';
 import {
   DEFAULT_LANG, isLang, makeTranslator, mergeDictionaries, type Dictionary, type LangCode,
 } from '@criticom/db/i18n';
 import { bundled } from '@criticom/db/i18n/locales';
+import { getServerSupabase } from './supabase';
 
 /**
  * The console's language: the one the person chose (profiles.language, kept
@@ -65,3 +67,14 @@ export async function getT(supabase: CriticomClient, userId?: string) {
   const dict = await dictionaryFor(supabase, lang);
   return { lang, dict, ...makeTranslator(dict) };
 }
+
+/**
+ * The translator for the person this request is for, once per request: for
+ * any server component, without passing the session down. The language is
+ * a display choice, not a permission; every read is still the person's own.
+ */
+export const requestT = perRequest(async () => {
+  const supabase = await getServerSupabase();
+  const { data: { user } } = await supabase.auth.getUser();
+  return getT(supabase, user?.id);
+});

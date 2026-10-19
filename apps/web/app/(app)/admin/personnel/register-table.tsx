@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/toast';
 import { cn } from '@/lib/utils';
 import { markLeftAction, moveDepartmentAction, restoreAction, setRolesAction } from './actions';
+import { useT } from '@/components/i18n';
 
 export type StatusFilter =
   | 'current' | 'to-confirm' | 'no-role' | 'ready' | 'invited' | 'active' | 'not-listed' | 'shared-badge' | 'left' | 'all';
@@ -63,6 +64,7 @@ export function RegisterTable({
   /** Opened from a link that names someone, e.g. the invite page. */
   initialQuery?: string;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -154,20 +156,20 @@ export function RegisterTable({
       <div className="flex flex-wrap items-end gap-2">
         <div className="relative min-w-[14rem] flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <Input value={q} onChange={(e) => { setQ(e.target.value); resetPaging(); }} placeholder="Name, badge, rank or station"
-            className="h-9 pl-9" aria-label="Search the register" />
+          <Input value={q} onChange={(e) => { setQ(e.target.value); resetPaging(); }} placeholder={t('Name, badge, rank or station')}
+            className="h-9 pl-9" aria-label={t('Search the register')} />
         </div>
         {silos.length > 1 ? (
-          <select value={silo} onChange={(e) => { setSilo(e.target.value as Silo | 'all'); setStation('all'); resetPaging(); }} className={selectClass} aria-label="Department">
-            <option value="all">All departments</option>
+          <select value={silo} onChange={(e) => { setSilo(e.target.value as Silo | 'all'); setStation('all'); resetPaging(); }} className={selectClass} aria-label={t('Department')}>
+            <option value="all">{t('All departments')}</option>
             {silos.map((s) => <option key={s} value={s}>{DEPARTMENT_NAMES[s]}</option>)}
           </select>
         ) : null}
-        <select value={station} onChange={(e) => { setStation(e.target.value); resetPaging(); }} className={selectClass} aria-label="Station">
-          <option value="all">All stations</option>
+        <select value={station} onChange={(e) => { setStation(e.target.value); resetPaging(); }} className={selectClass} aria-label={t('Station')}>
+          <option value="all">{t('All stations')}</option>
           {stations.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
-        <select value={filter} onChange={(e) => { setFilter(e.target.value as StatusFilter); resetPaging(); }} className={selectClass} aria-label="Show">
+        <select value={filter} onChange={(e) => { setFilter(e.target.value as StatusFilter); resetPaging(); }} className={selectClass} aria-label={t('Show')}>
           {FILTERS.filter((f) => f.id !== 'not-listed' || latestImport).filter((f) => f.id !== 'shared-badge' || shared.size).map((f) => (
             <option key={f.id} value={f.id}>{f.label}</option>
           ))}
@@ -178,14 +180,14 @@ export function RegisterTable({
         <span>
           {visible.length === 0 ? 'Nobody matches.' : `Showing ${page * PAGE + 1}–${Math.min(visible.length, (page + 1) * PAGE)} of ${visible.length}`}
           {canManage && visible.length > shown.length && !visible.every((p) => selected.has(p.id)) ? (
-            <> · <button type="button" className="font-semibold text-primary hover:underline" onClick={() => setSelected(new Set(visible.map((p) => p.id)))}>Select all {visible.length}</button></>
+            <> · <button type="button" className="font-semibold text-primary hover:underline" onClick={() => setSelected(new Set(visible.map((p) => p.id)))}>{t('Select all {length}', { length: visible.length })}</button></>
           ) : null}
         </span>
         {pages > 1 ? (
           <span className="flex items-center gap-1">
-            <Button size="sm" variant="ghost" disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</Button>
-            <span>Page {page + 1} of {pages}</span>
-            <Button size="sm" variant="ghost" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>Next</Button>
+            <Button size="sm" variant="ghost" disabled={page === 0} onClick={() => setPage(page - 1)}>{t('Previous')}</Button>
+            <span>{t('Page {value} of {pages}', { value: page + 1, pages })}</span>
+            <Button size="sm" variant="ghost" disabled={page >= pages - 1} onClick={() => setPage(page + 1)}>{t('Next')}</Button>
           </span>
         ) : null}
       </div>
@@ -196,7 +198,7 @@ export function RegisterTable({
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
               {canManage ? (
                 <th className="w-10 px-3 py-2">
-                  <input type="checkbox" aria-label="Select everyone on this page" checked={allShownSelected}
+                  <input type="checkbox" aria-label={t('Select everyone on this page')} checked={allShownSelected}
                     onChange={() => setSelected((s) => {
                       const n = new Set(s);
                       for (const p of shown) { if (allShownSelected) n.delete(p.id); else n.add(p.id); }
@@ -204,11 +206,11 @@ export function RegisterTable({
                     })} />
                 </th>
               ) : null}
-              <th className="px-3 py-2">Person</th>
-              <th className="px-3 py-2">Department</th>
-              <th className="px-3 py-2">Contact</th>
-              <th className="px-3 py-2">Role for invitation</th>
-              <th className="px-3 py-2">Status</th>
+              <th className="px-3 py-2">{t('Person')}</th>
+              <th className="px-3 py-2">{t('Department')}</th>
+              <th className="px-3 py-2">{t('Contact')}</th>
+              <th className="px-3 py-2">{t('Role for invitation')}</th>
+              <th className="px-3 py-2">{t('Status')}</th>
               <th className="px-3 py-2" />
             </tr>
           </thead>
@@ -226,9 +228,8 @@ export function RegisterTable({
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <span className="font-mono">{p.badge_number}</span> · {p.rank}
                       {shared.has(p.id) ? (
-                        <span className="inline-flex items-center gap-0.5 text-severity-medium-ink" title="Another current person has the same badge number">
-                          <TriangleAlert className="h-3 w-3" aria-hidden /> shared badge
-                        </span>
+                        <span className="inline-flex items-center gap-0.5 text-severity-medium-ink" title={t('Another current person has the same badge number')}>
+                          <TriangleAlert className="h-3 w-3" aria-hidden /> {' '}{t('shared badge')}</span>
                       ) : null}
                     </div>
                   </td>
@@ -239,7 +240,7 @@ export function RegisterTable({
                   <td className="max-w-[14rem] px-3 py-2 text-xs">
                     {p.work_email ? <div className="flex items-center gap-1 truncate"><Mail className="h-3 w-3 shrink-0" aria-hidden />{p.work_email}</div> : null}
                     {p.work_cellphone ? <div className="flex items-center gap-1"><Phone className="h-3 w-3 shrink-0" aria-hidden />{p.work_cellphone}</div> : null}
-                    {!p.work_email && !p.work_cellphone ? <span className="text-muted-foreground">Printed code</span> : null}
+                    {!p.work_email && !p.work_cellphone ? <span className="text-muted-foreground">{t('Printed code')}</span> : null}
                   </td>
                   <td className="px-3 py-2">
                     {p.user_id ? (
@@ -260,23 +261,23 @@ export function RegisterTable({
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 text-right">
                     {canInvite ? (
-                      <Link href={`/admin/invitations/new?person=${p.id}`} className="text-sm font-semibold text-primary hover:underline">Invite</Link>
+                      <Link href={`/admin/invitations/new?person=${p.id}`} className="text-sm font-semibold text-primary hover:underline">{t('Invite')}</Link>
                     ) : null}
                     {canMove && !p.left_at && !p.user_id ? (
-                      <button type="button" className="ml-3 text-sm text-muted-foreground hover:text-fg" onClick={() => setMoving(p)}>Change department</button>
+                      <button type="button" className="ml-3 text-sm text-muted-foreground hover:text-fg" onClick={() => setMoving(p)}>{t('Change department')}</button>
                     ) : null}
                     {canManage && !p.left_at && !(p.user_id && p.account?.active !== false) ? (
-                      <button type="button" className="ml-3 text-sm text-muted-foreground hover:text-fg" onClick={() => setLeaving({ person: p, mode: 'leave' })}>Mark as left</button>
+                      <button type="button" className="ml-3 text-sm text-muted-foreground hover:text-fg" onClick={() => setLeaving({ person: p, mode: 'leave' })}>{t('Mark as left')}</button>
                     ) : null}
                     {canManage && p.left_at ? (
-                      <button type="button" className="text-sm font-semibold text-primary hover:underline" onClick={() => setLeaving({ person: p, mode: 'restore' })}>Bring back</button>
+                      <button type="button" className="text-sm font-semibold text-primary hover:underline" onClick={() => setLeaving({ person: p, mode: 'restore' })}>{t('Bring back')}</button>
                     ) : null}
                   </td>
                 </tr>
               );
             })}
             {shown.length === 0 ? (
-              <tr><td colSpan={canManage ? 7 : 6} className="px-3 py-10 text-center text-muted-foreground">Nobody matches these filters.</td></tr>
+              <tr><td colSpan={canManage ? 7 : 6} className="px-3 py-10 text-center text-muted-foreground">{t('Nobody matches these filters.')}</td></tr>
             ) : null}
           </tbody>
         </table>
@@ -284,36 +285,32 @@ export function RegisterTable({
 
       {canManage && selected.size > 0 ? (
         <div className="sticky bottom-3 z-10 flex flex-wrap items-center gap-2 rounded-xl border border-primary/40 bg-bg-card px-4 py-3 shadow-xl">
-          <span className="text-sm font-semibold">{selected.size} selected</span>
+          <span className="text-sm font-semibold">{t('{size} selected', { size: selected.size })}</span>
           <span className="mx-1 h-5 w-px bg-border" aria-hidden />
-          <select value={roleToSet} onChange={(e) => setBulkRole(e.target.value as UserRole)} className={selectClass} aria-label="Role to confirm">
-            <option value="">Set role for invitation…</option>
+          <select value={roleToSet} onChange={(e) => setBulkRole(e.target.value as UserRole)} className={selectClass} aria-label={t('Role to confirm')}>
+            <option value="">{t('Set role for invitation…')}</option>
             {bulkOptions.map((r) => <option key={r} value={r}>{roleName(r)}</option>)}
           </select>
           {mixedDepartments ? (
-            <span className="text-xs text-muted-foreground">Field roles: choose people from one department.</span>
+            <span className="text-xs text-muted-foreground">{t('Field roles: choose people from one department.')}</span>
           ) : null}
           <Button size="sm" variant="outline" disabled={!roleToSet || pending} onClick={applyRole}>{pending ? 'Working…' : 'Confirm role'}</Button>
           <span className="mx-1 h-5 w-px bg-border" aria-hidden />
           <Button size="sm" disabled={invitable.length === 0} onClick={openInvite}
             title={invitable.length < selected.size ? 'Only people with a confirmed role and no account or open invitation can be invited' : undefined}>
-            Invite {invitable.length}
+            {t('Invite {length}', { length: invitable.length })}
           </Button>
           {invitable.length < selected.size ? (
-            <span className="text-xs text-muted-foreground">{selected.size - invitable.length} not ready (role, account or invitation)</span>
+            <span className="text-xs text-muted-foreground">{t('{value} not ready (role, account or invitation)', { value: selected.size - invitable.length })}</span>
           ) : null}
-          <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setSelected(new Set())}>Clear</Button>
+          <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setSelected(new Set())}>{t('Clear')}</Button>
         </div>
       ) : null}
 
       {inviting ? (
         <BulkRunDialog
           title={`Invite ${inviting.length} ${inviting.length === 1 ? 'person' : 'people'}`}
-          intro={<>
-            Each person gets their own invitation, as their confirmed role, by the route shown: email where HR gave an address,
-            SMS where there is only a cellphone{delivery.sms ? '' : ' (once SMS is set up; until then, a printed code)'}, otherwise a printed code.
-            Each link or code works once and expires after its set time.
-          </>}
+          intro={t('Each person gets their own invitation, as their confirmed role, by the route shown: email where HR gave an address, SMS where there is only a cellphone{value}, otherwise a printed code. Each link or code works once and expires after its set time.', { value: delivery.sms ? '' : ' (once SMS is set up; until then, a printed code)' })}
           items={inviting}
           confirmLabel={`Invite ${inviting.length}`}
           askReason
@@ -333,6 +330,7 @@ const ALL_DEPARTMENTS: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'Ethekwi
 
 /** Move someone without an account to the department they work in, with a reason for the record. */
 function MoveDialog({ person, onClose }: { person: RegisterPerson; onClose: () => void }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [silo, setSilo] = useState<Silo | ''>('');
@@ -360,20 +358,19 @@ function MoveDialog({ person, onClose }: { person: RegisterPerson; onClose: () =
   return (
     <div className="fixed inset-0 z-[70] flex items-start justify-center bg-black/60 p-4 pt-[15vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="move-title">
       <div className="w-full max-w-md space-y-3 rounded-xl border border-border bg-bg-card p-5 shadow-2xl">
-        <h2 id="move-title" className="text-lg font-semibold">Change {name}’s department</h2>
+        <h2 id="move-title" className="text-lg font-semibold">{t('Change {name}’s department', { name })}</h2>
         <p className="text-sm text-muted-foreground">
-          Now in {DEPARTMENT_NAMES[person.silo]}. Their role for invitation is cleared, and any open invitation is cancelled.
-        </p>
-        <select value={silo} onChange={(e) => setSilo(e.target.value as Silo)} aria-label="New department" className={`${selectClass} w-full`}>
-          <option value="" disabled>Choose the department</option>
+          {t('Now in {value}. Their role for invitation is cleared, and any open invitation is cancelled.', { value: DEPARTMENT_NAMES[person.silo] })}</p>
+        <select value={silo} onChange={(e) => setSilo(e.target.value as Silo)} aria-label={t('New department')} className={`${selectClass} w-full`}>
+          <option value="" disabled>{t('Choose the department')}</option>
           {ALL_DEPARTMENTS.filter((s) => s !== person.silo).map((s) => <option key={s} value={s}>{DEPARTMENT_NAMES[s]}</option>)}
         </select>
-        <Input value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} aria-label="Reason"
-          placeholder="e.g. Works in Metro Police, per HR staff list 2026/10" />
+        <Input value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} aria-label={t('Reason')}
+          placeholder={t('e.g. Works in Metro Police, per HR staff list 2026/10')} />
         {error ? <p role="alert" className="text-sm text-severity-critical-ink">{error}</p> : null}
         <div className="flex gap-2">
           <Button onClick={submit} disabled={!silo || reason.trim().length < 10 || pending}>{pending ? 'Working…' : 'Change department'}</Button>
-          <Button variant="ghost" onClick={onClose} disabled={pending}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose} disabled={pending}>{t('Cancel')}</Button>
         </div>
       </div>
     </div>
@@ -382,6 +379,7 @@ function MoveDialog({ person, onClose }: { person: RegisterPerson; onClose: () =
 
 /** Mark someone as left, or bring them back, with a reason for the record. */
 function LeaveDialog({ person, mode, onClose }: { person: RegisterPerson; mode: 'leave' | 'restore'; onClose: () => void }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [reason, setReason] = useState('');
@@ -413,12 +411,12 @@ function LeaveDialog({ person, mode, onClose }: { person: RegisterPerson; mode: 
             ? 'They stay in the register as a record, but cannot be invited, and any open invitation is cancelled.'
             : 'They return to the register as current staff.'}
         </p>
-        <Input value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} autoFocus aria-label="Reason"
+        <Input value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} autoFocus aria-label={t('Reason')}
           placeholder={mode === 'leave' ? 'e.g. Resigned, HR notice 2026/77' : 'e.g. Marked as left by mistake, confirmed with HR'} />
         {error ? <p role="alert" className="text-sm text-severity-critical-ink">{error}</p> : null}
         <div className="flex gap-2">
           <Button onClick={submit} disabled={reason.trim().length < 10 || pending}>{pending ? 'Working…' : mode === 'leave' ? 'Mark as left' : 'Bring back'}</Button>
-          <Button variant="ghost" onClick={onClose} disabled={pending}>Cancel</Button>
+          <Button variant="ghost" onClick={onClose} disabled={pending}>{t('Cancel')}</Button>
         </div>
       </div>
     </div>

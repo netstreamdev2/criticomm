@@ -8,6 +8,7 @@ import { SimpleTable, Td, Tr } from '@/components/simple-table';
 import { IncidentLive } from '@/components/incident-live';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export type CaseSearch = { q?: string; department?: string; severity?: string; from?: string; to?: string };
 
@@ -42,14 +43,15 @@ export function CaseLink({ row, review = false }: { row: Pick<CaseRow, 'id' | 'i
 }
 
 /** How a closed case ended. */
-export function OutcomeChip({ row }: { row: CaseRow }) {
+export async function OutcomeChip({ row }: { row: CaseRow }) {
+  const { t } = await requestT();
   if (row.close_kind === 'Cancelled') {
-    return <span className="rounded-full border border-severity-critical/40 bg-severity-critical/10 px-2 py-0.5 text-xs font-semibold text-severity-critical-ink">Closed without report</span>;
+    return <span className="rounded-full border border-severity-critical/40 bg-severity-critical/10 px-2 py-0.5 text-xs font-semibold text-severity-critical-ink">{t('Closed without report')}</span>;
   }
   if (row.close_kind === 'Reviewed') {
-    return <span className="rounded-full border border-severity-low/40 bg-severity-low/10 px-2 py-0.5 text-xs font-semibold text-severity-low-ink">Reviewed</span>;
+    return <span className="rounded-full border border-severity-low/40 bg-severity-low/10 px-2 py-0.5 text-xs font-semibold text-severity-low-ink">{t('Reviewed')}</span>;
   }
-  return <span className="rounded-full border border-border bg-bg-soft px-2 py-0.5 text-xs font-semibold text-muted-foreground">Closed</span>;
+  return <span className="rounded-full border border-border bg-bg-soft px-2 py-0.5 text-xs font-semibold text-muted-foreground">{t('Closed')}</span>;
 }
 
 const VIEW_COPY: Record<Exclude<CaseView, 'all'>, { empty: string; order: string }> = {
@@ -71,6 +73,7 @@ export async function CaseRegister({
   params: CaseSearch;
   basePath: string;
 }) {
+  const { t } = await requestT();
   const { supabase, silo } = await getSession();
   const { rows, truncated } = await listCases(supabase, { view, ...params });
   const filtered = Boolean(params.q || params.department || params.severity || params.from || params.to);
@@ -89,43 +92,43 @@ export async function CaseRegister({
 
       <form method="get" className="grid gap-3 rounded-lg border border-border bg-bg-card p-4 sm:grid-cols-3 lg:grid-cols-6">
         <div className="sm:col-span-2">
-          <label className={label} htmlFor="q">Search</label>
-          <input id="q" name="q" defaultValue={params.q} placeholder="Incident #, caller, address, officer" className={field} />
+          <label className={label} htmlFor="q">{t('Search')}</label>
+          <input id="q" name="q" defaultValue={params.q} placeholder={t('Incident #, caller, address, officer')} className={field} />
         </div>
         {silo === 'Ethekwini' ? (
           <div>
-            <label className={label} htmlFor="department">Department</label>
+            <label className={label} htmlFor="department">{t('Department')}</label>
             <select id="department" name="department" defaultValue={params.department ?? ''} className={field}>
-              <option value="">All</option>
+              <option value="">{t('All')}</option>
               {CASE_DEPARTMENTS.map((d) => <option key={d} value={d}>{DEPARTMENT_LABELS[d]}</option>)}
-              <option value="Ethekwini">Control room (not dispatched)</option>
+              <option value="Ethekwini">{t('Control room (not dispatched)')}</option>
             </select>
           </div>
         ) : null}
         <div>
-          <label className={label} htmlFor="severity">Severity</label>
+          <label className={label} htmlFor="severity">{t('Severity')}</label>
           <select id="severity" name="severity" defaultValue={params.severity ?? ''} className={field}>
-            <option value="">Any</option>
+            <option value="">{t('Any')}</option>
             {CASE_SEVERITIES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
         <div>
-          <label className={label} htmlFor="from">Call from</label>
+          <label className={label} htmlFor="from">{t('Call from')}</label>
           <input id="from" name="from" type="date" defaultValue={params.from} className={field} />
         </div>
         <div>
-          <label className={label} htmlFor="to">Call to</label>
+          <label className={label} htmlFor="to">{t('Call to')}</label>
           <input id="to" name="to" type="date" defaultValue={params.to} className={field} />
         </div>
         <div className="flex items-end gap-2 sm:col-span-3 lg:col-span-6">
-          <button type="submit" className="h-10 rounded-md bg-primary px-5 text-sm font-semibold">Apply</button>
-          {filtered ? <Link href={basePath} className="text-sm text-accent hover:underline">Clear filters</Link> : null}
+          <button type="submit" className="h-10 rounded-md bg-primary px-5 text-sm font-semibold">{t('Apply')}</button>
+          {filtered ? <Link href={basePath} className="text-sm text-accent hover:underline">{t('Clear filters')}</Link> : null}
         </div>
       </form>
 
       <Card>
         <CardHeader>
-          <CardTitle>{rows.length}{truncated ? '+' : ''} case{rows.length === 1 ? '' : 's'}</CardTitle>
+          <CardTitle>{t('{length}{value} case{value2}', { length: rows.length, value: truncated ? '+' : '', value2: rows.length === 1 ? '' : 's' })}</CardTitle>
           <CardDescription>
             {VIEW_COPY[view].order}
             {truncated ? ' Showing the first 200; narrow the filters to see the rest.' : ''}
@@ -141,14 +144,13 @@ export async function CaseRegister({
                     <Td><CaseLink row={r} review /></Td>
                     <Td><span className="mr-2">{r.incident_type}</span><SeverityPill severity={r.incident_severity} /></Td>
                     <Td>{departmentLabel(r)}</Td>
-                    <Td>{reportLabel(r.report) ?? <span className="text-severity-medium-ink">No report on file</span>}</Td>
+                    <Td>{reportLabel(r.report) ?? <span className="text-severity-medium-ink">{t('No report on file')}</span>}</Td>
                     <Td>{r.report?.officer ?? r.responding_officer ?? '—'}</Td>
                     <Td className="whitespace-nowrap text-muted-foreground">{formatSaTime(at)}</Td>
                     <Td className="whitespace-nowrap font-semibold">{formatElapsed(minutesBetween(at, now))}</Td>
                     <Td className="whitespace-nowrap">
                       <Link href={`/incidents/${r.id}#case-review`} className="rounded-md bg-primary/15 px-3 py-1.5 text-xs font-semibold text-fg hover:bg-primary/25">
-                        Review
-                      </Link>
+                        {t('Review')}</Link>
                     </Td>
                   </Tr>
                 );
@@ -185,7 +187,7 @@ export async function CaseRegister({
                   <Td className="whitespace-nowrap text-xs">
                     <a href={`/api/pdf/incident/${r.id}`} className="text-accent hover:underline">PDF</a>
                     <span className="mx-1 text-muted-foreground">·</span>
-                    <Link href={`/case-manager/audit?incident=${r.id}`} className="text-accent hover:underline">Audit</Link>
+                    <Link href={`/case-manager/audit?incident=${r.id}`} className="text-accent hover:underline">{t('Audit')}</Link>
                   </Td>
                 </Tr>
               ))}

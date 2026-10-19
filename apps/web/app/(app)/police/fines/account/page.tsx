@@ -9,6 +9,7 @@ import { accountQueryString, readAccountKey } from '@/lib/fines';
 import { requireFeaturePage } from '@/lib/features';
 import { getSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Fines account · HikTech' };
@@ -27,6 +28,7 @@ const STAGE_TONE = {
  * today. Command staff only; a printable statement for the counter.
  */
 export default async function FineAccountPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const { t } = await requestT();
   await requireFeaturePage('web.enforcement');
   const { supabase, role, silo } = await getSession();
   if (!canViewAllFines({ role, silo })) redirect('/police/fines');
@@ -48,27 +50,27 @@ export default async function FineAccountPage({ searchParams }: { searchParams: 
 
   return (
     <div className="space-y-5">
-      <Link href="/police/fines" className="text-sm font-semibold text-muted-foreground hover:text-fg">← Fines register</Link>
+      <Link href="/police/fines" className="text-sm font-semibold text-muted-foreground hover:text-fg">{t('← Fines register')}</Link>
       <header>
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Metro Police · Enforcement</p>
-        <h1 className="mt-1 text-2xl font-bold">Fines account</h1>
-        <p className="text-sm text-muted-foreground">Everything on the register for one ID number or one vehicle: fines, payments and when they were made, and what is owed today.</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{t('Metro Police · Enforcement')}</p>
+        <h1 className="mt-1 text-2xl font-bold">{t('Fines account')}</h1>
+        <p className="text-sm text-muted-foreground">{t('Everything on the register for one ID number or one vehicle: fines, payments and when they were made, and what is owed today.')}</p>
       </header>
 
       <Card>
         <CardContent className="pt-6">
           <form method="get" className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
-            <input name="id" defaultValue={key?.id ?? ''} placeholder="ID or passport number" className={cn(FIELD, 'font-mono')} aria-label="ID number" />
-            <input name="reg" defaultValue={key?.reg ?? ''} placeholder="Vehicle registration" className={cn(FIELD, 'font-mono uppercase')} aria-label="Registration" />
-            <button type="submit" className="h-10 rounded-md bg-accent px-5 text-sm font-semibold text-bg">Open account</button>
+            <input name="id" defaultValue={key?.id ?? ''} placeholder={t('ID or passport number')} className={cn(FIELD, 'font-mono')} aria-label={t('ID number')} />
+            <input name="reg" defaultValue={key?.reg ?? ''} placeholder={t('Vehicle registration')} className={cn(FIELD, 'font-mono uppercase')} aria-label={t('Registration')} />
+            <button type="submit" className="h-10 rounded-md bg-accent px-5 text-sm font-semibold text-bg">{t('Open account')}</button>
           </form>
         </CardContent>
       </Card>
 
       {!key ? (
-        <p className="text-sm text-muted-foreground">Enter a full ID number, a registration, or both.</p>
+        <p className="text-sm text-muted-foreground">{t('Enter a full ID number, a registration, or both.')}</p>
       ) : !data ? (
-        <div className="rounded-xl border border-severity-critical/40 bg-severity-critical/10 p-4 text-sm font-semibold text-severity-critical-ink">The account could not be loaded.</div>
+        <div className="rounded-xl border border-severity-critical/40 bg-severity-critical/10 p-4 text-sm font-semibold text-severity-critical-ink">{t('The account could not be loaded.')}</div>
       ) : (
         <>
           <section className="overflow-hidden rounded-2xl border border-border bg-bg-card">
@@ -85,8 +87,7 @@ export default async function FineAccountPage({ searchParams }: { searchParams: 
                 rel="noopener noreferrer"
                 className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
               >
-                Print statement
-              </a>
+                {t('Print statement')}</a>
             </div>
             <div className="grid grid-cols-2 gap-px bg-border md:grid-cols-5">
               {[
@@ -105,9 +106,9 @@ export default async function FineAccountPage({ searchParams }: { searchParams: 
           </section>
 
           <Card>
-            <CardHeader className="pb-2"><CardTitle>Fines ({data.fines.length})</CardTitle><CardDescription>Newest first. Cancelled fines stay on the account, struck through.</CardDescription></CardHeader>
+            <CardHeader className="pb-2"><CardTitle>{t('Fines ({length})', { length: data.fines.length })}</CardTitle><CardDescription>{t('Newest first. Cancelled fines stay on the account, struck through.')}</CardDescription></CardHeader>
             <CardContent className="p-0">
-              <SimpleTable headers={['Fine', 'Served', 'Offence', 'Vehicle', 'Where it stands', 'Penalty', 'Paid', 'Owing', 'Status']} empty="Nothing on the register for this account.">
+              <SimpleTable headers={['Fine', 'Served', 'Offence', 'Vehicle', 'Where it stands', 'Penalty', 'Paid', 'Owing', 'Status']} empty={t('Nothing on the register for this account.')}>
                 {data.fines.map((f) => {
                   const stage = fineStage(f);
                   return (
@@ -121,7 +122,7 @@ export default async function FineAccountPage({ searchParams }: { searchParams: 
                       <Td className="font-mono text-xs">{f.vehicle_reg ?? '—'}</Td>
                       <Td>
                         <span className={cn('text-sm font-semibold', STAGE_TONE[STAGE_INFO[stage].tone])}>{stage}</span>
-                        {f.due_date && f.status !== 'Paid' && f.status !== 'Cancelled' ? <div className="text-xs text-muted-foreground">pay by {day(f.due_date)}</div> : null}
+                        {f.due_date && f.status !== 'Paid' && f.status !== 'Cancelled' ? <div className="text-xs text-muted-foreground">{t('pay by {day}', { day: day(f.due_date) })}</div> : null}
                       </Td>
                       <Td className="whitespace-nowrap font-mono text-sm">{rand(f.amount)}</Td>
                       <Td className="whitespace-nowrap font-mono text-sm text-severity-low-ink">{rand(data.paid.get(f.id) ?? 0)}</Td>
@@ -135,9 +136,9 @@ export default async function FineAccountPage({ searchParams }: { searchParams: 
           </Card>
 
           <Card>
-            <CardHeader className="pb-2"><CardTitle>Payments ({data.ledger.length})</CardTitle><CardDescription>By the date on the receipt.</CardDescription></CardHeader>
+            <CardHeader className="pb-2"><CardTitle>{t('Payments ({length})', { length: data.ledger.length })}</CardTitle><CardDescription>{t('By the date on the receipt.')}</CardDescription></CardHeader>
             <CardContent className="p-0">
-              <SimpleTable headers={['Date paid', 'Fine', 'Type', 'Method', 'Receipt', 'Amount', 'Recorded']} empty="No payments recorded.">
+              <SimpleTable headers={['Date paid', 'Fine', 'Type', 'Method', 'Receipt', 'Amount', 'Recorded']} empty={t('No payments recorded.')}>
                 {data.ledger.map((t) => (
                   <Tr key={t.id}>
                     <Td className="whitespace-nowrap text-sm">{day(t.paid_on ?? t.recorded_at)}</Td>

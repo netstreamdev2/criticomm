@@ -111,3 +111,49 @@ export function MultiBarChart({
     </ResponsiveContainer>
   );
 }
+
+/** Bars stacked by series, each series in its own colour (reports by day, by standing). */
+export function StackedBarChart({
+  data, xKey, series, height = 260,
+}: {
+  data: Array<Record<string, string | number>>;
+  xKey: string;
+  series: Array<{ key: string; label: string; color: string }>;
+  height?: number;
+}) {
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -24 }}>
+        <CartesianGrid stroke={GRID} vertical={false} />
+        <XAxis dataKey={xKey} tick={TICK} tickLine={false} axisLine={false} />
+        <YAxis tick={TICK} tickLine={false} axisLine={false} allowDecimals={false} />
+        <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: 'rgba(148,163,184,0.08)' }} />
+        <Legend wrapperStyle={{ fontSize: 12 }} />
+        {series.map((s, i) => (
+          <Bar
+            key={s.key} dataKey={s.key} name={s.label} stackId="stack" fill={s.color}
+            radius={i === series.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]} maxBarSize={44}
+          />
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+/** A donut whose every slice carries its own colour (the police forms). */
+export function ToneDonut({ data, height = 240 }: { data: Array<{ name: string; value: number; color: string }>; height?: number }) {
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <PieChart>
+        <Pie
+          data={data} dataKey="value" nameKey="name"
+          innerRadius="55%" outerRadius="85%" paddingAngle={2} strokeWidth={0}
+        >
+          {data.map((d) => <Cell key={d.name} fill={d.color} />)}
+        </Pie>
+        <Tooltip contentStyle={TOOLTIP_STYLE} />
+        <Legend wrapperStyle={{ fontSize: 11 }} />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+}

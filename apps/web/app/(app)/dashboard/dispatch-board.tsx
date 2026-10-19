@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { DispatchMapButton } from '@/components/dispatch-map-button';
 import { chatTime } from '@/lib/when';
 import { BoardLive } from './board-live';
+import { requestT } from '@/lib/i18n';
 
 type Supabase = Awaited<ReturnType<typeof getSession>>['supabase'];
 type Incident = Database['public']['Tables']['incidents']['Row'];
@@ -101,6 +102,7 @@ export async function DispatchBoard({
 }: {
   supabase: Supabase; sf: Silo | undefined; role: string; silo: string; userId: string;
 }) {
+  const { t } = await requestT();
   // Loggers see the board but cannot assign — their button opens the incident.
   const canDispatch = canAccess('/dispatch/pending', role as UserRole, silo as Silo);
   const canAssign = canAccess('/dispatch/assign/x', role as UserRole, silo as Silo);
@@ -204,7 +206,7 @@ export async function DispatchBoard({
           />
           <CardContent className="relative flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
             <span className="ops-chip" data-tone="critical"><AlertTriangle className="h-5 w-5" /></span>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Live incidents</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">{t('Live incidents')}</p>
             <p className="stat-glow text-6xl font-bold text-severity-critical-ink">{live.length}</p>
           </CardContent>
         </Card>
@@ -212,8 +214,7 @@ export async function DispatchBoard({
         <Card className="h-full">
           <CardContent className="flex h-full flex-col justify-center p-6">
             <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">
-              Severity analysis
-            </p>
+              {t('Severity analysis')}</p>
             <div className="mt-5 flex items-center justify-center">
               {([
                 ['HIGH', buckets.high, 'bg-severity-critical'],
@@ -239,7 +240,7 @@ export async function DispatchBoard({
           />
           <CardContent className="relative flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
             <span className="ops-chip" data-tone="low"><CheckCircle2 className="h-5 w-5" /></span>
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Closed today</p>
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">{t('Closed today')}</p>
             <p className="stat-glow text-6xl font-bold text-severity-low-ink">{closedToday}</p>
           </CardContent>
         </Card>
@@ -251,11 +252,9 @@ export async function DispatchBoard({
           <CardContent className="p-5">
             <div className="flex items-center justify-between gap-3">
               <h2 className="flex items-center gap-2 text-base font-bold">
-                <Satellite className="h-4 w-4 text-accent" /> Live Operations Feed
-              </h2>
+                <Satellite className="h-4 w-4 text-accent" /> {' '}{t('Live Operations Feed')}</h2>
               <span className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                Real-time
-              </span>
+                {t('Real-time')}</span>
             </div>
 
             <ul className="mt-4 space-y-1">
@@ -277,7 +276,7 @@ export async function DispatchBoard({
                           <span className="shrink-0 text-xs text-muted-foreground">{chatTime(i.updated_at, now)}</span>
                         </span>
                         <span className="mt-0.5 block truncate text-xs text-muted-foreground">
-                          {shortCode(i.incident_type)} at {i.location_address}
+                          {t('{shortCode} at {value}', { shortCode: shortCode(i.incident_type), value: i.location_address })}
                         </span>
                       </span>
                     </Link>
@@ -289,18 +288,17 @@ export async function DispatchBoard({
                         }}
                         officers={officers}
                         canAssign={canAssign}
-                        title="Officers, routes and minutes away"
+                        title={t('Officers, routes and minutes away')}
                         className="mr-1 shrink-0 rounded-md p-2 text-accent hover:bg-accent/15"
                       >
-                        <MapPin className="h-4 w-4" aria-label="Live map" />
+                        <MapPin className="h-4 w-4" aria-label={t('Live map')} />
                       </DispatchMapButton>
                     ) : null}
                   </li>
                 );
               }) : (
                 <li className="px-2 py-8 text-center text-sm text-muted-foreground">
-                  No activity yet — the feed fills as calls move.
-                </li>
+                  {t('No activity yet — the feed fills as calls move.')}</li>
               )}
             </ul>
           </CardContent>
@@ -311,10 +309,9 @@ export async function DispatchBoard({
         {critical && wait ? (
           <div className="flex flex-col items-center justify-center rounded-xl bg-[#8a6710] p-8 text-center text-white shadow-2xl">
             <Timer className="h-10 w-10" />
-            <p className="mt-4 text-lg font-bold uppercase tracking-wider">Critical wait time</p>
+            <p className="mt-4 text-lg font-bold uppercase tracking-wider">{t('Critical wait time')}</p>
             <p className="mt-1 text-sm text-white/80">
-              Ticket #{critical.incident_number} ({shortCode(critical.incident_type)})
-            </p>
+              {t('Ticket #{value} ({shortCode})', { value: critical.incident_number, shortCode: shortCode(critical.incident_type) })}</p>
             <p className="mt-4 font-mono text-4xl font-bold tabular-nums">
               {wait.d > 0 && <>{wait.d}<span className="text-lg text-white/70">d </span></>}
               {wait.h}<span className="text-lg text-white/70">h </span>
@@ -337,23 +334,20 @@ export async function DispatchBoard({
                 canAssign={canAssign}
                 className="mt-3 inline-flex h-9 items-center gap-2 rounded-full border border-white/60 px-5 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10"
               >
-                <MapPin className="h-3.5 w-3.5" /> Nearest units &amp; routes
-              </DispatchMapButton>
+                <MapPin className="h-3.5 w-3.5" /> {' '}{t('Nearest units & routes')}</DispatchMapButton>
             ) : null}
             <Link
               href={`/incidents/${critical.id}`}
               className="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-white/85 hover:text-white"
             >
-              <Smartphone className="h-3.5 w-3.5" /> Request GPS via SMS
-            </Link>
+              <Smartphone className="h-3.5 w-3.5" /> {' '}{t('Request GPS via SMS')}</Link>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center rounded-xl border border-severity-low/40 bg-severity-low/10 p-8 text-center">
             <CheckCircle2 className="h-10 w-10 text-severity-low-ink" />
-            <p className="mt-4 text-lg font-bold uppercase tracking-wider text-severity-low-ink">Queue clear</p>
+            <p className="mt-4 text-lg font-bold uppercase tracking-wider text-severity-low-ink">{t('Queue clear')}</p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Nothing is waiting for dispatch right now.
-            </p>
+              {t('Nothing is waiting for dispatch right now.')}</p>
           </div>
         )}
       </section>
@@ -363,18 +357,15 @@ export async function DispatchBoard({
         <CardContent className="p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="flex items-center gap-2 text-base font-bold">
-              <MapPin className="h-4 w-4 text-accent" /> Real-Time Incident Map
-            </h2>
+              <MapPin className="h-4 w-4 text-accent" /> {' '}{t('Real-Time Incident Map')}</h2>
             <div className="flex items-center gap-2">
               <Link href="/incidents/map" className="text-xs font-bold uppercase tracking-wider text-accent hover:underline">
-                Open full map
-              </Link>
+                {t('Open full map')}</Link>
               <span className="rounded-md bg-accent px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
                 {sf ?? 'Ethekwini'}
               </span>
               <span className="flex items-center gap-1.5 rounded-md bg-severity-low px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                <span className="live-dot" /> Live
-              </span>
+                <span className="live-dot" /> {' '}{t('Live')}</span>
             </div>
           </div>
           {/* Layers (crime zones, hydrants, weather…) and Full screen for the wall TV sit on the map. */}
@@ -401,48 +392,44 @@ export async function DispatchBoard({
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardContent className="p-6 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Total calls logged</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{t('Total calls logged')}</p>
             <p className="mt-1 text-4xl font-bold">{totalRes.count ?? 0}</p>
             <MiniBars counts={[...perDay.values()]} />
             <p className="mt-2 text-[11px] text-muted-foreground">
-              {perDay.get(today) ?? 0} today · last {volumeDays} days shown
-            </p>
+              {t('{value} today · last {volumeDays} days shown', { value: perDay.get(today) ?? 0, volumeDays })}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Avg response time</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{t('Avg response time')}</p>
             <p className="mt-1 text-4xl font-bold">
-              {avgResponse ?? '—'}{avgResponse !== null ? <span className="text-lg text-muted-foreground"> min</span> : null}
+              {avgResponse ?? '—'}{avgResponse !== null ? <span className="text-lg text-muted-foreground"> {' '}{t('min')}</span> : null}
             </p>
             <Ring value={avgResponse ?? 0} max={settings['sla.response_target_minutes']} />
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Call → on scene today · target {settings['sla.response_target_minutes']} min · dispatch {avgDispatch} min
-            </p>
+              {t('Call → on scene today · target {value} min · dispatch {avgDispatch} min', { value: settings['sla.response_target_minutes'], avgDispatch })}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent className="p-6 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Avg call duration</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{t('Avg call duration')}</p>
             <p className="mt-1 text-4xl font-bold">
-              {avgDuration ?? '—'}{avgDuration !== null ? <span className="text-lg text-muted-foreground"> min</span> : null}
+              {avgDuration ?? '—'}{avgDuration !== null ? <span className="text-lg text-muted-foreground"> {' '}{t('min')}</span> : null}
             </p>
             <Ring value={avgDuration ?? 0} max={settings['sla.call_duration_target_minutes']} />
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Call → closed today · target {settings['sla.call_duration_target_minutes']} min
-            </p>
+              {t('Call → closed today · target {value} min', { value: settings['sla.call_duration_target_minutes'] })}</p>
           </CardContent>
         </Card>
 
         <Card className="border-accent/60">
           <CardContent className="flex flex-col items-center justify-center p-6 text-center">
             <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-accent">
-              <Truck className="h-4 w-4" /> Active units
-            </p>
+              <Truck className="h-4 w-4" /> {' '}{t('Active units')}</p>
             <p className="stat-glow mt-1 text-5xl font-bold text-accent">{kpi.personnelOnDuty}</p>
-            <p className="mt-2 text-xs text-muted-foreground">Live Responders on Duty</p>
+            <p className="mt-2 text-xs text-muted-foreground">{t('Live Responders on Duty')}</p>
           </CardContent>
         </Card>
       </section>

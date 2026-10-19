@@ -1,31 +1,21 @@
-import { listPersonnel } from '@criticom/api';
+import { canAccess } from '@criticom/db';
 import { requireFeaturePage } from '@/lib/features';
-import { getSession, siloFilter } from '@/lib/session';
-import { PttConsole } from './ptt-console';
+import { loadRadioDesk } from '@/lib/radio';
+import { talkChannelsFor } from '@/lib/talk';
+import { getSession } from '@/lib/session';
+import { RadioDesk } from './radio-desk';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'PTT Radio Console · HikTech' };
+export const metadata = { title: 'Radio Desk · HikTech' };
 
-export default async function PttPage() {
+/**
+ * The radio desk: every push-to-talk radio and smart hard hat, as the
+ * person it belongs to, with what its platform says right now. Messages and
+ * recordings for a radio are one click away.
+ */
+export default async function RadioDeskPage() {
   await requireFeaturePage('web.ptt');
-  const { supabase, silo } = await getSession();
-  const personnel = await listPersonnel(supabase, siloFilter(silo));
-
-  return (
-    <div className="space-y-4">
-      <header>
-        <h1 className="text-2xl font-bold">PTT radio console</h1>
-        <p className="text-muted-foreground">
-          Send text-to-radio messages and review recent voice traffic (RealPTT).
-          Unit accounts default to badge numbers.
-        </p>
-      </header>
-      <PttConsole
-        units={personnel.map((p) => ({
-          label: `${p.first_name} ${p.last_name} (${p.badge_number})${p.is_on_duty ? ' · on duty' : ''}`,
-          account: p.badge_number,
-        }))}
-      />
-    </div>
-  );
+  const { supabase, role, silo } = await getSession();
+  const [desk, talk] = await Promise.all([loadRadioDesk(supabase), talkChannelsFor(supabase, { role, silo })]);
+  return <RadioDesk initial={desk} talk={talk} canManage={canAccess('/admin/radios', role, silo)} />;
 }

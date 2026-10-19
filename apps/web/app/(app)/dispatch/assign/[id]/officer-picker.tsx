@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Check, ChevronDown, MapPin, Search, User, X } from 'lucide-react';
 import type { OnDutyOfficer } from '@criticom/api';
 import { cn, timeAgo } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 export type RankedOfficer = {
   officer: OnDutyOfficer;
@@ -20,6 +21,7 @@ const clock = new Intl.DateTimeFormat('en-ZA', {
 });
 
 function OfficerLine({ r, deptLabel }: { r: RankedOfficer; deptLabel: (s: string) => string }) {
+  const { t } = useT();
   const o = r.officer;
   return (
     <span className="min-w-0 flex-1">
@@ -27,10 +29,10 @@ function OfficerLine({ r, deptLabel }: { r: RankedOfficer; deptLabel: (s: string
         <span className="truncate text-sm font-bold">{o.name || 'Officer'}{o.badge ? ` #${o.badge}` : ''}</span>
         {o.activeCalls > 0 ? (
           <span className="shrink-0 rounded bg-severity-high/15 px-1.5 py-0.5 text-[10px] font-bold text-severity-high-ink">
-            {o.activeCalls} INCIDENT{o.activeCalls === 1 ? '' : 'S'}
+            {t('{activeCalls} INCIDENT{value}', { activeCalls: o.activeCalls, value: o.activeCalls === 1 ? '' : 'S' })}
           </span>
         ) : (
-          <span className="shrink-0 rounded bg-severity-low/15 px-1.5 py-0.5 text-[10px] font-bold text-severity-low-ink">AVAILABLE</span>
+          <span className="shrink-0 rounded bg-severity-low/15 px-1.5 py-0.5 text-[10px] font-bold text-severity-low-ink">{t('AVAILABLE')}</span>
         )}
       </span>
       <span className="mt-0.5 block truncate text-xs text-muted-foreground">
@@ -40,16 +42,15 @@ function OfficerLine({ r, deptLabel }: { r: RankedOfficer; deptLabel: (s: string
         {r.km !== null ? (
           <span className="flex items-center gap-1 font-semibold">
             <MapPin className="h-3 w-3 text-accent" />
-            {r.km < 1 ? `${Math.round(r.km * 1000)} m` : `${r.km.toFixed(1)} km`} · ≈{r.minutes} min
-          </span>
+            {t('{value} · ≈{minutes} min', { value: r.km < 1 ? `${Math.round(r.km * 1000)} m` : `${r.km.toFixed(1)} km`, minutes: r.minutes })}</span>
         ) : (
-          <span className="text-muted-foreground">No GPS fix</span>
+          <span className="text-muted-foreground">{t('No GPS fix')}</span>
         )}
         <span className={r.stale ? 'text-severity-medium-ink' : 'text-muted-foreground'}>
-          seen {timeAgo(new Date(Date.now() - r.fixAgeMin * 60_000).toISOString())}
+          {t('seen {timeAgo}', { timeAgo: timeAgo(new Date(Date.now() - r.fixAgeMin * 60_000).toISOString()) })}
         </span>
         {o.onDutySince ? (
-          <span className="text-muted-foreground">on since {clock.format(new Date(o.onDutySince))}</span>
+          <span className="text-muted-foreground">{t('on since {value}', { value: clock.format(new Date(o.onDutySince)) })}</span>
         ) : null}
       </span>
     </span>
@@ -71,6 +72,7 @@ export function OfficerPicker({
   placeholder: string;
   disabled?: boolean;
 }) {
+  const { t } = useT();
   const listId = useId();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -175,7 +177,7 @@ export function OfficerPicker({
           // biome-ignore lint/a11y/useSemanticElements: ARIA combobox list; a <select> cannot filter or show rich rows
           role="listbox"
           tabIndex={-1}
-          aria-label="Officers on duty"
+          aria-label={t('Officers on duty')}
           className="absolute z-30 mt-1 max-h-80 w-full overflow-y-auto rounded-lg border border-border bg-bg-card p-1 shadow-xl"
         >
           {shown.length === 0 ? (
@@ -209,8 +211,7 @@ export function OfficerPicker({
           ))}
           {matches.length > shown.length ? (
             <p className="px-3 py-2 text-center text-xs text-muted-foreground">
-              {matches.length - shown.length} more — keep typing to narrow down.
-            </p>
+              {t('{value} more — keep typing to narrow down.', { value: matches.length - shown.length })}</p>
           ) : null}
         </div>
       ) : null}
@@ -224,7 +225,7 @@ export function OfficerPicker({
           <button
             type="button"
             onClick={() => onSelect(null)}
-            aria-label="Clear selected officer"
+            aria-label={t('Clear selected officer')}
             className="shrink-0 rounded p-1 text-muted-foreground hover:bg-muted hover:text-fg"
           >
             <X className="h-4 w-4" />

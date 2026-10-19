@@ -2,6 +2,7 @@ import type { CriticomClient, Database, Silo, IncidentStatus } from '@criticom/d
 import { cleanSearch } from '../cases/stage';
 import { noteText } from './note';
 import { PARTS, forDepartment, type DepartmentPart } from './parts';
+import { BOARD_STATUSES, toBoardEntry, type BoardEntry, type BoardRow } from './responder-board.ts';
 
 export { noteText } from './note';
 export * from './parts';
@@ -1177,4 +1178,27 @@ export async function signIncidentMedia(client: CriticomClient, paths: string[],
     if (row.path && row.signedUrl) urls.set(row.path, row.signedUrl);
   }
   return urls;
+}
+
+export * from './responder-board.ts';
+
+/**
+ * The Active Responders terminal's calls (V4 Responder → Monitor): every
+ * call with crews out that this person may see, with its crew and each
+ * department's part. Read with their own session: row-level security
+ * decides which calls, crews and parts are in it (incidents, 0068's desk
+ * wall; incident_responders and incident_departments follow the call).
+ */
+export async function listResponderBoard(client: CriticomClient, opts: { limit?: number } = {}): Promise<BoardEntry[]> {
+  const columns = 'id, incident_number, incident_type, incident_category, incident_code, incident_severity, status, silo, '
+    + 'dispatched_silos, caller_name, location_address, call_description, dispatch_time, arrived_timestamp, responding_officer, incident_created_at';
+  const run = (select: string) => client.from('incidents').select(select)
+    .in('status', [...BOARD_STATUSES])
+    .order('dispatch_time', { ascending: false, nullsFirst: false })
+    .limit(Math.min(opts.limit ?? 300, 500));
+  let { data, error } = await run(`${columns}, ${RESPONDERS}, ${PARTS}`);
+  if (noParts(error)) ({ data, error } = await run(`${columns}, ${RESPONDERS}`));
+  if (error) throw error;
+  const now = Date.now();
+  return ((data ?? []) as unknown as BoardRow[]).map((r) => toBoardEntry(r, now));
 }

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/toast';
 import { cancelRequestAction, decideRequestAction } from './actions';
+import { useT } from '@/components/i18n';
 
 /**
  * What the viewer can do with an open request: decide it (a second
@@ -21,6 +22,7 @@ export function RequestDecision({
   /** What approving does, in the button's words: "Approve and send" for an invitation. */
   approveLabel?: string;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -46,19 +48,18 @@ export function RequestDecision({
   };
 
   if (mode === 'about-you') {
-    return <p className="text-sm text-muted-foreground">This request is about your account, so another SystemAdmin decides it.</p>;
+    return <p className="text-sm text-muted-foreground">{t('This request is about your account, so another SystemAdmin decides it.')}</p>;
   }
   if (mode === 'view') {
-    return <p className="text-sm text-muted-foreground">Waiting for a SystemAdmin to decide.</p>;
+    return <p className="text-sm text-muted-foreground">{t('Waiting for a SystemAdmin to decide.')}</p>;
   }
   if (mode === 'withdraw') {
     return (
       <div className="space-y-2">
-        <p className="text-sm text-muted-foreground">You made this request, so a second SystemAdmin decides it. You can withdraw it.</p>
+        <p className="text-sm text-muted-foreground">{t('You made this request, so a second SystemAdmin decides it. You can withdraw it.')}</p>
         <Button variant="outline" size="sm" disabled={pending}
           onClick={() => run(cancelRequestAction, {}, 'Request withdrawn')}>
-          Withdraw request
-        </Button>
+          {t('Withdraw request')}</Button>
         {error ? <p role="alert" className="text-sm text-severity-critical-ink">{error}</p> : null}
       </div>
     );
@@ -70,10 +71,10 @@ export function RequestDecision({
       <Textarea
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        placeholder="Note (required to reject; the requester is told)"
+        placeholder={t('Note (required to reject; the requester is told)')}
         rows={2}
         maxLength={500}
-        aria-label="Decision note"
+        aria-label={t('Decision note')}
       />
       <div className="flex flex-wrap gap-2">
         <Button size="sm" disabled={pending}
@@ -83,8 +84,7 @@ export function RequestDecision({
         <Button size="sm" variant="outline" disabled={pending || !rejectReady}
           className="border-severity-critical/50 text-severity-critical-ink"
           onClick={() => run(decideRequestAction, { approve: 'false', note }, 'Rejected; the requester has been told')}>
-          Reject
-        </Button>
+          {t('Reject')}</Button>
       </div>
       {error ? <p role="alert" className="text-sm text-severity-critical-ink">{error}</p> : null}
     </div>

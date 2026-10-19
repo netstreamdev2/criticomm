@@ -58,28 +58,33 @@ export class ReportPdf {
     return r;
   }
 
-  /** The municipality's crest (on a white tile, so a coloured crest reads on the dark band) and name. */
+  /**
+   * The municipality's crest (on a white tile, so a coloured crest reads on
+   * the dark band) and name; on a police record, the police badge beside it.
+   */
   private async letterhead(brand: PdfBrand) {
     this.brandName = pdfSafe(brand.name);
     const top = this.page.getHeight();
     const right = this.page.getWidth() - this.margin;
     let textRight = right;
-    if (brand.logo) {
+    for (const logo of [brand.logo, brand.police]) {
+      if (!logo) continue;
       try {
-        const img = brand.logo.type === 'png' ? await this.doc.embedPng(brand.logo.bytes) : await this.doc.embedJpg(brand.logo.bytes);
+        const img = logo.type === 'png' ? await this.doc.embedPng(logo.bytes) : await this.doc.embedJpg(logo.bytes);
         const box = 52;
         const scale = Math.min((box - 8) / img.width, (box - 8) / img.height);
         const w = img.width * scale;
         const h = img.height * scale;
-        const x = right - box;
+        const x = textRight - box;
         const y = top - 61;
         this.page.drawRectangle({ x, y, width: box, height: box, color: rgb(1, 1, 1) });
         this.page.drawImage(img, { x: x + (box - w) / 2, y: y + (box - h) / 2, width: w, height: h });
-        textRight = x - 10;
+        textRight = x - 8;
       } catch {
         // A crest that will not embed leaves the name on its own.
       }
     }
+    if (textRight < right) textRight -= 2;
     const size = 8;
     const width = this.bold.widthOfTextAtSize(this.brandName, size);
     this.page.drawText(this.brandName, { x: textRight - width, y: top - 32, size, font: this.bold, color: rgb(0.85, 0.87, 0.92) });
@@ -207,6 +212,81 @@ export class ReportPdf {
     }
     if (part) parts.push(part);
     return parts;
+  }
+
+  /** A row of coloured tiles: a count and what it counts (the totals on a report). */
+  tiles(items: Array<{ label: string; value: string | number; tone: string }>) {
+    if (!items.length) return;
+    const gap = 6;
+    const h = 40;
+    const w = (this.page.getWidth() - this.margin * 2 - gap * (items.length - 1)) / items.length;
+    this.ensure(h + 10);
+    this.y -= h - 10;
+    items.forEach((item, i) => {
+      const x = this.margin + i * (w + gap);
+      this.page.drawRectangle({ x, y: this.y - 4, width: w, height: h, color: rgb(0.97, 0.97, 0.98), borderColor: hex(item.tone), borderWidth: 0.8 });
+      this.page.drawRectangle({ x, y: this.y - 4, width: 3, height: h, color: hex(item.tone) });
+      this.page.drawText(pdfSafe(String(item.value)), { x: x + 9, y: this.y + 16, size: 14, font: this.bold, color: hex(item.tone) });
+      this.page.drawText(pdfSafe(item.label), { x: x + 9, y: this.y + 3, size: 7, font: this.font, color: rgb(0.35, 0.35, 0.4) });
+    });
+    this.y -= 18;
+  }
+
+  /** A horizontal bar per line, in its own colour: a count beside a label. */
+  bars(items: Array<{ label: string; value: number; tone: string }>) {
+    const max = Math.max(1, ...items.map((i) => i.value));
+    const labelW = 150;
+    const barMax = this.page.getWidth() - this.margin * 2 - labelW - 40;
+    for (const item of items) {
+      this.ensure(16);
+      this.page.drawText(pdfSafe(item.label), { x: this.margin, y: this.y, size: 8, font: this.font, color: rgb(0.2, 0.2, 0.25) });
+      const w = Math.max(1, (item.value / max) * barMax);
+      this.page.drawRectangle({ x: this.margin + labelW, y: this.y - 2, width: w, height: 9, color: hex(item.tone) });
+      this.page.drawText(String(item.value), { x: this.margin + labelW + w + 5, y: this.y, size: 8, font: this.bold, color: rgb(0.2, 0.2, 0.25) });
+      this.y -= 15;
+    }
+    this.y -= 4;
+  }
+
+  /**
+   * A table: a header row, then one row per line, each cell cut to its column.
+   * `tone` colours a row's small leading square (the report's form).
+   */
+  table(columns: Array<{ label: string; width: number }>, rows: Array<{ cells: Array<string | null | undefined>; tone?: string }>) {
+    const size = 7.5;
+    const total = columns.reduce((s, c) => s + c.width, 0);
+    const scale = (this.page.getWidth() - this.margin * 2) / total;
+    const widths = columns.map((c) => c.width * scale);
+    const fit = (text: string, w: number) => {
+      let t = pdfSafe(text);
+      if (this.font.widthOfTextAtSize(t, size) <= w - 6) return t;
+      while (t.length > 1 && this.font.widthOfTextAtSize(`${t}...`, size) > w - 6) t = t.slice(0, -1);
+      return `${t}...`;
+    };
+    const head = () => {
+      this.ensure(30);
+      this.page.drawRectangle({ x: this.margin, y: this.y - 4, width: this.page.getWidth() - this.margin * 2, height: 14, color: rgb(0.07, 0.09, 0.15) });
+      let x = this.margin;
+      columns.forEach((c, i) => {
+        this.page.drawText(fit(c.label, widths[i]!), { x: x + 3, y: this.y, size, font: this.bold, color: rgb(1, 1, 1) });
+        x += widths[i]!;
+      });
+      this.y -= 15;
+    };
+    head();
+    rows.forEach((row, r) => {
+      if (this.y - 13 < 50) { this.newPage(); head(); }
+      if (r % 2) this.page.drawRectangle({ x: this.margin, y: this.y - 4, width: this.page.getWidth() - this.margin * 2, height: 13, color: rgb(0.96, 0.96, 0.97) });
+      let x = this.margin;
+      row.cells.forEach((cell, i) => {
+        const lead = i === 0 && row.tone;
+        if (lead) this.page.drawRectangle({ x: x + 2, y: this.y - 1, width: 5, height: 5, color: hex(row.tone!) });
+        this.page.drawText(fit(cell ?? '', widths[i]! - (lead ? 6 : 0)), { x: x + (lead ? 9 : 3), y: this.y, size, font: this.font, color: rgb(0.1, 0.1, 0.12) });
+        x += widths[i]!;
+      });
+      this.y -= 13;
+    });
+    this.y -= 6;
   }
 
   /** Embed a JPEG/PNG image (evidence photos in case reports). */

@@ -6,6 +6,7 @@ import { Film, Video } from 'lucide-react';
 import { BodycamViewer, type BodycamTarget } from '@/components/bodycam/bodycam-viewer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatSaTime } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 export type IncidentBodycamPerson = {
   userId: string;
@@ -30,13 +31,14 @@ export function IncidentBodycamsCard({ incident, people, canWatch, footageCount,
   canFootage: boolean;
   isClosed: boolean;
 }) {
+  const { t } = useT();
   const [watching, setWatching] = useState<BodycamTarget | null>(null);
   const wearing = people.filter((p) => p.bodycam).length;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Body cams on this incident</CardTitle>
+        <CardTitle>{t('Body cams on this incident')}</CardTitle>
         <CardDescription>
           {isClosed
             ? 'The incident is closed: its footage stays available.'
@@ -45,7 +47,7 @@ export function IncidentBodycamsCard({ incident, people, canWatch, footageCount,
       </CardHeader>
       <CardContent className="space-y-3">
         {people.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No officer has responded to this incident yet.</p>
+          <p className="text-sm text-muted-foreground">{t('No officer has responded to this incident yet.')}</p>
         ) : (
           <ul className="divide-y divide-border rounded-lg border border-border">
             {people.map((p) => (
@@ -61,8 +63,7 @@ export function IncidentBodycamsCard({ incident, people, canWatch, footageCount,
                     onClick={() => setWatching({ bodycamId: p.bodycam!.bodycamId, serial: p.bodycam!.serial, officer: p.name })}
                     disabled={watching?.bodycamId === p.bodycam.bodycamId}
                     className="inline-flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground disabled:opacity-40">
-                    <Video className="h-3.5 w-3.5" /> Watch live
-                  </button>
+                    <Video className="h-3.5 w-3.5" /> {' '}{t('Watch live')}</button>
                 ) : null}
               </li>
             ))}

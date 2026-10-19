@@ -7,11 +7,13 @@ import {
   DEPARTMENTS, TIER_LABEL, keyOf, buildMembers, buildForest, type OrgNode,
 } from '@/lib/org';
 import { HierarchyToolbar } from './toolbar';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Department Hierarchy · HikTech' };
 
-function PersonNode({ node }: { node: OrgNode }) {
+async function PersonNode({ node }: { node: OrgNode }) {
+  const { t } = await requestT();
   const m = node.m;
   const initials = m.name.split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase();
   const tierTone = ['border-primary/50', 'border-severity-medium/50', 'border-accent/50', 'border-border'][m.tier];
@@ -31,7 +33,7 @@ function PersonNode({ node }: { node: OrgNode }) {
         <span className="mt-1 line-clamp-1 text-sm font-semibold text-fg">{m.name}</span>
         <span className="line-clamp-1 text-xs text-muted-foreground">{m.rank}</span>
         <span className="text-[11px] uppercase tracking-wide text-muted-foreground/70">
-          {TIER_LABEL[m.tier]}{m.pinned && <span title="Reporting line pinned"> · 📌</span>}
+          {TIER_LABEL[m.tier]}{m.pinned && <span title={t('Reporting line pinned')}> · 📌</span>}
         </span>
       </Link>
       {node.children.length > 0 && (
@@ -48,6 +50,7 @@ export default async function HierarchyPage({
 }: {
   searchParams: Promise<{ dept?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const params = await searchParams;
   const dept = (DEPARTMENTS.find((d) => d.silo === params.dept)?.silo ?? 'MetroPolice') as Exclude<Silo, 'Ethekwini'>;
@@ -75,10 +78,9 @@ export default async function HierarchyPage({
     <div className="space-y-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Department hierarchy</h1>
+          <h1 className="text-2xl font-bold">{t('Department hierarchy')}</h1>
           <p className="text-muted-foreground">
-            Chain of command with reporting lines. Click any member for their HR record; pinned lines override the inferred chain.
-          </p>
+            {t('Chain of command with reporting lines. Click any member for their HR record; pinned lines override the inferred chain.')}</p>
         </div>
         <HierarchyToolbar dept={dept} deptLabel={current.label} />
       </header>
@@ -99,8 +101,8 @@ export default async function HierarchyPage({
 
       <div className="flex flex-wrap gap-6 text-sm">
         <span className="hidden text-lg font-bold print:inline">{current.label} — </span>
-        <span><span className={`text-lg font-bold ${current.accent}`}>{members.length}</span> <span className="text-muted-foreground">members</span></span>
-        <span><span className="text-lg font-bold text-severity-low-ink">{onDuty}</span> <span className="text-muted-foreground">on duty</span></span>
+        <span><span className={`text-lg font-bold ${current.accent}`}>{members.length}</span> <span className="text-muted-foreground">{t('members')}</span></span>
+        <span><span className="text-lg font-bold text-severity-low-ink">{onDuty}</span> <span className="text-muted-foreground">{t('on duty')}</span></span>
       </div>
 
       <Card>
@@ -112,15 +114,15 @@ export default async function HierarchyPage({
               </ul>
             </div>
           ) : (
-            <p className="py-8 text-center text-muted-foreground">No personnel records for this department yet.</p>
+            <p className="py-8 text-center text-muted-foreground">{t('No personnel records for this department yet.')}</p>
           )}
         </CardContent>
       </Card>
 
       <div className="no-print flex flex-wrap gap-4 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-severity-low" /> On duty</span>
-        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-muted-foreground" /> Off duty</span>
-        <span>📌 = pinned reporting line · Border colour = tier (Command · Supervision · Operations · Field)</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-severity-low" /> {' '}{t('On duty')}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-muted-foreground" /> {' '}{t('Off duty')}</span>
+        <span>{t('📌 = pinned reporting line · Border colour = tier (Command · Supervision · Operations · Field)')}</span>
       </div>
     </div>
   );

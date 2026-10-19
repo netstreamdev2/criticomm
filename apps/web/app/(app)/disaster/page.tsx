@@ -9,6 +9,7 @@ import { escapeHtml, formatSaTime, timeAgo } from '@/lib/utils';
 import { periodicUpdateAction } from './actions';
 import { CritiTiles } from '@/components/criti/insight-tiles';
 import { AttendanceNow } from '@/components/schedule/attendance-now';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Disaster Management · HikTech' };
@@ -16,6 +17,7 @@ export const metadata = { title: 'Disaster Management · HikTech' };
 type TimelineEntry = { timestamp: string; text: string };
 
 export default async function DisasterPage() {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const [logs, stocks, postMortems, activeIncidents] = await Promise.all([
     listDisasterLogs(supabase),
@@ -40,16 +42,14 @@ export default async function DisasterPage() {
     <div className="space-y-6">
       <header className="flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Disaster management</h1>
-          <p className="text-muted-foreground">Deployments, periodic updates and after-action reports.</p>
+          <h1 className="text-2xl font-bold">{t('Disaster management')}</h1>
+          <p className="text-muted-foreground">{t('Deployments, periodic updates and after-action reports.')}</p>
         </div>
         <div className="flex gap-2">
           <Link href="/disaster/dispatch" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold">
-            + Dispatch resources
-          </Link>
+            {t('+ Dispatch resources')}</Link>
           <Link href="/disaster/post-mortem" className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm hover:bg-muted">
-            Post-mortems
-          </Link>
+            {t('Post-mortems')}</Link>
         </div>
       </header>
 
@@ -71,14 +71,14 @@ export default async function DisasterPage() {
         ))}
       </section>
       {lowStock.length ? (
-        <p className="text-sm text-severity-medium-ink">{lowStock.length} relief stock item{lowStock.length === 1 ? '' : 's'} running low.</p>
+        <p className="text-sm text-severity-medium-ink">{t('{length} relief stock item{value} running low.', { length: lowStock.length, value: lowStock.length === 1 ? '' : 's' })}</p>
       ) : null}
 
       <section className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Disaster map</CardTitle>
-            <CardDescription>Active disaster-silo incidents.</CardDescription>
+            <CardTitle>{t('Disaster map')}</CardTitle>
+            <CardDescription>{t('Active disaster-silo incidents.')}</CardDescription>
           </CardHeader>
           <CardContent className="p-2">
             <LeafletMap
@@ -97,11 +97,10 @@ export default async function DisasterPage() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Deployment monitor</h2>
+        <h2 className="text-lg font-semibold">{t('Deployment monitor')}</h2>
         {liveLogs.length === 0 && (
           <Card><CardContent className="p-8 text-center text-muted-foreground">
-            No active disaster deployments.
-          </CardContent></Card>
+            {t('No active disaster deployments.')}</CardContent></Card>
         )}
         {liveLogs.map((log) => {
           const updates = (Array.isArray(log.updates) ? log.updates : []) as TimelineEntry[];
@@ -112,20 +111,19 @@ export default async function DisasterPage() {
                   <div>
                     <CardTitle className="font-mono">{log.incident_number}</CardTitle>
                     <CardDescription>
-                      {log.incident_type} · {log.location} · {log.resource_type} deployed {timeAgo(log.dispatch_timestamp)}
+                      {t('{value} · {location} · {value2} deployed {timeAgo}', { value: log.incident_type, location: log.location, value2: log.resource_type, timeAgo: timeAgo(log.dispatch_timestamp) })}
                     </CardDescription>
                   </div>
                   <Link href="/disaster/partners" className="text-sm text-accent hover:underline">
-                    Mutual-aid partners →
-                  </Link>
+                    {t('Mutual-aid partners →')}</Link>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <p>{log.description}</p>
                 <div className="rounded-md border border-border/60 bg-bg-soft p-3">
-                  <p className="mb-2 text-xs uppercase text-muted-foreground">Timeline ({updates.length})</p>
+                  <p className="mb-2 text-xs uppercase text-muted-foreground">{t('Timeline ({length})', { length: updates.length })}</p>
                   <ul className="space-y-1.5">
-                    {updates.length === 0 && <li className="text-muted-foreground">No periodic updates yet.</li>}
+                    {updates.length === 0 && <li className="text-muted-foreground">{t('No periodic updates yet.')}</li>}
                     {[...updates].reverse().map((u, i) => (
                       <li key={i} className="flex gap-3">
                         <span className="shrink-0 font-mono text-xs text-muted-foreground">{formatSaTime(u.timestamp)}</span>
@@ -137,10 +135,10 @@ export default async function DisasterPage() {
                 <form action={periodicUpdateAction} className="flex gap-2">
                   <input type="hidden" name="log_id" value={log.id} />
                   <input
-                    name="text" required placeholder="Log periodic update…"
+                    name="text" required placeholder={t('Log periodic update…')}
                     className="h-10 flex-1 rounded-md border border-border bg-bg-soft px-3 text-sm"
                   />
-                  <button type="submit" className="h-10 rounded-md bg-accent px-4 text-sm font-semibold">Log update</button>
+                  <button type="submit" className="h-10 rounded-md bg-accent px-4 text-sm font-semibold">{t('Log update')}</button>
                 </form>
               </CardContent>
             </Card>

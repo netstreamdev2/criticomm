@@ -8,6 +8,7 @@ import { CritiChat } from '@/components/criti/chat';
 import { CritiMascot } from '@/components/criti/mascot';
 import { CritiTiles } from '@/components/criti/insight-tiles';
 import { ASK_EVENT, COUNT_EVENT, OPEN_EVENT, type DockTab } from '@/components/criti/shared';
+import { useT } from '@/components/i18n';
 
 const STORAGE_KEY = 'criticom:assistant-open';
 
@@ -27,6 +28,7 @@ export function AssistantDock({
   /** Whether the suggestion tiles are switched on for this organisation. */
   tiles?: boolean;
 }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const [wide, setWide] = useState(false);
   const [tab, setTab] = useState<DockTab>('chat');
@@ -89,7 +91,7 @@ export function AssistantDock({
           type="button"
           onClick={() => setOpen(true)}
           aria-label={urgent ? `Open Criti: ${urgent} urgent suggestion${urgent === 1 ? '' : 's'}` : 'Open Criti'}
-          title="Ask Criti  (Ctrl+J)"
+          title={t('Ask Criti  (Ctrl+J)')}
           className="group fixed bottom-4 right-4 z-[65] flex h-16 w-16 items-center justify-center rounded-full border border-border bg-bg-card shadow-2xl transition-transform hover:scale-105 active:scale-95"
         >
           <CritiMascot className="h-14 w-14" />
@@ -99,8 +101,7 @@ export function AssistantDock({
             </span>
           ) : null}
           <span className="pointer-events-none absolute right-16 whitespace-nowrap rounded-lg border border-border bg-bg-card px-3 py-1.5 text-xs font-semibold text-fg opacity-0 shadow-xl transition-opacity group-hover:opacity-100">
-            Ask Criti · Ctrl+J
-          </span>
+            {t('Ask Criti · Ctrl+J')}</span>
         </button>
       )}
 
@@ -109,7 +110,7 @@ export function AssistantDock({
           {/* Scrim only on small screens — on desktop the dock sits beside the work. */}
           <button
             type="button"
-            aria-label="Close Criti"
+            aria-label={t('Close Criti')}
             onClick={() => setOpen(false)}
             className="fixed inset-0 z-[75] cursor-default bg-black/50 backdrop-blur-sm lg:hidden"
           />
@@ -142,7 +143,7 @@ export function AssistantDock({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Close Criti"
+                aria-label={t('Close Criti')}
                 className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-fg"
               >
                 <X className="h-4 w-4" />

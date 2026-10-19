@@ -77,7 +77,7 @@ export async function getLeaveBalances(
     usage.set(key, u);
   }
 
-  return types.map((t) => {
+  return types.filter((t) => t.detail2 !== 'Office').map((t) => {
     const name = t.name ?? '';
     const entitlement = Number(t.detail3) || 0;
     const u = usage.get(name) ?? { taken: 0, pending: 0 };

@@ -14,6 +14,7 @@ import { Modal } from '@/components/ui/modal';
 import { cn, formatSaTime } from '@/lib/utils';
 import { setVehicleStatusAction } from './actions';
 import { VehicleForm } from './vehicle-form';
+import { useT } from '@/components/i18n';
 
 export type FleetFilter = 'current' | 'Available' | 'with-officer' | 'off-road' | 'failed' | 'disc' | 'Decommissioned' | 'all';
 type Disc = 'expired' | 'soon' | 'ok' | null;
@@ -54,6 +55,7 @@ type Dialog = { kind: 'edit' | 'status'; vehicle: FleetRow } | null;
 export function FleetTable({ vehicles, canManage, departments, initialFilter }: {
   vehicles: FleetRow[]; canManage: boolean; departments: Silo[]; initialFilter: FleetFilter;
 }) {
+  const { t } = useT();
   const [filter, setFilter] = useState<FleetFilter>(initialFilter);
   const [q, setQ] = useState('');
   const [dialog, setDialog] = useState<Dialog>(null);
@@ -80,7 +82,7 @@ export function FleetTable({ vehicles, canManage, departments, initialFilter }: 
         ))}
         <div className="relative ml-auto w-full sm:w-64">
           <Search className="pointer-events-none absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" aria-hidden />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Unit, plate, driver, station" aria-label="Search the fleet" className="pl-8" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Unit, plate, driver, station')} aria-label={t('Search the fleet')} className="pl-8" />
         </div>
       </div>
 
@@ -93,15 +95,15 @@ export function FleetTable({ vehicles, canManage, departments, initialFilter }: 
         <table className="w-full min-w-[60rem] text-sm">
           <thead>
             <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <th className="px-3 py-2">Unit</th>
-              <th className="px-3 py-2">Vehicle</th>
-              <th className="px-3 py-2">Plate</th>
-              <th className="px-3 py-2">Station</th>
-              <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2">Driver</th>
-              <th className="px-3 py-2">Last inspection</th>
-              <th className="px-3 py-2">Disc</th>
-              {canManage ? <th className="px-3 py-2"><span className="sr-only">Actions</span></th> : null}
+              <th className="px-3 py-2">{t('Unit')}</th>
+              <th className="px-3 py-2">{t('Vehicle')}</th>
+              <th className="px-3 py-2">{t('Plate')}</th>
+              <th className="px-3 py-2">{t('Station')}</th>
+              <th className="px-3 py-2">{t('Status')}</th>
+              <th className="px-3 py-2">{t('Driver')}</th>
+              <th className="px-3 py-2">{t('Last inspection')}</th>
+              <th className="px-3 py-2">{t('Disc')}</th>
+              {canManage ? <th className="px-3 py-2"><span className="sr-only">{t('Actions')}</span></th> : null}
             </tr>
           </thead>
           <tbody>
@@ -145,8 +147,8 @@ export function FleetTable({ vehicles, canManage, departments, initialFilter }: 
                 {canManage ? (
                   <td className="px-3 py-2">
                     <div className="flex justify-end gap-1.5">
-                      <Button size="sm" variant="outline" onClick={() => setDialog({ kind: 'status', vehicle: v })}>Status</Button>
-                      <Button size="sm" variant="ghost" onClick={() => setDialog({ kind: 'edit', vehicle: v })}>Edit</Button>
+                      <Button size="sm" variant="outline" onClick={() => setDialog({ kind: 'status', vehicle: v })}>{t('Status')}</Button>
+                      <Button size="sm" variant="ghost" onClick={() => setDialog({ kind: 'edit', vehicle: v })}>{t('Edit')}</Button>
                     </div>
                   </td>
                 ) : null}
@@ -188,6 +190,7 @@ const STATUS_HINT: Record<'Available' | 'Maintenance' | 'Out of Service' | 'Deco
 export function VehicleStatusDialog({ vehicle, onClose }: {
   vehicle: Pick<FleetVehicle, 'id' | 'unit_number' | 'name' | 'status' | 'status_note' | 'driver'>; onClose: () => void;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const options = (Object.keys(STATUS_HINT) as Array<keyof typeof STATUS_HINT>).filter((s) => s !== vehicle.status);
   const [status, setStatus] = useState(options[0]!);
@@ -206,15 +209,14 @@ export function VehicleStatusDialog({ vehicle, onClose }: {
 
   return (
     <Modal title={`${vehicle.unit_number} · ${vehicle.name}`} onClose={onClose} busy={busy}>
-      <p className="text-sm text-muted-foreground">Now: <b className="text-fg">{vehicle.status}</b>{vehicle.status_note ? ` (${vehicle.status_note})` : ''}</p>
+      <p className="text-sm text-muted-foreground">{t('Now:')}{' '}<b className="text-fg">{vehicle.status}</b>{vehicle.status_note ? ` (${vehicle.status_note})` : ''}</p>
       {withOfficer ? (
         <p className="rounded-md border border-severity-medium/50 bg-severity-medium/10 px-3 py-2 text-sm">
-          {vehicle.driver ?? 'An officer'} has this vehicle on their shift. Its status can change once they end the shift and hand it back.
-        </p>
+          {t('{value} has this vehicle on their shift. Its status can change once they end the shift and hand it back.', { value: vehicle.driver ?? 'An officer' })}</p>
       ) : (
         <>
           <fieldset className="space-y-2">
-            <legend className="mb-1 text-sm font-semibold">Change to</legend>
+            <legend className="mb-1 text-sm font-semibold">{t('Change to')}</legend>
             {options.map((s) => (
               <label key={s} className={cn('flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2 text-sm', status === s ? 'border-primary bg-primary/5' : 'border-border')}>
                 <input type="radio" name="v-status" checked={status === s} onChange={() => setStatus(s)} className="mt-1 accent-[rgb(var(--c-primary))]" />
@@ -223,7 +225,7 @@ export function VehicleStatusDialog({ vehicle, onClose }: {
             ))}
           </fieldset>
           <div>
-            <Label htmlFor="v-status-reason">Reason (on the vehicle’s record)</Label>
+            <Label htmlFor="v-status-reason">{t('Reason (on the vehicle’s record)')}</Label>
             <Input id="v-status-reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={300} className="mt-1.5"
               placeholder={status === 'Available' ? 'e.g. Brakes replaced, job card 4471' : 'e.g. Brake warning light, booked at the workshop'} />
           </div>

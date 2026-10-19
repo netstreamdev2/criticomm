@@ -218,6 +218,10 @@ export default function RootLayout() {
               options={{ title: t('Fine'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
+              name="talk"
+              options={{ title: t('HikTech Talk'), headerBackTitle: t('Back') }}
+            />
+            <Stack.Screen
               name="alerts"
               options={{ title: t('Alerts'), headerBackTitle: t('Back') }}
             />

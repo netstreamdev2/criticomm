@@ -1,9 +1,28 @@
 import 'server-only';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { getDepartmentBranding } from '@criticom/api';
 import type { CriticomClient } from '@criticom/db';
 
-/** The municipality on a PDF's letterhead: its name, and its crest when one is uploaded. */
-export type PdfBrand = { name: string; logo: { bytes: Uint8Array; type: 'png' | 'jpg' } | null };
+type PdfImage = { bytes: Uint8Array; type: 'png' | 'jpg' };
+
+/**
+ * The municipality on a PDF's letterhead: its name, and its crest when one is
+ * uploaded. `police`: the DMPS badge beside it, on a police record.
+ */
+export type PdfBrand = { name: string; logo: PdfImage | null; police?: PdfImage | null };
+
+let policeBadge: Promise<PdfImage | null> | null = null;
+/** The Durban Metropolitan Police Service badge (public/images/dmps-badge.png), read once. */
+export function loadPoliceBadge(): Promise<PdfImage | null> {
+  policeBadge ??= readFile(path.join(process.cwd(), 'public', 'images', 'dmps-badge.png'))
+    .then((b) => ({ bytes: new Uint8Array(b), type: 'png' as const }))
+    .catch(() => {
+      policeBadge = null; // try again next time
+      return null;
+    });
+  return policeBadge;
+}
 
 /**
  * The municipality the platform serves (the control room's branding row,
@@ -12,7 +31,12 @@ export type PdfBrand = { name: string; logo: { bytes: Uint8Array; type: 'png' | 
  * JPEG, so an SVG or WebP crest leaves the name on its own. Never fails a
  * PDF: with nothing to show, the name alone.
  */
-export async function loadPdfBrand(supabase: CriticomClient): Promise<PdfBrand> {
+export async function loadPdfBrand(supabase: CriticomClient, opts: { police?: boolean } = {}): Promise<PdfBrand> {
+  const brand = await loadMunicipality(supabase);
+  return opts.police ? { ...brand, police: await loadPoliceBadge() } : brand;
+}
+
+async function loadMunicipality(supabase: CriticomClient): Promise<PdfBrand> {
   const row = await getDepartmentBranding(supabase, 'Ethekwini');
   if (!row.logo_path || /\.(svg|webp)$/i.test(row.logo_path)) return { name: row.official_name, logo: null };
   try {

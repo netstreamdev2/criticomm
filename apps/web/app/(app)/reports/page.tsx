@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession, siloFilter } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Reports Archive · HikTech' };
@@ -14,6 +15,7 @@ export default async function ReportsPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, silo } = await getSession();
   const params = await searchParams;
 
@@ -28,30 +30,29 @@ export default async function ReportsPage({
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Reports archive</h1>
+        <h1 className="text-2xl font-bold">{t('Reports archive')}</h1>
         <p className="text-muted-foreground">
-          Closed and resolved incidents. Open one to review its lifecycle and evidence.
-        </p>
+          {t('Closed and resolved incidents. Open one to review its lifecycle and evidence.')}</p>
       </header>
 
       <form method="get" className="flex items-end gap-3">
         <input
           name="q" defaultValue={params.q}
-          placeholder="Search incident #, caller, address…"
+          placeholder={t('Search incident #, caller, address…')}
           className="h-10 w-72 rounded-md border border-border bg-bg-soft px-3 text-sm"
         />
-        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Search</button>
+        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Search')}</button>
       </form>
 
       <Card>
         <CardHeader>
-          <CardTitle>{archive.length} archived reports</CardTitle>
-          <CardDescription>Case-manager PDF export lands with the Edge Function phase.</CardDescription>
+          <CardTitle>{t('{length} archived reports', { length: archive.length })}</CardTitle>
+          <CardDescription>{t('Case-manager PDF export lands with the Edge Function phase.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['Incident #', 'Silo', 'Type', 'Severity', 'Closed', '']}
-            empty="No archived reports yet."
+            empty={t('No archived reports yet.')}
           >
             {archive.map((i) => (
               <Tr key={i.id}>
@@ -60,7 +61,7 @@ export default async function ReportsPage({
                 <Td>{i.incident_type}</Td>
                 <Td><span className="severity-pill" data-sev={i.incident_severity}>{i.incident_severity}</span></Td>
                 <Td className="text-muted-foreground">{formatSaTime(i.closed_at)}</Td>
-                <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">Open</Link></Td>
+                <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">{t('Open')}</Link></Td>
               </Tr>
             ))}
           </SimpleTable>

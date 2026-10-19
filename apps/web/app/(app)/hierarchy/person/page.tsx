@@ -12,6 +12,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { buildMembers, keyOf } from '@/lib/org';
 import { setReportsToAction } from './actions';
+import { requestT } from '@/lib/i18n';
 
 const CAN_EDIT = new Set([...ADMIN_ROLES, 'Supervisor', 'Captain', 'FireChief']);
 
@@ -33,6 +34,7 @@ export default async function PersonPage({
 }: {
   searchParams: Promise<{ kind?: string; id?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, role } = await getSession();
   const { kind, id } = await searchParams;
   if (!id || (kind !== 'user' && kind !== 'staff')) notFound();
@@ -112,8 +114,7 @@ export default async function PersonPage({
   return (
     <div className="space-y-6">
       <Link href="/hierarchy" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-fg">
-        <ArrowLeft className="h-4 w-4" /> Back to hierarchy
-      </Link>
+        <ArrowLeft className="h-4 w-4" /> {' '}{t('Back to hierarchy')}</Link>
 
       <header className="flex flex-wrap items-center gap-4">
         <span className="relative flex h-16 w-16 items-center justify-center rounded-full bg-accent/15 text-2xl font-bold text-accent">
@@ -129,8 +130,8 @@ export default async function PersonPage({
       {canEdit && (
         <Card>
           <CardHeader>
-            <CardTitle>Reporting line</CardTitle>
-            <CardDescription>Pin who this member reports to, or leave it automatic (inferred from rank).</CardDescription>
+            <CardTitle>{t('Reporting line')}</CardTitle>
+            <CardDescription>{t('Pin who this member reports to, or leave it automatic (inferred from rank).')}</CardDescription>
           </CardHeader>
           <CardContent>
             <form action={setReportsToAction} className="flex flex-wrap items-end gap-2">
@@ -138,50 +139,50 @@ export default async function PersonPage({
               <input type="hidden" name="member_kind" value={kind} />
               <input type="hidden" name="member_id" value={id} />
               <div className="min-w-[260px] flex-1">
-                <label className="text-xs uppercase text-muted-foreground" htmlFor="choice">Reports to</label>
+                <label className="text-xs uppercase text-muted-foreground" htmlFor="choice">{t('Reports to')}</label>
                 <select id="choice" name="choice" defaultValue={reportsToChoice} className="mt-1 block h-10 w-full rounded-md border border-border bg-bg-soft px-3 text-sm">
-                  <option value="auto">Automatic (inferred from rank)</option>
-                  <option value="top">— Top of chain (no manager) —</option>
+                  <option value="auto">{t('Automatic (inferred from rank)')}</option>
+                  <option value="top">{t('— Top of chain (no manager) —')}</option>
                   {managerOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
-              <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Save reporting line</button>
+              <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Save reporting line')}</button>
             </form>
           </CardContent>
         </Card>
       )}
 
       <Card>
-        <CardHeader><CardTitle>Identity & posting</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('Identity & posting')}</CardTitle></CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3">
-          <Item label="Badge number" value={badge} />
-          <Item label="Service number" value={serviceNo} />
-          <Item label="Force number" value={forceNo} />
-          <Item label="Call sign" value={callSign} />
-          <Item label="Station" value={station} />
-          <Item label="Platoon" value={platoon} />
-          <Item label="Unit" value={unit} />
-          <Item label="Assigned vehicle" value={assignedUnit} />
-          <Item label="Contact" value={contact} />
-          <Item label="Email" value={email} />
-          <Item label="Emergency contact" value={emergency} />
+          <Item label={t('Badge number')} value={badge} />
+          <Item label={t('Service number')} value={serviceNo} />
+          <Item label={t('Force number')} value={forceNo} />
+          <Item label={t('Call sign')} value={callSign} />
+          <Item label={t('Station')} value={station} />
+          <Item label={t('Platoon')} value={platoon} />
+          <Item label={t('Unit')} value={unit} />
+          <Item label={t('Assigned vehicle')} value={assignedUnit} />
+          <Item label={t('Contact')} value={contact} />
+          <Item label={t('Email')} value={email} />
+          <Item label={t('Emergency contact')} value={emergency} />
         </CardContent>
       </Card>
 
       {planRow && (
         <Card>
           <CardHeader>
-            <CardTitle>Performance appraisal — {cycleLabel(cycleYear)}</CardTitle>
-            <CardDescription>Status {planRow.status}. Mid-year average {midAvg ?? '—'} / 5.</CardDescription>
+            <CardTitle>{t('Performance appraisal — {cycleLabel}', { cycleLabel: cycleLabel(cycleYear) })}</CardTitle>
+            <CardDescription>{t('Status {status}. Mid-year average {value} / 5.', { status: planRow.status, value: midAvg ?? '—' })}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['KPI', 'Stage', 'Score', 'Approved']} empty="No scores recorded.">
+            <SimpleTable headers={['KPI', 'Stage', 'Score', 'Approved']} empty={t('No scores recorded.')}>
               {scores.map((s) => (
                 <Tr key={s.id}>
                   <Td className="font-semibold">{s.kpi_title}</Td>
                   <Td>{s.stage}</Td>
                   <Td className="font-mono">{s.score}/5</Td>
-                  <Td>{s.approved ? <span className="text-severity-low-ink">Yes</span> : 'Pending'}</Td>
+                  <Td>{s.approved ? <span className="text-severity-low-ink">{t('Yes')}</span> : 'Pending'}</Td>
                 </Tr>
               ))}
             </SimpleTable>
@@ -191,15 +192,15 @@ export default async function PersonPage({
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHeader><CardTitle>Endorsements ({endorsements.length})</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('Endorsements ({length})', { length: endorsements.length })}</CardTitle></CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Type', 'Details', 'Period', 'Active']} empty="No endorsements.">
+            <SimpleTable headers={['Type', 'Details', 'Period', 'Active']} empty={t('No endorsements.')}>
               {endorsements.map((e) => (
                 <Tr key={e.id}>
                   <Td className="font-semibold">{e.type}</Td>
                   <Td className="max-w-[180px] truncate">{e.details ?? '—'}</Td>
                   <Td className="font-mono text-xs">{e.start_date}{e.end_date ? ` → ${e.end_date}` : ' →'}</Td>
-                  <Td>{e.is_active ? <span className="text-severity-low-ink">Yes</span> : 'No'}</Td>
+                  <Td>{e.is_active ? <span className="text-severity-low-ink">{t('Yes')}</span> : 'No'}</Td>
                 </Tr>
               ))}
             </SimpleTable>
@@ -207,9 +208,9 @@ export default async function PersonPage({
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>Leave ({leave.length})</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('Leave ({length})', { length: leave.length })}</CardTitle></CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Type', 'From', 'To', 'Status']} empty="No leave records.">
+            <SimpleTable headers={['Type', 'From', 'To', 'Status']} empty={t('No leave records.')}>
               {leave.map((l) => (
                 <Tr key={l.id}>
                   <Td>{l.absence ?? '—'}</Td>
@@ -225,9 +226,9 @@ export default async function PersonPage({
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>Training ({training.length})</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('Training ({length})', { length: training.length })}</CardTitle></CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Training', 'Completed', 'Notes']} empty="No training records.">
+            <SimpleTable headers={['Training', 'Completed', 'Notes']} empty={t('No training records.')}>
               {training.map((t) => (
                 <Tr key={t.id}>
                   <Td className="font-semibold">{t.training_name}</Td>
@@ -240,9 +241,9 @@ export default async function PersonPage({
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>Certifications ({certs.length})</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('Certifications ({length})', { length: certs.length })}</CardTitle></CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Certification', 'Issued by', 'Expires']} empty="No certifications.">
+            <SimpleTable headers={['Certification', 'Issued by', 'Expires']} empty={t('No certifications.')}>
               {certs.map((c) => (
                 <Tr key={c.id}>
                   <Td className="font-semibold">{c.name}</Td>

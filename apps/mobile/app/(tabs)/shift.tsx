@@ -22,7 +22,7 @@ import {
 } from '@/lib/inspection-187c';
 import { exportShiftCsv, exportShiftPdf, printShiftReport, uploadShiftPhoto } from '@/lib/shift-files';
 import { Banner, Button, Card, Input, Muted, Stepper, Title } from '@/components/ui';
-import { HikTechLogo } from '@/components/hiktech-logo';
+import { BrandMarks } from '@/components/police-badge';
 import { CrestHeader, PaperButton, Sheet, paper } from '@/components/shift-form';
 import {
   InspectionSheet, emptyInspection, inspectionTabError, type InspectionForm,
@@ -589,7 +589,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
       {gated ? (
         <View style={styles.gateHeader}>
           <View style={{ gap: 4 }}>
-            <HikTechLogo height={14} />
+            <BrandMarks height={14} />
             <Text style={styles.gateEyebrow}>{t('START OF SHIFT')}</Text>
           </View>
           <Button label={t('Sign out')} variant="subtle" size="sm" disabled={busy} onPress={signOut} />

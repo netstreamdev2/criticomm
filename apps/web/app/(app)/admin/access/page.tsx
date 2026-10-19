@@ -8,6 +8,8 @@ import { getSession } from '@/lib/session';
 import { getServiceSupabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { setModuleAccessAction } from './actions';
+import { requestT } from '@/lib/i18n';
+import { T } from '@/components/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Access Control · HikTech' };
@@ -30,6 +32,7 @@ export default async function AccessControlPage({
 }: {
   searchParams: Promise<{ tenant?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, role } = await getSession();
   if (role !== 'SuperAdmin') redirect('/dashboard');
 
@@ -51,12 +54,9 @@ export default async function AccessControlPage({
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Access Control</h1>
+        <h1 className="text-2xl font-bold">{t('Access Control')}</h1>
         <p className="text-muted-foreground">
-          What each tenant&apos;s portal offers, module by module — hide one for the whole organisation
-          or deny it to specific roles. Rules only ever subtract from the built-in role matrix, and
-          take effect everywhere within a minute.
-        </p>
+          {t('What each tenant\'s portal offers, module by module — hide one for the whole organisation or deny it to specific roles. Rules only ever subtract from the built-in role matrix, and take effect everywhere within a minute.')}</p>
       </header>
 
       <div className="flex flex-wrap gap-2">
@@ -72,7 +72,7 @@ export default async function AccessControlPage({
             )}
           >
             {t.name}
-            {!t.active && <span className="ml-2 text-[10px] uppercase text-muted-foreground">inactive</span>}
+            {!t.active && <span className="ml-2 text-[10px] uppercase text-muted-foreground"><T s="inactive" /></span>}
           </Link>
         ))}
       </div>
@@ -82,7 +82,7 @@ export default async function AccessControlPage({
           <CardHeader>
             <CardTitle>{g.label}</CardTitle>
             {g.id === 'overview' && (
-              <CardDescription>The command dashboard&apos;s launcher honours these rules too.</CardDescription>
+              <CardDescription>{t('The command dashboard\'s launcher honours these rules too.')}</CardDescription>
             )}
           </CardHeader>
           <CardContent className="divide-y divide-border p-0">
@@ -134,8 +134,7 @@ export default async function AccessControlPage({
                           ))}
                         </select>
                         <button type="submit" className="h-8 rounded-md bg-muted px-2.5 text-xs font-semibold hover:bg-severity-critical/20">
-                          Deny role
-                        </button>
+                          {t('Deny role')}</button>
                       </form>
                     )}
 

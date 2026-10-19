@@ -16,7 +16,10 @@
     "./rollup": "./src/performance/rollup.ts",
     "./cases": "./src/cases/stage.ts",
     "./criti": "./src/criti/index.ts",
-    "./schedule": "./src/schedule/index.ts"
+    "./schedule": "./src/schedule/index.ts",
+    "./radio": "./src/radio/index.ts",
+    "./talk": "./src/radio/talk-session.ts",
+    "./responder-board": "./src/incidents/responder-board.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -25,10 +28,11 @@
   },
   "dependencies": {
     "@criticom/db": "workspace:*",
+    "livekit-client": "2.23.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "typescript": "^5.6.3",
-    "@criticom/config": "workspace:*"
+    "@criticom/config": "workspace:*",
+    "typescript": "^5.6.3"
   }
 }

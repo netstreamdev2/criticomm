@@ -18,3 +18,13 @@ export function I18nProvider({ lang, dict, children }: { lang: LangCode; dict: D
 export function useT(): Value {
   return useContext(I18n);
 }
+
+/**
+ * A sentence in a component that runs on the server and in the browser
+ * alike, where neither the hook nor the server translator fits: the
+ * sentence in the s prop, any {name} in it as a prop of its own.
+ */
+export function T({ s, ...vars }: { s: string } & Record<string, string | number | null | undefined>) {
+  const { t } = useT();
+  return <>{t(s, vars)}</>;
+}

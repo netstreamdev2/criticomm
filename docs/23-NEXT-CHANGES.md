@@ -98,7 +98,7 @@ list. Ours reads the same list in both apps and works offline.
 | 1 | The word list, the checks, the language picker and the profile setting. English only. | Us | The picker, with English only | Done (migration 0078) |
 | 2 | Move the phone app's wording into the word list. | Us | No change | Done |
 | 3 | Draft isiZulu and Afrikaans, translators check them, and ship to the phones. | Us, translators | isiZulu and Afrikaans on the phone | Ready to start |
-| 4 | Move the console's wording into the word list. | Us | No change | Started: the call logger |
+| 4 | Move the console's wording into the word list. | Us | No change | Done: every signed-in console screen and the menu (5,720 sentences in all) |
 | 5 | Console in isiZulu and Afrikaans. | Translators | Console in 3 languages | |
 | 6 | The other eight languages, as the translators finish each one. | Translators | One language at a time | |
 | 7 | Admin lists, the guides, and messages sent by push and SMS. | Us, translators | Yes | |
@@ -106,6 +106,31 @@ list. Ours reads the same list in both apps and works offline.
 The coding is steps 1, 2 and 4: moving a few thousand sentences out of the
 screens. The translation itself is the longest part, and it runs alongside
 the coding.
+
+### How the console is wired (step 4)
+
+- **Browser screens** (`'use client'`): `const { t } = useT();` in the component.
+- **Server screens:** `const { t } = await requestT();` (`lib/i18n.ts`), the
+  person's translator, read once per request.
+- **Components used by both:** `<T s="…" />`, with any `{name}` as its own prop
+  (`components/i18n.tsx`).
+- **The menu:** its labels stay in `lib/nav.ts` and `sidebar.tsx`, are
+  translated where the menu is built, and are read into the word list from
+  those two files.
+- **A value inside a sentence** (`{count} calls`) is part of the sentence when
+  it is plain text or a number. Otherwise the text either side is its own
+  sentence.
+
+**Still in English, by design:**
+- the public website and the invitation sign-up (no signed-in person, so no
+  language);
+- the loading screens (they must show at once) and the "not configured"
+  screen;
+- page titles in the browser tab;
+- wording kept in data lists outside the menu (some tiles and chips);
+- messages the database sends back, such as refusal reasons.
+
+Those lists can be moved over one at a time with `tx('…')`.
 
 ### Where things are
 

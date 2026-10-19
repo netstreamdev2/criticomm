@@ -5,6 +5,7 @@ import { canIssueFines } from '@criticom/db';
 import { requireFeaturePage } from '@/lib/features';
 import { getSession } from '@/lib/session';
 import { CaptureForm } from './capture-form';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Capture a notice · HikTech' };
@@ -15,6 +16,7 @@ export const metadata = { title: 'Capture a notice · HikTech' };
  * not to hand, so it reaches the register with its printed number.
  */
 export default async function CaptureFinePage() {
+  const { t } = await requestT();
   await requireFeaturePage('web.enforcement');
   const { supabase, role, silo } = await getSession();
   if (!canIssueFines({ role, silo })) redirect('/police/fines');
@@ -22,14 +24,12 @@ export default async function CaptureFinePage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-5">
-      <Link href="/police/fines" className="text-sm font-semibold text-muted-foreground hover:text-fg">← Fines register</Link>
+      <Link href="/police/fines" className="text-sm font-semibold text-muted-foreground hover:text-fg">{t('← Fines register')}</Link>
       <header>
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">Metro Police · Enforcement</p>
-        <h1 className="mt-1 text-2xl font-bold">Capture a paper notice</h1>
+        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">{t('Metro Police · Enforcement')}</p>
+        <h1 className="mt-1 text-2xl font-bold">{t('Capture a paper notice')}</h1>
         <p className="text-sm text-muted-foreground">
-          For a notice written in a notice book. Copy it exactly as written, with the printed notice number. Notices at
-          the roadside are issued on the phone, where the infringer signs.
-        </p>
+          {t('For a notice written in a notice book. Copy it exactly as written, with the printed notice number. Notices at the roadside are issued on the phone, where the infringer signs.')}</p>
       </header>
       <CaptureForm offences={offences} />
     </div>

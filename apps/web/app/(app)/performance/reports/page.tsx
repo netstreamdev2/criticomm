@@ -6,6 +6,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { PerfNav } from '../perf-nav';
 import { getSession, siloFilter } from '@/lib/session';
 import { cn } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Performance Reports · HikTech' };
@@ -30,6 +31,7 @@ export default async function PerformanceReportsPage({
 }: {
   searchParams: Promise<{ from?: string; to?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, silo } = await getSession();
   const sf = siloFilter(silo);
 
@@ -49,10 +51,9 @@ export default async function PerformanceReportsPage({
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Performance reports</h1>
+        <h1 className="text-2xl font-bold">{t('Performance reports')}</h1>
         <p className="text-muted-foreground">
-          The same window cut three ways — by member, by department, by incident type.
-        </p>
+          {t('The same window cut three ways — by member, by department, by incident type.')}</p>
       </header>
 
       <PerfNav active="/performance/reports" />
@@ -60,16 +61,16 @@ export default async function PerformanceReportsPage({
       {/* ── Range picker (plain GET form — no client JS needed) ── */}
       <form className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-bg-card p-4">
         <div>
-          <label htmlFor="from" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">From</label>
+          <label htmlFor="from" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('From')}</label>
           <input id="from" name="from" type="date" defaultValue={from} max={to}
             className="h-10 rounded-lg border border-border bg-bg-soft px-3 text-sm focus:border-accent focus:outline-none" />
         </div>
         <div>
-          <label htmlFor="to" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">To</label>
+          <label htmlFor="to" className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{t('To')}</label>
           <input id="to" name="to" type="date" defaultValue={to} max={today}
             className="h-10 rounded-lg border border-border bg-bg-soft px-3 text-sm focus:border-accent focus:outline-none" />
         </div>
-        <button type="submit" className="h-10 rounded-lg bg-primary px-5 text-sm font-semibold">Run</button>
+        <button type="submit" className="h-10 rounded-lg bg-primary px-5 text-sm font-semibold">{t('Run')}</button>
         <p className="ml-auto text-xs text-muted-foreground">
           {from} → {to}{sf ? ` · ${sf}` : ' · all departments'}
         </p>
@@ -79,10 +80,9 @@ export default async function PerformanceReportsPage({
       <Card>
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div>
-            <CardTitle>By member</CardTitle>
+            <CardTitle>{t('By member')}</CardTitle>
             <CardDescription>
-              Attribution from the incident log: calls taken, dispatches made, responses run.
-            </CardDescription>
+              {t('Attribution from the incident log: calls taken, dispatches made, responses run.')}</CardDescription>
           </div>
           <Link href={csv('member')} className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted">
             <Download className="h-3.5 w-3.5" /> CSV
@@ -91,7 +91,7 @@ export default async function PerformanceReportsPage({
         <CardContent className="p-0">
           <SimpleTable
             headers={['Member', 'Calls taken', 'Dispatches', 'Responded', 'Closed', 'Avg close', 'Leave days']}
-            empty="No attributed activity in this window."
+            empty={t('No attributed activity in this window.')}
           >
             {report.members.slice(0, 25).map((r) => (
               <Tr key={r.name}>
@@ -112,8 +112,8 @@ export default async function PerformanceReportsPage({
       <Card>
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div>
-            <CardTitle>By department</CardTitle>
-            <CardDescription>Volume, closure, staffing and leave burden side by side.</CardDescription>
+            <CardTitle>{t('By department')}</CardTitle>
+            <CardDescription>{t('Volume, closure, staffing and leave burden side by side.')}</CardDescription>
           </div>
           <Link href={csv('department')} className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted">
             <Download className="h-3.5 w-3.5" /> CSV
@@ -122,7 +122,7 @@ export default async function PerformanceReportsPage({
         <CardContent className="p-0">
           <SimpleTable
             headers={['Department', 'Incidents', 'Closed', 'Closure', 'Critical', 'Avg close', 'Headcount', 'On duty', 'Leave days']}
-            empty="No incidents in this window."
+            empty={t('No incidents in this window.')}
           >
             {report.departments.map((r) => (
               <Tr key={r.silo}>
@@ -149,8 +149,8 @@ export default async function PerformanceReportsPage({
       <Card>
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div>
-            <CardTitle>By incident type</CardTitle>
-            <CardDescription>What the city is actually calling about, and how it resolves.</CardDescription>
+            <CardTitle>{t('By incident type')}</CardTitle>
+            <CardDescription>{t('What the city is actually calling about, and how it resolves.')}</CardDescription>
           </div>
           <Link href={csv('incident')} className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted">
             <Download className="h-3.5 w-3.5" /> CSV
@@ -159,7 +159,7 @@ export default async function PerformanceReportsPage({
         <CardContent className="p-0">
           <SimpleTable
             headers={['Type', 'Total', 'Low', 'Med', 'High', 'Critical', 'Closed', 'Avg close']}
-            empty="No incidents in this window."
+            empty={t('No incidents in this window.')}
           >
             {report.incidentTypes.map((r) => (
               <Tr key={r.type}>

@@ -5,11 +5,13 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { resolveSecurityReportAction } from './actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Security Reports · HikTech' };
 
 export default async function SecurityReportsPage() {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const reports = await listSecurityReports(supabase);
   const open = reports.filter((r) => !r.is_incident_resolved);
@@ -18,25 +20,23 @@ export default async function SecurityReportsPage() {
     <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Private security reports</h1>
+          <h1 className="text-2xl font-bold">{t('Private security reports')}</h1>
           <p className="text-muted-foreground">
-            Guard incident register (SIRA) — {open.length} unresolved.
-          </p>
+            {t('Guard incident register (SIRA) — {length} unresolved.', { length: open.length })}</p>
         </div>
         <Link href="/police/security/new" className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold">
-          + New guard report
-        </Link>
+          {t('+ New guard report')}</Link>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>{reports.length} reports</CardTitle>
-          <CardDescription>Emergency-flagged rows are highlighted. Resolve inline once handled.</CardDescription>
+          <CardTitle>{t('{length} reports', { length: reports.length })}</CardTitle>
+          <CardDescription>{t('Emergency-flagged rows are highlighted. Resolve inline once handled.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['Guard', 'Type', 'Location', 'Started', 'Severity', 'Status']}
-            empty="No security reports filed."
+            empty={t('No security reports filed.')}
           >
             {reports.map((r) => (
               <Tr key={r.id}>
@@ -54,17 +54,16 @@ export default async function SecurityReportsPage() {
                 <Td>{r.severity_level ?? '—'}</Td>
                 <Td>
                   {r.is_incident_resolved ? (
-                    <span className="text-severity-low-ink">Resolved {formatSaTime(r.resolution_time)}</span>
+                    <span className="text-severity-low-ink">{t('Resolved {saTime}', { saTime: formatSaTime(r.resolution_time) })}</span>
                   ) : (
                     <form action={resolveSecurityReportAction} className="flex items-center gap-2">
                       <input type="hidden" name="id" value={r.id} />
                       <input
-                        name="resolution_summary" placeholder="Resolution…"
+                        name="resolution_summary" placeholder={t('Resolution…')}
                         className="h-8 w-40 rounded-md border border-border bg-bg-soft px-2 text-xs"
                       />
                       <button type="submit" className="h-8 rounded-md bg-accent px-3 text-xs font-semibold">
-                        Resolve
-                      </button>
+                        {t('Resolve')}</button>
                     </form>
                   )}
                 </Td>

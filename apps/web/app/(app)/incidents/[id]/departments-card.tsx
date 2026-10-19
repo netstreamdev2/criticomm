@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { formatSaTime } from '@/lib/utils';
 import { StandDown, StatusOverride } from './case-forms';
 import { CloseOnSceneButton } from './radio/close-button';
+import { requestT } from '@/lib/i18n';
 
 const AT_SCENE = ['Arrived', 'On Scene', 'Transporting'];
 
@@ -17,7 +18,7 @@ const AT_SCENE = ['Arrived', 'On Scene', 'Transporting'];
  * it, where its crew is, and whether its report is in. Each department acts
  * on its own part only; the database has the final word.
  */
-export function DepartmentsCard({
+export async function DepartmentsCard({
   incidentId, incidentSilo, parts, role, silo, live, caseClosed = false,
 }: {
   incidentId: string;
@@ -30,13 +31,14 @@ export function DepartmentsCard({
   /** Case review has closed it: nothing more to file or close. */
   caseClosed?: boolean;
 }) {
+  const { t } = await requestT();
   const open = parts.filter((p) => partOpen(p.status)).length;
   // Filed and not yet closed on scene by their lead (0074).
   const toClose = sortParts(parts).filter((p) => p.status === 'Resolved' && !p.closed_at).map((p) => DEPARTMENT_NAMES[p.silo]);
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Departments on this call</CardTitle>
+        <CardTitle>{t('Departments on this call')}</CardTitle>
         <CardDescription>
           {open > 0
             ? `Each department dispatches, works and reports its own part. The call is resolved when all ${parts.length} have finished.`
@@ -73,25 +75,25 @@ export function DepartmentsCard({
                 </div>
                 <dl className="grid gap-x-4 gap-y-1 text-xs text-muted-foreground sm:grid-cols-2">
                   {p.dispatched_at ? (
-                    <div><dt className="inline">Dispatched </dt><dd className="inline">{formatSaTime(p.dispatched_at)}{p.dispatched_by_name ? ` by ${p.dispatched_by_name}` : ''}</dd></div>
+                    <div><dt className="inline">{t('Dispatched')}{' '}</dt><dd className="inline">{formatSaTime(p.dispatched_at)}{p.dispatched_by_name ? ` by ${p.dispatched_by_name}` : ''}</dd></div>
                   ) : null}
                   {p.lead_name ? (
-                    <div><dt className="inline">Lead </dt><dd className="inline">{p.lead_name}{p.accepted_at ? ` · ${formatSaTime(p.accepted_at)}` : ''}</dd></div>
+                    <div><dt className="inline">{t('Lead')}{' '}</dt><dd className="inline">{p.lead_name}{p.accepted_at ? ` · ${formatSaTime(p.accepted_at)}` : ''}</dd></div>
                   ) : null}
-                  {p.arrived_at ? <div><dt className="inline">On scene </dt><dd className="inline">{formatSaTime(p.arrived_at)}</dd></div> : null}
-                  {p.report_filed_at ? <div><dt className="inline">Report filed </dt><dd className="inline">{formatSaTime(p.report_filed_at)}</dd></div> : null}
+                  {p.arrived_at ? <div><dt className="inline">{t('On scene')}{' '}</dt><dd className="inline">{formatSaTime(p.arrived_at)}</dd></div> : null}
+                  {p.report_filed_at ? <div><dt className="inline">{t('Report filed')}{' '}</dt><dd className="inline">{formatSaTime(p.report_filed_at)}</dd></div> : null}
                   {p.closed_at ? (
-                    <div><dt className="inline">Closed on scene </dt><dd className="inline">{formatSaTime(p.closed_at)}{p.closed_by_name ? ` by ${p.closed_by_name}` : ''}</dd></div>
+                    <div><dt className="inline">{t('Closed on scene')}{' '}</dt><dd className="inline">{formatSaTime(p.closed_at)}{p.closed_by_name ? ` by ${p.closed_by_name}` : ''}</dd></div>
                   ) : null}
                   {p.close_note ? (
-                    <div className="sm:col-span-2"><dt className="inline">Closing note </dt><dd className="inline">{p.close_note}</dd></div>
+                    <div className="sm:col-span-2"><dt className="inline">{t('Closing note')}{' '}</dt><dd className="inline">{p.close_note}</dd></div>
                   ) : null}
                   {p.finish_reason && p.status !== 'Resolved' ? (
-                    <div className="sm:col-span-2"><dt className="inline">Why </dt><dd className="inline">{p.finish_reason}{p.finished_by_name ? ` (${p.finished_by_name})` : ''}</dd></div>
+                    <div className="sm:col-span-2"><dt className="inline">{t('Why')}{' '}</dt><dd className="inline">{p.finish_reason}{p.finished_by_name ? ` (${p.finished_by_name})` : ''}</dd></div>
                   ) : null}
                 </dl>
                 {p.radio_filed_by_name ? (
-                  <p className="text-xs text-muted-foreground">Filed from the desk by {p.radio_filed_by_name}{p.radioed_by_name ? `, as radioed in by ${p.radioed_by_name}` : ''}.</p>
+                  <p className="text-xs text-muted-foreground">{t('Filed from the desk by {value}{value2}.', { value: p.radio_filed_by_name, value2: p.radioed_by_name ? `, as radioed in by ${p.radioed_by_name}` : '' })}</p>
                 ) : null}
                 {mayDispatch || mayMark || mayStandDown || mayFileByRadio || mayCloseForCrew ? (
                   <div className="flex flex-wrap items-start gap-3">
@@ -105,8 +107,7 @@ export function DepartmentsCard({
                     ) : null}
                     {mayFileByRadio ? (
                       <Link href={`/incidents/${incidentId}/radio?dept=${p.silo}`} className="inline-flex h-8 items-center gap-1.5 rounded-md border border-accent/50 px-3 text-xs font-semibold text-accent hover:bg-accent/10">
-                        <Radio className="h-3.5 w-3.5" aria-hidden /> Report by radio
-                      </Link>
+                        <Radio className="h-3.5 w-3.5" aria-hidden /> {' '}{t('Report by radio')}</Link>
                     ) : null}
                     {mayCloseForCrew ? <CloseOnSceneButton incidentId={incidentId} silo={p.silo} label={DEPARTMENT_NAMES[p.silo]} /> : null}
                     {mayStandDown ? <StandDown incidentId={incidentId} department={p.silo} label={DEPARTMENT_NAMES[p.silo]} /> : null}

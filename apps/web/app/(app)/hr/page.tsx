@@ -11,6 +11,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import { LeaveDecision } from '@/components/schedule/leave-actions';
 import { Punctuality } from '@/components/schedule/punctuality';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'HR Command Centre · HikTech' };
@@ -25,6 +26,7 @@ const QUICK = [
 ];
 
 export default async function HrHubPage() {
+  const { t } = await requestT();
   const { supabase, silo, userId, role } = await getSession();
   const sf = siloFilter(silo);
   const todayIso = new Date().toISOString().slice(0, 10);
@@ -71,10 +73,9 @@ export default async function HrHubPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">HR Command Centre</h1>
+        <h1 className="text-2xl font-bold">{t('HR Command Centre')}</h1>
         <p className="text-muted-foreground">
-          People readiness at a glance — coverage, approvals waiting, and what expires next.
-        </p>
+          {t('People readiness at a glance — coverage, approvals waiting, and what expires next.')}</p>
       </header>
 
       {/* ── Headline ── */}
@@ -121,13 +122,12 @@ export default async function HrHubPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ShieldAlert className="h-4 w-4 text-severity-medium-ink" /> Approvals waiting
-            </CardTitle>
-            <CardDescription>Decide here — the member is alerted the moment you do.</CardDescription>
+              <ShieldAlert className="h-4 w-4 text-severity-medium-ink" /> {' '}{t('Approvals waiting')}</CardTitle>
+            <CardDescription>{t('Decide here — the member is alerted the moment you do.')}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             {pending.length === 0 ? (
-              <p className="px-6 py-10 text-center text-sm text-muted-foreground">Nothing waiting. 🎉</p>
+              <p className="px-6 py-10 text-center text-sm text-muted-foreground">{t('Nothing waiting. 🎉')}</p>
             ) : (
               <ul className="divide-y divide-border">
                 {pending.map((l) => {
@@ -136,7 +136,7 @@ export default async function HrHubPage() {
                     <li key={l.id} className="flex flex-wrap items-center gap-3 px-5 py-3">
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold">
-                          {l.applicant_name ?? 'Member'} · {l.absence ?? 'Leave'} · {l.days ?? inclusiveDays(l.eff_from, l.eff_to)} day{(l.days ?? inclusiveDays(l.eff_from, l.eff_to)) === 1 ? '' : 's'}
+                          {t('{value} · {value2} · {value3} day{value4}', { value: l.applicant_name ?? 'Member', value2: l.absence ?? 'Leave', value3: l.days ?? inclusiveDays(l.eff_from, l.eff_to), value4: (l.days ?? inclusiveDays(l.eff_from, l.eff_to)) === 1 ? '' : 's' })}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {l.eff_from} → {l.eff_to} · {l.silo}{l.reason ? ` · ${l.reason}` : ''}
@@ -151,8 +151,7 @@ export default async function HrHubPage() {
                             : 'bg-severity-low/15 text-severity-low-ink',
                           )}
                         >
-                          {impact.pct}% away
-                        </span>
+                          {t('{pct}% away', { pct: impact.pct })}</span>
                       ) : null}
                       <LeaveDecision id={l.id} />
                     </li>
@@ -167,13 +166,12 @@ export default async function HrHubPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BadgeCheck className="h-4 w-4 text-accent" /> Certifications expiring in 30 days
-            </CardTitle>
-            <CardDescription>Book renewals before a member becomes non-deployable.</CardDescription>
+              <BadgeCheck className="h-4 w-4 text-accent" /> {' '}{t('Certifications expiring in 30 days')}</CardTitle>
+            <CardDescription>{t('Book renewals before a member becomes non-deployable.')}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             {expiring.length === 0 ? (
-              <p className="px-6 py-10 text-center text-sm text-muted-foreground">Nothing expiring this month.</p>
+              <p className="px-6 py-10 text-center text-sm text-muted-foreground">{t('Nothing expiring this month.')}</p>
             ) : (
               <ul className="divide-y divide-border">
                 {expiring.map((c) => {

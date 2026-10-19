@@ -6,11 +6,13 @@ import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { SettingRow } from './setting-row';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Operations Settings · HikTech' };
 
 export default async function OperationsSettingsPage() {
+  const { t } = await requestT();
   const { supabase, role } = await getSession();
   if (!ADMIN_CONSOLE_ROLES.includes(role)) redirect('/dashboard');
 
@@ -25,21 +27,16 @@ export default async function OperationsSettingsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Operations settings</h1>
+        <h1 className="text-2xl font-bold">{t('Operations settings')}</h1>
         <p className="text-muted-foreground">
-          Tune the service to your standing orders — SLA clocks, alert behaviour, the ETA model.
-          Changes apply immediately, no deployment needed.
-        </p>
+          {t('Tune the service to your standing orders — SLA clocks, alert behaviour, the ETA model. Changes apply immediately, no deployment needed.')}</p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>How this works</CardTitle>
+          <CardTitle>{t('How this works')}</CardTitle>
           <CardDescription>
-            Every knob has a safe built-in default and hard bounds; a value outside its bounds is
-            clamped, and deleting an override falls back to the default. Every change is written to
-            the audit trail with your name on it.
-          </CardDescription>
+            {t('Every knob has a safe built-in default and hard bounds; a value outside its bounds is clamped, and deleting an override falls back to the default. Every change is written to the audit trail with your name on it.')}</CardDescription>
         </CardHeader>
       </Card>
 

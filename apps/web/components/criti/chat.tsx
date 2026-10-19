@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { ProposalCard, type CardState } from './proposal-card';
 import { CritiMascot } from './mascot';
 import { RichText } from './shared';
+import { useT } from '@/components/i18n';
 
 type Card = { view: ProposalView; state: CardState };
 export type CritiMessage = { role: 'user' | 'assistant'; text: string; cards?: Card[] };
@@ -80,6 +81,7 @@ export function CritiChat({
   ask?: { prompt: string; nonce: number } | null;
   onAsked?: () => void;
 }) {
+  const { t } = useT();
   const pathname = usePathname();
   const [messages, setMessages] = useState<CritiMessage[]>([]);
   const [input, setInput] = useState('');
@@ -165,11 +167,9 @@ export function CritiChat({
           <div className="py-4">
             <div className="text-center">
               <CritiMascot variant="full" className="mx-auto h-20 w-20" />
-              <p className="mt-3 text-sm font-semibold">Hello {fullName.split(' ')[0]}</p>
+              <p className="mt-3 text-sm font-semibold">{t('Hello {value}', { value: fullName.split(' ')[0] })}</p>
               <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
-                I know how your department works and I can read the live board your role can see. Ask me anything,
-                or tell me what to do. I prepare it, and nothing changes until you confirm.
-              </p>
+                {t('I know how your department works and I can read the live board your role can see. Ask me anything, or tell me what to do. I prepare it, and nothing changes until you confirm.')}</p>
             </div>
             <div className={cn('mt-5 space-y-1.5', !compact && 'mx-auto max-w-xl')}>
               {startersFor(role).map((s) => (
@@ -188,8 +188,7 @@ export function CritiChat({
         ) : (
           <div className="flex justify-end">
             <button type="button" onClick={clear} className="text-[11px] font-semibold text-muted-foreground hover:text-fg">
-              Start again
-            </button>
+              {t('Start again')}</button>
           </div>
         )}
 
@@ -226,8 +225,7 @@ export function CritiChat({
               <CritiMascot className="h-6 w-6" />
             </span>
             <div className="flex items-center gap-2 rounded-xl border border-border bg-bg-soft px-3 py-2 text-[13px] text-muted-foreground">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Reading the board…
-            </div>
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> {' '}{t('Reading the board…')}</div>
           </div>
         ) : null}
       </div>
@@ -247,22 +245,21 @@ export function CritiChat({
             }}
             rows={compact ? 1 : 2}
             maxLength={2000}
-            placeholder="Ask about the board, or tell me what to do…"
-            aria-label="Message to Criti"
+            placeholder={t('Ask about the board, or tell me what to do…')}
+            aria-label={t('Message to Criti')}
             className="max-h-32 min-h-[2.5rem] flex-1 resize-none rounded-lg border border-border bg-bg-soft px-3 py-2 text-sm placeholder:text-muted-foreground/70 focus:border-accent focus:outline-none"
           />
           <button
             type="submit"
             disabled={busy || !input.trim()}
-            aria-label="Send"
+            aria-label={t('Send')}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-opacity disabled:opacity-40"
           >
             <Send className="h-4 w-4" />
           </button>
         </div>
         <p className="mt-1.5 text-[10px] text-muted-foreground">
-          Criti sees only what your role may see. Nothing changes until you confirm.
-        </p>
+          {t('Criti sees only what your role may see. Nothing changes until you confirm.')}</p>
       </form>
     </div>
   );

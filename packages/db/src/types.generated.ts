@@ -21,6 +21,15 @@ export type BodycamViewReason = 'incident' | 'officer_safety' | 'sos' | 'supervi
 export type FineNoticeType = 'AARTO 01' | 'Section 56' | 'Section 341';
 
 export type Silo = 'Ethekwini' | 'MetroPolice' | 'MetroFire' | 'Medical' | 'EthekwiniDisaster';
+
+/**
+ * The duty office screens (0085), by eThekwini's Oracle program codes: staff,
+ * call signs, sections, endorsements, absence codes, duty allocation, duty
+ * maintenance, duties for operation (the parade sheet) and leave.
+ */
+export type ModuleCode = 'STFM' | 'CSNM' | 'SECM' | 'ENTM' | 'ABSM' | 'DUTA' | 'DUTM' | 'DUTR' | 'LEAM';
+/** Oracle's Enquiry / Update. */
+export type ModuleLevel = 'View' | 'Edit';
 /**
  * One department's part of a call (0073): waiting at its desk, dispatched,
  * its lead's progress, then finished by its report, stood down, or cancelled
@@ -65,7 +74,12 @@ export type AlertKind =
   // others still work it; a department stood down, and its crew told.
   | 'report_filed' | 'stood_down' | 'stand_down'
   // An officer closed their department's part on scene (0074).
-  | 'officer_closed';
+  | 'officer_closed'
+  // Sent by a person (0084): a note, a mail, a task.
+  | 'mail' | 'task';
+
+/** Whom a notification is for (0084). */
+export type AlertAudience = 'person' | 'people' | 'role' | 'department' | 'organisation';
 
 /** How forcefully an alert interrupts: a corner toast or a modal that blocks. */
 export type AlertPresentation = 'toast' | 'modal';
@@ -100,6 +114,13 @@ export type Database = {
           notes: string | null;
           created_at: string;
           updated_at: string;
+          /** Call sign maintenance (0085): the section, the hours, the break and the rank it needs. */
+          section_id: string | null;
+          start_time: string | null;
+          stop_time: string | null;
+          break_time: string | null;
+          rank: string | null;
+          description: string | null;
         };
         Insert: Partial<Database['public']['Tables']['duty_posts']['Row']>;
         Update: Partial<Database['public']['Tables']['duty_posts']['Row']>;
@@ -335,6 +356,18 @@ export type Database = {
           left_reason: string | null;
           left_by: string | null;
           left_by_name: string | null;
+          /** Staff maintenance (0085), as eThekwini's DCPSTFM screen. */
+          persal_number: string | null;
+          region: string | null;
+          la_code: string | null;
+          department_name: string | null;
+          section_id: string | null;
+          /** W/E on the duty sheet: weekend group A or B. */
+          weekend_group: 'A' | 'B' | null;
+          /** N keeps them off duty allocation. */
+          duty_allocation: boolean;
+          join_date: string | null;
+          resign_date: string | null;
         };
         Insert: Partial<Database['public']['Tables']['personnel']['Row']>;
         Update: Partial<Database['public']['Tables']['personnel']['Row']>;
@@ -475,6 +508,13 @@ export type Database = {
           created_by_name: string | null;
           created_at: string;
           expires_at: string | null;
+          /** Whom it is for (0084), and who in that audience. */
+          audience: AlertAudience;
+          target_users: string[] | null;
+          target_roles: UserRole[] | null;
+          all_departments: boolean;
+          withdrawn_at: string | null;
+          withdrawn_by: string | null;
         };
         Insert: Partial<Database['public']['Tables']['alerts']['Row']>;
         Update: Partial<Database['public']['Tables']['alerts']['Row']>;
@@ -568,12 +608,99 @@ export type Database = {
           silo: Silo;
           code: string;
           name: string;
+          /** Shown as Zone (0085). */
           region: string | null;
           active: boolean;
           created_at: string;
+          /** Section details (0085). */
+          short_desc: string | null;
+          station_code: string | null;
+          division: string | null;
+          overtime_code: string | null;
         };
         Insert: Partial<Database['public']['Tables']['sections']['Row']>;
         Update: Partial<Database['public']['Tables']['sections']['Row']>;
+        Relationships: [];
+      };
+      /** Stations: OR, B, CH, NR, DR, W (0085). */
+      stations: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          code: string;
+          name: string;
+          zone: string | null;
+          active: boolean;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['stations']['Row']>;
+        Update: Partial<Database['public']['Tables']['stations']['Row']>;
+        Relationships: [];
+      };
+      /** Access per person, per screen (0085). Written only by set_module_access. */
+      module_access: {
+        Row: {
+          tenant_id: string;
+          user_id: string;
+          module: ModuleCode;
+          level: ModuleLevel;
+          granted_by: string | null;
+          granted_by_name: string | null;
+          granted_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['module_access']['Row']>;
+        Update: Partial<Database['public']['Tables']['module_access']['Row']>;
+        Relationships: [];
+      };
+      /** The member's personal details (0085): Staff Maintenance and the member only. */
+      staff_private: {
+        Row: {
+          personnel_id: string;
+          tenant_id: string;
+          id_number: string | null;
+          birth_date: string | null;
+          address_1: string | null;
+          address_2: string | null;
+          address_3: string | null;
+          address_4: string | null;
+          post_code: string | null;
+          phone: string | null;
+          email: string | null;
+          nok_name: string | null;
+          nok_relation: string | null;
+          nok_phone: string | null;
+          nok_email: string | null;
+          nok_address: string | null;
+          emergency_name: string | null;
+          emergency_relation: string | null;
+          emergency_phone: string | null;
+          emergency_email: string | null;
+          emergency_address: string | null;
+          comments: string | null;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['staff_private']['Row']>;
+        Update: Partial<Database['public']['Tables']['staff_private']['Row']>;
+        Relationships: [];
+      };
+      /** Law enforcement officer record (0085). */
+      leo_records: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          personnel_id: string;
+          radio: string | null;
+          eff_from: string | null;
+          eff_to: string | null;
+          warrant_area: string | null;
+          region: string | null;
+          created_at: string;
+          created_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['leo_records']['Row']>;
+        Update: Partial<Database['public']['Tables']['leo_records']['Row']>;
         Relationships: [];
       };
       /** Duty Maintenance — numbered DM- station tasks (migration 0033). */
@@ -2431,6 +2558,11 @@ export type Database = {
           cancel_reason: string | null;
           applicant_name: string | null;
           applied_at: string | null;
+          // 0085: captured by the office
+          absence_code: string | null;
+          form_submitted: boolean;
+          captured_by: string | null;
+          captured_by_name: string | null;
         };
         Insert: Partial<Database['public']['Tables']['leave_entries']['Row']>;
         Update: Partial<Database['public']['Tables']['leave_entries']['Row']>;
@@ -2558,6 +2690,31 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      /** Whose radio, whose hard hat (0082). Written only by save_radio_device(). */
+      radio_devices: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          provider: 'pocstar' | 'realptt';
+          kind: 'radio' | 'hard_hat' | 'dispatcher';
+          account: string;
+          label: string | null;
+          provider_user_id: string | null;
+          imei: string | null;
+          silo: Silo;
+          personnel_id: string | null;
+          apparatus_id: string | null;
+          notes: string | null;
+          active: boolean;
+          created_at: string;
+          created_by: string | null;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       /** Each sentence's translation per language (0078). Written only by save_translation(s). */
       translations: {
         Row: {
@@ -2609,6 +2766,10 @@ export type Database = {
           is_active: boolean;
           created_by: string | null;
           created_at: string;
+          /** Ent seq, Oracle's code and who issued it (0085). */
+          seq: number | null;
+          code: string | null;
+          issued_by_name: string | null;
         };
         Insert: Partial<Database['public']['Tables']['endorsements']['Row']> & { silo: Silo; type: string; start_date: string };
         Update: Partial<Database['public']['Tables']['endorsements']['Row']>;
@@ -2801,6 +2962,37 @@ export type Database = {
         Returns: Database['public']['Tables']['incidents']['Row'];
       };
       /** A dispatcher edits a call before dispatching it; every change is kept (0079). */
+      // ── Talk (0083) ──
+      talk_access: { Args: { p_channel: string }; Returns: { listen: boolean; speak: boolean; priority: boolean; name: string | null } };
+      talk_pass: {
+        Args: { p_channel: string };
+        Returns: { url: string; token: string; room: string; channel: string; name: string; canSpeak: boolean; priority: boolean; identity: string; expiresAt: string };
+      };
+      log_talk: { Args: { p_channel: string; p_started_at: string; p_ended_at: string }; Returns: unknown };
+      set_talk_server: { Args: { p_url: string; p_api_key: string; p_api_secret: string }; Returns: undefined };
+      talk_server_status: { Args: Record<string, never>; Returns: { configured: boolean; url: string | null; updatedAt: string | null } };
+      // ── Notifications (0084) ──
+      send_notification: {
+        Args: {
+          p_audience: AlertAudience; p_title: string; p_body?: string | null; p_link?: string | null; p_severity?: string;
+          p_user?: string | null; p_users?: string[] | null; p_roles?: UserRole[] | null; p_silo?: Silo | null;
+          p_all_departments?: boolean; p_kind?: string;
+        };
+        Returns: Database['public']['Tables']['alerts']['Row'];
+      };
+      withdraw_notification: { Args: { p_id: string }; Returns: undefined };
+      my_sent_notifications: { Args: Record<string, never>; Returns: Database['public']['Tables']['alerts']['Row'][] };
+      notification_reach: { Args: Record<string, never>; Returns: { groups: boolean; anyDepartment: boolean; organisation: boolean; silo: Silo } | null };
+      notification_activity: { Args: { p_since: string }; Returns: number };
+      /** Add or change a radio in the register (0082). */
+      save_radio_device: {
+        Args: {
+          p_id: string | null; p_provider: string; p_kind: string; p_account: string; p_label: string | null;
+          p_provider_user_id: string | null; p_imei: string | null; p_silo: Silo; p_personnel_id: string | null;
+          p_apparatus_id: string | null; p_notes: string | null; p_active?: boolean;
+        };
+        Returns: Database['public']['Tables']['radio_devices']['Row'];
+      };
       dispatcher_edit_call: {
         Args: { p_incident: string; p_fields: Record<string, unknown>; p_reason?: string | null };
         Returns: Database['public']['Tables']['incidents']['Row'];
@@ -2829,6 +3021,61 @@ export type Database = {
       add_shift: {
         Args: { p_user: string; p_day: string; p_template: string; p_publish?: boolean; p_note?: string | null };
         Returns: string;
+      };
+      // ── The duty office (0085) ──
+      my_modules: { Args: Record<string, never>; Returns: Array<{ module: ModuleCode; level: ModuleLevel }> };
+      set_module_access: { Args: { p_user: string; p_module: ModuleCode; p_level: ModuleLevel | null }; Returns: undefined };
+      save_station: {
+        Args: { p_id: string | null; p_silo: Silo; p_code: string; p_name: string; p_zone: string | null; p_active?: boolean };
+        Returns: string;
+      };
+      save_section: {
+        Args: {
+          p_id: string | null; p_silo: Silo; p_code: string; p_name: string; p_short: string | null; p_station: string | null;
+          p_zone: string | null; p_division: string | null; p_overtime: string | null; p_active?: boolean;
+        };
+        Returns: string;
+      };
+      save_call_sign: {
+        Args: {
+          p_id: string | null; p_silo: Silo; p_call_sign: string; p_station: string | null; p_section: string | null;
+          p_start: string; p_stop: string; p_break: string | null; p_rank: string | null; p_description: string | null; p_active?: boolean;
+        };
+        Returns: string;
+      };
+      save_staff_record: {
+        Args: { p_personnel: string | null; p_silo: Silo; p_fields: Record<string, unknown>; p_private?: Record<string, unknown> };
+        Returns: string;
+      };
+      add_leo_record: {
+        Args: { p_personnel: string; p_radio: string | null; p_from: string | null; p_to: string | null; p_area: string | null; p_region: string | null };
+        Returns: string;
+      };
+      remove_leo_record: { Args: { p_id: string }; Returns: undefined };
+      issue_endorsement: {
+        Args: { p_user: string; p_type: string; p_code: string | null; p_details: string; p_start: string; p_end: string | null };
+        Returns: string;
+      };
+      withdraw_endorsement: { Args: { p_id: string }; Returns: undefined };
+      save_absence_code: {
+        Args: { p_id: string | null; p_code: string; p_name: string; p_office_only: boolean; p_entitlement: number | null; p_active?: boolean };
+        Returns: string;
+      };
+      capture_leave: {
+        Args: { p_user: string; p_code: string; p_from: string; p_to: string; p_form_submitted: boolean; p_notes?: string | null };
+        Returns: Database['public']['Tables']['leave_entries']['Row'];
+      };
+      set_leave_form: { Args: { p_id: string; p_submitted: boolean }; Returns: undefined };
+      allocate_duty: {
+        Args: {
+          p_section: string; p_from: string; p_to: string; p_lines: Array<{ post_id: string; user_id: string }>;
+          p_start?: string | null; p_end?: string | null; p_note?: string | null;
+        };
+        Returns: { created: number; skipped: Array<{ name: string; call_sign: string; day: string; reason: string }> };
+      };
+      change_duty: {
+        Args: { p_line: string; p_post: string | null; p_user: string | null; p_start: string | null; p_end: string | null };
+        Returns: undefined;
       };
       generate_roster: {
         Args: { p_rotation: string; p_from: string; p_to: string; p_teams?: string[] | null };

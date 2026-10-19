@@ -15,6 +15,7 @@ import { formatSaTime } from '@/lib/utils';
 import { BodycamTable, type BodycamFilter } from './bodycam-table';
 import { blankBodycam } from './blank';
 import { BodycamForm } from './bodycam-form';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Bodycams · HikTech' };
@@ -28,6 +29,7 @@ const FILTERS: BodycamFilter[] = ['current', 'Available', 'Booked out', 'overdue
  * the register here.
  */
 export default async function BodycamRegisterPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const { status } = await searchParams;
   const { global, canManage, departments } = bodycamRolesFor(role, silo);
@@ -58,27 +60,23 @@ export default async function BodycamRegisterPage({ searchParams }: { searchPara
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Bodycams</h1>
+          <h1 className="text-2xl font-bold">{t('Bodycams')}</h1>
           <p className="max-w-2xl text-muted-foreground">
-            Every bodycam on the register, where it is kept and who has it now. Officers book one out in the app at the
-            start of their shift and hand it back before the shift can end.
-          </p>
+            {t('Every bodycam on the register, where it is kept and who has it now. Officers book one out in the app at the start of their shift and hand it back before the shift can end.')}</p>
         </div>
         <div className="flex flex-wrap gap-2 text-sm">
           {canManage ? (
             <>
               <Link href="/police/bodycams/import" className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground hover:bg-primary/90">
-                <FileUp className="h-4 w-4" /> Import bodycam list
-              </Link>
+                <FileUp className="h-4 w-4" /> {' '}{t('Import bodycam list')}</Link>
               <a href="/police/bodycams/template" className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 hover:bg-muted">
-                <Download className="h-4 w-4" /> Template
-              </a>
+                <Download className="h-4 w-4" /> {' '}{t('Template')}</a>
             </>
           ) : null}
           {canAccess('/cameras', role, silo) ? (
-            <Link href="/cameras" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Body cams live</Link>
+            <Link href="/cameras" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Body cams live')}</Link>
           ) : null}
-          <Link href="/shift/today" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Today’s shift</Link>
+          <Link href="/shift/today" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Today’s shift')}</Link>
         </div>
       </header>
 
@@ -104,9 +102,7 @@ export default async function BodycamRegisterPage({ searchParams }: { searchPara
 
           {latest ? (
             <p className="text-sm text-muted-foreground">
-              Last bodycam import: <b className="text-fg">{latest.file_name}</b>, {formatSaTime(latest.imported_at)} by {latest.imported_by_name ?? 'an administrator'}.{' '}
-              {latest.added} added, {latest.updated} updated.
-            </p>
+              {t('Last bodycam import:')}{' '}<b className="text-fg">{latest.file_name}</b>{t(', {saTime} by {value}. {added} added, {updated} updated.', { saTime: formatSaTime(latest.imported_at), value: latest.imported_by_name ?? 'an administrator', added: latest.added, updated: latest.updated })}</p>
           ) : null}
 
           <BodycamTable cams={cams} canManage={canManage} departments={departments} overdueBefore={overdueBefore} initialFilter={initialFilter} />
@@ -116,8 +112,8 @@ export default async function BodycamRegisterPage({ searchParams }: { searchPara
       {canManage && !loadError ? (
         <Card>
           <CardHeader>
-            <CardTitle>Add a bodycam</CardTitle>
-            <CardDescription>One at a time. For many, use the import with the template.</CardDescription>
+            <CardTitle>{t('Add a bodycam')}</CardTitle>
+            <CardDescription>{t('One at a time. For many, use the import with the template.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <BodycamForm initial={blankBodycam(homeSilo)} departments={departments} />
@@ -128,12 +124,12 @@ export default async function BodycamRegisterPage({ searchParams }: { searchPara
       {!loadError ? (
         <Card>
           <CardHeader>
-            <CardTitle>Who has watched</CardTitle>
-            <CardDescription>The latest views of these bodycams, live or recorded, with the reason given. Every one is also in the audit log.</CardDescription>
+            <CardTitle>{t('Who has watched')}</CardTitle>
+            <CardDescription>{t('The latest views of these bodycams, live or recorded, with the reason given. Every one is also in the audit log.')}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             {views.length === 0 ? (
-              <p className="px-4 py-6 text-sm text-muted-foreground">Nobody has opened a bodycam yet.</p>
+              <p className="px-4 py-6 text-sm text-muted-foreground">{t('Nobody has opened a bodycam yet.')}</p>
             ) : (
               <ul className="divide-y divide-border text-sm">
                 {views.map((v) => (

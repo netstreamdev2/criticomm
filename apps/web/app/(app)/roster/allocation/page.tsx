@@ -2,6 +2,7 @@ import { getDutyBoard, getPersonDay, getScheduleSettings, listShiftTemplates } f
 import { DEPARTMENT_NAMES, canManageRoster, isScheduleHr, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 import { AllocationBoard } from './allocation-client';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Duty allocation · HikTech' };
@@ -22,6 +23,7 @@ export default async function AllocationPage({
 }: {
   searchParams: Promise<{ date?: string; silo?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, silo, role } = await getSession();
   const params = await searchParams;
 
@@ -45,7 +47,7 @@ export default async function AllocationPage({
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Duty allocation</h1>
+        <h1 className="text-2xl font-bold">{t('Duty allocation')}</h1>
         <p className="text-muted-foreground">
           {canManage
             ? 'Fill every post, then publish the board to issue it to staff.'

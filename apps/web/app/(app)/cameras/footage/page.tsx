@@ -7,6 +7,7 @@ import { requireFeaturePage } from '@/lib/features';
 import { invitationErrorMessage } from '@/lib/onboarding/errors';
 import { getSession } from '@/lib/session';
 import { FootageBrowser, type FootageBooking } from './footage-browser';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Body Cam Footage · HikTech' };
@@ -22,6 +23,7 @@ const validIso = (v: string | undefined) => (v && !Number.isNaN(new Date(v).getT
 export default async function BodyCamFootagePage({ searchParams }: {
   searchParams: Promise<{ incident?: string; officer?: string; from?: string; to?: string }>;
 }) {
+  const { t } = await requestT();
   await requireFeaturePage('web.cameras');
   const { supabase, role, silo } = await getSession();
   const params = await searchParams;
@@ -76,16 +78,13 @@ export default async function BodyCamFootagePage({ searchParams }: {
               <ArrowLeft className="h-4 w-4" /> {incident.number}
             </Link>
           ) : null}
-          <h1 className="text-2xl font-bold">Body Cam Footage{incident ? ` · ${incident.number}` : ''}</h1>
+          <h1 className="text-2xl font-bold">{t('Body Cam Footage{value}', { value: incident ? ` · ${incident.number}` : '' })}</h1>
           <p className="max-w-2xl text-muted-foreground">
-            Recorded video, found by who had which bodycam and when. Choose a booking to play the part of it inside the
-            window, up to 24 hours. Every playback is recorded with your name and reason.
-          </p>
+            {t('Recorded video, found by who had which bodycam and when. Choose a booking to play the part of it inside the window, up to 24 hours. Every playback is recorded with your name and reason.')}</p>
         </div>
         {canAccess('/cameras', role, silo) ? (
           <Link href="/cameras" className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-semibold hover:bg-muted">
-            <Video className="h-4 w-4" /> Body cams live
-          </Link>
+            <Video className="h-4 w-4" /> {' '}{t('Body cams live')}</Link>
         ) : null}
       </header>
 

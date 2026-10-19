@@ -9,6 +9,7 @@ import {
 } from '@/lib/ops-map/zones';
 import { cn } from '@/lib/utils';
 import type { DrawSnapshot } from './draw-controller';
+import { useT } from '@/components/i18n';
 
 /**
  * The form beside a drawing: exact measurements and positions, then what the
@@ -90,6 +91,7 @@ export function ZoneEditor({
   onSave: (draft: ZoneDraft) => Promise<SaveResult>;
   onCancel: () => void;
 }) {
+  const { t } = useT();
   const kinds = kindsForShape(snapshot.shape);
   const [kind, setKind] = useState<MapZoneKind>(
     init.kind && kinds.some((k) => k.key === init.kind) ? init.kind : kinds[0]!.key,
@@ -170,7 +172,7 @@ export function ZoneEditor({
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-300">
           {mode === 'new' ? `New ${SHAPE_LABEL[snapshot.shape].toLowerCase()}` : 'Change zone'}
         </p>
-        <button type="button" onClick={onCancel} aria-label="Cancel drawing" className="text-slate-300 hover:text-white">
+        <button type="button" onClick={onCancel} aria-label={t('Cancel drawing')} className="text-slate-300 hover:text-white">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -181,13 +183,12 @@ export function ZoneEditor({
         {shapeIssue && <p className="mt-1 text-xs text-amber-300">{shapeIssue}</p>}
         {!placed && (
           <p className="mt-1.5 text-[11px] leading-snug text-slate-400">
-            Drag a point to move it · drag a small dot to add one · right-click or double-click a point to remove it.
-          </p>
+            {t('Drag a point to move it · drag a small dot to add one · right-click or double-click a point to remove it.')}</p>
         )}
 
         {snapshot.shape === 'circle' && (
           <div className="mt-2.5 space-y-2">
-            <NumberField label="Radius" value={snapshot.radiusM} onCommit={onRadius} decimals={0} min={1} max={50_000} suffix="m" />
+            <NumberField label={t('Radius')} value={snapshot.radiusM} onCommit={onRadius} decimals={0} min={1} max={50_000} suffix="m" />
             <div className="flex flex-wrap gap-1">
               {RADIUS_PRESETS.map((m) => (
                 <button
@@ -209,9 +210,9 @@ export function ZoneEditor({
         {placed && position && (
           <div className="mt-2.5 space-y-2">
             <div className="flex gap-2">
-              <NumberField label="Latitude" value={position.lat} decimals={6} min={-90} max={90}
+              <NumberField label={t('Latitude')} value={position.lat} decimals={6} min={-90} max={90}
                 onCommit={(lat) => onPosition({ lat, lng: position.lng })} />
-              <NumberField label="Longitude" value={position.lng} decimals={6} min={-180} max={180}
+              <NumberField label={t('Longitude')} value={position.lng} decimals={6} min={-180} max={180}
                 onCommit={(lng) => onPosition({ lat: position.lat, lng })} />
             </div>
             <div className="flex items-center gap-2">
@@ -231,7 +232,7 @@ export function ZoneEditor({
                   {incidents.map((i) => <option key={i.id} value={i.id}>{i.number} · {i.type}</option>)}
                 </select>
               </label>
-              <button type="button" onClick={copyPosition} title="Copy coordinates" className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-1 text-[11px] font-semibold hover:bg-white/20">
+              <button type="button" onClick={copyPosition} title={t('Copy coordinates')} className="inline-flex items-center gap-1 rounded-md bg-white/10 px-2 py-1 text-[11px] font-semibold hover:bg-white/20">
                 <Copy className="h-3.5 w-3.5" /> {copied ? 'Copied' : 'Copy'}
               </button>
             </div>
@@ -241,7 +242,7 @@ export function ZoneEditor({
 
       <div className="mt-3 space-y-3">
         <label className="block">
-          <span className={caption}>Type</span>
+          <span className={caption}>{t('Type')}</span>
           <select value={kind} onChange={(e) => setKind(e.target.value as MapZoneKind)} className={field}>
             {kinds.map((k) => <option key={k.key} value={k.key}>{k.label}</option>)}
           </select>
@@ -251,26 +252,26 @@ export function ZoneEditor({
         </label>
 
         <label className="block">
-          <span className={caption}>Name</span>
+          <span className={caption}>{t('Name')}</span>
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={120} placeholder={suggestedName} className={field} />
         </label>
 
         <label className="block">
-          <span className={caption}>Why {visibility === 'private' ? '(optional for a draft)' : ''}</span>
+          <span className={caption}>{t('Why {value}', { value: visibility === 'private' ? '(optional for a draft)' : '' })}</span>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             maxLength={1000}
             rows={3}
-            placeholder="e.g. Suspect package at the entrance — keep the public 100 m back until the bomb squad clears it."
+            placeholder={t('e.g. Suspect package at the entrance — keep the public 100 m back until the bomb squad clears it.')}
             className={cn(field, 'resize-y')}
           />
         </label>
 
         <label className="block">
-          <span className={caption}>Linked call</span>
+          <span className={caption}>{t('Linked call')}</span>
           <select value={incidentId ?? ''} onChange={(e) => linkIncident(e.target.value || null)} className={field}>
-            <option value="">No call</option>
+            <option value="">{t('No call')}</option>
             {incidents.map((i) => (
               <option key={i.id} value={i.id}>{i.number} · {i.type} · {i.address}</option>
             ))}
@@ -278,7 +279,7 @@ export function ZoneEditor({
         </label>
 
         <fieldset>
-          <legend className={caption}>Who sees it</legend>
+          <legend className={caption}>{t('Who sees it')}</legend>
           <div className="space-y-1">
             {VISIBILITY.map((v) => (
               <label key={v.key} className={cn('flex cursor-pointer items-start gap-2 rounded-md px-2 py-1.5', visibility === v.key ? 'bg-white/10' : 'hover:bg-white/5')}>
@@ -320,14 +321,14 @@ export function ZoneEditor({
 
         <div>
           <label className="block">
-            <span className={caption}>Stands until</span>
+            <span className={caption}>{t('Stands until')}</span>
             <select value={end} onChange={(e) => setEnd(e.target.value as EndOption)} className={field}>
               {END_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
             </select>
           </label>
           {end === 'custom' && (
             <label className="mt-1.5 block">
-              <span className="sr-only">End time</span>
+              <span className="sr-only">{t('End time')}</span>
               <input
                 type="datetime-local"
                 value={customEnd}
@@ -353,8 +354,7 @@ export function ZoneEditor({
             {saving ? 'Saving…' : mode === 'edit' ? 'Save changes' : visibility === 'private' ? 'Save as my draft' : 'Save and share'}
           </button>
           <button type="button" onClick={onCancel} className="rounded-lg border border-white/15 px-3 py-2 text-sm font-semibold hover:bg-white/10">
-            Cancel
-          </button>
+            {t('Cancel')}</button>
         </div>
         {!error && problem && <p className="text-[11px] text-slate-400">{problem}</p>}
       </div>

@@ -1,11 +1,12 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { AlertTriangle, CheckCircle2, MinusCircle } from 'lucide-react';
-import { listAutomationRules, summariseAutomations } from '@criticom/api';
+import { countNotificationActivity, listAutomationRules, summariseAutomations } from '@criticom/api';
 import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { timeAgo } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'System status · HikTech' };
@@ -43,6 +44,7 @@ const LEVEL_STYLE: Record<Level, { icon: typeof CheckCircle2; className: string;
 };
 
 export default async function StatusPage() {
+  const { t } = await requestT();
   const { supabase, role } = await getSession();
   if (!ADMIN_CONSOLE_ROLES.includes(role)) redirect('/dashboard');
 
@@ -108,10 +110,8 @@ export default async function StatusPage() {
   /* ── Alerting ──────────────────────────────────────────────────────── */
 
   const hourAgo = new Date(Date.now() - 3_600_000).toISOString();
-  const { count: recentAlerts } = await supabase
-    .from('alerts')
-    .select('id', { count: 'exact', head: true })
-    .gte('created_at', hourAgo);
+  // Counted by the database (0084): a person only reads their own notifications.
+  const recentAlerts = await countNotificationActivity(supabase, hourAgo).catch(() => 0);
 
   checks.push({
     name: 'Alerting',
@@ -187,11 +187,9 @@ export default async function StatusPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">System status</h1>
+        <h1 className="text-2xl font-bold">{t('System status')}</h1>
         <p className="text-muted-foreground">
-          Everything an administrator needs to answer &ldquo;is the platform working&rdquo;, in one
-          place. Each check says what it means, not just what it measured.
-        </p>
+          {t('Everything an administrator needs to answer “is the platform working”, in one place. Each check says what it means, not just what it measured.')}</p>
       </header>
 
       <Card>
@@ -206,15 +204,13 @@ export default async function StatusPage() {
                   : 'A core subsystem is down'}
             </p>
             <p className="text-sm text-muted-foreground">
-              Checked {new Date().toLocaleString('en-ZA')}. Refresh to re-run.
-            </p>
+              {t('Checked {localeString}. Refresh to re-run.', { localeString: new Date().toLocaleString('en-ZA') })}</p>
           </div>
           <Link
             href="/api/health/config"
             className="ml-auto text-sm text-accent hover:underline"
           >
-            Raw configuration diagnostics →
-          </Link>
+            {t('Raw configuration diagnostics →')}</Link>
         </CardContent>
       </Card>
 
@@ -240,8 +236,7 @@ export default async function StatusPage() {
                     href={check.href}
                     className="shrink-0 text-sm text-accent hover:underline"
                   >
-                    Open
-                  </Link>
+                    {t('Open')}</Link>
                 ) : null}
               </li>
             );
@@ -251,13 +246,9 @@ export default async function StatusPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>If something here is red</CardTitle>
+          <CardTitle>{t('If something here is red')}</CardTitle>
           <CardDescription>
-            <code>docs/08-RUNBOOK.md</code> has the procedure for each subsystem, in the order to
-            work through them. It opens with the thing worth remembering: every procedure in it is
-            slower than the radio. If crews are waiting, put the control room on radio and paper
-            first, then fix the platform.
-          </CardDescription>
+            <code>docs/08-RUNBOOK.md</code> {' '}{t('has the procedure for each subsystem, in the order to work through them. It opens with the thing worth remembering: every procedure in it is slower than the radio. If crews are waiting, put the control room on radio and paper first, then fix the platform.')}</CardDescription>
         </CardHeader>
       </Card>
     </div>

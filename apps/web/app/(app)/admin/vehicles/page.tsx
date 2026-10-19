@@ -10,6 +10,7 @@ import { formatSaTime } from '@/lib/utils';
 import { FleetTable, type FleetFilter, type FleetRow } from './fleet-table';
 import { blankVehicle } from './blank';
 import { VehicleForm } from './vehicle-form';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Fleet · HikTech' };
@@ -23,6 +24,7 @@ const FILTERS: FleetFilter[] = ['current', 'Available', 'with-officer', 'off-roa
  * returns it to service.
  */
 export default async function AdminVehiclesPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const { status } = await searchParams;
   const { global, canManage, departments } = fleetRolesFor(role, silo);
@@ -54,24 +56,20 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Fleet</h1>
+          <h1 className="text-2xl font-bold">{t('Fleet')}</h1>
           <p className="max-w-2xl text-muted-foreground">
-            Every vehicle, who is driving it, its last inspection and licence disc. Officers choose a vehicle in the app
-            at the start of a shift; one that fails its inspection comes off the road until it is returned to service here.
-          </p>
+            {t('Every vehicle, who is driving it, its last inspection and licence disc. Officers choose a vehicle in the app at the start of a shift; one that fails its inspection comes off the road until it is returned to service here.')}</p>
         </div>
         <div className="flex flex-wrap gap-2 text-sm">
           {canManage ? (
             <>
               <Link href="/admin/vehicles/import" className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 font-semibold text-primary-foreground hover:bg-primary/90">
-                <FileUp className="h-4 w-4" /> Import fleet list
-              </Link>
+                <FileUp className="h-4 w-4" /> {' '}{t('Import fleet list')}</Link>
               <a href="/admin/vehicles/template" className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 hover:bg-muted">
-                <Download className="h-4 w-4" /> Template
-              </a>
+                <Download className="h-4 w-4" /> {' '}{t('Template')}</a>
             </>
           ) : null}
-          <Link href="/shift/today" className="rounded-md border border-border px-4 py-2 hover:bg-muted">Today’s shift</Link>
+          <Link href="/shift/today" className="rounded-md border border-border px-4 py-2 hover:bg-muted">{t('Today’s shift')}</Link>
         </div>
       </header>
 
@@ -100,9 +98,7 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
 
           {latest ? (
             <p className="text-sm text-muted-foreground">
-              Last fleet import: <b className="text-fg">{latest.file_name}</b>, {formatSaTime(latest.imported_at)} by {latest.imported_by_name ?? 'an administrator'}.{' '}
-              {latest.added} added, {latest.updated} updated.
-            </p>
+              {t('Last fleet import:')}{' '}<b className="text-fg">{latest.file_name}</b>{t(', {saTime} by {value}. {added} added, {updated} updated.', { saTime: formatSaTime(latest.imported_at), value: latest.imported_by_name ?? 'an administrator', added: latest.added, updated: latest.updated })}</p>
           ) : null}
 
           <FleetTable vehicles={vehicles} canManage={canManage} departments={departments} initialFilter={initialFilter} />
@@ -112,8 +108,8 @@ export default async function AdminVehiclesPage({ searchParams }: { searchParams
       {canManage && !loadError ? (
         <Card>
           <CardHeader>
-            <CardTitle>Add a vehicle</CardTitle>
-            <CardDescription>One at a time. For the whole fleet, use the import with the template.</CardDescription>
+            <CardTitle>{t('Add a vehicle')}</CardTitle>
+            <CardDescription>{t('One at a time. For the whole fleet, use the import with the template.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <VehicleForm initial={blankVehicle(homeSilo)} departments={departments} />

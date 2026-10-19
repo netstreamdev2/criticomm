@@ -11,6 +11,7 @@ import { DEPARTMENT_NAMES, type IncidentSeverity, type Silo } from '@criticom/db
 import { useToast } from '@/components/toast';
 import { cn, timeAgo } from '@/lib/utils';
 import { OfficerPicker, type RankedOfficer } from './officer-picker';
+import { useT } from '@/components/i18n';
 
 type Department = Exclude<Silo, 'Ethekwini'>;
 type Mode = 'all' | 'assign';
@@ -85,6 +86,7 @@ export function AssignForm({
    */
   allowedSilos?: Department[];
 }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -226,8 +228,7 @@ export function AssignForm({
   return (
     <form onSubmit={onSubmit} className="overflow-visible rounded-2xl border border-border bg-bg-card">
       <h2 className="rounded-t-2xl border-b border-border bg-bg-soft px-5 py-3 text-center text-xs font-bold uppercase tracking-[0.18em]">
-        Dispatch &amp; routing
-      </h2>
+        {t('Dispatch & routing')}</h2>
 
       <div className="space-y-4 p-5">
         {locked ? (
@@ -236,33 +237,29 @@ export function AssignForm({
         {busy.size > 0 ? (
           <ul className="space-y-1 rounded-lg border border-border bg-bg-soft px-3 py-2 text-sm">
             {[...busy].map(([d, words]) => (
-              <li key={d}><span className="font-semibold">{SILO_LABELS[d]}:</span> {words}. Other crews can join it as backup from the app.</li>
+              <li key={d}><span className="font-semibold">{SILO_LABELS[d]}:</span> {' '}{t('{words}. Other crews can join it as backup from the app.', { words })}</li>
             ))}
           </ul>
         ) : null}
         {sentOut.map((p) => (
           <p key={p.silo} className="flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2 text-sm">
             <Loader2 className="h-4 w-4 shrink-0 animate-spin text-accent" />
-            {deptLabel(p.silo)}: {p.assigned_to_name
+            {t('{deptLabel}: {value} Dispatching again re-alerts them.', { deptLabel: deptLabel(p.silo), value: p.assigned_to_name
               ? `assigned to ${p.assigned_to_name}${p.assigned_at ? ` ${timeAgo(p.assigned_at)}` : ''}, waiting for them to respond.`
-              : 'sent out, waiting for a crew to respond.'} Dispatching again re-alerts them.
-          </p>
+              : 'sent out, waiting for a crew to respond.' })}</p>
         ))}
         {locked ? null : assignedTo ? (
           <p className="flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2 text-sm">
             <Loader2 className="h-4 w-4 shrink-0 animate-spin text-accent" />
-            Assigned to {assignedTo.name}{assignedTo.at ? ` ${timeAgo(assignedTo.at)}` : ''} — waiting for them to respond.
-            You can reassign it or send it to all.
-          </p>
+            {t('Assigned to {name}{value} — waiting for them to respond. You can reassign it or send it to all.', { name: assignedTo.name, value: assignedTo.at ? ` ${timeAgo(assignedTo.at)}` : '' })}</p>
         ) : awaiting ? (
           <p className="flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2 text-sm">
             <Loader2 className="h-4 w-4 shrink-0 animate-spin text-accent" />
-            Sent out — waiting for an officer to respond. Dispatching again re-alerts everyone on duty.
-          </p>
+            {t('Sent out — waiting for an officer to respond. Dispatching again re-alerts everyone on duty.')}</p>
         ) : null}
 
         {/* How to send it */}
-        <div aria-label="How to dispatch" className="grid gap-2 sm:grid-cols-2">
+        <div aria-label={t('How to dispatch')} className="grid gap-2 sm:grid-cols-2">
           {([
             { id: 'all', icon: Users, title: 'Send to all on duty', blurb: 'First to respond leads; others can join as backup.' },
             { id: 'assign', icon: UserCheck, title: 'Assign to officer', blurb: 'Pick one officer — they lead. Others can still back up.' },
@@ -320,8 +317,7 @@ export function AssignForm({
                 >
                   <span className="inline-flex items-center gap-2"><Icon className="h-4 w-4" /> {d.label}</span>
                   <span className="text-[10px] font-semibold normal-case tracking-normal opacity-80">
-                    {count} on duty
-                  </span>
+                    {t('{count} on duty', { count })}</span>
                 </button>
               );
             })}
@@ -337,19 +333,16 @@ export function AssignForm({
             </span>
             {mode === 'assign' ? 'Officer to assign' : 'On duty now'}
             <span className="ml-auto font-normal normal-case tracking-normal">
-              {onDuty} on duty · {free} available · nearest first
-            </span>
+              {t('{onDuty} on duty · {free} available · nearest first', { onDuty, free })}</span>
           </p>
 
           {mode === 'all' && targets.length === 0 ? (
             <p className="rounded-lg border border-dashed border-border px-3 py-6 text-center text-sm text-muted-foreground">
-              Select a department to see who is on duty.
-            </p>
+              {t('Select a department to see who is on duty.')}</p>
           ) : nobody ? (
             <p role="alert" className="flex items-center justify-center gap-2 rounded-lg border border-severity-critical/40 bg-severity-critical/10 px-3 py-6 text-center text-sm font-semibold text-severity-critical-ink">
               <UserX className="h-4 w-4 shrink-0" />
-              No one is on duty to receive the dispatch.
-            </p>
+              {t('No one is on duty to receive the dispatch.')}</p>
           ) : (
             <OfficerPicker
               ranked={ranked}
@@ -363,10 +356,7 @@ export function AssignForm({
             />
           )}
           <p className="mt-1.5 text-[11px] text-muted-foreground">
-            Only officers who went on duty in the app after today&apos;s start of shift are listed. Distance is straight-line
-            from their last GPS heartbeat; ETA assumes {eta.speedKmh} km/h with a {eta.roadFactor}× road factor
-            (Admin → Operations Settings).
-          </p>
+            {t('Only officers who went on duty in the app after today\'s start of shift are listed. Distance is straight-line from their last GPS heartbeat; ETA assumes {speedKmh} km/h with a {roadFactor}× road factor (Admin → Operations Settings).', { speedKmh: eta.speedKmh, roadFactor: eta.roadFactor })}</p>
         </div>
 
         {error ? (
@@ -387,8 +377,7 @@ export function AssignForm({
             onClick={() => router.back()}
             className="inline-flex h-11 items-center justify-center rounded-lg border border-border px-6 text-sm font-semibold hover:bg-muted sm:w-32"
           >
-            Cancel
-          </button>
+            {t('Cancel')}</button>
           <button
             type="submit"
             disabled={pending || Boolean(locked) || (mode === 'assign' ? !selected : targets.length === 0 || nobody)}

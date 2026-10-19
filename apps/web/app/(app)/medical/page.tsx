@@ -8,6 +8,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime, timeAgo } from '@/lib/utils';
 import { CritiTiles } from '@/components/criti/insight-tiles';
 import { AttendanceNow } from '@/components/schedule/attendance-now';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'EMS · HikTech' };
@@ -19,6 +20,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 /** EMS: the calls crews are working now, ambulances off road, and the clinical archive. */
 export default async function MedicalPage() {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const [active, pcrs, offRoad] = await Promise.all([
     listActiveIncidents(supabase, 'Medical').catch(() => []),
@@ -37,12 +39,11 @@ export default async function MedicalPage() {
       <IncidentLive />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Emergency Medical Services</h1>
-          <p className="text-muted-foreground">Live calls, ambulances and patient care reports.</p>
+          <h1 className="text-2xl font-bold">{t('Emergency Medical Services')}</h1>
+          <p className="text-muted-foreground">{t('Live calls, ambulances and patient care reports.')}</p>
         </div>
         <Link href="/medical/pcr/new" className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-semibold hover:bg-muted">
-          + New Manual Entry
-        </Link>
+          {t('+ New Manual Entry')}</Link>
       </header>
 
       {/* Criti: what needs attention now, for this person. */}
@@ -65,9 +66,9 @@ export default async function MedicalPage() {
       </section>
 
       <Card>
-        <CardHeader><CardTitle>Live EMS calls ({live.length})</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('Live EMS calls ({length})', { length: live.length })}</CardTitle></CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Incident', 'Type', 'Priority', 'Severity', 'Crew', 'Lead', 'Location', 'Dispatched', '']} empty="No live EMS calls.">
+          <SimpleTable headers={['Incident', 'Type', 'Priority', 'Severity', 'Crew', 'Lead', 'Location', 'Dispatched', '']} empty={t('No live EMS calls.')}>
             {live.map((i) => (
               <Tr key={i.id}>
                 <Td className="font-mono">{i.incident_number}</Td>
@@ -78,7 +79,7 @@ export default async function MedicalPage() {
                 <Td className="text-xs">{i.responding_officer ?? '—'}</Td>
                 <Td className="max-w-[220px] truncate">{i.location_address}</Td>
                 <Td className="text-xs text-muted-foreground">{timeAgo(i.dispatch_time ?? i.incident_created_at)}</Td>
-                <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">Open</Link></Td>
+                <Td><Link href={`/incidents/${i.id}`} className="text-accent hover:underline">{t('Open')}</Link></Td>
               </Tr>
             ))}
           </SimpleTable>
@@ -87,34 +88,34 @@ export default async function MedicalPage() {
 
       <section className="grid gap-3 sm:grid-cols-3">
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Clinical archive</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Clinical archive')}</p>
           <p className="mt-2 text-3xl font-bold">{pcrs.length}</p>
-          <Link href="/medical/pcr" className="text-sm text-accent hover:underline">View all →</Link>
+          <Link href="/medical/pcr" className="text-sm text-accent hover:underline">{t('View all →')}</Link>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Ambulances off road for cleaning</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Ambulances off road for cleaning')}</p>
           <p className="mt-2 text-3xl font-bold text-severity-high-ink">{cleaning.length}</p>
           {cleaning.length ? <p className="mt-1 text-xs text-muted-foreground">{cleaning.map((a) => a.unit_number).join(', ')}</p> : null}
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Ambulance restock</p>
-          <Link href="/medical/restock" className="mt-2 block text-sm text-accent hover:underline">Inventory →</Link>
+          <p className="text-xs uppercase text-muted-foreground">{t('Ambulance restock')}</p>
+          <Link href="/medical/restock" className="mt-2 block text-sm text-accent hover:underline">{t('Inventory →')}</Link>
         </CardContent></Card>
       </section>
 
       <Card>
-        <CardHeader><CardTitle>Recent patient care reports</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('Recent patient care reports')}</CardTitle></CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Incident Ref', 'Patient Name', 'Arrival Time', 'Destination', 'Care Level', 'Paramedic(s)', '']} empty="No clinical records found in the archive.">
+          <SimpleTable headers={['Incident Ref', 'Patient Name', 'Arrival Time', 'Destination', 'Care Level', 'Paramedic(s)', '']} empty={t('No clinical records found in the archive.')}>
             {pcrs.slice(0, 10).map((p) => (
               <Tr key={p.id}>
                 <Td className="font-mono text-xs">{p.report_number ?? 'Manual entry'}</Td>
                 <Td>{p.patient_name || 'Unknown Patient'}</Td>
                 <Td className="text-xs">{p.time_of_arrival ? formatSaTime(p.time_of_arrival) : 'Time Not Logged'}</Td>
-                <Td>{p.destination_hospital ?? <span className="text-muted-foreground">Not Transported</span>}</Td>
+                <Td>{p.destination_hospital ?? <span className="text-muted-foreground">{t('Not Transported')}</span>}</Td>
                 <Td>{p.level_of_care ?? '—'}</Td>
                 <Td className="text-xs">{p.paramedic_names ?? '—'}</Td>
-                <Td><Link href={`/medical/pcr/${p.id}`} className="text-accent hover:underline">Open</Link></Td>
+                <Td><Link href={`/medical/pcr/${p.id}`} className="text-accent hover:underline">{t('Open')}</Link></Td>
               </Tr>
             ))}
           </SimpleTable>

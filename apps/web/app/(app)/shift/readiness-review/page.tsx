@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Readiness Review · Criticomm' };
@@ -24,6 +25,7 @@ export default async function ReadinessReviewPage({
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   if (!SUPERVISORY_ROLES.includes(role) && role !== 'SystemController') notFound();
   const requested = Number((await searchParams).page ?? '1');
@@ -51,20 +53,19 @@ export default async function ReadinessReviewPage({
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Readiness review</h1>
+        <h1 className="text-2xl font-bold">{t('Readiness review')}</h1>
         <p className="text-muted-foreground">
-          Submitted officer declarations, including failed checks and retakes. Records are shown newest first. For
-          who is working now, with which vehicle and firearm, see <Link href="/shift/today" className="text-primary hover:underline">today’s shift</Link>.
+          {t('Submitted officer declarations, including failed checks and retakes. Records are shown newest first. For who is working now, with which vehicle and firearm, see')}{' '}<Link href="/shift/today" className="text-primary hover:underline">{t('today’s shift')}</Link>.
         </p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>{count ?? 0} submitted checks</CardTitle>
-          <CardDescription>Restricted to command and supervisory staff. Open a row to review all six answers.</CardDescription>
+          <CardTitle>{t('{value} submitted checks', { value: count ?? 0 })}</CardTitle>
+          <CardDescription>{t('Restricted to command and supervisory staff. Open a row to review all six answers.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Officer', 'Department', 'Submitted', 'Result', 'Declaration']} empty="No readiness checks found.">
+          <SimpleTable headers={['Officer', 'Department', 'Submitted', 'Result', 'Declaration']} empty={t('No readiness checks found.')}>
             {(checks ?? []).map((check) => {
               const person = byUser.get(check.user_id);
               const passed = ANSWERS.every(([key]) => check[key]);
@@ -83,7 +84,7 @@ export default async function ReadinessReviewPage({
                   </Td>
                   <Td>
                     <details className="min-w-48">
-                      <summary className="cursor-pointer font-medium">View answers</summary>
+                      <summary className="cursor-pointer font-medium">{t('View answers')}</summary>
                       <dl className="mt-3 space-y-1 text-xs">
                         {ANSWERS.map(([key, label]) => (
                           <div key={key} className="flex justify-between gap-4">
@@ -94,7 +95,7 @@ export default async function ReadinessReviewPage({
                           </div>
                         ))}
                         <div className="border-t border-border pt-2">
-                          <dt className="font-semibold">Comments</dt>
+                          <dt className="font-semibold">{t('Comments')}</dt>
                           <dd className="mt-1 whitespace-pre-wrap">{check.comments || 'None'}</dd>
                         </div>
                       </dl>
@@ -107,10 +108,10 @@ export default async function ReadinessReviewPage({
         </CardContent>
       </Card>
 
-      <nav aria-label="Readiness review pages" className="flex items-center justify-between text-sm">
-        {page > 1 ? <Link className="text-primary underline" href={`/shift/readiness-review?page=${page - 1}`}>Previous</Link> : <span />}
-        <span>Page {page} of {pages}</span>
-        {page < pages ? <Link className="text-primary underline" href={`/shift/readiness-review?page=${page + 1}`}>Next</Link> : <span />}
+      <nav aria-label={t('Readiness review pages')} className="flex items-center justify-between text-sm">
+        {page > 1 ? <Link className="text-primary underline" href={`/shift/readiness-review?page=${page - 1}`}>{t('Previous')}</Link> : <span />}
+        <span>{t('Page {page} of {pages}', { page, pages })}</span>
+        {page < pages ? <Link className="text-primary underline" href={`/shift/readiness-review?page=${page + 1}`}>{t('Next')}</Link> : <span />}
       </nav>
     </div>
   );

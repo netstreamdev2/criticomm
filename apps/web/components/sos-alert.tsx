@@ -7,6 +7,7 @@ import type { Database } from '@criticom/db';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { LeafletMap } from '@/components/leaflet-map';
 import { cn, timeAgo } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 
@@ -110,6 +111,7 @@ export function SosAlert({
   /** Fold into the SOS bar; the siren stops. */
   onMinimize: () => void;
 }) {
+  const { t } = useT();
   const [incident, setIncident] = useState<Incident | null>(null);
   const { blocked, unlock } = useSiren(true);
 
@@ -142,7 +144,7 @@ export function SosAlert({
         <div className="flex flex-wrap items-center gap-3 bg-severity-critical px-6 py-4">
           <Siren className="h-7 w-7 shrink-0 animate-pulse" />
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-[0.25em] opacity-90">SOS · officer emergency</p>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] opacity-90">{t('SOS · officer emergency')}</p>
             <p id="sos-title" className="text-xl font-extrabold leading-tight">{alert.title}</p>
           </div>
           {incident ? (
@@ -152,8 +154,8 @@ export function SosAlert({
             <button
               type="button"
               onClick={onMinimize}
-              aria-label="Minimise SOS"
-              title="Minimise (Esc) — stays as a bar, siren off"
+              aria-label={t('Minimise SOS')}
+              title={t('Minimise (Esc) — stays as a bar, siren off')}
               className="rounded-md p-1.5 hover:bg-black/25"
             >
               <Minus className="h-5 w-5" />
@@ -162,8 +164,8 @@ export function SosAlert({
               type="button"
               disabled={acking}
               onClick={() => onAcknowledge()}
-              aria-label="Clear SOS"
-              title="Clear — marks it acknowledged"
+              aria-label={t('Clear SOS')}
+              title={t('Clear — marks it acknowledged')}
               className="rounded-md p-1.5 hover:bg-black/25 disabled:opacity-60"
             >
               <X className="h-5 w-5" />
@@ -177,8 +179,7 @@ export function SosAlert({
             onClick={unlock}
             className="flex w-full items-center justify-center gap-2 bg-severity-critical/15 px-4 py-2 text-xs font-semibold text-severity-critical-ink"
           >
-            <Volume2 className="h-4 w-4" /> Click anywhere to sound the SOS alarm
-          </button>
+            <Volume2 className="h-4 w-4" /> {' '}{t('Click anywhere to sound the SOS alarm')}</button>
         ) : null}
 
         <div className="grid gap-5 p-6 md:grid-cols-[1.3fr_1fr]">
@@ -198,7 +199,7 @@ export function SosAlert({
                 <MapPin className="h-8 w-8 text-severity-critical-ink" />
                 <p className="font-bold">{incident ? 'Position unknown' : 'Locating…'}</p>
                 {incident ? (
-                  <p className="text-sm text-muted-foreground">Raise the officer on the radio for their location.</p>
+                  <p className="text-sm text-muted-foreground">{t('Raise the officer on the radio for their location.')}</p>
                 ) : null}
               </div>
             )}
@@ -224,9 +225,7 @@ export function SosAlert({
             ) : null}
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
               <Clock className="h-3.5 w-3.5" />
-              Raised {new Date(raisedAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-              {' '}({timeAgo(raisedAt)})
-              {sentOffline ? <span className="font-semibold text-severity-medium-ink">· sent offline, arrived late</span> : null}
+              {t('Raised {localeTimeString} ({timeAgo})', { localeTimeString: new Date(raisedAt).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), timeAgo: timeAgo(raisedAt) })}{sentOffline ? <span className="font-semibold text-severity-medium-ink">{t('· sent offline, arrived late')}</span> : null}
             </p>
             <p className="flex items-center gap-2 text-xs text-muted-foreground">
               <Radio className="h-3.5 w-3.5" />
@@ -234,7 +233,7 @@ export function SosAlert({
                 ? 'Waiting in the dispatch queue — send it to officers on duty or assign it.'
                 : 'Waiting in the dispatch queue — the dispatch desk has been alerted.'}
             </p>
-            {waiting > 0 ? <p className="text-xs font-semibold">+{waiting} more alert{waiting === 1 ? '' : 's'} waiting</p> : null}
+            {waiting > 0 ? <p className="text-xs font-semibold">{t('+{waiting} more alert{value} waiting', { waiting, value: waiting === 1 ? '' : 's' })}</p> : null}
           </div>
         </div>
 
@@ -246,8 +245,7 @@ export function SosAlert({
               onClick={() => onAcknowledge(`/dispatch/assign/${id}`)}
               className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-severity-critical text-sm font-extrabold uppercase tracking-wider disabled:opacity-60"
             >
-              <Siren className="h-4 w-4" /> Dispatch SOS
-            </button>
+              <Siren className="h-4 w-4" /> {' '}{t('Dispatch SOS')}</button>
           ) : null}
           {id ? (
             <button
@@ -256,8 +254,7 @@ export function SosAlert({
               onClick={() => onAcknowledge(`/incidents/${id}`)}
               className={cn('h-12 rounded-lg border border-border px-5 text-sm font-semibold hover:bg-muted disabled:opacity-60', !canDispatch && 'flex-1')}
             >
-              Open incident
-            </button>
+              {t('Open incident')}</button>
           ) : null}
           <button
             type="button"
@@ -265,8 +262,7 @@ export function SosAlert({
             onClick={() => onAcknowledge()}
             className={cn('h-12 rounded-lg border border-border px-5 text-sm font-semibold hover:bg-muted disabled:opacity-60', !id && 'flex-1')}
           >
-            Acknowledge
-          </button>
+            {t('Acknowledge')}</button>
         </div>
       </div>
     </div>
@@ -286,6 +282,7 @@ export function SosBar({
   onExpand: (alert: Alert) => void;
   onAcknowledge: (alert: Alert, href?: string) => void;
 }) {
+  const { t } = useT();
   if (alerts.length === 0) return null;
   return (
     <div aria-live="polite" className="fixed inset-x-4 bottom-4 z-[85] flex flex-col items-center gap-2 sm:inset-x-auto sm:right-4 sm:items-end">
@@ -299,9 +296,9 @@ export function SosBar({
             type="button"
             onClick={() => onExpand(alert)}
             className="min-w-0 flex-1 text-left"
-            title="Show the SOS"
+            title={t('Show the SOS')}
           >
-            <span className="block text-[10px] font-bold uppercase tracking-[0.2em] opacity-90">SOS · unanswered</span>
+            <span className="block text-[10px] font-bold uppercase tracking-[0.2em] opacity-90">{t('SOS · unanswered')}</span>
             <span className="block truncate text-sm font-extrabold">{alert.created_by_name ?? alert.title}</span>
           </button>
           {canDispatch && alert.incident_id ? (
@@ -310,14 +307,13 @@ export function SosBar({
               onClick={() => onAcknowledge(alert, `/dispatch/assign/${alert.incident_id}`)}
               className="shrink-0 rounded-md bg-black/25 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-black/35"
             >
-              Dispatch
-            </button>
+              {t('Dispatch')}</button>
           ) : null}
           <button
             type="button"
             onClick={() => onAcknowledge(alert)}
-            aria-label="Clear SOS"
-            title="Clear — marks it acknowledged"
+            aria-label={t('Clear SOS')}
+            title={t('Clear — marks it acknowledged')}
             className="shrink-0 rounded-md p-1.5 hover:bg-black/25"
           >
             <X className="h-4 w-4" />

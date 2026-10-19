@@ -5,6 +5,7 @@ import { requireFeaturePage } from '@/lib/features';
 import { getSession } from '@/lib/session';
 import { cn, formatSaTime } from '@/lib/utils';
 import { issueSummonsAction, setSummonsStatusAction } from '../enforcement-actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Summons · HikTech' };
@@ -18,6 +19,7 @@ const STATUS_TONE: Record<string, string> = {
 };
 
 export default async function SummonsPage() {
+  const { t } = await requestT();
   await requireFeaturePage('web.enforcement');
   const { supabase } = await getSession();
   const summonses = await listSummonses(supabase);
@@ -26,44 +28,44 @@ export default async function SummonsPage() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Summons</h1>
-        <p className="text-muted-foreground">{summonses.length} on record · {outstanding} awaiting service.</p>
+        <h1 className="text-2xl font-bold">{t('Summons')}</h1>
+        <p className="text-muted-foreground">{t('{length} on record · {outstanding} awaiting service.', { length: summonses.length, outstanding })}</p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>Issue a summons</CardTitle>
-          <CardDescription>It gets the next SM- number. Service is recorded from the register below.</CardDescription>
+          <CardTitle>{t('Issue a summons')}</CardTitle>
+          <CardDescription>{t('It gets the next SM- number. Service is recorded from the register below.')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form action={issueSummonsAction} className="grid gap-3 md:grid-cols-4">
-            <input name="recipient_name" required placeholder="Recipient name"
+            <input name="recipient_name" required placeholder={t('Recipient name')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <input name="recipient_id_number" placeholder="ID number"
+            <input name="recipient_id_number" placeholder={t('ID number')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <input name="offence" required placeholder="Offence"
+            <input name="offence" required placeholder={t('Offence')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm md:col-span-2" />
-            <input name="court_name" placeholder="Court"
+            <input name="court_name" placeholder={t('Court')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
             <input name="court_date" type="date" className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-            <input name="address" placeholder="Service address"
+            <input name="address" placeholder={t('Service address')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm md:col-span-2" />
-            <input name="notes" placeholder="Notes (optional)"
+            <input name="notes" placeholder={t('Notes (optional)')}
               className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm md:col-span-3" />
-            <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">Issue</button>
+            <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Issue')}</button>
           </form>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Register</CardTitle>
-          <CardDescription>Serving records when it was served.</CardDescription>
+          <CardTitle>{t('Register')}</CardTitle>
+          <CardDescription>{t('Serving records when it was served.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['#', 'Recipient', 'Offence', 'Court', 'Court date', 'Status', 'Set status']}
-            empty="No summonses on record."
+            empty={t('No summonses on record.')}
           >
             {summonses.map((s) => (
               <Tr key={s.id}>
@@ -92,10 +94,10 @@ export default async function SummonsPage() {
                     <form action={setSummonsStatusAction} className="flex items-center gap-1.5">
                       <input type="hidden" name="id" value={s.id} />
                       <select name="status" className="h-8 rounded-md border border-border bg-bg-soft px-1.5 text-xs">
-                        <option>Served</option><option>Court Date Set</option>
-                        <option>Concluded</option><option>Withdrawn</option>
+                        <option>{t('Served')}</option><option>{t('Court Date Set')}</option>
+                        <option>{t('Concluded')}</option><option>{t('Withdrawn')}</option>
                       </select>
-                      <button type="submit" className="h-8 rounded-md bg-accent px-2.5 text-xs font-semibold">Set</button>
+                      <button type="submit" className="h-8 rounded-md bg-accent px-2.5 text-xs font-semibold">{t('Set')}</button>
                     </form>
                   ) : <span className="text-xs text-muted-foreground">—</span>}
                 </Td>

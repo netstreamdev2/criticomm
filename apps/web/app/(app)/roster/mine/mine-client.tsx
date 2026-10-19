@@ -9,6 +9,8 @@ import {
 } from '@criticom/api';
 import { useToast } from '@/components/toast';
 import { confirmShiftAction, requestSwapAction, respondSwapAction, startShiftAction, withdrawSwapAction, type MineResult } from './actions';
+import { useT } from '@/components/i18n';
+import { T } from '@/components/i18n';
 
 const btn = 'inline-flex h-9 items-center gap-1.5 rounded-md px-3 text-sm font-semibold transition-colors disabled:opacity-60';
 const input = 'h-9 rounded-md border border-border bg-bg-soft px-2 text-sm';
@@ -31,6 +33,7 @@ export function MySchedule({
   ahead: ScheduleLine[];
   startsAtConsole: boolean;
 }) {
+  const { t } = useT();
   const toast = useToast();
   const [pending, start] = useTransition();
   const tpl = useMemo(() => new Map(data.templates.map((t) => [t.id, t])), [data.templates]);
@@ -68,26 +71,24 @@ export function MySchedule({
                 </p>
               ) : null}
               {!startsAtConsole && !now.attendance?.checked_in_at ? (
-                <p className="mt-1 text-xs text-muted-foreground">Start your shift in the app: going on duty checks you in.</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t('Start your shift in the app: going on duty checks you in.')}</p>
               ) : null}
             </div>
             <div className="flex flex-wrap gap-2">
               {!now.acknowledged_at ? (
                 <button type="button" disabled={pending} onClick={() => run(() => confirmShiftAction(fd({ id: now.id })), 'Shift confirmed')}
                   className={`${btn} border border-border hover:bg-muted`}>
-                  <CheckCircle2 className="h-4 w-4" /> I have read this shift
-                </button>
+                  <CheckCircle2 className="h-4 w-4" /> {' '}{t('I have read this shift')}</button>
               ) : null}
               {canStart ? (
                 <button type="button" disabled={pending} onClick={() => run(() => startShiftAction(), 'Started')}
                   className={`${btn} bg-primary text-primary-foreground`}>
-                  <Play className="h-4 w-4" /> Start shift
-                </button>
+                  <Play className="h-4 w-4" /> {' '}{t('Start shift')}</button>
               ) : null}
             </div>
           </div>
         ) : (
-          <p className="mt-2 text-sm text-muted-foreground">Nothing on your roster in the next day.</p>
+          <p className="mt-2 text-sm text-muted-foreground">{t('Nothing on your roster in the next day.')}</p>
         )}
       </section>
 
@@ -96,8 +97,8 @@ export function MySchedule({
         <div className="flex items-center justify-between">
           <p className="flex items-center gap-2 font-semibold"><CalendarDays className="h-4 w-4" /> {monthName}</p>
           <div className="flex gap-1">
-            <Link href={prevHref} aria-label="Previous month" className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronLeft className="h-4 w-4" /></Link>
-            <Link href={nextHref} aria-label="Next month" className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronRight className="h-4 w-4" /></Link>
+            <Link href={prevHref} aria-label={t('Previous month')} className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronLeft className="h-4 w-4" /></Link>
+            <Link href={nextHref} aria-label={t('Next month')} className="rounded-md border border-border p-1.5 hover:bg-muted"><ChevronRight className="h-4 w-4" /></Link>
           </div>
         </div>
         <MonthCalendar month={month} today={today} data={data} />
@@ -113,6 +114,7 @@ export function MySchedule({
 }
 
 function MonthCalendar({ month, today, data }: { month: string; today: string; data: MyMonth }) {
+  const { t } = useT();
   const tpl = new Map(data.templates.map((t) => [t.id, t]));
   const holiday = new Map(data.holidays.map((h) => [h.day, h.name]));
   const byDay = new Map<string, ScheduleLine[]>();
@@ -127,7 +129,7 @@ function MonthCalendar({ month, today, data }: { month: string; today: string; d
   const total = data.lines.filter((l) => l.duty_date?.startsWith(month) && lineActive(l.status, l.cancelled_at)).length;
   return (
     <div className="mt-3">
-      <p className="mb-2 text-xs text-muted-foreground">{total} shift{total === 1 ? '' : 's'} this month</p>
+      <p className="mb-2 text-xs text-muted-foreground">{t('{total} shift{value} this month', { total, value: total === 1 ? '' : 's' })}</p>
       <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border text-xs">
         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
           <div key={d} className="bg-bg-soft px-2 py-1.5 text-center font-bold uppercase tracking-wider text-muted-foreground">{d}</div>
@@ -144,7 +146,7 @@ function MonthCalendar({ month, today, data }: { month: string; today: string; d
               </p>
               {lines.map((l) => {
                 const t = l.template_id ? tpl.get(l.template_id) : undefined;
-                if (l.status === 'Leave') return <p key={l.id} className="rounded bg-muted px-1 py-0.5 text-[10px] font-semibold">On leave</p>;
+                if (l.status === 'Leave') return <p key={l.id} className="rounded bg-muted px-1 py-0.5 text-[10px] font-semibold"><T s="On leave" /></p>;
                 return (
                   <p key={l.id} className="truncate rounded px-1 py-0.5 text-[10px] font-semibold"
                     style={{ background: `${t?.colour ?? '#64748b'}33`, color: t?.colour ?? undefined }}
@@ -167,6 +169,7 @@ function MonthCalendar({ month, today, data }: { month: string; today: string; d
 }
 
 function WhosOn({ rows, today, me, nameOf }: { rows: WhosOnRow[]; today: string; me: string; nameOf: (l: WhosOnRow) => string }) {
+  const { t } = useT();
   const now = Date.now();
   const on = rows.filter((r) => lineActive(r.status, r.cancelled_at) && Date.parse(r.start_at!) <= now && Date.parse(r.end_at!) > now);
   const later = rows.filter((r) => lineActive(r.status, r.cancelled_at) && Date.parse(r.start_at!) > now);
@@ -179,13 +182,13 @@ function WhosOn({ rows, today, me, nameOf }: { rows: WhosOnRow[]; today: string;
   );
   return (
     <section className={card}>
-      <p className="flex items-center gap-2 font-semibold"><Users className="h-4 w-4" /> Who&apos;s on today</p>
-      {!rows.length ? <p className="mt-2 text-sm text-muted-foreground">Nobody is on the issued roster today.</p> : null}
-      {on.length ? <><p className="mt-3 text-xs font-bold uppercase text-muted-foreground">On now ({on.length})</p><ul className="mt-1 space-y-1 text-sm">{on.map(row)}</ul></> : null}
-      {later.length ? <><p className="mt-3 text-xs font-bold uppercase text-muted-foreground">Later ({later.length})</p><ul className="mt-1 space-y-1 text-sm">{later.map(row)}</ul></> : null}
+      <p className="flex items-center gap-2 font-semibold"><Users className="h-4 w-4" /> {' '}{t('Who\'s on today')}</p>
+      {!rows.length ? <p className="mt-2 text-sm text-muted-foreground">{t('Nobody is on the issued roster today.')}</p> : null}
+      {on.length ? <><p className="mt-3 text-xs font-bold uppercase text-muted-foreground">{t('On now ({length})', { length: on.length })}</p><ul className="mt-1 space-y-1 text-sm">{on.map(row)}</ul></> : null}
+      {later.length ? <><p className="mt-3 text-xs font-bold uppercase text-muted-foreground">{t('Later ({length})', { length: later.length })}</p><ul className="mt-1 space-y-1 text-sm">{later.map(row)}</ul></> : null}
       {off.length ? (
         <>
-          <p className="mt-3 text-xs font-bold uppercase text-muted-foreground">Off today ({off.length})</p>
+          <p className="mt-3 text-xs font-bold uppercase text-muted-foreground">{t('Off today ({length})', { length: off.length })}</p>
           <ul className="mt-1 space-y-1 text-sm">{off.map((r) => <li key={r.id}>{r.user_name}</li>)}</ul>
         </>
       ) : null}
@@ -196,6 +199,7 @@ function WhosOn({ rows, today, me, nameOf }: { rows: WhosOnRow[]; today: string;
 function Swaps({ me, swaps, ahead, options, nameOf }: {
   me: string; swaps: SwapView[]; ahead: ScheduleLine[]; options: WhosOnRow[]; nameOf: (l: { template_id: string | null; activity_type?: string | null }) => string;
 }) {
+  const { t } = useT();
   const toast = useToast();
   const [pending, start] = useTransition();
   const [asking, setAsking] = useState(false);
@@ -217,53 +221,51 @@ function Swaps({ me, swaps, ahead, options, nameOf }: {
   return (
     <section className={card}>
       <div className="flex items-center justify-between">
-        <p className="flex items-center gap-2 font-semibold"><Repeat className="h-4 w-4" /> Swaps</p>
+        <p className="flex items-center gap-2 font-semibold"><Repeat className="h-4 w-4" /> {' '}{t('Swaps')}</p>
         {!asking && mine.length && options.length ? (
-          <button type="button" onClick={() => setAsking(true)} className={`${btn} h-8 border border-border hover:bg-muted`}>Ask for a swap</button>
+          <button type="button" onClick={() => setAsking(true)} className={`${btn} h-8 border border-border hover:bg-muted`}>{t('Ask for a swap')}</button>
         ) : null}
       </div>
       {asking ? (
         <div className="mt-3 space-y-2 rounded-md border border-dashed border-border p-3">
-          <label className="block text-xs text-muted-foreground">My shift
-            <select className={`${input} mt-1 w-full`} value={myLine} onChange={(e) => setMyLine(e.target.value)}>
+          <label className="block text-xs text-muted-foreground">{t('My shift')}<select className={`${input} mt-1 w-full`} value={myLine} onChange={(e) => setMyLine(e.target.value)}>
               {mine.map((l) => <option key={l.id} value={l.id}>{describe(l)}</option>)}
             </select>
           </label>
-          <label className="block text-xs text-muted-foreground">For their shift
-            <select className={`${input} mt-1 w-full`} value={theirLine} onChange={(e) => setTheirLine(e.target.value)}>
-              <option value="">Choose…</option>
+          <label className="block text-xs text-muted-foreground">{t('For their shift')}<select className={`${input} mt-1 w-full`} value={theirLine} onChange={(e) => setTheirLine(e.target.value)}>
+              <option value="">{t('Choose…')}</option>
               {options.map((l) => <option key={l.id} value={l.id}>{l.user_name}: {describe(l)}</option>)}
             </select>
           </label>
-          <input className={`${input} w-full`} placeholder="Note (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
+          <input className={`${input} w-full`} placeholder={t('Note (optional)')} value={note} onChange={(e) => setNote(e.target.value)} />
           <div className="flex gap-2">
             <button type="button" disabled={pending || !myLine || !theirLine}
               onClick={() => run(() => requestSwapAction(fd({ myLine, theirLine, note })), 'Swap asked for', () => setAsking(false))}
-              className={`${btn} bg-primary text-primary-foreground`}>Ask</button>
-            <button type="button" onClick={() => setAsking(false)} className={`${btn} border border-border`}>Cancel</button>
+              className={`${btn} bg-primary text-primary-foreground`}>{t('Ask')}</button>
+            <button type="button" onClick={() => setAsking(false)} className={`${btn} border border-border`}>{t('Cancel')}</button>
           </div>
-          <p className="text-xs text-muted-foreground">They accept, then your supervisor approves. Until then your shift stays yours.</p>
+          <p className="text-xs text-muted-foreground">{t('They accept, then your supervisor approves. Until then your shift stays yours.')}</p>
         </div>
       ) : null}
-      {!swaps.length && !asking ? <p className="mt-2 text-sm text-muted-foreground">No swaps.</p> : null}
+      {!swaps.length && !asking ? <p className="mt-2 text-sm text-muted-foreground">{t('No swaps.')}</p> : null}
       <ul className="mt-3 space-y-2 text-sm">
         {swaps.slice(0, 10).map((s) => {
           const mineSide = s.requester_id === me ? s.mine : s.theirs;
           const otherSide = s.requester_id === me ? s.theirs : s.mine;
           return (
             <li key={s.id} className="rounded-md border border-border p-2">
-              <p>Your {describe(mineSide)} for {otherSide?.user_name ?? 'a colleague'}&apos;s {describe(otherSide)}</p>
+              <p>{t('Your {describe} for {value}\'s {describe2}', { describe: describe(mineSide), value: otherSide?.user_name ?? 'a colleague', describe2: describe(otherSide) })}</p>
               <p className="text-xs text-muted-foreground">{STATUS[s.status] ?? s.status}{s.decision_comment ? ` · ${s.decision_comment}` : ''}</p>
               {open.includes(s) ? (
                 <div className="mt-1.5 flex gap-1.5">
                   {s.partner_id === me && s.status === 'Requested' ? (
                     <>
-                      <button type="button" disabled={pending} onClick={() => run(() => respondSwapAction(fd({ id: s.id, answer: 'accept' })), 'Accepted')} className={`${btn} h-8 bg-severity-low/20 text-severity-low-ink`}>Accept</button>
-                      <button type="button" disabled={pending} onClick={() => run(() => respondSwapAction(fd({ id: s.id, answer: 'decline' })), 'Declined')} className={`${btn} h-8 border border-border`}>Decline</button>
+                      <button type="button" disabled={pending} onClick={() => run(() => respondSwapAction(fd({ id: s.id, answer: 'accept' })), 'Accepted')} className={`${btn} h-8 bg-severity-low/20 text-severity-low-ink`}>{t('Accept')}</button>
+                      <button type="button" disabled={pending} onClick={() => run(() => respondSwapAction(fd({ id: s.id, answer: 'decline' })), 'Declined')} className={`${btn} h-8 border border-border`}>{t('Decline')}</button>
                     </>
                   ) : null}
                   {s.requester_id === me ? (
-                    <button type="button" disabled={pending} onClick={() => run(() => withdrawSwapAction(fd({ id: s.id })), 'Withdrawn')} className={`${btn} h-8 border border-border`}>Withdraw</button>
+                    <button type="button" disabled={pending} onClick={() => run(() => withdrawSwapAction(fd({ id: s.id })), 'Withdrawn')} className={`${btn} h-8 border border-border`}>{t('Withdraw')}</button>
                   ) : null}
                 </div>
               ) : null}

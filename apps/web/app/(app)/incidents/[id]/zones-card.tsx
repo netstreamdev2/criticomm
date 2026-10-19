@@ -5,19 +5,21 @@ import { DEPARTMENT_NAMES, canDrawMapZones, type UserRole } from '@criticom/db';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { describeAudience, describeShape, fromGeometry, roleWords, zoneKind } from '@/lib/ops-map/zones';
 import { formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 /**
  * Perimeters and zones set against this call, in force or stood down: what,
  * who set it and why, who received it, and how it ended. The record stays
  * with the call after the map has moved on.
  */
-export function IncidentZonesCard({ zones, incidentId, incidentNumber, role, isClosed }: {
+export async function IncidentZonesCard({ zones, incidentId, incidentNumber, role, isClosed }: {
   zones: MapZone[];
   incidentId: string;
   incidentNumber: string;
   role: UserRole;
   isClosed: boolean;
 }) {
+  const { t } = await requestT();
   const canDraw = canDrawMapZones(role) && !isClosed;
   if (!zones.length && !canDraw) return null;
   const now = Date.now();
@@ -28,22 +30,21 @@ export function IncidentZonesCard({ zones, incidentId, incidentNumber, role, isC
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
-            <CardTitle>Perimeters & zones ({zones.length})</CardTitle>
-            <CardDescription>Cordons, closures and points set on the live map for this call.</CardDescription>
+            <CardTitle>{t('Perimeters & zones ({length})', { length: zones.length })}</CardTitle>
+            <CardDescription>{t('Cordons, closures and points set on the live map for this call.')}</CardDescription>
           </div>
           {canDraw && (
             <Link
               href={`/incidents/map?incident=${incidentId}`}
               className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-semibold"
             >
-              <PencilRuler className="h-4 w-4" /> Draw a perimeter
-            </Link>
+              <PencilRuler className="h-4 w-4" /> {' '}{t('Draw a perimeter')}</Link>
           )}
         </div>
       </CardHeader>
       <CardContent>
         {zones.length === 0 ? (
-          <p className="text-sm text-muted-foreground">None set for {incidentNumber} yet.</p>
+          <p className="text-sm text-muted-foreground">{t('None set for {incidentNumber} yet.', { incidentNumber })}</p>
         ) : (
           <ul className="space-y-3 text-sm">
             {zones.map((z) => {
@@ -66,8 +67,7 @@ export function IncidentZonesCard({ zones, incidentId, incidentNumber, role, isC
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Set by {z.created_by_name ?? 'Unknown'}
-                    {z.created_by_role ? ` (${roleWords(z.created_by_role)}, ${dept(z.silo)})` : ''} · {formatSaTime(z.created_at)}
+                    {t('Set by {value}{value2} · {saTime}', { value: z.created_by_name ?? 'Unknown', value2: z.created_by_role ? ` (${roleWords(z.created_by_role)}, ${dept(z.silo)})` : '', saTime: formatSaTime(z.created_at) })}
                   </p>
                   {z.reason && <p className="mt-1.5 whitespace-pre-wrap">{z.reason}</p>}
                   <p className="mt-1.5 text-xs text-muted-foreground">
@@ -76,14 +76,12 @@ export function IncidentZonesCard({ zones, incidentId, incidentNumber, role, isC
                   </p>
                   {z.status === 'ended' && (
                     <p className="mt-1.5 text-xs text-muted-foreground">
-                      Stood down by {z.ended_by_name ?? 'unknown'} · {formatSaTime(z.ended_at)}
-                      {z.end_reason ? ` — ${z.end_reason}` : ''}
+                      {t('Stood down by {value} · {saTime}{value2}', { value: z.ended_by_name ?? 'unknown', saTime: formatSaTime(z.ended_at), value2: z.end_reason ? ` — ${z.end_reason}` : '' })}
                     </p>
                   )}
                   {live && (
                     <Link href={`/incidents/map?zone=${z.id}`} className="mt-1.5 inline-block text-xs font-semibold text-accent hover:underline">
-                      Show on the map →
-                    </Link>
+                      {t('Show on the map →')}</Link>
                   )}
                 </li>
               );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useT } from '@/components/i18n';
 
 /**
  * Canvas signature capture — replaces V4's signature-pad on the Paramedic PCR.
@@ -12,6 +13,7 @@ export function SignaturePad({
 }: {
   name: string; label: string; defaultValue?: string | null;
 }) {
+  const { t } = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const drawing = useRef(false);
@@ -91,8 +93,7 @@ export function SignaturePad({
           onClick={clear}
           className="text-xs text-muted-foreground hover:text-fg"
         >
-          Clear
-        </button>
+          {t('Clear')}</button>
       </div>
       <canvas
         ref={canvasRef}

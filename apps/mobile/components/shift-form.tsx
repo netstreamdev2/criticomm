@@ -50,7 +50,7 @@ export function CrestHeader({ dept, subtitle }: { dept: DeptIdentity; subtitle: 
       <View style={styles.badgePlate}>
         {policeInspection ? (
           <Image
-            source={require('../assets/dmps-inspection-badge.png')}
+            source={require('../assets/dmps-badge.png')}
             style={styles.inspectionBadge}
             resizeMode="contain"
             accessibilityLabel={t('Metro Police inspection badge')}

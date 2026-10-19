@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { getSession, siloFilter } from '@/lib/session';
 import { PerfNav } from '../../perf-nav';
 import { saveScoreAction, approveStageAction } from '../../actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Appraisal Plan · HikTech' };
@@ -12,6 +13,7 @@ export const metadata = { title: 'Appraisal Plan · HikTech' };
 type Stage = 'MidYear' | 'Final';
 
 export default async function PlanDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = await requestT();
   const { id } = await params;
   const { supabase, role, silo } = await getSession();
   const canManage = ADMIN_ROLES.includes(role) || role === 'Supervisor' || role === 'System';
@@ -37,20 +39,20 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ id:
       <CardHeader className="flex-row items-center justify-between">
         <div>
           <CardTitle>{stage === 'MidYear' ? 'Mid-year assessment' : 'Final assessment'}</CardTitle>
-          <CardDescription>Average {stageAvg(stage) ?? '—'} / 5 across {kpis.length} KPIs.</CardDescription>
+          <CardDescription>{t('Average {value} / 5 across {length} KPIs.', { value: stageAvg(stage) ?? '—', length: kpis.length })}</CardDescription>
         </div>
         {canManage && (
           <form action={approveStageAction}>
             <input type="hidden" name="plan_id" value={plan.id} />
             <input type="hidden" name="stage" value={stage} />
             <button type="submit" className="rounded-md bg-accent px-3 py-1.5 text-xs font-semibold">
-              Approve {stage === 'MidYear' ? 'mid-year' : 'final'}
+              {t('Approve {value}', { value: stage === 'MidYear' ? 'mid-year' : 'final' })}
             </button>
           </form>
         )}
       </CardHeader>
       <CardContent className="space-y-3">
-        {kpis.length === 0 && <p className="text-sm text-muted-foreground">No KPIs configured for this cycle.</p>}
+        {kpis.length === 0 && <p className="text-sm text-muted-foreground">{t('No KPIs configured for this cycle.')}</p>}
         {kpis.map((k) => {
           const existing = scoreFor(k.id, stage);
           return (
@@ -77,20 +79,20 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ id:
                   >
                     {[1, 2, 3, 4, 5].map((n) => <option key={n} value={n}>{n}</option>)}
                   </select>
-                  {existing?.approved && <span className="text-xs text-severity-low-ink">✓ approved</span>}
+                  {existing?.approved && <span className="text-xs text-severity-low-ink">{t('✓ approved')}</span>}
                 </div>
               </div>
               {canManage && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   <input
-                    name="comments" defaultValue={existing?.comments ?? ''} placeholder="Comments"
+                    name="comments" defaultValue={existing?.comments ?? ''} placeholder={t('Comments')}
                     className="h-9 flex-1 rounded-md border border-border bg-bg-card px-2 text-xs"
                   />
                   <input
-                    name="evidence" defaultValue={existing?.evidence ?? ''} placeholder="Evidence / portfolio ref"
+                    name="evidence" defaultValue={existing?.evidence ?? ''} placeholder={t('Evidence / portfolio ref')}
                     className="h-9 flex-1 rounded-md border border-border bg-bg-card px-2 text-xs"
                   />
-                  <button type="submit" className="h-9 rounded-md bg-primary px-3 text-xs font-semibold">Save</button>
+                  <button type="submit" className="h-9 rounded-md bg-primary px-3 text-xs font-semibold">{t('Save')}</button>
                 </div>
               )}
               {!canManage && existing?.comments && (
@@ -107,9 +109,9 @@ export default async function PlanDetailPage({ params }: { params: Promise<{ id:
     <div className="space-y-6">
       <PerfNav active="/performance/plans" />
       <header>
-        <h1 className="text-2xl font-bold">{plan.employee_name ?? 'Member'} — appraisal</h1>
+        <h1 className="text-2xl font-bold">{t('{value} — appraisal', { value: plan.employee_name ?? 'Member' })}</h1>
         <p className="text-muted-foreground">
-          Cycle {cycleLabel(plan.cycle_year)} · {plan.department ?? plan.silo} · status <strong>{plan.status}</strong>
+          {t('Cycle {cycleLabel} · {value} · status', { cycleLabel: cycleLabel(plan.cycle_year), value: plan.department ?? plan.silo })}{' '}<strong>{plan.status}</strong>
         </p>
       </header>
 

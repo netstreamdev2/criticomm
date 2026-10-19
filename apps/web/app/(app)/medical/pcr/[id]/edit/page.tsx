@@ -6,11 +6,13 @@ import { formatSaTime } from '@/lib/utils';
 import { PcrFormSections } from '../../pcr-form';
 import { PcrFormShell } from '../../pcr-form-shell';
 import { updatePcrAction } from '../../../actions';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Edit PCR · HikTech' };
 
 export default async function EditPcrPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = await requestT();
   const { id } = await params;
   const { supabase, role } = await getSession();
   // The receiving doctor reads reports; the crew corrects them.
@@ -21,7 +23,7 @@ export default async function EditPcrPage({ params }: { params: Promise<{ id: st
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Edit {pcr.report_number ?? 'PCR'} · {pcr.patient_name ?? 'Unknown patient'}</h1>
+        <h1 className="text-2xl font-bold">{t('Edit {value} · {value2}', { value: pcr.report_number ?? 'PCR', value2: pcr.patient_name ?? 'Unknown patient' })}</h1>
       </header>
       <PcrFormShell action={updatePcrAction} submitLabel="Save changes">
         <input type="hidden" name="pcr_id" value={pcr.id} />

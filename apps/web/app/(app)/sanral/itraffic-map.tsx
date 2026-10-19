@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ExternalLink, Maximize2, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 /**
  * The SANRAL CCTV matrix from V4: i-traffic's own embedded map, framed. It
@@ -37,6 +38,7 @@ const LAYERS = [
 const DEFAULT_LAYERS = ['Cameras', 'MessageSigns', 'Incidents'];
 
 export function ITrafficMap({ focus }: { focus?: { lat: number; lng: number } }) {
+  const { t } = useT();
   const [area, setArea] = useState(focus ? 'focus' : 'durban');
   const [layers, setLayers] = useState<string[]>(DEFAULT_LAYERS);
   const frameBox = useRef<HTMLDivElement>(null);
@@ -85,26 +87,24 @@ export function ITrafficMap({ focus }: { focus?: { lat: number; lng: number } })
     <div className="overflow-hidden rounded-xl border border-border bg-bg-card">
       <div className="flex flex-wrap items-center gap-2 border-b border-border bg-bg-soft px-4 py-3">
         <h2 className="flex items-center gap-2 text-sm font-bold">
-          <Video className="h-4 w-4 text-accent" /> SANRAL CCTV matrix
-        </h2>
+          <Video className="h-4 w-4 text-accent" /> {' '}{t('SANRAL CCTV matrix')}</h2>
         <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
-          i-traffic live
-        </span>
+          {t('i-traffic live')}</span>
         <div className="ml-auto flex items-center gap-2">
-          <label htmlFor="itraffic-area" className="sr-only">Area</label>
+          <label htmlFor="itraffic-area" className="sr-only">{t('Area')}</label>
           <select
             id="itraffic-area"
             value={area}
             onChange={(e) => setArea(e.target.value)}
             className="h-8 rounded-md border border-border bg-bg px-2 text-xs font-semibold focus:border-accent focus:outline-none"
           >
-            {focus ? <option value="focus">Around the incident</option> : null}
+            {focus ? <option value="focus">{t('Around the incident')}</option> : null}
             {AREAS.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
           </select>
           <button
             type="button"
             onClick={() => void frameBox.current?.requestFullscreen?.()}
-            aria-label="Full screen"
+            aria-label={t('Full screen')}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-fg"
           >
             <Maximize2 className="h-3.5 w-3.5" />
@@ -113,7 +113,7 @@ export function ITrafficMap({ focus }: { focus?: { lat: number; lng: number } })
             href={openUrl}
             target="_blank"
             rel="noreferrer noopener"
-            aria-label="Open on i-traffic"
+            aria-label={t('Open on i-traffic')}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-fg"
           >
             <ExternalLink className="h-3.5 w-3.5" />
@@ -140,8 +140,7 @@ export function ITrafficMap({ focus }: { focus?: { lat: number; lng: number } })
           );
         })}
         <span className="ml-auto self-center text-[11px] text-muted-foreground">
-          Click a camera for its latest snapshot.
-        </span>
+          {t('Click a camera for its latest snapshot.')}</span>
       </div>
 
       {/* The browser stretches this box to the whole screen in full screen; the map follows. */}
@@ -150,7 +149,7 @@ export function ITrafficMap({ focus }: { focus?: { lat: number; lng: number } })
           <iframe
             key={src}
             src={src}
-            title="SANRAL freeway cameras on i-traffic"
+            title={t('SANRAL freeway cameras on i-traffic')}
             className="absolute inset-0 block h-full w-full border-0"
             referrerPolicy="no-referrer"
             // i-traffic's scripts run in their own origin; it may not navigate our page.

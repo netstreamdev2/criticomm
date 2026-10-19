@@ -7,6 +7,7 @@ import type { AutomationRule, RuleField } from '@criticom/api';
 import { runAutomationAction, saveAutomationAction, toggleAutomationAction } from './actions';
 import { useToast } from '@/components/toast';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 /**
  * One automation rule: what it does, whether it is on, its thresholds, and what
@@ -26,6 +27,7 @@ export function RuleCard({
   /** Only the SuperAdmin changes or fires rules — they run for every tenant. */
   canEdit: boolean;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -128,8 +130,7 @@ export function RuleCard({
             className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm font-medium hover:bg-bg-soft disabled:opacity-50"
           >
             {pending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
-            Run now
-          </button>
+            {t('Run now')}</button>
           <button
             type="button"
             onClick={toggle}
@@ -175,8 +176,7 @@ export function RuleCard({
 
         <label className="block">
           <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Check every
-          </span>
+            {t('Check every')}</span>
           <span className="mt-1 flex items-center gap-2">
             <input
               type="number"
@@ -188,12 +188,10 @@ export function RuleCard({
               disabled={!canEdit}
               className="h-9 w-24 rounded-md border border-border bg-bg-soft px-2 text-sm tabular-nums"
             />
-            <span className="text-sm text-muted-foreground">minutes</span>
+            <span className="text-sm text-muted-foreground">{t('minutes')}</span>
           </span>
           <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
-            How often this rule is evaluated. The scheduler ticks every 5 minutes, so anything
-            below that runs every tick.
-          </span>
+            {t('How often this rule is evaluated. The scheduler ticks every 5 minutes, so anything below that runs every tick.')}</span>
         </label>
       </div>
 
@@ -201,7 +199,7 @@ export function RuleCard({
         <p className="text-xs text-muted-foreground">
           {rule.last_run_at ? (
             <>
-              Last run{' '}
+              {t('Last run')}{' '}
               <time dateTime={rule.last_run_at}>
                 {new Date(rule.last_run_at).toLocaleString('en-ZA')}
               </time>{' '}
@@ -219,8 +217,7 @@ export function RuleCard({
           className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-40"
         >
           {pending ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
-          Save
-        </button>
+          {t('Save')}</button>
       </div>
 
       {error ? (

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Crosshair, Layers, Loader2 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 export type PickedPoint = { lat: number; lng: number };
 
@@ -41,6 +42,7 @@ export function LocationPicker({
   height?: number;
   interactive?: boolean;
 }) {
+  const { t } = useT();
   const el = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import('leaflet').Map | null>(null);
   const markerRef = useRef<import('leaflet').Marker | null>(null);
@@ -164,14 +166,13 @@ export function LocationPicker({
           <button
             type="button"
             onClick={useMyLocation}
-            title="Centre on my position"
+            title={t('Centre on my position')}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-bg-card/95 px-2.5 py-1.5 text-[11px] font-semibold shadow-lg backdrop-blur hover:bg-muted"
           >
             {locating
               ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
               : <Crosshair className="h-3.5 w-3.5" />}
-            My position
-          </button>
+            {t('My position')}</button>
         </div>
       ) : null}
 
@@ -180,8 +181,7 @@ export function LocationPicker({
           'pointer-events-none absolute bottom-2 left-2 z-[400] rounded-md bg-black/65 px-2 py-1',
           'text-[10px] font-medium text-white backdrop-blur',
         )}>
-          Click or drag the pin to set the scene
-        </p>
+          {t('Click or drag the pin to set the scene')}</p>
       ) : null}
     </div>
   );

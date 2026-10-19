@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getFirefighterReport } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Fire Report · HikTech' };
@@ -24,6 +25,7 @@ export default async function FireReportDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { t } = await requestT();
   const { id } = await params;
   const { supabase } = await getSession();
   const r = await getFirefighterReport(supabase, id).catch(() => null);
@@ -94,11 +96,9 @@ export default async function FireReportDetailPage({
             href={`/api/pdf/fire-report/${r.id}`}
             className="no-print rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
           >
-            ⬇ PDF
-          </a>
+            {t('⬇ PDF')}</a>
           <Link href={`/fire/pir/publish/${r.id}`} className="rounded-md bg-accent px-4 py-2 text-sm font-semibold">
-            Publish public report
-          </Link>
+            {t('Publish public report')}</Link>
         </div>
       </header>
 
@@ -113,7 +113,7 @@ export default async function FireReportDetailPage({
 
       {r.narrative_summary && (
         <Card>
-          <CardHeader><CardTitle>Narrative</CardTitle></CardHeader>
+          <CardHeader><CardTitle>{t('Narrative')}</CardTitle></CardHeader>
           <CardContent><p className="whitespace-pre-wrap text-sm">{r.narrative_summary}</p></CardContent>
         </Card>
       )}

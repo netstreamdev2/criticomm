@@ -7,6 +7,7 @@ import type { SettingDef } from '@criticom/api';
 import { saveSettingAction, resetSettingAction } from './actions';
 import { useToast } from '@/components/toast';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 /**
  * One editable knob, rendered from its catalogue definition. Adding a new
@@ -21,6 +22,7 @@ export function SettingRow({
   overridden: boolean;
   updatedBy: string | null;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const toast = useToast();
   const [pending, start] = useTransition();
@@ -65,13 +67,12 @@ export function SettingRow({
           {def.label}
           {overridden ? (
             <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent">
-              Customised
-            </span>
+              {t('Customised')}</span>
           ) : null}
         </p>
         <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{def.description}</p>
         {overridden && updatedBy ? (
-          <p className="mt-0.5 text-[11px] text-muted-foreground">Set by {updatedBy}</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">{t('Set by {updatedBy}', { updatedBy })}</p>
         ) : null}
         {error ? <p className="mt-1 text-xs text-severity-critical-ink">{error}</p> : null}
       </div>

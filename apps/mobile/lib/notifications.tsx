@@ -3,7 +3,9 @@ import {
 } from 'react';
 import { AppState, Platform, Vibration } from 'react-native';
 import Constants from 'expo-constants';
-import { registerPushToken, subscribeAlerts, unregisterPushToken, type Alert } from '@criticom/api';
+import {
+  AUDIENCE_TONE, audienceGroup, audienceLabel, registerPushToken, subscribeAlerts, unregisterPushToken, type Alert,
+} from '@criticom/api';
 import { navigateToIncident } from '@/lib/navigate';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
@@ -31,7 +33,8 @@ import {
  *
  * Presentation follows the alert, not the channel: `presentation: 'modal'`
  * (High/Critical dispatch) becomes a full-screen interrupt that must be
- * acknowledged; everything else is a corner banner.
+ * acknowledged, unchanged; everything else drops in from the top as a
+ * heads-up bubble saying whom it was for (components/alerts.tsx).
  */
 
 export type Banner = {
@@ -40,7 +43,18 @@ export type Banner = {
   body?: string;
   severity: string;
   incidentId?: string | null;
+  /** Picks the icon and where a tap goes. */
+  kind?: string;
+  /** Whom it was for, in words: "Just you", "Metro Police admins". */
+  audience?: string;
+  /** The audience colour. */
+  accent?: string;
+  /** Who sent it, when a person did. */
+  from?: string | null;
 };
+
+/** How long a heads-up stays; the bubble lifts itself away at this. */
+export const BANNER_MS = 6000;
 
 export type PushStatus =
   | 'checking'
@@ -109,7 +123,8 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
     setBanners((cur) => [...cur.filter((b) => b.id !== id), { ...input, id }].slice(-3));
     const existing = timers.current.get(id);
     if (existing) clearTimeout(existing);
-    timers.current.set(id, setTimeout(() => dismissBanner(id), 6000));
+    // A fallback: the bubble animates itself away at BANNER_MS.
+    timers.current.set(id, setTimeout(() => dismissBanner(id), BANNER_MS + 1500));
   }, [dismissBanner]);
 
   const clearAssignment = useCallback((id: string) => {
@@ -181,7 +196,9 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       return;
     }
 
-    const off = subscribeAlerts(sb, { silo }, (alert) => {
+    // RLS delivers only what is meant for this person (0084): them, a few
+    // named people, their role, their department or everyone.
+    const off = subscribeAlerts(sb, (alert) => {
       if (alert.target_user_id && alert.target_user_id !== session.user.id) return;
 
       // Backgrounded but still connected: the socket delivered the alert to a
@@ -207,13 +224,17 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
           body: alert.body ?? undefined,
           severity: alert.severity,
           incidentId: alert.incident_id,
+          kind: alert.kind,
+          audience: audienceLabel(alert),
+          accent: AUDIENCE_TONE[audienceGroup(alert)],
+          from: alert.created_by && alert.created_by !== session.user.id ? alert.created_by_name : null,
         });
         Vibration.vibrate(120);
       }
     });
 
     return off;
-  }, [session, silo, banner]);
+  }, [session, banner]);
 
   // Clear pending timers if we unmount mid-flight.
   useEffect(() => {

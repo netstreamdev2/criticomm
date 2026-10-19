@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { countUnreadAlerts, subscribeAlerts, subscribeMyAlertReads } from '@criticom/api';
-import { GLOBAL_ROLES, type Silo, type UserRole } from '@criticom/db';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { UnreadBadge } from '@/components/toast';
 import { cn } from '@/lib/utils';
@@ -25,7 +24,7 @@ import { cn } from '@/lib/utils';
  *     focus, and after navigating to the feed. A missed event or a dropped
  *     websocket therefore self-corrects instead of drifting for the shift.
  */
-export function AlertBell({ silo, role }: { silo: string; role: string }) {
+export function AlertBell() {
   const pathname = usePathname();
   const [unread, setUnread] = useState(0);
 
@@ -62,10 +61,8 @@ export function AlertBell({ silo, role }: { silo: string; role: string }) {
     let live = true;
     void reseed();
 
-    const isGlobal = GLOBAL_ROLES.includes(role as UserRole) || silo === 'Ethekwini';
-    const scope: Silo | 'all' = isGlobal ? 'all' : (silo as Silo);
-
-    const offAlerts = subscribeAlerts(sb, { silo: scope }, (alert) => {
+    // RLS delivers only the notifications meant for this person (0084).
+    const offAlerts = subscribeAlerts(sb, (alert) => {
       if (!live) return;
       if (alert?.id) {
         if (seen.current.has(alert.id)) return;
@@ -108,7 +105,7 @@ export function AlertBell({ silo, role }: { silo: string; role: string }) {
       document.removeEventListener('visibilitychange', onFocus);
       if (reseedTimer.current) clearTimeout(reseedTimer.current);
     };
-  }, [silo, role, reseed, scheduleReseed]);
+  }, [reseed, scheduleReseed]);
 
   // Opening the feed marks alerts read server-side; re-seed once that has had
   // a moment to land rather than optimistically zeroing a count that may still

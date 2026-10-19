@@ -7,11 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession, siloFilter } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Unit Compliance · HikTech' };
 
 export default async function UnitCompliancePage() {
+  const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
   const { mentalChecks, vehicleChecklists } = await getUnitCompliance(supabase, siloFilter(silo));
 
@@ -22,11 +24,10 @@ export default async function UnitCompliancePage() {
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Unit compliance — today</h1>
+        <h1 className="text-2xl font-bold">{t('Unit compliance — today')}</h1>
         <p className="text-muted-foreground">
-          Start-of-shift readiness and vehicle inspections.
-          {canAccess('/shift/today', role, silo) ? (
-            <> Who has which vehicle and firearm is on <Link href="/shift/today" className="text-primary hover:underline">today’s shift</Link>.</>
+          {t('Start-of-shift readiness and vehicle inspections.')}{canAccess('/shift/today', role, silo) ? (
+            <> {' '}{t('Who has which vehicle and firearm is on')}{' '}<Link href="/shift/today" className="text-primary hover:underline">{t('today’s shift')}</Link>.</>
           ) : null}
         </p>
       </header>
@@ -34,11 +35,11 @@ export default async function UnitCompliancePage() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Mental readiness ({mentalChecks.length})</CardTitle>
-            <CardDescription>Failed checks require supervisor follow-up.</CardDescription>
+            <CardTitle>{t('Mental readiness ({length})', { length: mentalChecks.length })}</CardTitle>
+            <CardDescription>{t('Failed checks require supervisor follow-up.')}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Time', 'Result', 'Comments']} empty="No checks submitted today.">
+            <SimpleTable headers={['Time', 'Result', 'Comments']} empty={t('No checks submitted today.')}>
               {mentalChecks.map((c) => (
                 <Tr key={c.id}>
                   <Td className="text-muted-foreground">{formatSaTime(c.timestamp)}</Td>
@@ -56,11 +57,11 @@ export default async function UnitCompliancePage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Vehicle inspections ({vehicleChecklists.length})</CardTitle>
-            <CardDescription>Pre-trip checklists completed today.</CardDescription>
+            <CardTitle>{t('Vehicle inspections ({length})', { length: vehicleChecklists.length })}</CardTitle>
+            <CardDescription>{t('Pre-trip checklists completed today.')}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <SimpleTable headers={['Time', 'Unit', 'Fuel', 'Defects']} empty="No inspections today.">
+            <SimpleTable headers={['Time', 'Unit', 'Fuel', 'Defects']} empty={t('No inspections today.')}>
               {vehicleChecklists.map((c) => {
                 const defects = [
                   !c.lights_functional && 'lights',

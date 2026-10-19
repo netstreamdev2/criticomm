@@ -4,6 +4,7 @@ import { ADMIN_CONSOLE_ROLES } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { IntegrationCard } from './integration-card';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Integrations · HikTech' };
@@ -52,6 +53,7 @@ const PURPOSE: Record<string, string> = {
 };
 
 export default async function IntegrationsPage() {
+  const { t } = await requestT();
   const { supabase, role } = await getSession();
   if (!ADMIN_CONSOLE_ROLES.includes(role)) redirect('/dashboard');
 
@@ -75,11 +77,9 @@ export default async function IntegrationsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Integrations</h1>
+        <h1 className="text-2xl font-bold">{t('Integrations')}</h1>
         <p className="text-muted-foreground">
-          Every external service HikTech talks to — what it powers, whether its credentials are
-          present, and whether it currently answers.
-        </p>
+          {t('Every external service HikTech talks to — what it powers, whether its credentials are present, and whether it currently answers.')}</p>
       </header>
 
       {/* Summary */}
@@ -101,13 +101,9 @@ export default async function IntegrationsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>How configuration works</CardTitle>
+          <CardTitle>{t('How configuration works')}</CardTitle>
           <CardDescription>
-            Secrets live in server environment variables and are never stored in the database or
-            sent to the browser — this page only reports whether each one is present. The switch and
-            the JSON parameters below are stored in the database and take effect immediately, with
-            no redeploy. Adding or changing a secret requires setting it on the host and redeploying.
-          </CardDescription>
+            {t('Secrets live in server environment variables and are never stored in the database or sent to the browser — this page only reports whether each one is present. The switch and the JSON parameters below are stored in the database and take effect immediately, with no redeploy. Adding or changing a secret requires setting it on the host and redeploying.')}</CardDescription>
         </CardHeader>
       </Card>
 

@@ -2,11 +2,13 @@ import { listAllIncidents, getDispatcherKpis } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SimpleBarChart, MultiBarChart, SeverityDonut } from '@/components/charts';
 import { getSession, siloFilter } from '@/lib/session';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Analytics · HikTech' };
 
 export default async function AnalyticsPage() {
+  const { t } = await requestT();
   const { supabase, silo } = await getSession();
   const [incidents, kpi] = await Promise.all([
     listAllIncidents(supabase, { silo: siloFilter(silo), limit: 1000 }),
@@ -49,27 +51,26 @@ export default async function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">System analytics</h1>
+        <h1 className="text-2xl font-bold">{t('System analytics')}</h1>
         <p className="text-muted-foreground">
-          Department statistics and response trends across the last {incidents.length} incidents.
-        </p>
+          {t('Department statistics and response trends across the last {length} incidents.', { length: incidents.length })}</p>
       </header>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Total incidents</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Total incidents')}</p>
           <p className="mt-2 text-3xl font-bold">{incidents.length}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Closure rate</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Closure rate')}</p>
           <p className="mt-2 text-3xl font-bold text-severity-low-ink">{closureRate}%</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">Avg response (min)</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Avg response (min)')}</p>
           <p className="mt-2 text-3xl font-bold text-severity-medium-ink">{kpi.avgResponseTime}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">On duty now</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('On duty now')}</p>
           <p className="mt-2 text-3xl font-bold text-accent">{kpi.personnelOnDuty}</p>
         </CardContent></Card>
       </section>
@@ -77,8 +78,8 @@ export default async function AnalyticsPage() {
       <section className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Monthly trend</CardTitle>
-            <CardDescription>Opened vs closed over the last 6 months.</CardDescription>
+            <CardTitle>{t('Monthly trend')}</CardTitle>
+            <CardDescription>{t('Opened vs closed over the last 6 months.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <MultiBarChart
@@ -93,8 +94,8 @@ export default async function AnalyticsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Severity distribution</CardTitle>
-            <CardDescription>All incidents in scope.</CardDescription>
+            <CardTitle>{t('Severity distribution')}</CardTitle>
+            <CardDescription>{t('All incidents in scope.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <SeverityDonut data={severityData} />
@@ -103,8 +104,8 @@ export default async function AnalyticsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Top incident types</CardTitle>
-            <CardDescription>Most frequent call categories.</CardDescription>
+            <CardTitle>{t('Top incident types')}</CardTitle>
+            <CardDescription>{t('Most frequent call categories.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <SimpleBarChart data={typeData} xKey="type" yKey="count" />
@@ -113,8 +114,8 @@ export default async function AnalyticsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>By department</CardTitle>
-            <CardDescription>Incident ownership per silo.</CardDescription>
+            <CardTitle>{t('By department')}</CardTitle>
+            <CardDescription>{t('Incident ownership per silo.')}</CardDescription>
           </CardHeader>
           <CardContent>
             <SimpleBarChart data={siloData} xKey="name" yKey="count" color="#a78bfa" />

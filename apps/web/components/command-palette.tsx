@@ -14,6 +14,7 @@ import { canAccess, type Silo, type UserRole } from '@criticom/db';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { NAV_GROUPS } from '@/lib/nav';
 import { cn } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 const KIND_ICON: Record<SearchKind, LucideIcon> = {
   incident: Radio,
@@ -37,6 +38,7 @@ const KIND_ICON: Record<SearchKind, LucideIcon> = {
  * destination under twelve incidents stops being a navigator.
  */
 export function CommandPalette({ silo, role, hiddenHrefs = [], searchEnabled = true }: { silo: string; role: string; hiddenHrefs?: string[]; searchEnabled?: boolean }) {
+  const { t } = useT();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -154,8 +156,8 @@ export function CommandPalette({ silo, role, hiddenHrefs = [], searchEnabled = t
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-start justify-center pt-[12vh]" role="dialog" aria-modal="true" aria-label="Command palette">
-      <button type="button" aria-label="Close" className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
+    <div className="fixed inset-0 z-[70] flex items-start justify-center pt-[12vh]" role="dialog" aria-modal="true" aria-label={t('Command palette')}>
+      <button type="button" aria-label={t('Close')} className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
       <div className="relative w-full max-w-xl overflow-hidden rounded-xl border border-border bg-bg-card shadow-2xl">
         <div className="flex items-center gap-3 border-b border-border px-4">
           <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -168,7 +170,7 @@ export function CommandPalette({ silo, role, hiddenHrefs = [], searchEnabled = t
               if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)); }
               if (e.key === 'Enter' && flat[active]) { e.preventDefault(); go(flat[active]!.href); }
             }}
-            placeholder="Search pages, incidents, people, vehicles…"
+            placeholder={t('Search pages, incidents, people, vehicles…')}
             className="h-14 w-full bg-transparent text-sm text-fg outline-none placeholder:text-muted-foreground"
           />
           <kbd className="hidden shrink-0 rounded border border-border bg-bg-soft px-1.5 py-0.5 text-[10px] text-muted-foreground sm:block">ESC</kbd>
@@ -185,8 +187,7 @@ export function CommandPalette({ silo, role, hiddenHrefs = [], searchEnabled = t
 
           {results.length > 0 && (
             <p className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-              Pages
-            </p>
+              {t('Pages')}</p>
           )}
           {results.map((c, i) => {
             const Icon = c.icon;
@@ -211,8 +212,7 @@ export function CommandPalette({ silo, role, hiddenHrefs = [], searchEnabled = t
 
           {searching && hits.length === 0 && (
             <p className="flex items-center gap-2 px-3 py-3 text-sm text-muted-foreground">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching records…
-            </p>
+              <Loader2 className="h-3.5 w-3.5 animate-spin" /> {' '}{t('Searching records…')}</p>
           )}
 
           {grouped.map(([kind, group]) => {
@@ -265,11 +265,10 @@ export function CommandPalette({ silo, role, hiddenHrefs = [], searchEnabled = t
         </div>
 
         <div className="flex items-center gap-4 border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
-          <span><kbd className="rounded border border-border px-1">↑</kbd> <kbd className="rounded border border-border px-1">↓</kbd> navigate</span>
-          <span><kbd className="rounded border border-border px-1">↵</kbd> open</span>
+          <span><kbd className="rounded border border-border px-1">↑</kbd> <kbd className="rounded border border-border px-1">↓</kbd> {' '}{t('navigate')}</span>
+          <span><kbd className="rounded border border-border px-1">↵</kbd> {' '}{t('open')}</span>
           <span className="ml-auto">
-            {results.length} page{results.length === 1 ? '' : 's'}
-            {hits.length > 0 ? ` · ${hits.length} record${hits.length === 1 ? '' : 's'}` : ''}
+            {t('{length} page{value}{value2}', { length: results.length, value: results.length === 1 ? '' : 's', value2: hits.length > 0 ? ` · ${hits.length} record${hits.length === 1 ? '' : 's'}` : '' })}
           </span>
         </div>
       </div>

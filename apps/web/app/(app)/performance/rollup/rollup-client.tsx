@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronRight, Building2, Users, MapPin, User } from 'lucide-react';
 import { type Rollup, type RollupNode, formatDuration } from '@criticom/api/rollup';
+import { useT } from '@/components/i18n';
 
 const LEVEL_ICON = {
   organisation: Building2,
@@ -19,6 +20,7 @@ const pct = (n: number) => `${Math.round(n * 100)}%`;
  * happen to share a name.
  */
 export function RollupExplorer({ rollup, days }: { rollup: Rollup; days: number }) {
+  const { t } = useT();
   const [path, setPath] = useState<RollupNode[]>([rollup.root]);
   const current = path[path.length - 1]!;
 
@@ -32,7 +34,7 @@ export function RollupExplorer({ rollup, days }: { rollup: Rollup; days: number 
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Breadcrumb — the drill path, clickable back up */}
-        <nav className="flex flex-wrap items-center gap-1 text-sm" aria-label="Drill path">
+        <nav className="flex flex-wrap items-center gap-1 text-sm" aria-label={t('Drill path')}>
           {path.map((n, i) => (
             <span key={n.key} className="flex items-center gap-1">
               {i > 0 ? <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" /> : null}
@@ -63,36 +65,33 @@ export function RollupExplorer({ rollup, days }: { rollup: Rollup; days: number 
 
       {rollup.truncated ? (
         <div className="rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm">
-          More incidents in this window than the analysis cap. The figures below cover the most
-          recent portion only — narrow the window before quoting them.
-        </div>
+          {t('More incidents in this window than the analysis cap. The figures below cover the most recent portion only — narrow the window before quoting them.')}</div>
       ) : null}
 
       {/* Headline metrics for whatever level we're on */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Metric label="Calls" value={current.kpis.volume.toLocaleString()}
+        <Metric label={t('Calls')} value={current.kpis.volume.toLocaleString()}
           sub={`${current.kpis.open} still open`} />
-        <Metric label="Time to dispatch (p50)" value={formatDuration(current.kpis.timeToDispatchP50)}
+        <Metric label={t('Time to dispatch (p50)')} value={formatDuration(current.kpis.timeToDispatchP50)}
           sub={`p90 ${formatDuration(current.kpis.timeToDispatchP90)}`} />
-        <Metric label="Total response (p50)" value={formatDuration(current.kpis.totalResponseP50)}
+        <Metric label={t('Total response (p50)')} value={formatDuration(current.kpis.totalResponseP50)}
           sub={`p90 ${formatDuration(current.kpis.totalResponseP90)}`} />
-        <Metric label="Critical response (p90)" value={formatDuration(current.kpis.criticalTotalResponseP90)}
+        <Metric label={t('Critical response (p90)')} value={formatDuration(current.kpis.criticalTotalResponseP90)}
           sub="Critical & High only" tone="accent" />
-        <Metric label="Travel time (p50)" value={formatDuration(current.kpis.travelP50)}
+        <Metric label={t('Travel time (p50)')} value={formatDuration(current.kpis.travelP50)}
           sub={`p90 ${formatDuration(current.kpis.travelP90)}`} />
-        <Metric label="Reached a crew" value={pct(current.kpis.dispatchRate)}
+        <Metric label={t('Reached a crew')} value={pct(current.kpis.dispatchRate)}
           sub={`${current.kpis.dispatched} of ${current.kpis.volume}`} />
-        <Metric label="Crew on scene" value={pct(current.kpis.arrivalRate)}
+        <Metric label={t('Crew on scene')} value={pct(current.kpis.arrivalRate)}
           sub={`${current.kpis.arrived} arrived`} />
-        <Metric label="Closed" value={pct(current.kpis.closureRate)}
+        <Metric label={t('Closed')} value={pct(current.kpis.closureRate)}
           sub={`median ${formatDuration(current.kpis.resolutionP50)}`} />
       </div>
 
       {/* Severity mix */}
       <div className="rounded-lg border border-border bg-bg-card p-3">
         <p className="text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
-          Severity mix
-        </p>
+          {t('Severity mix')}</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {Object.entries(current.kpis.bySeverity)
             .sort((a, b) => b[1] - a[1])
@@ -102,7 +101,7 @@ export function RollupExplorer({ rollup, days }: { rollup: Rollup; days: number 
               </span>
             ))}
           {Object.keys(current.kpis.bySeverity).length === 0 ? (
-            <span className="text-sm text-muted-foreground">No calls in this window.</span>
+            <span className="text-sm text-muted-foreground">{t('No calls in this window.')}</span>
           ) : null}
         </div>
       </div>
@@ -142,7 +141,7 @@ export function RollupExplorer({ rollup, days }: { rollup: Rollup; days: number 
                       {canDrill ? (
                         <button type="button" onClick={() => setPath([...path, child])}
                           className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
-                          Drill in <ChevronRight className="h-3 w-3" />
+                          {t('Drill in')}{' '}<ChevronRight className="h-3 w-3" />
                         </button>
                       ) : null}
                     </td>

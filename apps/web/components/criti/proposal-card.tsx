@@ -8,6 +8,7 @@ import type { ProposalView } from '@criticom/api';
 import { cn } from '@/lib/utils';
 import { CritiMascot } from './mascot';
 import { runProposal, saveCallDraft } from './shared';
+import { useT } from '@/components/i18n';
 
 export type CardState = 'open' | 'working' | 'done' | 'cancelled' | 'failed';
 
@@ -26,6 +27,7 @@ export function ProposalCard({
   /** After a task is done: refresh whatever shows the board. */
   onDone?: () => void;
 }) {
+  const { t } = useT();
   const router = useRouter();
   const [state, setState] = useState<CardState>(initial);
   const [note, setNote] = useState<{ text: string; href?: string } | null>(null);
@@ -99,17 +101,17 @@ export function ProposalCard({
 
       {!finished && blocked ? (
         <p className="mt-2 rounded-md bg-muted px-2 py-1 text-xs">
-          <span className="font-semibold">Still needed:</span> {view.missing.join(', ')}.
+          <span className="font-semibold">{t('Still needed:')}</span> {view.missing.join(', ')}.
         </p>
       ) : null}
 
       {note ? (
         <p className={cn('mt-2 break-words text-xs', state === 'failed' ? 'text-severity-critical-ink' : 'text-severity-low-ink')}>
           {note.text}{' '}
-          {note.href ? <Link href={note.href} className="font-semibold underline">Open the call</Link> : null}
+          {note.href ? <Link href={note.href} className="font-semibold underline">{t('Open the call')}</Link> : null}
         </p>
       ) : null}
-      {state === 'cancelled' ? <p className="mt-1 text-xs text-muted-foreground">Cancelled. Nothing was changed.</p> : null}
+      {state === 'cancelled' ? <p className="mt-1 text-xs text-muted-foreground">{t('Cancelled. Nothing was changed.')}</p> : null}
 
       {!finished ? (
         <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
@@ -134,8 +136,7 @@ export function ProposalCard({
               disabled={state === 'working'}
               className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-semibold hover:bg-muted"
             >
-              <ClipboardList className="h-3.5 w-3.5" /> Open in the form
-            </button>
+              <ClipboardList className="h-3.5 w-3.5" /> {' '}{t('Open in the form')}</button>
           ) : null}
           <button
             type="button"
@@ -143,9 +144,8 @@ export function ProposalCard({
             disabled={state === 'working'}
             className="inline-flex h-8 items-center gap-1 rounded-md px-2.5 text-xs text-muted-foreground hover:bg-muted hover:text-fg"
           >
-            <X className="h-3.5 w-3.5" /> Cancel
-          </button>
-          {armed ? <span className="text-[11px] text-severity-critical-ink">This cannot be undone. Press again to go ahead.</span> : null}
+            <X className="h-3.5 w-3.5" /> {' '}{t('Cancel')}</button>
+          {armed ? <span className="text-[11px] text-severity-critical-ink">{t('This cannot be undone. Press again to go ahead.')}</span> : null}
         </div>
       ) : null}
     </section>

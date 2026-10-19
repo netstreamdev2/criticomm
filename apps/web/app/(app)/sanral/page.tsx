@@ -9,6 +9,7 @@ import { ImportCamerasButton } from './import-button';
 import { ITrafficMap } from './itraffic-map';
 import { LiveWall } from './live-wall';
 import { TrafficPanel } from './traffic-panel';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'SANRAL Cameras · HikTech' };
@@ -32,6 +33,7 @@ export default async function SanralCamerasPage({
 }: {
   searchParams: Promise<{ lat?: string; lng?: string }>;
 }) {
+  const { t } = await requestT();
   await requireFeaturePage('web.cameras');
   const { supabase } = await getSession();
   const [cameras, params] = await Promise.all([listCameras(supabase), searchParams]);
@@ -40,18 +42,16 @@ export default async function SanralCamerasPage({
     <div className="space-y-4">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">SANRAL Cameras</h1>
+          <h1 className="text-2xl font-bold">{t('SANRAL Cameras')}</h1>
           <p className="text-muted-foreground">
-            Freeway cameras, overhead signs and live traffic from SANRAL&apos;s i-traffic.
-          </p>
+            {t('Freeway cameras, overhead signs and live traffic from SANRAL\'s i-traffic.')}</p>
         </div>
         <div className="flex items-center gap-2">
           <Link
             href="/incidents/map"
             className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
           >
-            <MapIcon className="h-4 w-4" /> Live map
-          </Link>
+            <MapIcon className="h-4 w-4" /> {' '}{t('Live map')}</Link>
           <ImportCamerasButton />
         </div>
       </header>
@@ -65,11 +65,11 @@ export default async function SanralCamerasPage({
           <LiveWall />
           <Card>
             <CardHeader>
-              <CardTitle>{cameras.length} cameras</CardTitle>
-              <CardDescription>Imported from the i-traffic feed. These also show on the live map.</CardDescription>
+              <CardTitle>{t('{length} cameras', { length: cameras.length })}</CardTitle>
+              <CardDescription>{t('Imported from the i-traffic feed. These also show on the live map.')}</CardDescription>
             </CardHeader>
             <CardContent className="p-0">
-              <SimpleTable headers={['ID', 'Name', 'Roadway', 'Direction', 'Coordinates', 'Feed']} empty="No cameras imported.">
+              <SimpleTable headers={['ID', 'Name', 'Roadway', 'Direction', 'Coordinates', 'Feed']} empty={t('No cameras imported.')}>
                 {cameras.map((c) => (
                   <Tr key={c.id}>
                     <Td className="font-mono text-xs">{c.id}</Td>
@@ -81,7 +81,7 @@ export default async function SanralCamerasPage({
                     </Td>
                     <Td>
                       {c.url && !c.blocked ? (
-                        <a href={c.url} target="_blank" rel="noreferrer" className="text-accent hover:underline">Open</a>
+                        <a href={c.url} target="_blank" rel="noreferrer" className="text-accent hover:underline">{t('Open')}</a>
                       ) : '—'}
                     </Td>
                   </Tr>
@@ -92,9 +92,7 @@ export default async function SanralCamerasPage({
         </>
       ) : (
         <p className="text-sm text-muted-foreground">
-          The camera registry (for the live map layer) is empty. It fills from the i-traffic API once SANRAL
-          issues a key (<code className="font-mono text-xs">ITRAFFIC_API_KEY</code>); the matrix above works without one.
-        </p>
+          {t('The camera registry (for the live map layer) is empty. It fills from the i-traffic API once SANRAL issues a key (')}<code className="font-mono text-xs">ITRAFFIC_API_KEY</code>{t('); the matrix above works without one.')}</p>
       )}
     </div>
   );

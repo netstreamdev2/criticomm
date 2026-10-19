@@ -10,6 +10,7 @@ import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { useOnDutyOfficers } from '@/lib/on-duty';
 import { useToast } from '@/components/toast';
 import { cn, escapeHtml } from '@/lib/utils';
+import { useT } from '@/components/i18n';
 
 export type MapIncident = {
   id: string;
@@ -51,6 +52,7 @@ export function DispatchMapModal({
   canAssign: boolean;
   onClose: () => void;
 }) {
+  const { t } = useT();
   const officers = useOnDutyOfficers(initialOfficers);
   const [showBusy, setShowBusy] = useState(false);
   const [routes, setRoutes] = useState<Record<string, Route>>({});
@@ -236,13 +238,12 @@ export function DispatchMapModal({
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 text-xs text-severity-low-ink">
               <span className="h-2 w-2 animate-pulse rounded-full bg-severity-low" aria-hidden />
-              Live · {available} available · updated {updatedAt.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              {t('Live · {available} available · updated {localeTimeString}', { available, localeTimeString: updatedAt.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) })}
             </span>
             <label className="inline-flex items-center gap-1.5 text-xs">
               <input type="checkbox" checked={showBusy} onChange={(e) => setShowBusy(e.target.checked)} />
-              Show officers on calls
-            </label>
-            <button type="button" onClick={onClose} disabled={Boolean(assigning)} aria-label="Close" className="rounded p-1 text-muted-foreground hover:text-fg">
+              {t('Show officers on calls')}</label>
+            <button type="button" onClick={onClose} disabled={Boolean(assigning)} aria-label={t('Close')} className="rounded p-1 text-muted-foreground hover:text-fg">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -252,8 +253,7 @@ export function DispatchMapModal({
           <div ref={el} className="min-h-[320px]" />
           <aside className="min-h-0 overflow-y-auto border-t border-border lg:border-l lg:border-t-0">
             <p className="sticky top-0 border-b border-border bg-bg-card px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-              Nearest by road
-            </p>
+              {t('Nearest by road')}</p>
             {ranked.length === 0 ? (
               <p className="px-4 py-8 text-center text-sm text-muted-foreground">
                 {officers.length === 0 ? 'No one is on duty.' : 'No available officer has a position yet.'}
@@ -276,7 +276,7 @@ export function DispatchMapModal({
                       <span className="shrink-0 text-right">
                         <span className="block text-lg font-bold leading-none tabular-nums">
                           {route ? route.minutes : <Loader2 className="inline h-4 w-4 animate-spin" />}
-                          {route ? <span className="text-xs font-normal"> min</span> : null}
+                          {route ? <span className="text-xs font-normal"> {' '}{t('min')}</span> : null}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
                           {route ? `${route.km} km${route.routed ? '' : ' (est.)'}` : `${km.toFixed(1)} km`}
@@ -292,7 +292,7 @@ export function DispatchMapModal({
                           className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-md bg-accent text-sm font-semibold disabled:opacity-60"
                         >
                           {assigning === o.userId ? <Loader2 className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />}
-                          Assign {o.name.split(' ').slice(-1)[0]}
+                          {t('Assign {value}', { value: o.name.split(' ').slice(-1)[0] })}
                         </button>
                       </div>
                     ) : null}
@@ -303,8 +303,7 @@ export function DispatchMapModal({
             {noPosition.length ? (
               <p className="flex items-start gap-2 px-4 py-3 text-xs text-muted-foreground">
                 <Radio className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                {noPosition.length} on duty without a position yet: {noPosition.map((o) => o.name).join(', ')}.
-              </p>
+                {t('{length} on duty without a position yet: {join}.', { length: noPosition.length, join: noPosition.map((o) => o.name).join(', ') })}</p>
             ) : null}
           </aside>
         </div>

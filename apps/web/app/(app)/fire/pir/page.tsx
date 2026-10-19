@@ -4,33 +4,35 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
+import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Public Incident Reports · HikTech' };
 
 export default async function PirPage() {
+  const { t } = await requestT();
   const { supabase } = await getSession();
   const pirs = await listPublicIncidentReports(supabase);
 
   return (
     <div className="space-y-4">
       <header>
-        <h1 className="text-2xl font-bold">Public incident reports</h1>
+        <h1 className="text-2xl font-bold">{t('Public incident reports')}</h1>
         <p className="text-muted-foreground">
-          Sanitised releases authorized by the Chief. Publish from a raw report in{' '}
-          <Link href="/fire/reports" className="text-accent hover:underline">Fire reports</Link>.
+          {t('Sanitised releases authorized by the Chief. Publish from a raw report in')}{' '}
+          <Link href="/fire/reports" className="text-accent hover:underline">{t('Fire reports')}</Link>.
         </p>
       </header>
 
       <Card>
         <CardHeader>
-          <CardTitle>{pirs.length} published</CardTitle>
-          <CardDescription>These are safe for media and community distribution.</CardDescription>
+          <CardTitle>{t('{length} published', { length: pirs.length })}</CardTitle>
+          <CardDescription>{t('These are safe for media and community distribution.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           <SimpleTable
             headers={['PIR #', 'Date', 'Type', 'Location', 'Casualties', 'Authorized by', 'Published']}
-            empty="Nothing published yet."
+            empty={t('Nothing published yet.')}
           >
             {pirs.map((p) => (
               <Tr key={p.id}>
@@ -39,9 +41,7 @@ export default async function PirPage() {
                 <Td>{p.incident_type ?? '—'}</Td>
                 <Td className="max-w-[220px] truncate">{p.public_location}</Td>
                 <Td>
-                  {p.total_civilian_injuries + p.total_responder_injuries} inj ·{' '}
-                  {p.total_civilian_fatalities + p.total_responder_fatalities} fat
-                </Td>
+                  {t('{value} inj · {value2} fat', { value: p.total_civilian_injuries + p.total_responder_injuries, value2: p.total_civilian_fatalities + p.total_responder_fatalities })}</Td>
                 <Td>{p.authorizing_officer_name}</Td>
                 <Td className="text-muted-foreground">{formatSaTime(p.published_date)}</Td>
               </Tr>
