@@ -2695,7 +2695,7 @@ export type Database = {
         Row: {
           id: string;
           tenant_id: string;
-          provider: 'pocstar' | 'realptt';
+          provider: 'pocstar' | 'hiktech';
           kind: 'radio' | 'hard_hat' | 'dispatcher';
           account: string;
           label: string | null;
@@ -2710,6 +2710,34 @@ export type Database = {
           created_by: string | null;
           updated_at: string;
           updated_by: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** What the app says about the radio it runs on (0087). Written only by report_radio_presence(). */
+      radio_presence: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          device_id: string;
+          user_id: string;
+          personnel_id: string | null;
+          model: string | null;
+          app_version: string | null;
+          battery: number | null;
+          charging: boolean | null;
+          network: 'wifi' | 'cellular' | 'none' | 'other' | null;
+          talk_channel: string | null;
+          talking: boolean;
+          queued: number | null;
+          signed_in: boolean;
+          lat: number | null;
+          lng: number | null;
+          accuracy: number | null;
+          fix_at: string | null;
+          last_seen_at: string;
         };
         Insert: never;
         Update: never;
@@ -2992,6 +3020,11 @@ export type Database = {
           p_apparatus_id: string | null; p_notes: string | null; p_active?: boolean;
         };
         Returns: Database['public']['Tables']['radio_devices']['Row'];
+      };
+      /** The app's report on the radio it runs on, for the person signed in (0087). */
+      report_radio_presence: {
+        Args: { p: Record<string, unknown> };
+        Returns: Database['public']['Tables']['radio_presence']['Row'];
       };
       dispatcher_edit_call: {
         Args: { p_incident: string; p_fields: Record<string, unknown>; p_reason?: string | null };

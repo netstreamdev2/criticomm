@@ -16,7 +16,7 @@ import { InvitationRowActions } from './row-actions';
 import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Invitations · HikTech' };
+export const metadata = { title: 'Invites / Create logins · HikTech' };
 
 type View = 'open' | 'accepted' | 'closed';
 
@@ -71,17 +71,17 @@ export default async function InvitationsPage({ searchParams }: { searchParams: 
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
+      <header className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-border bg-bg-card p-5 shadow-sm">
         <div className="space-y-1">
           <Link href="/admin" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-fg">
             <ArrowLeft className="h-4 w-4" /> {' '}{t('Users')}</Link>
-          <h1 className="text-2xl font-bold">{t('Invitations')}</h1>
+          <h1 className="text-2xl font-bold">{t('Invites / Create logins')}</h1>
           <p className="text-muted-foreground">
             {t('Each link or code works once and expires after {invitationTtlHours} hours. Sending again cancels the old one.', { invitationTtlHours: invitationTtlHours() })}</p>
         </div>
         <Link href="/admin/invitations/new"
           className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
-          <UserPlus className="h-4 w-4" /> {' '}{t('Invite someone')}</Link>
+          <UserPlus className="h-4 w-4" /> {' '}{t('Invite / Create login')}</Link>
       </header>
 
       {!delivery.sms || delivery.emailIsLinkOnly ? (
@@ -98,13 +98,13 @@ export default async function InvitationsPage({ searchParams }: { searchParams: 
         </p>
       ) : null}
 
-      <nav className="flex gap-1 border-b border-border" aria-label={t('Invitations')}>
+      <nav className="flex items-center gap-1.5 rounded-md border border-primary/25 bg-gradient-to-b from-primary/15 to-bg-card/55 px-1 backdrop-blur-md" aria-label={t('Invites / Create logins')}>
         {tabs.map((t) => (
           <Link key={t.id} href={t.id === 'open' ? '/admin/invitations' : `/admin/invitations?view=${t.id}`}
             aria-current={view === t.id ? 'page' : undefined}
             className={cn(
-              '-mb-px border-b-2 px-4 py-2 text-sm font-semibold',
-              view === t.id ? 'border-primary text-fg' : 'border-transparent text-muted-foreground hover:text-fg',
+              'my-1 rounded-md px-4 py-1.5 text-sm font-semibold shadow-sm transition-colors',
+              view === t.id ? 'bg-primary text-primary-foreground' : 'bg-white text-slate-900 hover:bg-slate-100',
             )}>
             {t.label}
           </Link>
@@ -193,7 +193,7 @@ export default async function InvitationsPage({ searchParams }: { searchParams: 
       </Card>
       )}
 
-      <p className="text-xs text-muted-foreground">
+      <p className="rounded-lg border border-border bg-bg-card px-4 py-3 text-xs text-muted-foreground">
         {t('Invitations as SystemAdmin, Admin or SystemController wait for a second SystemAdmin')}{approver ? <> {' '}{t('on the')}{' '}<Link href="/admin/approvals" className="font-semibold text-primary hover:underline">{t('Approvals')}</Link> {' '}{t('page')}</> : ''}{t('. Someone who reports an invitation as “not me” closes it, and whoever sent it is told.')}</p>
     </div>
   );

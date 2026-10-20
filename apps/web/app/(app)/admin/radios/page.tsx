@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { HardHat, Headset, Radio } from 'lucide-react';
 import {
-  DEPARTMENT_LABELS, RADIO_PROVIDERS, getTalkServerStatus, kindLabel, listApparatus, listPersonnel, listRadioRegister, providerLabel,
+  DEPARTMENT_LABELS, getTalkServerStatus, kindLabel, listApparatus, listPersonnel, listRadioRegister,
 } from '@criticom/api';
 import { SimpleTable, Td, Tr } from '@/components/simple-table';
 import { loadRadioDesk } from '@/lib/radio';
@@ -16,7 +16,6 @@ export const metadata = { title: 'Radios · Admin · HikTech' };
 
 type Search = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? '';
-const TONE = Object.fromEntries(RADIO_PROVIDERS.map((p) => [p.id, p.tone])) as Record<string, string>;
 
 /**
  * The radio register: which person or vehicle each push-to-talk radio and
@@ -45,7 +44,7 @@ export default async function AdminRadiosPage({ searchParams }: { searchParams: 
       personnelId: editing.personnel_id ?? '', apparatusId: editing.apparatus_id ?? '', notes: editing.notes ?? '', active: editing.active,
     }
     : {
-      id: '', provider: one(params.provider) === 'realptt' ? 'realptt' : 'pocstar',
+      id: '', provider: one(params.provider) === 'hiktech' ? 'hiktech' : 'pocstar',
       kind: one(params.kind) === 'hard_hat' ? 'hard_hat' : one(params.kind) === 'dispatcher' ? 'dispatcher' : 'radio',
       account: one(params.account), label: one(params.label), providerUserId: '', imei: '',
       silo: role === 'Admin' ? silo : '', personnelId: '', apparatusId: '', notes: '', active: true,
@@ -62,29 +61,27 @@ export default async function AdminRadiosPage({ searchParams }: { searchParams: 
           </span>
           <div>
             <h1 className="text-2xl font-bold leading-tight">{t('Radios')}</h1>
-            <p className="text-sm text-muted-foreground">{t('Whose radio, whose hard hat. The Radio Desk, the map and SOS alerts use this list.')}</p>
+            <p className="text-sm text-muted-foreground">{t('Whose radio, whose hard hat.')}</p>
           </div>
         </div>
-        <Link href="/dispatch/ptt" className="frost-pill rounded-full border border-border px-3 py-1.5 text-xs font-semibold">{t('Open the Radio Desk')}</Link>
+        <Link href="/dispatch/ptt" className="frost-pill rounded-full border border-border px-3 py-1.5 text-xs font-semibold">{t('Radio Desk')}</Link>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_24rem]">
         <div className="space-y-4">
           {unregistered.length ? (
             <section className="frost rounded-xl border border-amber-500/40 p-4">
-              <h2 className="text-sm font-bold">{t('The platforms report {length} account{value} not in the register', { length: unregistered.length, value: unregistered.length === 1 ? '' : 's' })}</h2>
+              <h2 className="text-sm font-bold">{t('Not on the list yet: {length}', { length: unregistered.length })}</h2>
               <ul className="mt-3 flex flex-wrap gap-2">
                 {unregistered.map((v) => (
                   <li key={v.key}>
                     <Link
                       href={`/admin/radios?provider=${v.provider}&account=${encodeURIComponent(v.account)}&kind=${v.kind}${v.live?.name ? `&label=${encodeURIComponent(v.live.name)}` : ''}`}
-                      className="frost-pill inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold"
-                      style={{ borderColor: `${TONE[v.provider]}66` }}
+                      className="frost-pill inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs font-semibold"
                     >
                       <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: v.live?.online ? '#22c55e' : '#64748b' }} />
-                      <span style={{ color: TONE[v.provider] }}>{providerLabel(v.provider)}</span>
-                      <span className="font-mono">{v.account}</span>
-                      {v.live?.name && v.live.name !== v.account ? <span className="text-muted-foreground">({v.live.name})</span> : null}
+                      {v.live?.name && v.live.name !== v.account ? <span>{v.live.name}</span> : null}
+                      <span className="font-mono text-muted-foreground">{v.account}</span>
                     </Link>
                   </li>
                 ))}
@@ -94,11 +91,10 @@ export default async function AdminRadiosPage({ searchParams }: { searchParams: 
 
           <section className="frost overflow-hidden rounded-xl border border-border">
             <p className="border-b border-border px-4 py-3 text-sm font-semibold">{t('{length} in the register', { length: register.length })}</p>
-            <SimpleTable headers={['Account', 'Platform', 'Kind', 'Belongs to', 'Department', 'Status', 'Changed', '']} empty={t('No radios in the register yet.')}>
+            <SimpleTable headers={['Radio', 'Kind', 'Belongs to', 'Department', 'Status', 'Changed', '']} empty={t('No radios in the register yet.')}>
               {register.map((r) => (
                 <Tr key={r.id}>
                   <Td className="font-mono font-semibold">{r.account}{r.label ? <span className="block font-sans text-xs font-normal text-muted-foreground">{r.label}</span> : null}</Td>
-                  <Td><span className="font-semibold" style={{ color: TONE[r.provider] }}>{providerLabel(r.provider)}</span></Td>
                   <Td>
                     <span className="inline-flex items-center gap-1.5">
                       {r.kind === 'hard_hat' ? <HardHat className="h-3.5 w-3.5" /> : r.kind === 'dispatcher' ? <Headset className="h-3.5 w-3.5" /> : <Radio className="h-3.5 w-3.5" />}

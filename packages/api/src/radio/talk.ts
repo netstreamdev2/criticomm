@@ -38,6 +38,15 @@ export function channelTone(channel: string): string {
   return TALK_TONES[channel.slice(5)] ?? '#64748b';
 }
 
+/** A talk group's name for the screen: "Metro Police", "All call", "Call channel". */
+export function channelLabel(channel: string | null | undefined): string | null {
+  if (!channel) return null;
+  if (channel === ALL_CALL) return 'All call';
+  if (channel.startsWith('incident:')) return 'Call channel';
+  if (channel.startsWith('dept:')) return TALK_DEPARTMENT_LABELS[channel.slice(5)] ?? channel.slice(5);
+  return channel;
+}
+
 /**
  * The talk groups to offer, best first: your own department, All call, then
  * (for the roles that see every department) the others. The database still

@@ -293,12 +293,12 @@ test('only SystemAdmins and the SuperAdmin decide account requests', () => {
   }
 });
 
-test('only administrators invite people', () => {
-  for (const role of ['SuperAdmin', 'SystemAdmin', 'Admin'] as UserRole[]) {
+test('administrators and the systems controller invite people', () => {
+  for (const role of ['SuperAdmin', 'SystemAdmin', 'Admin', 'SystemController'] as UserRole[]) {
     assert.equal(canAccess('/admin/invitations', role, 'MetroPolice'), true, role);
     assert.equal(canAccess('/admin/invitations/new', role, 'MetroPolice'), true, role);
   }
-  for (const role of ['SystemController', 'Supervisor', 'Dispatcher', 'Police', 'Viewer'] as UserRole[]) {
+  for (const role of ['Supervisor', 'Dispatcher', 'Police', 'Viewer'] as UserRole[]) {
     assert.equal(canAccess('/admin/invitations', role, 'Ethekwini'), false, role);
   }
 });

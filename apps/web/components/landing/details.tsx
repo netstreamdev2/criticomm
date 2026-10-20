@@ -169,7 +169,7 @@ export function Desks() {
 /* ── Integrations ─────────────────────────────────────────────────────── */
 
 const INTEGRATIONS = [
-  { cat: 'Comms', hex: '#dc3545', items: [['RealPTT', 'Push-to-talk radio bridge — text straight to a channel']] },
+  { cat: 'Comms', hex: '#dc3545', items: [['Push-to-talk', 'Radios and the console on one channel']] },
   { cat: 'Notifications', hex: '#f59e0b', items: [['Expo Push', 'Assignments and alerts to locked handsets'], ['BulkSMS', 'Citizen SMS and one-time GPS requests']] },
   { cat: 'Surveillance', hex: '#a855f7', items: [['SANRAL CCTV', 'Freeway camera matrix'], ['Hikvision bodycams', 'Live officer video and recorded footage']] },
   { cat: 'External feeds', hex: '#3b82f6', items: [['TomTom', 'Live traffic incidents'], ['i-Traffic', 'Incident CSV import']] },

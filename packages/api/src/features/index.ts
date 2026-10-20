@@ -45,7 +45,7 @@ export const FEATURES: FeatureDef[] = [
   },
   {
     key: 'web.ptt', surface: 'web', label: 'Radio (PTT) console',
-    description: 'Off: the PTT console is hidden and text-to-radio refuses.',
+    description: 'Off: the radio page is hidden.',
     defaultEnabled: true,
   },
   {

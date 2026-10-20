@@ -46,7 +46,6 @@ export const RATE_LIMITS = {
   /** Rendering a PDF with embedded photos is the most expensive thing we do. */
   pdf: { bucket: 'pdf', limit: 20, windowSeconds: 60 },
   /** Radio traffic: bursty by nature, so the window is short and the cap high. */
-  ptt: { bucket: 'ptt', limit: 60, windowSeconds: 60 },
   /** Each grant is audit-logged for chain of custody; a flood pollutes that. */
   cctv: { bucket: 'cctv', limit: 60, windowSeconds: 60 },
 } as const satisfies Record<string, RateLimitRule>;

@@ -2,7 +2,7 @@
 
 import { useActionState } from 'react';
 import Link from 'next/link';
-import { RADIO_KINDS, RADIO_PROVIDERS, type RadioKind, type RadioProvider } from '@criticom/api/radio';
+import { RADIO_KINDS, type RadioKind, type RadioProvider } from '@criticom/api/radio';
 import { saveRadioAction } from './actions';
 import { useT } from '@/components/i18n';
 
@@ -42,22 +42,6 @@ export function RadioForm({ draft, departments, people, vehicles }: {
       </div>
       <input type="hidden" name="id" value={draft.id} />
 
-      <fieldset>
-        <legend className={label}>{t('Platform')}</legend>
-        <div className="mt-1 grid grid-cols-2 gap-2">
-          {RADIO_PROVIDERS.map((p) => (
-            <label
-              key={p.id}
-              className="frost-pill flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold has-[:checked]:ring-2"
-              style={{ borderColor: `${p.tone}66` }}
-            >
-              <input type="radio" name="provider" value={p.id} defaultChecked={draft.provider === p.id} style={{ accentColor: p.tone }} />
-              <span style={{ color: p.tone }}>{p.label}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className={label} htmlFor="kind">{t('Kind')}</label>
@@ -75,7 +59,7 @@ export function RadioForm({ draft, departments, people, vehicles }: {
       </div>
 
       <div>
-        <label className={label} htmlFor="account">{t('Account on the platform')}</label>
+        <label className={label} htmlFor="account">{t('Radio name or Radio ID')}</label>
         <input id="account" name="account" defaultValue={draft.account} required maxLength={80} placeholder={t('e.g. FIRE ALPHA')} className={field} />
       </div>
       <div>
@@ -104,7 +88,7 @@ export function RadioForm({ draft, departments, people, vehicles }: {
           <input id="imei" name="imei" defaultValue={draft.imei} inputMode="numeric" maxLength={20} className={field} />
         </div>
         <div>
-          <label className={label} htmlFor="provider_user_id">{t('Platform id')}{' '}<span className="font-normal normal-case">{t('(optional)')}</span></label>
+          <label className={label} htmlFor="provider_user_id">{t('Device number')}{' '}<span className="font-normal normal-case">{t('(optional)')}</span></label>
           <input id="provider_user_id" name="provider_user_id" defaultValue={draft.providerUserId} maxLength={40} className={field} />
         </div>
       </div>

@@ -152,8 +152,8 @@ export function registerStatus(p: Pick<RegisterPerson, 'left_at' | 'user_id' | '
   if (p.left_at) return { key: 'left', label: 'Left', tone: 'dim' };
   if (p.user_id) {
     return p.account?.active === false
-      ? { key: 'deactivated', label: 'Account deactivated', tone: 'dim' }
-      : { key: 'active', label: 'Has an account', tone: 'ok' };
+      ? { key: 'deactivated', label: 'Login switched off', tone: 'dim' }
+      : { key: 'active', label: 'Has a login', tone: 'ok' };
   }
   if (p.invitation) {
     const s = p.invitation.status;
@@ -163,9 +163,9 @@ export function registerStatus(p: Pick<RegisterPerson, 'left_at' | 'user_id' | '
     if (s === 'ready') return { key: 'invited', label: p.invitation.delivery_error ? 'Not delivered' : 'Invitation ready', tone: p.invitation.delivery_error ? 'crit' : 'warn' };
     return { key: 'invited', label: s === 'opened' ? 'Invitation opened' : 'Invited', tone: 'info' };
   }
-  if (p.proposed_role && p.role_confirmed_at) return { key: 'ready', label: 'Ready to invite', tone: 'info' };
-  if (p.proposed_role) return { key: 'suggested', label: 'Role to confirm', tone: 'warn' };
-  return { key: 'no-role', label: 'Role not set', tone: 'dim' };
+  if (p.proposed_role && p.role_confirmed_at) return { key: 'ready', label: 'Ready for a login', tone: 'info' };
+  if (p.proposed_role) return { key: 'suggested', label: 'Check the role', tone: 'warn' };
+  return { key: 'no-role', label: 'No role yet', tone: 'dim' };
 }
 
 /** Badge numbers shared by more than one current person: to clean up before the rule becomes permanent. */

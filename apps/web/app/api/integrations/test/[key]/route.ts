@@ -3,7 +3,6 @@ import { getIntegration, recordIntegrationTest } from '@criticom/api';
 import { ADMIN_ROLES } from '@criticom/db/roles';
 import type { UserRole } from '@criticom/db/types';
 import { hikConfig, hikCredentials, hikListCameras } from '@/lib/hikvision';
-import { verifyPttLogin } from '@/lib/realptt';
 import { getServerSupabase } from '@/lib/supabase';
 
 /**
@@ -125,11 +124,6 @@ const PROBES: Record<string, Probe> = {
         ? 'Authenticated with BulkSMS.'
         : `Authenticated. Credit balance: ${balance}.`,
     };
-  },
-
-  async realptt() {
-    // The real V4 auth dance (random → HMAC-SHA1 → login), not a mere ping.
-    return verifyPttLogin();
   },
 
   async zoiper() {

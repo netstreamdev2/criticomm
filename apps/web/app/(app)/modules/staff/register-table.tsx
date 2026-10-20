@@ -19,12 +19,12 @@ export type StatusFilter =
   | 'current' | 'to-confirm' | 'no-role' | 'ready' | 'invited' | 'active' | 'not-listed' | 'shared-badge' | 'left' | 'all';
 
 const FILTERS: Array<{ id: StatusFilter; label: string }> = [
-  { id: 'current', label: 'Everyone current' },
-  { id: 'to-confirm', label: 'Role to confirm' },
-  { id: 'no-role', label: 'Role not set' },
-  { id: 'ready', label: 'Ready to invite' },
-  { id: 'invited', label: 'Invited' },
-  { id: 'active', label: 'Has an account' },
+  { id: 'current', label: 'Everyone' },
+  { id: 'active', label: 'Has a login' },
+  { id: 'invited', label: 'Invited, not active yet' },
+  { id: 'ready', label: 'Ready for a login' },
+  { id: 'to-confirm', label: 'Check the role' },
+  { id: 'no-role', label: 'No role yet' },
   { id: 'not-listed', label: 'Not in the latest staff list' },
   { id: 'shared-badge', label: 'Shared badge number' },
   { id: 'left', label: 'Left' },
@@ -209,7 +209,7 @@ export function RegisterTable({
               <th className="px-3 py-2">{t('Person')}</th>
               <th className="px-3 py-2">{t('Department')}</th>
               <th className="px-3 py-2">{t('Contact')}</th>
-              <th className="px-3 py-2">{t('Role for invitation')}</th>
+              <th className="px-3 py-2">{t('Role')}</th>
               <th className="px-3 py-2">{t('Status')}</th>
               <th className="px-3 py-2" />
             </tr>
@@ -243,8 +243,10 @@ export function RegisterTable({
                     {!p.work_email && !p.work_cellphone ? <span className="text-muted-foreground">{t('Printed code')}</span> : null}
                   </td>
                   <td className="px-3 py-2">
-                    {p.user_id ? (
-                      <span className="text-muted-foreground">{p.account?.role ?? 'Has an account'}</span>
+                    {canManage && !p.user_id && !p.left_at ? (
+                      <RowRole person={p} options={roleOptions.filter((r) => roleFitsDepartment(r, p.silo))} />
+                    ) : p.user_id ? (
+                      <span className="text-muted-foreground">{p.account?.role ? roleName(p.account.role) : t('Has a login')}</span>
                     ) : p.proposed_role ? (
                       p.role_confirmed_at ? (
                         <span className="inline-flex items-center gap-1" title={`Confirmed by ${p.role_confirmed_by_name ?? 'an administrator'}`}>
@@ -261,7 +263,7 @@ export function RegisterTable({
                   </td>
                   <td className="whitespace-nowrap px-3 py-2 text-right">
                     {canInvite ? (
-                      <Link href={`/admin/invitations/new?person=${p.id}`} className="text-sm font-semibold text-primary hover:underline">{t('Invite')}</Link>
+                      <Link href={`/admin/invitations/new?person=${p.id}`} className="inline-flex h-8 items-center rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90">{t('Invite / Create login')}</Link>
                     ) : null}
                     {canMove && !p.left_at && !p.user_id ? (
                       <button type="button" className="ml-3 text-sm text-muted-foreground hover:text-fg" onClick={() => setMoving(p)}>{t('Change department')}</button>
@@ -323,6 +325,39 @@ export function RegisterTable({
       {leaving ? <LeaveDialog person={leaving.person} mode={leaving.mode} onClose={() => setLeaving(null)} /> : null}
       {moving ? <MoveDialog person={moving} onClose={() => setMoving(null)} /> : null}
     </div>
+  );
+}
+
+/**
+ * One person's role, in their own row: choosing it sets and confirms it at
+ * once (set_register_roles, 0050), so "No role yet" is one step from ready.
+ */
+function RowRole({ person, options }: { person: RegisterPerson; options: UserRole[] }) {
+  const { t } = useT();
+  const router = useRouter();
+  const toast = useToast();
+  const [pending, start] = useTransition();
+  const current = person.proposed_role && options.includes(person.proposed_role) ? person.proposed_role : '';
+  const confirmed = !!(current && person.role_confirmed_at);
+  const set = (role: UserRole) => start(async () => {
+    const res = await setRolesAction([person.id], role);
+    if (!res.ok) { toast.push({ title: t('Role not saved'), body: res.error, tone: 'critical' }); return; }
+    toast.push({ title: t('{role} set for {name}', { role: roleName(role), name: fullName(person) }), tone: 'success' });
+    router.refresh();
+  });
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <select value={current} disabled={pending} onChange={(e) => { if (e.target.value) set(e.target.value as UserRole); }}
+        aria-label={t('Role for {name}', { name: fullName(person) })}
+        className={cn('h-8 rounded-md border bg-bg-soft px-2 text-sm', confirmed ? 'border-border' : 'border-severity-medium/60')}>
+        <option value="" disabled>{t('Choose a role…')}</option>
+        {options.map((r) => <option key={r} value={r}>{roleName(r)}</option>)}
+      </select>
+      {current && !confirmed ? (
+        <Button size="sm" variant="outline" className="h-8" disabled={pending} onClick={() => set(current)}>{t('Confirm')}</Button>
+      ) : null}
+      {confirmed ? <Check className="h-4 w-4 text-success" aria-label={t('Confirmed')} /> : null}
+    </span>
   );
 }
 

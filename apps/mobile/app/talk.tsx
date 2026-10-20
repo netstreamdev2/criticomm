@@ -9,6 +9,7 @@ import type { TalkPass, TalkSession, TalkState } from '@criticom/api/talk';
 import { useAuth } from '@/lib/auth';
 import { getSupabase } from '@/lib/supabase';
 import { askMicrophone, liveKitNative, startTalkAudio, stopTalkAudio } from '@/lib/talk-native';
+import { setTalkPresence, useRadioId } from '@/lib/presence';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, EmptyState } from '@/components/ui';
 import { useT } from '@/lib/i18n';
@@ -34,6 +35,13 @@ export default function TalkScreen() {
   const tRef = useRef(t);
   tRef.current = t;
   const available = Boolean(liveKitNative());
+  const radio = useRadioId();
+
+  // The Radio Desk sees which group this radio is in, and when it is on the air.
+  const inGroup = state?.status === 'ready' ? state.channel : null;
+  const onAirNow = Boolean(state?.transmitting);
+  useEffect(() => { setTalkPresence({ channel: inGroup, talking: onAirNow }); }, [inGroup, onAirNow]);
+  useEffect(() => () => { setTalkPresence({ channel: null, talking: false }); }, []);
 
   // The talk groups I may join; a call's own channel when opened from a call.
   useEffect(() => {
@@ -113,7 +121,7 @@ export default function TalkScreen() {
         <EmptyState
           icon="radio-outline"
           title={t('Talk needs the new app')}
-          body={t('This version of the app cannot carry voice yet. Install the latest HikTech app from your administrator.')}
+          body={t('Ask your administrator for the new app.')}
         />
       </View>
     );
@@ -133,7 +141,8 @@ export default function TalkScreen() {
   const onAir = Boolean(s?.transmitting);
   const other = s?.talking && !s.talking.me ? s.talking : null;
   const canSpeak = Boolean(s?.canSpeak);
-  const label = onAir ? t('ON AIR') : busy ? t('BUSY') : canSpeak ? t('HOLD TO TALK') : t('LISTEN ONLY');
+  // Until it is connected it says so: "listen only" is only ever the real answer.
+  const label = onAir ? t('ON AIR') : busy ? t('BUSY') : !ready ? t('CONNECTING…') : canSpeak ? t('HOLD TO TALK') : t('LISTEN ONLY');
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -193,7 +202,7 @@ export default function TalkScreen() {
           onAir && { transform: [{ scale: 1.05 }] },
         ]}
       >
-        <Ionicons name={canSpeak ? 'mic' : 'mic-off'} size={54} color="#fff" />
+        <Ionicons name={canSpeak || !ready ? 'mic' : 'mic-off'} size={54} color="#fff" />
         <Text style={styles.pttText}>{label}</Text>
         {onAir && s?.secondsLeft ? <Text style={styles.pttSub}>{s.secondsLeft}s</Text> : null}
       </Pressable>
@@ -208,6 +217,8 @@ export default function TalkScreen() {
           ))}
         </View>
       ) : null}
+
+      {radio ? <Text style={styles.radioId}>{t('Radio ID')} {radio}</Text> : null}
     </ScrollView>
   );
 }
@@ -232,4 +243,5 @@ const useStyles = makeStyles(() => StyleSheet.create({
   person: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: space.md, paddingVertical: 6, maxWidth: '100%' },
   dot: { width: 8, height: 8, borderRadius: 4 },
   personText: { color: colors.text, fontSize: 13, flexShrink: 1 },
+  radioId: { ...type.small, color: colors.textDim, textAlign: 'center', marginTop: 'auto', letterSpacing: 0.5 },
 }));

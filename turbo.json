@@ -39,9 +39,7 @@
     "MARINESIA_API_KEY",
     "ITRAFFIC_API_KEY",
     "BULKSMS_TOKEN_ID",
-    "BULKSMS_TOKEN_SECRET",
-    "REALPTT_ACCOUNT",
-    "REALPTT_PASSWORD"
+    "BULKSMS_TOKEN_SECRET"
   ],
   "tasks": {
     "build": {

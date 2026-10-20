@@ -55,12 +55,12 @@ export async function LoginsView({
   const tally = (key: string) => current.filter((p) => registerStatus(p).key === key).length;
   const initialFilter = FILTERS.includes(status as StatusFilter) ? (status as StatusFilter) : 'current';
   const tiles: Array<[string, number, string]> = [
-    [t('Current staff'), current.length, 'current'],
+    [t('Everyone'), current.length, 'current'],
     [t('Have a login'), tally('active'), 'active'],
     [t('Invited'), tally('invited'), 'invited'],
-    [t('Ready to invite'), tally('ready'), 'ready'],
-    [t('Role to confirm'), tally('suggested'), 'to-confirm'],
-    [t('Role not set'), tally('no-role'), 'no-role'],
+    [t('Ready for a login'), tally('ready'), 'ready'],
+    [t('Check the role'), tally('suggested'), 'to-confirm'],
+    [t('No role yet'), tally('no-role'), 'no-role'],
   ];
 
   return (

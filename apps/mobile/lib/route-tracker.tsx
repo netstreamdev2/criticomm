@@ -4,6 +4,7 @@ import NetInfo from '@react-native-community/netinfo';
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { refreshRouteStatus, sendRoute, startRoute, stopRoute } from '@/lib/tracker';
+import { HEARTBEAT_MS, presenceSignedIn, reportPresence } from '@/lib/presence';
 
 /**
  * Records the officer's route while they are on duty, whichever screen is
@@ -49,6 +50,45 @@ export function RouteTracker() {
       app.remove();
     };
   }, [userId, recording]);
+
+  return null;
+}
+
+/**
+ * The radio's presence for the Radio Desk (lib/presence.ts): every 30
+ * seconds while signed in with the app open, and at once when the app comes
+ * to the front or duty starts or ends. Draws nothing.
+ */
+export function RadioPresence() {
+  const { session } = useAuth();
+  const { onDuty } = useDuty();
+  const userId = session?.user.id ?? null;
+
+  useEffect(() => {
+    if (!userId) return;
+    presenceSignedIn();
+    let timer: ReturnType<typeof setInterval> | null = null;
+    const start = () => {
+      if (timer) return;
+      void reportPresence();
+      timer = setInterval(() => { void reportPresence(); }, HEARTBEAT_MS);
+    };
+    const stop = () => {
+      if (timer) clearInterval(timer);
+      timer = null;
+    };
+    if (AppState.currentState === 'active') start();
+    const app = AppState.addEventListener('change', (s) => (s === 'active' ? start() : stop()));
+    return () => {
+      stop();
+      app.remove();
+    };
+  }, [userId]);
+
+  // On or off duty: the desk sees it now (and the position stops off duty).
+  useEffect(() => {
+    if (userId && onDuty !== null) void reportPresence();
+  }, [userId, onDuty]);
 
   return null;
 }

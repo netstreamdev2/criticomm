@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { tx } from '@criticom/db/i18n';
 import { Download, FileUp, KeyRound, Plus } from 'lucide-react';
 import { ADMIN_ROLES } from '@criticom/db';
-import { OFFICE_MODULES, getStaffRecord, listSectionDetails, listStaff, listStations } from '@criticom/api';
+import {
+  OFFICE_MODULES, getStaffRecord, listRegister, listSectionDetails, listStaff, listStations, registerStatus, type RegisterPerson,
+} from '@criticom/api';
 import { ActionForm } from '@/components/office/action-form';
 import { OfficeHeader } from '@/components/office/office-header';
 import { BASE_RANKS, ox } from '@/components/office/styles';
@@ -17,6 +19,8 @@ import { LoginsView } from './logins-view';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Staff Maintenance · HikTech' };
 
+type LoginState = 'has' | 'invited' | 'none' | 'off' | 'left';
+
 const REGIONS = ['ETHEKWINI', 'CENTRAL', 'NORTH', 'SOUTH', 'INNER WEST'];
 
 /**
@@ -27,15 +31,15 @@ const REGIONS = ['ETHEKWINI', 'CENTRAL', 'NORTH', 'SOUTH', 'INNER WEST'];
 export default async function StaffPage({
   searchParams,
 }: {
-  searchParams: Promise<{ dept?: string; id?: string; q?: string; station?: string; rank?: string; view?: string; status?: string }>;
+  searchParams: Promise<{ dept?: string; id?: string; q?: string; station?: string; rank?: string; view?: string; status?: string; login?: string }>;
 }) {
   const { t } = await requestT();
   const p = await searchParams;
   const ctx = await openModule('STFM', p.dept);
   const { supabase, target } = ctx;
-  // Logins: administrators manage them (as on the old Personnel page); the
-  // systems controller sees them. Inviting is never a duty office grant.
-  const canManage = ADMIN_ROLES.includes(ctx.role);
+  // Logins: administrators and the systems controller manage them (0086).
+  // Inviting is never a duty office grant; the database checks the role again.
+  const canManage = ADMIN_ROLES.includes(ctx.role) || ctx.role === 'SystemController';
   const canImport = ctx.role === 'SystemAdmin' || ctx.role === 'SuperAdmin';
   const canSeeLogins = canManage || ctx.role === 'SystemController';
   const logins = canSeeLogins && p.view === 'logins';
@@ -46,9 +50,31 @@ export default async function StaffPage({
     listSectionDetails(supabase, target),
     p.id && p.id !== 'new' ? getStaffRecord(supabase, p.id) : Promise.resolve(null),
   ]);
+  // Where each person stands with their login, beside their name. Invitations
+  // are read by administrators; anyone else sees has / has not from the record.
+  const register: RegisterPerson[] = await listRegister(supabase, { silo: target }).catch(() => []);
+  const byId = new Map(register.map((r) => [r.id, r]));
+  const loginOf = (id: string, userId: string | null, leftAt: string | null): LoginState => {
+    if (leftAt) return 'left';
+    const r = byId.get(id);
+    const key = r ? registerStatus(r).key : userId ? 'active' : 'none';
+    return key === 'active' ? 'has' : key === 'deactivated' ? 'off' : key === 'invited' ? 'invited' : 'none';
+  };
+  const withLogin = staff.map((s) => ({ ...s, login: loginOf(s.id, s.user_id, s.left_at) }));
+  const loginFilter = (['has', 'none', 'invited'] as const).find((v) => v === p.login) ?? null;
+  const shownStaff = loginFilter ? withLogin.filter((s) => s.login === loginFilter) : withLogin;
+  const hasCount = withLogin.filter((s) => s.login === 'has').length;
+  const LOGIN_BADGE: Record<LoginState, { label: string; tone: string }> = {
+    has: { label: t('Has login'), tone: 'bg-severity-low/15 text-severity-low-ink' },
+    invited: { label: t('Invited'), tone: 'bg-severity-medium/15 text-severity-medium-ink' },
+    none: { label: t('No login'), tone: 'bg-severity-critical/15 text-severity-critical-ink' },
+    off: { label: t('Login off'), tone: 'bg-muted text-muted-foreground' },
+    left: { label: t('Left'), tone: 'bg-muted text-muted-foreground' },
+  };
   const creating = p.id === 'new';
   const person = record?.person ?? null;
   const priv = record?.private ?? null;
+  const personLogin = person ? loginOf(person.id, person.user_id, person.left_at) : null;
   const ranks = [...new Set([...BASE_RANKS, ...staff.map((s) => s.rank).filter(Boolean)])];
   const keep = (extra: Record<string, string>) => {
     const sp = new URLSearchParams();
@@ -76,7 +102,7 @@ export default async function StaffPage({
         {canManage ? (
           <>
             <a href="/modules/staff/template" className={ox.topButton}><Download className="h-4 w-4" aria-hidden /> {t('Template for HR')}</a>
-            <Link href="/admin/invitations" className={ox.topButton}>{t('Invitations')}</Link>
+            <Link href="/admin/invitations" className={ox.topButton}>{t('Invites / Create logins')}</Link>
           </>
         ) : null}
         {person && !logins ? <PrintButton /> : null}
@@ -109,6 +135,12 @@ export default async function StaffPage({
           <option value="">{t('All ranks')}</option>
           {ranks.map((r) => <option key={r} value={r}>{r}</option>)}
         </select>
+        <select name="login" defaultValue={loginFilter ?? ''} className={cn(ox.topInput, 'w-40')} aria-label={t('Login')}>
+          <option value="">{t('Everyone')}</option>
+          <option value="has">{t('Has login')}</option>
+          <option value="none">{t('No login')}</option>
+          <option value="invited">{t('Invited, not active yet')}</option>
+        </select>
         <input name="q" defaultValue={p.q} placeholder={t('Search by staff no., name or service no…')} className={cn(ox.topInput, 'w-72')} />
         <button type="submit" className={ox.topButton}>{t('Show')}</button>
         {ctx.canEdit ? <Link href={keep({ id: 'new' })} className={cn(ox.primary, 'ml-auto')}><Plus className="h-4 w-4" aria-hidden /> {t('Add New Staff')}</Link> : null}
@@ -116,17 +148,27 @@ export default async function StaffPage({
 
       <div className="grid gap-4 xl:grid-cols-[18rem_1fr]">
         <section className={cn(ox.card, 'no-print max-h-[44rem] overflow-y-auto')}>
-          <div className={ox.cardHead}><h2 className={ox.cardTitle}>{t('{count} staff', { count: staff.length })}</h2></div>
+          <div className={ox.cardHead}>
+            <h2 className={ox.cardTitle}>{t('{count} staff', { count: shownStaff.length })}</h2>
+            <span className="text-xs text-muted-foreground">{t('{has} with a login · {none} without', { has: hasCount, none: withLogin.length - hasCount })}</span>
+          </div>
           <ul className="divide-y divide-border text-sm">
-            {staff.map((s) => (
-              <li key={s.id}>
-                <Link href={keep({ id: s.id })} className={cn('block px-4 py-2 hover:bg-muted', s.id === person?.id && 'bg-primary/10')}>
-                  <span className="font-medium">{s.last_name.toUpperCase()}, {s.first_name}</span>
-                  <span className="block text-xs text-muted-foreground">{[s.badge_number, s.rank, s.station].filter(Boolean).join(' · ')}</span>
+            {shownStaff.map((s) => (
+              <li key={s.id} className={cn('flex items-center gap-2 px-4 py-2 hover:bg-muted', s.id === person?.id && 'bg-primary/10')}>
+                <Link href={keep({ id: s.id, login: loginFilter ?? '' })} className="min-w-0 flex-1">
+                  <span className="block truncate font-medium">{s.last_name.toUpperCase()}, {s.first_name}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{[s.badge_number, s.rank, s.station].filter(Boolean).join(' · ')}</span>
                 </Link>
+                {s.login === 'none' && canManage ? (
+                  <Link href={`/admin/invitations/new?person=${s.id}`} title={t('Invite / Create login')}
+                    className="shrink-0 rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold text-primary-foreground hover:bg-primary/90">
+                    {t('Create login')}</Link>
+                ) : (
+                  <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold', LOGIN_BADGE[s.login].tone)}>{LOGIN_BADGE[s.login].label}</span>
+                )}
               </li>
             ))}
-            {staff.length === 0 ? <li className="px-4 py-6 text-center text-muted-foreground">{t('Nobody found.')}</li> : null}
+            {shownStaff.length === 0 ? <li className="px-4 py-6 text-center text-muted-foreground">{t('Nobody found.')}</li> : null}
           </ul>
         </section>
 
@@ -137,9 +179,10 @@ export default async function StaffPage({
                 <KeyRound className="h-4 w-4 text-muted-foreground" aria-hidden />
                 {person.left_at ? <span>{t('Marked as left on {date}.', { date: person.left_at.slice(0, 10) })}</span>
                   : person.user_id ? <span>{t('Has a login')}: <b>{record?.account?.email ?? ''}</b>{record?.account?.role ? ` · ${record.account.role}` : ''}</span>
+                  : personLogin === 'invited' ? <span>{t('Invited. Waiting for them to activate their login.')}</span>
                   : <span>{t('No login yet. Duty Allocation needs one.')}</span>}
-                {!person.left_at && !person.user_id && canManage ? (
-                  <Link href={`/admin/invitations/new?person=${person.id}`} className={cn(ox.primary, 'ml-auto h-8')}>{t('Invite')}</Link>
+                {personLogin === 'none' && canManage ? (
+                  <Link href={`/admin/invitations/new?person=${person.id}`} className={cn(ox.primary, 'ml-auto h-8')}>{t('Invite / Create login')}</Link>
                 ) : null}
                 {canSeeLogins ? <Link href={`/modules/staff?${deptQuery}view=logins&q=${encodeURIComponent(person.badge_number)}`} className="text-xs text-primary hover:underline">{t('Role and leaving')}</Link> : null}
               </p>
@@ -242,6 +285,16 @@ export default async function StaffPage({
             </ActionForm>
 
             {person ? (
+              // Most staff need neither, so they fold away; open when something is already there.
+              <details open={(record?.leo.length ?? 0) > 0 || (record?.access.length ?? 0) > 0}
+                className="group rounded-xl border border-border bg-bg-card shadow-sm open:bg-transparent open:border-transparent open:shadow-none">
+                <summary className="no-print flex cursor-pointer list-none items-center gap-3 rounded-xl px-4 py-3 hover:bg-muted group-open:mb-3 group-open:border group-open:border-border group-open:bg-bg-card">
+                  <span aria-hidden className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-sm font-bold transition-transform group-open:rotate-90">›</span>
+                  <span>
+                    <span className="block text-sm font-semibold">{t('More: officer record and screen access')}</span>
+                    <span className="block text-xs text-muted-foreground">{t('Most staff need none of this. Officers work from the phone app.')}</span>
+                  </span>
+                </summary>
               <div className="grid gap-4 lg:grid-cols-2">
                 <section className={ox.card}>
                   <div className={ox.cardHead}><h2 className={ox.cardTitle}>{t('Law enforcement officer record')} <InfoTip text={t('Radio, warrant area and the dates they apply.')} /></h2></div>
@@ -317,6 +370,7 @@ export default async function StaffPage({
                   )}
                 </section>
               </div>
+              </details>
             ) : null}
           </div>
         ) : (

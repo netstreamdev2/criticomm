@@ -1,4 +1,8 @@
-# 25 — Radios: PocStar, RealPTT, the Radio Desk and the SOS key
+# 25 — Radios: PocStar, our own Talk, the Radio Desk and the SOS key
+
+**On screen, no platform is ever named.** Dispatchers and officers see radios,
+people and Talk; never PocStar, RealPTT, LiveKit or "the HikTech app" as a
+source. The names below are for the developers only.
 
 ## Run once
 
@@ -11,7 +15,7 @@ run again.
 |---|---|---|
 | Estalky E977 radio | **PocStar** (Constellations console) | Android 12. The PTT app is `com.shli.interphone`, a Netstream build of PocStar's (`2.9.4.15_Netstream_E966_E977_HW_3`). It is logged in as "FIRE ALPHA" in group "Netstream" and reports its GPS every 10 seconds to PocStar's Johannesburg server. |
 | Smart hard hats | **PocStar** | Not yet checked on the device. |
-| Older radios Nets1–4 | **RealPTT** | Company account `nets`, talk group 161632. Last seen between January and August 2026. |
+| Older radios Nets1–4 | ~~RealPTT~~ | **Removed (0087).** The subscription lapsed on 18 August 2026. Code, routes, settings and register entries are gone. |
 
 Constellations (`constellationsza.co.za`) is PocStar's dispatch console under
 another name. We have asked PocStar for their API and web SDK.
@@ -35,20 +39,18 @@ name.
 
 ## The Radio Desk (`/dispatch/ptt`)
 
-- **Each radio:** online or offline, battery, last position and how fresh it is,
-  last time online.
-- **Platform status:** connected, waiting, or not answering.
-- **Tiles and filters:** totals for radios, online, low battery, hard hats and
-  not in the register, plus search and filters.
-- **For a RealPTT radio:** text to the radio (audited as `RadioTextSent`) and
-  the last 2 hours of recordings.
-- **Refresh:** every 15 seconds. The server asks each platform at most every
-  10 seconds, however many people are looking.
-- **PocStar:** shows "Waiting for PocStar's API" until it is connected. Radios in
-  the register still appear. No made-up data.
+Kept plain, for people who read little:
 
-RealPTT needs `REALPTT_ACCOUNT` and `REALPTT_PASSWORD` in the server environment.
-**Change the RealPTT password before go-live.** V4 had it written into its code.
+- **Talk** at the top: join, then hold the button (or the space bar).
+- **Three counts:** On, Off, Low battery (only when there is one).
+- **List or Map.** Each radio is one row: a green dot (on, pulsing while
+  talking) or grey (off, with the time it was last seen), the person's name,
+  the battery, and a map button. A name search shows when there are more than six.
+- **Map:** street or satellite; the ring round each dot is the battery. Tap a
+  radio for its route over the last 12 hours on duty.
+- **Refresh:** every 10 seconds.
+- Only real radios: the register, and E977/E966 radios running our app. No
+  made-up or test accounts.
 
 ## The E977's SOS key in the HikTech app
 
@@ -72,8 +74,7 @@ cannot add native code.
 
 - **PocStar, once their API arrives:** devices, GPS, SOS alarms as HikTech
   alerts, hard hat video, recordings, text.
-- **Talking from the console:** RealPTT's web SDK (we have it from V4), and
-  PocStar's if they have one.
+- **Talking from the console with PocStar radios:** PocStar's web SDK, if they have one.
 - **Map and incident:** radios on the live map, and a Radio card on the incident
   page.
 
@@ -131,4 +132,51 @@ Older builds show "Talk needs the new app".
 ```
 CASE_PGLITE_MODULE=… node scripts/test-talk.mjs
 node --experimental-strip-types --test packages/api/src/radio/talk.test.ts
+```
+
+## The HikTech app as the radio's backup (0087)
+
+PocStar is the main platform. While its API is not here, and whenever it is
+not answering for a radio, the HikTech app on the same radio stands in.
+
+**Run once:** `0087_radio_presence.sql` in the SQL editor, after 0086. Safe to run again.
+
+**What the app reports** (`apps/mobile/lib/presence.ts`):
+- signed in or signed out (sent at once when signing out);
+- battery and charging (from the build after 1.3.0, see below);
+- network: Wi-Fi, mobile data or no signal;
+- the talk group it is in, and whether it is talking now;
+- how many positions are waiting on the radio for signal;
+- where it is, **on duty only**. Off duty the position is cleared.
+
+It reports every 30 seconds with the app open, at once when talking starts
+or stops, and in the background on duty once a minute with the route
+recorder. With no signal it skips the report; the route itself is still
+queued and sent later (0071). **No audio is kept.**
+
+**The Radio ID.** Each install of the app makes one, like `HT-4F2K-9QXA`, shown
+at the bottom of the Talk screen. A radio handed to another person moves to
+them, and that is audited (`RadioHandedOver`).
+
+**On the Radio Desk:** a PocStar radio whose person runs the app shows PocStar's
+report while PocStar says it is on, and otherwise the app's. Nothing on screen
+says which. An E977 or E966 running the app that is not in the register still
+shows; ordinary phones do not.
+
+**Admin → Radios:** nobody picks a platform. Type the radio's name (a PocStar
+account) or its Radio ID (`HT-…`, a radio running our app); the form works out which.
+
+**Who sees it:** the person, and the desks and command who oversee crews, for
+their own department unless they see every department. Only
+`report_radio_presence()` writes it, and only for the person signed in.
+
+**Needs a new app build for:** the battery (read by the `radio-keys` module).
+Until then the battery shows as a dash. Everything else works over the air.
+
+**Not yet:** the radio's physical PTT key (PocStar holds it; we asked them for
+the key's broadcast); "locate now" from the desk (needs push in the build).
+
+```
+CASE_PGLITE_MODULE=… node scripts/test-radio-presence.mjs
+node --experimental-strip-types --test packages/api/src/radio/live.test.ts
 ```

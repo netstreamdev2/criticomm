@@ -101,7 +101,7 @@ Create env files (see `.env.example`):
 | File | Keys |
 |---|---|
 | `.env` (repo root — scripts) | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` (use the session pooler; the direct host is IPv6-only) |
-| `apps/web/.env.local` | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_APP_URL`, plus optional integration keys (`GROQ_API_KEY`, `TOMTOM_API_KEY`, `BULKSMS_*`, `REALPTT_*`, …) — every one degrades to a clear "not configured" state |
+| `apps/web/.env.local` | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_APP_URL`, plus optional integration keys (`GROQ_API_KEY`, `TOMTOM_API_KEY`, `BULKSMS_*`, …) — every one degrades to a clear "not configured" state |
 | `apps/mobile/.env.local` | `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_APP_URL` |
 
 Apply the schema and seed:

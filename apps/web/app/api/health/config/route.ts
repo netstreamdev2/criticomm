@@ -62,7 +62,6 @@ export async function GET() {
       XAI_API_KEY: shape(process.env.XAI_API_KEY),
       GROQ_API_KEY: shape(process.env.GROQ_API_KEY),
       GEMINI_API_KEY: shape(process.env.GEMINI_API_KEY),
-      REALPTT_ACCOUNT: shape(process.env.REALPTT_ACCOUNT),
       ITRAFFIC_API_KEY: shape(process.env.ITRAFFIC_API_KEY),
       HIKVISION_APP_KEY: shape(process.env.HIKVISION_APP_KEY),
     },

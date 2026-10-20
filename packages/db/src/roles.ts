@@ -695,7 +695,6 @@ export function canAccess(pathname: string, role: UserRole, silo: Silo): boolean
       && !pathname.startsWith('/admin/features')
       && !pathname.startsWith('/admin/access')
       && !pathname.startsWith('/admin/approvals')
-      && !pathname.startsWith('/admin/invitations')
       && !pathname.startsWith('/modules/staff/import')
       && !pathname.startsWith('/admin/rollout')
       && !pathname.startsWith('/admin/handbook');

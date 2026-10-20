@@ -1,14 +1,16 @@
 'use server';
 
 import { saveCallSign } from '@criticom/api';
-import type { Silo } from '@criticom/db';
+import { scheduleRank, type Silo } from '@criticom/db';
+import { tx } from '@criticom/db/i18n';
+import type { ActionResult } from '@/components/office/action-form';
 import { getSession } from '@/lib/session';
 import { attempt, field, optional } from '@/lib/office-actions';
 
 /** Save a call sign. save_call_sign checks Call Signs Edit for the department. */
-export async function saveCallSignAction(fd: FormData) {
-  const { supabase } = await getSession();
-  return attempt(async () => {
+export async function saveCallSignAction(fd: FormData): Promise<ActionResult> {
+  const { supabase, role } = await getSession();
+  const res = await attempt(async () => {
     await saveCallSign(supabase, {
       id: optional(fd, 'id'),
       silo: field(fd, 'silo') as Silo,
@@ -23,4 +25,9 @@ export async function saveCallSignAction(fd: FormData) {
       active: fd.get('active') !== 'off',
     });
   }, '/modules/call-signs');
+  // The next step of the setup path: book staff onto the section's call signs.
+  const section = optional(fd, 'section_id');
+  if (!res.ok || !section) return res;
+  const dept = scheduleRank(role) >= 4 ? `dept=${field(fd, 'silo')}&` : '';
+  return { ...res, next: { label: tx('Next: allocate duty'), href: `/modules/duty-allocation?${dept}section=${section}` } };
 }

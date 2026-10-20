@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 import type { AllocationResult, AvailableStaff } from '@criticom/api';
@@ -9,6 +10,7 @@ import { useToast } from '@/components/toast';
 import { useT } from '@/components/i18n';
 import { cn } from '@/lib/utils';
 import { notify } from '@/components/office/notice';
+import { tx } from '@criticom/db/i18n';
 import { allocateAction } from './actions';
 
 type Sign = { id: string; callSign: string; start: string; stop: string; rank: string | null; description: string | null };
@@ -20,9 +22,13 @@ type Pair = { sign: Sign; member: AvailableStaff };
  * first member), then Confirm & save books every day in the period.
  */
 export function AllocationBoard({
-  sectionId, from, to, canEdit, signs, staff,
+  sectionId, from, to, canEdit, signs, staff, dept, printHref,
 }: {
   sectionId: string;
+  /** The department, for the controller tier (?dept=). */
+  dept: string | null;
+  /** The next step once booked: the duty sheet for the first day. */
+  printHref: string;
   from: string;
   to: string;
   canEdit: boolean;
@@ -83,7 +89,8 @@ export function AllocationBoard({
       }
       setResult(res.result);
       notify(t('{count} duties allocated', { count: res.result.created }),
-        res.result.skipped.length ? t('{count} left out: see the list below', { count: res.result.skipped.length }) : undefined);
+        res.result.skipped.length ? t('{count} left out: see the list below', { count: res.result.skipped.length }) : undefined,
+        res.result.created > 0 ? { label: tx('Next: print the duty sheet'), href: printHref } : undefined);
       setPairs([]);
       setNote('');
       router.refresh();
@@ -120,7 +127,12 @@ export function AllocationBoard({
                     </tr>
                   );
                 })}
-                {signs.length === 0 ? <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">{t('This section has no call signs. Add them under Call Signs.')}</td></tr> : null}
+                {signs.length === 0 ? (
+                  <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">
+                    {t('This section has no call signs yet.')}{' '}
+                    <Link href={`/modules/call-signs?${dept ? `dept=${dept}&` : ''}section=${sectionId}&id=new`} className="font-semibold text-primary hover:underline">{t('+ Add call signs')}</Link>
+                  </td></tr>
+                ) : null}
               </tbody>
             </table>
           </div>

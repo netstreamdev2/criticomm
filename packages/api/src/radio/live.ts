@@ -3,17 +3,31 @@
  * what each push-to-talk platform says about it right now (online, battery,
  * last position). Pure: no database, no network, so it can be tested.
  *
- * The platforms (PocStar through Constellations, RealPTT) know a radio by
- * their own account. The register (0082) says whose it is.
+ * The platform (PocStar, through Constellations) knows a radio by its own
+ * account. The register (0082) says whose it is.
+ *
+ * The HikTech app on the same radio is the backup (0087): PocStar first,
+ * and when PocStar is not answering for a radio, the app's own report of it.
  */
 
-export type RadioProvider = 'pocstar' | 'realptt';
+export type RadioProvider = 'pocstar' | 'hiktech';
 export type RadioKind = 'radio' | 'hard_hat' | 'dispatcher';
 
 export const RADIO_PROVIDERS: ReadonlyArray<{ id: RadioProvider; label: string; console: string; tone: string }> = [
   { id: 'pocstar', label: 'PocStar', console: 'Constellations', tone: '#f97316' },
-  { id: 'realptt', label: 'RealPTT', console: 'RealPTT', tone: '#38bdf8' },
+  { id: 'hiktech', label: 'HikTech app', console: 'Radio Desk', tone: '#14b8a6' },
 ];
+
+/** The push-to-talk radios we know by model. Any phone can run the app; only these count as radios on their own. */
+export const RADIO_MODELS = ['E977', 'E966'] as const;
+export const isRadioModel = (model: string | null | undefined) =>
+  Boolean(model && RADIO_MODELS.some((m) => model.toUpperCase().includes(m)));
+
+/** The app reports every 30 seconds while open or on duty; silent longer than this, it is offline. */
+export const PRESENCE_ONLINE_MS = 2 * 60_000;
+
+/** The Radio ID the app shows: HT- and eight letters or digits, without I, L, O or U. */
+export const RADIO_ID_PATTERN = /^HT-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$/;
 export const RADIO_KINDS: ReadonlyArray<{ id: RadioKind; label: string }> = [
   { id: 'radio', label: 'Radio' },
   { id: 'hard_hat', label: 'Hard hat' },
@@ -39,6 +53,19 @@ export type LiveRadio = {
   lastOnlineAt: string | null;
   /** A dispatcher login rather than a radio, as the platform reports it. */
   dispatcher: boolean;
+  /** The HikTech app reports these too: whose it is, and how it is. */
+  userId?: string | null;
+  personnelId?: string | null;
+  charging?: boolean | null;
+  network?: 'wifi' | 'cellular' | 'none' | 'other' | null;
+  /** The talk group it is in, and whether it is on the air now. */
+  talkChannel?: string | null;
+  talking?: boolean;
+  accuracyM?: number | null;
+  /** Positions recorded with no signal, still on the radio waiting to be sent. */
+  queued?: number | null;
+  model?: string | null;
+  appVersion?: string | null;
 };
 
 /** A platform's answer: connected or why not, and what it reported. */
@@ -78,7 +105,12 @@ export type RadioView = {
   /** The person, else the vehicle, else the platform's name, else the account. */
   title: string;
   register: RegisterEntry | null;
+  /** What is shown: the radio's own platform, or the app standing in for it. */
   live: LiveRadio | null;
+  /** Where `live` came from. */
+  source: RadioProvider;
+  /** The app is standing in because the radio's platform is not answering for it. */
+  fallback: boolean;
   freshness: Freshness;
 };
 
@@ -107,21 +139,55 @@ export function batteryTone(level: number | null | undefined): string {
 
 const key = (provider: string, account: string) => `${provider}:${account.trim().toLowerCase()}`;
 
+const heardAt = (l: LiveRadio | null | undefined) => Math.max(Date.parse(l?.lastOnlineAt ?? '') || 0, Date.parse(l?.fixAt ?? '') || 0);
+
+/**
+ * PocStar first, the app as the backup. The radio's own platform while it
+ * says the radio is online; otherwise the app, when the app is online; when
+ * neither is, whichever was heard from last.
+ */
+export function chooseSource(primary: LiveRadio | null, backup: LiveRadio | null): { live: LiveRadio | null; fallback: boolean } {
+  if (!backup || primary?.online) return { live: primary, fallback: false };
+  if (backup.online || !primary) return { live: backup, fallback: true };
+  return heardAt(backup) > heardAt(primary) ? { live: backup, fallback: true } : { live: primary, fallback: false };
+}
+
+/** Of one person's devices running the app, the best backup: online, a radio rather than a phone, the latest. */
+function backupOrder(a: LiveRadio, b: LiveRadio): number {
+  return Number(Boolean(b.online)) - Number(Boolean(a.online))
+    || Number(isRadioModel(b.model)) - Number(isRadioModel(a.model))
+    || heardAt(b) - heardAt(a);
+}
+
 /**
  * The register joined to the platforms' reports. Every active registered
- * radio appears, even when its platform says nothing about it; a platform
- * account not in the register appears too, flagged, so an administrator can
- * add it. Online first, then by name.
+ * radio appears, even when its platform says nothing about it. A PocStar
+ * radio whose person also runs the app has the app as its backup
+ * (chooseSource). A platform account not in the register appears too,
+ * flagged, so an administrator can add it; an app not in the register only
+ * when it runs on a radio (an ordinary phone is not a radio). Online first,
+ * then by name.
  */
 export function joinRadios(register: readonly RegisterEntry[], live: readonly LiveRadio[], now = Date.now()): RadioView[] {
   const byKey = new Map(live.map((l) => [key(l.provider, l.account), l]));
+  const active = register.filter((r) => r.active);
+  // An app registered as a radio in its own right is that radio, not someone's backup.
+  const ownRight = new Set(active.filter((r) => r.provider === 'hiktech').map((r) => key(r.provider, r.account)));
+  const appByPerson = new Map<string, LiveRadio>();
+  for (const a of live.filter((l) => l.provider === 'hiktech' && !ownRight.has(key(l.provider, l.account))).sort(backupOrder)) {
+    if (a.personnelId && !appByPerson.has(a.personnelId)) appByPerson.set(a.personnelId, a);
+  }
+
   const seen = new Set<string>();
   const views: RadioView[] = [];
-  for (const r of register) {
-    if (!r.active) continue;
+  for (const r of active) {
     const k = key(r.provider, r.account);
     seen.add(k);
-    const l = byKey.get(k) ?? null;
+    const primary = byKey.get(k) ?? null;
+    const backup = r.provider !== 'hiktech' && r.personnel_id ? appByPerson.get(r.personnel_id) ?? null : null;
+    // Matched to a radio, the person's app is not listed again on its own.
+    if (backup) seen.add(key(backup.provider, backup.account));
+    const { live: l, fallback } = chooseSource(primary, backup);
     views.push({
       key: k,
       provider: r.provider,
@@ -130,6 +196,8 @@ export function joinRadios(register: readonly RegisterEntry[], live: readonly Li
       title: r.personName || r.unitNumber || r.label || l?.name || r.account,
       register: r,
       live: l,
+      source: l?.provider ?? r.provider,
+      fallback,
       freshness: freshness(l?.fixAt, now),
     });
   }
@@ -137,6 +205,7 @@ export function joinRadios(register: readonly RegisterEntry[], live: readonly Li
     const k = key(l.provider, l.account);
     if (seen.has(k)) continue;
     seen.add(k);
+    if (l.provider === 'hiktech' && !isRadioModel(l.model)) continue;
     views.push({
       key: k,
       provider: l.provider,
@@ -145,6 +214,8 @@ export function joinRadios(register: readonly RegisterEntry[], live: readonly Li
       title: l.name || l.account,
       register: null,
       live: l,
+      source: l.provider,
+      fallback: false,
       freshness: freshness(l.fixAt, now),
     });
   }
@@ -160,53 +231,72 @@ export function radioCounts(views: readonly RadioView[]) {
     lowBattery: field.filter((v) => v.live?.online && v.live.battery !== null && v.live.battery < 20).length,
     unregistered: views.filter((v) => !v.register).length,
     hardHats: field.filter((v) => v.kind === 'hard_hat').length,
+    onBackup: field.filter((v) => v.fallback && v.live?.online).length,
+    talking: field.filter((v) => v.live?.online && v.live.talking).length,
   };
 }
 
-/** "2026-08-18 20:37:02" in South African time, as RealPTT writes it, to an instant. Null for "-" or nothing. */
-export function saPlatformTime(v: string | null | undefined): string | null {
-  const s = v?.trim();
-  if (!s || s === '-' || !/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2})?$/.test(s)) return null;
-  const t = Date.parse(`${s.replace(' ', 'T')}${s.length === 16 ? ':00' : ''}+02:00`);
-  return Number.isNaN(t) ? null : new Date(t).toISOString();
-}
-
-type RealPttUser = {
-  user_id?: number | string; user_account?: string; user_name?: string; user_online?: number | string;
-  battery?: number | string; client_type?: number | string; last_online_time?: string;
+/** A row of radio_presence (0087), with the person's name joined for the screen. */
+export type PresenceRow = {
+  device_id: string;
+  user_id: string;
+  personnel_id: string | null;
+  silo: string;
+  model: string | null;
+  app_version: string | null;
+  battery: number | null;
+  charging: boolean | null;
+  network: string | null;
+  talk_channel: string | null;
+  talking: boolean;
+  queued?: number | null;
+  signed_in: boolean;
+  lat: number | null;
+  lng: number | null;
+  accuracy: number | null;
+  fix_at: string | null;
+  last_seen_at: string;
+  personName?: string | null;
 };
-type RealPttFix = { userId?: string; userAccount?: string; userName?: string; lat?: string; lng?: string; time?: string; speed?: string };
 
-const num = (v: unknown): number | null => {
-  const n = typeof v === 'number' ? v : typeof v === 'string' && v.trim() !== '' ? Number(v) : Number.NaN;
-  return Number.isFinite(n) ? n : null;
-};
+const NETWORKS = ['wifi', 'cellular', 'none', 'other'] as const;
 
-/**
- * RealPTT's user list and GPS list as live radios. client_type 5 is a
- * dispatcher login; a 0,0 position is no position.
- */
-export function realPttRadios(users: readonly RealPttUser[], fixes: readonly RealPttFix[]): LiveRadio[] {
-  const fixByAccount = new Map(fixes.filter((f) => f.userAccount).map((f) => [f.userAccount!.toLowerCase(), f]));
-  return users.filter((u) => u.user_account).map((u) => {
-    const f = fixByAccount.get(u.user_account!.toLowerCase());
-    const lat = num(f?.lat);
-    const lng = num(f?.lng);
-    const hasFix = lat !== null && lng !== null && !(lat === 0 && lng === 0);
-    const battery = num(u.battery);
+/** The app's reports as live radios. Online: signed in and heard from in the last two minutes. */
+export function presenceRadios(rows: readonly PresenceRow[], now = Date.now()): LiveRadio[] {
+  return rows.map((r) => {
+    const seen = Date.parse(r.last_seen_at);
+    const online = r.signed_in && Number.isFinite(seen) && now - seen < PRESENCE_ONLINE_MS;
+    const hasFix = r.lat !== null && r.lng !== null && Boolean(r.fix_at);
     return {
-      provider: 'realptt' as const,
-      account: u.user_account!,
-      providerUserId: u.user_id === undefined ? null : String(u.user_id),
-      name: u.user_name?.trim() || null,
-      online: num(u.user_online) === 1,
-      battery: battery === null ? null : Math.max(0, Math.min(100, battery)),
-      lat: hasFix ? lat : null,
-      lng: hasFix ? lng : null,
-      fixAt: hasFix ? saPlatformTime(f?.time) : null,
-      speedKmh: hasFix ? num(f?.speed) : null,
-      lastOnlineAt: saPlatformTime(u.last_online_time),
-      dispatcher: num(u.client_type) === 5,
+      provider: 'hiktech' as const,
+      account: r.device_id,
+      providerUserId: null,
+      name: r.personName?.trim() || null,
+      online,
+      battery: r.battery === null ? null : Math.max(0, Math.min(100, Math.round(r.battery))),
+      lat: hasFix ? r.lat : null,
+      lng: hasFix ? r.lng : null,
+      fixAt: hasFix ? r.fix_at : null,
+      speedKmh: null,
+      lastOnlineAt: r.last_seen_at,
+      dispatcher: false,
+      userId: r.user_id,
+      personnelId: r.personnel_id,
+      charging: r.charging,
+      network: (NETWORKS as readonly string[]).includes(r.network ?? '') ? (r.network as LiveRadio['network']) : null,
+      talkChannel: online ? r.talk_channel : null,
+      talking: online && r.talking,
+      accuracyM: hasFix ? r.accuracy : null,
+      queued: r.queued ?? null,
+      model: r.model,
+      appVersion: r.app_version,
     };
   });
+}
+
+/** A fresh Radio ID for an install of the app, from any source of random numbers in [0, 1). */
+export function newRadioId(random: () => number = Math.random): string {
+  const ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+  const pick = () => ALPHABET[Math.floor(random() * ALPHABET.length) % ALPHABET.length];
+  return `HT-${Array.from({ length: 4 }, pick).join('')}-${Array.from({ length: 4 }, pick).join('')}`;
 }

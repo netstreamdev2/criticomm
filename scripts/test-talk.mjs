@@ -11,6 +11,8 @@ import { readFileSync } from 'node:fs';
 const { PGlite } = await import(process.env.CASE_PGLITE_MODULE || '@electric-sql/pglite');
 
 const migration = readFileSync(new URL('../supabase/migrations/0083_talk.sql', import.meta.url), 'utf8');
+// 0088: on All call the radios speak too.
+const allCall = readFileSync(new URL('../supabase/migrations/0088_talk_all_call.sql', import.meta.url), 'utf8');
 const db = new PGlite();
 let checks = 0;
 
@@ -94,6 +96,8 @@ try {
   }
   await db.exec(migration);
   await db.exec(migration); // safe to re-run
+  await db.exec(allCall);
+  await db.exec(allCall);
   await db.query('begin');
 
   await scenario('only a system administrator sets the voice server; the secret is never readable', async () => {
@@ -150,15 +154,19 @@ try {
     assert.equal((await access('dept:Nonsense')).listen, false);
   });
 
-  await scenario('All call: everyone listens; the desk and command speak', async () => {
+  await scenario('All call: everyone listens and speaks, except those who only watch (0088)', async () => {
     await as(U.cop);
-    assert.deepEqual(await access('all'), { listen: true, speak: false, name: 'All call', priority: false });
+    assert.deepEqual(await access('all'), { listen: true, speak: true, name: 'All call', priority: false }, 'a radio answers on All call');
     const p = await pass('all');
-    assert.equal(verify(p.token, SECRET).body.video.canPublish, false, 'listen-only pass');
+    assert.equal(verify(p.token, SECRET).body.video.canPublish, true);
     await as(U.captain);
     assert.equal((await access('all')).speak, true);
     await as(U.dispatcher);
-    assert.equal((await access('all')).speak, true);
+    assert.deepEqual(await access('all'), { listen: true, speak: true, name: 'All call', priority: true }, 'the desk still talks over a radio');
+    await as(U.logger);
+    assert.equal((await access('all')).speak, false, 'the call logger only listens');
+    await as(U.viewer);
+    assert.equal(verify((await pass('all')).token, SECRET).body.video.canPublish, false, 'the viewer gets a listen-only pass');
   });
 
   await scenario('a call’s channel: whoever works the call; closed calls are listen-only', async () => {

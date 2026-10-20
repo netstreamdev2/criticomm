@@ -11,8 +11,8 @@ const person = (over: Partial<RegisterPerson>): RegisterPerson => ({
 });
 
 test('where someone stands, in one chip', () => {
-  assert.equal(registerStatus(person({})).label, 'Role not set');
-  assert.equal(registerStatus(person({ proposed_role: 'Police' })).label, 'Role to confirm');
+  assert.equal(registerStatus(person({})).label, 'No role yet');
+  assert.equal(registerStatus(person({ proposed_role: 'Police' })).label, 'Check the role');
   assert.equal(registerStatus(person({ proposed_role: 'Police', role_confirmed_at: 'x' })).key, 'ready');
   const inv = (status: 'sent' | 'opened' | 'locked' | 'expired' | 'ready' | 'awaiting_approval', delivery_error: string | null = null) =>
     person({ invitation: { id: 'i', status, channel: 'email', expires_at: null, delivery_error } });

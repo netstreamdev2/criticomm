@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { saveRadioDevice, type RadioKind, type RadioProvider } from '@criticom/api';
+import { RADIO_ID_PATTERN, saveRadioDevice, type RadioKind } from '@criticom/api';
 import type { Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
@@ -12,16 +12,21 @@ const text = (f: FormData, k: string) => {
   return v || null;
 };
 
-/** Add or change a radio: save_radio_device() checks who may, and audits it (0082). */
+/**
+ * Add or change a radio: save_radio_device() checks who may, and audits it
+ * (0082, 0087). Nobody picks a platform: a Radio ID (HT-XXXX-XXXX) is a radio
+ * running our app, any other name is the radio's own account on PocStar.
+ */
 export async function saveRadioAction(_prev: RadioFormState, formData: FormData): Promise<RadioFormState> {
   const { supabase } = await getSession();
   const id = text(formData, 'id');
+  const account = text(formData, 'account') ?? '';
   try {
     const row = await saveRadioDevice(supabase, {
       id,
-      provider: (text(formData, 'provider') ?? '') as RadioProvider,
+      provider: RADIO_ID_PATTERN.test(account.toUpperCase()) ? 'hiktech' : 'pocstar',
       kind: (text(formData, 'kind') ?? '') as RadioKind,
-      account: text(formData, 'account') ?? '',
+      account,
       label: text(formData, 'label'),
       providerUserId: text(formData, 'provider_user_id'),
       imei: text(formData, 'imei'),
@@ -40,7 +45,7 @@ export async function saveRadioAction(_prev: RadioFormState, formData: FormData)
   }
 }
 
-/** Point HikTech Talk at a voice server: set_talk_server() lets only the system administrators (0083). */
+/** Point Talk at its server: set_talk_server() lets only the system administrators (0083). */
 export async function setTalkServerAction(_prev: RadioFormState, formData: FormData): Promise<RadioFormState> {
   const { supabase } = await getSession();
   const { error } = await supabase.rpc('set_talk_server', {
@@ -48,8 +53,8 @@ export async function setTalkServerAction(_prev: RadioFormState, formData: FormD
     p_api_key: text(formData, 'api_key') ?? '',
     p_api_secret: text(formData, 'api_secret') ?? '',
   });
-  if (error) return { error: error.message.includes('Not permitted') ? 'Only a system administrator sets the voice server.' : error.message };
+  if (error) return { error: error.message.includes('Not permitted') ? 'Only a system administrator sets this.' : error.message };
   revalidatePath('/admin/radios');
   revalidatePath('/dispatch/ptt');
-  return { done: 'Voice server saved. Talk is ready on the Radio Desk.' };
+  return { done: 'Saved. Talk is ready.' };
 }

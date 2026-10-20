@@ -351,6 +351,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "+ Add a section",
+  "text": "+ Add a section",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/page.tsx"
+  ]
+ },
+ {
+  "key": "+ Add call signs",
+  "text": "+ Add call signs",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
   "key": "+ Capture a fire report",
   "text": "+ Capture a fire report",
   "context": null,
@@ -2102,14 +2118,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Account on the platform",
-  "text": "Account on the platform",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/radios/radio-form.tsx"
-  ]
- },
- {
   "key": "Account status",
   "text": "Account status",
   "context": null,
@@ -2573,14 +2581,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Add it",
-  "text": "Add it",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
-  ]
- },
- {
   "key": "Add it to the description",
   "text": "Add it to the description",
   "context": null,
@@ -2698,14 +2698,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
-  ]
- },
- {
-  "key": "Add them to the register",
-  "text": "Add them to the register",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -3461,6 +3453,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Allocate duty",
+  "text": "Allocate duty",
+  "context": null,
+  "where": [
+   "apps/web/components/office/setup-guide.tsx"
   ]
  },
  {
@@ -4675,6 +4675,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "Ask the system administrator.",
+  "text": "Ask the system administrator.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Ask your administrator for the new app.",
+  "text": "Ask your administrator for the new app.",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
   ]
  },
  {
@@ -6044,6 +6060,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Both passwords match",
+  "text": "Both passwords match",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "Boy",
   "text": "Boy",
   "context": null,
@@ -6527,6 +6551,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "CONNECTING…",
+  "text": "CONNECTING…",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
   "key": "CPAP/BiPAP",
   "text": "CPAP/BiPAP",
   "context": null,
@@ -6733,7 +6765,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Call signs",
   "context": null,
   "where": [
-   "apps/web/app/(app)/modules/call-signs/page.tsx"
+   "apps/web/app/(app)/modules/call-signs/page.tsx",
+   "apps/web/components/office/setup-guide.tsx"
   ]
  },
  {
@@ -7809,14 +7842,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Channel clear. {value}",
-  "text": "Channel clear. {value}",
-  "context": null,
-  "where": [
-   "apps/web/components/talk/talk-panel.tsx"
-  ]
- },
- {
   "key": "Charge",
   "text": "Charge",
   "context": null,
@@ -7903,6 +7928,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Charging",
+  "text": "Charging",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
   "key": "Chart",
   "text": "Chart",
   "context": null,
@@ -7958,6 +7991,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/fines-card.tsx"
+  ]
+ },
+ {
+  "key": "Check the role",
+  "text": "Check the role",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -8289,7 +8330,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Choose a role",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
    "apps/web/app/(app)/admin/users/change-role-form.tsx"
+  ]
+ },
+ {
+  "key": "Choose a role…",
+  "text": "Choose a role…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -8523,6 +8573,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Choose the person",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
    "apps/web/app/(app)/notifications/send-form.tsx"
   ]
  },
@@ -8830,6 +8881,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Clear.",
+  "text": "Clear.",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/talk-panel.tsx"
+  ]
+ },
+ {
+  "key": "Clear. Hold the button or the space bar to talk.",
+  "text": "Clear. Hold the button or the space bar to talk.",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/talk-panel.tsx"
   ]
  },
  {
@@ -9623,6 +9690,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Confirm",
+  "text": "Confirm",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
+  ]
+ },
+ {
   "key": "Confirm & save",
   "text": "Confirm & save",
   "context": null,
@@ -9748,7 +9823,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Confirmed",
   "context": null,
   "where": [
-   "apps/mobile/app/(tabs)/schedule.tsx"
+   "apps/mobile/app/(tabs)/schedule.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -10418,6 +10494,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Create login",
+  "text": "Create login",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Create task",
   "text": "Create task",
   "context": null,
@@ -10788,14 +10872,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/components/shift-inspection.tsx",
    "packages/api/src/police/report-forms.ts"
-  ]
- },
- {
-  "key": "Current staff",
-  "text": "Current staff",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -12012,6 +12088,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/devices/page.tsx"
+  ]
+ },
+ {
+  "key": "Device number",
+  "text": "Device number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
   ]
  },
  {
@@ -14362,14 +14446,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Every radio and hard hat, as the person it belongs to.",
-  "text": "Every radio and hard hat, as the person it belongs to.",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
-  ]
- },
- {
   "key": "Every recorded action on a case: who logged it, routed it, responded, filed the report and closed it. Audit rows are permanent.",
   "text": "Every recorded action on a case: who logged it, routed it, responded, filed the report and closed it. Audit rows are permanent.",
   "context": null,
@@ -14422,6 +14498,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Everyone",
   "context": null,
   "where": [
+   "apps/web/app/(app)/modules/staff/logins-view.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx",
    "apps/web/app/(app)/reports/builder/builder-client.tsx",
    "apps/web/app/(app)/roster/planner.tsx"
   ]
@@ -14488,6 +14566,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/sync-tray.tsx"
+  ]
+ },
+ {
+  "key": "Everything is filled in",
+  "text": "Everything is filled in",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
@@ -15263,6 +15349,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Find a name",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
    "apps/web/app/(app)/notifications/send-form.tsx"
   ]
  },
@@ -17313,7 +17400,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Has a login",
   "context": null,
   "where": [
-   "apps/web/app/(app)/modules/staff/page.tsx"
+   "apps/web/app/(app)/modules/staff/page.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -17322,6 +17410,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Has login",
+  "text": "Has login",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -17626,6 +17722,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Hide guide",
+  "text": "Hide guide",
+  "context": null,
+  "where": [
+   "apps/web/components/office/setup-guide.tsx"
+  ]
+ },
+ {
   "key": "Hide retired",
   "text": "Hide retired",
   "context": null,
@@ -17698,22 +17802,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
-  ]
- },
- {
-  "key": "HikTech Talk",
-  "text": "HikTech Talk",
-  "context": null,
-  "where": [
-   "apps/mobile/app/_layout.tsx"
-  ]
- },
- {
-  "key": "HikTech Talk:",
-  "text": "HikTech Talk:",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -19732,16 +19820,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Invitations",
-  "text": "Invitations",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/invitations/new/page.tsx",
-   "apps/web/app/(app)/admin/invitations/page.tsx",
-   "apps/web/app/(app)/modules/staff/page.tsx"
-  ]
- },
- {
   "key": "Invitations as SystemAdmin, Admin or SystemController wait for a second SystemAdmin",
   "text": "Invitations as SystemAdmin, Admin or SystemController wait for a second SystemAdmin",
   "context": null,
@@ -19758,10 +19836,12 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Invite",
-  "text": "Invite",
+  "key": "Invite / Create login",
+  "text": "Invite / Create login",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/invitations/new/page.tsx",
+   "apps/web/app/(app)/admin/invitations/page.tsx",
    "apps/web/app/(app)/modules/staff/page.tsx",
    "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
@@ -19795,8 +19875,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Invite someone",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/invitations/new/page.tsx",
-   "apps/web/app/(app)/admin/invitations/page.tsx",
    "apps/web/app/(app)/admin/page.tsx"
   ]
  },
@@ -19821,7 +19899,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Invited",
   "context": null,
   "where": [
-   "apps/web/app/(app)/modules/staff/logins-view.tsx"
+   "apps/web/app/(app)/modules/staff/logins-view.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -19841,11 +19920,37 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Invited, not active yet",
+  "text": "Invited, not active yet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Invited. Waiting for them to activate their login.",
+  "text": "Invited. Waiting for them to activate their login.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Invites",
   "text": "Invites",
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Invites / Create logins",
+  "text": "Invites / Create logins",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/page.tsx",
+   "apps/web/app/(app)/admin/invitations/page.tsx",
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -20615,14 +20720,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "It shows on the radio with your name. Every message is kept in the audit trail.",
-  "text": "It shows on the radio with your name. Every message is kept in the audit trail.",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
-  ]
- },
- {
   "key": "It stays on this phone under your account and sends the next time you sign in with signal.",
   "text": "It stays on this phone under your account and sends the next time you sign in with signal.",
   "context": null,
@@ -20741,6 +20838,14 @@ export const SOURCE: readonly SourceEntry[] = [
  {
   "key": "Join {value}",
   "text": "Join {value}",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/talk-panel.tsx"
+  ]
+ },
+ {
+  "key": "Join, then hold to talk",
+  "text": "Join, then hold to talk",
   "context": null,
   "where": [
    "apps/web/components/talk/talk-panel.tsx"
@@ -20933,14 +21038,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/police/armoury/armoury-table.tsx",
    "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
-  ]
- },
- {
-  "key": "Kept in the database only. Radios and consoles get a 2-hour pass, never the secret.",
-  "text": "Kept in the database only. Radios and consoles get a 2-hour pass, never the secret.",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
   ]
  },
  {
@@ -21231,14 +21328,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/operators/page.tsx"
-  ]
- },
- {
-  "key": "Last online {saTime}",
-  "text": "Last online {saTime}",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -21576,6 +21665,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/police/charges/[id]/page.tsx",
    "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
+  "key": "Left",
+  "text": "Left",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -21930,6 +22027,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "List",
+  "text": "List",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
   "key": "Live",
   "text": "Live",
   "context": null,
@@ -22194,6 +22299,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/wind-widget.tsx",
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
    "apps/web/app/(app)/sanral/traffic-panel.tsx",
    "apps/web/components/ops-map/zones/zone-card.tsx"
   ]
@@ -22348,6 +22454,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Login",
+  "text": "Login",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Login off",
+  "text": "Login off",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Logins",
   "text": "Logins",
   "context": null,
@@ -22429,6 +22551,14 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/dispatch/log-call/intake-ui.tsx",
    "packages/db/src/fire-report.ts",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Low battery",
+  "text": "Low battery",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -22696,6 +22826,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/medical/pcr/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Map",
+  "text": "Map",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -23223,14 +23361,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Message & recordings",
-  "text": "Message & recordings",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
-  ]
- },
- {
   "key": "Message (optional)",
   "text": "Message (optional)",
   "context": null,
@@ -23244,14 +23374,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/criti/chat.tsx"
-  ]
- },
- {
-  "key": "Message…",
-  "text": "Message…",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -23588,6 +23710,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "More: officer record and screen access",
+  "text": "More: officer record and screen access",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "Morning",
   "text": "Morning",
   "context": null,
@@ -23641,6 +23771,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Most staff need none of this. Officers work from the phone app.",
+  "text": "Most staff need none of this. Officers work from the phone app.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -24544,7 +24682,8 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
    "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/shift/readiness-review/page.tsx",
-   "apps/web/components/form-wizard.tsx"
+   "apps/web/components/form-wizard.tsx",
+   "apps/web/components/office/setup-guide.tsx"
   ]
  },
  {
@@ -24596,6 +24735,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/components/shift-inspection.tsx",
    "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "Next: add its call signs",
+  "text": "Next: add its call signs",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/sections/actions.ts"
+  ]
+ },
+ {
+  "key": "Next: allocate duty",
+  "text": "Next: allocate duty",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/call-signs/actions.ts"
+  ]
+ },
+ {
+  "key": "Next: invite / create login",
+  "text": "Next: invite / create login",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/actions.ts"
+  ]
+ },
+ {
+  "key": "Next: print the duty sheet",
+  "text": "Next: print the duty sheet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
   ]
  },
  {
@@ -25518,6 +25689,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No login",
+  "text": "No login",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
   "key": "No login yet. Duty Allocation needs one.",
   "text": "No login yet. Duty Allocation needs one.",
   "context": null,
@@ -25618,6 +25797,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "No one by that name.",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
    "apps/web/app/(app)/notifications/send-form.tsx",
    "apps/web/app/(app)/translations/translators-card.tsx"
   ]
@@ -25734,6 +25914,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/report-centre/parts.tsx"
+  ]
+ },
+ {
+  "key": "No position",
+  "text": "No position",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -25866,11 +26054,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No role yet",
+  "text": "No role yet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
+  ]
+ },
+ {
   "key": "No rotation set up for this department yet. An administrator adds one under Shift setup.",
   "text": "No rotation set up for this department yet. An administrator adds one under Shift setup.",
   "context": null,
   "where": [
    "apps/web/app/(app)/roster/planner.tsx"
+  ]
+ },
+ {
+  "key": "No route today.",
+  "text": "No route today.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -25906,8 +26110,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "No sections yet. Add them under Sections first.",
-  "text": "No sections yet. Add them under Sections first.",
+  "key": "No sections yet. Add one first.",
+  "text": "No sections yet. Add one first.",
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/duty-allocation/page.tsx"
@@ -26647,14 +26851,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Not in the register.",
-  "text": "Not in the register.",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
-  ]
- },
- {
   "key": "Not in this list",
   "text": "Not in this list",
   "context": null,
@@ -26705,6 +26901,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Not on the list yet: {length}",
+  "text": "Not on the list yet: {length}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx"
+  ]
+ },
+ {
   "key": "Not on the roster this day.",
   "text": "Not on the roster this day.",
   "context": null,
@@ -26742,6 +26946,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/my-performance.tsx"
+  ]
+ },
+ {
+  "key": "Not set yet.",
+  "text": "Not set yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
   ]
  },
  {
@@ -27146,14 +27358,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/charges/[id]/page.tsx"
-  ]
- },
- {
-  "key": "Nothing said on this radio in the last 2 hours.",
-  "text": "Nothing said on this radio in the last 2 hours.",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -27584,6 +27788,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Off",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
    "apps/web/app/(app)/roster/duty-sheet/page.tsx"
   ]
  },
@@ -27915,6 +28120,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "On",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
    "apps/web/app/(app)/roster/duty-sheet/page.tsx"
   ]
  },
@@ -28033,6 +28239,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "On the map",
+  "text": "On the map",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
   "key": "On {absence}",
   "text": "On {absence}",
   "context": null,
@@ -28142,14 +28356,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/report/[id].tsx"
-  ]
- },
- {
-  "key": "Online only",
-  "text": "Online only",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -28483,14 +28689,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/slip.tsx"
-  ]
- },
- {
-  "key": "Open the Radio Desk",
-  "text": "Open the Radio Desk",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/radios/page.tsx"
   ]
  },
  {
@@ -29423,6 +29621,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Password follows every rule",
+  "text": "Password follows every rule",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "Password resets go through Supabase Auth — use “Forgot password” on the login page.",
   "text": "Password resets go through Supabase Auth — use “Forgot password” on the login page.",
   "context": null,
@@ -30284,7 +30490,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Platform",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/radios/radio-form.tsx",
    "apps/web/components/sidebar.tsx"
   ]
  },
@@ -30294,14 +30499,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/sidebar.tsx"
-  ]
- },
- {
-  "key": "Platform id",
-  "text": "Platform id",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/radios/radio-form.tsx"
   ]
  },
  {
@@ -30816,6 +31013,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "Print sheet",
+  "text": "Print sheet",
+  "context": null,
+  "where": [
+   "apps/web/components/office/setup-guide.tsx"
   ]
  },
  {
@@ -31468,9 +31673,26 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Radio Desk",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/radios/page.tsx",
    "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
    "apps/web/components/sidebar.tsx",
    "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Radio ID",
+  "text": "Radio ID",
+  "context": null,
+  "where": [
+   "apps/mobile/app/talk.tsx"
+  ]
+ },
+ {
+  "key": "Radio name or Radio ID",
+  "text": "Radio name or Radio ID",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/radio-form.tsx"
   ]
  },
  {
@@ -31818,6 +32040,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Ready for a login",
+  "text": "Ready for a login",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/logins-view.tsx"
+  ]
+ },
+ {
   "key": "Ready for duty",
   "text": "Ready for duty",
   "context": null,
@@ -31831,14 +32061,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
-  ]
- },
- {
-  "key": "Ready to invite",
-  "text": "Ready to invite",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/modules/staff/logins-view.tsx"
   ]
  },
  {
@@ -32246,14 +32468,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
-  ]
- },
- {
-  "key": "Recordings, last 2 hours",
-  "text": "Recordings, last 2 hours",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -33973,6 +34187,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/activate.tsx",
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
    "apps/web/app/(app)/admin/invitations/slip.tsx",
+   "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/performance/role-kpis/page.tsx",
    "apps/web/app/(app)/profile/page.tsx"
   ]
@@ -33994,19 +34209,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Role for invitation",
-  "text": "Role for invitation",
+  "key": "Role for {name}",
+  "text": "Role for {name}",
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
-  "key": "Role not set",
-  "text": "Role not set",
+  "key": "Role not saved",
+  "text": "Role not saved",
   "context": null,
   "where": [
-   "apps/web/app/(app)/modules/staff/logins-view.tsx"
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {
@@ -34014,7 +34229,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Role to confirm",
   "context": null,
   "where": [
-   "apps/web/app/(app)/modules/staff/logins-view.tsx",
    "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
@@ -34923,6 +35137,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/automations/rule-card.tsx",
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx",
    "apps/web/app/(app)/duty-tasks/page.tsx",
    "apps/web/app/(app)/modules/absence/page.tsx",
    "apps/web/app/(app)/modules/call-signs/page.tsx",
@@ -35086,6 +35301,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Saving…",
   "context": null,
   "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx",
    "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
   ]
  },
@@ -35850,6 +36066,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/sections/page.tsx",
+   "apps/web/components/office/setup-guide.tsx",
    "packages/api/src/office/index.ts"
   ]
  },
@@ -36118,7 +36335,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/assistant.tsx",
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
    "apps/web/app/(app)/mail/page.tsx",
    "apps/web/app/(app)/notifications/send-form.tsx",
    "apps/web/components/criti/chat.tsx"
@@ -36162,6 +36378,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/rollout/chase-list.tsx"
+  ]
+ },
+ {
+  "key": "Send an invitation and the person chooses their own password. Or create the login now and give them the password yourself.",
+  "text": "Send an invitation and the person chooses their own password. Or create the login now and give them the password yourself.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/page.tsx"
+  ]
+ },
+ {
+  "key": "Send an invitation and the person chooses their own password. You never see it.",
+  "text": "Send an invitation and the person chooses their own password. You never see it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/page.tsx"
   ]
  },
  {
@@ -36651,8 +36883,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Set it up in Admin → Radios",
-  "text": "Set it up in Admin → Radios",
+  "key": "Set it up",
+  "text": "Set it up",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
@@ -36688,6 +36920,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Setup guide",
+  "text": "Setup guide",
+  "context": null,
+  "where": [
+   "apps/web/components/office/setup-guide.tsx"
   ]
  },
  {
@@ -37098,6 +37338,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Show route",
+  "text": "Show route",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Show setup guide",
+  "text": "Show setup guide",
+  "context": null,
+  "where": [
+   "apps/web/components/office/setup-guide.tsx"
+  ]
+ },
+ {
   "key": "Show the SOS",
   "text": "Show the SOS",
   "context": null,
@@ -37417,6 +37673,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "Sign-in and password",
+  "text": "Sign-in and password",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
@@ -38038,6 +38302,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Staff ready",
+  "text": "Staff ready",
+  "context": null,
+  "where": [
+   "apps/web/components/office/setup-guide.tsx"
+  ]
+ },
+ {
   "key": "Staff — available for allocation",
   "text": "Staff — available for allocation",
   "context": null,
@@ -38440,7 +38712,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Step {n}",
   "context": null,
   "where": [
-   "apps/mobile/components/report-wizard.tsx"
+   "apps/mobile/components/report-wizard.tsx",
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
@@ -38539,6 +38812,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/translations/translations-editor.tsx"
+  ]
+ },
+ {
+  "key": "Still to do before you can continue",
+  "text": "Still to do before you can continue",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
@@ -39430,7 +39711,17 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Talk",
   "context": null,
   "where": [
-   "apps/mobile/components/alerts-bell.tsx"
+   "apps/mobile/app/_layout.tsx",
+   "apps/mobile/components/alerts-bell.tsx",
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "Talk is not ready.",
+  "text": "Talk is not ready.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -39458,11 +39749,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Talk server",
+  "text": "Talk server",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
+  ]
+ },
+ {
   "key": "Talk to the crew",
   "text": "Talk to the crew",
   "context": null,
   "where": [
    "apps/web/app/(app)/responder/monitor/responder-board.tsx"
+  ]
+ },
+ {
+  "key": "Talking",
+  "text": "Talking",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -39716,14 +40023,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/bodycam/bodycam-viewer.tsx"
-  ]
- },
- {
-  "key": "Text to the radio",
-  "text": "Text to the radio",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -40289,27 +40588,11 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "The platform has not reported this radio.",
-  "text": "The platform has not reported this radio.",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
-  ]
- },
- {
   "key": "The platform sent an insecure (http) stream address, which the browser may refuse. Ask Hikvision to stream over HTTPS.",
   "text": "The platform sent an insecure (http) stream address, which the browser may refuse. Ask Hikvision to stream over HTTPS.",
   "context": null,
   "where": [
    "apps/web/components/bodycam/bodycam-viewer.tsx"
-  ]
- },
- {
-  "key": "The platforms report {length} account{value} not in the register",
-  "text": "The platforms report {length} account{value} not in the register",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/radios/page.tsx"
   ]
  },
  {
@@ -40422,6 +40705,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/performance/reports/page.tsx"
+  ]
+ },
+ {
+  "key": "The secret is kept safe and never shown again.",
+  "text": "The secret is kept safe and never shown again.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
   ]
  },
  {
@@ -40827,19 +41118,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "This section has no call signs. Add them under Call Signs.",
-  "text": "This section has no call signs. Add them under Call Signs.",
+  "key": "This role cannot be made with a password: choose email, SMS or a printed code",
+  "text": "This role cannot be made with a password: choose email, SMS or a printed code",
   "context": null,
   "where": [
-   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
-  "key": "This version of the app cannot carry voice yet. Install the latest HikTech app from your administrator.",
-  "text": "This version of the app cannot carry voice yet. Install the latest HikTech app from your administrator.",
+  "key": "This section has no call signs yet.",
+  "text": "This section has no call signs yet.",
   "context": null,
   "where": [
-   "apps/mobile/app/talk.tsx"
+   "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
   ]
  },
  {
@@ -40904,6 +41195,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
+  ]
+ },
+ {
+  "key": "Tick the box: you checked the address and will give the password yourself",
+  "text": "Tick the box: you checked the address and will give the password yourself",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Tick the box: you checked the {thing} with the person",
+  "text": "Tick the box: you checked the {thing} with the person",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
@@ -41853,6 +42160,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Try again.",
+  "text": "Try again.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
   "key": "Try an incident number, street, severity or a date such as 05-08-2026.",
   "text": "Try an incident number, street, severity or a date such as 05-08-2026.",
   "context": null,
@@ -41958,6 +42273,22 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/components/post-mortem-card.tsx",
    "apps/web/components/schedule/leave-actions.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Type a correct cellphone number",
+  "text": "Type a correct cellphone number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Type a correct email address",
+  "text": "Type a correct email address",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
   ]
  },
  {
@@ -43136,6 +43467,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "View",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
    "apps/web/app/(app)/modules/staff/page.tsx",
    "apps/web/app/(app)/police/report-centre/records/page.tsx",
    "apps/web/app/(app)/police/report-centre/specialised/page.tsx"
@@ -43288,14 +43620,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/incidents/[id]/page.tsx"
-  ]
- },
- {
-  "key": "Voice server (HikTech Talk)",
-  "text": "Voice server (HikTech Talk)",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
   ]
  },
  {
@@ -44677,8 +45001,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Whose radio, whose hard hat. The Radio Desk, the map and SOS alerts use this list.",
-  "text": "Whose radio, whose hard hat. The Radio Desk, the map and SOS alerts use this list.",
+  "key": "Whose radio, whose hard hat.",
+  "text": "Whose radio, whose hard hat.",
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/radios/page.tsx"
@@ -45049,8 +45373,24 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Wrong department? Change it in Personnel",
-  "text": "Wrong department? Change it in Personnel",
+  "key": "Write why, at least {min} letters",
+  "text": "Write why, at least {min} letters",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Wrong department? Ask a system administrator to change it in Staff Maintenance.",
+  "text": "Wrong department? Ask a system administrator to change it in Staff Maintenance.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Wrong department? Change it in Staff Maintenance",
+  "text": "Wrong department? Change it in Staff Maintenance",
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
@@ -46191,7 +46531,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "done",
   "context": null,
   "where": [
-   "apps/mobile/app/report/[id].tsx"
+   "apps/mobile/app/report/[id].tsx",
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
+   "apps/web/components/office/setup-guide.tsx"
   ]
  },
  {
@@ -46953,11 +47295,11 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "no voice server yet.",
-  "text": "no voice server yet.",
+  "key": "next step",
+  "text": "next step",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+   "apps/web/components/office/setup-guide.tsx"
   ]
  },
  {
@@ -47292,6 +47634,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "still to do",
+  "text": "still to do",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "template",
   "text": "template",
   "context": null,
@@ -47427,14 +47777,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/shift-form.tsx"
-  ]
- },
- {
-  "key": "wss://your-project.livekit.cloud",
-  "text": "wss://your-project.livekit.cloud",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/admin/radios/voice-server-form.tsx"
   ]
  },
  {
@@ -47638,6 +47980,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{done} of {total} done",
+  "text": "{done} of {total} done",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "{done}/{TOTAL_ITEMS} items · {pct}%",
   "text": "{done}/{TOTAL_ITEMS} items · {pct}%",
   "context": null,
@@ -47694,6 +48044,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{first} is in a department you cannot invite into",
+  "text": "{first} is in a department you cannot invite into",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
   "key": "{first} is in {value} in the staff register, and you invite into {join} only. A system administrator can change their department in Personnel.",
   "text": "{first} is in {value} in the staff register, and you invite into {join} only. A system administrator can change their department in Personnel.",
   "context": null,
@@ -47740,6 +48098,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dashboard/page.tsx"
+  ]
+ },
+ {
+  "key": "{has} with a login · {none} without",
+  "text": "{has} with a login · {none} without",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/page.tsx"
   ]
  },
  {
@@ -48981,6 +49347,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/performance/role-kpis/page.tsx"
+  ]
+ },
+ {
+  "key": "{role} set for {name}",
+  "text": "{role} set for {name}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/modules/staff/register-table.tsx"
   ]
  },
  {

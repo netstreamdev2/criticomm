@@ -10,7 +10,7 @@ import { NotificationsProvider, useNotificationRouting } from '@/lib/notificatio
 import { DutyProvider, useDuty } from '@/lib/duty';
 import { SyncProvider } from '@/lib/sync';
 import { FeaturesProvider } from '@/lib/features';
-import { RouteTracker } from '@/lib/route-tracker';
+import { RadioPresence, RouteTracker } from '@/lib/route-tracker';
 import { ShiftReminders } from '@/lib/shift-reminders';
 import { OfflinePrefetch } from '@/lib/offline-prefetch';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
@@ -144,6 +144,7 @@ export default function RootLayout() {
         <NotificationsProvider>
           <NotificationRouter />
           <RouteTracker />
+          <RadioPresence />
           <ShiftReminders />
           <OfflinePrefetch />
           <Stack
@@ -219,7 +220,7 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="talk"
-              options={{ title: t('HikTech Talk'), headerBackTitle: t('Back') }}
+              options={{ title: t('Talk'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="alerts"

@@ -7,7 +7,6 @@ Each file in this folder is a typed wrapper around an Edge Function:
 - `weather-archive.ts` — historical weather (ReportsController.FetchHistoricalWeatherAsync, free Open-Meteo)
 - `flightradar.ts` — live flights + tracks
 - `marinesia.ts` — marine AIS positions
-- `realptt.ts` — GPS, audio, video, battery, send-message for PTT devices
 - `bulksms.ts` — send SMS (NotificationsController.TriggerLocationSms)
 - `gemini.ts` — Criti chatbot wrapper with action-code parsing
 - `sendgrid.ts` — transactional email

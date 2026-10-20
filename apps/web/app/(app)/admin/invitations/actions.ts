@@ -103,8 +103,8 @@ export async function createAccountDirectlyAction(input: {
   password: string; confirmPassword: string; reason: string; handOverAgreed: boolean;
 }): Promise<DirectAccount> {
   const { supabase, role } = await getSession();
-  if (role !== 'SystemAdmin' && role !== 'SuperAdmin') {
-    return { ok: false, message: 'Only a SystemAdmin or the SuperAdmin can create an account directly.' };
+  if (role !== 'SystemAdmin' && role !== 'SuperAdmin' && role !== 'SystemController') {
+    return { ok: false, message: 'Only a SystemAdmin, the systems controller or the SuperAdmin can create a login directly.' };
   }
   const mismatch = await accessProblem(supabase, input.personnelId, input.role, input.silo);
   if (mismatch) return { ok: false, message: mismatch };

@@ -17,7 +17,11 @@ export type RadioKeyEvent = { key: 'sos'; pressed: boolean; at: number };
 
 const RADIO_MODELS = ['E977', 'E966'];
 
-type RadioKeysModule = { addListener(event: 'onRadioKey', listener: (e: RadioKeyEvent) => void): { remove(): void } };
+type RadioKeysModule = {
+  addListener(event: 'onRadioKey', listener: (e: RadioKeyEvent) => void): { remove(): void };
+  /** From the build after 1.3.0; older builds do not have it. */
+  battery?: () => { level: number; charging: boolean } | null;
+};
 const native = Platform.OS === 'android' ? requireOptionalNativeModule<RadioKeysModule>('RadioKeys') : null;
 
 /** True on a radio whose SOS key HikTech hears. */
@@ -38,3 +42,17 @@ export function onRadioSosKey(listener: (e: RadioKeyEvent) => void): () => void 
 export const RADIO_SOS_REPEAT_MS = 60_000;
 /** The officer's chance to cancel a press of the radio's key. */
 export const RADIO_SOS_COUNTDOWN_S = 5;
+
+/**
+ * The battery, from the system's last report: level 0-100 and whether it is
+ * charging. Null in a build without it (1.3.0 and older), on iOS, or in Expo Go.
+ */
+export function readBattery(): { level: number | null; charging: boolean | null } | null {
+  try {
+    const b = native?.battery?.();
+    if (!b) return null;
+    return { level: b.level >= 0 && b.level <= 100 ? b.level : null, charging: typeof b.charging === 'boolean' ? b.charging : null };
+  } catch {
+    return null;
+  }
+}

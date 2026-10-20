@@ -102,17 +102,19 @@ export class TalkSession {
   async connect(): Promise<void> {
     if (this.closed) return;
     this.set({ status: this.room ? 'reconnecting' : 'connecting', error: null });
-    this.step('Getting a pass');
+    // The screen shows plain words; the detail goes to the log.
+    this.step('Getting ready');
     let pass: TalkPass;
     try {
-      pass = await withTimeout(this.hooks.getPass(this.state.channel), CONNECT_TIMEOUT_MS, 'HikTech');
+      pass = await withTimeout(this.hooks.getPass(this.state.channel), CONNECT_TIMEOUT_MS, 'The server');
     } catch (e) {
-      this.step(`No pass: ${(e as Error).message}`);
-      this.set({ status: 'error', error: (e as Error).message || 'Could not join the talk group.' });
+      this.hooks.log?.(`[talk] ${this.state.channel}: no pass: ${(e as Error).message}`);
+      this.set({ status: 'error', error: 'No connection. Trying again.', step: 'Trying again' });
       this.scheduleRetry();
       return;
     }
-    this.step(`Connecting to the voice server (${pass.url.replace(/^wss?:\/\//, '')})`);
+    this.hooks.log?.(`[talk] ${this.state.channel}: server ${pass.url}`);
+    this.step('Connecting');
     let room: Room;
     try {
       room = new Room({
@@ -123,17 +125,16 @@ export class TalkSession {
       this.bind(room);
     } catch (e) {
       // A platform the voice library cannot run on: say so, do not spin.
-      this.step(`Voice library: ${(e as Error).message}`);
-      this.hooks.log?.(`[talk] ${(e as Error).stack ?? ''}`);
-      this.set({ status: 'error', error: `Talk cannot start on this device: ${(e as Error).message}` });
+      this.hooks.log?.(`[talk] voice library: ${(e as Error).stack ?? (e as Error).message}`);
+      this.set({ status: 'error', error: 'Talk does not work on this device.', step: 'Not working' });
       return;
     }
     try {
       await withTimeout(room.connect(pass.url, pass.token, { autoSubscribe: true }), CONNECT_TIMEOUT_MS, 'The voice server');
     } catch (e) {
-      this.step(`Voice server: ${(e as Error).message}`);
+      this.hooks.log?.(`[talk] ${this.state.channel}: server did not answer: ${(e as Error).message}`);
       void room.disconnect().catch(() => {});
-      this.set({ status: 'error', error: `The voice server did not answer: ${(e as Error).message}` });
+      this.set({ status: 'error', error: 'No connection. Trying again.', step: 'Trying again' });
       this.scheduleRetry();
       return;
     }
@@ -148,11 +149,11 @@ export class TalkSession {
         await withTimeout(room.localParticipant.setMicrophoneEnabled(true), CONNECT_TIMEOUT_MS, 'The microphone');
         await this.mic()?.mute();
       } catch (e) {
-        this.step(`Microphone: ${(e as Error).message}`);
-        this.set({ canSpeak: false, error: `No microphone: ${(e as Error).message}` });
+        this.hooks.log?.(`[talk] microphone: ${(e as Error).message}`);
+        this.set({ canSpeak: false, error: 'The microphone is not allowed.' });
       }
     }
-    this.step(pass.canSpeak ? 'Ready' : 'Ready, listening only');
+    this.step('Ready');
     this.refresh();
   }
 

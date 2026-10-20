@@ -1,5 +1,5 @@
 import type { CriticomClient, Silo } from '@criticom/db';
-import type { RadioKind, RadioProvider, RegisterEntry } from './live.ts';
+import type { PresenceRow, RadioKind, RadioProvider, RegisterEntry } from './live.ts';
 
 export * from './live.ts';
 export * from './talk.ts';
@@ -65,6 +65,52 @@ export async function saveRadioDevice(client: CriticomClient, input: SaveRadioIn
   });
   if (error) throw error;
   return data;
+}
+
+/** What the app says about the radio it runs on (0087). Location is kept only while on duty. */
+export type PresenceReport = {
+  device: string;
+  model?: string | null;
+  app?: string | null;
+  battery?: number | null;
+  charging?: boolean | null;
+  network?: 'wifi' | 'cellular' | 'none' | 'other' | null;
+  channel?: string | null;
+  talking?: boolean;
+  queued?: number;
+  signedIn?: boolean;
+  lat?: number;
+  lng?: number;
+  acc?: number | null;
+  fixAt?: string;
+};
+
+/** The app's report for the person signed in: through report_radio_presence() only (0087). */
+export async function reportRadioPresence(client: CriticomClient, report: PresenceReport) {
+  const { error } = await client.rpc('report_radio_presence', { p: report });
+  if (error) throw error;
+}
+
+/**
+ * Every device running the app that this person may see (their own, or their
+ * department's for the desks), heard from in the last `withinHours`, with
+ * whose it is.
+ */
+export async function listRadioPresence(client: CriticomClient, opts: { withinHours?: number } = {}): Promise<PresenceRow[]> {
+  const since = new Date(Date.now() - (opts.withinHours ?? 24) * 3_600_000).toISOString();
+  const { data, error } = await client.from('radio_presence')
+    .select('device_id, user_id, personnel_id, silo, model, app_version, battery, charging, network, talk_channel, talking, queued, signed_in, lat, lng, accuracy, fix_at, last_seen_at')
+    .gte('last_seen_at', since)
+    .order('last_seen_at', { ascending: false })
+    .limit(2000);
+  if (error) throw error;
+  const rows = (data ?? []) as PresenceRow[];
+  const people = [...new Set(rows.map((r) => r.personnel_id).filter(Boolean))] as string[];
+  const { data: p } = people.length
+    ? await client.from('personnel').select('id, first_name, last_name, rank').in('id', people)
+    : { data: [] as Array<{ id: string; first_name: string; last_name: string; rank: string }> };
+  const name = new Map((p ?? []).map((x) => [x.id, [x.rank, x.first_name, x.last_name].filter(Boolean).join(' ')]));
+  return rows.map((r) => ({ ...r, personName: r.personnel_id ? name.get(r.personnel_id) ?? null : null }));
 }
 
 export type TalkChannel = { channel: string; name: string; speak: boolean; priority: boolean };

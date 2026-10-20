@@ -1,7 +1,8 @@
 'use server';
 
 import { addLeoRecord, removeLeoRecord, saveStaffRecord, setModuleAccess } from '@criticom/api';
-import { normaliseCellphone, normaliseWorkEmail, type ModuleCode, type ModuleLevel, type Silo } from '@criticom/db';
+import { normaliseCellphone, normaliseWorkEmail, rolesInvitableBy, type ModuleCode, type ModuleLevel, type Silo } from '@criticom/db';
+import { tx } from '@criticom/db/i18n';
 import { getSession } from '@/lib/session';
 import type { ActionResult } from '@/components/office/action-form';
 import { attempt, field, optional } from '@/lib/office-actions';
@@ -19,7 +20,7 @@ const CODES: ModuleCode[] = ['STFM', 'CSNM', 'SECM', 'ENTM', 'ABSM', 'DUTA', 'DU
 
 /** save_staff_record checks Staff Maintenance Edit. Only the fields on the form are sent. */
 export async function saveStaffAction(fd: FormData): Promise<ActionResult> {
-  const { supabase } = await getSession();
+  const { supabase, role } = await getSession();
   const id = optional(fd, 'id');
   const silo = field(fd, 'silo') as Silo;
   let saved = '';
@@ -45,11 +46,13 @@ export async function saveStaffAction(fd: FormData): Promise<ActionResult> {
   if (!res.ok) return res;
   const who = [field(fd, 'first_name'), field(fd, 'last_name')].filter(Boolean).join(' ');
   if (!id && saved) {
-    // A new member: say so, then open their own record.
+    // A new member: say so, open their own record, and offer the next step (their login).
+    const invite = rolesInvitableBy(role).length > 0;
     return {
       ok: true,
       message: who ? `${who} added` : 'Staff member added',
-      detail: `Staff no. ${field(fd, 'badge_number')}. Next: invite them from their record.`,
+      detail: `Staff no. ${field(fd, 'badge_number')}`,
+      next: invite ? { label: tx('Next: invite / create login'), href: `/admin/invitations/new?person=${saved}` } : undefined,
       goTo: `/modules/staff?id=${saved}${field(fd, 'dept') ? `&dept=${field(fd, 'dept')}` : ''}`,
     };
   }

@@ -81,6 +81,35 @@ export async function listModuleAccess(client: CriticomClient, userId: string) {
   return (data ?? []) as Tables['module_access']['Row'][];
 }
 
+/* ── How far a department's duty office is set up ─────────────────────── */
+
+export type OfficeSetup = {
+  /** Sections in use. */
+  sections: number;
+  /** Call signs in use that belong to a section. */
+  callSigns: number;
+  /** Staff who can be booked: a login, a section, duty allocation Y, not left. */
+  ready: number;
+  /** Duties booked from today on. */
+  booked: number;
+};
+
+/** The setup path's ticks, from the data itself: nobody ticks anything by hand. */
+export async function getOfficeSetup(client: CriticomClient, silo: Silo): Promise<OfficeSetup> {
+  const count = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
+  const today = new Date(Date.now() + 2 * 3_600_000).toISOString().slice(0, 10);
+  const [sections, callSigns, ready, booked] = await Promise.all([
+    count(client.from('sections').select('id', { count: 'exact', head: true }).eq('silo', silo).eq('active', true)),
+    count(client.from('duty_posts').select('id', { count: 'exact', head: true }).eq('silo', silo).eq('active', true)
+      .not('call_sign', 'is', null).not('section_id', 'is', null)),
+    count(client.from('personnel').select('id', { count: 'exact', head: true }).eq('silo', silo)
+      .not('user_id', 'is', null).not('section_id', 'is', null).is('left_at', null).eq('duty_allocation', true)),
+    count(client.from('rosters').select('id', { count: 'exact', head: true }).eq('silo', silo)
+      .not('post_id', 'is', null).is('cancelled_at', null).gte('duty_date', today)),
+  ]);
+  return { sections, callSigns, ready, booked };
+}
+
 /* ── Stations and sections ────────────────────────────────────────────── */
 
 export async function listStations(client: CriticomClient, silo: Silo, opts: { includeInactive?: boolean } = {}) {

@@ -9,6 +9,7 @@ import { recordTrack } from '@criticom/api';
 import { getSupabase } from './supabase';
 import { isNetworkFailure } from './offline-cache-policy.ts';
 import { BATCH, fromLocation, stillDeliverable, thin, type TrackPoint } from './track-policy.ts';
+import { BACKGROUND_EVERY_MS, notePresenceFix, notePresenceQueued, reportPresence } from './presence';
 
 /**
  * The route recorder: while an officer is on duty, the phone records where
@@ -78,6 +79,8 @@ const listeners = new Set<() => void>();
 function setStatus(patch: Partial<RouteStatus>) {
   status = { ...status, ...patch };
   for (const l of listeners) l();
+  // The Radio Desk shows how many positions wait on the radio for signal.
+  notePresenceQueued(status.waiting);
 }
 
 export function useRouteStatus(): RouteStatus {
@@ -177,6 +180,10 @@ export async function recordFixes(locations: readonly Location.LocationObject[])
   if (!userId) return;
   const fixes = locations.map(fromLocation).filter((p): p is TrackPoint => p !== null);
   if (!fixes.length) return;
+  // The newest fix, thinned or not, is where the radio is now; in the
+  // background this is also what keeps its presence going (lib/presence.ts).
+  notePresenceFix(fixes.reduce((a, b) => (Date.parse(b.t) > Date.parse(a.t) ? b : a)));
+  void reportPresence({ minGapMs: BACKGROUND_EVERY_MS });
 
   const kept = await serial(async () => {
     const out = thin(await lastKept(userId), fixes);

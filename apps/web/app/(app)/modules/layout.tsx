@@ -3,9 +3,10 @@ import { Suspense } from 'react';
 import { OFFICE_MODULES, getMyModules, type MyModules } from '@criticom/api';
 import { ModuleStrip } from '@/components/office/module-strip';
 import { NoticeHost } from '@/components/office/notice';
+import { SetupGuide } from '@/components/office/setup-guide';
 import { getSession } from '@/lib/session';
 
-/** Every duty office screen shares the strip of screens across the top. */
+/** Every duty office screen shares the strip of screens across the top, and the setup path under it. */
 export default async function ModulesLayout({ children }: { children: React.ReactNode }) {
   const { supabase } = await getSession();
   const mine: MyModules = await getMyModules(supabase).catch(() => ({}));
@@ -14,6 +15,7 @@ export default async function ModulesLayout({ children }: { children: React.Reac
     <div className="space-y-4">
       <Suspense fallback={null}>
         <ModuleStrip items={items} />
+        <div className="mt-2"><SetupGuide /></div>
       </Suspense>
       {children}
       <NoticeHost />

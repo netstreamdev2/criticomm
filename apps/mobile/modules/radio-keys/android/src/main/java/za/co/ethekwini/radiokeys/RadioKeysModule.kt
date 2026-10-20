@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.BatteryManager
 import android.os.Build
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
@@ -15,6 +16,9 @@ import expo.modules.kotlin.modules.ModuleDefinition
  * orange SOS key is pressed and "...SOS.up" when it is let go (found on the
  * radio itself; PocStar's app listens for the same). Listened for only while
  * the app asks (the SOS button is on screen), so nothing runs when it is not.
+ *
+ * Also the radio's battery, for the Radio Desk (0087): read from the
+ * system's last battery report when asked, so nothing runs in between.
  */
 class RadioKeysModule : Module() {
   private var receiver: BroadcastReceiver? = null
@@ -22,6 +26,19 @@ class RadioKeysModule : Module() {
   override fun definition() = ModuleDefinition {
     Name("RadioKeys")
     Events(EVENT)
+
+    // {"level": 0-100 or -1, "charging": true/false}; null when the system has not said.
+    Function("battery") {
+      val context = appContext.reactContext ?: return@Function null
+      val status = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)) ?: return@Function null
+      val level = status.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+      val scale = status.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+      val state = status.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+      mapOf(
+        "level" to if (level >= 0 && scale > 0) level * 100 / scale else -1,
+        "charging" to (state == BatteryManager.BATTERY_STATUS_CHARGING || state == BatteryManager.BATTERY_STATUS_FULL),
+      )
+    }
 
     OnStartObserving { start() }
     OnStopObserving { stop() }

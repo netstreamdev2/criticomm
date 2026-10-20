@@ -129,15 +129,17 @@ export function formatActivationCode(code: string): string {
 export function rolesInvitableBy(actor: UserRole): UserRole[] {
   if (actor === 'SuperAdmin') return ASSIGNABLE_ROLES;
   if (actor === 'SystemAdmin') return ASSIGNABLE_ROLES.filter((r) => r !== 'SuperAdmin');
+  // The systems controller creates logins too (0086), never a SystemAdmin or the SuperAdmin.
+  if (actor === 'SystemController') return ASSIGNABLE_ROLES.filter((r) => r !== 'SuperAdmin' && r !== 'SystemAdmin');
   if (actor === 'Admin') return ASSIGNABLE_ROLES.filter((r) => !TENANT_WIDE_ROLES.includes(r));
   return [];
 }
 
 const ALL_SILOS: Silo[] = ['Ethekwini', 'MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
 
-/** Departments an administrator may invite into: any for SystemAdmin and above, their own for an Admin. */
+/** Departments an administrator may invite into: any for SystemAdmin, the systems controller and above, their own for an Admin. */
 export function departmentsInvitableBy(actor: { role: UserRole; silo: Silo }): Silo[] {
-  if (actor.role === 'SuperAdmin' || actor.role === 'SystemAdmin') return ALL_SILOS;
+  if (actor.role === 'SuperAdmin' || actor.role === 'SystemAdmin' || actor.role === 'SystemController') return ALL_SILOS;
   if (actor.role === 'Admin') return [actor.silo];
   return [];
 }

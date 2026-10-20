@@ -5,9 +5,10 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/toast';
 import { useT } from '@/components/i18n';
-import { notify } from './notice';
+import { notify, type NoticeAction } from './notice';
 
-export type ActionResult = { ok?: true; error?: string; message?: string; detail?: string; goTo?: string };
+/** `next` puts a "Next: …" button in the done banner, so the path to the next screen is one tap. */
+export type ActionResult = { ok?: true; error?: string; message?: string; detail?: string; goTo?: string; next?: NoticeAction };
 
 /**
  * A duty office form: sends to a server action, says what happened (the
@@ -47,7 +48,7 @@ export function ActionForm({
             toast.push({ title: t('Not done'), body: res.error, tone: 'critical' });
             return;
           }
-          notify(res.message ?? success, res.detail);
+          notify(res.message ?? success, res.detail, res.next);
           if (reset) form.reset();
           onDone?.();
           if (res.goTo) router.push(res.goTo);

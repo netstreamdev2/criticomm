@@ -154,7 +154,7 @@ export function TalkPanel({ channels, compact = false, title = 'Talk' }: {
           <div>
             <p className="text-sm font-bold leading-tight">{title}</p>
             <p className="text-[11px] text-muted-foreground">
-              {joined && s ? `${STATUS_TEXT[s.status]}${ready ? ` · ${listeners} listening` : ` · ${s.step}`}` : 'Hold to talk to the radios'}
+              {joined && s ? `${STATUS_TEXT[s.status]}${ready ? ` · ${listeners} listening` : ''}` : t('Join, then hold to talk')}
             </p>
           </div>
         </div>
@@ -170,7 +170,7 @@ export function TalkPanel({ channels, compact = false, title = 'Talk' }: {
                   className="frost-pill rounded-full border px-2.5 py-1 text-[11px] font-semibold"
                   style={on ? { borderColor: t, backgroundColor: `${t}26`, color: t } : { borderColor: `${t}44` }}
                 >
-                  {c.name}{c.speak ? '' : ' (listen)'}
+                  {c.name}
                 </button>
               );
             })}
@@ -203,8 +203,8 @@ export function TalkPanel({ channels, compact = false, title = 'Talk' }: {
               boxShadow: onAir ? '0 0 0 10px #ef444433, 0 0 40px #ef4444aa' : `0 12px 30px -10px ${tone}`,
             }}
           >
-            {onAir ? <Mic className="mb-1 h-8 w-8" /> : s?.canSpeak ? <Mic className="mb-1 h-8 w-8 opacity-90" /> : <MicOff className="mb-1 h-8 w-8" />}
-            {onAir ? `ON AIR ${s?.secondsLeft ?? ''}` : busyFlash ? 'BUSY' : s?.canSpeak ? 'HOLD TO TALK' : 'LISTEN ONLY'}
+            {onAir ? <Mic className="mb-1 h-8 w-8" /> : s?.canSpeak || !ready ? <Mic className="mb-1 h-8 w-8 opacity-90" /> : <MicOff className="mb-1 h-8 w-8" />}
+            {onAir ? `ON AIR ${s?.secondsLeft ?? ''}` : busyFlash ? 'BUSY' : !ready ? 'CONNECTING…' : s?.canSpeak ? 'HOLD TO TALK' : 'LISTEN ONLY'}
           </button>
 
           <div className="min-w-0 space-y-2">
@@ -222,7 +222,7 @@ export function TalkPanel({ channels, compact = false, title = 'Talk' }: {
               ) : s?.status === 'error' || s?.status === 'reconnecting' ? (
                 <span className="flex items-center gap-2 text-sm text-amber-500"><WifiOff className="h-4 w-4 shrink-0" />{s.error ?? STATUS_TEXT[s.status]}</span>
               ) : (
-                <span className="text-sm text-muted-foreground">{t('Channel clear. {value}', { value: s?.canSpeak ? 'Hold the button or the space bar to talk.' : '' })}</span>
+                <span className="text-sm text-muted-foreground">{s?.canSpeak ? t('Clear. Hold the button or the space bar to talk.') : t('Clear.')}</span>
               )}
             </div>
             {s?.audioBlocked ? (

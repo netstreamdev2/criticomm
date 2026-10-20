@@ -9,7 +9,7 @@ import { InviteForm } from './invite-form';
 import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Invite someone · HikTech' };
+export const metadata = { title: 'Invite / Create login · HikTech' };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -29,14 +29,14 @@ export default async function NewInvitationPage({ searchParams }: { searchParams
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <header className="space-y-1">
-        <Link href="/admin/invitations" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-fg">
-          <ArrowLeft className="h-4 w-4" /> {' '}{t('Invitations')}</Link>
-        <h1 className="text-2xl font-bold">{t('Invite someone')}</h1>
+      <header className="space-y-1 rounded-xl border border-border bg-bg-card p-5 shadow-sm">
+        <Link href="/admin/invitations" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
+          <ArrowLeft className="h-4 w-4" /> {' '}{t('Invites / Create logins')}</Link>
+        <h1 className="text-2xl font-bold">{t('Invite / Create login')}</h1>
         <p className="text-muted-foreground">
-          {role === 'SystemAdmin' || role === 'SuperAdmin'
-            ? 'By invitation the person chooses their own password and you never see it. You can also set a password and create the account at once, which is less safe.'
-            : 'Accounts are created by invitation only. The person chooses their own password; you never see it.'}
+          {role === 'SystemAdmin' || role === 'SuperAdmin' || role === 'SystemController'
+            ? t('Send an invitation and the person chooses their own password. Or create the login now and give them the password yourself.')
+            : t('Send an invitation and the person chooses their own password. You never see it.')}
         </p>
       </header>
       <InviteForm

@@ -38,10 +38,13 @@ const selectClass = 'mt-1.5 block h-10 w-full rounded-md border border-border bg
 
 type Delivery = { email: boolean; emailIsLinkOnly: boolean; sms: boolean };
 
-function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+/** A field still missing after they pressed the button: a red border that glows. */
+const GLOW = 'border-severity-critical ring-2 ring-severity-critical/60 shadow-[0_0_16px_rgba(220,38,38,0.45)]';
+
+function Step({ n, title, bad = false, children }: { n: number; title: string; bad?: boolean; children: React.ReactNode }) {
   return (
-    <section className="space-y-3 rounded-xl border border-border bg-bg-card p-5" aria-labelledby={`step-${n}`}>
-      <h2 id={`step-${n}`} className="text-sm font-semibold">
+    <section className={cn('space-y-3 rounded-xl border bg-bg-card p-5 shadow-sm transition-shadow', bad ? GLOW : 'border-border')} aria-labelledby={`step-${n}`}>
+      <h2 id={`step-${n}`} className="text-base font-semibold">
         <span className="mr-2 text-muted-foreground">{n} ·</span>{title}
       </h2>
       {children}
@@ -162,9 +165,44 @@ export function InviteForm({
     : [];
   const contactOk = channel === 'email' || direct ? emailOk : channel === 'sms' ? phoneOk(phone) : true;
   const reasonLength = reason.trim().length;
-  const ready = !!person && !outside && role !== '' && contactOk && (channel === 'code' || checked) && reasonLength >= MIN_REASON
-    && !directBlocked && rules.every((r) => r.ok);
+  // Everything the button waits for, in the order the form asks for it. The
+  // checklist shows it ticking off; pressing too early glows what is missing.
+  const passwordRulesOk = rules.filter((r) => r.rule !== 'Both passwords match').every((r) => r.ok);
+  const needs: Array<{ id: string; step: number; label: string; ok: boolean }> = [
+    { id: 'who', step: 1, label: t('Choose the person'), ok: !!person },
+    ...(outside ? [{ id: 'who', step: 1, label: t('{first} is in a department you cannot invite into', { first }), ok: false }] : []),
+    { id: 'role', step: 2, label: t('Choose a role'), ok: role !== '' },
+    ...(directBlocked ? [{ id: 'role', step: 2, label: t('This role cannot be made with a password: choose email, SMS or a printed code'), ok: false }] : []),
+    ...(channel === 'email' ? [{ id: 'email', step: 3, label: t('Type a correct email address'), ok: emailOk }] : []),
+    ...(channel === 'sms' ? [{ id: 'phone', step: 3, label: t('Type a correct cellphone number'), ok: phoneOk(phone) }] : []),
+    ...(direct ? [
+      { id: 'direct-email', step: 3, label: t('Type a correct email address'), ok: emailOk },
+      { id: 'direct-password', step: 3, label: t('Password follows every rule'), ok: passwordRulesOk },
+      { id: 'direct-confirm', step: 3, label: t('Both passwords match'), ok: password.length > 0 && password === confirmPassword },
+    ] : []),
+    ...(channel !== 'code' ? [{ id: 'checked', step: 3, label: direct
+      ? t('Tick the box: you checked the address and will give the password yourself')
+      : t('Tick the box: you checked the {thing} with the person', { thing: channel === 'email' ? 'address' : 'number' }), ok: checked }] : []),
+    { id: 'reason', step: 4, label: t('Write why, at least {min} letters', { min: MIN_REASON }), ok: reasonLength >= MIN_REASON },
+  ];
+  const ready = needs.every((n) => n.ok);
+  const [tried, setTried] = useState(false);
+  const missing = new Set(needs.filter((n) => !n.ok).map((n) => n.id));
+  const missingSteps = new Set(needs.filter((n) => !n.ok).map((n) => n.step));
+  /** A missing field glows red once they have tried to press the button. */
+  const bad = (fieldId: string) => tried && missing.has(fieldId);
   const deadline = now ? formatDeadline(new Date(now + ttlHours * 3_600_000).toISOString()) : null;
+
+  /** Take them to the first thing still missing. */
+  const showMissing = () => {
+    setTried(true);
+    const firstMissing = needs.find((n) => !n.ok);
+    const el = firstMissing ? document.getElementById(firstMissing.id) : null;
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) el.focus({ preventScroll: true });
+    }
+  };
 
   const done = () => {
     setSlip(null);
@@ -245,16 +283,16 @@ export function InviteForm({
     { id: 'sms', label: 'SMS', icon: MessageSquare, enabled: delivery.sms, note: delivery.sms ? null : 'Not set up yet' },
     { id: 'code', label: 'Printed code', icon: Printer, enabled: true, note: 'For staff without email or a phone' },
     // Migration 0055: only the top administrators, and the database checks it again.
-    ...(actorRole === 'SystemAdmin' || actorRole === 'SuperAdmin'
-      ? [{ id: 'direct' as const, label: 'Set a password', icon: KeyRound, enabled: true, note: 'Active at once · less safe' }]
+    ...(actorRole === 'SystemAdmin' || actorRole === 'SuperAdmin' || actorRole === 'SystemController'
+      ? [{ id: 'direct' as const, label: 'Create login now', icon: KeyRound, enabled: true, note: 'You set the password · active at once' }]
       : []),
   ];
 
   return (
     <div className="space-y-4">
-      <Step n={1} title={t('Who')}>
+      <Step n={1} title={t('Who')} bad={tried && missingSteps.has(1)}>
         {person ? (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/50 bg-primary/5 px-4 py-3">
+          <div id="who" className={cn('flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/50 bg-primary/5 px-4 py-3', bad('who') && GLOW)}>
             <div>
               <p className="font-semibold">{fullName}</p>
               <p className="text-sm text-muted-foreground">{personLine(person)}</p>
@@ -274,7 +312,7 @@ export function InviteForm({
                 placeholder={t('Name or badge number')}
                 autoComplete="off"
                 spellCheck={false}
-                className="pl-9"
+                className={cn('pl-9', bad('who') && GLOW)}
                 aria-describedby="who-status"
                 autoFocus
               />
@@ -321,7 +359,7 @@ export function InviteForm({
         )}
       </Step>
 
-      <Step n={2} title={t('Access')}>
+      <Step n={2} title={t('Access')} bad={tried && missingSteps.has(2)}>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label htmlFor="silo">{t('Department')}</Label>
@@ -333,14 +371,14 @@ export function InviteForm({
                 {t('From the staff register.')}{' '}
                 {canMovePeople ? (
                   <Link href={`/modules/staff?view=logins&q=${encodeURIComponent(person.badge_number)}`} className="font-semibold text-primary hover:underline">
-                    {t('Wrong department? Change it in Personnel')}</Link>
-                ) : 'Wrong department? Ask a system administrator to change it in Personnel.'}
+                    {t('Wrong department? Change it in Staff Maintenance')}</Link>
+                ) : t('Wrong department? Ask a system administrator to change it in Staff Maintenance.')}
               </p>
             ) : null}
           </div>
           <div>
             <Label htmlFor="role">{t('Role')}</Label>
-            <select id="role" value={role} onChange={(e) => setRole(e.target.value as UserRole)} disabled={!person || outside} className={selectClass}>
+            <select id="role" value={role} onChange={(e) => setRole(e.target.value as UserRole)} disabled={!person || outside} className={cn(selectClass, bad('role') && GLOW)}>
               <option value="" disabled>{person ? 'Choose a role' : 'Choose the person first'}</option>
               {ROLE_GROUPS.map((g) => {
                 const inGroup = g.roles.filter((r) => offered.includes(r));
@@ -384,7 +422,7 @@ export function InviteForm({
         ) : null}
       </Step>
 
-      <Step n={3} title={direct ? 'Sign-in and password' : 'How they receive it'}>
+      <Step n={3} title={direct ? t('Sign-in and password') : t('How they receive it')} bad={tried && missingSteps.has(3)}>
         <fieldset className={cn('grid gap-2', channels.length > 3 ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3')}>
           <legend className="sr-only">{t('How they receive it')}</legend>
           {channels.map((c) => {
@@ -419,7 +457,7 @@ export function InviteForm({
           <div>
             <Label htmlFor="email">{t('Email address')}</Label>
             <Input id="email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setChecked(false); }}
-              placeholder={t('name@example.org')} autoComplete="off" spellCheck={false} className="mt-1.5"
+              placeholder={t('name@example.org')} autoComplete="off" spellCheck={false} className={cn('mt-1.5', bad('email') && GLOW)}
               aria-invalid={email.length > 0 && !contactOk} />
             <p className="mt-1 text-xs text-muted-foreground">{t('{value} will sign in with this address.', { value: first === 'them' ? 'They' : first })}</p>
           </div>
@@ -428,7 +466,7 @@ export function InviteForm({
           <div>
             <Label htmlFor="phone">{t('Cellphone number')}</Label>
             <Input id="phone" type="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setChecked(false); }}
-              placeholder="082 123 4567" autoComplete="off" className="mt-1.5" aria-invalid={phone.length > 0 && !contactOk} />
+              placeholder="082 123 4567" autoComplete="off" className={cn('mt-1.5', bad('phone') && GLOW)} aria-invalid={phone.length > 0 && !contactOk} />
             <p className="mt-1 text-xs text-muted-foreground">
               {t('{value} will sign in with {value2}.', { value: first === 'them' ? 'They' : first, value2: person ? `badge number ${person.badge_number}` : 'their badge number' })}</p>
           </div>
@@ -452,7 +490,7 @@ export function InviteForm({
             <div>
               <Label htmlFor="direct-email">{t('Email address (their sign-in)')}</Label>
               <Input id="direct-email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setChecked(false); }}
-                placeholder={t('name@example.org')} autoComplete="off" spellCheck={false} className="mt-1.5"
+                placeholder={t('name@example.org')} autoComplete="off" spellCheck={false} className={cn('mt-1.5', bad('direct-email') && GLOW)}
                 aria-invalid={email.length > 0 && !contactOk} />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -460,7 +498,7 @@ export function InviteForm({
                 <Label htmlFor="direct-password">{t('Password')}</Label>
                 <div className="relative mt-1.5">
                   <Input id="direct-password" type={showPassword ? 'text' : 'password'} value={password}
-                    onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" className="pr-10" />
+                    onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" className={cn('pr-10', bad('direct-password') && GLOW)} />
                   <button type="button" onClick={() => setShowPassword((s) => !s)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-fg"
                     aria-label={showPassword ? 'Hide passwords' : 'Show passwords'}>
@@ -471,7 +509,7 @@ export function InviteForm({
               <div>
                 <Label htmlFor="direct-confirm">{t('Confirm password')}</Label>
                 <Input id="direct-confirm" type={showPassword ? 'text' : 'password'} value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" className="mt-1.5"
+                  onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" className={cn('mt-1.5', bad('direct-confirm') && GLOW)}
                   aria-invalid={confirmPassword.length > 0 && password !== confirmPassword} />
               </div>
             </div>
@@ -485,8 +523,8 @@ export function InviteForm({
         ) : null}
 
         {channel !== 'code' ? (
-          <label className="flex items-start gap-2.5 text-sm">
-            <input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[rgb(var(--c-primary))]" />
+          <label className={cn('flex items-start gap-3 rounded-lg border px-3 py-3 text-sm', checked ? 'border-success/50 bg-success/5' : 'border-border bg-bg-soft', bad('checked') && GLOW)}>
+            <input id="checked" type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[rgb(var(--c-primary))]" />
             <span>
               {direct
                 ? `I have checked this address with ${first}, and I will give them the password myself, in person or by phone.`
@@ -496,11 +534,11 @@ export function InviteForm({
         ) : null}
       </Step>
 
-      <Step n={4} title={t('Why')}>
+      <Step n={4} title={t('Why')} bad={tried && missingSteps.has(4)}>
         <div>
           <Label htmlFor="reason">{t('Reason (kept on the permanent record)')}</Label>
           <Textarea id="reason" value={reason} onChange={(e) => setReason(e.target.value)} rows={2} maxLength={500}
-            placeholder={t('e.g. New appointment, HR memo 2026/140')} className="mt-1.5" />
+            placeholder={t('e.g. New appointment, HR memo 2026/140')} className={cn('mt-1.5', bad('reason') && GLOW)} />
           <p className={cn('mt-1 text-xs', reasonLength >= MIN_REASON ? 'text-muted-foreground' : 'text-severity-medium-ink')}>
             {reasonLength < MIN_REASON ? `At least ${MIN_REASON} characters (${reasonLength} so far).` : 'Recorded with the invitation and on the account it creates.'}
           </p>
@@ -508,7 +546,7 @@ export function InviteForm({
       </Step>
 
       {person && role ? (
-        <div className="rounded-xl border border-primary/40 bg-primary/5 px-5 py-4 text-sm" aria-live="polite">
+        <div className="rounded-xl border border-primary/40 bg-bg-card px-5 py-4 text-sm shadow-sm" aria-live="polite">
           {direct ? (
             <>
               <p>
@@ -542,11 +580,36 @@ export function InviteForm({
         </p>
       ) : null}
 
+      <section className={cn('rounded-xl border bg-bg-card p-5 shadow-sm', ready ? 'border-success/50' : tried ? GLOW : 'border-border')} aria-live="polite" aria-labelledby="checklist-title">
+        <h2 id="checklist-title" className="flex items-center justify-between gap-2 text-base font-semibold">
+          {ready ? t('Everything is filled in') : t('Still to do before you can continue')}
+          <span className="text-sm font-normal text-muted-foreground">{t('{done} of {total} done', { done: needs.filter((n) => n.ok).length, total: needs.length })}</span>
+        </h2>
+        <ul className="mt-3 space-y-1.5">
+          {needs.map((n, i) => (
+            <li key={`${n.id}-${i}`}>
+              <button type="button" onClick={() => { if (!n.ok) { setTried(true); const el = document.getElementById(n.id); el?.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }}
+                className={cn('flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm', n.ok ? 'cursor-default' : 'hover:bg-muted')}>
+                <span aria-hidden className={cn('flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-bold',
+                  n.ok ? 'bg-success text-white' : tried ? 'bg-severity-critical text-white' : 'border-2 border-muted-foreground/40 text-transparent')}>
+                  {n.ok ? '✓' : tried ? '!' : '·'}
+                </span>
+                <span className={cn(n.ok ? 'text-muted-foreground line-through decoration-success/60' : tried ? 'font-semibold text-severity-critical-ink' : 'font-medium')}>
+                  <span className="mr-1 text-xs text-muted-foreground">{t('Step {n}', { n: n.step })} ·</span>{n.label}
+                </span>
+                <span className="sr-only">{n.ok ? t('done') : t('still to do')}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <div className="flex flex-wrap gap-2">
-        <Button type="button" onClick={submit} disabled={!ready || pending}>
-          {pending ? 'Working…' : direct ? 'Create account' : approval ? 'Send for approval' : channel === 'code' ? 'Create slip' : 'Send invitation'}
+        <Button type="button" onClick={() => (ready ? submit() : showMissing())} disabled={pending}
+          className={cn(!ready && 'opacity-80')} aria-describedby="checklist-title">
+          {pending ? 'Working…' : direct ? 'Create login' : approval ? 'Send for approval' : channel === 'code' ? 'Create slip' : 'Send invitation'}
         </Button>
-        <Button asChild variant="ghost"><Link href="/admin/invitations">{t('Cancel')}</Link></Button>
+        <Button asChild variant="outline" className="bg-bg-card"><Link href="/admin/invitations">{t('Cancel')}</Link></Button>
       </div>
 
       {slip ? <ActivationSlip slip={slip} onClose={done} /> : null}

@@ -1,4 +1,5 @@
 import { addDays, listAvailableStaff, listCallSigns, listSectionDetails, saDay } from '@criticom/api';
+import Link from 'next/link';
 import { tx } from '@criticom/db/i18n';
 import { OfficeHeader } from '@/components/office/office-header';
 import { ox } from '@/components/office/styles';
@@ -61,7 +62,10 @@ export default async function DutyAllocationPage({
           <button type="submit" className={ox.primary}>{t('Load')}</button>
         </form>
         {sections.length === 0 ? (
-          <p className="border-t border-border px-4 py-3 text-sm text-muted-foreground">{t('No sections yet. Add them under Sections first.')}</p>
+          <p className="flex flex-wrap items-center gap-3 border-t border-border px-4 py-3 text-sm text-muted-foreground">
+            {t('No sections yet. Add one first.')}
+            <Link href={`/modules/sections?${ctx.global ? `dept=${target}&` : ''}id=new`} className={ox.primary}>{t('+ Add a section')}</Link>
+          </p>
         ) : null}
       </section>
 
@@ -72,6 +76,8 @@ export default async function DutyAllocationPage({
           from={from}
           to={to}
           canEdit={ctx.canEdit}
+          dept={ctx.global ? target : null}
+          printHref={`/modules/duty-operations?${ctx.global ? `dept=${target}&` : ''}section=${encodeURIComponent(section.code)}&date=${from}`}
           signs={signs.map((s) => ({ id: s.id, callSign: s.call_sign ?? s.name, start: s.start_time?.slice(0, 5) ?? '', stop: s.stop_time?.slice(0, 5) ?? '', rank: s.rank, description: s.description }))}
           staff={staff}
         />

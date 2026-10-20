@@ -31,4 +31,5 @@ docs/wiki/.build
 
 # Local Expo diagnostics and installer
 apps/mobile/.expo-web-check/
+apps/mobile/.expo-build-check/
 apps/mobile/Expo-Go-*.apk
