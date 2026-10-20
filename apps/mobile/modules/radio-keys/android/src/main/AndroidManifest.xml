@@ -1,14 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-  <!-- The camera's standby while on duty (DutyMediaService, 0091). -->
+  <!-- The on-duty standby (DutyMediaService, 0091): the camera, a wake-up, and plain GPS without Google services. -->
   <uses-permission android:name="android.permission.CAMERA" />
   <uses-permission android:name="android.permission.RECORD_AUDIO" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
   <application>
     <service
       android:name="za.co.ethekwini.radiokeys.DutyMediaService"
       android:exported="false"
-      android:foregroundServiceType="camera|microphone" />
+      android:foregroundServiceType="camera|microphone|location" />
   </application>
 </manifest>

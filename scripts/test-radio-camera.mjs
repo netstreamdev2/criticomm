@@ -99,6 +99,8 @@ try {
   for (const f of ['0083_talk.sql', '0082_radio_register.sql', '0087_radio_presence.sql']) await db.exec(read(f));
   await db.exec(read('0091_radio_camera.sql'));
   await db.exec(read('0091_radio_camera.sql')); // safe to re-run
+  await db.exec(read('0092_radio_camera_one_view.sql'));
+  await db.exec(read('0092_radio_camera_one_view.sql'));
   await db.query('begin');
   await db.query("select set_config('test.user', $1, true), set_config('test.role', 'SystemAdmin', true), set_config('test.tenant', $2, true)", [U.sysadmin, T]);
   await db.query("select public.set_talk_server('wss://hiktech-test.livekit.cloud', 'APIkey1', $1)", [SECRET]);
@@ -227,6 +229,15 @@ try {
     assert.equal((await db.query('select count(*)::int as n from public.radio_camera_views')).rows[0].n, 0, 'the officer asks my_radio_camera, not the list');
     await as(U.policeSup);
     assert.equal((await db.query('select count(*)::int as n from public.radio_camera_views')).rows[0].n, 1, 'command reads it');
+  });
+
+  await scenario('two views left open by the race: 0092 keeps only the newest', async () => {
+    await db.query('reset role');
+    await db.query(`insert into public.radio_camera_views (tenant_id, silo, device_id, officer_id, viewer_id, started_at)
+      values ($1, 'MetroPolice', $2, $3, $4, now() - interval '1 second'), ($1, 'MetroPolice', $2, $3, $4, now())`, [T, RADIO, U.cop, U.sysadmin]);
+    await db.exec(read('0092_radio_camera_one_view.sql'));
+    const open = (await db.query('select count(*)::int as n from public.radio_camera_views where ended_at is null')).rows[0].n;
+    assert.equal(open, 1, 'one view left open');
   });
 
   await db.query('rollback');

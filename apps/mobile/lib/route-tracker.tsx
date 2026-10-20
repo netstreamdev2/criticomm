@@ -3,7 +3,8 @@ import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
-import { refreshRouteStatus, sendRoute, startRoute, stopRoute } from '@/lib/tracker';
+import { recordFixes, refreshRouteStatus, sendRoute, startRoute, stopRoute } from '@/lib/tracker';
+import { onDutyFix, onDutyTick } from '@/lib/radio-keys';
 import { HEARTBEAT_MS, presenceSignedIn, reportPresence } from '@/lib/presence';
 import { cameraStandby, checkCamera } from '@/lib/radio-camera';
 
@@ -90,6 +91,30 @@ export function RadioPresence() {
   useEffect(() => {
     if (userId && onDuty !== null) void reportPresence();
   }, [userId, onDuty]);
+
+  // The standby's wake-up (screen off, no position needed) and, without
+  // Google services, its GPS: the same report, camera check and route as
+  // everywhere else.
+  useEffect(() => {
+    if (!userId) return;
+    const offTick = onDutyTick(() => {
+      void reportPresence({ minGapMs: 30_000 });
+      void checkCamera();
+    });
+    const offFix = onDutyFix((f) => {
+      void recordFixes([{
+        timestamp: f.time,
+        coords: {
+          latitude: f.lat, longitude: f.lng, accuracy: f.accuracy ?? null, speed: f.speed ?? null, heading: f.heading ?? null,
+          altitude: null, altitudeAccuracy: null,
+        },
+      }]);
+    });
+    return () => {
+      offTick();
+      offFix();
+    };
+  }, [userId]);
 
   // The radio's camera for the control room (0091): its standby starts only
   // with the app on screen, on duty; the check runs every few seconds while

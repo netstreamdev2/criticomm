@@ -6,7 +6,7 @@ import { getSupabase } from './supabase';
 import { radioId } from './presence';
 import { liveKitNative } from './talk-native';
 import { tNow } from './translator';
-import { hasCameraStandby, startCameraStandby, stopCameraStandby } from './radio-keys';
+import { hasCameraStandby, hasGoogleServices, startCameraStandby, stopCameraStandby } from './radio-keys';
 
 /**
  * The radio's camera for the control room (0091).
@@ -20,8 +20,8 @@ import { hasCameraStandby, startCameraStandby, stopCameraStandby } from './radio
  * server, as Talk does. Nothing is recorded. When the view is closed (or after
  * ten minutes) the camera stops, with one short buzz.
  *
- * Only on the push-to-talk radios for now (the E977 and E966): an ordinary
- * phone is never opened this way.
+ * Only on the push-to-talk radios and the smart hard hats (the E977, E966
+ * and H1): an ordinary phone is never opened this way.
  */
 
 const POLL_MS = 8_000;
@@ -73,7 +73,8 @@ export async function cameraStandby(onDuty: boolean): Promise<void> {
     return;
   }
   if (!(await askCameraPermissions())) return;
-  startCameraStandby(tNow('On duty'), tNow('Camera ready for the control room'), tNow('Camera standby'));
+  // Without Google services (the H1 hard hat) the standby also reads the GPS and keeps the device awake.
+  startCameraStandby(tNow('On duty'), tNow('Camera ready for the control room'), tNow('Camera standby'), !hasGoogleServices());
 }
 
 /* ── The officer is told ──────────────────────────────────────────────── */
@@ -154,7 +155,9 @@ async function startCamera(viewId: string) {
     });
     await room.connect(pass.url, pass.token, { autoSubscribe: false });
     if (current?.viewId !== viewId) { await room.disconnect(); return; }
-    await room.localParticipant.setCameraEnabled(true, { facingMode: 'environment' });
+    // The back camera; a hard hat with only one camera uses that one.
+    await room.localParticipant.setCameraEnabled(true, { facingMode: 'environment' })
+      .catch(() => room.localParticipant.setCameraEnabled(true));
     await room.localParticipant.setMicrophoneEnabled(true).catch((e: Error) => console.warn('[criticom] camera: no microphone', e.message));
     console.log('[criticom] camera live for the control room');
   } catch (e) {

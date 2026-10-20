@@ -20,8 +20,13 @@ export const RADIO_PROVIDERS: ReadonlyArray<{ id: RadioProvider; label: string; 
 
 /** The push-to-talk radios we know by model. Any phone can run the app; only these count as radios on their own. */
 export const RADIO_MODELS = ['E977', 'E966'] as const;
+/** The smart hard hats we know by model, matched exactly (a short name like "H1" is part of other models). */
+export const HARD_HAT_MODELS = ['H1'] as const;
+export const isHardHatModel = (model: string | null | undefined) =>
+  Boolean(model && (HARD_HAT_MODELS as readonly string[]).includes(model.trim().toUpperCase()));
+/** A radio or a hard hat: field kit that counts on its own, not just a phone with the app. */
 export const isRadioModel = (model: string | null | undefined) =>
-  Boolean(model && RADIO_MODELS.some((m) => model.toUpperCase().includes(m)));
+  Boolean(model && (RADIO_MODELS.some((m) => model.toUpperCase().includes(m)) || isHardHatModel(model)));
 
 /** The app reports every 30 seconds while open or on duty; silent longer than this, it is offline. */
 export const PRESENCE_ONLINE_MS = 2 * 60_000;
@@ -210,7 +215,7 @@ export function joinRadios(register: readonly RegisterEntry[], live: readonly Li
       key: k,
       provider: l.provider,
       account: l.account,
-      kind: l.dispatcher ? 'dispatcher' : 'radio',
+      kind: l.dispatcher ? 'dispatcher' : isHardHatModel(l.model) ? 'hard_hat' : 'radio',
       title: l.name || l.account,
       register: null,
       live: l,

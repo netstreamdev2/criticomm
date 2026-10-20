@@ -17,13 +17,21 @@ export type RadioKeyEvent = { key: 'sos'; pressed: boolean; at: number };
 
 const RADIO_MODELS = ['E977', 'E966'];
 
+/** A position read straight from the GPS, on a device without Google services. */
+export type PlainFix = { lat: number; lng: number; time: number; accuracy?: number; speed?: number; heading?: number };
+
 type RadioKeysModule = {
   addListener(event: 'onRadioKey', listener: (e: RadioKeyEvent) => void): { remove(): void };
+  addListener(event: 'onDutyTick', listener: (e: { at: number }) => void): { remove(): void };
+  addListener(event: 'onDutyFix', listener: (e: PlainFix) => void): { remove(): void };
   /** From the build after 1.3.0; older builds do not have it. */
   battery?: () => { level: number; charging: boolean } | null;
   /** The camera's standby while on duty (0091); from the build after that. */
   startDutyMedia?: (title: string, text: string, channel: string) => boolean;
   stopDutyMedia?: () => boolean;
+  /** From the build after that: with plain GPS and a wake-up, for devices without Google services. */
+  startDutyStandby?: (title: string, text: string, channel: string, plainGps: boolean) => boolean;
+  hasGoogleServices?: () => boolean;
 };
 const native = Platform.OS === 'android' ? requireOptionalNativeModule<RadioKeysModule>('RadioKeys') : null;
 
@@ -65,12 +73,36 @@ export function readBattery(): { level: number | null; charging: boolean | null 
  * radio's camera with the screen off. Start it only with the app on screen.
  * False in a build without it, on iOS, or when Android refused.
  */
-export function startCameraStandby(title: string, text: string, channel: string): boolean {
+export function startCameraStandby(title: string, text: string, channel: string, plainGps = false): boolean {
   try {
+    if (native?.startDutyStandby) return Boolean(native.startDutyStandby(title, text, channel, plainGps));
     return Boolean(native?.startDutyMedia?.(title, text, channel));
   } catch {
     return false;
   }
+}
+
+/** Google services on this device (the usual location works). True when the build cannot tell. */
+export function hasGoogleServices(): boolean {
+  try {
+    return native?.hasGoogleServices ? Boolean(native.hasGoogleServices()) : true;
+  } catch {
+    return true;
+  }
+}
+
+/** The standby's wake-up, every few seconds while on duty, screen off included. */
+export function onDutyTick(listener: () => void): () => void {
+  if (!native?.startDutyStandby) return () => {};
+  const sub = native.addListener('onDutyTick', () => listener());
+  return () => sub.remove();
+}
+
+/** Positions from the GPS itself, on a device without Google services. */
+export function onDutyFix(listener: (fix: PlainFix) => void): () => void {
+  if (!native?.startDutyStandby) return () => {};
+  const sub = native.addListener('onDutyFix', listener);
+  return () => sub.remove();
 }
 
 export function stopCameraStandby(): void {

@@ -119,3 +119,16 @@ test('a Radio ID: HT- and eight characters that cannot be misread', () => {
   for (let n = 0; n < 200; n++) assert.match(newRadioId(), RADIO_ID_PATTERN);
   assert.doesNotMatch('HT-OOOO-IIII', RADIO_ID_PATTERN);
 });
+
+test('a hard hat is field kit too, matched exactly by model', async () => {
+  const { isHardHatModel, isRadioModel } = await import('./live.ts');
+  assert.equal(isHardHatModel('H1'), true);
+  assert.equal(isHardHatModel(' h1 '), true);
+  assert.equal(isHardHatModel('PH1'), false, 'not part of another model');
+  assert.equal(isRadioModel('H1'), true);
+  assert.equal(isRadioModel('E977_MB'), true);
+  assert.equal(isRadioModel('SM-A146P'), false, 'a phone is not a radio');
+  const [hat] = presenceRadios([presence({ device_id: 'HT-HHHH-0009', model: 'H1', personnel_id: 'p9', user_id: 'u9', personName: 'Const. Zulu' })], now);
+  const [view] = joinRadios([], [hat!], now);
+  assert.equal(view!.kind, 'hard_hat', 'shows as a hard hat');
+});

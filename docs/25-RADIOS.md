@@ -198,3 +198,12 @@ From the Radio Desk the control room opens a radio's camera: the radio's panel â
 ```
 CASE_PGLITE_MODULE=â€¦ node scripts/test-radio-camera.mjs
 ```
+
+### The H1 smart hard hat
+
+Android 8.1, 32-bit, no screen, **no Google services**. It runs the same app:
+
+- **Set up once, by cable:** install the APK with adb, allow location, camera and microphone (`pm grant`), exempt it from battery saving (`dumpsys deviceidle whitelist +za.co.ethekwini.criticom`), and sign in through scrcpy as the officer who wears it. It then follows that officer's duty from their radio: no shift screens on the hat.
+- **On duty, the standby does more on a device without Google services:** a wake-up every 10 seconds (report, camera check), the processor kept awake while on duty, and the GPS read directly (the app's usual location needs Google services). Devices with Google services (the E977) are unchanged.
+- It shows on the Radio Desk with the hard-hat icon (model `H1`, matched exactly).
+- **Still to come:** helmets signed in as equipment and picked by the officer at shift start, instead of signed in as one officer.

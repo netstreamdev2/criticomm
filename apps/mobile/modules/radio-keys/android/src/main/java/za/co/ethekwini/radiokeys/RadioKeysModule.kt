@@ -20,14 +20,22 @@ import expo.modules.kotlin.modules.ModuleDefinition
  * Also the radio's battery, for the Radio Desk (0087): read from the
  * system's last battery report when asked, so nothing runs in between.
  *
- * And the camera's standby while on duty (DutyMediaService, 0091).
+ * And the on-duty standby (DutyMediaService, 0091): the camera, a wake-up
+ * every few seconds (onDutyTick) and, without Google services, plain GPS
+ * (onDutyFix).
  */
 class RadioKeysModule : Module() {
   private var receiver: BroadcastReceiver? = null
 
   override fun definition() = ModuleDefinition {
     Name("RadioKeys")
-    Events(EVENT)
+    Events(EVENT, TICK_EVENT, FIX_EVENT)
+
+    // The standby speaks to the app's code while it is running.
+    OnCreate {
+      DutyMediaService.onTick = { sendEvent(TICK_EVENT, mapOf("at" to System.currentTimeMillis().toDouble())) }
+      DutyMediaService.onFix = { fix -> sendEvent(FIX_EVENT, fix) }
+    }
 
     // {"level": 0-100 or -1, "charging": true/false}; null when the system has not said.
     Function("battery") {
@@ -57,6 +65,33 @@ class RadioKeysModule : Module() {
       }
     }
 
+    // As startDutyMedia, and with plain GPS and the processor kept awake on a device without Google services.
+    Function("startDutyStandby") { title: String, text: String, channel: String, plainGps: Boolean ->
+      val context = appContext.reactContext ?: return@Function false
+      val intent = Intent(context, DutyMediaService::class.java)
+        .putExtra(DutyMediaService.EXTRA_TITLE, title)
+        .putExtra(DutyMediaService.EXTRA_TEXT, text)
+        .putExtra(DutyMediaService.EXTRA_CHANNEL, channel)
+        .putExtra(DutyMediaService.EXTRA_PLAIN_GPS, plainGps)
+      try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent) else context.startService(intent)
+        true
+      } catch (e: Exception) {
+        false
+      }
+    }
+
+    // Google services present (the usual location works) or not (the H1 hard hat).
+    Function("hasGoogleServices") {
+      val context = appContext.reactContext ?: return@Function true
+      try {
+        context.packageManager.getPackageInfo("com.google.android.gms", 0)
+        true
+      } catch (_: Exception) {
+        false
+      }
+    }
+
     Function("stopDutyMedia") {
       val context = appContext.reactContext ?: return@Function false
       context.stopService(Intent(context, DutyMediaService::class.java))
@@ -64,7 +99,11 @@ class RadioKeysModule : Module() {
 
     OnStartObserving { start() }
     OnStopObserving { stop() }
-    OnDestroy { stop() }
+    OnDestroy {
+      stop()
+      DutyMediaService.onTick = null
+      DutyMediaService.onFix = null
+    }
   }
 
   private fun start() {
@@ -102,6 +141,8 @@ class RadioKeysModule : Module() {
 
   companion object {
     const val EVENT = "onRadioKey"
+    const val TICK_EVENT = "onDutyTick"
+    const val FIX_EVENT = "onDutyFix"
     const val SOS_DOWN = "android.intent.action.SOS.down"
     const val SOS_UP = "android.intent.action.SOS.up"
   }

@@ -136,7 +136,7 @@ function RadioPanel({ v, route, routeState, onShowRoute, onClose }: {
       </div>
 
       {camera && cameraDevice ? (
-        <RadioCameraViewer deviceId={cameraDevice} onClose={() => setCamera(false)} />
+        <RadioCameraViewer deviceId={cameraDevice} title={v.title} onClose={() => setCamera(false)} />
       ) : cameraDevice ? (
         <button
           type="button" onClick={() => setCamera(true)}
