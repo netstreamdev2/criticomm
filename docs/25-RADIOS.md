@@ -180,3 +180,21 @@ the key's broadcast); "locate now" from the desk (needs push in the build).
 CASE_PGLITE_MODULE=… node scripts/test-radio-presence.mjs
 node --experimental-strip-types --test packages/api/src/radio/live.test.ts
 ```
+
+## Live camera from a radio (0091)
+
+From the Radio Desk the control room opens a radio's camera: the radio's panel → **Live camera**. Live only, nothing recorded.
+
+**The officer always knows.** Before the camera goes live the radio buzzes (three long pulses), plays one notification sound and shows a notification that stays while the camera is open, plus a red pulsing pill on every screen. It says the control room is viewing, never who. When it closes: one short buzz, and the notification goes.
+
+**Screen off.** On duty, with the app open, the radio starts a "camera standby" service (`modules/radio-keys`, `DutyMediaService`, camera and microphone types). Android allows the camera with the screen off only from such a service started while the app was on screen. The radio checks every ~8 seconds whether its camera was opened: from the open app, and with the screen off from the route recorder's fixes.
+
+**Who may open it:** as the bodycam (live): the control room, dispatch and the command tier everywhere; supervisors, captains, chiefs and department administrators in their own department. Every open, join and close is audited (`RadioCameraStarted`, `RadioCameraJoined`, `RadioCameraEnded` with how long). A view closes by itself after 10 minutes, and when the viewer closes the panel. One view per radio; a second viewer joins it.
+
+**Only on the E977/E966 radios for now.** Ordinary phones are never opened this way.
+
+**Needs:** `0091_radio_camera.sql`, and a new app build (the standby is native code).
+
+```
+CASE_PGLITE_MODULE=… node scripts/test-radio-camera.mjs
+```

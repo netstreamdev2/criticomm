@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import {
-  deniedHrefs, dutyTaskCounts, featureEnabled, getDutySheet, listAccessRules, listAllProfiles,
+  DEPARTMENT_LABELS, deniedHrefs, dutyTaskCounts, featureEnabled, getDutySheet, listAccessRules, listAllProfiles,
   listDutyTasks, listLeaveEntries,
 } from '@criticom/api';
-import { canAccess, canManageRoster, type Silo } from '@criticom/db';
+import { RESPONDER_ROLES, canAccess, canManageRoster, type Silo, type UserRole } from '@criticom/db';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getFeatures, hiddenHrefs, requireFeaturePage } from '@/lib/features';
 import { getSession, siloFilter } from '@/lib/session';
@@ -71,6 +71,12 @@ const MODULE_GROUPS: { label: string; items: { href: string; label: string }[] }
   },
 ];
 
+/** The departments a board can show, for the seats that see them all. */
+const BOARDS: Silo[] = ['MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster'];
+
+/** Platform accounts: never counted as a department's staff, nor their leave queued for approval. */
+const PLATFORM_ROLES: UserRole[] = ['SuperAdmin', 'SystemAdmin', 'SystemController', 'System'];
+
 function chipClass(status: string) {
   switch (status) {
     case 'CONFIRMED': return 'bg-severity-low/15 text-severity-low-ink';
@@ -94,28 +100,37 @@ export default async function CommandPage({
   // lands on their own. Ethekwini-silo seats default to Metro Police —
   // the busiest board.
   const own = siloFilter(silo);
-  const board = ((params.silo as Silo | undefined) ?? own ?? 'MetroPolice') as Silo;
+  const asked = params.silo as Silo | undefined;
+  const board = (own ?? (asked && BOARDS.includes(asked) ? asked : 'MetroPolice')) as Silo;
+  const boardName = DEPARTMENT_LABELS[board] ?? board;
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Johannesburg' });
 
-  const [features, profiles, leave, sheet, tasks, accessRules] = await Promise.all([
+  const [features, people, leave, sheet, tasks, accessRules] = await Promise.all([
     getFeatures(),
-    listAllProfiles(supabase, own),
+    listAllProfiles(supabase, board),
     listLeaveEntries(supabase),
     getDutySheet(supabase, { silo: board, date: today }),
     listDutyTasks(supabase, { silo: board }),
     listAccessRules(supabase),
   ]);
 
-  const onDuty = profiles.filter((p) => p.is_on_duty).length;
-  const pending = leave.filter((l) => l.status === 'Pending' && l.user_id !== userId);
+  // The department's own people, active; its field staff are the ones on the road.
+  const staff = people.filter((p) => !p.deactivated_at && !PLATFORM_ROLES.includes(p.role as UserRole));
+  const field = staff.filter((p) => RESPONDER_ROLES.includes(p.role as UserRole));
+  const onDuty = field.filter((p) => p.is_on_duty).length;
+
+  // Leave of this department's staff only, and only what has not already ended.
+  const staffIds = new Set(staff.map((p) => p.id));
+  const mine = leave.filter((l) => l.user_id && staffIds.has(l.user_id));
+  const pending = mine.filter((l) => l.status === 'Pending' && l.user_id !== userId && l.eff_to >= today);
   const weekOut = new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10);
   const urgent = pending.filter((l) => l.eff_from <= weekOut);
-  const approved = leave.filter((l) => l.status === 'Approved').length;
-  const rejected = leave.filter((l) => l.status === 'Rejected').length;
+  const approved = mine.filter((l) => l.status === 'Approved').length;
+  const rejected = mine.filter((l) => l.status === 'Rejected').length;
 
   const onLeaveIds = new Set(sheet.onLeave.map((l) => l.user_id));
   const allocated = new Set(sheet.shifts.flatMap((b) => b.members.map((m) => m.user_id)));
-  const strength = profiles.length || 1;
+  const strength = field.length || 1;
   const coverage = Math.round((allocated.size / strength) * 1000) / 10;
   const counts = dutyTaskCounts(tasks);
   const openTasks = tasks.filter((t) => t.status !== 'Completed' && t.status !== 'Cancelled');
@@ -137,7 +152,20 @@ export default async function CommandPage({
         <div>
           <h1 className="text-2xl font-bold">{t('Command')}</h1>
           <p className="text-muted-foreground">
-            {t('{localeDateString} · {board} board', { localeDateString: new Date().toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Africa/Johannesburg' }), board })}</p>
+            {t('{localeDateString} · {board}', { localeDateString: new Date().toLocaleDateString('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Africa/Johannesburg' }), board: boardName })}</p>
+          {own ? null : (
+            <nav aria-label={t('Department')} className="mt-2 flex flex-wrap gap-1.5">
+              {BOARDS.map((b) => (
+                <Link
+                  key={b} href={`/command?silo=${b}`} aria-current={b === board ? 'page' : undefined}
+                  className={cn('rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
+                    b === board ? 'border-accent bg-accent/15 text-fg' : 'border-border text-muted-foreground hover:text-fg')}
+                >
+                  {DEPARTMENT_LABELS[b] ?? b}
+                </Link>
+              ))}
+            </nav>
+          )}
         </div>
         <nav className="flex flex-wrap gap-2">
           {QUICK_TABS.filter((t) => !hidden.includes(t.href) && canAccess(t.href, role, silo)).map((t) => (
@@ -154,7 +182,7 @@ export default async function CommandPage({
 
       {/* Criti: what needs attention now, for this person. */}
       <CritiTiles />
-      <Suspense fallback={null}><AttendanceNow viewerRole={role} silo={silo} /></Suspense>
+      <Suspense fallback={null}><AttendanceNow viewerRole={role} silo={board} ownSilo={silo} /></Suspense>
 
       {/* ── Top stats ── */}
       <div className="grid gap-3 sm:grid-cols-3">
@@ -162,7 +190,7 @@ export default async function CommandPage({
           <CardContent className="p-5">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t('Responders on duty')}</p>
             <p className="mt-1 text-4xl font-bold">{onDuty}</p>
-            <p className="text-xs text-muted-foreground">{t('of {length} personnel', { length: profiles.length })}</p>
+            <p className="text-xs text-muted-foreground">{t('of {length} field staff', { length: field.length })}</p>
           </CardContent>
         </Card>
         <Card>
@@ -182,7 +210,7 @@ export default async function CommandPage({
               <span><span className="text-4xl font-bold">{approved}</span> <span className="text-xs text-severity-low-ink">{t('approved')}</span></span>
               <span><span className="text-4xl font-bold">{rejected}</span> <span className="text-xs text-severity-critical-ink">{t('rejected')}</span></span>
             </div>
-            <p className="text-xs text-muted-foreground">{t('across all leave on record')}</p>
+            <p className="text-xs text-muted-foreground">{t('{board} staff, all leave on record', { board: boardName })}</p>
           </CardContent>
         </Card>
       </div>
@@ -192,7 +220,7 @@ export default async function CommandPage({
         <Card className="xl:col-span-1">
           <CardHeader>
             <CardTitle>{t('Duty allocation')}</CardTitle>
-            <CardDescription>{t('Today\'s shift assignments — {board}.', { board })}</CardDescription>
+            <CardDescription>{t('Today\'s shift assignments — {board}.', { board: boardName })}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {sheet.shifts.length === 0 && (
@@ -228,7 +256,7 @@ export default async function CommandPage({
             <div className="border-t border-border pt-3">
               <div className="flex items-baseline justify-between text-xs">
                 <span className="text-muted-foreground">{t('Allocation coverage')}</span>
-                <span className="font-bold">{coverage}% · {allocated.size}/{profiles.length}</span>
+                <span className="font-bold">{coverage}% · {allocated.size}/{field.length}</span>
               </div>
               <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
                 <div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(100, coverage)}%` }} />

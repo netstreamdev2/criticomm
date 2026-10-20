@@ -131,3 +131,35 @@ export async function getTalkServerStatus(client: CriticomClient) {
   if (error) return null;
   return data;
 }
+
+/* ── Live camera from a radio (0091) ─────────────────────────────────── */
+
+export type RadioCameraView = { id: string; device_id: string; officer_id: string; started_at: string; ends_by: string; ended_at: string | null };
+export type RadioCameraPass = { url: string; token: string; room: string; view: string; radio: boolean; endsBy: string };
+
+/** Open a radio's camera, or join the view already open on it. Audited; at most 10 minutes. */
+export async function startRadioCamera(client: CriticomClient, deviceId: string): Promise<RadioCameraView> {
+  const { data, error } = await client.rpc('start_radio_camera', { p_device: deviceId });
+  if (error) throw error;
+  return data as RadioCameraView;
+}
+
+/** Close a view; audited with how long it was open. */
+export async function endRadioCamera(client: CriticomClient, viewId: string) {
+  const { error } = await client.rpc('end_radio_camera', { p_view: viewId });
+  if (error) throw error;
+}
+
+/** The radio asks whether its camera is open (never by whom). Null when it is not. */
+export async function myRadioCamera(client: CriticomClient, deviceId: string): Promise<{ id: string; startedAt: string; endsBy: string } | null> {
+  const { data, error } = await client.rpc('my_radio_camera', { p_device: deviceId });
+  if (error) throw error;
+  return (data as { id: string; startedAt: string; endsBy: string } | null) ?? null;
+}
+
+/** The signed pass to the view's room: the radio sends, a viewer watches. */
+export async function radioCameraPass(client: CriticomClient, viewId: string): Promise<RadioCameraPass> {
+  const { data, error } = await client.rpc('radio_camera_pass', { p_view: viewId });
+  if (error) throw error;
+  return data as RadioCameraPass;
+}

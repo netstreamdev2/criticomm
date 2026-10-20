@@ -608,6 +608,8 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/shift',        roles: [...RESPONDER_ROLES, ...ADMIN_ROLES, 'Supervisor'] },
   // The armoury register (0051) is kept by command staff; officers book out in the app.
   { prefix: '/police/armoury', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
+  // Issuing a firearm on the issue register (0089): the same command staff. Officers read the register.
+  { prefix: '/police/firearms/new', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
   // So is the bodycam register (0054).
   { prefix: '/police/bodycams', roles: ['Captain', 'Supervisor', ...ADMIN_ROLES], silo: 'MetroPolice' },
   // Fines (0057): officers see their own, command staff the register; the

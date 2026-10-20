@@ -5180,14 +5180,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Awaiting its endpoint — set the URL under Admin → Configuration → OpsLink",
-  "text": "Awaiting its endpoint — set the URL under Admin → Configuration → OpsLink",
-  "context": null,
-  "where": [
-   "apps/web/components/ops-command-bar.tsx"
-  ]
- },
- {
   "key": "Awaiting review",
   "text": "Awaiting review",
   "context": null,
@@ -7003,11 +6995,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Camera opened by the control room",
+  "text": "Camera opened by the control room",
+  "context": null,
+  "where": [
+   "apps/mobile/lib/radio-camera.ts"
+  ]
+ },
+ {
   "key": "Camera permission denied.",
   "text": "Camera permission denied.",
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "Camera ready for the control room",
+  "text": "Camera ready for the control room",
+  "context": null,
+  "where": [
+   "apps/mobile/lib/radio-camera.ts"
+  ]
+ },
+ {
+  "key": "Camera standby",
+  "text": "Camera standby",
+  "context": null,
+  "where": [
+   "apps/mobile/lib/radio-camera.ts"
   ]
  },
  {
@@ -9038,6 +9054,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Close camera",
+  "text": "Close camera",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
+  ]
+ },
+ {
   "key": "Close details",
   "text": "Close details",
   "context": null,
@@ -9421,14 +9445,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/sidebar.tsx"
-  ]
- },
- {
-  "key": "Command bar",
-  "text": "Command bar",
-  "context": null,
-  "where": [
-   "apps/web/components/ops-command-bar.tsx"
   ]
  },
  {
@@ -10035,7 +10051,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Control room is viewing your camera",
   "context": null,
   "where": [
-   "apps/mobile/components/bodycam-watch.tsx"
+   "apps/mobile/components/bodycam-watch.tsx",
+   "apps/mobile/components/radio-camera-notice.tsx",
+   "apps/mobile/lib/radio-camera.ts"
   ]
  },
  {
@@ -11713,6 +11731,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/admin/users/change-role-form.tsx",
    "apps/web/app/(app)/admin/vehicles/vehicle-form.tsx",
    "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/command/page.tsx",
    "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/fire/pir/publish/[reportId]/page.tsx",
@@ -21163,6 +21182,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "LIVE",
+  "text": "LIVE",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
+  ]
+ },
+ {
   "key": "LIVE MAP",
   "text": "LIVE MAP",
   "context": null,
@@ -22019,6 +22046,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Links",
+  "text": "Links",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-command-bar.tsx"
+  ]
+ },
+ {
   "key": "Liquor / drug use suspected?",
   "text": "Liquor / drug use suspected?",
   "context": null,
@@ -22141,6 +22176,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/medical/page.tsx"
+  ]
+ },
+ {
+  "key": "Live camera",
+  "text": "Live camera",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
   ]
  },
  {
@@ -23667,6 +23710,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/analytics/page.tsx"
+  ]
+ },
+ {
+  "key": "More",
+  "text": "More",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-command-bar.tsx"
   ]
  },
  {
@@ -28146,6 +28197,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx",
+   "apps/mobile/lib/radio-camera.ts",
    "apps/mobile/lib/tracker.ts",
    "apps/web/app/(app)/hierarchy/page.tsx",
    "apps/web/app/(app)/profile/my-hr/page.tsx",
@@ -28746,6 +28798,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Opening the camera…",
+  "text": "Opening the camera…",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
+  ]
+ },
+ {
   "key": "Opening…",
   "text": "Opening…",
   "context": null,
@@ -28817,7 +28877,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/fire/reports/new/page.tsx",
-   "apps/web/components/ops-command-bar.tsx",
    "apps/web/components/sidebar.tsx"
   ]
  },
@@ -29060,6 +29119,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Out",
+  "text": "Out",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/police/firearms/page.tsx"
   ]
  },
  {
@@ -37252,6 +37319,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Shortcuts",
+  "text": "Shortcuts",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-command-bar.tsx"
+  ]
+ },
+ {
   "key": "Shotgun",
   "text": "Shotgun",
   "context": null,
@@ -40178,6 +40253,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The camera did not open. Try again.",
+  "text": "The camera did not open. Try again.",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
+  ]
+ },
+ {
+  "key": "The camera is closed.",
+  "text": "The camera is closed.",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
+  ]
+ },
+ {
   "key": "The camera registry (for the live map layer) is empty. It fills from the i-traffic API once SANRAL issues a key (",
   "text": "The camera registry (for the live map layer) is empty. It fills from the i-traffic API once SANRAL issues a key (",
   "context": null,
@@ -41107,6 +41198,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "This radio is off.",
+  "text": "This radio is off.",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
   ]
  },
  {
@@ -43713,6 +43812,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Waiting for the radio…",
+  "text": "Waiting for the radio…",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
+  ]
+ },
+ {
   "key": "Waiting for them",
   "text": "Waiting for them",
   "context": null,
@@ -45777,6 +45884,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "You may not open this camera.",
+  "text": "You may not open this camera.",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
+  ]
+ },
+ {
   "key": "You sign in with",
   "text": "You sign in with",
   "context": null,
@@ -45872,6 +45987,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/leave.tsx"
+  ]
+ },
+ {
+  "key": "Your camera and microphone are live.",
+  "text": "Your camera and microphone are live.",
+  "context": null,
+  "where": [
+   "apps/mobile/lib/radio-camera.ts"
   ]
  },
  {
@@ -46252,14 +46375,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx"
-  ]
- },
- {
-  "key": "across all leave on record",
-  "text": "across all leave on record",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/command/page.tsx"
   ]
  },
  {
@@ -47368,8 +47483,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "of {length} personnel",
-  "text": "of {length} personnel",
+  "key": "of {length} field staff",
+  "text": "of {length} field staff",
   "context": null,
   "where": [
    "apps/web/app/(app)/command/page.tsx"
@@ -47865,6 +47980,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "{board} staff, all leave on record",
+  "text": "{board} staff, all leave on record",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/command/page.tsx"
   ]
  },
  {
@@ -48592,8 +48715,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "{localeDateString} · {board} board",
-  "text": "{localeDateString} · {board} board",
+  "key": "{localeDateString} · {board}",
+  "text": "{localeDateString} · {board}",
   "context": null,
   "where": [
    "apps/web/app/(app)/command/page.tsx"

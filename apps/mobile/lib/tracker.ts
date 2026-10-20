@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { tNow } from './translator';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
 import * as Location from 'expo-location';
@@ -10,6 +10,7 @@ import { getSupabase } from './supabase';
 import { isNetworkFailure } from './offline-cache-policy.ts';
 import { BATCH, fromLocation, stillDeliverable, thin, type TrackPoint } from './track-policy.ts';
 import { BACKGROUND_EVERY_MS, notePresenceFix, notePresenceQueued, reportPresence } from './presence';
+import { checkCamera } from './radio-camera';
 
 /**
  * The route recorder: while an officer is on duty, the phone records where
@@ -184,6 +185,8 @@ export async function recordFixes(locations: readonly Location.LocationObject[])
   // background this is also what keeps its presence going (lib/presence.ts).
   notePresenceFix(fixes.reduce((a, b) => (Date.parse(b.t) > Date.parse(a.t) ? b : a)));
   void reportPresence({ minGapMs: BACKGROUND_EVERY_MS });
+  // With the screen off, the fixes are also what lets the radio hear the control room open its camera.
+  void checkCamera();
 
   const kept = await serial(async () => {
     const out = thin(await lastKept(userId), fixes);
@@ -297,7 +300,12 @@ export async function startRoute(userId: string): Promise<RouteMode> {
 
     try {
       if (!TaskManager.isTaskDefined(ROUTE_TASK)) throw new Error('The route task is not defined');
-      if (!(await Location.hasStartedLocationUpdatesAsync(ROUTE_TASK))) {
+      // A task left registered from before (the app restarted, or Android woke
+      // its code with no screen) comes back without its "On duty" service:
+      // Android refuses that service while the app is not on screen, and the
+      // fixes then stop the moment the app is closed. Started again here,
+      // with the app open, it comes back with the service.
+      if (AppState.currentState === 'active' || !(await Location.hasStartedLocationUpdatesAsync(ROUTE_TASK))) {
         // The duty notification in the person's language.
         await Location.startLocationUpdatesAsync(ROUTE_TASK, {
           ...OPTIONS,

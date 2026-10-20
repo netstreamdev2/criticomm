@@ -8,17 +8,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 export function TextField({
-  label, name, type = 'text', required, defaultValue, placeholder, step, className,
+  label, name, type = 'text', required, defaultValue, placeholder, step, className, readOnly,
 }: {
   label: string; name: string; type?: string; required?: boolean;
   defaultValue?: string | number | null; placeholder?: string; step?: string; className?: string;
+  /** Shown, not changed (e.g. filled in by the server). */
+  readOnly?: boolean;
 }) {
   return (
     <div className={className}>
       <Label htmlFor={name}>{label}{required && <span className="text-severity-critical-ink"> *</span>}</Label>
       <Input
-        id={name} name={name} type={type} required={required} step={step}
-        defaultValue={defaultValue ?? undefined} placeholder={placeholder} className="mt-1"
+        id={name} name={name} type={type} required={required} step={step} readOnly={readOnly}
+        defaultValue={defaultValue ?? undefined} placeholder={placeholder} className={`mt-1${readOnly ? ' opacity-70' : ''}`}
       />
     </div>
   );

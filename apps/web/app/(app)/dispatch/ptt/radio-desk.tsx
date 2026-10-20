@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
-  BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, HardHat, List, Map as MapIcon, MapPin, Mic, Radio, Route, Search, X,
+  BatteryCharging, BatteryFull, BatteryLow, BatteryMedium, HardHat, List, Map as MapIcon, MapPin, Mic, Radio, Route, Search, Video, X,
 } from 'lucide-react';
-import { batteryTone, channelLabel, type RadioView } from '@criticom/api/radio';
+import { batteryTone, channelLabel, isRadioModel, type RadioView } from '@criticom/api/radio';
 import { listDutyTracks, type DutyTrackPoint, type TalkChannel } from '@criticom/api';
 import { TalkPanel } from '@/components/talk/talk-panel';
+import { RadioCameraViewer } from '@/components/talk/radio-camera-viewer';
 import type { RadioDesk as Desk } from '@/lib/radio';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { formatSaTime } from '@/lib/utils';
@@ -112,6 +113,9 @@ function RadioPanel({ v, route, routeState, onShowRoute, onClose }: {
   const { t } = useT();
   const l = v.live;
   const channel = l?.online ? channelLabel(l.talkChannel) : null;
+  const [camera, setCamera] = useState(false);
+  // The camera of a radio running our app, while it is on (0091).
+  const cameraDevice = l?.provider === 'hiktech' && l.online && isRadioModel(l.model) ? l.account : null;
   return (
     <aside className="frost space-y-4 rounded-xl border border-border p-5 lg:sticky lg:top-4 lg:self-start">
       <div className="flex items-start justify-between gap-2">
@@ -130,6 +134,17 @@ function RadioPanel({ v, route, routeState, onShowRoute, onClose }: {
           {l?.fixAt ? time(l.fixAt) : t('No position')}
         </p>
       </div>
+
+      {camera && cameraDevice ? (
+        <RadioCameraViewer deviceId={cameraDevice} onClose={() => setCamera(false)} />
+      ) : cameraDevice ? (
+        <button
+          type="button" onClick={() => setCamera(true)}
+          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-red-600 text-base font-bold text-white hover:bg-red-700"
+        >
+          <Video className="h-5 w-5" /> {t('Live camera')}
+        </button>
+      ) : null}
 
       {l?.userId ? (
         <button

@@ -21,6 +21,9 @@ type RadioKeysModule = {
   addListener(event: 'onRadioKey', listener: (e: RadioKeyEvent) => void): { remove(): void };
   /** From the build after 1.3.0; older builds do not have it. */
   battery?: () => { level: number; charging: boolean } | null;
+  /** The camera's standby while on duty (0091); from the build after that. */
+  startDutyMedia?: (title: string, text: string, channel: string) => boolean;
+  stopDutyMedia?: () => boolean;
 };
 const native = Platform.OS === 'android' ? requireOptionalNativeModule<RadioKeysModule>('RadioKeys') : null;
 
@@ -56,3 +59,25 @@ export function readBattery(): { level: number | null; charging: boolean | null 
     return null;
   }
 }
+
+/**
+ * The camera's standby while on duty (0091): lets the control room open the
+ * radio's camera with the screen off. Start it only with the app on screen.
+ * False in a build without it, on iOS, or when Android refused.
+ */
+export function startCameraStandby(title: string, text: string, channel: string): boolean {
+  try {
+    return Boolean(native?.startDutyMedia?.(title, text, channel));
+  } catch {
+    return false;
+  }
+}
+
+export function stopCameraStandby(): void {
+  try {
+    native?.stopDutyMedia?.();
+  } catch { /* not running */ }
+}
+
+/** True in a build that has the camera standby. */
+export const hasCameraStandby = () => Boolean(native?.startDutyMedia);

@@ -89,43 +89,55 @@ export async function fileConsoleReportAction(input: ConsoleReportInput): Promis
   }
 }
 
+/** The database's refusal, in plain words for the form. */
+function firearmError(e: unknown): string {
+  const message = (e as { message?: string }).message ?? '';
+  if (/Not permitted/.test(message)) return 'Only captains, supervisors and administrators issue firearms.';
+  return message || 'It did not save. Try again.';
+}
+
+/** A datetime-local value ("2026-10-20T11:30") is South African time. */
+const saTime = (v: string | null) => (v && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v) ? `${v}:00+02:00` : v);
+
+/**
+ * Issue a firearm: issue_firearm_authorization() checks who may, records
+ * the issuer as whoever is signed in, and audits it (0089).
+ */
 export async function createFirearmAction(formData: FormData) {
-  const { supabase, fullName } = await getSession();
-  const rec = await createFirearmAuthorization(supabase, {
-    form_number: S(formData, 'form_number') ?? `FA-${Date.now()}`,
-    employee_name: S(formData, 'employee_name') ?? '',
-    company_number: S(formData, 'company_number'),
-    id_number: S(formData, 'id_number') ?? '',
-    firearm_number: S(formData, 'firearm_number') ?? '',
-    make: S(formData, 'make'),
-    rounds_ammunition: N(formData, 'rounds_ammunition'),
-    from_date: S(formData, 'from_date') ?? new Date().toISOString(),
-    to_date: S(formData, 'to_date') ?? new Date().toISOString(),
-    posted_location: S(formData, 'posted_location'),
-    issued_by: S(formData, 'issued_by') ?? fullName,
-    chamber_status: S(formData, 'chamber_status'),
-    notes: S(formData, 'notes'),
-  });
-  await logAudit(supabase, {
-    silo: 'MetroPolice', action_type: 'FirearmIssued', entity_type: 'firearm_authorization',
-    entity_id: rec.id, user_name: fullName, details: `${rec.firearm_number} → ${rec.employee_name}`,
-  });
+  const { supabase } = await getSession();
+  try {
+    await createFirearmAuthorization(supabase, {
+      form_number: S(formData, 'form_number'),
+      employee_name: S(formData, 'employee_name') ?? '',
+      company_number: S(formData, 'company_number'),
+      id_number: S(formData, 'id_number') ?? '',
+      firearm_number: S(formData, 'firearm_number') ?? '',
+      make: S(formData, 'make'),
+      rounds: N(formData, 'rounds_ammunition'),
+      from: saTime(S(formData, 'from_date')) ?? '',
+      to: saTime(S(formData, 'to_date')) ?? '',
+      posted_location: S(formData, 'posted_location'),
+      chamber_status: S(formData, 'chamber_status'),
+      notes: S(formData, 'notes'),
+    });
+  } catch (e) {
+    redirect(`/police/firearms/new?error=${encodeURIComponent(firearmError(e))}`);
+  }
   revalidatePath('/police/firearms');
   redirect('/police/firearms');
 }
 
+/** Book a firearm back in, once: return_firearm_authorization() (0089). */
 export async function returnFirearmAction(formData: FormData) {
-  const { supabase, fullName } = await getSession();
-  const id = String(formData.get('id'));
-  await returnFirearm(supabase, {
-    id,
-    rounds_returned: N(formData, 'rounds_returned'),
-    received_by: fullName,
-    condition: S(formData, 'condition'),
-  });
-  await logAudit(supabase, {
-    silo: 'MetroPolice', action_type: 'FirearmReturned', entity_type: 'firearm_authorization',
-    entity_id: id, user_name: fullName,
-  });
+  const { supabase } = await getSession();
+  try {
+    await returnFirearm(supabase, {
+      id: String(formData.get('id')),
+      rounds_returned: N(formData, 'rounds_returned'),
+      condition: S(formData, 'condition'),
+    });
+  } catch (e) {
+    redirect(`/police/firearms?error=${encodeURIComponent(firearmError(e))}`);
+  }
   revalidatePath('/police/firearms');
 }

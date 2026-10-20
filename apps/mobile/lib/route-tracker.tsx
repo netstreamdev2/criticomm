@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { refreshRouteStatus, sendRoute, startRoute, stopRoute } from '@/lib/tracker';
 import { HEARTBEAT_MS, presenceSignedIn, reportPresence } from '@/lib/presence';
+import { cameraStandby, checkCamera } from '@/lib/radio-camera';
 
 /**
  * Records the officer's route while they are on duty, whichever screen is
@@ -88,6 +89,23 @@ export function RadioPresence() {
   // On or off duty: the desk sees it now (and the position stops off duty).
   useEffect(() => {
     if (userId && onDuty !== null) void reportPresence();
+  }, [userId, onDuty]);
+
+  // The radio's camera for the control room (0091): its standby starts only
+  // with the app on screen, on duty; the check runs every few seconds while
+  // open (with the screen off, the route recorder runs it).
+  useEffect(() => {
+    if (!userId || onDuty === null) return;
+    const standby = () => { if (AppState.currentState === 'active') void cameraStandby(onDuty); };
+    standby();
+    if (!onDuty) return;
+    const timer = setInterval(() => { void checkCamera(); }, 8_000);
+    void checkCamera();
+    const app = AppState.addEventListener('change', (s) => { if (s === 'active') { standby(); void checkCamera(); } });
+    return () => {
+      clearInterval(timer);
+      app.remove();
+    };
   }, [userId, onDuty]);
 
   return null;

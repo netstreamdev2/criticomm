@@ -5,9 +5,10 @@ import { requestT } from '@/lib/i18n';
 
 export const metadata = { title: 'Issue Firearm · HikTech' };
 
-export default async function NewFirearmPage() {
+export default async function NewFirearmPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { t } = await requestT();
   const { fullName } = await getSession();
+  const { error } = await searchParams;
   const now = new Date();
   const local = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   const end = new Date(now.getTime() + 12 * 3600 * 1000);
@@ -18,6 +19,8 @@ export default async function NewFirearmPage() {
         <h1 className="text-2xl font-bold">{t('Firearm authorization')}</h1>
         <p className="text-muted-foreground">{t('Add a firearm to the issue register.')}</p>
       </header>
+
+      {error ? <p role="alert" className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-500">{error}</p> : null}
 
       <form action={createFirearmAction} className="space-y-4">
         <FormSection title={t('Employee')}>
@@ -38,7 +41,7 @@ export default async function NewFirearmPage() {
         <FormSection title={t('Authorization window')}>
           <TextField name="from_date" label={t('From')} type="datetime-local" defaultValue={local(now)} required />
           <TextField name="to_date" label={t('To')} type="datetime-local" defaultValue={local(end)} required />
-          <TextField name="issued_by" label={t('Issued by')} defaultValue={fullName} />
+          <TextField name="issued_by" label={t('Issued by')} defaultValue={fullName} readOnly />
           <TextAreaField name="notes" label={t('Notes')} className="sm:col-span-2 lg:col-span-3" />
         </FormSection>
 

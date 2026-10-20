@@ -7,6 +7,7 @@ import { getSupabase } from '@/lib/supabase';
 import { useNotifications } from '@/lib/notifications';
 import { sendRoute, stopRoute } from '@/lib/tracker';
 import { reportSignedOut } from '@/lib/presence';
+import { stopCameraForSignOut } from '@/lib/radio-camera';
 
 /**
  * Signing out, the same way from every screen: send the route still on the
@@ -32,6 +33,7 @@ export function useSignOut() {
     await stopRoute().catch(() => {});
     await releasePushToken().catch(() => {});
     // The Radio Desk shows the radio signed out now, not after two quiet minutes.
+    await stopCameraForSignOut().catch(() => {});
     await reportSignedOut().catch(() => {});
     await cleanupOnLogout(sb).catch(() => {});
     await sb.auth.signOut();

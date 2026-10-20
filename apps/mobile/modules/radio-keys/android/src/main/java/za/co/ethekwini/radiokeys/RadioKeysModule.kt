@@ -19,6 +19,8 @@ import expo.modules.kotlin.modules.ModuleDefinition
  *
  * Also the radio's battery, for the Radio Desk (0087): read from the
  * system's last battery report when asked, so nothing runs in between.
+ *
+ * And the camera's standby while on duty (DutyMediaService, 0091).
  */
 class RadioKeysModule : Module() {
   private var receiver: BroadcastReceiver? = null
@@ -38,6 +40,26 @@ class RadioKeysModule : Module() {
         "level" to if (level >= 0 && scale > 0) level * 100 / scale else -1,
         "charging" to (state == BatteryManager.BATTERY_STATUS_CHARGING || state == BatteryManager.BATTERY_STATUS_FULL),
       )
+    }
+
+    // The camera's standby: started with the app on screen, on duty. True when it was asked to start.
+    Function("startDutyMedia") { title: String, text: String, channel: String ->
+      val context = appContext.reactContext ?: return@Function false
+      val intent = Intent(context, DutyMediaService::class.java)
+        .putExtra(DutyMediaService.EXTRA_TITLE, title)
+        .putExtra(DutyMediaService.EXTRA_TEXT, text)
+        .putExtra(DutyMediaService.EXTRA_CHANNEL, channel)
+      try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent) else context.startService(intent)
+        true
+      } catch (e: Exception) {
+        false
+      }
+    }
+
+    Function("stopDutyMedia") {
+      val context = appContext.reactContext ?: return@Function false
+      context.stopService(Intent(context, DutyMediaService::class.java))
     }
 
     OnStartObserving { start() }

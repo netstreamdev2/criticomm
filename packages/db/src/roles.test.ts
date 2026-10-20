@@ -344,7 +344,12 @@ test('the armoury is kept by police command; the officers book out in the app', 
   }
   assert.equal(canAccess('/police/armoury', 'Supervisor', 'MetroFire'), false, 'another department');
   assert.equal(canAccess('/police/armoury', 'Admin', 'Medical'), false, 'another department');
-  assert.equal(canAccess('/police/firearms', 'Police', 'MetroPolice'), true, 'the issue register is unchanged');
+  assert.equal(canAccess('/police/firearms', 'Police', 'MetroPolice'), true, 'officers read the issue register');
+  assert.equal(canAccess('/police/firearms/new', 'Police', 'MetroPolice'), false, 'but do not issue');
+  for (const role of ['Captain', 'Supervisor', 'Admin'] as UserRole[]) {
+    assert.equal(canAccess('/police/firearms/new', role, 'MetroPolice'), true, role);
+  }
+  assert.equal(canAccess('/police/firearms/new', 'SystemAdmin', 'Ethekwini'), true, 'the system administrator issues from the control room');
 });
 
 test("today's shift board is for command staff", () => {

@@ -16,6 +16,7 @@ import { OfflinePrefetch } from '@/lib/offline-prefetch';
 import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { PanicButton } from '@/components/panic-button';
 import { BodycamWatchNotice } from '@/components/bodycam-watch';
+import { RadioCameraNotice } from '@/components/radio-camera-notice';
 import { SyncTray } from '@/components/sync-tray';
 import { colors, space, type, makeStyles, useTheme, loadThemeMode } from '@/lib/theme';
 import { HikTechLogo } from '@/components/hiktech-logo';
@@ -247,6 +248,7 @@ export default function RootLayout() {
           <PanicButton />
           <SyncTray />
           <BodycamWatchNotice />
+          <RadioCameraNotice />
         </NotificationsProvider>
         </SyncProvider>
         </FeaturesProvider>

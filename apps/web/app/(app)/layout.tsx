@@ -115,7 +115,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               reference strip you dip into, the navigation is the thing you
               come back to, so it reads better closest to the page it acts on. */}
           {showsCommandBar && (
-            <div className="no-print flex flex-col gap-1 border-b border-border bg-bg-soft/95 px-3 py-1.5 backdrop-blur sm:px-4">
+            // Its own layer above the page (the blur isolates it), so the More
+            // and Links menus open over the page, not behind it; under the
+            // sticky top bar (z-30) when scrolling.
+            <div className="no-print relative z-20 flex flex-col gap-1 border-b border-border bg-bg-soft/95 px-3 py-1.5 backdrop-blur sm:px-4">
               <OpsCommandBar role={role} silo={silo} links={opsLinks} hiddenHrefs={hidden} />
               {usesSidebar ? null : (
                 <div className="flex flex-wrap items-center justify-center gap-1">

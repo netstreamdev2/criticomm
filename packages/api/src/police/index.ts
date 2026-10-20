@@ -5,7 +5,6 @@ import { REPORT_RECORD_COLUMNS, toReportRecord, type ReportRecord, type PoliceRe
 type MetroReport = Database['public']['Tables']['metro_reports']['Row'];
 type MetroReportInsert = Database['public']['Tables']['metro_reports']['Insert'];
 type FirearmAuth = Database['public']['Tables']['firearm_authorizations']['Row'];
-type FirearmAuthInsert = Database['public']['Tables']['firearm_authorizations']['Insert'];
 
 /** MetroController.Records — list all metro (police) reports */
 export async function listMetroReports(client: CriticomClient): Promise<MetroReport[]> {
@@ -102,38 +101,42 @@ export async function listFirearmAuthorizations(client: CriticomClient): Promise
   return data ?? [];
 }
 
-/** MetroController.FirearmChecklist POST — issue a firearm */
-export async function createFirearmAuthorization(
-  client: CriticomClient,
-  input: FirearmAuthInsert,
-) {
-  const { data, error } = await client
-    .from('firearm_authorizations')
-    .insert(input)
-    .select()
-    .single();
+export type FirearmIssueInput = {
+  employee_name: string;
+  id_number: string;
+  firearm_number: string;
+  company_number?: string | null;
+  form_number?: string | null;
+  make?: string | null;
+  rounds: number;
+  from: string;
+  to: string;
+  posted_location?: string | null;
+  chamber_status?: string | null;
+  notes?: string | null;
+};
+
+/**
+ * MetroController.FirearmChecklist POST — issue a firearm, through
+ * issue_firearm_authorization() only (0089): Metro Police command and the
+ * system administrators; the issuer is whoever is signed in; audited.
+ */
+export async function createFirearmAuthorization(client: CriticomClient, input: FirearmIssueInput): Promise<FirearmAuth> {
+  const { data, error } = await client.rpc('issue_firearm_authorization', { p: input });
   if (error) throw error;
-  return data;
+  return data as FirearmAuth;
 }
 
-/** MetroController firearm return — record rounds returned + condition */
+/** MetroController firearm return — once per issue, through return_firearm_authorization() (0089); audited. */
 export async function returnFirearm(
   client: CriticomClient,
-  args: { id: string; rounds_returned: number; received_by: string; condition?: string | null },
-) {
-  const { data, error } = await client
-    .from('firearm_authorizations')
-    .update({
-      rounds_returned: args.rounds_returned,
-      received_by: args.received_by,
-      condition: args.condition ?? null,
-      date_received: new Date().toISOString(),
-    })
-    .eq('id', args.id)
-    .select()
-    .single();
+  args: { id: string; rounds_returned: number; condition?: string | null },
+): Promise<FirearmAuth> {
+  const { data, error } = await client.rpc('return_firearm_authorization', {
+    p_id: args.id, p_rounds_returned: args.rounds_returned, p_condition: args.condition ?? null,
+  });
   if (error) throw error;
-  return data;
+  return data as FirearmAuth;
 }
 
 /** SecuritiesController — private security guard incident reports */

@@ -3021,6 +3021,17 @@ export type Database = {
         };
         Returns: Database['public']['Tables']['radio_devices']['Row'];
       };
+      // ── Live camera from a radio (0091) ──
+      start_radio_camera: {
+        Args: { p_device: string };
+        Returns: { id: string; device_id: string; officer_id: string; started_at: string; ends_by: string; ended_at: string | null };
+      };
+      end_radio_camera: { Args: { p_view: string }; Returns: unknown };
+      my_radio_camera: { Args: { p_device: string }; Returns: { id: string; startedAt: string; endsBy: string } | null };
+      radio_camera_pass: {
+        Args: { p_view: string };
+        Returns: { url: string; token: string; room: string; view: string; radio: boolean; endsBy: string };
+      };
       /** The app's report on the radio it runs on, for the person signed in (0087). */
       report_radio_presence: {
         Args: { p: Record<string, unknown> };
@@ -3423,6 +3434,16 @@ export type Database = {
       set_firearm_status: {
         Args: { p_firearm: string; p_status: 'Available' | 'Maintenance' | 'Retired'; p_reason: string };
         Returns: { status: string };
+      };
+      /** Issue a firearm on the issue register (0089). */
+      issue_firearm_authorization: {
+        Args: { p: Record<string, unknown> };
+        Returns: Database['public']['Tables']['firearm_authorizations']['Row'];
+      };
+      /** Book an issued firearm back in, once (0089). */
+      return_firearm_authorization: {
+        Args: { p_id: string; p_rounds_returned: number; p_condition?: string | null };
+        Returns: Database['public']['Tables']['firearm_authorizations']['Row'];
       };
       return_shift_firearm: {
         Args: {
