@@ -338,7 +338,7 @@ export function DescriptionModal({
       title={t('Description: {type}', { type: t(typeName) })}
       onClose={onClose}
       large
-      confirmClose={{ title: t('Close the description?'), body: t('What you entered stays on the form. Open it again to carry on.') }}
+      confirmClose={{ title: t('Close the description?'), body: t('What you entered stays on the form. Open it again to continue.') }}
       footer={(
         <div className="flex flex-wrap items-center justify-end gap-2">
           {sendNow ? (

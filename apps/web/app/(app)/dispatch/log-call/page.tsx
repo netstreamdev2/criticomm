@@ -32,7 +32,7 @@ export default async function LogCallPage({ searchParams }: { searchParams: Prom
             : t('Only the person who logged {number}, or the control room, can finish it.', { number: call.incident_number });
       return (
         <div className="mx-auto max-w-lg space-y-3 rounded-2xl border border-border bg-bg-card p-6 text-center">
-          <p className="text-lg font-semibold">{t('This call cannot be carried on here')}</p>
+          <p className="text-lg font-semibold">{t('Logging cannot be continued for this call')}</p>
           <p className="text-sm text-muted-foreground">{why}</p>
           <div className="flex flex-wrap justify-center gap-2 pt-1">
             {call && canAccess('/incidents/x', role, silo) ? (

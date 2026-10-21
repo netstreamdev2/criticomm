@@ -5,7 +5,7 @@ import {
   intakeAdvice, sapsCategories, type IntakeState,
 } from './intake.ts';
 import { DETAIL_FIELDS, clauseFields, cleanDetails, detailLines, questionKind, renderClause } from './intake-details.ts';
-import { departmentPrefix, formatIncidentNumber, isIncidentNumber } from './incident-number.ts';
+import { departmentCodes, formatIncidentNumber, isIncidentNumber } from './incident-number.ts';
 
 /** V4's 52 codes (Data/ConfigSeeder.cs). Every one is in the catalogue. */
 const V4_CODES = [
@@ -121,23 +121,24 @@ test('only allowed answers are kept', () => {
   ]);
 });
 
-test('the incident number: departments in pairs, South African date and time, the number of the day', () => {
-  assert.equal(departmentPrefix(['MetroPolice']), 'MP');
-  assert.equal(departmentPrefix(['MetroFire', 'MetroPolice']), 'MPFD', 'always in the same order');
-  assert.equal(departmentPrefix(['MetroPolice', 'MetroFire', 'Medical']), 'MPFD-MD');
-  assert.equal(departmentPrefix(['EthekwiniDisaster', 'Medical', 'MetroFire', 'MetroPolice']), 'MPFD-MDDM');
-  assert.equal(departmentPrefix(['MetroFire', 'Medical']), 'FDMD');
-  assert.equal(departmentPrefix(['MetroPolice', 'Medical', 'EthekwiniDisaster']), 'MPMD-DM');
-  assert.equal(departmentPrefix(['Medical']), 'MD');
-  assert.equal(departmentPrefix(['Ethekwini']), 'CR');
+test('the incident number: ETK, the departments with dashes once finished, South African date and time, the number of the day', () => {
+  assert.equal(departmentCodes(['MetroPolice']), 'MP');
+  assert.equal(departmentCodes(['MetroFire', 'MetroPolice']), 'MP-FD', 'always in the same order');
+  assert.equal(departmentCodes(['EthekwiniDisaster', 'Medical', 'MetroFire', 'MetroPolice']), 'MP-FD-MD-DM');
+  assert.equal(departmentCodes(['MetroPolice', 'Medical']), 'MP-MD');
+  assert.equal(departmentCodes(['Ethekwini']), 'CR');
   // 09:15 UTC is 11:15 in South Africa; 22:30 UTC is the next day there.
-  assert.equal(formatIncidentNumber(['MetroPolice'], new Date('2026-10-10T09:15:00Z'), 34), 'MP-20261010-1115-0034');
-  assert.equal(formatIncidentNumber(['MetroPolice', 'MetroFire', 'Medical'], new Date('2026-10-10T22:30:00Z'), 1), 'MPFD-MD-20261011-0030-0001');
-  assert.equal(formatIncidentNumber(['Medical'], new Date('2026-10-10T09:15:00Z'), 12345), 'MD-20261010-1115-12345', 'never cut short');
-  for (const n of ['MP-20261010-1115-0034', 'MPFD-MDDM-20261010-1115-0034', 'INC-20261013-0004', 'CR-20261010-1115-0002']) {
+  assert.equal(formatIncidentNumber(['MetroPolice', 'Medical'], new Date('2026-10-21T10:06:00Z'), 1), 'ETK-MP-MD-20261021-1206-0001');
+  assert.equal(formatIncidentNumber(['MetroPolice'], new Date('2026-10-10T22:30:00Z'), 1, false), 'ETK-20261011-0030-0001', 'sent early: no departments yet');
+  assert.equal(formatIncidentNumber(['Medical'], new Date('2026-10-10T09:15:00Z'), 12345), 'ETK-MD-20261010-1115-12345', 'never cut short');
+  for (const n of [
+    'ETK-20261021-1206-0001', 'ETK-MP-MD-20261021-1206-0001', 'ETK-MP-FD-MD-DM-20261021-1206-0001', 'ETK-CR-20261021-1206-0001',
+    // Calls from before 0096 keep their numbers.
+    'MP-20261010-1115-0034', 'MPFD-MDDM-20261010-1115-0034', 'INC-20261013-0004', 'CR-20261010-1115-0002',
+  ]) {
     assert.ok(isIncidentNumber(n), n);
   }
-  for (const n of ['MPX-20261010-1115-0034', 'MP-2026101-1115-0034', 'hello']) assert.ok(!isIncidentNumber(n), n);
+  for (const n of ['MPX-20261010-1115-0034', 'MP-2026101-1115-0034', 'ETK-XX-20261021-1206-0001', 'hello']) assert.ok(!isIncidentNumber(n), n);
 });
 
 test('a question is answered as it asks: yes or no, or in a few words', () => {

@@ -38,7 +38,7 @@ export const NAV_GROUPS: NavGroup[] = [
     id: 'dispatch',
     label: 'Dispatch',
     items: [
-      { href: '/dispatch/log-call', label: 'Log Incoming Call', icon: PhoneCall, keywords: 'new 911 call create incident' },
+      { href: '/dispatch/log-call', label: 'Log Incoming Call', icon: PhoneCall, keywords: 'new call capture create incident 10111 112' },
       { href: '/dispatch/log-history', label: 'Log History', icon: History, keywords: 'calls i logged my calls status pending dispatch' },
       { href: '/dispatch/pending', label: 'Pending Queue', icon: ListChecks, keywords: 'queue awaiting assign' },
       { href: '/dispatch/kpi', label: 'KPI Dashboard', icon: BarChart3, keywords: 'metrics stats' },

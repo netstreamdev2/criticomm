@@ -144,8 +144,7 @@ export default async function IncidentDetailPage({
 
   // Lifecycle milestones (ReportsController.IncidentLifecycle)
   const lifecycle = [
-    { label: 'Call received', at: incident.call_timestamp },
-    { label: 'Incident created', at: incident.incident_created_at },
+    { label: 'Call logged', at: incident.incident_created_at ?? incident.call_timestamp },
     { label: 'Unit dispatched', at: incident.dispatch_time },
     { label: 'Assigned', at: incident.assigned_at },
     { label: 'Lead responding · en route', at: incident.accepted_at },

@@ -72,16 +72,16 @@ export function roleWords(role: string | null | undefined): string {
   return ROLE_WORDS[role] ?? role.replace(/([a-z])([A-Z])/g, '$1 $2');
 }
 
-/* ── How long it stands ─────────────────────────────────────────────── */
+/* ── How long it stays on the map ─────────────────────────────────────────────── */
 
 export const END_OPTIONS = [
-  { key: 'none', label: 'Until stood down', hours: null },
-  { key: '1h', label: '1 hour', hours: 1 },
-  { key: '2h', label: '2 hours', hours: 2 },
-  { key: '4h', label: '4 hours', hours: 4 },
-  { key: '8h', label: '8 hours', hours: 8 },
-  { key: '12h', label: '12 hours', hours: 12 },
-  { key: '24h', label: '24 hours', hours: 24 },
+  { key: 'none', label: 'Until someone removes it', hours: null },
+  { key: '1h', label: 'For 1 hour', hours: 1 },
+  { key: '2h', label: 'For 2 hours', hours: 2 },
+  { key: '4h', label: 'For 4 hours', hours: 4 },
+  { key: '8h', label: 'For 8 hours', hours: 8 },
+  { key: '12h', label: 'For 12 hours', hours: 12 },
+  { key: '24h', label: 'For 24 hours', hours: 24 },
   { key: 'custom', label: 'Until a set time…', hours: null },
 ] as const;
 export type EndOption = (typeof END_OPTIONS)[number]['key'];

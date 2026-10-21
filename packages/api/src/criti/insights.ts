@@ -354,7 +354,7 @@ export function computeInsights(input: InsightInput, now: Date = new Date()): In
       const names = long.slice(0, 3).map((c) => c.name).join(', ') + (long.length > 3 ? ` and ${long.length - 3} more` : '');
       push('long_shift', 'crews', 'info', 11,
         long.length === 1 ? `${long[0]!.name} is past ${t.maxShiftHours} hours on duty` : `${long.length} people past ${t.maxShiftHours} hours on duty`,
-        long.length === 1 ? 'Check they are fit to carry on, or stand them down.' : `${names}. Check they are fit to carry on.`,
+        long.length === 1 ? 'Confirm they are fit to continue, or stand them down.' : `${names}. Confirm they are fit to continue.`,
         long[0]!.onDutySince, null, [{ type: 'link', label: "Today's shift", href: '/shift/today' }]);
     }
   }

@@ -51,7 +51,7 @@ type QuickLink = { href: string; label: string; desc: string; icon: string; tone
 
 const LINKS: Record<Persona, QuickLink[]> = {
   command: [
-    { href: '/dispatch/log-call', label: 'Log Incoming Call', desc: 'Capture a new 911 call', icon: 'PhoneCall', tone: 'bg-severity-critical/15 text-severity-critical-ink' },
+    { href: '/dispatch/log-call', label: 'Log Incoming Call', desc: 'Capture new incident', icon: 'PhoneCall', tone: 'bg-severity-critical/15 text-severity-critical-ink' },
     { href: '/dispatch/pending', label: 'Pending Queue', desc: 'Calls awaiting dispatch', icon: 'ListChecks' },
     { href: '/incidents/map', label: 'Live Map', desc: 'Incidents + units in realtime', icon: 'Map' },
     { href: '/dispatch/kpi', label: 'KPI Dashboard', desc: 'Operational metrics', icon: 'BarChart3' },

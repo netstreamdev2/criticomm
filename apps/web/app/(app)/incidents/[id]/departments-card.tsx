@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { Radio } from 'lucide-react';
+import { ChevronDown, Radio } from 'lucide-react';
 import { partOpen, partWords, sortParts, type DepartmentPart } from '@criticom/api';
 import {
   DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, PART_STATUS_ROLES, STATUS_OVERRIDE_STEPS, canDirectDepartment, canFileByRadio, commandsDepartment,
   type Silo, type UserRole,
 } from '@criticom/db';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { formatSaTime } from '@/lib/utils';
 import { StandDown, StatusOverride } from './case-forms';
 import { CloseOnSceneButton } from './radio/close-button';
@@ -17,6 +17,9 @@ const AT_SCENE = ['Arrived', 'On Scene', 'Transporting'];
  * Each department's part of the call (0073): who dispatched it, who leads
  * it, where its crew is, and whether its report is in. Each department acts
  * on its own part only; the database has the final word.
+ *
+ * Folds to one line of department chips; it opens by itself when this person
+ * has something to do in it (dispatch, mark, stand down, file by radio).
  */
 export async function DepartmentsCard({
   incidentId, incidentSilo, parts, role, silo, live, caseClosed = false,
@@ -35,43 +38,53 @@ export async function DepartmentsCard({
   const open = parts.filter((p) => partOpen(p.status)).length;
   // Filed and not yet closed on scene by their lead (0074).
   const toClose = sortParts(parts).filter((p) => p.status === 'Resolved' && !p.closed_at).map((p) => DEPARTMENT_NAMES[p.silo]);
+  const chip = (p: DepartmentPart) => `rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+    p.status === 'Waiting' ? 'border-severity-medium/40 bg-severity-medium/10 text-severity-medium-ink'
+      : p.status === 'Resolved' ? 'border-severity-low/40 bg-severity-low/10 text-severity-low-ink'
+      : !partOpen(p.status) ? 'border-border bg-bg-soft text-muted-foreground'
+      : 'border-accent/40 bg-accent/10 text-accent'
+  }`;
+  const rows = sortParts(parts).map((p) => {
+    const directs = live && canDirectDepartment(role, silo, p.silo);
+    const mayDispatch = directs && DISPATCH_DESK_ROLES.includes(role) && partOpen(p.status) && !p.lead_id;
+    const mayMark = directs && PART_STATUS_ROLES.includes(role) && partOpen(p.status) && p.status !== 'Waiting';
+    const mayStandDown = directs && partOpen(p.status)
+      && (!AT_SCENE.includes(p.status) || commandsDepartment(role, silo, p.silo));
+    const radio = !caseClosed && canFileByRadio(role, silo, p.silo);
+    const mayFileByRadio = radio && partOpen(p.status) && p.status !== 'Waiting' && !p.report_filed_at;
+    const mayCloseForCrew = radio && p.status === 'Resolved' && Boolean(p.report_filed_at) && !p.closed_at;
+    return { p, mayDispatch, mayMark, mayStandDown, mayFileByRadio, mayCloseForCrew };
+  });
+  // Open when there is something here for this person to do.
+  const actionable = rows.some((r) => r.mayDispatch || r.mayMark || r.mayStandDown || r.mayFileByRadio || r.mayCloseForCrew);
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{t('Departments on this call')}</CardTitle>
-        <CardDescription>
-          {open > 0
-            ? `Each department dispatches, works and reports its own part. The call is resolved when all ${parts.length} have finished.`
-            : toClose.length
-              ? `Every department has finished. Still to close on scene: ${toClose.join(', ')}.`
-              : 'Every department has closed.'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="p-0">
+      <details open={actionable} className="group">
+        <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 [&::-webkit-details-marker]:hidden">
+          <h2 className="text-base font-semibold">{t('Departments on this call')}</h2>
+          {/* Folded, each department's status still shows. */}
+          <span className="flex flex-wrap gap-1.5 group-open:hidden">
+            {sortParts(parts).map((p) => (
+              <span key={p.silo} className={chip(p)}>{DEPARTMENT_NAMES[p.silo]} · {partWords(p)}</span>
+            ))}
+          </span>
+          <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden />
+          <p className="hidden w-full text-sm text-muted-foreground group-open:block">
+            {open > 0
+              ? `Each department dispatches, works and reports its own part. The call is resolved when all ${parts.length} have finished.`
+              : toClose.length
+                ? `Every department has finished. Still to close on scene: ${toClose.join(', ')}.`
+                : 'Every department has closed.'}
+          </p>
+        </summary>
+      <CardContent className="border-t border-border p-0">
         <ul className="divide-y divide-border">
-          {sortParts(parts).map((p) => {
-            const directs = live && canDirectDepartment(role, silo, p.silo);
-            const mayDispatch = directs && DISPATCH_DESK_ROLES.includes(role) && partOpen(p.status) && !p.lead_id;
-            const mayMark = directs && PART_STATUS_ROLES.includes(role) && partOpen(p.status) && p.status !== 'Waiting';
-            const mayStandDown = directs && partOpen(p.status)
-              && (!AT_SCENE.includes(p.status) || commandsDepartment(role, silo, p.silo));
-            const finished = !partOpen(p.status);
-            // A crew on the radio (0075): the desk files and closes for them.
-            const radio = !caseClosed && canFileByRadio(role, silo, p.silo);
-            const mayFileByRadio = radio && partOpen(p.status) && p.status !== 'Waiting' && !p.report_filed_at;
-            const mayCloseForCrew = radio && p.status === 'Resolved' && Boolean(p.report_filed_at) && !p.closed_at;
+          {rows.map(({ p, mayDispatch, mayMark, mayStandDown, mayFileByRadio, mayCloseForCrew }) => {
             return (
               <li key={p.silo} className="space-y-2 px-4 py-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-semibold">{DEPARTMENT_NAMES[p.silo]}</p>
-                  <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-                    p.status === 'Waiting' ? 'border-severity-medium/40 bg-severity-medium/10 text-severity-medium-ink'
-                      : p.status === 'Resolved' ? 'border-severity-low/40 bg-severity-low/10 text-severity-low-ink'
-                      : finished ? 'border-border bg-bg-soft text-muted-foreground'
-                      : 'border-accent/40 bg-accent/10 text-accent'
-                  }`}>
-                    {partWords(p)}
-                  </span>
+                  <span className={chip(p)}>{partWords(p)}</span>
                 </div>
                 <dl className="grid gap-x-4 gap-y-1 text-xs text-muted-foreground sm:grid-cols-2">
                   {p.dispatched_at ? (
@@ -118,6 +131,7 @@ export async function DepartmentsCard({
           })}
         </ul>
       </CardContent>
+      </details>
     </Card>
   );
 }

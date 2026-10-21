@@ -62,10 +62,17 @@ const KIND_META: Record<AlertKind, { label: string; icon: typeof Info }> = {
   officer_closed: { label: 'Closed on scene', icon: CheckCircle2 },
 };
 
-type Tab = 'all' | 'unread' | AudienceGroup;
+/** The calls and crews: new calls, dispatches, crews en route, on scene, SOS… */
+const CALL_KINDS = new Set<AlertKind>([
+  'incident_new', 'incident_update', 'assignment', 'dispatch', 'accepted', 'responding', 'resolved', 'reassigned',
+  'backup', 'sos', 'report_filed', 'stood_down', 'stand_down', 'officer_closed',
+]);
+
+type Tab = 'all' | 'unread' | 'calls' | AudienceGroup;
 const TABS: Array<{ key: Tab; label: string }> = [
   { key: 'all', label: 'All' },
   { key: 'unread', label: 'Unread' },
+  { key: 'calls', label: 'Calls' },
   { key: 'mine', label: 'Just me' },
   { key: 'shared', label: 'Shared' },
   { key: 'department', label: 'My department' },
@@ -84,15 +91,18 @@ export function NotificationFeed({ items }: { items: FeedItem[] }) {
 
   const isRead = (i: FeedItem) => i.read || readNow.has(i.id);
   const counts = useMemo(() => {
-    const c: Record<Tab, number> = { all: items.length, unread: 0, mine: 0, shared: 0, department: 0, everyone: 0 };
+    const c: Record<Tab, number> = { all: items.length, unread: 0, calls: 0, mine: 0, shared: 0, department: 0, everyone: 0 };
     for (const i of items) {
       c[i.group] += 1;
       if (!i.read) c.unread += 1;
+      if (CALL_KINDS.has(i.kind)) c.calls += 1;
     }
     return c;
   }, [items]);
 
-  const shown = items.filter((i) => (tab === 'all' ? true : tab === 'unread' ? !isRead(i) : i.group === tab));
+  const shown = items.filter((i) => (
+    tab === 'all' ? true : tab === 'unread' ? !isRead(i) : tab === 'calls' ? CALL_KINDS.has(i.kind) : i.group === tab
+  ));
 
   // Today, Yesterday, then the date.
   const today = dayKey.format(new Date());

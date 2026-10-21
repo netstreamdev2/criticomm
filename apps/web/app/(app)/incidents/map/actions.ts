@@ -92,6 +92,6 @@ export async function endZoneAction(id: string, reason: string): Promise<Result>
     await endMapZone(supabase, id, String(reason ?? '').trim().slice(0, 1000) || null);
     return { ok: true };
   } catch (e) {
-    return failed(e, 'The zone could not be stood down.');
+    return failed(e, 'It could not be removed from the map.');
   }
 }

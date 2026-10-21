@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MapPin, Radio, Siren, Clock } from 'lucide-react';
 import {
-  AUDIENCE_TONE, audienceGroup, audienceLabel, markAlertRead, subscribeAlerts, subscribeIncidentUpdates, subscribeNewIncidents,
-  type Alert,
+  AUDIENCE_TONE, audienceGroup, audienceLabel, isCallFeedAlert, listMyAlerts, markAlertRead, markAlertsRead,
+  subscribeAlerts, subscribeIncidentUpdates, subscribeNewIncidents, type Alert,
 } from '@criticom/api';
 import {
   CALLER_NOT_GIVEN, canAccess, canDismissSos, DISPATCH_DESK_ROLES, detailsToFollow, GLOBAL_ROLES, receivesLiveOperations, type Silo, type UserRole,
@@ -13,6 +13,8 @@ import {
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { useToast, type Severity, type ToastTone } from '@/components/toast';
 import { SosAlert, SosBar } from '@/components/sos-alert';
+import { WhileAway } from '@/components/while-away';
+import { consoleOutOfSight, desktopAlert } from '@/lib/desktop-alert';
 import { cn } from '@/lib/utils';
 import { useT } from '@/components/i18n';
 
@@ -35,6 +37,11 @@ const SEVERITY_RANK: Record<string, number> = { Low: 0, Medium: 1, High: 2, Crit
  * should still be on screen when the dispatcher looks up from the radio.
  */
 const NEW_CALL_HOLD: Record<Severity, number> = { Low: 1.25, Medium: 2, High: 3, Critical: 4 };
+
+/** No mouse or keys for this long and the dispatcher is taken to be away from the desk. */
+const IDLE_MS = 2 * 60_000;
+/** On opening the console, what was missed in this long is shown. */
+const MISSED_WINDOW_MS = 24 * 3_600_000;
 
 /** Admin-tuned behaviour (Admin → Operations Settings), with safe defaults. */
 export type AlertTuning = {
@@ -120,6 +127,67 @@ export function AlertCenter({
   // incident is worth a toast.
   const lastStatus = useRef(new Map<string, string>());
 
+  /* ── While away (0097) ─────────────────────────────────────────────
+   * Every step of the live feed is also kept for the desks. Seen live, it is
+   * marked seen. Arriving while the console is out of sight, or while nobody
+   * has touched it for a while (lunch), it waits, with a desktop alert, and
+   * is shown with a sound when the dispatcher is back. Opening the console
+   * after being away (the computer off) shows what is still unseen. */
+  const [away, setAway] = useState<Alert[]>([]);
+  const waiting = useRef<Alert[]>([]);
+  const lastInput = useRef(Date.now());
+  const outOfSight = useCallback(() => consoleOutOfSight() || Date.now() - lastInput.current > IDLE_MS, []);
+  const showWaiting = useCallback((rows: Alert[]) => {
+    if (!rows.length) return;
+    setAway((cur) => {
+      const have = new Set(cur.map((a) => a.id));
+      return [...rows.filter((a) => !have.has(a.id)), ...cur].sort((a, b) => b.created_at.localeCompare(a.created_at));
+    });
+    const urgent = rows.some((a) => a.kind === 'incident_new' && (a.severity === 'Critical' || a.severity === 'High'));
+    chime(urgent ? 'critical' : 'dispatch');
+  }, [chime]);
+
+  useEffect(() => {
+    if (!onTheFloor) return;
+    const back = () => {
+      if (consoleOutOfSight()) return;
+      lastInput.current = Date.now();
+      const rows = waiting.current;
+      waiting.current = [];
+      showWaiting(rows);
+    };
+    const input = () => {
+      const wasIdle = Date.now() - lastInput.current > IDLE_MS;
+      lastInput.current = Date.now();
+      if (wasIdle || waiting.current.length) back();
+    };
+    const events = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart'] as const;
+    for (const e of events) window.addEventListener(e, input, { passive: true });
+    window.addEventListener('focus', back);
+    document.addEventListener('visibilitychange', back);
+
+    // Opened after time away: what is still unseen.
+    let alive = true;
+    try {
+      void listMyAlerts(getBrowserSupabase(), { limit: 200, unreadOnly: true })
+        .then((rows) => {
+          if (!alive) return;
+          const since = Date.now() - MISSED_WINDOW_MS;
+          const missed = rows.filter((a) => isCallFeedAlert(a) && Date.parse(a.created_at) > since);
+          if (consoleOutOfSight()) waiting.current = [...missed, ...waiting.current];
+          else showWaiting(missed);
+        })
+        .catch(() => {});
+    } catch { /* no live connection: nothing to catch up */ }
+
+    return () => {
+      alive = false;
+      for (const e of events) window.removeEventListener(e, input);
+      window.removeEventListener('focus', back);
+      document.removeEventListener('visibilitychange', back);
+    };
+  }, [onTheFloor, showWaiting]);
+
   const showAlert = useCallback((alert: Alert) => {
     // An officer's SOS (migration 0043) goes to the front of the queue and
     // brings its own siren, whatever the sound setting: a colleague is calling
@@ -176,6 +244,24 @@ export function AlertCenter({
       // Off the floor (the SuperAdmin): what is sent to you or your role, and
       // the organisation's news, never an SOS or a department-wide escalation.
       if (!onTheFloor && (alert.audience === 'department' || alert.kind === 'sos')) return;
+      // A step of the live feed (0097): the live cards below show it to someone
+      // looking; for someone who is not, it waits, and the computer says so.
+      if (isCallFeedAlert(alert)) {
+        if (!onTheFloor) return;
+        if (outOfSight()) {
+          waiting.current = [alert, ...waiting.current.filter((a) => a.id !== alert.id)];
+          desktopAlert({
+            tag: alert.id,
+            title: alert.title,
+            body: alert.body,
+            href: alert.link && canOpenCalls ? alert.link : '/notifications',
+            urgent: alert.kind === 'incident_new' && (alert.severity === 'Critical' || alert.severity === 'High'),
+          });
+        } else {
+          void markAlertRead(sb, alert.id).catch(() => {});
+        }
+        return;
+      }
       showAlert(alert);
     });
 
@@ -267,7 +353,7 @@ export function AlertCenter({
     });
 
     return () => { offAlerts(); offNew(); offUpd(); };
-  }, [scope, userId, push, chime, chimeSeverity, showAlert, isDispatchDesk, toastMs, onTheFloor, forThisDesk, canOpenCalls, callHref]);
+  }, [scope, userId, push, chime, chimeSeverity, showAlert, isDispatchDesk, toastMs, onTheFloor, forThisDesk, canOpenCalls, callHref, outOfSight]);
 
   const current = queue[0];
 
@@ -320,12 +406,26 @@ export function AlertCenter({
     <SosBar alerts={minimized} canDispatch={canDispatch} canDismiss={canDismiss} onExpand={expandSos} onAcknowledge={clearSos} />
   );
 
-  if (!current) return bar;
+  const awayCard = (
+    <WhileAway
+      items={away}
+      canOpenCalls={canOpenCalls}
+      onSeen={() => {
+        const ids = away.map((a) => a.id);
+        setAway([]);
+        void markAlertsRead(getBrowserSupabase(), ids).catch(() => {});
+      }}
+      onLater={() => setAway([])}
+    />
+  );
+
+  if (!current) return <>{bar}{awayCard}</>;
 
   if (current.kind === 'sos') {
     return (
       <>
         {bar}
+        {awayCard}
         <SosAlert
           alert={current}
           waiting={queue.length - 1}
@@ -345,6 +445,7 @@ export function AlertCenter({
   return (
     <>
     {bar}
+    {awayCard}
     <div
       role="alertdialog"
       aria-modal="true"

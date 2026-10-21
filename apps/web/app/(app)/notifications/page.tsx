@@ -4,6 +4,7 @@ import {
 } from '@criticom/api';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { MarkAllRead } from './mark-all-read';
+import { DesktopAlertsButton } from '@/components/while-away';
 import { NotificationFeed, type FeedItem } from './feed';
 import { SendNotificationForm, WithdrawButton, type Person } from './send-form';
 import { canAccess } from '@criticom/db';
@@ -28,7 +29,7 @@ export default async function NotificationsPage() {
   const canOpenCalls = canAccess('/incidents/x', role, silo);
 
   const [alerts, reach, sent, profiles, arrivals] = await Promise.all([
-    listMyAlerts(supabase, { limit: 80 }).catch(() => []),
+    listMyAlerts(supabase, { limit: 200 }).catch(() => []),
     getNotificationReach(supabase).catch(() => NO_REACH),
     listMySentNotifications(supabase).catch(() => []),
     listAllProfiles(supabase).catch(() => []),
@@ -66,7 +67,10 @@ export default async function NotificationsPage() {
           <h1 className="text-2xl font-bold">{t('Notifications')}</h1>
           <p className="text-muted-foreground">{t('For you, your role, your department and everyone.')}</p>
         </div>
-        {unread > 0 ? <MarkAllRead count={unread} /> : null}
+        <div className="flex flex-wrap items-center gap-3">
+          <DesktopAlertsButton />
+          {unread > 0 ? <MarkAllRead count={unread} /> : null}
+        </div>
       </header>
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">

@@ -213,6 +213,9 @@ export function LogCallForm({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [addingDesk, setAddingDesk] = useState(false);
+  // Departments chosen after the call was sent: they receive it only when the
+  // call taker presses Send (or Finish the call), and may be unchosen until then.
+  const [moreDesks, setMoreDesks] = useState<DeskSilo[]>([]);
   const sentRef = useRef<Incident | null>(null);
   const savedRef = useRef<CompleteCallIntakeInput>({});
   const saving = useRef<Promise<void> | null>(null);
@@ -384,7 +387,7 @@ export function LogCallForm({
     if (targetsTouched || sent) return;
     if (critiDesks.join() !== targets.join()) setTargets(critiDesks);
   }, [critiDesks, targets, targetsTouched, sent]);
-  const suggestAdd = critiDesks.filter((d) => !targets.includes(d));
+  const suggestAdd = critiDesks.filter((d) => !targets.includes(d) && !moreDesks.includes(d));
 
   // The type's sentence, filled in from the answers; the description until the call taker types.
   const draft = useMemo(
@@ -690,34 +693,54 @@ export function LogCallForm({
     });
   };
 
-  const addDesks = (ds: DeskSilo[]) => {
+  /** Send the call to more departments, once the call taker has pressed Send. True when they have it. */
+  const addDesks = async (ds: DeskSilo[]): Promise<boolean> => {
     const incident = sentRef.current;
     const fresh = ds.filter((d) => !sentTags.includes(d));
-    if (!incident || fresh.length === 0 || addingDesk) return;
+    if (!incident || fresh.length === 0) return true;
+    if (addingDesk) return false;
     setAddingDesk(true);
-    void tagIncidentDepartments(getBrowserSupabase(), { incident_id: incident.id, silos: fresh })
-      .then(() => {
-        setSentTags((cur) => inDeptOrder([...cur, ...fresh]));
-        setTargets((cur) => inDeptOrder([...cur, ...fresh]));
-        toast.push({ title: t('Sent to {desks}', { desks: deskList(fresh, t) }), body: t('{number} is on their dispatch desk now.', { number: incident.incident_number }), tone: 'success' });
-      }, (e: Error) => setError(e.message))
-      .finally(() => setAddingDesk(false));
+    try {
+      await tagIncidentDepartments(getBrowserSupabase(), { incident_id: incident.id, silos: fresh });
+      setSentTags((cur) => inDeptOrder([...cur, ...fresh]));
+      setTargets((cur) => inDeptOrder([...cur, ...fresh]));
+      setMoreDesks((cur) => cur.filter((d) => !fresh.includes(d)));
+      toast.push({ title: t('Sent to {desks}', { desks: deskList(fresh, t) }), body: t('{number} is on their dispatch desk now.', { number: incident.incident_number }), tone: 'success' });
+      return true;
+    } catch (e) {
+      setError((e as Error).message);
+      return false;
+    } finally {
+      setAddingDesk(false);
+    }
   };
 
   const toggleTarget = (id: DeskSilo) => {
-    if (sent) { addDesks([id]); return; }
+    // Sent already: choose (or unchoose) another department; nothing goes until Send.
+    if (sent) {
+      if (sentTags.includes(id)) return;
+      setMoreDesks((cur) => (cur.includes(id) ? cur.filter((s) => s !== id) : inDeptOrder([...cur, id])));
+      return;
+    }
     setTargetsTouched(true);
     setTargets((cur) => (cur.includes(id) ? cur.filter((s) => s !== id) : inDeptOrder([...cur, id])));
   };
   const addSuggested = (d: DeskSilo) => {
-    if (sent) { addDesks([d]); return; }
+    if (sent) { setMoreDesks((cur) => (cur.includes(d) ? cur : inDeptOrder([...cur, d]))); return; }
     setTargetsTouched(true);
     setTargets((cur) => inDeptOrder([...cur, d]));
   };
   const broadcastAll = () => {
     setSeverity('Critical');
     mark('severity', 'you');
-    if (sent) { addDesks(DEPTS.map((d) => d.id)); return; }
+    if (sent) {
+      const rest = DEPTS.map((d) => d.id).filter((d) => !sentTags.includes(d));
+      setMoreDesks(rest);
+      if (rest.length) {
+        toast.push({ title: t('Broadcast armed'), body: t('Press Send to send it to {desks}.', { desks: deskList(rest, t) }), tone: 'critical', duration: 5000 });
+      }
+      return;
+    }
     setTargetsTouched(true);
     setTargets(DEPTS.map((d) => d.id));
     if (canRoute) setDispatchNow(true);
@@ -866,6 +889,8 @@ export function LogCallForm({
       setDescOpen(true);
       return setError(t('In the description, say whether the caller is the patient.'));
     }
+    // Departments chosen since it was sent go with the finish.
+    if (moreDesks.length && !(await addDesks(moreDesks))) return;
     const ok = await flush(true);
     if (!ok) {
       setError(t('Some details were not added. Fix them, or open the call and add them there.'));
@@ -1416,7 +1441,7 @@ export function LogCallForm({
                 <Radio className="h-4 w-4 text-accent" /> {t('Send to dispatch')}
                 <span className="ml-auto text-xs font-normal text-muted-foreground">
                   {sent
-                    ? t('Sent. Add a department if it is needed.')
+                    ? t('Sent to {desks}. Choose another department if needed, then press Send.', { desks: deskList(sentTags, t) })
                     : targets.length === 0
                       ? t('Choose at least one department')
                       : !targetsTouched ? t('Suggested by Criti: change if needed') : t('{n} selected', { n: targets.length })}
@@ -1425,8 +1450,10 @@ export function LogCallForm({
 
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {DEPTS.map((d) => {
-                  const active = targets.includes(d.id);
                   const locked = Boolean(sent) && sentTags.includes(d.id);
+                  // Chosen since the call was sent: not sent yet, and may be unchosen.
+                  const chosen = Boolean(sent) && moreDesks.includes(d.id);
+                  const active = sent ? locked || chosen : targets.includes(d.id);
                   const Icon = d.icon;
                   return (
                     <button
@@ -1435,16 +1462,18 @@ export function LogCallForm({
                       onClick={() => toggleTarget(d.id)}
                       disabled={locked || addingDesk}
                       aria-pressed={active}
-                      title={locked ? t('Already sent') : sent ? t('Send to {desk} too', { desk: deptLabel(d.id, t) }) : undefined}
+                      title={locked ? t('Already sent') : chosen ? t('Not sent yet. Press Send, or click again to remove it.') : sent ? t('Choose {desk} too', { desk: deptLabel(d.id, t) }) : undefined}
                       className={cn(
                         'inline-flex h-11 items-center justify-center gap-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all',
-                        active
+                        chosen
+                          ? `${d.solid} outline-dashed outline-2 outline-offset-2 outline-fg/60`
+                          : active
                           ? `${d.solid} ring-2 ring-fg/40 ring-offset-2 ring-offset-bg-card`
                           : 'border border-border bg-bg text-muted-foreground hover:border-accent/40 hover:text-fg',
                         locked && 'cursor-default opacity-90',
                       )}
                     >
-                      {sent && !locked ? <Plus className="h-4 w-4" /> : <Icon className="h-4 w-4" />} {deptLabel(d.id, t)}
+                      {locked ? <CheckCircle2 className="h-4 w-4" /> : sent && !chosen ? <Plus className="h-4 w-4" /> : <Icon className="h-4 w-4" />} {deptLabel(d.id, t)}
                     </button>
                   );
                 })}
@@ -1458,6 +1487,20 @@ export function LogCallForm({
               >
                 <Megaphone className="h-4 w-4" /> {t('Broadcast all (emergency)')}
               </button>
+
+              {sent && moreDesks.length ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-3 py-2">
+                  <p className="min-w-0 flex-1 text-xs font-semibold">{t('Not sent yet: {desks}', { desks: deskList(moreDesks, t) })}</p>
+                  <button
+                    type="button"
+                    onClick={() => void addDesks(moreDesks)}
+                    disabled={addingDesk}
+                    className="inline-flex h-9 items-center gap-1.5 rounded-md bg-accent px-3 text-xs font-bold uppercase tracking-wider disabled:opacity-60"
+                  >
+                    {addingDesk ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} {t('Send to {desks}', { desks: deskList(moreDesks, t) })}
+                  </button>
+                </div>
+              ) : null}
 
               {canRoute && !sent ? (
                 <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-sm">
@@ -1507,7 +1550,7 @@ export function LogCallForm({
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-accent text-sm font-bold uppercase tracking-wider transition-transform hover:scale-[1.01] disabled:opacity-60"
               >
                 {sent
-                  ? (saveState === 'saving' ? <><Loader2 className="h-4 w-4 animate-spin" /> {t('Adding…')}</> : <><CheckCircle2 className="h-4 w-4" /> {t('Finish the call')}</>)
+                  ? (saveState === 'saving' ? <><Loader2 className="h-4 w-4 animate-spin" /> {t('Adding…')}</> : <><CheckCircle2 className="h-4 w-4" /> {moreDesks.length ? t('Finish and send to {desks}', { desks: deskList(moreDesks, t) }) : t('Finish the call')}</>)
                   : pending
                     ? <><Loader2 className="h-4 w-4 animate-spin" /> {canRoute && dispatchNow ? t('Dispatching…') : t('Sending…')}</>
                     : canRoute && dispatchNow

@@ -303,7 +303,7 @@ export function EmsShift({ gated = false }: { gated?: boolean }) {
           <View style={styles.grid}>
             {EMS_VEHICLE_CHECKS.map(([key, label]) => <View key={key} style={[styles.full, cell]}><FireCheck label={label} value={answers[key]} onChange={(value) => setAnswers((a) => ({ ...a, [key]: value }))} disabled={busy} invalid={invalid} /></View>)}
           </View>
-          {failed.length ? <Text style={styles.warning}>{t('A failed vehicle check takes the ambulance off the road when you file. Carry on to the stock check and describe the fault there.')}</Text> : null}
+          {failed.length ? <Text style={styles.warning}>{t('A failed vehicle check takes the ambulance off the road when you file. Continue to the stock check and describe the fault there.')}</Text> : null}
           <FireButton label={t('Next: stock check')} onPress={toStock} busy={busy} />
         </View> : null}
 

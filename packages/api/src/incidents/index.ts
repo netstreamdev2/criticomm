@@ -502,10 +502,37 @@ export async function listPendingIncidents(client: CriticomClient, silo?: Silo) 
 const PENDING_RANK: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 
 export type QueueSort = 'newest' | 'oldest' | 'severity';
+
+/** Where a waiting call stands, for the queue's Status filter. */
+export type QueueStage = 'waiting' | 'partly' | 'details' | 'sos';
+export const QUEUE_STAGES: Array<[QueueStage, string]> = [
+  ['waiting', 'Nobody sent yet'],
+  ['partly', 'Some desks have sent crews'],
+  ['details', 'Details to follow'],
+  ['sos', 'Officer SOS'],
+];
+
+/** Whether a waiting call is at that stage: no crew sent yet, some desks already sent, sent early, or an officer's SOS. */
+export function atQueueStage(row: IncidentWithParts, stage: QueueStage): boolean {
+  const sent = (row.departments ?? []).some((d) => d.status !== 'Waiting');
+  if (stage === 'waiting') return !sent;
+  if (stage === 'partly') return sent;
+  if (stage === 'details') return row.intake_complete === false;
+  return row.source === 'Responder-Panic';
+}
+
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+
 export type QueueFilters = {
   q?: string | null;
   severity?: string | null;
   region?: string | null;
+  /** The call's classification: Crime, Medical, Fire, Disaster, Traffic, Public Order. */
+  category?: string | null;
+  stage?: string | null;
+  /** Logged from / to (YYYY-MM-DD, South African days). */
+  from?: string | null;
+  to?: string | null;
   /**
    * The desk whose queue it is: the calls waiting for that department.
    * 'Ethekwini' is calls logged by the control room.
@@ -532,13 +559,19 @@ export async function listQueue(client: CriticomClient, f: QueueFilters = {}) {
       q = q.or([
         `incident_number.ilike.%${term}%`, `caller_name.ilike.%${term}%`, `caller_number.ilike.%${term}%`,
         `location_address.ilike.%${term}%`, `incident_type.ilike.%${term}%`, `suburb.ilike.%${term}%`,
+        `call_description.ilike.%${term}%`,
       ].join(','));
     }
     if (severity) q = q.eq('incident_severity', severity);
     if (f.region) q = q.eq('region', f.region);
+    if (f.category) q = q.eq('incident_category', f.category);
+    if (f.from && DAY.test(f.from)) q = q.gte('call_timestamp', `${f.from}T00:00:00+02:00`);
+    if (f.to && DAY.test(f.to)) q = q.lte('call_timestamp', `${f.to}T23:59:59.999+02:00`);
     return q as Q;
   };
-  const rows = await waitingCalls(client, (f.department as Silo | null) ?? null, narrow, sort === 'oldest');
+  const stage = QUEUE_STAGES.find(([s]) => s === f.stage)?.[0] ?? null;
+  const all = await waitingCalls(client, (f.department as Silo | null) ?? null, narrow, sort === 'oldest');
+  const rows = stage ? all.filter((r) => atQueueStage(r, stage)) : all;
   if (sort !== 'severity') return rows;
   // A stable sort: newest first within each severity, as the query ordered them.
   return [...rows].sort((a, b) => (PENDING_RANK[a.incident_severity] ?? 9) - (PENDING_RANK[b.incident_severity] ?? 9));

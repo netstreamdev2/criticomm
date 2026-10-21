@@ -20,7 +20,7 @@ export function UnfinishedCalls({ calls, userId }: { calls: UnfinishedCall[]; us
         <AlertTriangle className="h-4 w-4 text-severity-medium-ink" aria-hidden />
         {calls.length === 1 ? t('1 call sent early still needs its details') : t('{n} calls sent early still need their details', { n: calls.length })}
       </p>
-      <p className="mt-1 text-xs text-muted-foreground">{t('Dispatch already has them. Carry on to add what is missing; each change goes to the call.')}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{t('Dispatch has already received these calls. Continue logging to add the missing details; each change is added to the call.')}</p>
       <ul className="mt-3 space-y-1.5">
         {calls.map((c) => (
           <li key={c.id}>
@@ -34,7 +34,7 @@ export function UnfinishedCalls({ calls, userId }: { calls: UnfinishedCall[]; us
               <span className="text-xs text-muted-foreground">
                 {c.created_by === userId ? t('You, {ago}', { ago: timeAgo(c.incident_created_at) }) : `${c.call_taken_by ?? t('Another call taker')}, ${timeAgo(c.incident_created_at)}`}
               </span>
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent">{t('Carry on')} <ArrowRight className="h-3.5 w-3.5" aria-hidden /></span>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent">{t('Continue logging')} <ArrowRight className="h-3.5 w-3.5" aria-hidden /></span>
             </Link>
           </li>
         ))}

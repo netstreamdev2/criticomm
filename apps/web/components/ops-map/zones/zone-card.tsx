@@ -19,7 +19,7 @@ import { useT } from '@/components/i18n';
  * control room or the department's commander can change or stand it down.
  */
 
-const ACTION_WORDS: Record<MapZoneEvent['action'], string> = { created: 'Set', edited: 'Changed', ended: 'Stood down' };
+const ACTION_WORDS: Record<MapZoneEvent['action'], string> = { created: 'Set', edited: 'Changed', ended: 'Removed' };
 
 export function ZoneCard({
   zone, me, deptName, onClose, onEdit, onEnded,
@@ -123,8 +123,8 @@ export function ZoneCard({
           </div>
         )}
         <div>
-          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('Stands until')}</dt>
-          <dd>{zone.active_until ? `${formatSaTime(zone.active_until)}` : 'Stood down by hand'}</dd>
+          <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('Stays on the map until')}</dt>
+          <dd>{zone.active_until ? `${formatSaTime(zone.active_until)}` : t('Someone removes it')}</dd>
         </div>
         <div>
           <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('Measurements')}</dt>
@@ -172,13 +172,13 @@ export function ZoneCard({
                 <Pencil className="h-4 w-4" /> {mine && zone.visibility === 'private' ? 'Edit or share' : 'Change'}
               </button>
               <button type="button" onClick={() => setEnding(true)} className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-500/20 px-3 py-1.5 text-sm font-semibold text-red-200 hover:bg-red-500/30">
-                <ShieldOff className="h-4 w-4" /> {' '}{t('Stand down')}</button>
+                <ShieldOff className="h-4 w-4" /> {' '}{t('Remove from map')}</button>
             </div>
           ) : (
             <div className="space-y-2">
               <label className="block">
                 <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                  {t('Why is it being stood down?')}</span>
+                  {t('Why are you removing it?')}</span>
                 <textarea
                   value={endReason}
                   onChange={(e) => setEndReason(e.target.value)}
@@ -196,7 +196,7 @@ export function ZoneCard({
                   disabled={busy}
                   className={cn('flex-1 rounded-lg bg-red-500 px-3 py-1.5 text-sm font-bold text-white hover:bg-red-400', busy && 'opacity-60')}
                 >
-                  {busy ? 'Standing down…' : 'Confirm stand down'}
+                  {busy ? t('Removing…') : t('Yes, remove it')}
                 </button>
                 <button type="button" onClick={() => { setEnding(false); setError(null); }} className="rounded-lg border border-white/15 px-3 py-1.5 text-sm font-semibold hover:bg-white/10">
                   {t('Keep it')}</button>

@@ -173,7 +173,7 @@ export async function markAlertRead(
 export async function markAllAlertsRead(client: CriticomClient) {
   const { data: { user } } = await client.auth.getUser();
   if (!user) return 0;
-  const unread = await listMyAlerts(client, { limit: 100, unreadOnly: true });
+  const unread = await listMyAlerts(client, { limit: 500, unreadOnly: true });
   if (unread.length === 0) return 0;
   const now = new Date().toISOString();
   const { error } = await client.from('alert_reads').upsert(
@@ -182,6 +182,27 @@ export async function markAllAlertsRead(client: CriticomClient) {
   );
   if (error) throw error;
   return unread.length;
+}
+
+/** Mark these as read (seen), in one go. */
+export async function markAlertsRead(client: CriticomClient, alertIds: string[]) {
+  const { data: { user } } = await client.auth.getUser();
+  if (!user || alertIds.length === 0) return;
+  const now = new Date().toISOString();
+  const { error } = await client.from('alert_reads').upsert(
+    alertIds.map((id) => ({ alert_id: id, user_id: user.id, read_at: now, acknowledged: false })),
+    { onConflict: 'alert_id,user_id' },
+  );
+  if (error) throw error;
+}
+
+/**
+ * A step of the live operations feed kept for the dispatch desks (0097): a new
+ * call, or a crew dispatched, en route, on scene… Written by the database for
+ * a role, never by a person.
+ */
+export function isCallFeedAlert(a: Pick<Alert, 'kind' | 'audience' | 'created_by'>): boolean {
+  return a.audience === 'role' && !a.created_by && (a.kind === 'incident_new' || a.kind === 'incident_update');
 }
 
 /* ── Realtime ───────────────────────────────────────────────────────── */

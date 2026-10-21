@@ -64,7 +64,7 @@ export function ZoneNotifier({ userId, role, soundEnabled, toastSeconds }: {
           tone: 'info',
         },
         ended: {
-          title: `Stood down — ${kind.label}: ${z.name}`,
+          title: `Removed from the map — ${kind.label}: ${z.name}`,
           body: `By ${z.ended_by_name ?? 'someone'}${z.end_reason ? ` — ${z.end_reason}` : ''}`,
           tone: 'success',
         },

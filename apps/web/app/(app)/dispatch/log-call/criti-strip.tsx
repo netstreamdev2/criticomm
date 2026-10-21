@@ -6,6 +6,7 @@ import type { DeskSilo, IncidentSeverity, MedPriority } from '@criticom/db';
 import type { Translate } from '@criticom/db/i18n';
 import { Modal } from '@/components/ui/modal';
 import { CritiMascot } from '@/components/criti/mascot';
+import { FoldButton, useFolded } from '@/components/criti/shared';
 import { useT } from '@/components/i18n';
 import { cn } from '@/lib/utils';
 import { DeptDots, aiStatus, deptName, deskList, severityWord, type AiState } from './intake-ui';
@@ -57,6 +58,7 @@ export function CritiStrip({
 }) {
   const { t } = useT();
   const [all, setAll] = useState(false);
+  const [folded, setFolded] = useFolded('call');
   const still = missing.map((m) => missingWord(m, t));
 
   const lines: Line[] = [];
@@ -115,17 +117,32 @@ export function CritiStrip({
     lines.push({ key: 'missing', dot: 'bg-severity-medium', icon: ListChecks, text: <><span className="text-white/60">{t('Still needed:')} </span>{still.slice(0, 4).join(', ')}{still.length > 4 ? ` +${still.length - 4}` : ''}</> });
   }
 
+  const top = lines[0];
+
   return (
-    <section aria-label={t('Criti on this call')} aria-live="polite" className="overflow-hidden rounded-lg border border-white/10 bg-slate-950/90 text-white shadow-sm">
-      <div className="flex items-center gap-2 px-3 py-1.5">
+    <section aria-label={t('Criti on this call')} aria-live="polite" className="overflow-hidden rounded-lg border border-white/15 bg-slate-950/45 text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.08),0_10px_28px_-16px_rgb(0_0_0/0.55)] backdrop-blur-xl backdrop-saturate-150">
+      <div className="flex min-h-8 items-center gap-2 px-3 py-1">
         {aiState === 'reading' ? <Loader2 className="h-3.5 w-3.5 animate-spin text-sky-400" /> : <CritiMascot className="h-5 w-5" />}
         <span className="text-[11px] font-bold uppercase tracking-wider text-white/70">Criti</span>
-        <span className="truncate text-[11px] text-white/60">{aiStatus(aiState, t)}</span>
-        <button type="button" onClick={() => setAll(true)} className="ml-auto shrink-0 text-[11px] font-semibold text-sky-300 hover:underline">
+        {folded && top ? (
+          // Folded: the most urgent line still shows, with its button (sending early never hides).
+          <>
+            <span className={cn('h-2 w-2 shrink-0 rounded-full', top.dot)} />
+            <p className="min-w-0 flex-1 truncate text-xs">
+              {top.text}
+              {lines.length > 1 ? <span className="text-white/50"> · {t('+{n} more', { n: lines.length - 1 })}</span> : null}
+            </p>
+            {top.action ?? null}
+          </>
+        ) : (
+          <span className="min-w-0 flex-1 truncate text-[11px] text-white/60">{aiStatus(aiState, t)}</span>
+        )}
+        <button type="button" onClick={() => setAll(true)} className="shrink-0 text-[11px] font-semibold text-sky-300 hover:underline">
           {t('View all')}
         </button>
+        <FoldButton folded={folded} onToggle={() => setFolded(!folded)} openLabel={t('Show more')} foldLabel={t('Show less')} />
       </div>
-      {lines.length === 0 ? (
+      {folded ? null : lines.length === 0 ? (
         <p className="border-t border-white/10 px-3 py-2 text-xs text-white/60">{t('Choose the incident type to see what to ask and who to send.')}</p>
       ) : lines.slice(0, SHOWN).map((l) => {
         const Icon = l.icon;

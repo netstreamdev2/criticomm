@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { CallDraft, Proposal } from '@criticom/api';
 import { cn } from '@/lib/utils';
 import { readable } from '@/lib/readable';
@@ -18,6 +20,45 @@ export const COUNT_EVENT = 'criti:urgent';
 const CALL_DRAFT_KEY = 'criti:call-draft';
 
 export type DockTab = 'chat' | 'suggestions';
+
+/**
+ * Criti's strips fold to one thin line (the most urgent item still shows) and
+ * open again with one click. Folded unless this person opened it; their
+ * choice is kept in this browser.
+ */
+export function useFolded(where: 'page' | 'call'): [boolean, (folded: boolean) => void] {
+  const key = `criti:folded:${where}`;
+  const [folded, setFolded] = useState(true);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved !== null) setFolded(saved === '1');
+    } catch { /* private mode: folded */ }
+  }, [key]);
+  const set = (next: boolean) => {
+    setFolded(next);
+    try { localStorage.setItem(key, next ? '1' : '0'); } catch { /* kept until reload */ }
+  };
+  return [folded, set];
+}
+
+/** The arrow that folds or opens a Criti strip. */
+export function FoldButton({ folded, onToggle, openLabel, foldLabel }: {
+  folded: boolean;
+  onToggle: () => void;
+  openLabel: string;
+  foldLabel: string;
+}) {
+  const label = folded ? openLabel : foldLabel;
+  return (
+    <button
+      type="button" onClick={onToggle} aria-expanded={!folded} aria-label={label} title={label}
+      className="shrink-0 rounded p-0.5 text-white/60 hover:bg-white/10 hover:text-white"
+    >
+      {folded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+    </button>
+  );
+}
 
 /** Open Criti's dock, on a tab. */
 export function openCriti(tab: DockTab = 'chat') {

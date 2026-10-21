@@ -321,9 +321,9 @@ export function ZoneEditor({
 
         <div>
           <label className="block">
-            <span className={caption}>{t('Stands until')}</span>
+            <span className={caption}>{t('Stays on the map')}</span>
             <select value={end} onChange={(e) => setEnd(e.target.value as EndOption)} className={field}>
-              {END_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+              {END_OPTIONS.map((o) => <option key={o.key} value={o.key}>{t(o.label)}</option>)}
             </select>
           </label>
           {end === 'custom' && (

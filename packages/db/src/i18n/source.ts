@@ -437,7 +437,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "+{n} more",
   "context": null,
   "where": [
-   "apps/mobile/components/service-home.tsx"
+   "apps/mobile/components/service-home.tsx",
+   "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
+   "apps/web/components/criti/insight-tiles.tsx"
   ]
  },
  {
@@ -800,6 +802,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/sync-tray.tsx"
+  ]
+ },
+ {
+  "key": "1 call",
+  "text": "1 call",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
   ]
  },
  {
@@ -1544,8 +1554,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "A failed vehicle check takes the ambulance off the road when you file. Carry on to the stock check and describe the fault there.",
-  "text": "A failed vehicle check takes the ambulance off the road when you file. Carry on to the stock check and describe the fault there.",
+  "key": "A failed vehicle check takes the ambulance off the road when you file. Continue to the stock check and describe the fault there.",
+  "text": "A failed vehicle check takes the ambulance off the road when you file. Continue to the stock check and describe the fault there.",
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
@@ -3136,6 +3146,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "All classifications",
+  "text": "All classifications",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
+  ]
+ },
+ {
   "key": "All departments",
   "text": "All departments",
   "context": null,
@@ -3365,6 +3383,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "All statuses",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
    "apps/web/app/(app)/police/fines/page.tsx"
   ]
  },
@@ -3502,6 +3521,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/shift-documents.tsx"
+  ]
+ },
+ {
+  "key": "Allow desktop alerts",
+  "text": "Allow desktop alerts",
+  "context": null,
+  "where": [
+   "apps/web/components/while-away.tsx"
+  ]
+ },
+ {
+  "key": "Allow desktop alerts, so new calls show on this computer even when this window is not in front.",
+  "text": "Allow desktop alerts, so new calls show on this computer even when this window is not in front.",
+  "context": null,
+  "where": [
+   "apps/web/components/while-away.tsx"
   ]
  },
  {
@@ -7451,14 +7486,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Carry on",
-  "text": "Carry on",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
-  ]
- },
- {
   "key": "Case Audit Trail",
   "text": "Case Audit Trail",
   "context": null,
@@ -8676,6 +8703,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Choose {desk} too",
+  "text": "Choose {desk} too",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
   "key": "Choose…",
   "text": "Choose…",
   "context": null,
@@ -9079,7 +9114,8 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/components/sidebar.tsx",
    "apps/web/components/sos-dismiss.tsx",
    "apps/web/components/theme-picker.tsx",
-   "apps/web/components/ui/modal.tsx"
+   "apps/web/components/ui/modal.tsx",
+   "apps/web/components/while-away.tsx"
   ]
  },
  {
@@ -10026,6 +10062,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/activate.tsx",
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "Continue logging",
+  "text": "Continue logging",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
   ]
  },
  {
@@ -12040,6 +12084,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Desktop alerts are blocked in this browser’s settings.",
+  "text": "Desktop alerts are blocked in this browser’s settings.",
+  "context": null,
+  "where": [
+   "apps/web/components/while-away.tsx"
+  ]
+ },
+ {
+  "key": "Desktop alerts are on",
+  "text": "Desktop alerts are on",
+  "context": null,
+  "where": [
+   "apps/web/components/while-away.tsx"
+  ]
+ },
+ {
   "key": "Destination",
   "text": "Destination",
   "context": null,
@@ -12489,14 +12549,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Dispatch already has them. Carry on to add what is missing; each change goes to the call.",
-  "text": "Dispatch already has them. Carry on to add what is missing; each change goes to the call.",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
-  ]
- },
- {
   "key": "Dispatch and command have been alerted ({number}) and will send help. Stay on the radio.",
   "text": "Dispatch and command have been alerted ({number}) and will send help. Stay on the radio.",
   "context": null,
@@ -12526,6 +12578,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/lib/tracker.ts"
+  ]
+ },
+ {
+  "key": "Dispatch has already received these calls. Continue logging to add the missing details; each change is added to the call.",
+  "text": "Dispatch has already received these calls. Continue logging to add the missing details; each change is added to the call.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/unfinished-calls.tsx"
   ]
  },
  {
@@ -15594,6 +15654,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Finish and send to {desks}",
+  "text": "Finish and send to {desks}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
   "key": "Finish the call",
   "text": "Finish the call",
   "context": null,
@@ -16507,6 +16575,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/leave.tsx",
    "apps/web/app/(app)/cameras/footage/footage-browser.tsx",
    "apps/web/app/(app)/dispatch/log-history/page.tsx",
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
    "apps/web/app/(app)/medical/handovers/page.tsx",
    "apps/web/app/(app)/medical/pcr/page.tsx",
    "apps/web/app/(app)/modules/leave/page.tsx",
@@ -22590,6 +22659,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Logging cannot be continued for this call",
+  "text": "Logging cannot be continued for this call",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/page.tsx"
+  ]
+ },
+ {
   "key": "Login",
   "text": "Login",
   "context": null,
@@ -23062,6 +23139,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/staff/register-table.tsx"
+  ]
+ },
+ {
+  "key": "Mark as seen",
+  "text": "Mark as seen",
+  "context": null,
+  "where": [
+   "apps/web/components/while-away.tsx"
   ]
  },
  {
@@ -27119,6 +27204,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Not sent yet. Press Send, or click again to remove it.",
+  "text": "Not sent yet. Press Send, or click again to remove it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Not sent yet: {desks}",
+  "text": "Not sent yet: {desks}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
   "key": "Not set yet.",
   "text": "Not set yet.",
   "context": null,
@@ -28845,6 +28946,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "Open notifications",
+  "text": "Open notifications",
+  "context": null,
+  "where": [
+   "apps/web/components/while-away.tsx"
   ]
  },
  {
@@ -31105,6 +31214,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Press Send to send it to {desks}.",
+  "text": "Press Send to send it to {desks}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
   "key": "Press and hold for two and a half seconds to alert your department and the control room",
   "text": "Press and hold for two and a half seconds to alert your department and the control room",
   "context": null,
@@ -32448,7 +32565,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Received",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dispatch/pending/page.tsx",
    "apps/web/app/(app)/police/armoury/armoury-table.tsx",
    "apps/web/app/(app)/police/bodycams/bodycam-table.tsx"
   ]
@@ -32766,6 +32882,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Refresh",
+  "text": "Refresh",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
+  ]
+ },
+ {
   "key": "Refresh available ambulances",
   "text": "Refresh available ambulances",
   "context": null,
@@ -32849,7 +32973,6 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
-   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
    "apps/web/app/(app)/modules/staff/page.tsx",
    "apps/web/app/(app)/performance/operational/page.tsx",
    "apps/web/app/(app)/report-hub/page.tsx",
@@ -33080,6 +33203,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Remove from map",
+  "text": "Remove from map",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
   "key": "Remove measure",
   "text": "Remove measure",
   "context": null,
@@ -33150,6 +33281,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "Removed by {value} · {saTime}{value2}",
+  "text": "Removed by {value} · {saTime}{value2}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/zones-card.tsx"
+  ]
+ },
+ {
+  "key": "Removing…",
+  "text": "Removing…",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
   ]
  },
  {
@@ -35841,8 +35988,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Search incident #, caller, phone, address, type",
-  "text": "Search incident #, caller, phone, address, type",
+  "key": "Search incident #, caller, phone, address, type or description",
+  "text": "Search incident #, caller, phone, address, type or description",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
@@ -36661,8 +36808,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Send to {desk} too",
-  "text": "Send to {desk} too",
+  "key": "Send to {desks}",
+  "text": "Send to {desks}",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
@@ -36745,15 +36892,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Sent to",
-  "text": "Sent to",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/pending/page.tsx",
-   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
-  ]
- },
- {
   "key": "Sent to all on duty — the first to respond leads",
   "text": "Sent to all on duty — the first to respond leads",
   "context": null,
@@ -36826,6 +36964,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Sent to {desks}. Choose another department if needed, then press Send.",
+  "text": "Sent to {desks}. Choose another department if needed, then press Send.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
   "key": "Sent to {desks}. Keep filling in: details follow.",
   "text": "Sent to {desks}. Keep filling in: details follow.",
   "context": null,
@@ -36839,14 +36985,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/notifications/send-form.tsx"
-  ]
- },
- {
-  "key": "Sent. Add a department if it is needed.",
-  "text": "Sent. Add a department if it is needed.",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
   ]
  },
  {
@@ -37178,7 +37316,6 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
    "apps/web/app/(app)/dispatch/log-history/page.tsx",
    "apps/web/app/(app)/dispatch/pending/page.tsx",
-   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
    "apps/web/app/(app)/police/security/new/page.tsx",
    "packages/db/src/intake.ts"
   ]
@@ -37525,6 +37662,24 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "Show less",
+  "text": "Show less",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
+   "apps/web/components/criti/insight-tiles.tsx"
+  ]
+ },
+ {
+  "key": "Show more",
+  "text": "Show more",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
+   "apps/web/components/criti/insight-tiles.tsx"
   ]
  },
  {
@@ -38249,6 +38404,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Someone removes it",
+  "text": "Someone removes it",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
   "key": "Someone with an account is not invited again: change their role on their account page. Not in the staff register?",
   "text": "Someone with an account is not invited again: change their role on their account page. Not in the staff register?",
   "context": null,
@@ -38572,23 +38735,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Stand down",
-  "text": "Stand down",
-  "context": null,
-  "where": [
-   "apps/web/components/ops-map/zones/zone-card.tsx"
-  ]
- },
- {
-  "key": "Stands until",
-  "text": "Stands until",
-  "context": null,
-  "where": [
-   "apps/web/components/ops-map/zones/zone-card.tsx",
-   "apps/web/components/ops-map/zones/zone-editor.tsx"
-  ]
- },
- {
   "key": "Start",
   "text": "Start",
   "context": null,
@@ -38869,6 +39015,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/admin/radios/radio-form.tsx",
    "apps/web/app/(app)/admin/tenants/page.tsx",
    "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/app/(app)/dispatch/pending/page.tsx",
    "apps/web/app/(app)/incidents/page.tsx",
    "apps/web/app/(app)/modules/duty-maintenance/page.tsx",
    "apps/web/app/(app)/modules/leave/page.tsx",
@@ -38935,6 +39082,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
+  "key": "Stays on the map",
+  "text": "Stays on the map",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-editor.tsx"
+  ]
+ },
+ {
+  "key": "Stays on the map until",
+  "text": "Stays on the map until",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
   ]
  },
  {
@@ -39090,14 +39253,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
-  ]
- },
- {
-  "key": "Stood down by {value} · {saTime}{value2}",
-  "text": "Stood down by {value} · {saTime}{value2}",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/incidents/[id]/zones-card.tsx"
   ]
  },
  {
@@ -41202,14 +41357,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "This call cannot be carried on here",
-  "text": "This call cannot be carried on here",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/log-call/page.tsx"
-  ]
- },
- {
   "key": "This cannot be undone. Press again to go ahead.",
   "text": "This cannot be undone. Press again to go ahead.",
   "context": null,
@@ -41537,6 +41684,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Time logged",
+  "text": "Time logged",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/page.tsx"
+  ]
+ },
+ {
   "key": "Time of arrest",
   "text": "Time of arrest",
   "context": null,
@@ -41677,6 +41832,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/leave.tsx",
    "apps/web/app/(app)/cameras/footage/footage-browser.tsx",
    "apps/web/app/(app)/dispatch/log-history/page.tsx",
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
    "apps/web/app/(app)/medical/handovers/page.tsx",
    "apps/web/app/(app)/medical/pcr/page.tsx",
    "apps/web/app/(app)/modules/leave/page.tsx",
@@ -43072,14 +43228,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
-  ]
- },
- {
-  "key": "Updating",
-  "text": "Updating",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
   ]
  },
  {
@@ -44753,8 +44901,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "What you entered stays on the form. Open it again to carry on.",
-  "text": "What you entered stays on the form. Open it again to carry on.",
+  "key": "What you entered stays on the form. Open it again to continue.",
+  "text": "What you entered stays on the form. Open it again to continue.",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
@@ -45166,6 +45314,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "While you were away",
+  "text": "While you were away",
+  "context": null,
+  "where": [
+   "apps/web/components/while-away.tsx"
+  ]
+ },
+ {
   "key": "White",
   "text": "White",
   "context": null,
@@ -45322,8 +45478,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Why is it being stood down?",
-  "text": "Why is it being stood down?",
+  "key": "Why are you removing it?",
+  "text": "Why are you removing it?",
   "context": null,
   "where": [
    "apps/web/components/ops-map/zones/zone-card.tsx"
@@ -45841,6 +45997,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx"
+  ]
+ },
+ {
+  "key": "Yes, remove it",
+  "text": "Yes, remove it",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/zones/zone-card.tsx"
   ]
  },
  {
@@ -46493,8 +46657,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Your unfinished notice was kept. Carry on, or tap Start over below.",
-  "text": "Your unfinished notice was kept. Carry on, or tap Start over below.",
+  "key": "Your unfinished notice was saved. Continue, or tap Start over below.",
+  "text": "Your unfinished notice was saved. Continue, or tap Start over below.",
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx"
@@ -48186,6 +48350,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{calls} new calls · {n} updates in total",
+  "text": "{calls} new calls · {n} updates in total",
+  "context": null,
+  "where": [
+   "apps/web/components/while-away.tsx"
+  ]
+ },
+ {
   "key": "{count} duties allocated",
   "text": "{count} duties allocated",
   "context": null,
@@ -49191,6 +49363,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} calls",
+  "text": "{n} calls",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/pending/queue-filters.tsx"
+  ]
+ },
+ {
   "key": "{n} calls are not finished — finish them",
   "text": "{n} calls are not finished — finish them",
   "context": null,
@@ -49345,6 +49525,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} more in Notifications",
+  "text": "{n} more in Notifications",
+  "context": null,
+  "where": [
+   "apps/web/components/while-away.tsx"
+  ]
+ },
+ {
   "key": "{n} not sent",
   "text": "{n} not sent",
   "context": null,
@@ -49471,6 +49659,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "{n} updates on calls",
+  "text": "{n} updates on calls",
+  "context": null,
+  "where": [
+   "apps/web/components/while-away.tsx"
   ]
  },
  {

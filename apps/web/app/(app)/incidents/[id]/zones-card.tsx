@@ -63,7 +63,7 @@ export async function IncidentZonesCard({ zones, incidentId, incidentNumber, rol
                       {kind.label}: {z.name}
                     </p>
                     <span className="text-xs font-semibold text-muted-foreground">
-                      {z.status === 'ended' ? 'Stood down' : expired ? 'Expired' : isClosed ? 'Call closed' : 'In force'}
+                      {z.status === 'ended' ? 'Removed' : expired ? 'Expired' : isClosed ? 'Call closed' : 'In force'}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
@@ -76,7 +76,7 @@ export async function IncidentZonesCard({ zones, incidentId, incidentNumber, rol
                   </p>
                   {z.status === 'ended' && (
                     <p className="mt-1.5 text-xs text-muted-foreground">
-                      {t('Stood down by {value} · {saTime}{value2}', { value: z.ended_by_name ?? 'unknown', saTime: formatSaTime(z.ended_at), value2: z.end_reason ? ` — ${z.end_reason}` : '' })}
+                      {t('Removed by {value} · {saTime}{value2}', { value: z.ended_by_name ?? 'unknown', saTime: formatSaTime(z.ended_at), value2: z.end_reason ? ` — ${z.end_reason}` : '' })}
                     </p>
                   )}
                   {live && (

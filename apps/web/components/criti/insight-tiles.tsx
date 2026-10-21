@@ -13,7 +13,7 @@ import { Modal } from '@/components/ui/modal';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { cn } from '@/lib/utils';
 import { ProposalCard } from './proposal-card';
-import { COUNT_EVENT, askCriti, openCriti, standing } from './shared';
+import { COUNT_EVENT, FoldButton, askCriti, openCriti, standing, useFolded } from './shared';
 import { CritiMascot } from './mascot';
 import { useT } from '@/components/i18n';
 
@@ -81,6 +81,7 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
   const [confirming, setConfirming] = useState<ProposalView | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [mayDismissSos, setMayDismissSos] = useState(false);
+  const [folded, setFolded] = useFolded('page');
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const busy = useRef(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -253,27 +254,47 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
     return <button type="button" className={cls} onClick={() => setConfirming(a.view)}>{a.label}</button>;
   };
 
+  const top = visible[0];
+
   return (
-    <section aria-label={t('Criti suggestions')} className="overflow-hidden rounded-lg border border-white/10 bg-slate-950/90 text-white shadow-sm">
-      <div className="flex items-center gap-2 px-3 py-1.5">
+    <section aria-label={t('Criti suggestions')} className="overflow-hidden rounded-lg border border-white/15 bg-slate-950/45 text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.08),0_10px_28px_-16px_rgb(0_0_0/0.55)] backdrop-blur-xl backdrop-saturate-150">
+      <div className="flex min-h-8 items-center gap-2 px-3 py-1">
         <CritiMascot className="h-5 w-5" />
         <span className="text-[11px] font-bold uppercase tracking-wider text-white/70">Criti</span>
+        {folded && top ? (
+          // Folded: the most urgent item still shows, with its first task.
+          <>
+            <span className={cn('h-2 w-2 shrink-0 rounded-full', DOT[top.tone], top.kind === 'sos' && 'animate-pulse')} />
+            <p className="min-w-0 flex-1 truncate text-xs" title={top.body}>
+              <span className="font-semibold">{top.title}</span>
+              {top.incident ? <span className="font-mono text-white/60"> · {top.incident.number}</span> : null}
+              {visible.length > 1 ? <span className="text-white/50"> · {t('+{n} more', { n: visible.length - 1 })}</span> : null}
+            </p>
+            {first(top)}
+            {top.kind === 'sos' && top.incident && mayDismissSos ? (
+              <DismissSos incidentId={top.incident.id} tone="icon" className="shrink-0 text-white/70 hover:text-white" onDone={() => void load()} />
+            ) : null}
+          </>
+        ) : null}
         {visible.length === 0 ? (
           <span className="flex items-center gap-1 text-[11px] text-white/60">
             <CheckCircle2 className="h-3.5 w-3.5 text-severity-low" />
             {failed ? 'Could not read the board. Trying again.' : 'Nothing needs your attention.'}
           </span>
         ) : null}
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-3">
           {visible.length > 0 ? (
             <button type="button" onClick={() => setListOpen(true)} className="text-[11px] font-semibold text-sky-300 hover:underline">
               {t('View all ({length})', { length: visible.length })}</button>
           ) : null}
           <button type="button" onClick={() => openCriti('chat')} className="inline-flex items-center gap-1 text-[11px] font-semibold text-white/70 hover:text-white">
             <MessageSquare className="h-3 w-3" /> {' '}{t('Ask')}</button>
+          {visible.length > 0 ? (
+            <FoldButton folded={folded} onToggle={() => setFolded(!folded)} openLabel={t('Show more')} foldLabel={t('Show less')} />
+          ) : null}
         </div>
       </div>
-      {visible.slice(0, SHOWN).map((x) => {
+      {(folded ? [] : visible.slice(0, SHOWN)).map((x) => {
         const Icon = ICON[x.kind] ?? CritiMascot;
         return (
           <div key={x.id} className="flex h-9 items-center gap-2 border-t border-white/10 px-3">

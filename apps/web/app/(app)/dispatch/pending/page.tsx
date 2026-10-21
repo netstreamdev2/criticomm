@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { MapPin } from 'lucide-react';
 import { CALLER_NOT_GIVEN, DEPARTMENT_NAMES, canAccess, type Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
-import { deskTags, listOnDutyOfficers, listQueue, partWords, sortParts, type QueueSort } from '@criticom/api';
+import { QUEUE_STAGES, deskTags, listOnDutyOfficers, listQueue, partWords, sortParts, type QueueSort } from '@criticom/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { DispatchMapButton } from '@/components/dispatch-map-button';
 import { DetailsToFollow } from '@/components/details-to-follow';
@@ -17,11 +17,16 @@ import { requestT } from '@/lib/i18n';
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Pending queue · HikTech' };
 
-type QueueParams = { q?: string; sort?: string; severity?: string; region?: string; department?: string };
+type QueueParams = {
+  q?: string; sort?: string; severity?: string; region?: string; department?: string;
+  category?: string; stage?: string; from?: string; to?: string;
+};
 
 const SORTS: Array<[QueueSort, string]> = [['newest', 'Newest first'], ['oldest', 'Oldest first'], ['severity', 'Most severe first']];
 const SEVERITIES = ['Critical', 'High', 'Medium', 'Low'];
 const REGIONS = ['Central', 'North', 'South', 'West', 'Outer'];
+/** How a call is classified when it is logged (incident_category). */
+const CATEGORIES = ['Crime', 'Medical', 'Fire', 'Disaster', 'Traffic', 'Public Order'];
 const DEPARTMENTS: Array<[string, string]> = [
   ['MetroPolice', 'Metro Police'], ['MetroFire', 'Fire & Rescue'],
   ['Medical', 'EMS'], ['EthekwiniDisaster', 'Disaster Management'],
@@ -41,7 +46,11 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
   const deskOf: Silo | null = DESK_ROLES.includes(role) && silo !== 'Ethekwini' ? (silo as Silo) : null;
   const crews: Silo[] = deskOf ? [deskOf] : silo !== 'Ethekwini' && FIELD.includes(silo as Silo) ? [silo as Silo] : FIELD;
   const [pending, officers] = await Promise.all([
-    listQueue(supabase, { q: params.q, severity: params.severity, region: params.region, department: deskOf ?? params.department, sort }),
+    listQueue(supabase, {
+      q: params.q, severity: params.severity, region: params.region, department: deskOf ?? params.department, sort,
+      category: CATEGORIES.includes(params.category ?? '') ? params.category : null,
+      stage: params.stage, from: params.from, to: params.to,
+    }),
     listOnDutyOfficers(supabase, crews).catch(() => []),
   ]);
   // Who a dispatch would reach right now; live via the realtime bridge.
@@ -51,7 +60,8 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
   // so only chairs that may log a call see the button.
   const canLogCall = canAccess('/dispatch/log-call', role, silo);
   const canAssign = canAccess('/dispatch/assign/x', role, silo);
-  const filtered = Boolean(params.q || params.severity || params.region || params.department);
+  const filtered = Boolean(params.q || params.severity || params.region || params.department
+    || params.category || params.stage || params.from || params.to);
   const now = new Date();
 
   return (
@@ -89,7 +99,10 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
       <CritiTiles />
 
       <Suspense fallback={<div className="h-[54px] rounded-lg border border-border bg-bg-card" />}>
-        <QueueFilters sorts={SORTS} severities={SEVERITIES} regions={REGIONS} departments={deskOf ? [] : DEPARTMENTS} />
+        <QueueFilters
+          sorts={SORTS} severities={SEVERITIES} categories={CATEGORIES} stages={QUEUE_STAGES} regions={REGIONS}
+          departments={deskOf ? [] : DEPARTMENTS} shown={pending.length}
+        />
       </Suspense>
 
       <Card>
@@ -100,10 +113,10 @@ export default async function PendingPage({ searchParams }: { searchParams: Prom
                 <th className="px-4 py-3 text-left">{t('Incident #')}</th>
                 <th className="px-4 py-3 text-left">{t('Severity')}</th>
                 <th className="px-4 py-3 text-left">{t('Type')}</th>
-                <th className="px-4 py-3 text-left">{t('Sent to')}</th>
+                <th className="px-4 py-3 text-left">{t('Status')}</th>
                 <th className="px-4 py-3 text-left">{t('Caller')}</th>
                 <th className="px-4 py-3 text-left">{t('Location')}</th>
-                <th className="px-4 py-3 text-left">{t('Received')}</th>
+                <th className="px-4 py-3 text-left">{t('Time logged')}</th>
                 <th className="px-4 py-3 text-left"></th>
               </tr>
             </thead>

@@ -475,7 +475,7 @@ export default function IssueFineScreen() {
       >
         {restored ? (
           <Banner tone="info" onDismiss={() => setRestored(false)}>
-            {t('Your unfinished notice was kept. Carry on, or tap Start over below.')}
+            {t('Your unfinished notice was saved. Continue, or tap Start over below.')}
           </Banner>
         ) : null}
         {!online ? (
