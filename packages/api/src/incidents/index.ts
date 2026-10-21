@@ -1202,3 +1202,14 @@ export async function listResponderBoard(client: CriticomClient, opts: { limit?:
   const now = Date.now();
   return ((data ?? []) as unknown as BoardRow[]).map((r) => toBoardEntry(r, now));
 }
+
+/**
+ * Dismiss an SOS pressed by mistake (0093): off the map, the queue, the
+ * alerts and Criti; on the record with the reason. The system administrators,
+ * the system controller and dispatch; a department's desk, its own calls.
+ */
+export async function dismissSos(client: CriticomClient, incidentId: string, reason: string) {
+  const { data, error } = await client.rpc('dismiss_sos', { p_incident: incidentId, p_reason: reason });
+  if (error) throw error;
+  return data;
+}

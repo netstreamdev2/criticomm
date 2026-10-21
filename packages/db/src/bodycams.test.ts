@@ -27,9 +27,10 @@ test('who may watch a bodycam live, and who may pull footage', () => {
 });
 
 test('the SANRAL wall keeps the old camera rule; the register follows the armoury', () => {
-  for (const role of ['Viewer', 'IncidentLogger', 'Dispatcher', 'Admin'] as const) {
+  for (const role of ['Viewer', 'Dispatcher', 'Admin'] as const) {
     assert.equal(canAccess('/sanral', role, 'Ethekwini'), true, role);
   }
+  assert.equal(canAccess('/sanral', 'IncidentLogger', 'Ethekwini'), false, 'the call logger has four screens, no cameras');
   assert.equal(canAccess('/sanral', 'Police', 'MetroPolice'), false);
   for (const role of ['Captain', 'Supervisor', 'SystemAdmin'] as const) {
     assert.equal(canAccess('/police/bodycams', role, 'MetroPolice'), true, role);

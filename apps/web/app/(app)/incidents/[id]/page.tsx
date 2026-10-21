@@ -7,7 +7,7 @@ import {
   statusForPart, type IncidentResponder,
 } from '@criticom/api';
 import {
-  DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, STATUS_OVERRIDE_ROLES, departmentName, STATUS_OVERRIDE_STEPS, canAccess, canWatchBodycam, caseStage, mayFinishCall,
+  DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, STATUS_OVERRIDE_ROLES, departmentName, STATUS_OVERRIDE_STEPS, canAccess, canDismissSos, canWatchBodycam, caseStage, mayFinishCall,
   type Database, type Silo, type UserRole,
 } from '@criticom/db';
 import { windowFor } from '@criticom/db/bodycams';
@@ -15,6 +15,7 @@ import { getFeatures } from '@/lib/features';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
+import { DismissSos } from '@/components/sos-dismiss';
 import { PoliceReportCard } from './report-card';
 import { FireReportCard } from './fire-report-card';
 import { PcrCard } from '@/components/pcr-card';
@@ -199,6 +200,11 @@ export default async function IncidentDetailPage({
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
+          {/* An SOS pressed by mistake (0093): the control room, dispatch and the system administrators. */}
+          {incident.source === 'Responder-Panic' && !incident.sos_dismissed_at && incident.status !== 'Resolved' && incident.status !== 'Closed' && canDismissSos(role) ? (
+            <DismissSos incidentId={incident.id} className="no-print h-9 px-3"
+              label={t("{value}'s SOS", { value: incident.caller_name ?? 'the officer' })} />
+          ) : null}
           {/* Sent early and not finished: the person who logged it (or the control room) carries on (0076). */}
           {mayFinishCall({ userId, role, silo }, incident) ? (
             <Link
@@ -227,6 +233,15 @@ export default async function IncidentDetailPage({
           </span>
         </div>
       </header>
+
+      {/* An SOS dismissed as a mistake (0093): said plainly, at the top. */}
+      {incident.sos_dismissed_at ? (
+        <p className="rounded-lg border border-border bg-bg-soft px-4 py-3 text-sm">
+          <span className="font-bold">{t('SOS dismissed')}</span>
+          {' · '}{incident.sos_dismissed_by_name ?? t('the control room')}{' · '}{formatSaTime(incident.sos_dismissed_at)}
+          {incident.sos_dismiss_reason ? <>{' · '}{incident.sos_dismiss_reason}</> : null}
+        </p>
+      ) : null}
 
       {/* Live: a crew's En Route, On Scene, Transporting and report re-render this page. */}
       <IncidentLive incidentId={incident.id} />

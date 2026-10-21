@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { X } from 'lucide-react';
 import { listMyOpenSos } from '@criticom/api';
-import { receivesLiveOperations, type UserRole } from '@criticom/db';
+import { canDismissSos, receivesLiveOperations, type UserRole } from '@criticom/db';
 import { getServerSupabase } from '@/lib/supabase';
 import { timeAgo } from '@/lib/utils';
 import { clearSosAction } from './panic-banner-actions';
+import { DismissSos } from './sos-dismiss';
 import { requestT } from '@/lib/i18n';
 
 /**
@@ -54,6 +55,10 @@ export async function PanicBanner({ userId, role }: { userId: string; role: User
               {timeAgo(panic.incident_created_at)} · {panic.incident_number}
             </span>
           </Link>
+          {canDismissSos(role) ? (
+            <DismissSos incidentId={panic.id} tone="plain" className="h-9 shrink-0 px-3 text-xs"
+              label={t("{value}'s SOS", { value: panic.responding_officer ?? panic.caller_name ?? 'the officer' })} />
+          ) : null}
           <form action={clearSosAction}>
             <input type="hidden" name="alert_id" value={alertId} />
             <button

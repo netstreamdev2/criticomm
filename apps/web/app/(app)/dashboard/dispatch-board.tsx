@@ -14,7 +14,8 @@ import { availableLayers, defaultLayers } from '@/lib/ops-map/layers';
 import type { getSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import { DispatchMapButton } from '@/components/dispatch-map-button';
-import { chatTime } from '@/lib/when';
+import { chatTime, saStamp, waitParts, waitShown } from '@/lib/when';
+import { readable } from '@/lib/readable';
 import { BoardLive } from './board-live';
 import { requestT } from '@/lib/i18n';
 
@@ -23,11 +24,6 @@ type Incident = Database['public']['Tables']['incidents']['Row'];
 
 /* ── Formatting helpers ─────────────────────────────────────────────── */
 
-/** "36d 10h 23m" — how long a critical call has sat unanswered. */
-function elapsedParts(iso: string) {
-  const mins = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60_000));
-  return { d: Math.floor(mins / 1440), h: Math.floor((mins % 1440) / 60), m: mins % 60 };
-}
 
 /** Prefer the 10-code when the type carries one — "10-57" beats a long label. */
 function shortCode(type: string) {
@@ -164,7 +160,8 @@ export async function DispatchBoard({
     (rank[a.incident_severity] ?? 9) - (rank[b.incident_severity] ?? 9)
     || new Date(a.incident_created_at).getTime() - new Date(b.incident_created_at).getTime());
   const critical = waiting[0];
-  const wait = critical ? elapsedParts(critical.incident_created_at) : null;
+  // How long it has waited, as the calendar counts: "6mo 14d 12h 34m", years when it comes to that.
+  const wait = critical ? waitShown(waitParts(critical.incident_created_at)) : null;
 
   // Volume sparkline over the configured window, zero-filled so quiet days
   // still occupy a bar.
@@ -313,10 +310,11 @@ export async function DispatchBoard({
             <p className="mt-1 text-sm text-white/80">
               {t('Ticket #{value} ({shortCode})', { value: critical.incident_number, shortCode: shortCode(critical.incident_type) })}</p>
             <p className="mt-4 font-mono text-4xl font-bold tabular-nums">
-              {wait.d > 0 && <>{wait.d}<span className="text-lg text-white/70">d </span></>}
-              {wait.h}<span className="text-lg text-white/70">h </span>
-              {wait.m}<span className="text-lg text-white/70">m</span>
+              {wait.map(([n, unit], i) => (
+                <span key={unit}>{n}<span className="text-lg text-white/70">{unit}{i < wait.length - 1 ? ' ' : ''}</span></span>
+              ))}
             </p>
+            <p className="mt-1 text-xs text-white/75">{t('Waiting since {value}', { value: saStamp(critical.incident_created_at) })}</p>
             <Link
               href={canDispatch ? `/dispatch/assign/${critical.id}` : `/incidents/${critical.id}`}
               className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-white px-8 text-sm font-bold text-[#5c4408] transition-transform hover:scale-[1.03]"
@@ -404,11 +402,11 @@ export async function DispatchBoard({
           <CardContent className="p-6 text-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{t('Avg response time')}</p>
             <p className="mt-1 text-4xl font-bold">
-              {avgResponse ?? '—'}{avgResponse !== null ? <span className="text-lg text-muted-foreground"> {' '}{t('min')}</span> : null}
+              {readable(avgResponse)}
             </p>
             <Ring value={avgResponse ?? 0} max={settings['sla.response_target_minutes']} />
             <p className="mt-2 text-[11px] text-muted-foreground">
-              {t('Call → on scene today · target {value} min · dispatch {avgDispatch} min', { value: settings['sla.response_target_minutes'], avgDispatch })}</p>
+              {t('Call → on scene today · target {value} · dispatch {avgDispatch}', { value: readable(settings['sla.response_target_minutes']), avgDispatch: readable(avgDispatch) })}</p>
           </CardContent>
         </Card>
 
@@ -416,11 +414,11 @@ export async function DispatchBoard({
           <CardContent className="p-6 text-center">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">{t('Avg call duration')}</p>
             <p className="mt-1 text-4xl font-bold">
-              {avgDuration ?? '—'}{avgDuration !== null ? <span className="text-lg text-muted-foreground"> {' '}{t('min')}</span> : null}
+              {readable(avgDuration)}
             </p>
             <Ring value={avgDuration ?? 0} max={settings['sla.call_duration_target_minutes']} />
             <p className="mt-2 text-[11px] text-muted-foreground">
-              {t('Call → closed today · target {value} min', { value: settings['sla.call_duration_target_minutes'] })}</p>
+              {t('Call → closed today · target {value}', { value: readable(settings['sla.call_duration_target_minutes']) })}</p>
           </CardContent>
         </Card>
 

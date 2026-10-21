@@ -5,6 +5,7 @@ import { SimpleBarChart } from '@/components/charts';
 import { getSession } from '@/lib/session';
 import { PerfNav, cycleWindow } from '../perf-nav';
 import { requestT } from '@/lib/i18n';
+import { readable } from '@/lib/readable';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'My Performance · HikTech' };
@@ -23,7 +24,7 @@ export default async function MyPerformancePage({
 
   const tiles = [
     { label: 'Calls taken', value: perf.asCallTaker.total, sub: `team avg ${perf.teamAvgCallsTaken}` },
-    { label: 'Dispatched', value: perf.asDispatcher.dispatched, sub: `${perf.asDispatcher.avgDispatchMinutes}m avg` },
+    { label: 'Dispatched', value: perf.asDispatcher.dispatched, sub: `${readable(perf.asDispatcher.avgDispatchMinutes)} avg` },
     { label: 'Attended', value: perf.asResponder.total, sub: `${perf.asResponder.closed} closed` },
     { label: 'Volume rank', value: `#${perf.rankByVolume}`, sub: `of ${perf.teamSize}` },
   ];

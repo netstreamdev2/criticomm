@@ -192,7 +192,7 @@ export function BodycamViewer({
       <div className="relative aspect-video w-full bg-black">
         {phase === 'open' && open ? (
           <>
-            <HlsVideo src={open.url} label={`${kind === 'live' ? 'Live video' : 'Footage'} from bodycam ${target.serial}`}
+            <HlsVideo src={open.url} live={kind === 'live'} label={`${kind === 'live' ? 'Live video' : 'Footage'} from bodycam ${target.serial}`}
               onError={(m) => finish('failed', m)} />
             {open.test ? (
               <span className="pointer-events-none absolute left-2 top-2 rounded bg-amber-400 px-2 py-0.5 text-[11px] font-bold text-slate-950">

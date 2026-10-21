@@ -2,6 +2,7 @@
 
 import type { CallDraft, Proposal } from '@criticom/api';
 import { cn } from '@/lib/utils';
+import { readable } from '@/lib/readable';
 
 /**
  * What Criti's tiles, cards and conversation share on the console.
@@ -80,9 +81,7 @@ export function standing(since: string | null, now: number): string {
   if (!since) return '';
   const m = Math.max(0, Math.floor((now - new Date(since).getTime()) / 60_000));
   if (m < 1) return 'now';
-  if (m < 60) return `${m} min`;
-  const h = Math.floor(m / 60);
-  return h < 48 ? `${h} h ${m % 60} min` : `${Math.floor(h / 24)} days`;
+  return readable(m);
 }
 
 /**

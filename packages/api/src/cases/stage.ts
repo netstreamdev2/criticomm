@@ -98,16 +98,33 @@ export function minutesBetween(a: string | null | undefined, b: string | null | 
 export function formatElapsed(mins: number | null | undefined): string {
   if (mins === null || mins === undefined || !Number.isFinite(mins) || mins < 0) return '—';
   const m = Math.round(mins);
+  const two = (a: number, aUnit: string, b: number, bUnit: string) => (b ? `${a} ${aUnit} ${b} ${bUnit}` : `${a} ${aUnit}`);
+  const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
   if (m < 60) return `${m} min`;
-  if (m < 60 * 24) {
-    const h = Math.floor(m / 60);
-    const r = m % 60;
-    return r ? `${h} h ${r} min` : `${h} h`;
+  if (m < MIN_PER_DAY) return two(Math.floor(m / 60), 'h', m % 60, 'min');
+  // Days, then months, then years: never "3647 h" or "453 days" for people to work out.
+  const days = Math.floor(m / MIN_PER_DAY);
+  if (days < 31) {
+    const h = Math.floor((m % MIN_PER_DAY) / 60);
+    return two(days, plural(days, 'day', 'days'), h, 'h');
   }
-  const d = Math.floor(m / (60 * 24));
-  const h = Math.floor((m % (60 * 24)) / 60);
-  return h ? `${d} d ${h} h` : `${d} d`;
+  if (m < MIN_PER_YEAR) {
+    let months = Math.floor(m / MIN_PER_MONTH);
+    let rest = Math.floor((m - months * MIN_PER_MONTH) / MIN_PER_DAY);
+    // A full 30 days reads as the next month, not "4 months 30 days".
+    if (rest >= 30) { months += 1; rest = 0; }
+    if (months < 12) return two(months, plural(months, 'month', 'months'), rest, plural(rest, 'day', 'days'));
+  }
+  let years = Math.floor(m / MIN_PER_YEAR);
+  let months = Math.floor((m - years * MIN_PER_YEAR) / MIN_PER_MONTH);
+  if (months >= 12 || years === 0) { years += 1; months = 0; }
+  return two(years, plural(years, 'year', 'years'), months, plural(months, 'month', 'months'));
 }
+
+const MIN_PER_DAY = 60 * 24;
+/** An average year and month, for lengths of time that are not anchored to a date. */
+const MIN_PER_YEAR = 365.25 * MIN_PER_DAY;
+const MIN_PER_MONTH = MIN_PER_YEAR / 12;
 
 function average(values: Array<number | null>): number | null {
   const real = values.filter((v): v is number => v !== null);

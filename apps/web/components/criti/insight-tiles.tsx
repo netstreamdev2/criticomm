@@ -1,5 +1,6 @@
 'use client';
 
+import { DismissSos } from '@/components/sos-dismiss';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
@@ -79,6 +80,7 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
   const [snoozed, setSnoozed] = useState<Record<string, number>>({});
   const [confirming, setConfirming] = useState<ProposalView | null>(null);
   const [now, setNow] = useState(() => Date.now());
+  const [mayDismissSos, setMayDismissSos] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const busy = useRef(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -90,9 +92,10 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
       const res = await fetch('/api/criti/insights', { cache: 'no-store' });
       if (res.status === 404) { setEnabled(false); return; }
       if (!res.ok) { setFailed(true); return; }
-      const data = (await res.json()) as { insights?: Insight[]; applies?: boolean; error?: string };
+      const data = (await res.json()) as { insights?: Insight[]; applies?: boolean; canDismissSos?: boolean; error?: string };
       if (data.applies === false) { setEnabled(false); return; }
       setInsights(data.insights ?? []);
+      setMayDismissSos(Boolean(data.canDismissSos));
       setFailed(Boolean(data.error));
     } catch {
       setFailed(true);
@@ -205,6 +208,9 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
               }
               return <button key={i} type="button" className={cls} onClick={() => { setListOpen(false); setConfirming(a.view); }}><span className="truncate">{a.label}</span></button>;
             })}
+            {x.kind === 'sos' && x.incident && mayDismissSos ? (
+              <DismissSos incidentId={x.incident.id} className="h-7 px-2.5 text-[11px]" onDone={() => void load()} />
+            ) : null}
           </div>
         ) : null}
       </article>
@@ -284,6 +290,9 @@ export function CritiTiles({ variant = 'page' }: { variant?: 'page' | 'dock' }) 
             </p>
             {x.since ? <span className="shrink-0 font-mono text-[11px] tabular-nums text-white/60">{standing(x.since, now)}</span> : null}
             {first(x)}
+            {x.kind === 'sos' && x.incident && mayDismissSos ? (
+              <DismissSos incidentId={x.incident.id} tone="icon" className="shrink-0 text-white/70 hover:text-white" onDone={() => void load()} />
+            ) : null}
             <button type="button" onClick={() => snooze(x.id)} aria-label={t('Hide for 15 minutes')} title={t('Hide for 15 minutes')}
               className="shrink-0 rounded p-0.5 text-white/40 hover:bg-white/10 hover:text-white">
               <X className="h-3 w-3" />

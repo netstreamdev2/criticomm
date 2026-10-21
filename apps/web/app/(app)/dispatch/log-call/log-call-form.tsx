@@ -100,9 +100,11 @@ const evidenceKind = (f: File) =>
  * department are known; the rest is then added to the same call.
  */
 export function LogCallForm({
-  defaultSilo, canRoute = true, categoryTree = [], tuning = DEFAULT_TUNING, resume = null,
+  defaultSilo, canRoute = true, canOpenCalls = true, categoryTree = [], tuning = DEFAULT_TUNING, resume = null,
 }: {
   defaultSilo: Silo;
+  /** False for the call logger: no call pages (CALL_LOGGER_PAGES); a logged call ends on Log history. */
+  canOpenCalls?: boolean;
   /**
    * A call already sent early and not finished, to carry on with (0076): the
    * page has checked this person may finish it. Its details are filled in and
@@ -880,7 +882,7 @@ export function LogCallForm({
       body: t('All its details are with dispatch.'),
       tone: 'success',
     });
-    router.push(`/incidents/${incident.id}`);
+    router.push(canOpenCalls ? `/incidents/${incident.id}` : '/dispatch/log-history');
   };
 
   const onSubmit = (e: React.FormEvent) => {
@@ -954,7 +956,7 @@ export function LogCallForm({
       try {
         const incident = await logIncomingCall(getBrowserSupabase(), payload);
         await afterLogged(incident, owner, routing, false);
-        router.push(`/incidents/${incident.id}`);
+        router.push(canOpenCalls ? `/incidents/${incident.id}` : '/dispatch/log-history');
       } catch (err) {
         setError((err as Error).message);
       }
@@ -1085,9 +1087,11 @@ export function LogCallForm({
               : saveState === 'saved' && savedAt ? t('Added {time}', { time: savedAt })
               : null}
           </span>
-          <Link href={`/incidents/${sent.id}`} target="_blank" className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
-            {t('Open the call')} <ExternalLink className="h-3 w-3" />
-          </Link>
+          {canOpenCalls ? (
+            <Link href={`/incidents/${sent.id}`} target="_blank" className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
+              {t('Open the call')} <ExternalLink className="h-3 w-3" />
+            </Link>
+          ) : null}
           {saveState === 'error' && saveError ? (
             <p role="alert" className="flex w-full items-center gap-2 text-xs text-severity-critical-ink">
               {t('Not added: {reason}', { reason: saveError })}

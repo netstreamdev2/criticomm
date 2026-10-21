@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { getSession, siloFilter } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { requestT } from '@/lib/i18n';
+import { readable } from '@/lib/readable';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'KPI Dashboard · HikTech' };
@@ -30,7 +31,7 @@ export default async function KpiPage() {
     { label: 'Critical alerts today', value: kpi.criticalAlertsToday, accent: 'text-severity-critical-ink' },
     { label: 'Total calls today', value: kpi.totalIncidentsToday, accent: 'text-fg' },
     { label: 'Personnel on duty', value: kpi.personnelOnDuty, accent: 'text-severity-low-ink' },
-    { label: 'Avg response (min)', value: kpi.avgResponseTime, accent: 'text-severity-medium-ink' },
+    { label: 'Avg response', value: readable(kpi.avgResponseTime), accent: 'text-severity-medium-ink' },
   ];
 
   const hourly = kpi.hourlyDistribution ?? [];

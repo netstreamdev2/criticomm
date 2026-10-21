@@ -73,7 +73,12 @@ const list = <T,>(rows: T[], max: number, line: (r: T) => string) =>
 
 /** The live board as the model reads it. */
 export function boardForModel(
-  board: { incidents: CritiIncident[]; crews: CritiCrew[] },
+  board: {
+    incidents: CritiIncident[];
+    crews: CritiCrew[];
+    /** SOS calls dismissed as a mistake in the last day (0093). */
+    dismissedSos?: Array<{ number: string; officer: string | null; by: string | null; at: string; reason: string | null }>;
+  },
   insights: Insight[],
   now: Date,
 ): string {
@@ -85,7 +90,11 @@ export function boardForModel(
     `CALLS IN PROGRESS (${live.length}):\n${list(live, 25, (i) => callLine(i, now))}`,
     `PEOPLE ON DUTY IN THE APP (${crews.length}):\n${list(crews, 30, (c) => crewLine(c, now))}`,
     `WHAT CRITI'S TILES ARE SHOWING (${insights.length}):\n${list(insights, 12, (x) => `- ${x.title}${x.incident ? ` [${x.incident.number}]` : ''}: ${x.body}`)}`,
-  ].join('\n\n');
+    board.dismissedSos?.length
+      ? `SOS DISMISSED IN THE LAST 24 HOURS (no longer emergencies; still on the record) (${board.dismissedSos.length}):\n${list(board.dismissedSos, 10,
+        (d) => `- ${d.number}${d.officer ? ` from ${one(d.officer, 50)}` : ''}, dismissed${d.by ? ` by ${one(d.by, 50)}` : ''} ${sastTime(d.at)}: ${one(d.reason, 120)}`)}`
+      : null,
+  ].filter(Boolean).join('\n\n');
 }
 
 export type CallFacts = {

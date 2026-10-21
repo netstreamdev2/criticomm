@@ -108,7 +108,9 @@ export async function listCases(
 
   const { data, error } = await query.limit(limit + 1);
   if (error) throw error;
-  const incidents = (data ?? []) as Incident[];
+  // An SOS dismissed as a mistake (0093) is not a case to review.
+  const incidents = ((data ?? []) as Array<Incident & { sos_dismissed_at?: string | null }>)
+    .filter((i) => filters.view !== 'review' || !i.sos_dismissed_at) as Incident[];
   const truncated = incidents.length > limit;
   const page = incidents.slice(0, limit);
 
@@ -158,24 +160,30 @@ export async function getCaseDashboard(client: CriticomClient, windowDays = 30):
   const today = saDayStart().toISOString();
   const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
 
-  const [open, recent, closedToday, reportsToday] = await Promise.all([
+  const [open, recent, closedToday, reportsToday, dismissed] = await Promise.all([
     client.from('incidents')
-      .select('silo, dispatched_silos, status, resolved_at, report_filed_at, updated_at')
+      .select('id, silo, dispatched_silos, status, resolved_at, report_filed_at, updated_at')
       .neq('status', 'Closed')
       .limit(5000),
     client.from('incidents')
-      .select('status, call_timestamp, resolved_at, report_filed_at, closed_at')
+      .select('id, status, call_timestamp, resolved_at, report_filed_at, closed_at')
       .or(`resolved_at.gte."${since}",report_filed_at.gte."${since}",closed_at.gte."${since}"`)
       .limit(5000),
     client.from('incidents').select('id', { count: 'exact', head: true }).gte('closed_at', today),
     client.from('incidents').select('id', { count: 'exact', head: true }).gte('report_filed_at', today),
+    // SOS calls dismissed as a mistake (0093) are not cases; before 0093 there are none.
+    client.from('incidents').select('id').not('sos_dismissed_at', 'is', null).limit(5000)
+      .then((r) => new Set(((r.data ?? []) as Array<{ id: string }>).map((x) => x.id)), () => new Set<string>()),
   ]);
   for (const res of [open, recent, closedToday, reportsToday]) {
     if (res.error) throw res.error;
   }
 
   return {
-    ...summariseCases((open.data ?? []) as OpenCaseRow[], (recent.data ?? []) as RecentCaseRow[]),
+    ...summariseCases(
+      ((open.data ?? []) as Array<OpenCaseRow & { id: string }>).filter((r) => !dismissed.has(r.id)),
+      ((recent.data ?? []) as Array<RecentCaseRow & { id: string }>).filter((r) => !dismissed.has(r.id)),
+    ),
     closedToday: closedToday.count ?? 0,
     reportsToday: reportsToday.count ?? 0,
     windowDays,

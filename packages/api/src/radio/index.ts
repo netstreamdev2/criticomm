@@ -1,4 +1,5 @@
 import type { CriticomClient, Silo } from '@criticom/db';
+import { subscribeSignedIn } from '../realtime/join';
 import type { PresenceRow, RadioKind, RadioProvider, RegisterEntry } from './live.ts';
 
 export * from './live.ts';
@@ -162,4 +163,36 @@ export async function radioCameraPass(client: CriticomClient, viewId: string): P
   const { data, error } = await client.rpc('radio_camera_pass', { p_view: viewId });
   if (error) throw error;
   return data as RadioCameraPass;
+}
+
+/* ── Talk wakes the radios (0095) ─────────────────────────────────────── */
+
+export type TalkWake = { id: string; channel: string; until: string };
+
+/** Call the radios of a talk group, or keep them on a minute more. Only those who may speak in it. */
+export async function callRadios(client: CriticomClient, channel: string): Promise<{ id: string; until: string; new: boolean }> {
+  const { data, error } = await client.rpc('call_radios', { p_channel: channel });
+  if (error) throw error;
+  return data as { id: string; until: string; new: boolean };
+}
+
+/** The open calls this person may hear, newest first. */
+export async function openTalkWakes(client: CriticomClient): Promise<TalkWake[]> {
+  const { data, error } = await client.rpc('open_talk_wakes');
+  if (error) throw error;
+  return (data as TalkWake[] | null) ?? [];
+}
+
+/** A call made or kept on, the moment it happens; only the groups this person may hear (RLS). */
+export function subscribeTalkWakes(client: CriticomClient, onWake: (w: TalkWake) => void, onStatus?: (status: string) => void) {
+  const pick = (payload: { new: Partial<TalkWake> }) => {
+    const w = payload.new;
+    if (w?.id && w.channel && w.until) onWake({ id: w.id, channel: w.channel, until: w.until });
+  };
+  const channel = client
+    .channel(`talk_wakes:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`)
+    .on('postgres_changes' as never, { event: 'INSERT', schema: 'public', table: 'talk_wakes' }, pick)
+    .on('postgres_changes' as never, { event: 'UPDATE', schema: 'public', table: 'talk_wakes' }, pick);
+  subscribeSignedIn(client, channel, onStatus);
+  return () => { void client.removeChannel(channel); };
 }

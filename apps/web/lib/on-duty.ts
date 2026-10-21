@@ -18,11 +18,12 @@ const POSITION_MS = 5_000;
  * `initial` is the server-rendered list, so the page paints with real numbers
  * before the socket connects.
  */
-export function useOnDutyOfficers(initial: OnDutyOfficer[], silos?: Silo[]) {
+export function useOnDutyOfficers(initial: OnDutyOfficer[], silos?: Silo[], enabled = true) {
   const [officers, setOfficers] = useState(initial);
   const key = silos?.join(',') ?? '';
 
   useEffect(() => {
+    if (!enabled) return;
     let sb: ReturnType<typeof getBrowserSupabase>;
     try {
       sb = getBrowserSupabase();
@@ -57,7 +58,7 @@ export function useOnDutyOfficers(initial: OnDutyOfficer[], silos?: Silo[]) {
       offCalls();
       if (timer) clearTimeout(timer);
     };
-  }, [key]);
+  }, [key, enabled]);
 
   return officers;
 }

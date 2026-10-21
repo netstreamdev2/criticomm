@@ -88,3 +88,13 @@ test('the board reads in plain lines', () => {
   assert.match(detail, /Timeline:\n {2}\S.* Lerato Logger: Call logged by Lerato Logger/);
   assert.equal(span(ago(3 * 24 * 60), NOW), '3 days');
 });
+
+test('Criti is told about an SOS dismissed as a mistake, and that it is no longer an emergency', () => {
+  const text = boardForModel({
+    incidents: [], crews: [],
+    dismissedSos: [{ number: 'MP-20261002-0002', officer: 'Test Officer Two', by: 'Sipho Admin', at: '2026-10-21T08:15:00Z', reason: 'Pressed by mistake' }],
+  }, [], NOW);
+  assert.match(text, /SOS DISMISSED IN THE LAST 24 HOURS \(no longer emergencies; still on the record\) \(1\)/);
+  assert.match(text, /MP-20261002-0002 from Test Officer Two, dismissed by Sipho Admin .*: Pressed by mistake/);
+  assert.doesNotMatch(boardForModel({ incidents: [], crews: [] }, [], NOW), /SOS DISMISSED/, 'nothing said when none were dismissed');
+});

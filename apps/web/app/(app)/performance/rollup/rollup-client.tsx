@@ -57,7 +57,7 @@ export function RollupExplorer({ rollup, days }: { rollup: Rollup; days: number 
             <button key={d} type="button" onClick={() => setDays(d)}
               className={`h-8 rounded-md px-2.5 text-xs font-semibold transition-colors ${
                 d === days ? 'bg-primary text-primary-fg' : 'border border-border hover:bg-muted'}`}>
-              {d === 365 ? '1y' : `${d}d`}
+              {d === 365 ? '1 year' : `${d} days`}
             </button>
           ))}
         </div>

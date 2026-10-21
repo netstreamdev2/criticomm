@@ -5,6 +5,7 @@ import { getSession, siloFilter } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { PerfNav } from './perf-nav';
 import { requestT } from '@/lib/i18n';
+import { readable } from '@/lib/readable';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Performance · HikTech' };
@@ -48,8 +49,8 @@ export default async function PerformancePage() {
           <p className="mt-2 text-3xl font-bold">{kpi.totalIncidentsToday}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
-          <p className="text-xs uppercase text-muted-foreground">{t('Avg response (min)')}</p>
-          <p className="mt-2 text-3xl font-bold text-severity-medium-ink">{kpi.avgResponseTime}</p>
+          <p className="text-xs uppercase text-muted-foreground">{t('Avg response')}</p>
+          <p className="mt-2 text-3xl font-bold text-severity-medium-ink">{readable(kpi.avgResponseTime)}</p>
         </CardContent></Card>
       </section>
 

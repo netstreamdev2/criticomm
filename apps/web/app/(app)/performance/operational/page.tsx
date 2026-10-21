@@ -5,6 +5,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { PerfNav, cycleWindow } from '../perf-nav';
 import { requestT } from '@/lib/i18n';
+import { readable } from '@/lib/readable';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Operational KPIs · HikTech' };
@@ -31,8 +32,8 @@ export default async function OperationalKpiPage({
     { label: 'Dispatched', value: `${kpi.totals.dispatched} (${kpi.totals.dispatchRate}%)` },
     { label: 'Closed', value: `${kpi.totals.closed} (${kpi.totals.closureRate}%)` },
     { label: 'Still open', value: kpi.totals.stillOpen },
-    { label: 'Avg dispatch', value: `${kpi.totals.avgDispatchMinutes}m` },
-    { label: 'Avg resolution', value: `${kpi.totals.avgResolutionMinutes}m` },
+    { label: 'Avg dispatch', value: readable(kpi.totals.avgDispatchMinutes) },
+    { label: 'Avg resolution', value: readable(kpi.totals.avgResolutionMinutes) },
   ];
 
   return (
@@ -99,7 +100,7 @@ export default async function OperationalKpiPage({
                   <Td className="font-mono">{o.total}</Td>
                   <Td className="font-mono">{o.dispatched}</Td>
                   <Td className="font-mono">{o.closed}</Td>
-                  <Td className="font-mono">{o.avgDispatchMinutes}</Td>
+                  <Td className="whitespace-nowrap">{readable(o.avgDispatchMinutes)}</Td>
                   <Td>{o.topCategory}</Td>
                 </Tr>
               ))}
@@ -119,8 +120,8 @@ export default async function OperationalKpiPage({
                   <Td className="font-semibold">{o.operator}</Td>
                   <Td className="font-mono">{o.dispatched}</Td>
                   <Td className="font-mono">{o.closed}</Td>
-                  <Td className="font-mono">{o.avgDispatchMinutes}</Td>
-                  <Td className="font-mono">{o.avgResolutionMinutes}</Td>
+                  <Td className="whitespace-nowrap">{readable(o.avgDispatchMinutes)}</Td>
+                  <Td className="whitespace-nowrap">{readable(o.avgResolutionMinutes)}</Td>
                 </Tr>
               ))}
             </SimpleTable>

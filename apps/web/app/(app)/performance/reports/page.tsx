@@ -7,12 +7,13 @@ import { PerfNav } from '../perf-nav';
 import { getSession, siloFilter } from '@/lib/session';
 import { cn } from '@/lib/utils';
 import { requestT } from '@/lib/i18n';
+import { readable } from '@/lib/readable';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Performance Reports · HikTech' };
 
-const fmtMins = (m: number | null) =>
-  m === null ? '—' : m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`;
+/** "2 h 15 min", "3 days 4 h", "5 months": never hundreds of hours. */
+const fmtMins = (m: number | null) => readable(m);
 
 /** Proportional bar used inside table cells — reads at a glance. */
 function Bar({ value, max, tone = 'bg-accent' }: { value: number; max: number; tone?: string }) {

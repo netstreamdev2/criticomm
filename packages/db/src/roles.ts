@@ -230,6 +230,13 @@ export const DISPATCH_DESK_ROLES: UserRole[] = [
 ];
 
 /** Field roles that respond to incidents and run the start-of-shift workflow. */
+/**
+ * Who may dismiss an SOS pressed by mistake (0093): the system administrators,
+ * the system controller and dispatch. The database holds the same line.
+ */
+export const SOS_DISMISS_ROLES: UserRole[] = ['SuperAdmin', 'SystemAdmin', 'SystemController', 'Dispatcher'];
+export const canDismissSos = (role: string | null | undefined) => SOS_DISMISS_ROLES.includes(role as UserRole);
+
 export const RESPONDER_ROLES: UserRole[] = [
   'Police', 'Captain', 'Firefighter', 'FireChief', 'Paramedic', 'Doctor', 'Disaster',
 ];
@@ -587,6 +594,8 @@ export const ROUTE_RULES: RouteRule[] = [
   // (pending queue, assign, KPI, PTT) belongs to the dispatch desk. An
   // IncidentLogger logs, a Dispatcher dispatches — never each other's job.
   { prefix: '/dispatch/log-call', roles: CALL_TAKER_ROLES },
+  // The calls I logged, and where each one is now: the call takers'.
+  { prefix: '/dispatch/log-history', roles: CALL_TAKER_ROLES },
   { prefix: '/dispatch',     roles: DISPATCH_DESK_ROLES },
   // Responders must be able to open the calls they are sent to: every dispatch
   // alert links at /incidents/{id}. RLS still scopes the rows to their silo.
@@ -683,7 +692,26 @@ export const ROUTE_RULES: RouteRule[] = [
  * Route-level authorization check used by Next.js middleware and the sidebar.
  * Returns true when `role`/`silo` may open `pathname`.
  */
+/**
+ * The call logger's screens, and only these (2026-10-21): the dashboard, Log
+ * incoming call, Log history, and My work. Every other page is refused to
+ * them by the server (the middleware calls canAccess). The /api routes keep
+ * their own checks: the logging form needs several of them.
+ */
+export const CALL_LOGGER_PAGES = [
+  '/dashboard', '/dispatch/log-call', '/dispatch/log-history',
+  // My work.
+  '/roster/mine', '/roster/allocation', '/leave', '/performance/mine', '/hierarchy', '/notifications', '/profile',
+  // Getting in and being turned away.
+  '/', '/403', '/accept-invite', '/auth',
+] as const;
+
+const onCallLoggerPage = (pathname: string) =>
+  CALL_LOGGER_PAGES.some((p) => pathname === p || (p !== '/' && pathname.startsWith(`${p}/`)));
+
 export function canAccess(pathname: string, role: UserRole, silo: Silo): boolean {
+  // The call logger: their four screens and nothing else, then the usual rules too.
+  if (role === 'IncidentLogger' && !pathname.startsWith('/api/') && !onCallLoggerPage(pathname)) return false;
   // The police reporting pages are for named roles on the police side, wider
   // than /police in roles (dispatch, the case manager) and narrower in reach.
   if (pathname === POLICE_REPORTS_PATH || pathname.startsWith(`${POLICE_REPORTS_PATH}/`)) {

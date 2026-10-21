@@ -405,7 +405,7 @@ test('case management opens for case managers, the desk and command, never for f
   for (const path of ['/case-manager', '/case-manager/review', '/case-manager/open']) {
     assert.equal(canAccess(path, 'IncidentLogger', 'Ethekwini'), false, `IncidentLogger must not open ${path}`);
   }
-  assert.equal(canAccess('/incidents', 'IncidentLogger', 'Ethekwini'), true, 'the logger watches the incidents');
+  assert.equal(canAccess('/incidents', 'IncidentLogger', 'Ethekwini'), false, 'the logger has four screens; the calls are not one of them');
   for (const [role, silo] of [['Police', 'MetroPolice'], ['Firefighter', 'MetroFire'], ['Paramedic', 'Medical'], ['Staff', 'Ethekwini']] as Array<[UserRole, Silo]>) {
     assert.equal(canAccess('/case-manager', role, silo), false, `${role} must not open case management`);
   }
@@ -566,4 +566,25 @@ test('the Active Responders terminal: the desks, command seat, admins and the vi
   assert.equal(canAccess('/responder', 'Police', 'MetroPolice'), true);
   assert.equal(canAccess('/responder', 'Dispatcher', 'Ethekwini'), false);
   assert.equal(RESPONDER_MONITOR_ACT_ROLES.includes('Viewer'), false, 'the viewer watches; they do not act');
+});
+
+test('the call logger: four screens and nothing else, refused by the server', () => {
+  const { role, silo } = at('IncidentLogger');
+  const yes = [
+    '/dashboard', '/dispatch/log-call', '/dispatch/log-call?resume=x', '/dispatch/log-history',
+    '/roster/mine', '/roster/allocation', '/leave', '/performance/mine', '/hierarchy', '/notifications', '/profile',
+  ];
+  for (const path of yes) assert.equal(canAccess(path.split('?')[0]!, role, silo), true, `the call logger opens ${path}`);
+  const no = [
+    '/incidents', '/incidents/abc', '/incidents/map', '/responder/monitor', '/sanral', '/cameras', '/cameras/footage',
+    '/report-hub', '/reports', '/reports/builder', '/analytics', '/performance', '/case-manager', '/assistant',
+    '/search', '/dispatch/pending', '/dispatch/kpi', '/dispatch/ptt', '/admin', '/modules', '/police', '/translations',
+  ];
+  for (const path of no) assert.equal(canAccess(path, role, silo), false, `the call logger must not open ${path}`);
+  // The logging form's own calls go through: their routes check for themselves.
+  assert.equal(canAccess('/api/places', role, silo), true);
+  // Everyone else unchanged: the control room still opens the calls.
+  assert.equal(canAccess('/incidents', 'ControlRoom', 'Ethekwini'), true);
+  assert.equal(canAccess('/dispatch/log-history', 'ControlRoom', 'Ethekwini'), true, 'the control room takes calls too');
+  assert.equal(canAccess('/dispatch/log-history', 'Dispatcher', 'Ethekwini'), false, 'a dispatcher does not log calls');
 });

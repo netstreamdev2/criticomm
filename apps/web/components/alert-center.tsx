@@ -8,7 +8,7 @@ import {
   type Alert,
 } from '@criticom/api';
 import {
-  CALLER_NOT_GIVEN, canAccess, DISPATCH_DESK_ROLES, detailsToFollow, GLOBAL_ROLES, receivesLiveOperations, type Silo, type UserRole,
+  CALLER_NOT_GIVEN, canAccess, canDismissSos, DISPATCH_DESK_ROLES, detailsToFollow, GLOBAL_ROLES, receivesLiveOperations, type Silo, type UserRole,
 } from '@criticom/db';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { useToast, type Severity, type ToastTone } from '@/components/toast';
@@ -74,6 +74,11 @@ export function AlertCenter({
   const [minimized, setMinimized] = useState<Alert[]>([]);
   const [acking, setAcking] = useState(false);
   const canDispatch = canAccess('/dispatch/assign/sos', role as UserRole, silo as Silo);
+  const canDismiss = canDismissSos(role);
+  // The call logger opens no call pages (CALL_LOGGER_PAGES): their calls' news
+  // points to Log history, and other people's calls are not theirs to hear.
+  const canOpenCalls = canAccess('/incidents/x', role as UserRole, silo as Silo);
+  const callHref = useCallback((id: string) => (canOpenCalls ? `/incidents/${id}` : '/dispatch/log-history'), [canOpenCalls]);
 
   // Sound is an admin knob — a silent control room stays silent. Stable
   // callbacks, so toggling nothing never re-subscribes the realtime streams.
@@ -141,7 +146,7 @@ export function AlertCenter({
       id: `alert-${alert.id}`,
       title: alert.title,
       body: alert.body ?? undefined,
-      href: alert.link ?? undefined,
+      href: alert.link && (canOpenCalls || !alert.link.startsWith('/incidents')) ? alert.link : undefined,
       from: alert.created_by && alert.created_by !== userId ? alert.created_by_name : null,
       audience: audienceLabel(alert),
       accent: AUDIENCE_TONE[audienceGroup(alert)],
@@ -153,7 +158,7 @@ export function AlertCenter({
     const quiet = ['info', 'mail', 'task', 'broadcast'].includes(alert.kind) && rank < 2;
     chime(alert.severity === 'Critical' ? 'critical' : quiet ? 'info' : 'dispatch');
     void markAlertRead(getBrowserSupabase(), alert.id).catch(() => {});
-  }, [notify, chime, interruptsAt, toastMs, userId]);
+  }, [notify, chime, interruptsAt, toastMs, userId, canOpenCalls]);
 
   useEffect(() => {
     let sb: ReturnType<typeof getBrowserSupabase>;
@@ -180,6 +185,7 @@ export function AlertCenter({
     const offNew = subscribeNewIncidents(sb, scope, (incident) => {
       // The person who logged it already has their own confirmation.
       if (incident.created_by && incident.created_by === userId) return;
+      if (!canOpenCalls) return;
       if (!forThisDesk(incident)) return;
 
       // An officer's SOS raises its own blocking alert; a second card for the
@@ -226,7 +232,28 @@ export function AlertCenter({
     });
 
     const offUpd = subscribeIncidentUpdates(sb, scope, (incident) => {
+      // An SOS finished anywhere (dismissed as a mistake, 0093, or worked to
+      // the end) leaves this screen too: its pop-up and its bar.
+      if (incident.source === 'Responder-Panic' && (incident.status === 'Resolved' || incident.status === 'Closed')) {
+        setQueue((cur) => cur.filter((a) => !(a.kind === 'sos' && a.incident_id === incident.id)));
+        setMinimized((cur) => cur.filter((a) => a.incident_id !== incident.id));
+        const dismissed = (incident as { sos_dismissed_at?: string | null; sos_dismissed_by_name?: string | null }).sos_dismissed_at;
+        if (dismissed && lastStatus.current.get(incident.id) !== 'dismissed') {
+          lastStatus.current.set(incident.id, 'dismissed');
+          push({
+            id: `sos-dismissed-${incident.id}`,
+            title: `SOS dismissed: ${incident.caller_name ?? incident.incident_number}`,
+            body: (incident as { sos_dismiss_reason?: string | null }).sos_dismiss_reason ?? undefined,
+            tone: 'success',
+            href: callHref(incident.id),
+            duration: 6000,
+          });
+          router.refresh();
+          return;
+        }
+      }
       if (!forThisDesk(incident)) return;
+      if (!canOpenCalls && incident.created_by !== userId) return;
       if (lastStatus.current.get(incident.id) === incident.status) return;
       lastStatus.current.set(incident.id, incident.status);
       push({
@@ -234,13 +261,13 @@ export function AlertCenter({
         title: `${incident.incident_number} → ${incident.status}`,
         body: `${incident.incident_type} · ${incident.location_address}`,
         tone: incident.status === 'Resolved' || incident.status === 'Closed' ? 'success' : 'info',
-        href: `/incidents/${incident.id}`,
+        href: callHref(incident.id),
         duration: 6000,
       });
     });
 
     return () => { offAlerts(); offNew(); offUpd(); };
-  }, [scope, userId, push, chime, chimeSeverity, showAlert, isDispatchDesk, toastMs, onTheFloor, forThisDesk]);
+  }, [scope, userId, push, chime, chimeSeverity, showAlert, isDispatchDesk, toastMs, onTheFloor, forThisDesk, canOpenCalls, callHref]);
 
   const current = queue[0];
 
@@ -255,7 +282,7 @@ export function AlertCenter({
     } finally {
       setAcking(false);
       setQueue((cur) => cur.slice(1));
-      if (thenOpen && current.link) router.push(current.link);
+      if (thenOpen && current.link && (canOpenCalls || !current.link.startsWith('/incidents'))) router.push(current.link);
     }
   };
 
@@ -290,7 +317,7 @@ export function AlertCenter({
   };
 
   const bar = (
-    <SosBar alerts={minimized} canDispatch={canDispatch} onExpand={expandSos} onAcknowledge={clearSos} />
+    <SosBar alerts={minimized} canDispatch={canDispatch} canDismiss={canDismiss} onExpand={expandSos} onAcknowledge={clearSos} />
   );
 
   if (!current) return bar;
@@ -304,6 +331,8 @@ export function AlertCenter({
           waiting={queue.length - 1}
           acking={acking}
           canDispatch={canDispatch}
+          canDismiss={canDismiss}
+          canOpen={canOpenCalls}
           onAcknowledge={(href) => clearSos(current, href)}
           onMinimize={() => minimizeSos(current)}
         />

@@ -41,7 +41,15 @@ test('durations read the way a shift says them', () => {
   assert.equal(formatElapsed(45), '45 min');
   assert.equal(formatElapsed(60), '1 h');
   assert.equal(formatElapsed(125), '2 h 5 min');
-  assert.equal(formatElapsed(60 * 24 * 3 + 60 * 4), '3 d 4 h');
+  assert.equal(formatElapsed(60 * 24 * 3 + 60 * 4), '3 days 4 h');
+  assert.equal(formatElapsed(60 * 24), '1 day');
+  // Never hundreds of hours or days for someone to work out.
+  assert.equal(formatElapsed(3647 * 60), '5 months', '3647 hours: 4 months 30 days reads as 5 months');
+  assert.equal(formatElapsed(364.9 * 60 * 24), '1 year', '11 months 30 days reads as a year');
+  assert.equal(formatElapsed(453 * 60 * 24), '1 year 2 months', '453 days');
+  assert.equal(formatElapsed(197 * 60 * 24 + 12 * 60), '6 months 14 days');
+  assert.equal(formatElapsed(31 * 60 * 24), '1 month');
+  assert.equal(formatElapsed(365.25 * 2 * 60 * 24), '2 years');
   assert.equal(formatElapsed(null), '—');
   assert.equal(formatElapsed(-5), '—');
   assert.equal(minutesBetween('2026-10-08T10:00:00Z', '2026-10-08T10:45:00Z'), 45);

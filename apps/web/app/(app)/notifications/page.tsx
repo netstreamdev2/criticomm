@@ -6,6 +6,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { MarkAllRead } from './mark-all-read';
 import { NotificationFeed, type FeedItem } from './feed';
 import { SendNotificationForm, WithdrawButton, type Person } from './send-form';
+import { canAccess } from '@criticom/db';
 import { getSession, siloFilter } from '@/lib/session';
 import { formatSaTime, timeAgo } from '@/lib/utils';
 import { requestT } from '@/lib/i18n';
@@ -22,7 +23,9 @@ const NO_REACH: NotificationReach = { groups: false, anyDepartment: false, organ
  */
 export default async function NotificationsPage() {
   const { t } = await requestT();
-  const { supabase, silo, userId } = await getSession();
+  const { supabase, silo, role, userId } = await getSession();
+  // The call logger opens no call pages (CALL_LOGGER_PAGES): no links into them.
+  const canOpenCalls = canAccess('/incidents/x', role, silo);
 
   const [alerts, reach, sent, profiles, arrivals] = await Promise.all([
     listMyAlerts(supabase, { limit: 80 }).catch(() => []),
@@ -38,7 +41,7 @@ export default async function NotificationsPage() {
       id: a.id,
       title: a.title,
       body: a.body,
-      link: a.link,
+      link: a.link && (canOpenCalls || !a.link.startsWith('/incidents')) ? a.link : null,
       kind: a.kind,
       severity: a.severity,
       createdAt: a.created_at,

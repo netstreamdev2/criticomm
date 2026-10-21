@@ -82,6 +82,8 @@ export class TalkSession {
     channel: string,
     private readonly hooks: TalkHooks,
     private readonly onState: (s: TalkState) => void,
+    /** Hear only: a radio woken by the console (0095) plays it and never opens its microphone. */
+    private readonly opts: { listenOnly?: boolean } = {},
   ) {
     this.state = {
       status: 'connecting', error: null, channel, name: channel, canSpeak: false, priority: false,
@@ -141,8 +143,9 @@ export class TalkSession {
     if (this.closed) { await room.disconnect(); return; }
     this.room = room;
     this.retries = 0;
-    this.set({ status: 'ready', name: pass.name, canSpeak: pass.canSpeak, priority: pass.priority, audioBlocked: !room.canPlaybackAudio });
-    if (pass.canSpeak) {
+    const canSpeak = pass.canSpeak && !this.opts.listenOnly;
+    this.set({ status: 'ready', name: pass.name, canSpeak, priority: canSpeak && pass.priority, audioBlocked: !room.canPlaybackAudio });
+    if (canSpeak) {
       this.step('Opening the microphone');
       try {
         // Ready but silent: the microphone is open and muted, so keying up is instant.

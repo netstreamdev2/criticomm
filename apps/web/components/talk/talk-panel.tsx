@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Headset, Mic, MicOff, Radio, Volume2, WifiOff } from 'lucide-react';
 import { TalkSession, channelTone, type TalkPass, type TalkState } from '@criticom/api/talk';
-import type { TalkChannel } from '@criticom/api';
+import { callRadios, type TalkChannel } from '@criticom/api';
 import { getBrowserSupabase } from '@/lib/supabase-browser';
 import { useT } from '@/components/i18n';
 
@@ -11,7 +11,16 @@ import { useT } from '@/components/i18n';
  * Push-to-talk in the console: hold the button (or the space bar) to talk to
  * the radios in a talk group, let go to listen. Who may join and speak is the
  * database's decision (talk_pass, 0083); every transmission is logged.
+ *
+ * The radios need not have Talk open: a press calls them (0095). With nobody
+ * listening yet, the button says "Calling radios…" until the first one has
+ * joined (a few seconds at most), then the on-air tone says talk now.
  */
+
+/** How long a press waits for a radio to join before going on the air anyway. */
+const CALL_WAIT_MS = 8_000;
+/** A press keeps the radios on; asking again more often than this adds nothing. */
+const CALL_EVERY_MS = 20_000;
 
 /** Short radio tones made in the browser: no sound files to load. */
 function makeCue() {
@@ -60,6 +69,8 @@ export function TalkPanel({ channels, compact = false, title = 'Talk' }: {
   const [state, setState] = useState<TalkState | null>(null);
   const [joined, setJoined] = useState(false);
   const [busyFlash, setBusyFlash] = useState(false);
+  const [calling, setCalling] = useState(false);
+  const lastCall = useRef<{ channel: string; at: number } | null>(null);
   const session = useRef<TalkSession | null>(null);
   const audioBox = useRef<HTMLDivElement>(null);
   const holding = useRef(false);
@@ -100,7 +111,28 @@ export function TalkPanel({ channels, compact = false, title = 'Talk' }: {
   const press = useCallback(async () => {
     if (holding.current || !session.current) return;
     holding.current = true;
-    const r = await session.current.press();
+    const s = session.current;
+    const { channel: ch, canSpeak, people } = s.state;
+    if (canSpeak) {
+      const alone = people.length <= 1;
+      const last = lastCall.current;
+      if (alone || !last || last.channel !== ch || Date.now() - last.at > CALL_EVERY_MS) {
+        lastCall.current = { channel: ch, at: Date.now() };
+        // Call the radios; with nobody on yet, wait for the first one before going on the air.
+        const called = callRadios(getBrowserSupabase(), ch).then(() => true, () => false);
+        if (alone && await called) {
+          setCalling(true);
+          const until = Date.now() + CALL_WAIT_MS;
+          while (holding.current && session.current === s && Date.now() < until && s.state.people.length <= 1) {
+            await new Promise((r) => setTimeout(r, 200));
+          }
+          setCalling(false);
+          // Let go while calling: the radios still come on for a minute.
+          if (!holding.current || session.current !== s) return;
+        }
+      }
+    }
+    const r = await s.press();
     if (r === 'busy') {
       setBusyFlash(true);
       setTimeout(() => setBusyFlash(false), 900);
@@ -110,6 +142,7 @@ export function TalkPanel({ channels, compact = false, title = 'Talk' }: {
   }, []);
   const release = useCallback(async () => {
     holding.current = false;
+    setCalling(false);
     await session.current?.release();
   }, []);
 
@@ -204,7 +237,7 @@ export function TalkPanel({ channels, compact = false, title = 'Talk' }: {
             }}
           >
             {onAir ? <Mic className="mb-1 h-8 w-8" /> : s?.canSpeak || !ready ? <Mic className="mb-1 h-8 w-8 opacity-90" /> : <MicOff className="mb-1 h-8 w-8" />}
-            {onAir ? `ON AIR ${s?.secondsLeft ?? ''}` : busyFlash ? 'BUSY' : !ready ? 'CONNECTING…' : s?.canSpeak ? 'HOLD TO TALK' : 'LISTEN ONLY'}
+            {onAir ? `ON AIR ${s?.secondsLeft ?? ''}` : calling ? t('CALLING RADIOS…') : busyFlash ? 'BUSY' : !ready ? 'CONNECTING…' : s?.canSpeak ? 'HOLD TO TALK' : 'LISTEN ONLY'}
           </button>
 
           <div className="min-w-0 space-y-2">
@@ -219,6 +252,8 @@ export function TalkPanel({ channels, compact = false, title = 'Talk' }: {
                 </>
               ) : onAir ? (
                 <span className="text-sm font-semibold text-red-500">{t('You are on the air. Let go to listen.')}</span>
+              ) : calling ? (
+                <span className="text-sm font-semibold text-amber-500">{t('Calling the radios… keep holding. Talk at the beep.')}</span>
               ) : s?.status === 'error' || s?.status === 'reconnecting' ? (
                 <span className="flex items-center gap-2 text-sm text-amber-500"><WifiOff className="h-4 w-4 shrink-0" />{s.error ?? STATUS_TEXT[s.status]}</span>
               ) : (

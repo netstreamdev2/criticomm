@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { computeInsights, insightsApply, loadCritiBoard } from '@criticom/api';
+import { canDismissSos } from '@criticom/db';
 import { critiSession } from '@/lib/criti/server';
 
 /**
@@ -20,7 +21,8 @@ export async function GET(req: Request) {
   try {
     const board = await loadCritiBoard(supabase, me);
     const insights = computeInsights({ me, incidents: board.incidents, crews: board.crews, thresholds: board.thresholds }, now);
-    return NextResponse.json({ insights, applies: true, at: now.toISOString() }, { headers: { 'Cache-Control': 'no-store' } });
+    // Whether this person may dismiss an SOS from its tile (0093); the database checks again.
+    return NextResponse.json({ insights, applies: true, canDismissSos: canDismissSos(me.role), at: now.toISOString() }, { headers: { 'Cache-Control': 'no-store' } });
   } catch {
     return NextResponse.json({ insights: [], applies: true, at: now.toISOString(), error: 'Criti could not read the board just now.' });
   }

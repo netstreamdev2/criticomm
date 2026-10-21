@@ -10,6 +10,7 @@ import { periodicUpdateAction } from './actions';
 import { CritiTiles } from '@/components/criti/insight-tiles';
 import { AttendanceNow } from '@/components/schedule/attendance-now';
 import { requestT } from '@/lib/i18n';
+import { readable } from '@/lib/readable';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Disaster Management · HikTech' };
@@ -34,7 +35,7 @@ export default async function DisasterPage() {
     .filter((x) => x.i?.call_timestamp)
     .map((x) => (new Date(x.l.dispatch_timestamp).getTime() - new Date(x.i!.call_timestamp).getTime()) / 60_000)
     .filter((m) => m >= 0);
-  const avgResponse = waits.length ? `${Math.round((waits.reduce((a, b) => a + b, 0) / waits.length) * 10) / 10}m` : 'N/A';
+  const avgResponse = waits.length ? readable(waits.reduce((a, b) => a + b, 0) / waits.length) : 'N/A';
   const resourcesDispatched = logs.filter((l) => l.resource_type).length;
   const liveLogs = logs.filter((l) => !l.incident_id || openIds.has(l.incident_id));
 

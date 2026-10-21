@@ -803,6 +803,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "1 call is not finished — finish it",
+  "text": "1 call is not finished — finish it",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/intake-board.tsx"
+  ]
+ },
+ {
   "key": "1 call sent early still needs its details",
   "text": "1 call sent early still needs its details",
   "context": null,
@@ -3053,6 +3061,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/admin/page.tsx",
    "apps/web/app/(app)/case-manager/case-ui.tsx",
    "apps/web/app/(app)/disaster/partners/page.tsx",
+   "apps/web/app/(app)/dispatch/log-history/page.tsx",
    "apps/web/app/(app)/incidents/page.tsx",
    "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
    "apps/web/app/(app)/modules/leave/page.tsx",
@@ -5146,8 +5155,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Avg response (min)",
-  "text": "Avg response (min)",
+  "key": "Avg response",
+  "text": "Avg response",
   "context": null,
   "where": [
    "apps/web/app/(app)/analytics/page.tsx",
@@ -5684,6 +5693,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Bigger",
+  "text": "Bigger",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
   ]
  },
  {
@@ -6495,6 +6512,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "CALLING RADIOS…",
+  "text": "CALLING RADIOS…",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/talk-panel.tsx"
+  ]
+ },
+ {
   "key": "CAS No.",
   "text": "CAS No.",
   "context": null,
@@ -6649,14 +6674,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Call Intake",
-  "text": "Call Intake",
-  "context": null,
-  "where": [
-   "apps/web/components/sidebar.tsx"
-  ]
- },
- {
   "key": "Call Sign Maintenance",
   "text": "Call Sign Maintenance",
   "context": null,
@@ -6710,6 +6727,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/report-centre/management/page.tsx"
+  ]
+ },
+ {
+  "key": "Call number, place or type",
+  "text": "Call number, place or type",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-history/page.tsx"
   ]
  },
  {
@@ -6818,16 +6843,16 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Call → closed today · target {value} min",
-  "text": "Call → closed today · target {value} min",
+  "key": "Call → closed today · target {value}",
+  "text": "Call → closed today · target {value}",
   "context": null,
   "where": [
    "apps/web/app/(app)/dashboard/dispatch-board.tsx"
   ]
  },
  {
-  "key": "Call → on scene today · target {value} min · dispatch {avgDispatch} min",
-  "text": "Call → on scene today · target {value} min · dispatch {avgDispatch} min",
+  "key": "Call → on scene today · target {value} · dispatch {avgDispatch}",
+  "text": "Call → on scene today · target {value} · dispatch {avgDispatch}",
   "context": null,
   "where": [
    "apps/web/app/(app)/dashboard/dispatch-board.tsx"
@@ -6919,6 +6944,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/incident-sheet.tsx"
+  ]
+ },
+ {
+  "key": "Calling the radios… keep holding. Talk at the beep.",
+  "text": "Calling the radios… keep holding. Talk at the beep.",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/talk-panel.tsx"
   ]
  },
  {
@@ -7137,7 +7170,8 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/components/ops-map/zones/zone-editor.tsx",
    "apps/web/components/ops-map/zones/zone-tools.tsx",
    "apps/web/components/register/bulk-run.tsx",
-   "apps/web/components/schedule/leave-actions.tsx"
+   "apps/web/components/schedule/leave-actions.tsx",
+   "apps/web/components/sos-dismiss.tsx"
   ]
  },
  {
@@ -8812,6 +8846,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/case-manager/audit/page.tsx",
+   "apps/web/app/(app)/dispatch/log-history/page.tsx",
    "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
    "apps/web/app/(app)/fire/inspections/page.tsx",
    "apps/web/app/(app)/medical/handovers/page.tsx",
@@ -9037,10 +9072,12 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/components/dispatch-map-modal.tsx",
    "apps/web/components/language-menu.tsx",
    "apps/web/components/office/notice.tsx",
+   "apps/web/components/ops-map/ops-map.tsx",
    "apps/web/components/ops-map/zones/zone-card.tsx",
    "apps/web/components/ops-map/zones/zone-tools.tsx",
    "apps/web/components/register/bulk-run.tsx",
    "apps/web/components/sidebar.tsx",
+   "apps/web/components/sos-dismiss.tsx",
    "apps/web/components/theme-picker.tsx",
    "apps/web/components/ui/modal.tsx"
   ]
@@ -9209,7 +9246,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Closed today",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx",
+   "apps/web/app/(app)/dashboard/intake-board.tsx"
   ]
  },
  {
@@ -12351,12 +12389,44 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Dismiss SOS",
+  "text": "Dismiss SOS",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-dismiss.tsx"
+  ]
+ },
+ {
   "key": "Dismiss notification",
   "text": "Dismiss notification",
   "context": null,
   "where": [
    "apps/web/components/heads-up.tsx",
    "apps/web/components/toast.tsx"
+  ]
+ },
+ {
+  "key": "Dismiss this SOS?",
+  "text": "Dismiss this SOS?",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-dismiss.tsx"
+  ]
+ },
+ {
+  "key": "Dismiss {label}?",
+  "text": "Dismiss {label}?",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-dismiss.tsx"
+  ]
+ },
+ {
+  "key": "Dismissing…",
+  "text": "Dismissing…",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-dismiss.tsx"
   ]
  },
  {
@@ -15310,6 +15380,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/admin/page.tsx",
    "apps/web/app/(app)/disaster/partners/page.tsx",
+   "apps/web/app/(app)/dispatch/log-history/page.tsx",
    "apps/web/app/(app)/incidents/page.tsx",
    "apps/web/app/(app)/police/crime-hotspots/page.tsx",
    "apps/web/app/(app)/police/fines/page.tsx"
@@ -16435,6 +16506,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/leave.tsx",
    "apps/web/app/(app)/cameras/footage/footage-browser.tsx",
+   "apps/web/app/(app)/dispatch/log-history/page.tsx",
    "apps/web/app/(app)/medical/handovers/page.tsx",
    "apps/web/app/(app)/medical/pcr/page.tsx",
    "apps/web/app/(app)/modules/leave/page.tsx",
@@ -18319,6 +18391,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "How serious",
+  "text": "How serious",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/intake-board.tsx"
+  ]
+ },
+ {
   "key": "How the call came in",
   "text": "How the call came in",
   "context": null,
@@ -19690,14 +19770,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Intake Dashboard",
-  "text": "Intake Dashboard",
-  "context": null,
-  "where": [
-   "apps/web/components/sidebar.tsx"
-  ]
- },
- {
   "key": "Integrations",
   "text": "Integrations",
   "context": null,
@@ -20736,6 +20808,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/pcr/[id].tsx",
    "apps/mobile/app/post-mortem/[id].tsx"
+  ]
+ },
+ {
+  "key": "It stays on the record with your name and the reason.",
+  "text": "It stays on the record with your name and the reason.",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-dismiss.tsx"
   ]
  },
  {
@@ -22440,10 +22520,23 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Log History",
+  "text": "Log History",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/intake-board.tsx",
+   "apps/web/app/(app)/dispatch/log-history/page.tsx",
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Log Incoming Call",
   "text": "Log Incoming Call",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dashboard/intake-board.tsx",
+   "apps/web/app/(app)/dispatch/log-history/page.tsx",
    "apps/web/components/sidebar.tsx",
    "apps/web/lib/nav.ts"
   ]
@@ -24038,8 +24131,17 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "My calls",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dashboard/intake-board.tsx",
    "apps/web/app/(app)/responder/page.tsx",
    "apps/web/app/(app)/shift/mental-check/page.tsx"
+  ]
+ },
+ {
+  "key": "My calls on the map",
+  "text": "My calls on the map",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/intake-board.tsx"
   ]
  },
  {
@@ -24137,6 +24239,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "My open calls",
   "context": null,
   "where": [
+   "apps/web/app/(app)/dashboard/intake-board.tsx",
    "apps/web/app/(app)/dashboard/page.tsx"
   ]
  },
@@ -25164,6 +25267,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "No calls here.",
+  "text": "No calls here.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-history/page.tsx"
   ]
  },
  {
@@ -26861,6 +26972,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Not finished — finish it",
+  "text": "Not finished — finish it",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-history/page.tsx"
+  ]
+ },
+ {
   "key": "Not for your role",
   "text": "Not for your role",
   "context": null,
@@ -27980,6 +28099,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/police/reports/new/report-form.tsx",
    "apps/web/app/(app)/police/reports/reports-list.tsx",
    "apps/web/app/(app)/shift/today/page.tsx",
+   "apps/web/components/ops-map/ops-map.tsx",
    "apps/web/components/police-report-view.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
@@ -28443,6 +28563,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Only if there is no emergency. Why?",
+  "text": "Only if there is no emergency. Why?",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-dismiss.tsx"
+  ]
+ },
+ {
   "key": "Only me",
   "text": "Only me",
   "context": null,
@@ -28759,7 +28887,8 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
    "apps/web/app/(app)/dispatch/log-call/page.tsx",
    "apps/web/app/(app)/responder/monitor/responder-board.tsx",
-   "apps/web/components/criti/proposal-card.tsx"
+   "apps/web/components/criti/proposal-card.tsx",
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -33070,7 +33199,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Report Builder",
   "context": null,
   "where": [
-   "apps/web/components/sidebar.tsx",
    "apps/web/lib/nav.ts"
   ]
  },
@@ -34933,6 +35061,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/live-map.tsx",
    "apps/mobile/components/alerts.tsx",
    "apps/mobile/components/panic-button.tsx",
+   "apps/web/components/ops-map/ops-map.tsx",
    "packages/db/src/intake.ts"
   ]
  },
@@ -34958,6 +35087,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/panic-button.tsx"
+  ]
+ },
+ {
+  "key": "SOS dismissed",
+  "text": "SOS dismissed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -35429,6 +35566,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Say why",
+  "text": "Say why",
+  "context": null,
+  "where": [
+   "apps/web/components/sos-dismiss.tsx"
+  ]
+ },
+ {
   "key": "Say why you have no bodycam today.",
   "text": "Say why you have no bodycam today.",
   "context": null,
@@ -35555,6 +35700,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/components/report-wizard.tsx",
    "apps/web/app/(app)/case-manager/case-ui.tsx",
+   "apps/web/app/(app)/dispatch/log-history/page.tsx",
    "apps/web/app/(app)/incidents/page.tsx",
    "apps/web/app/(app)/police/fines/page.tsx",
    "apps/web/app/(app)/police/report-centre/records/page.tsx",
@@ -37030,6 +37176,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/case-manager/case-ui.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
+   "apps/web/app/(app)/dispatch/log-history/page.tsx",
    "apps/web/app/(app)/dispatch/pending/page.tsx",
    "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
    "apps/web/app/(app)/police/security/new/page.tsx",
@@ -37482,6 +37629,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/fines-panel.tsx"
+  ]
+ },
+ {
+  "key": "Showing the latest 300. Use the dates to look further back.",
+  "text": "Showing the latest 300. Use the dates to look further back.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-history/page.tsx"
   ]
  },
  {
@@ -37986,6 +38141,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/admin/tenants/page.tsx",
    "apps/web/app/(app)/admin/tenants/tenant-forms.tsx"
+  ]
+ },
+ {
+  "key": "Smaller",
+  "text": "Smaller",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
   ]
  },
  {
@@ -40269,6 +40432,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The camera is not set up yet. Ask the system administrator.",
+  "text": "The camera is not set up yet. Ask the system administrator.",
+  "context": null,
+  "where": [
+   "apps/web/components/talk/radio-camera-viewer.tsx"
+  ]
+ },
+ {
   "key": "The camera registry (for the live map layer) is empty. It fills from the i-traffic API once SANRAL issues a key (",
   "text": "The camera registry (for the live map layer) is empty. It fills from the i-traffic API once SANRAL issues a key (",
   "context": null,
@@ -41505,6 +41676,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/leave.tsx",
    "apps/web/app/(app)/cameras/footage/footage-browser.tsx",
+   "apps/web/app/(app)/dispatch/log-history/page.tsx",
    "apps/web/app/(app)/medical/handovers/page.tsx",
    "apps/web/app/(app)/medical/pcr/page.tsx",
    "apps/web/app/(app)/modules/leave/page.tsx",
@@ -43852,6 +44024,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Waiting since {value}",
+  "text": "Waiting since {value}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
   "key": "Waiting to send",
   "text": "Waiting to send",
   "context": null,
@@ -44822,6 +45002,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/sections/page.tsx"
+  ]
+ },
+ {
+  "key": "Where the call is",
+  "text": "Where the call is",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dispatch/log-history/page.tsx"
   ]
  },
  {
@@ -47341,7 +47529,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "min",
   "context": null,
   "where": [
-   "apps/web/app/(app)/dashboard/dispatch-board.tsx",
    "apps/web/components/dispatch-map-modal.tsx"
   ]
  },
@@ -47778,6 +47965,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/description.tsx"
+  ]
+ },
+ {
+  "key": "the control room",
+  "text": "the control room",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx"
   ]
  },
  {
@@ -48939,6 +49134,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} SOS here",
+  "text": "{n} SOS here",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "{n} alerts still waiting on your acknowledgement.",
   "text": "{n} alerts still waiting on your acknowledgement.",
   "context": null,
@@ -48985,6 +49188,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/sync-tray.tsx"
+  ]
+ },
+ {
+  "key": "{n} calls are not finished — finish them",
+  "text": "{n} calls are not finished — finish them",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/dashboard/intake-board.tsx"
   ]
  },
  {
@@ -49577,8 +49788,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "{stateWords} · {floor} min",
-  "text": "{stateWords} · {floor} min",
+  "key": "{stateWords} · {floor}",
+  "text": "{stateWords} · {floor}",
   "context": null,
   "where": [
    "apps/web/components/schedule/attendance-now.tsx"
@@ -49927,6 +50138,17 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/performance/plans/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "{value}'s SOS",
+  "text": "{value}'s SOS",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/incidents/[id]/page.tsx",
+   "apps/web/components/ops-map/ops-map.tsx",
+   "apps/web/components/panic-banner.tsx",
+   "apps/web/components/sos-alert.tsx"
   ]
  },
  {

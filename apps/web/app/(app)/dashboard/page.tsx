@@ -19,6 +19,7 @@ import { QuickLinks } from '@/components/quick-links';
 import { FinesPanel } from '@/components/fines-panel';
 import { getFeatures } from '@/lib/features';
 import { DispatchBoard } from './dispatch-board';
+import { IntakeBoard } from './intake-board';
 import { BoardLive } from './board-live';
 import { getSession, siloFilter } from '@/lib/session';
 import { hasSidebar, isDisasterDesk, isEmsAdmin, isFireCommand } from '@/lib/nav';
@@ -173,6 +174,16 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const sf = siloFilter(silo);
   const first = fullName.split(' ')[0];
   const usesSidebar = hasSidebar(role, silo);
+
+  // The call logger: their own calls, two big buttons, nothing to wander into.
+  if (role === 'IncidentLogger') {
+    return (
+      <div className="space-y-4">
+        {!usesSidebar && <DashboardLogo />}
+        <IntakeBoard supabase={supabase} role={role} silo={silo} userId={userId} />
+      </div>
+    );
+  }
 
   // Dispatchers get the V4-style ops board: stats above the fold, feed +
   // critical wait, the live map, throughput. Quick actions follow below.

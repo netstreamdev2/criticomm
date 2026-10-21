@@ -19,6 +19,7 @@ const HOW_A_CALL_MOVES = `HOW A CALL MOVES
 The desk may record a step for a crew that radioed it in (En Route, Arrived, On Scene, Transporting), never Resolved or Closed.
 A department's dispatch desk sees only the calls sent to it and dispatches its own crews. To bring another department in, send the call to that department's desk.
 An officer's SOS (the panic button in the app) raises a Critical call and alerts their department's desk, the control room and command at once.
+An SOS pressed by mistake can be dismissed, with a reason, by the system administrators, the system controller and dispatch: from the map, the alerts, Criti's tile or the call itself. It then leaves every screen and alert, and stays on the record (the call, its timeline and the audit trail).
 Every department's start of shift begins with the same six readiness questions. A No needs a note and stands the person down until a supervisor deals with it.`;
 
 const DEPARTMENTS: Record<Silo, string> = {

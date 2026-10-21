@@ -21,7 +21,7 @@ export const dynamic = 'force-dynamic';
 
 const FILE_RE = /^[A-Za-z0-9._-]+\.(m3u8|ts)$/;
 
-export async function GET(_req: Request, { params }: { params: Promise<{ path: string[] }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const { path } = await params;
   if (!path || path.length !== 2) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
@@ -49,6 +49,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ path: s
   if (target.protocol !== 'http:' && target.protocol !== 'https:') {
     return NextResponse.json({ error: 'Bad stream token' }, { status: 400 });
   }
+  // Forward the query string: playback playlists and their segments carry
+  // required params (beginTime, endTime, cameraIndex, the session token…);
+  // live segments have none, so this is a no-op for them.
+  target.search = new URL(req.url).search;
   const supabase = await getServerSupabase();
   const cfg = await hikConfig(supabase);
   let platformHost: string;

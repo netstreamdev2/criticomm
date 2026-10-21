@@ -23,10 +23,15 @@ export const CRITI_INCIDENT_COLUMNS = [
 
 const SENT_NOT_DONE = '("New","Pending","Pending Dispatch","Pending Analysis","Closed","Resolved")';
 
+/** An SOS dismissed as a mistake (0093), so Criti knows it is gone and why. */
+export type DismissedSos = { number: string; officer: string | null; by: string | null; at: string; reason: string | null };
+
 export type CritiBoard = {
   incidents: CritiIncident[];
   crews: CritiCrew[];
   thresholds: CritiThresholds;
+  /** Dismissed in the last 24 hours. Absent before 0093. */
+  dismissedSos?: DismissedSos[];
 };
 
 /**
@@ -75,10 +80,19 @@ export async function loadCritiBoard(client: CriticomClient, me: Pick<CritiMe, '
     .not('status', 'in', '("Closed","Resolved")')
     .order('incident_created_at', { ascending: false })
     .limit(400);
-  const [first, crews, thresholds] = await Promise.all([
+  const [first, crews, thresholds, dismissedSos] = await Promise.all([
     read(own ? `${CRITI_INCIDENT_COLUMNS}, ${PARTS}` : CRITI_INCIDENT_COLUMNS),
     listOnDutyOfficers(client, team === 'all' ? undefined : team).catch(() => [] as CritiCrew[]),
     loadThresholds(client),
+    // SOS calls dismissed as a mistake in the last day (0093): read under the person's own rules.
+    client.from('incidents')
+      .select('incident_number, caller_name, sos_dismissed_by_name, sos_dismissed_at, sos_dismiss_reason')
+      .gte('sos_dismissed_at', new Date(Date.now() - 24 * 3_600_000).toISOString())
+      .order('sos_dismissed_at', { ascending: false })
+      .limit(20)
+      .then((r) => ((r.data ?? []) as unknown as Array<Record<string, string | null>>).map((x): DismissedSos => ({
+        number: x.incident_number ?? '', officer: x.caller_name ?? null, by: x.sos_dismissed_by_name ?? null, at: x.sos_dismissed_at ?? '', reason: x.sos_dismiss_reason ?? null,
+      })), () => [] as DismissedSos[]),
   ]);
   // Before 0073 there are no parts to read.
   const incidentsRes = own && first.error && (first.error.code === 'PGRST200' || /incident_departments/.test(first.error.message ?? ''))
@@ -110,5 +124,5 @@ export async function loadCritiBoard(client: CriticomClient, me: Pick<CritiMe, '
     for (const i of incidents) i.last_note_at = latest.get(i.id) ?? null;
   }
 
-  return { incidents, crews, thresholds };
+  return { incidents, crews, thresholds, dismissedSos };
 }

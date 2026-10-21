@@ -53,19 +53,26 @@ export async function bodycamStream(
     throw new StreamUnavailable('This bodycam has no Hikvision camera code on the register yet. Add it on the bodycam register.');
   }
 
-  // Opt-in fallback: on a host whose platform HLS does not work, repackage the
-  // RTSP into HLS with ffmpeg (needs a long-lived Node server, not serverless).
-  if (args.kind === 'live' && cfg.relayLive) {
-    const rtsp = await hikRtspUrl(cfg, args.cameraCode);
-    if (!rtsp) throw new StreamUnavailable('The Hikvision platform returned no stream address.');
-    const { playlistUrl } = await startRelay(args.cameraCode, rtsp);
-    return { url: playlistUrl, test: false, insecure: false };
+  // Live view: the platform's own HLS, served through our origin (proxyUrlFor) —
+  // no ffmpeg, works on serverless. relay_live forces the ffmpeg path instead,
+  // for a host whose platform live HLS does not work.
+  if (args.kind === 'live') {
+    if (cfg.relayLive) {
+      const rtsp = await hikRtspUrl(cfg, args.cameraCode);
+      if (!rtsp) throw new StreamUnavailable('The Hikvision platform returned no stream address.');
+      const { playlistUrl } = await startRelay(args.cameraCode, rtsp);
+      return { url: playlistUrl, test: false, insecure: false };
+    }
+    const live = await hikPreviewUrl(cfg, args.cameraCode);
+    if (!live) throw new StreamUnavailable('The Hikvision platform returned no stream address.');
+    return { url: proxyUrlFor(live), test: false, insecure: false };
   }
 
-  // Default: the platform's own HLS, served through our origin (see proxyUrlFor).
-  const platformUrl = args.kind === 'live'
-    ? await hikPreviewUrl(cfg, args.cameraCode)
-    : await hikPlaybackUrl(cfg, { cameraIndexCode: args.cameraCode, beginIso: args.from!, endIso: args.to! });
-  if (!platformUrl) throw new StreamUnavailable('The Hikvision platform returned no stream address.');
-  return { url: proxyUrlFor(platformUrl), test: false, insecure: false };
+  // Footage: the platform serves recorded playback only over a sustained ffmpeg
+  // session (one-off segment fetches come back empty), so relay it to HLS on our
+  // own server rather than proxying. Needs a long-lived Node host, not serverless.
+  const playback = await hikPlaybackUrl(cfg, { cameraIndexCode: args.cameraCode, beginIso: args.from!, endIso: args.to! });
+  if (!playback) throw new StreamUnavailable('The Hikvision platform returned no stream address.');
+  const { playlistUrl } = await startRelay(args.cameraCode, playback, { kind: 'footage' });
+  return { url: playlistUrl, test: false, insecure: false };
 }

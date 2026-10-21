@@ -4,6 +4,7 @@ import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { getSession } from '@/lib/session';
 import { PerfNav, cycleWindow } from '../perf-nav';
 import { requestT } from '@/lib/i18n';
+import { readable } from '@/lib/readable';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Role KPIs · HikTech' };
@@ -84,7 +85,7 @@ export default async function RoleKpisPage({
                 <Td className="font-mono">{m.callsTaken}</Td>
                 <Td className="font-mono">{m.dispatched}</Td>
                 <Td className="font-mono">{m.closed}</Td>
-                <Td className="font-mono">{m.avgResponseMinutes}</Td>
+                <Td className="whitespace-nowrap">{readable(m.avgResponseMinutes)}</Td>
                 <Td className="font-mono">{m.logons}</Td>
               </Tr>
             ))}

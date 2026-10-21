@@ -7,6 +7,7 @@ import { recordFixes, refreshRouteStatus, sendRoute, startRoute, stopRoute } fro
 import { onDutyFix, onDutyTick } from '@/lib/radio-keys';
 import { HEARTBEAT_MS, presenceSignedIn, reportPresence } from '@/lib/presence';
 import { cameraStandby, checkCamera } from '@/lib/radio-camera';
+import { checkTalk, startTalkWatch, stopTalkWatch } from '@/lib/radio-talk';
 
 /**
  * Records the officer's route while they are on duty, whichever screen is
@@ -100,6 +101,7 @@ export function RadioPresence() {
     const offTick = onDutyTick(() => {
       void reportPresence({ minGapMs: 30_000 });
       void checkCamera();
+      void checkTalk();
     });
     const offFix = onDutyFix((f) => {
       void recordFixes([{
@@ -124,12 +126,15 @@ export function RadioPresence() {
     const standby = () => { if (AppState.currentState === 'active') void cameraStandby(onDuty); };
     standby();
     if (!onDuty) return;
+    // The console's calls (0095): heard with the screen off, no Talk screen needed.
+    startTalkWatch();
     const timer = setInterval(() => { void checkCamera(); }, 8_000);
     void checkCamera();
     const app = AppState.addEventListener('change', (s) => { if (s === 'active') { standby(); void checkCamera(); } });
     return () => {
       clearInterval(timer);
       app.remove();
+      void stopTalkWatch();
     };
   }, [userId, onDuty]);
 

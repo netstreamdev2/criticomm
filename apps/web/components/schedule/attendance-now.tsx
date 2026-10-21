@@ -6,6 +6,7 @@ import {
 import { canManageRoster, departmentName, type Silo, type UserRole } from '@criticom/db';
 import { getServerSupabase } from '@/lib/supabase';
 import { requestT } from '@/lib/i18n';
+import { readable } from '@/lib/readable';
 
 /**
  * Who is on shift now in the department, and who has not started — for those
@@ -67,7 +68,7 @@ export async function AttendanceNow({ viewerRole: role, silo, ownSilo = silo }: 
                     </span>
                   </span>
                   <span className={`text-xs font-bold ${state === 'not_started' ? 'text-danger' : 'text-warning'}`}>
-                    {t('{stateWords} · {floor} min', { stateWords: stateWords(state), floor: Math.floor((now - Date.parse(l.start_at!)) / 60_000) })}</span>
+                    {t('{stateWords} · {floor}', { stateWords: stateWords(state), floor: readable((now - Date.parse(l.start_at!)) / 60_000) })}</span>
                 </li>
               ))}
             </ul>

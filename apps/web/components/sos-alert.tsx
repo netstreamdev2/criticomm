@@ -1,5 +1,6 @@
 'use client';
 
+import { DismissSos } from './sos-dismiss';
 import { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, Clock, MapPin, Minus, Radio, Siren, UserRound, Volume2, X } from 'lucide-react';
 import { getIncident, type Alert } from '@criticom/api';
@@ -98,8 +99,12 @@ const hasPoint = (i: Incident | null) => Boolean(i && i.location_lat && i.locati
  * silent, until it is reopened or cleared.
  */
 export function SosAlert({
-  alert, waiting, acking, canDispatch, onAcknowledge, onMinimize,
+  alert, waiting, acking, canDispatch, canDismiss = false, canOpen = true, onAcknowledge, onMinimize,
 }: {
+  /** May open the call (the call logger may not: CALL_LOGGER_PAGES). */
+  canOpen?: boolean;
+  /** May dismiss an SOS pressed by mistake (0093). */
+  canDismiss?: boolean;
   alert: Alert;
   /** Other alerts queued behind this one. */
   waiting: number;
@@ -247,7 +252,7 @@ export function SosAlert({
             >
               <Siren className="h-4 w-4" /> {' '}{t('Dispatch SOS')}</button>
           ) : null}
-          {id ? (
+          {id && canOpen ? (
             <button
               type="button"
               disabled={acking}
@@ -255,6 +260,12 @@ export function SosAlert({
               className={cn('h-12 rounded-lg border border-border px-5 text-sm font-semibold hover:bg-muted disabled:opacity-60', !canDispatch && 'flex-1')}
             >
               {t('Open incident')}</button>
+          ) : null}
+          {id && canDismiss ? (
+            <DismissSos
+              incidentId={id} label={t("{value}'s SOS", { value: alert.created_by_name ?? incident?.responding_officer ?? 'the officer' })}
+              className="h-12" onDone={() => onAcknowledge()}
+            />
           ) : null}
           <button
             type="button"
@@ -275,10 +286,12 @@ export function SosAlert({
  * sight until someone reopens or clears it.
  */
 export function SosBar({
-  alerts, canDispatch, onExpand, onAcknowledge,
+  alerts, canDispatch, canDismiss = false, onExpand, onAcknowledge,
 }: {
   alerts: Alert[];
   canDispatch: boolean;
+  /** May dismiss an SOS pressed by mistake (0093). */
+  canDismiss?: boolean;
   onExpand: (alert: Alert) => void;
   onAcknowledge: (alert: Alert, href?: string) => void;
 }) {
@@ -308,6 +321,13 @@ export function SosBar({
               className="shrink-0 rounded-md bg-black/25 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-black/35"
             >
               {t('Dispatch')}</button>
+          ) : null}
+          {canDismiss && alert.incident_id ? (
+            <DismissSos
+              incidentId={alert.incident_id} tone="icon" className="shrink-0"
+              label={t("{value}'s SOS", { value: alert.created_by_name ?? 'the officer' })}
+              onDone={() => onAcknowledge(alert)}
+            />
           ) : null}
           <button
             type="button"

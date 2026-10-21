@@ -39,6 +39,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Dispatch',
     items: [
       { href: '/dispatch/log-call', label: 'Log Incoming Call', icon: PhoneCall, keywords: 'new 911 call create incident' },
+      { href: '/dispatch/log-history', label: 'Log History', icon: History, keywords: 'calls i logged my calls status pending dispatch' },
       { href: '/dispatch/pending', label: 'Pending Queue', icon: ListChecks, keywords: 'queue awaiting assign' },
       { href: '/dispatch/kpi', label: 'KPI Dashboard', icon: BarChart3, keywords: 'metrics stats' },
       { href: '/incidents', label: 'All Incidents', icon: MapPinned, keywords: 'search log history' },
@@ -207,7 +208,7 @@ export const POLICE_OPERATIONS: NavItem = {
 
 /** Human labels for path segments that aren't top-level nav entries. */
 const SEGMENT_LABELS: Record<string, string> = {
-  dispatch: 'Dispatch', incidents: 'Incidents', 'log-call': 'Log Call', pending: 'Pending Queue',
+  dispatch: 'Dispatch', incidents: 'Incidents', 'log-call': 'Log Call', 'log-history': 'Log History', pending: 'Pending Queue',
   kpi: 'KPI', map: 'Live Map', assign: 'Assign', ptt: 'PTT Radio',
   reports: 'Reports', builder: 'Report Builder', 'report-hub': 'Report Hub', 'case-manager': 'Case Manager', audit: 'Audit',
   hierarchy: 'Hierarchy', person: 'Personnel Record', responder: 'My Incidents',

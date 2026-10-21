@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { readable } from '@/lib/readable';
 import { notFound } from 'next/navigation';
 import { getFirefighterReport } from '@criticom/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +19,7 @@ function Item({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-const min = (s: number) => (s > 0 ? `${Math.round(s / 60)} min` : null);
+const min = (s: number) => (s > 0 ? readable(s / 60) : null);
 
 export default async function FireReportDetailPage({
   params,

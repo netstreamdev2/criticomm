@@ -38,7 +38,7 @@ import {
   type DutyTrackPoint, type LiveMapZone, type OnDutyOfficer,
 } from '@criticom/api';
 import {
-  DEPARTMENT_NAMES, canDrawMapZones, canWatchBodycam,
+  DEPARTMENT_NAMES, canDismissSos, canDrawMapZones, canWatchBodycam,
   type Database, type MapZoneKind, type MapZoneShape, type Silo, type UserRole,
 } from '@criticom/db';
 import { BodycamViewer, type BodycamTarget, type ViewReason } from '@/components/bodycam/bodycam-viewer';
@@ -52,8 +52,8 @@ import {
   parseTraffic, restoreLayers, ROUTE_COLOUR, routeSegments, summariseIncidents,
   type Basemap, type CrimeKind, type CrimeStation, type Facility, type LayerId, type TrafficItem,
 } from '@/lib/ops-map/layers';
-import { fromGeometry, kindsForShape, zoneKind, type LatLng, type ZoneDraft } from '@/lib/ops-map/zones';
-import { cn } from '@/lib/utils';
+import { distanceM, fromGeometry, kindsForShape, zoneKind, type LatLng, type ZoneDraft } from '@/lib/ops-map/zones';
+import { cn, timeAgo } from '@/lib/utils';
 import { saveZoneAction } from '@/app/(app)/incidents/map/actions';
 import * as M from './markers';
 import { ZoneDrawController, type DrawSnapshot } from './zones/draw-controller';
@@ -62,6 +62,7 @@ import { ZoneCard } from './zones/zone-card';
 import { ZoneEditor, type EditorIncident, type ZoneFormInit } from './zones/zone-editor';
 import { DrawToolbar, PlacingBar, ZonesList } from './zones/zone-tools';
 import { DispatchMapModal } from '@/components/dispatch-map-modal';
+import { DismissSos } from '@/components/sos-dismiss';
 import { useT } from '@/components/i18n';
 
 type L = typeof Leaflet;
@@ -79,6 +80,8 @@ type WeatherNow = {
 };
 
 const DURBAN: [number, number] = [-29.8587, 31.0218];
+/** SOS pins this close together are listed together in one card. */
+const SOS_SPOT_M = 60;
 // v2: the perimeters layer arrived, on by default.
 const STORE = 'criticom:ops-map:v2';
 /** Someone touching the map pauses auto-fit for this long. */
@@ -173,26 +176,51 @@ export type OpsMapProps = {
    * canAssign lets the dispatcher assign from it.
    */
   liveRoutes?: { canAssign: boolean } | null;
+  /**
+   * The call logger's dashboard: only the calls `me` logged, no officers, no
+   * drawing, and a click zooms in instead of opening anything.
+   */
+  onlyMine?: boolean;
 };
 
 export function OpsMap({
   incidents: initialIncidents, officers: initialOfficers, silo, layers: available, defaults,
   basemap: defaultBasemap, scopeLabel, height = 560, startInWall = false,
-  me, focusZoneId = null, drawForIncidentId = null, bodycams = false, liveRoutes = null,
+  me, focusZoneId = null, drawForIncidentId = null, bodycams = false, liveRoutes = null, onlyMine = false,
 }: OpsMapProps) {
   const { t } = useT();
   const router = useRouter();
   const routerRef = useRef(router);
   routerRef.current = router;
 
-  const incidents = useLiveIncidents(initialIncidents, silo);
+  const liveIncidents = useLiveIncidents(initialIncidents, silo);
+  const incidents = useMemo(
+    () => (onlyMine ? liveIncidents.filter((i) => i.created_by === me.id) : liveIncidents),
+    [onlyMine, liveIncidents, me.id],
+  );
   const silos = useMemo(() => (silo ? [silo] : undefined), [silo]);
-  const officers = useOnDutyOfficers(initialOfficers, silos);
+  const officers = useOnDutyOfficers(onlyMine ? [] : initialOfficers, silos, !onlyMine);
   /** The call whose live dispatch map is open. */
   const [routingId, setRoutingId] = useState<string | null>(null);
   const routing = routingId ? incidents.find((i) => i.id === routingId) ?? null : null;
+  // An SOS pin opens its own card (open the call, or dismiss it as a mistake, 0093)
+  // for those who may dismiss; it closes by itself once the SOS is gone.
+  // Anchored to the spot, not one call: SOS presses from the same place sit on
+  // top of each other, so the card lists every open SOS within ~60 m of it,
+  // each to open or dismiss, and closes when none is left.
+  const [sosSpot, setSosSpot] = useState<{ lat: number; lng: number } | null>(null);
+  const sosHere = useMemo(() => (sosSpot
+    ? incidents
+      .filter((i) => isSos(i) && distanceM(sosSpot, { lat: i.location_lat, lng: i.location_lng }) <= SOS_SPOT_M)
+      .sort((a, b) => Date.parse(b.incident_created_at) - Date.parse(a.incident_created_at))
+    : []), [sosSpot, incidents]);
+  const mayDismissSos = canDismissSos(me.role);
+  const mayDismissRef = useRef(mayDismissSos);
+  mayDismissRef.current = mayDismissSos;
   const liveRoutesRef = useRef(liveRoutes);
   liveRoutesRef.current = liveRoutes;
+  const onlyMineRef = useRef(onlyMine);
+  onlyMineRef.current = onlyMine;
 
   /* ── What is switched on (remembered per browser) ─────────────────── */
 
@@ -442,7 +470,8 @@ export function OpsMap({
             if (d.placing) d.place({ lat, lng });
             return;
           }
-          if (wallRef.current) focus(lat, lng);
+          if (wallRef.current || onlyMineRef.current) focus(lat, lng);
+          else if (sos && mayDismissRef.current) setSosSpot({ lat, lng });
           else if (liveRoutesRef.current) setRoutingId(id);
           else routerRef.current.push(`/incidents/${id}`);
         });
@@ -851,7 +880,7 @@ export function OpsMap({
   const { zones, loaded: zonesLoaded, unavailable: zonesUnavailable, reload: reloadZones } = useLiveZones();
   const zonesRef = useRef(zones);
   zonesRef.current = zones;
-  const canDraw = canDrawMapZones(me.role);
+  const canDraw = canDrawMapZones(me.role) && !onlyMine;
   const deptName = useCallback((s: Silo) => DEPARTMENT_NAMES[s] ?? s, []);
   const [drawSnap, setDrawSnap] = useState<DrawSnapshot | null>(null);
   const [editing, setEditing] = useState<{ mode: 'new' | 'edit'; zoneId: string | null; init: ZoneFormInit } | null>(null);
@@ -1306,6 +1335,39 @@ export function OpsMap({
         <p className="ops-map-chrome ops-glass pointer-events-none absolute bottom-3 left-1/2 z-[5] -translate-x-1/2 rounded-md px-3 py-1 text-xs text-slate-300">
           {t('F11 for edge-to-edge · Esc to leave')}</p>
       )}
+
+      {sosSpot && sosHere.length && !wall ? (
+        <div className="ops-map-chrome absolute left-1/2 top-14 z-[6] w-[min(92%,26rem)] -translate-x-1/2 rounded-xl border-2 border-severity-critical bg-bg-card p-4 text-fg shadow-2xl">
+          <div className="flex items-start justify-between gap-2">
+            <p className="flex items-center gap-2 font-bold text-severity-critical-ink">
+              <Siren className="h-5 w-5 animate-pulse" />
+              {sosHere.length === 1 ? t('SOS') : t('{n} SOS here', { n: sosHere.length })}
+            </p>
+            <button type="button" onClick={() => setSosSpot(null)} aria-label={t('Close')} className="rounded-md p-1 hover:bg-muted"><X className="h-4 w-4" /></button>
+          </div>
+          <p className="mt-0.5 truncate text-sm text-muted-foreground">{sosHere[0]!.location_address}</p>
+          <ul className="mt-3 max-h-72 space-y-2 overflow-y-auto">
+            {sosHere.map((i) => (
+              <li key={i.id} className="rounded-lg border border-border p-2.5">
+                <p className="truncate text-sm font-bold">{i.caller_name ?? i.responding_officer ?? t('Officer')}</p>
+                <p className="text-xs text-muted-foreground">{i.incident_number} · {timeAgo(i.incident_created_at)} · {i.status}</p>
+                <div className="mt-2 flex gap-2">
+                  <button
+                    type="button" onClick={() => routerRef.current.push(`/incidents/${i.id}`)}
+                    className="h-9 flex-1 rounded-lg bg-severity-critical px-3 text-sm font-bold text-white"
+                  >
+                    {t('Open the call')}
+                  </button>
+                  <DismissSos
+                    incidentId={i.id} className="h-9 flex-1"
+                    label={t("{value}'s SOS", { value: i.caller_name ?? 'the officer' })}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       {routing && liveRoutes ? (
         <DispatchMapModal

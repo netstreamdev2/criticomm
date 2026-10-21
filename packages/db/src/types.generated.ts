@@ -263,6 +263,11 @@ export type Database = {
           /** 'Reviewed' (a resolved case, read and closed) or 'Cancelled' (closed live, without a report). */
           close_kind?: 'Reviewed' | 'Cancelled' | null;
           close_reason?: string | null;
+          /** An SOS dismissed as a mistake (0093): when, by whom, why. Absent before 0093 is run. */
+          sos_dismissed_at?: string | null;
+          sos_dismissed_by?: string | null;
+          sos_dismissed_by_name?: string | null;
+          sos_dismiss_reason?: string | null;
         };
         Insert: Partial<Database['public']['Tables']['incidents']['Row']>;
         Update: Partial<Database['public']['Tables']['incidents']['Row']>;
@@ -3021,6 +3026,8 @@ export type Database = {
         };
         Returns: Database['public']['Tables']['radio_devices']['Row'];
       };
+      /** Dismiss an SOS pressed by mistake (0093). */
+      dismiss_sos: { Args: { p_incident: string; p_reason: string }; Returns: Database['public']['Tables']['incidents']['Row'] };
       // ── Live camera from a radio (0091) ──
       start_radio_camera: {
         Args: { p_device: string };
@@ -3028,6 +3035,8 @@ export type Database = {
       };
       end_radio_camera: { Args: { p_view: string }; Returns: unknown };
       my_radio_camera: { Args: { p_device: string }; Returns: { id: string; startedAt: string; endsBy: string } | null };
+      call_radios: { Args: { p_channel: string }; Returns: { id: string; until: string; new: boolean } };
+      open_talk_wakes: { Args: Record<string, never>; Returns: Array<{ id: string; channel: string; until: string }> };
       radio_camera_pass: {
         Args: { p_view: string };
         Returns: { url: string; token: string; room: string; view: string; radio: boolean; endsBy: string };

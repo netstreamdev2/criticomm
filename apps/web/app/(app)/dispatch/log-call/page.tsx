@@ -35,7 +35,7 @@ export default async function LogCallPage({ searchParams }: { searchParams: Prom
           <p className="text-lg font-semibold">{t('This call cannot be carried on here')}</p>
           <p className="text-sm text-muted-foreground">{why}</p>
           <div className="flex flex-wrap justify-center gap-2 pt-1">
-            {call ? (
+            {call && canAccess('/incidents/x', role, silo) ? (
               <Link href={`/incidents/${call.id}`} className="rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-muted">
                 {t('Open the call')}
               </Link>
@@ -70,6 +70,7 @@ export default async function LogCallPage({ searchParams }: { searchParams: Prom
         key={resumeCall?.id ?? 'new'}
         defaultSilo={silo}
         canRoute={canRoute}
+        canOpenCalls={canAccess('/incidents/x', role, silo)}
         categoryTree={categoryTree}
         resume={resumeCall}
         tuning={{

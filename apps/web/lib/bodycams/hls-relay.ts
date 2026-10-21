@@ -137,14 +137,22 @@ function stopRelay(sessionId: string) {
 }
 
 /**
- * Start (or confirm) an ffmpeg relay for one RTSP stream and return the
- * same-origin HLS path the browser should play. Rejects if ffmpeg cannot be
- * launched or the first playlist never appears.
+ * Start an ffmpeg relay and return the same-origin HLS path the browser plays.
+ *
+ * 'live' pulls the bodycam's RTSP into a short rolling HLS window. 'footage'
+ * pulls the platform's recorded playback HLS into a growing, seekable VOD —
+ * needed because the platform only serves playback over a sustained ffmpeg
+ * session, not the one-off segment fetches a stateless proxy or the browser
+ * make. Rejects if ffmpeg cannot start or the first playlist never appears.
  */
-export async function startRelay(cameraCode: string, rtspUrl: string): Promise<{ sessionId: string; playlistUrl: string }> {
+export async function startRelay(
+  cameraCode: string,
+  inputUrl: string,
+  opts: { kind?: 'live' | 'footage' } = {},
+): Promise<{ sessionId: string; playlistUrl: string }> {
   reap();
   if (relays.size >= MAX_SESSIONS) {
-    throw new Error('Too many live views are open on this server. Close one and try again.');
+    throw new Error('Too many bodycam views are open on this server. Close one and try again.');
   }
 
   const sessionId = randomUUID();
@@ -153,23 +161,38 @@ export async function startRelay(cameraCode: string, rtspUrl: string): Promise<{
   writeFileSync(join(dir, ALIVE), ''); // start the heartbeat so the reaper waits
   const playlist = join(dir, PLAYLIST);
 
-  // Re-encode at a constant frame rate to give the stream clean timestamps
-  // (fps filter), then segment into a short rolling HLS window (delete_segments
-  // keeps the temp dir tiny). The bodycam has no audio channel, so -an.
-  const args = [
-    '-nostdin', '-loglevel', 'error',
-    '-rtsp_transport', 'tcp',
-    '-i', rtspUrl,
-    '-an',
-    ...videoArgs(),
-    '-f', 'hls',
-    '-hls_time', '2',
-    '-hls_list_size', '6',
-    '-hls_flags', 'delete_segments+append_list+omit_endlist',
-    '-hls_segment_type', 'mpegts',
-    '-hls_segment_filename', join(dir, 'seg_%05d.ts'),
-    playlist,
-  ];
+  // Both re-encode (clean timestamps, guaranteed browser-playable H.264); the
+  // bodycam has no audio, so -an. Live keeps a short rolling window; footage
+  // keeps every segment so the recording can be scrubbed.
+  const args = opts.kind === 'footage'
+    ? [
+        '-nostdin', '-loglevel', 'error',
+        '-i', inputUrl,
+        '-an',
+        ...videoArgs(),
+        '-f', 'hls',
+        '-hls_time', '4',
+        '-hls_list_size', '0',
+        '-hls_flags', 'append_list',
+        '-hls_playlist_type', 'event',
+        '-hls_segment_type', 'mpegts',
+        '-hls_segment_filename', join(dir, 'seg_%05d.ts'),
+        playlist,
+      ]
+    : [
+        '-nostdin', '-loglevel', 'error',
+        '-rtsp_transport', 'tcp',
+        '-i', inputUrl,
+        '-an',
+        ...videoArgs(),
+        '-f', 'hls',
+        '-hls_time', '2',
+        '-hls_list_size', '6',
+        '-hls_flags', 'delete_segments+append_list+omit_endlist',
+        '-hls_segment_type', 'mpegts',
+        '-hls_segment_filename', join(dir, 'seg_%05d.ts'),
+        playlist,
+      ];
 
   let proc: ChildProcess;
   try {

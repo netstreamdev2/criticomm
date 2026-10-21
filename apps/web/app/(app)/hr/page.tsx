@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { readable } from '@/lib/readable';
 import Link from 'next/link';
 import {
   BadgeCheck, BarChart3, Briefcase, CalendarClock, GraduationCap, IdCard,
@@ -190,7 +191,7 @@ export default async function HrHubPage() {
                           days <= 7 ? 'bg-severity-critical/15 text-severity-critical-ink' : 'bg-severity-medium/15 text-severity-medium-ink',
                         )}
                       >
-                        {days <= 0 ? 'today' : `${days}d`}
+                        {days <= 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${readable(days * 1440)}`}
                       </span>
                     </li>
                   );

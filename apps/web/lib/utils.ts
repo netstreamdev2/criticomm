@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { formatElapsed } from '@criticom/api/cases';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -35,9 +36,6 @@ export function timeAgo(d: string | Date | null | undefined) {
   const diff = Date.now() - date.getTime();
   const mins = Math.round(diff / 60_000);
   if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.round(hours / 24);
-  return `${days}d ago`;
+  // "45 min ago", "3 days 4 h ago", "5 months ago": never hundreds of days.
+  return `${formatElapsed(mins)} ago`;
 }

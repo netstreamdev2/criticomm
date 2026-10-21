@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth';
 import { getSupabase } from '@/lib/supabase';
 import { askMicrophone, liveKitNative, startTalkAudio, stopTalkAudio } from '@/lib/talk-native';
 import { setTalkPresence, useRadioId } from '@/lib/presence';
+import { screenTalk } from '@/lib/radio-talk';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, EmptyState } from '@/components/ui';
 import { useT } from '@/lib/i18n';
@@ -42,6 +43,11 @@ export default function TalkScreen() {
   const onAirNow = Boolean(state?.transmitting);
   useEffect(() => { setTalkPresence({ channel: inGroup, talking: onAirNow }); }, [inGroup, onAirNow]);
   useEffect(() => () => { setTalkPresence({ channel: null, talking: false }); }, []);
+  // Open on screen, Talk has the channel: a call from the console waits (lib/radio-talk.ts).
+  useEffect(() => {
+    screenTalk(true);
+    return () => screenTalk(false);
+  }, []);
 
   // The talk groups I may join; a call's own channel when opened from a call.
   useEffect(() => {
