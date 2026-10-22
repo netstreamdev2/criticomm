@@ -19,6 +19,8 @@ import { openDirections } from '@/lib/navigate';
 import { useSync } from '@/lib/sync';
 import { useFeature } from '@/lib/features';
 import { retainAttachment } from '@/lib/outbox';
+import { OnRecord } from '@/components/on-record';
+import { ArrivalStrip } from '@/components/arrival-strip';
 import { confirmAccept } from '@/lib/accept';
 import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import {
@@ -58,6 +60,7 @@ export default function IncidentDetailScreen() {
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   // How long the recorder says it has recorded, updated twice a second.
   const [recordedMs, setRecordedMs] = useState(0);
+  const [files, setFiles] = useState<Awaited<ReturnType<typeof listIncidentAttachments>>>([]);
   const recordingRef = useRef<Audio.Recording | null>(null);
 
   const load = useCallback(async () => {
@@ -71,6 +74,7 @@ export default function IncidentDetailScreen() {
     setIncident(inc);
     setUpdates(upd);
     setPhotosFiled(files.filter((a) => a.kind === 'image').length);
+    setFiles(files);
     setLoading(false);
   }, [id, silo]);
 
@@ -130,12 +134,14 @@ export default function IncidentDetailScreen() {
     }
   };
 
-  const advance = async (which: 'action' | 'secondary' = 'action') => {
+  const advance = async (which: 'action' | 'secondary' = 'action', reason?: string) => {
     if (!incident || !session) return;
     const current = callView(incident, { userId: session.user.id, silo, onDuty }, queued.status, t);
     const action = which === 'secondary' ? current.secondary : current.action;
     if (!action) return;
     if (action.kind === 'report') { router.push(reportPathFor(incident.id, silo) as never); return; }
+    // On scene comes from the phone (0099); by hand only with a reason.
+    if (action.kind === 'arriving' && !reason) return;
     if (action.kind === 'respond' && onDuty === false) {
       notify(t('You are off duty. Go on duty to respond to incidents.'));
       return;
@@ -149,6 +155,10 @@ export default function IncidentDetailScreen() {
         incidentId: incident.id,
         status: action.kind === 'respond' ? 'En Route' : action.status,
         incidentNumber: incident.incident_number,
+        ...(reason ? { reason } : {}),
+        // The scene, so the phone can tell it has arrived with no signal.
+        ...(action.kind === 'respond' && incident.location_lat && incident.location_lng
+          ? { scene: { lat: incident.location_lat, lng: incident.location_lng } } : {}),
       });
     } catch (e) {
       notify((e as Error).message);
@@ -388,15 +398,26 @@ export default function IncidentDetailScreen() {
                 {action.asLead ? t('You will lead this incident.') : t('You will join as backup.')}{' '}{t('Dispatch is told at once.')}
               </Text>
             ) : null}
-            <Button
-              label={action.kind === 'respond' ? t('Accept') : action.label}
-              icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'checkmark-circle' : 'arrow-forward-circle'}
-              variant={action.kind === 'report' ? 'success' : 'primary'}
-              size="lg"
-              busy={busy === 'status'}
-              disabled={Boolean(view.blocked)}
-              onPress={() => void advance()}
-            />
+            {action.kind === 'arriving' ? (
+              // On the way (0099): the phone marks on scene; by hand only with a reason.
+              <ArrivalStrip
+                scene={incident.location_lat && incident.location_lng ? { lat: incident.location_lat, lng: incident.location_lng } : null}
+                silo={silo}
+                startDistanceM={incident.responders?.find((r) => r.user_id === session?.user.id)?.start_distance_m}
+                busy={busy === 'status'}
+                onMark={(reason) => void advance('action', reason)}
+              />
+            ) : (
+              <Button
+                label={action.kind === 'respond' ? t('Accept') : action.label}
+                icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'checkmark-circle' : 'arrow-forward-circle'}
+                variant={action.kind === 'report' ? 'success' : 'primary'}
+                size="lg"
+                busy={busy === 'status'}
+                disabled={Boolean(view.blocked)}
+                onPress={() => void advance()}
+              />
+            )}
             {view.secondary ? (
               <View style={{ marginTop: space.sm }}>
                 <Button
@@ -492,6 +513,9 @@ export default function IncidentDetailScreen() {
           </Muted>
         </Card>
       )}
+
+      {/* What is on record: reports and their forms, evidence to open or play, the PDF. */}
+      <OnRecord incident={incident} updates={updates} files={files} />
 
       {/* Timeline */}
       <SectionLabel>{t('Updates ({length})', { length: updates.length })}</SectionLabel>

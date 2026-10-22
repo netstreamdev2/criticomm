@@ -51,6 +51,7 @@ export async function POST(req: Request) {
     injuries: (Array.isArray(body.injuries) ? body.injuries : []).map((x) => str(x, 60)).filter(Boolean).slice(0, 12),
     victims: typeof body.victims === 'number' && Number.isInteger(body.victims) && body.victims >= 0 ? body.victims : null,
     isCallerPatient: typeof body.isCallerPatient === 'boolean' ? body.isCallerPatient : null,
+    patientsNamed: typeof body.patientsNamed === 'number' && Number.isInteger(body.patientsNamed) ? Math.min(Math.max(body.patientsNamed, 0), 50) : 0,
     description: str(body.description, 1500).trim(),
     details: cleanDetails(body.details),
   };

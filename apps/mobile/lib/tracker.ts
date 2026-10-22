@@ -12,6 +12,7 @@ import { BATCH, fromLocation, stillDeliverable, thin, type TrackPoint } from './
 import { BACKGROUND_EVERY_MS, notePresenceFix, notePresenceQueued, reportPresence } from './presence';
 import { checkCamera } from './radio-camera';
 import { checkTalk } from './radio-talk';
+import { checkArrivals } from './arrival-watch';
 
 /**
  * The route recorder: while an officer is on duty, the phone records where
@@ -189,6 +190,8 @@ export async function recordFixes(locations: readonly Location.LocationObject[])
   // With the screen off, the fixes are also what lets the radio hear the control room open its camera.
   void checkCamera();
   void checkTalk();
+  // At a scene with no signal: On Scene is queued from the fix itself.
+  void checkArrivals(userId, fixes);
 
   const kept = await serial(async () => {
     const out = thin(await lastKept(userId), fixes);

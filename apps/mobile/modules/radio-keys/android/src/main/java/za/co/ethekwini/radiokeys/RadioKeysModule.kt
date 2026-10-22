@@ -4,37 +4,50 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
+import android.view.KeyEvent
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
 /**
- * The push-to-talk radio's own buttons, heard by the HikTech app.
+ * The push-to-talk radio's and the smart hard hat's own buttons, heard by the
+ * HikTech app.
  *
- * The Estalky E977's system sends "android.intent.action.SOS.down" when the
- * orange SOS key is pressed and "...SOS.up" when it is let go (found on the
- * radio itself; PocStar's app listens for the same). Listened for only while
- * the app asks (the SOS button is on screen), so nothing runs when it is not.
+ * Two ways a button reaches an app:
  *
- * Also the radio's battery, for the Radio Desk (0087): read from the
- * system's last battery report when asked, so nothing runs in between.
+ *   * A broadcast from the device's system. The Estalky E977 sends
+ *     "android.intent.action.SOS.down" / ".up" for its orange SOS key (found on
+ *     the radio itself; PocStar listens for the same). Push-to-talk radios
+ *     commonly send ".PTT.down" / ".up" the same way; the usual spellings are
+ *     listened for. These arrive with the screen off, as long as the app runs.
+ *   * A key press, while the app is on screen (MainActivity hands every key
+ *     here, see plugins/with-radio-keys.js). Which key code is the talk button
+ *     and which the SOS differs by device: the app learns it (the Buttons
+ *     screen) and tells this module with setKeyMap. Only those keys are kept
+ *     from the rest of the app; every other key goes on as normal.
  *
- * And the on-duty standby (DutyMediaService, 0091): the camera, a wake-up
- * every few seconds (onDutyTick) and, without Google services, plain GPS
- * (onDutyFix).
+ * Also the radio's battery, for the Radio Desk (0087); the on-duty standby
+ * (DutyMediaService, 0091); opening the app when the device starts (a hard
+ * hat has no one to open it); and asking to be left out of battery saving.
  */
 class RadioKeysModule : Module() {
   private var receiver: BroadcastReceiver? = null
 
   override fun definition() = ModuleDefinition {
     Name("RadioKeys")
-    Events(EVENT, TICK_EVENT, FIX_EVENT)
+    Events(EVENT, TICK_EVENT, FIX_EVENT, HARDWARE_EVENT)
 
-    // The standby speaks to the app's code while it is running.
     OnCreate {
+      // The standby speaks to the app's code while it is running.
       DutyMediaService.onTick = { sendEvent(TICK_EVENT, mapOf("at" to System.currentTimeMillis().toDouble())) }
       DutyMediaService.onFix = { fix -> sendEvent(FIX_EVENT, fix) }
+      // Key presses from the screen; buttons from the system, screen off included.
+      KeyHub.emit = { name, body -> sendEvent(name, body) }
+      start()
     }
 
     // {"level": 0-100 or -1, "charging": true/false}; null when the system has not said.
@@ -97,10 +110,52 @@ class RadioKeysModule : Module() {
       context.stopService(Intent(context, DutyMediaService::class.java))
     }
 
-    OnStartObserving { start() }
-    OnStopObserving { stop() }
+    // The key codes learned for this device's talk and SOS buttons (the Buttons screen).
+    Function("setKeyMap") { ptt: List<Int>, sos: List<Int> ->
+      KeyHub.ptt = ptt.toSet()
+      KeyHub.sos = sos.toSet()
+      true
+    }
+
+    // Open the app when the device starts (BootReceiver): radios and hard hats.
+    Function("setOpenOnBoot") { on: Boolean ->
+      val context = appContext.reactContext ?: return@Function false
+      context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(PREF_OPEN_ON_BOOT, on).apply()
+      true
+    }
+
+    // Left out of battery saving: true, or false when the system may stop the app to save battery.
+    Function("ignoresBatterySaving") {
+      val context = appContext.reactContext ?: return@Function true
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return@Function true
+      val power = context.getSystemService(Context.POWER_SERVICE) as? PowerManager ?: return@Function true
+      power.isIgnoringBatteryOptimizations(context.packageName)
+    }
+
+    // Ask the person to leave the app out of battery saving (one system question).
+    Function("askToIgnoreBatterySaving") {
+      val context = appContext.reactContext ?: return@Function false
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return@Function false
+      val ask = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS)
+        .setData(Uri.parse("package:${context.packageName}"))
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      try {
+        context.startActivity(ask)
+        true
+      } catch (_: Exception) {
+        // Some builds have no such screen: the list of apps instead.
+        try {
+          context.startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+          true
+        } catch (_: Exception) {
+          false
+        }
+      }
+    }
+
     OnDestroy {
       stop()
+      KeyHub.emit = null
       DutyMediaService.onTick = null
       DutyMediaService.onFix = null
     }
@@ -112,15 +167,21 @@ class RadioKeysModule : Module() {
     val r = object : BroadcastReceiver() {
       override fun onReceive(c: Context?, intent: Intent?) {
         val action = intent?.action ?: return
-        if (action != SOS_DOWN && action != SOS_UP) return
-        sendEvent(EVENT, mapOf("key" to "sos", "pressed" to (action == SOS_DOWN), "at" to System.currentTimeMillis().toDouble()))
+        val key = when (action) {
+          in PTT_DOWN, in PTT_UP -> "ptt"
+          in SOS_DOWN, in SOS_UP -> "sos"
+          else -> return
+        }
+        val pressed = action in PTT_DOWN || action in SOS_DOWN
+        KeyHub.emit?.invoke(EVENT, mapOf(
+          "key" to key, "pressed" to pressed, "at" to System.currentTimeMillis().toDouble(), "source" to "broadcast", "action" to action,
+        ))
       }
     }
     val filter = IntentFilter().apply {
-      addAction(SOS_DOWN)
-      addAction(SOS_UP)
+      (PTT_DOWN + PTT_UP + SOS_DOWN + SOS_UP).forEach { addAction(it) }
     }
-    // The radio's system sends it, so it comes from outside the app.
+    // The device's system sends them, so they come from outside the app.
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       context.registerReceiver(r, filter, Context.RECEIVER_EXPORTED)
     } else {
@@ -143,7 +204,67 @@ class RadioKeysModule : Module() {
     const val EVENT = "onRadioKey"
     const val TICK_EVENT = "onDutyTick"
     const val FIX_EVENT = "onDutyFix"
-    const val SOS_DOWN = "android.intent.action.SOS.down"
-    const val SOS_UP = "android.intent.action.SOS.up"
+    const val HARDWARE_EVENT = "onHardwareKey"
+    const val PREFS = "za.co.ethekwini.radiokeys"
+    const val PREF_OPEN_ON_BOOT = "openOnBoot"
+
+    /** The talk button, as push-to-talk radios commonly announce it. */
+    val PTT_DOWN = setOf(
+      "android.intent.action.PTT.down", "android.intent.action.PTT_DOWN", "android.intent.action.PTT_KEY_DOWN",
+      "android.intent.action.ptt.down", "com.android.action.PTT_DOWN", "com.sonim.intent.action.PTT_KEY_DOWN",
+      "com.runbo.ptt.key.down", "com.zello.ptt.down", "android.intent.action.side_key.keydown.PTT",
+    )
+    val PTT_UP = setOf(
+      "android.intent.action.PTT.up", "android.intent.action.PTT_UP", "android.intent.action.PTT_KEY_UP",
+      "android.intent.action.ptt.up", "com.android.action.PTT_UP", "com.sonim.intent.action.PTT_KEY_UP",
+      "com.runbo.ptt.key.up", "com.zello.ptt.up", "android.intent.action.side_key.keyup.PTT",
+    )
+    /** The SOS button: the E977's own, and the usual spellings. */
+    val SOS_DOWN = setOf(
+      "android.intent.action.SOS.down", "android.intent.action.SOS_DOWN", "android.intent.action.SOS_KEY_DOWN",
+      "com.sonim.intent.action.SOS_KEY_DOWN", "com.runbo.sos.key.down", "android.intent.action.side_key.keydown.SOS",
+    )
+    val SOS_UP = setOf(
+      "android.intent.action.SOS.up", "android.intent.action.SOS_UP", "android.intent.action.SOS_KEY_UP",
+      "com.sonim.intent.action.SOS_KEY_UP", "com.runbo.sos.key.up", "android.intent.action.side_key.keyup.SOS",
+    )
+  }
+}
+
+/**
+ * Key presses from MainActivity (plugins/with-radio-keys.js). Every key is
+ * reported for the Buttons screen to learn from; the learned talk and SOS keys
+ * are also reported as those buttons and kept from the rest of the app.
+ */
+object KeyHub {
+  @Volatile var emit: ((String, Map<String, Any?>) -> Unit)? = null
+  @Volatile var ptt: Set<Int> = emptySet()
+  @Volatile var sos: Set<Int> = emptySet()
+
+  /** True when the key is the talk or SOS button: MainActivity then keeps it. */
+  @JvmStatic
+  fun onKeyEvent(event: KeyEvent): Boolean {
+    val send = emit ?: return false
+    if (event.action != KeyEvent.ACTION_DOWN && event.action != KeyEvent.ACTION_UP) return false
+    val pressed = event.action == KeyEvent.ACTION_DOWN
+    val code = event.keyCode
+    if (event.repeatCount == 0) {
+      send(RadioKeysModule.HARDWARE_EVENT, mapOf(
+        "code" to code, "scan" to event.scanCode, "name" to KeyEvent.keyCodeToString(code), "pressed" to pressed,
+        "at" to System.currentTimeMillis().toDouble(),
+      ))
+    }
+    val key = when (code) {
+      in ptt -> "ptt"
+      in sos -> "sos"
+      else -> return false
+    }
+    // A held button repeats: only the first press and the let-go count.
+    if (event.repeatCount == 0) {
+      send(RadioKeysModule.EVENT, mapOf(
+        "key" to key, "pressed" to pressed, "at" to System.currentTimeMillis().toDouble(), "source" to "key", "action" to KeyEvent.keyCodeToString(code),
+      ))
+    }
+    return true
   }
 }

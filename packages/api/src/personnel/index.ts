@@ -15,7 +15,7 @@ export async function toggleDuty(
 }
 
 /** A position fix from the officer app, as record_track() takes it (0071). */
-export type TrackFix = { t: string; lat: number; lng: number; acc?: number | null; spd?: number | null; hdg?: number | null };
+export type TrackFix = { t: string; lat: number; lng: number; acc?: number | null; spd?: number | null; hdg?: number | null; mock?: boolean };
 
 /**
  * Deliver position fixes recorded on the phone, online or not. Safe to send

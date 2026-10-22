@@ -43,6 +43,7 @@ export type OperationalSettingKey =
   | 'alerts.toast_seconds'
   | 'dispatch.eta_speed_kmh'
   | 'dispatch.eta_road_factor'
+  | 'dispatch.arrive_radius_m'
   | 'duty.max_shift_hours'
   | 'map.default_basemap'
   | 'board.feed_items'
@@ -110,6 +111,12 @@ export const OPERATIONAL_SETTINGS: readonly SettingDef[] = [
     category: 'Dispatch & ETA', type: 'number', default: 1.35, min: 1, max: 3,
   },
   {
+    key: 'dispatch.arrive_radius_m',
+    label: 'On scene radius',
+    description: 'How close a crew\'s phone must be to the scene to put them on scene by itself. Their arrival is checked against it.',
+    category: 'Dispatch & ETA', type: 'number', default: 150, min: 50, max: 1000, unit: 'm',
+  },
+  {
     key: 'duty.max_shift_hours',
     label: 'Auto off-duty after',
     description: 'Hours after going on duty in the app before an officer who never signed off is taken off duty (never mid-call).',
@@ -148,6 +155,7 @@ export type OperationalSettings = {
   'alerts.toast_seconds': number;
   'dispatch.eta_speed_kmh': number;
   'dispatch.eta_road_factor': number;
+  'dispatch.arrive_radius_m': number;
   'duty.max_shift_hours': number;
   'map.default_basemap': 'satellite' | 'street' | 'dark';
   'board.feed_items': number;

@@ -176,6 +176,8 @@ export const updateResponderStatusSchema = z.object({
    * Omitted from the console, where the two are the same moment.
    */
   occurred_at: z.string().datetime().optional(),
+  /** Why the crew marked on scene by hand, when the phone had not put them there (0099). */
+  reason: z.string().max(300).optional(),
 });
 export type UpdateResponderStatusInput = z.infer<typeof updateResponderStatusSchema>;
 

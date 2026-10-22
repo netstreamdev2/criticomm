@@ -66,6 +66,10 @@ class DutyMediaService : Service() {
       if (location.hasAccuracy()) fix["accuracy"] = location.accuracy.toDouble()
       if (location.hasSpeed()) fix["speed"] = location.speed.toDouble()
       if (location.hasBearing()) fix["heading"] = location.bearing.toDouble()
+      // A location-faking app (0100): sent marked, so it counts for nothing.
+      @Suppress("DEPRECATION")
+      val faked = if (Build.VERSION.SDK_INT >= 31) location.isMock else location.isFromMockProvider
+      if (faked) fix["mocked"] = true
       try { onFix?.invoke(fix) } catch (_: Exception) { }
     }
     @Deprecated("Android 8 still calls it")

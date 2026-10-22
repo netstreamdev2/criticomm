@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { endShift, getMyShiftKit, returnBodycam, returnShiftFirearm, roundsShort, type MyShiftKit } from '@criticom/api';
+import { endShift, getMyShiftKit, listMyKit, returnBodycam, returnMyKit, returnShiftFirearm, roundsShort, type MyShiftKit } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { errorWords } from '@/lib/offline-cache-policy';
 import { useAuth } from '@/lib/auth';
@@ -53,7 +53,7 @@ export default function EndShiftScreen() {
   const { refresh: refreshDuty } = useDuty();
   const { refresh: refreshOpenCall } = useOpenCall();
   const signOut = useSignOut();
-  const { silo } = useAuth();
+  const { silo, session } = useAuth();
   const words = wordsIn(silo, t);
   // What this department calls the vehicle it signs onto.
   const unitWord = words.unit ?? t('vehicle');
@@ -83,7 +83,7 @@ export default function EndShiftScreen() {
   const [mileage, setMileage] = useState('');
   const [fault, setFault] = useState(false);
   const [faultNote, setFaultNote] = useState('');
-  const [ended, setEnded] = useState<{ vehicle: string | null; vehicleStatus: string | null } | null>(null);
+  const [ended, setEnded] = useState<{ vehicle: string | null; vehicleStatus: string | null; kit: string[] } | null>(null);
 
   const go = (next: Step) => { setError(null); setStep(next); scroller.current?.scrollTo({ y: 0, animated: false }); };
 
@@ -204,7 +204,11 @@ export default function EndShiftScreen() {
       return;
     }
     const res = await endShift(getSupabase(), { mileageKm: vehicle ? km : null, vehicleNote: fault ? faultNote.trim() : null });
-    setEnded({ vehicle: res.vehicle, vehicleStatus: res.vehicle_status });
+    // The radio and hard hat go back with the shift (0101); before 0101, nothing to hand back.
+    const held = session ? await listMyKit(getSupabase(), session.user.id).catch(() => []) : [];
+    const handed = held.length ? await returnMyKit(getSupabase()).then(() => true, () => false) : false;
+    const kit = handed ? held.map((k) => `${k.kind === 'hard_hat' ? t('Hard hat') : t('Radio')} ${k.assetNo}`) : [];
+    setEnded({ vehicle: res.vehicle, vehicleStatus: res.vehicle_status, kit });
     await refreshDuty().catch(() => false);
     go('done');
   });
@@ -355,6 +359,7 @@ export default function EndShiftScreen() {
             {t('You are off duty.')}
             {returned ? t(' Firearm {serial} handed back.', { serial: returned.serial }) : ''}
             {camReturned ? t(' Bodycam {serial} handed back.', { serial: camReturned.serial }) : ''}
+            {ended?.kit.length ? ` ${t('{items} handed back.', { items: ended.kit.join(' · ') })}` : ''}
             {ended?.vehicle ? ` ${ended.vehicleStatus === 'Maintenance' ? t('{unit} is booked for maintenance.', { unit: ended.vehicle }) : t('{unit} is back in the pool.', { unit: ended.vehicle })}` : ''}
             {' '}{t('Go well.')}
           </Muted>

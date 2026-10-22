@@ -199,8 +199,10 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
     return { call, view, status, queued: queued !== null, km, haystack };
   }), [calls, queuedStatus, me, here]);
 
-  // Scope first, then the search box.
+  // Scope first, then the search box. Finished calls (filed, closed, stood
+  // down, cancelled, as this department sees them) are only on the Closed tab.
   const scoped = useMemo(() => rows.filter((r) => {
+    if (r.status === 'Resolved' || r.status === 'Closed') return false;
     const mine = r.view.role !== null || r.view.assignment.kind === 'you';
     if (mineOnly) {
       if (!mine) return false;
@@ -234,9 +236,11 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
 
   const selected = rows.find((r) => r.call.id === selectedId) ?? null;
 
-  const act = async (row: Row, which: 'action' | 'secondary' = 'action') => {
+  const act = async (row: Row, which: 'action' | 'secondary' = 'action', reason?: string) => {
     const action = which === 'secondary' ? row.view.secondary : row.view.action;
     if (!action || row.view.blocked) return;
+    // On scene comes from the phone (0099); by hand only with a reason.
+    if (action.kind === 'arriving' && !reason) return;
     if (action.kind === 'report') {
       setSelectedId(null);
       router.push(reportPathFor(row.call.id, silo) as never);
@@ -253,6 +257,10 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
         incidentId: row.call.id,
         status: action.kind === 'respond' ? 'En Route' : action.status,
         incidentNumber: row.call.incident_number,
+        ...(reason ? { reason } : {}),
+        // The scene, so the phone can tell it has arrived with no signal.
+        ...(action.kind === 'respond' && row.call.location_lat && row.call.location_lng
+          ? { scene: { lat: row.call.location_lat, lng: row.call.location_lng } } : {}),
       });
     } catch (e) {
       setError((e as Error).message);
@@ -265,15 +273,9 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
     const sev = severityColor(item.call.incident_severity);
     const tag = holder(item.view, t);
     const mine = item.view.role !== null || item.view.assignment.kind === 'you';
-    // My department's part is filed while others still work the call: its drawer is on the Closed tab.
-    const finishedForMe = !mineOnly && item.view.role !== null && item.status === 'Resolved';
     return (
       <Pressable
-        onPress={() => {
-          if (!finishedForMe) { setSelectedId(item.call.id); return; }
-          setScope('Closed');
-          setClosedOpen(item.call.id);
-        }}
+        onPress={() => setSelectedId(item.call.id)}
         accessibilityRole="button"
         accessibilityLabel={`${t(item.call.incident_severity)} ${t(item.call.incident_type ?? '')}, ${item.call.incident_number}${item.km !== null ? `, ${t('{distance} away', { distance: formatDistance(item.km) })}` : ''}${tag ? `, ${tag.text}` : ''}`}
         style={({ pressed }) => [styles.row, mine && styles.rowMine, pressed && { opacity: 0.8 }]}
@@ -431,6 +433,7 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
         }}
         onAction={() => { if (selected) void act(selected); }}
         onSecondary={() => { if (selected) void act(selected, 'secondary'); }}
+        onArrive={(reason) => { if (selected) void act(selected, 'action', reason); }}
         onOpenFull={() => {
           const id = selectedId;
           setSelectedId(null);

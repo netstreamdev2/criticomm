@@ -13,7 +13,7 @@ import { captureLeaveAction, setLeaveFormAction } from './actions';
 import { LeaveDecision } from './decide';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Maintain Leave · HikTech' };
+export const metadata = { title: 'Leave · HikTech' };
 
 /** Maintain Leave (Oracle DCPLEAM): approvals, the leave register and leave captured by the office. */
 export default async function MaintainLeavePage({
@@ -43,7 +43,8 @@ export default async function MaintainLeavePage({
 
   return (
     <div className="space-y-4">
-      <OfficeHeader title={tx('Maintain Leave')} info={tx('Approve leave members ask for, and capture leave or absence from the form a member hands in. Captured leave marks their duty as absent.')}
+      <OfficeHeader title={tx('Leave')}
+        steps={[tx('Requests waiting for a decision are at the top: approve or decline each one.'), tx('To capture leave or absence for a member, fill in the form.')]} info={tx('Approve leave members ask for, and capture leave or absence from the form a member hands in. Captured leave marks their duty as absent.')}
         target={target} global={ctx.global} canEdit={ctx.canEdit} path="/modules/leave" />
 
       <section className={ox.card}>

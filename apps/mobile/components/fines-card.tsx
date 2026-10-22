@@ -26,6 +26,13 @@ function short(amount: number): string {
  * does — issue a fine, look up one they issued — and this month's figures.
  * Shown only to those who serve notices.
  */
+/** Fines are a tab of their own for those who issue them (Police, with fines switched on). */
+export function useFinesTab(): boolean {
+  const { role, silo } = useAuth();
+  const enabled = useFeature('mobile.fines');
+  return Boolean(enabled && canIssueFines({ role, silo }));
+}
+
 export function FinesCard() {
   const { role, silo } = useAuth();
   const enabled = useFeature('mobile.fines');

@@ -8,6 +8,7 @@ const part = (silo: DepartmentPart['silo'], status: DepartmentPart['status'], ex
   lead_id: null, lead_name: null, accepted_at: null, arrived_at: null, report_filed_at: null,
   finished_at: null, finished_by: null, finished_by_name: null, finish_reason: null,
   closed_at: null, closed_by: null, closed_by_name: null, close_note: null,
+  disposition: null, arrived_by: null, arrived_distance_m: null, arrived_verified: null,
   radio_filed_by: null, radio_filed_by_name: null, radioed_by: null, radioed_by_name: null, updated_at: '2026-10-12T08:00:00Z',
   ...extra,
 });

@@ -1,3 +1,4 @@
+import { OfficeMenuBar } from '@/components/office/office-menu-bar';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import {
@@ -48,9 +49,10 @@ export default async function RosterPage({
 
   return (
     <div className="space-y-4">
+      <OfficeMenuBar />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">{t('Roster · {monthLabel}', { monthLabel: monthLabel(month) })}</h1>
+          <h1 className="text-2xl font-bold">{t('Plan Repeating Shifts · {monthLabel}', { monthLabel: monthLabel(month) })}</h1>
           <p className="text-muted-foreground">{DEPARTMENT_NAMES[target]}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -66,10 +68,6 @@ export default async function RosterPage({
           <Link href={q(shiftMonth(month, -1))} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">← {monthLabel(shiftMonth(month, -1)).split(' ')[0]}</Link>
           <Link href={q(shiftMonth(month, 1))} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{monthLabel(shiftMonth(month, 1)).split(' ')[0]} →</Link>
           <Link href={`/roster/allocation${target !== silo ? `?silo=${target}` : ''}`} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{t('Duty board')}</Link>
-          <Link href={`/roster/duty-sheet`} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{t('Duty sheet')}</Link>
-          {canAdminSchedule(role, silo, target) ? (
-            <Link href={`/roster/setup${target !== silo ? `?silo=${target}` : ''}`} className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">{t('Shift setup')}</Link>
-          ) : null}
         </div>
       </header>
 

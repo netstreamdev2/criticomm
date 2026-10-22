@@ -8,6 +8,7 @@ import { personTitle } from '@/lib/department';
 import { openDirections } from '@/lib/navigate';
 import { colors, radius, severityColor, severityTint, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { BottomSheet } from '@/components/bottom-sheet';
+import { ArrivalStrip } from '@/components/arrival-strip';
 import { Button, SeverityPill, StatusBadge } from '@/components/ui';
 import type { Translate } from '@criticom/db/i18n';
 import { useT } from '@/lib/i18n';
@@ -39,8 +40,10 @@ function assignmentLine(v: CallView, dispatchedBy: string | null, t: Translate) 
  * responding — and the one thing this officer can do next.
  */
 export function IncidentSheet({
-  incident, view, status, queued, km, busy, onClose, onAction, onSecondary, onOpenFull,
+  incident, view, status, queued, km, busy, onClose, onAction, onSecondary, onOpenFull, onArrive,
 }: {
+  /** Mark on scene by hand, with why (0099); the phone marks it otherwise. */
+  onArrive?: (reason: string) => void;
   incident: FieldIncident | null;
   view: CallView | null;
   /** The call's status, including a change still queued on this phone. */
@@ -57,7 +60,7 @@ export function IncidentSheet({
   const { t } = useT();
   const styles = useStyles();
   const router = useRouter();
-  const { silo } = useAuth();
+  const { silo, session } = useAuth();
   if (!incident || !view) return <BottomSheet visible={false} onClose={onClose}>{null}</BottomSheet>;
 
   const sev = severityColor(incident.incident_severity);
@@ -106,7 +109,15 @@ export function IncidentSheet({
         <View style={{ gap: space.sm }}>
           {view.blocked ? <Text style={styles.blocked}>{view.blocked}</Text> : null}
           {view.note && !action ? <Text style={styles.note}>{view.note}</Text> : null}
-          {action && actionLabel ? (
+          {action?.kind === 'arriving' ? (
+            <ArrivalStrip
+              scene={incident.location_lat && incident.location_lng ? { lat: incident.location_lat, lng: incident.location_lng } : null}
+              silo={silo}
+              startDistanceM={incident.responders?.find((r) => r.user_id === session?.user.id)?.start_distance_m}
+              busy={busy}
+              onMark={(reason) => onArrive?.(reason)}
+            />
+          ) : action && actionLabel ? (
             <View>
               <Button
                 label={actionLabel}

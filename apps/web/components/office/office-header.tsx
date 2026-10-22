@@ -1,17 +1,21 @@
 import type * as React from 'react';
 import { DEPARTMENT_NAMES, type Silo } from '@criticom/db';
 import { InfoTip } from '@/components/ui/info-tip';
+import { PageGuide } from './page-guide';
 import { OFFICE_SILOS } from '@/lib/office';
 import { requestT } from '@/lib/i18n';
 
 /**
  * A duty office page title: the screen in capitals as the old system shows
  * it, the department, an (i), and for the systems controller a department
- * picker. View-only access says so once, beside the title.
+ * picker. View-only access says so once, beside the title. Under it, the
+ * page's "How this page works" steps.
  */
 export async function OfficeHeader({
-  title, info, target, global, canEdit, path, children,
+  title, info, target, global, canEdit, path, steps = [], children,
 }: {
+  /** "How this page works", a few short steps. */
+  steps?: string[];
   title: string;
   info: string;
   target: Silo;
@@ -23,6 +27,7 @@ export async function OfficeHeader({
 }) {
   const { t } = await requestT();
   return (
+    <>
     <header className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-3">
       <div className="min-w-0">
         <h1 className="flex items-center gap-2 text-xl font-bold uppercase tracking-wide">
@@ -46,5 +51,7 @@ export async function OfficeHeader({
         ) : null}
       </div>
     </header>
+    <PageGuide id={path} steps={steps.map((s) => t(s))} />
+    </>
   );
 }

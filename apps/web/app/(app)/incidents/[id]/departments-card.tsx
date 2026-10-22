@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { ChevronDown, Radio } from 'lucide-react';
-import { partOpen, partWords, sortParts, type DepartmentPart } from '@criticom/api';
+import { arrivalWords, partOpen, partWords, sortParts, type DepartmentPart } from '@criticom/api';
 import {
-  DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, PART_STATUS_ROLES, STATUS_OVERRIDE_STEPS, canDirectDepartment, canFileByRadio, commandsDepartment,
+  DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, dispositionLabel, PART_STATUS_ROLES, STATUS_OVERRIDE_STEPS, canDirectDepartment, canFileByRadio, commandsDepartment,
   type Silo, type UserRole,
 } from '@criticom/db';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatSaTime } from '@/lib/utils';
-import { StandDown, StatusOverride } from './case-forms';
+import { ConfirmArrival, StandDown, StatusOverride } from './case-forms';
 import { CloseOnSceneButton } from './radio/close-button';
 import { requestT } from '@/lib/i18n';
 
@@ -53,10 +53,12 @@ export async function DepartmentsCard({
     const radio = !caseClosed && canFileByRadio(role, silo, p.silo);
     const mayFileByRadio = radio && partOpen(p.status) && p.status !== 'Waiting' && !p.report_filed_at;
     const mayCloseForCrew = radio && p.status === 'Resolved' && Boolean(p.report_filed_at) && !p.closed_at;
-    return { p, mayDispatch, mayMark, mayStandDown, mayFileByRadio, mayCloseForCrew };
+    // Pressed on scene away from it (0099): no report until dispatch confirms (0102).
+    const mayConfirm = directs && p.arrived_verified === false && !p.report_filed_at;
+    return { p, mayDispatch, mayMark, mayStandDown, mayFileByRadio, mayCloseForCrew, mayConfirm };
   });
   // Open when there is something here for this person to do.
-  const actionable = rows.some((r) => r.mayDispatch || r.mayMark || r.mayStandDown || r.mayFileByRadio || r.mayCloseForCrew);
+  const actionable = rows.some((r) => r.mayDispatch || r.mayMark || r.mayStandDown || r.mayFileByRadio || r.mayCloseForCrew || r.mayConfirm);
   return (
     <Card>
       <details open={actionable} className="group">
@@ -79,7 +81,7 @@ export async function DepartmentsCard({
         </summary>
       <CardContent className="border-t border-border p-0">
         <ul className="divide-y divide-border">
-          {rows.map(({ p, mayDispatch, mayMark, mayStandDown, mayFileByRadio, mayCloseForCrew }) => {
+          {rows.map(({ p, mayDispatch, mayMark, mayStandDown, mayFileByRadio, mayCloseForCrew, mayConfirm }) => {
             return (
               <li key={p.silo} className="space-y-2 px-4 py-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
@@ -93,10 +95,25 @@ export async function DepartmentsCard({
                   {p.lead_name ? (
                     <div><dt className="inline">{t('Lead')}{' '}</dt><dd className="inline">{p.lead_name}{p.accepted_at ? ` · ${formatSaTime(p.accepted_at)}` : ''}</dd></div>
                   ) : null}
-                  {p.arrived_at ? <div><dt className="inline">{t('On scene')}{' '}</dt><dd className="inline">{formatSaTime(p.arrived_at)}</dd></div> : null}
+                  {p.arrived_at ? (
+                    <div>
+                      <dt className="inline">{t('On scene')}{' '}</dt>
+                      <dd className="inline">
+                        {formatSaTime(p.arrived_at)}
+                        {/* How it was recorded (0099): GPS, the officer (checked against their phone), or the desk. */}
+                        {(() => {
+                          const a = arrivalWords(p);
+                          return a ? <span className={a.tone === 'warn' ? ' font-bold text-severity-high-ink' : a.tone === 'ok' ? ' text-severity-low-ink' : ''}> · {t(a.text)}</span> : null;
+                        })()}
+                      </dd>
+                    </div>
+                  ) : null}
                   {p.report_filed_at ? <div><dt className="inline">{t('Report filed')}{' '}</dt><dd className="inline">{formatSaTime(p.report_filed_at)}</dd></div> : null}
                   {p.closed_at ? (
                     <div><dt className="inline">{t('Closed on scene')}{' '}</dt><dd className="inline">{formatSaTime(p.closed_at)}{p.closed_by_name ? ` by ${p.closed_by_name}` : ''}</dd></div>
+                  ) : null}
+                  {p.disposition ? (
+                    <div><dt className="inline">{t('Outcome')}{' '}</dt><dd className="inline font-semibold">{t(dispositionLabel(p.disposition) ?? '')}</dd></div>
                   ) : null}
                   {p.close_note ? (
                     <div className="sm:col-span-2"><dt className="inline">{t('Closing note')}{' '}</dt><dd className="inline">{p.close_note}</dd></div>
@@ -108,8 +125,9 @@ export async function DepartmentsCard({
                 {p.radio_filed_by_name ? (
                   <p className="text-xs text-muted-foreground">{t('Filed from the desk by {value}{value2}.', { value: p.radio_filed_by_name, value2: p.radioed_by_name ? `, as radioed in by ${p.radioed_by_name}` : '' })}</p>
                 ) : null}
-                {mayDispatch || mayMark || mayStandDown || mayFileByRadio || mayCloseForCrew ? (
+                {mayDispatch || mayMark || mayStandDown || mayFileByRadio || mayCloseForCrew || mayConfirm ? (
                   <div className="flex flex-wrap items-start gap-3">
+                    {mayConfirm ? <ConfirmArrival incidentId={incidentId} department={p.silo} /> : null}
                     {mayDispatch ? (
                       <Link href={`/dispatch/assign/${incidentId}`} className="inline-flex h-8 items-center rounded-md bg-accent px-3 text-xs font-semibold">
                         {p.status === 'Waiting' ? `Dispatch ${DEPARTMENT_NAMES[p.silo]}` : 'Dispatch again'}

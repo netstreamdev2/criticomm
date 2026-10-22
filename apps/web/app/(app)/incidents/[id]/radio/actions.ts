@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import {
   closeDepartmentPartFromDesk, fileFireReport, fileIncidentReport, filePcr, filePostMortem, setDepartmentStatus,
 } from '@criticom/api';
-import { canFileByRadio, STATUS_OVERRIDE_STEPS, type IncidentStatus, type Silo } from '@criticom/db';
+import { canFileByRadio, STATUS_OVERRIDE_STEPS, type IncidentStatus, type Silo, dispositionsFor } from '@criticom/db';
 import { getSession } from '@/lib/session';
 import { radioPayload } from '@/lib/radio-forms';
 
@@ -105,13 +105,16 @@ export async function markPartAction(input: { incidentId: string; silo: string; 
 }
 
 /** Close the department's part on scene for its crew, once its report is filed. */
-export async function closeFromDeskAction(input: { incidentId: string; silo: string; note?: string }): Promise<Result> {
+export async function closeFromDeskAction(input: { incidentId: string; silo: string; note?: string; disposition?: string }): Promise<Result> {
   const session = await deskFor(input.silo);
   if (!session) return { ok: false, error: 'Your desk does not close for this department.' };
   if (!UUID.test(input.incidentId)) return { ok: false, error: 'Incident not found.' };
+  // How the call ended, from this department's list (0098).
+  if (!dispositionsFor(input.silo).some((d) => d.code === input.disposition)) return { ok: false, error: 'Choose how the call ended.' };
   try {
     await closeDepartmentPartFromDesk(session.supabase, {
       incidentId: input.incidentId, silo: input.silo as Silo, note: (input.note ?? '').slice(0, 500) || null,
+      disposition: input.disposition,
     });
   } catch (e) {
     return { ok: false, error: refusal(e) };

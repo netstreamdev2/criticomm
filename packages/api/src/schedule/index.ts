@@ -284,6 +284,27 @@ export async function getMyShiftNow(client: CriticomClient, userId: string, now:
   return current ?? active.find((l) => Date.parse(l.start_at!) - now < 24 * 3_600_000) ?? null;
 }
 
+export type MyDay = {
+  /** My shift now, or the next one within the day ahead. */
+  shift: ScheduleLine | null;
+  /** Approved leave that covers today: what kind, and its last day. */
+  leave: { absence: string | null; until: string } | null;
+};
+
+/** What today is for me: on leave, or my shift (now or next). Each part on its own; a failed one is null. */
+export async function getMyDay(client: CriticomClient, userId: string, now: number = Date.now()): Promise<MyDay> {
+  const today = saDay(now);
+  const [shift, leave] = await Promise.all([
+    getMyShiftNow(client, userId, now).catch(() => null),
+    client.from('leave_entries').select('absence, eff_to')
+      .eq('user_id', userId).eq('status', 'Approved').is('cancelled_at', null)
+      .lte('eff_from', today).gte('eff_to', today)
+      .order('eff_to', { ascending: false }).limit(1)
+      .then(({ data }) => (data?.[0] ? { absence: data[0].absence ?? null, until: data[0].eff_to } : null), () => null),
+  ]);
+  return { shift, leave };
+}
+
 export type WhosOnRow = Pick<RosterRow,
   'id' | 'user_id' | 'user_name' | 'start_at' | 'end_at' | 'status' | 'post' | 'station' | 'template_id' | 'cancelled_at' | 'team' | 'vehicle' | 'call_sign'>;
 

@@ -67,9 +67,22 @@ export type CritiCrew = {
   lng: number | null;
   seenAt: string;
   onDutySince: string | null;
+  /** When their app last reached the server (a fix, the radio): on duty but silent for hours means they left without going off duty. */
+  lastContactAt?: string | null;
   busyWith: { id: string; number: string } | null;
   activeCalls: number;
 };
+
+/** Silent this long, they are listed but not offered for a call: most likely gone home still marked on duty. */
+export const OUT_OF_TOUCH_MS = 8 * 3_600_000;
+/** Silent this long, Criti says so beside their name. */
+export const QUIET_MS = 30 * 60_000;
+
+/** True when their app has not been heard from for `ms`. */
+export function silentFor(c: Pick<CritiCrew, 'lastContactAt' | 'seenAt'>, now: Date, ms: number): boolean {
+  const last = c.lastContactAt ?? c.seenAt;
+  return Boolean(last) && now.getTime() - new Date(last).getTime() > ms;
+}
 
 /**
  * When something counts as late. The dispatch figures follow the automatic

@@ -1,4 +1,4 @@
-import { Lock } from 'lucide-react';
+import { Download, Lock } from 'lucide-react';
 import { getReportType, reportReadout, type getIncidentReport } from '@criticom/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatSaTime } from '@/lib/utils';
@@ -27,12 +27,21 @@ export async function PoliceReportCard({ report }: { report: Report }) {
               {t('Filed by {value}{value2}{value3}{value4}', { value: report.officer_name ?? 'officer', value2: report.badge_number ? ` #${report.badge_number}` : '', value3: report.filed_at ? ` · ${formatSaTime(report.filed_at)}` : '', value4: report.station ? ` · ${report.station}` : '' })}
             </CardDescription>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg-soft px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-            <Lock className="h-3 w-3" /> {' '}{t('Permanent record')}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={`/api/pdf/police-report/${report.id}`}
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border px-3 text-xs font-semibold hover:bg-muted"
+            >
+              <Download className="h-3.5 w-3.5" aria-hidden /> {t('Download PDF')}
+            </a>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg-soft px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
+              <Lock className="h-3 w-3" /> {' '}{t('Permanent record')}</span>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4 text-sm">
-        <ReportFormChips forms={type.forms ?? []} />
+        {/* Each form a click away: the chip jumps to it. */}
+        <ReportFormChips forms={type.forms ?? []} jump />
 
         <div className="grid gap-3 sm:grid-cols-4">
           <div><p className="text-xs uppercase text-muted-foreground">{t('Case number')}</p><p className="font-mono">{report.case_number ?? '—'}</p></div>
@@ -41,8 +50,13 @@ export async function PoliceReportCard({ report }: { report: Report }) {
           <div><p className="text-xs uppercase text-muted-foreground">{t('Cleared · total')}</p><p className="font-mono">{report.clear_time ?? '—'}{report.total_time ? ` · ${report.total_time}` : ''}</p></div>
         </div>
 
-        {sections.map((s) => (
-          <div key={s.title}>
+        {sections.map((s, i) => (
+          <div
+            key={s.title}
+            // The first section of each form is where its chip jumps to.
+            id={sections.findIndex((x) => (x.form ?? 'case') === (s.form ?? 'case')) === i ? `form-${s.form ?? 'case'}` : undefined}
+            className="scroll-mt-24"
+          >
             <FormSectionTitle title={s.title} form={s.form} />
             <dl className="grid gap-x-4 gap-y-2 rounded-md border border-border/60 bg-bg-soft p-3 sm:grid-cols-2">
               {s.items.map((i) => (

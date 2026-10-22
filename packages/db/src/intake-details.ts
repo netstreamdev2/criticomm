@@ -95,6 +95,12 @@ const FIELDS: DetailField[] = [
     o('4', 'Four vehicles involved.'), o('5 or more', 'Five or more vehicles involved.'),
   ]),
   text('registrations', 'Registrations', 'Registrations: {registrations}.'),
+  // What the crews look for on arrival: the kind of each vehicle, then make, model and colour.
+  multi('vehicleTypes', 'What vehicles', [
+    o('Car', 'a car'), o('Bakkie', 'a bakkie'), o('Minibus taxi', 'a minibus taxi'), o('Bus', 'a bus'),
+    o('Truck', 'a truck'), o('Motorbike', 'a motorbike'), o('Bicycle', 'a bicycle'), o('Other', 'another vehicle'),
+  ], 'Involves {vehicleTypes}.'),
+  text('vehiclesSeen', 'Make, model and colour', 'Described as {vehiclesSeen}.', 'e.g. White Toyota Quantum; red VW Polo'),
   text('plate', 'Registration', 'Registration: {plate}.'),
   yesno('roadBlocked', 'Road blocked?', 'The road is blocked.', 'The road is open.'),
   text('obstruction', 'What is blocking it', 'Blocked by {obstruction}.'),

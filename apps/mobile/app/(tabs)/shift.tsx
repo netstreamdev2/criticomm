@@ -30,6 +30,7 @@ import {
 import { ReportPreview } from '@/components/shift-report';
 import { FirearmSheet, emptyFirearm, firearmFormError, type FirearmForm } from '@/components/shift-firearm';
 import { BODYCAM_CHECKS, BodycamSheet, bodycamFormError, emptyBodycam, type BodycamForm } from '@/components/shift-bodycam';
+import { FieldKitCard } from '@/components/field-kit-card';
 import { FireShift } from '@/components/fire-shift';
 import { EmsShift } from '@/components/ems-shift';
 import { DisasterShift } from '@/components/disaster-shift';
@@ -528,6 +529,8 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
       if (!cleared) throw new Error('Your shift record is saved, but clearance could not be verified. Reconnect and retry.');
       router.replace('/');
     } else {
+      // The duty screens open on today's record: read it again before going home.
+      await refreshDuty();
       router.push('/');
     }
   });
@@ -952,6 +955,7 @@ function StandardShiftScreen({ gated = false }: { gated?: boolean }) {
             <Text style={styles.doneSub}>{t('Your {filedList} are signed and filed for today. Export a copy for your records, then continue to your dashboard.', { filedList })}</Text>
             <SummaryBox record={record} officerName={officer.name} />
             <ShiftDocuments initial={record?.documents ?? null} />
+            <View style={{ alignSelf: 'stretch', marginTop: space.md }}><FieldKitCard /></View>
             <View style={styles.doneActions}>
               <PaperButton label={t('Export PDF')} icon="document-outline" tone="teal" busy={exporting === 'pdf'} disabled={!record187} onPress={() => void doExport('pdf')} style={styles.halfBtn} />
               <PaperButton label={t('Export CSV')} icon="grid-outline" tone="outline" busy={exporting === 'csv'} disabled={!record187} onPress={() => void doExport('csv')} style={styles.halfBtn} />

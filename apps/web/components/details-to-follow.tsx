@@ -18,7 +18,8 @@ export async function DetailsToFollow({ incident, className }: {
     <span
       title={t('Sent early on an urgent call. The call taker is still adding the details.')}
       className={cn(
-        'inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-severity-medium/50 bg-severity-medium/10 px-2 py-0.5 text-[11px] font-semibold text-severity-medium-ink',
+        // Blinks until the call taker has added the rest: easy to miss otherwise.
+        'inline-flex animate-pulse items-center gap-1 whitespace-nowrap rounded-full border border-severity-medium/50 bg-severity-medium/10 px-2 py-0.5 text-[11px] font-semibold text-severity-medium-ink',
         className,
       )}
     >

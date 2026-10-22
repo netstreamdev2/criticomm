@@ -1,8 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, makeStyles } from '@/lib/theme';
 import { useT } from '@/lib/i18n';
+import { useFeatures } from '@/lib/features';
+import { CritiHead } from '@/components/criti-head';
 
 /** Header bell, top-right on every tab: opens the alert inbox, shows the unread count. */
 export function AlertsBell({ count }: { count: number }) {
@@ -23,6 +25,31 @@ export function AlertsBell({ count }: { count: number }) {
           <Text style={styles.badgeText}>{count > 99 ? '99+' : count}</Text>
         </View>
       ) : null}
+    </Pressable>
+  );
+}
+
+/**
+ * Criti, one tap from every screen (2026-10-23): it opens knowing which
+ * screen it was asked from, and which call when it is a call's screen.
+ */
+export function HeaderCriti({ incidentId }: { incidentId?: string }) {
+  const { t } = useT();
+  const styles = useStyles();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { enabled } = useFeatures();
+  // Not on the start of shift: those checks are the person's own answers.
+  if (!enabled('mobile.assistant') || pathname === '/shift') return null;
+  return (
+    <Pressable
+      onPress={() => router.push({ pathname: '/assistant', params: { from: pathname, ...(incidentId ? { incident: incidentId } : {}) } })}
+      hitSlop={10}
+      accessibilityRole="button"
+      accessibilityLabel={t('Ask Criti')}
+      style={({ pressed }) => [styles.search, pressed && { opacity: 0.7 }]}
+    >
+      <CritiHead size={24} />
     </Pressable>
   );
 }

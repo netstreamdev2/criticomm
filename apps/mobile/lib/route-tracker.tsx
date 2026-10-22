@@ -4,10 +4,11 @@ import NetInfo from '@react-native-community/netinfo';
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { recordFixes, refreshRouteStatus, sendRoute, startRoute, stopRoute } from '@/lib/tracker';
-import { onDutyFix, onDutyTick } from '@/lib/radio-keys';
+import { askBatteryAtShiftStart, initRadioButtons, onDutyFix, onDutyTick } from '@/lib/radio-keys';
 import { HEARTBEAT_MS, presenceSignedIn, reportPresence } from '@/lib/presence';
 import { cameraStandby, checkCamera } from '@/lib/radio-camera';
 import { checkTalk, startTalkWatch, stopTalkWatch } from '@/lib/radio-talk';
+import { deptChannel } from '@criticom/api';
 
 /**
  * Records the officer's route while they are on duty, whichever screen is
@@ -63,9 +64,17 @@ export function RouteTracker() {
  * to the front or duty starts or ends. Draws nothing.
  */
 export function RadioPresence() {
-  const { session } = useAuth();
+  const { session, silo } = useAuth();
   const { onDuty } = useDuty();
   const userId = session?.user.id ?? null;
+
+  // The taught buttons, and a radio set to open when switched on (modules/radio-keys).
+  useEffect(() => { void initRadioButtons(); }, []);
+
+  // On duty: battery saving must not stop the route, the camera and Talk.
+  useEffect(() => {
+    if (userId && onDuty && AppState.currentState === 'active') void askBatteryAtShiftStart();
+  }, [userId, onDuty]);
 
   useEffect(() => {
     if (!userId) return;
@@ -110,6 +119,7 @@ export function RadioPresence() {
           latitude: f.lat, longitude: f.lng, accuracy: f.accuracy ?? null, speed: f.speed ?? null, heading: f.heading ?? null,
           altitude: null, altitudeAccuracy: null,
         },
+        mocked: f.mocked === true,
       }]);
     });
     return () => {
@@ -127,7 +137,7 @@ export function RadioPresence() {
     standby();
     if (!onDuty) return;
     // The console's calls (0095): heard with the screen off, no Talk screen needed.
-    startTalkWatch();
+    startTalkWatch(deptChannel(silo));
     const timer = setInterval(() => { void checkCamera(); }, 8_000);
     void checkCamera();
     const app = AppState.addEventListener('change', (s) => { if (s === 'active') { standby(); void checkCamera(); } });
@@ -136,7 +146,7 @@ export function RadioPresence() {
       app.remove();
       void stopTalkWatch();
     };
-  }, [userId, onDuty]);
+  }, [userId, onDuty, silo]);
 
   return null;
 }

@@ -353,9 +353,10 @@ export function DescriptionModal({
         </div>
       )}
     >
-      <div className="grid gap-5 md:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+      {/* The caller's information on the left, their words and Criti on the right. */}
+      <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
         {/* ── The sentence it starts from, the caller's words, and Criti ── */}
-        <div className="space-y-3">
+        <div className="space-y-3 md:order-2">
           {draft ? (
             <div className="rounded-lg border border-accent/30 bg-accent/5 px-3 py-2 text-xs">
               <p className="flex items-center gap-1.5 font-semibold text-accent"><CritiMascot className="h-4 w-4" /> {t('Starts with')}</p>
@@ -429,7 +430,7 @@ export function DescriptionModal({
         </div>
 
         {/* ── Ask the caller, the details, the injuries and who is hurt ── */}
-        <div className="space-y-4">
+        <div className="space-y-4 md:order-1">
           {patientAsked ? (
             <PatientSection isPatient={isPatient} onPatient={onPatient} byCriti={patientByCriti} invalid={patientInvalid}
               callerName={callerName} callerSeverity={callerSeverity} onCallerSeverity={onCallerSeverity}

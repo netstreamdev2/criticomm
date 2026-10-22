@@ -1,7 +1,7 @@
 import type { CriticomClient, Database, Silo, IncidentStatus } from '@criticom/db';
 import { cleanSearch } from '../cases/stage';
 import { noteText } from './note';
-import { PARTS, forDepartment, type DepartmentPart } from './parts';
+import { PARTS, forDepartment, partOpen, type DepartmentPart } from './parts';
 import { BOARD_STATUSES, toBoardEntry, type BoardEntry, type BoardRow } from './responder-board.ts';
 
 export { noteText } from './note';
@@ -337,6 +337,7 @@ export async function updateResponderStatus(
     p_incident_id: input.incident_id,
     p_status: input.status,
     p_occurred_at: input.occurred_at ?? null,
+    ...(input.reason ? { p_reason: input.reason } : {}),
   });
   if (error) throw error;
   return data as Incident;
@@ -675,14 +676,16 @@ export async function standDownDepartment(client: CriticomClient, args: { incide
 /**
  * The lead closes their own department's part on scene, once its report is
  * filed (0074). Safe to repeat: a part already closed comes back unchanged.
- * `occurredAt` is when they pressed Close, for a close sent later from the outbox.
+ * `occurredAt` is when they pressed Close, for a close sent later from the outbox;
+ * `disposition` is how the call ended (0098: one of DISPOSITIONS).
  */
 export async function closeDepartmentPart(
   client: CriticomClient,
-  args: { incidentId: string; note?: string | null; occurredAt?: string | null },
+  args: { incidentId: string; note?: string | null; occurredAt?: string | null; disposition?: string | null },
 ) {
   const { data, error } = await client.rpc('close_department_part', {
     p_incident_id: args.incidentId, p_note: args.note ?? null, p_occurred_at: args.occurredAt ?? null,
+    ...(args.disposition ? { p_disposition: args.disposition } : {}),
   });
   if (error) throw error;
   return data as DepartmentPart;
@@ -692,9 +695,13 @@ export async function closeDepartmentPart(
  * The desk closes a department's part on scene for its crew, once its report
  * is filed (0075): a crew on the radio cannot press Close. Safe to repeat.
  */
-export async function closeDepartmentPartFromDesk(client: CriticomClient, args: { incidentId: string; silo: Silo; note?: string | null }) {
+export async function closeDepartmentPartFromDesk(
+  client: CriticomClient,
+  args: { incidentId: string; silo: Silo; note?: string | null; disposition?: string | null },
+) {
   const { data, error } = await client.rpc('close_department_part_from_desk', {
     p_incident_id: args.incidentId, p_silo: args.silo, p_note: args.note ?? null,
+    ...(args.disposition ? { p_disposition: args.disposition } : {}),
   });
   if (error) throw error;
   return data as DepartmentPart;
@@ -906,12 +913,21 @@ export async function getIncidentReport(client: CriticomClient, incidentId: stri
 export type IncidentResponder = Pick<
   Database['public']['Tables']['incident_responders']['Row'],
   'user_id' | 'name' | 'silo' | 'role' | 'status' | 'joined_at'
->;
+> & Partial<Pick<
+  Database['public']['Tables']['incident_responders']['Row'],
+  'start_distance_m' | 'arrived_at' | 'arrived_by' | 'arrived_distance_m' | 'arrived_verified' | 'arrive_note'
+>>;
 
 /** An incident with who is responding to it, and each department's part (0073). */
 export type FieldIncident = Incident & { responders: IncidentResponder[]; departments?: DepartmentPart[] };
 
-const RESPONDERS = 'responders:incident_responders(user_id, name, silo, role, status, joined_at)';
+const RESPONDERS_BEFORE_0099 = 'responders:incident_responders(user_id, name, silo, role, status, joined_at)';
+/** With how far each set off from and how they arrived (0099). */
+const RESPONDERS = 'responders:incident_responders(user_id, name, silo, role, status, joined_at, start_distance_m, arrived_at, arrived_by, arrived_distance_m, arrived_verified)';
+
+/** Until 0099 is run the arrival columns are not there: read as before rather than fail. */
+const noArrivals = (error: { code?: string; message?: string } | null) =>
+  Boolean(error && (error.code === '42703' || /start_distance_m|arrived_by|arrived_verified/.test(error.message ?? '')));
 
 /**
  * A field read with the departments' parts, or without them until 0073 is
@@ -922,8 +938,13 @@ async function fieldRead<R>(
   run: (columns: string) => PromiseLike<{ data: R | null; error: { code?: string; message?: string } | null }>,
   columns: string,
 ): Promise<R | null> {
-  let { data, error } = await run(`${columns}, ${PARTS}`);
-  if (noParts(error)) ({ data, error } = await run(columns));
+  let cols = columns;
+  let { data, error } = await run(`${cols}, ${PARTS}`);
+  if (noArrivals(error)) {
+    cols = cols.replace(RESPONDERS, RESPONDERS_BEFORE_0099);
+    ({ data, error } = await run(`${cols}, ${PARTS}`));
+  }
+  if (noParts(error)) ({ data, error } = await run(cols));
   if (error) throw error;
   return data;
 }
@@ -1083,14 +1104,17 @@ export async function countAssignedToMeToday(client: CriticomClient, userId: str
 
 /** Who is responding to a call, lead first. */
 export async function listIncidentResponders(client: CriticomClient, incidentId: string) {
-  const { data, error } = await client
+  const read = (columns: string) => client
     .from('incident_responders')
-    .select('user_id, name, silo, role, status, joined_at')
+    .select(columns)
     .eq('incident_id', incidentId)
     .order('role', { ascending: false })
     .order('joined_at');
+  let { data, error } = await read('user_id, name, silo, role, status, joined_at, start_distance_m, arrived_at, arrived_by, arrived_distance_m, arrived_verified, arrive_note');
+  // Before 0099: without how they arrived.
+  if (noArrivals(error)) ({ data, error } = await read('user_id, name, silo, role, status, joined_at'));
   if (error) throw error;
-  return (data ?? []) as IncidentResponder[];
+  return (data ?? []) as unknown as IncidentResponder[];
 }
 
 export type OnDutyOfficer = {
@@ -1161,20 +1185,38 @@ export async function listOnDutyOfficers(client: CriticomClient, silos?: Silo[])
   const ids = officers.map((o) => o.userId);
   if (ids.length) {
     // Calls they respond to (lead or backup) and calls assigned to them but
-    // not yet answered; each counted once per officer.
-    const [responding, assigned] = await Promise.all([
-      client
-        .from('incident_responders')
-        .select('user_id, incident:incidents!inner(id, incident_number, status)')
-        .in('user_id', ids)
-        .not('incident.status', 'in', '("Closed","Resolved")'),
-      client
+    // not yet answered; each counted once per officer. Busy means their OWN
+    // department's part is still open (0073): a call kept open for another
+    // department (Police finished, EMS still waiting) no longer holds them.
+    const respondingRead = (columns: string) => client
+      .from('incident_responders')
+      .select(columns)
+      .in('user_id', ids)
+      .not('incident.status', 'in', '("Closed","Resolved")');
+    let responding = await respondingRead('user_id, silo, incident:incidents!inner(id, incident_number, status, parts:incident_departments(silo, status))');
+    if (noParts(responding.error)) responding = await respondingRead('user_id, silo, incident:incidents!inner(id, incident_number, status)');
+    if (responding.error) throw responding.error;
+    // Assigned by their department's desk and still open (0073); before 0073, the call's own assignment.
+    let assigned: { data: Array<{ id: string; incident_number: string; assigned_to: string | null }> | null; error: { code?: string; message?: string } | null };
+    const parts = await client
+      .from('incident_departments')
+      .select('assigned_to, incident:incidents!inner(id, incident_number, status)')
+      .in('assigned_to', ids)
+      .in('status', ['Dispatched', 'En Route', 'Arrived', 'On Scene', 'Transporting'])
+      .not('incident.status', 'in', '("Closed","Resolved")');
+    if (noParts(parts.error)) {
+      assigned = await client
         .from('incidents')
         .select('id, incident_number, assigned_to')
         .in('assigned_to', ids)
-        .not('status', 'in', '("Closed","Resolved")'),
-    ]);
-    if (responding.error) throw responding.error;
+        .not('status', 'in', '("Closed","Resolved")');
+    } else {
+      assigned = {
+        data: ((parts.data ?? []) as unknown as Array<{ assigned_to: string; incident: { id: string; incident_number: string } }>)
+          .map((p) => ({ id: p.incident.id, incident_number: p.incident.incident_number, assigned_to: p.assigned_to })),
+        error: parts.error,
+      };
+    }
     if (assigned.error) throw assigned.error;
     const calls = new Map<string, Map<string, string>>();
     const add = (userId: string | null, id: string, number: string) => {
@@ -1183,7 +1225,11 @@ export async function listOnDutyOfficers(client: CriticomClient, silos?: Silo[])
       mine.set(id, number);
       calls.set(userId, mine);
     };
-    for (const r of (responding.data ?? []) as unknown as Array<{ user_id: string; incident: { id: string; incident_number: string } }>) {
+    type Responding = { user_id: string; silo: Silo; incident: { id: string; incident_number: string; parts?: Array<{ silo: Silo; status: DepartmentPart['status'] }> } };
+    for (const r of (responding.data ?? []) as unknown as Responding[]) {
+      const mine = r.incident.parts?.find((p) => p.silo === r.silo);
+      // Their department's part finished (report filed, stood down): free again.
+      if (mine && !partOpen(mine.status)) continue;
       add(r.user_id, r.incident.id, r.incident.incident_number);
     }
     for (const a of assigned.data ?? []) add(a.assigned_to, a.id, a.incident_number);
@@ -1214,6 +1260,7 @@ export async function signIncidentMedia(client: CriticomClient, paths: string[],
 }
 
 export * from './responder-board.ts';
+export * from './tracking.ts';
 
 /**
  * The Active Responders terminal's calls (V4 Responder → Monitor): every

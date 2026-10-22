@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { FormSection, TextField, SelectField, TextAreaField } from '@/components/fields';
 import { getSession, siloFilter } from '@/lib/session';
-import { addTrainingAction, addCertificationAction } from './actions';
+import { FileDown, Paperclip } from 'lucide-react';
+import { addTrainingAction, addCertificationAction, attachCertificateAction } from './actions';
 import { requestT } from '@/lib/i18n';
 
 export const dynamic = 'force-dynamic';
@@ -59,6 +60,11 @@ export default async function TrainingPage() {
             <TextField name="date_achieved" label={t('Date achieved')} type="date" />
             <TextField name="expiry_date" label={t('Expiry date')} type="date" required />
             <TextField name="remarks" label={t('Remarks')} />
+            <div className="sm:col-span-2">
+              <label htmlFor="cert-file" className="text-sm font-medium">{t('Certificate (PDF, JPG or PNG)')}</label>
+              <input id="cert-file" name="file" type="file" accept="application/pdf,image/jpeg,image/png"
+                className="mt-1 block w-full text-sm file:mr-3 file:rounded-md file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-sm file:font-semibold" />
+            </div>
           </FormSection>
           <button type="submit" className="h-10 w-full rounded-md bg-accent text-sm font-semibold">{t('Add certification')}</button>
         </form>
@@ -86,7 +92,7 @@ export default async function TrainingPage() {
           <CardDescription>{t('Sorted by expiry — expiring rows are highlighted.')}</CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SimpleTable headers={['Member', 'Certification', 'Issued by', 'Achieved', 'Expires']} empty={t('No certifications.')}>
+          <SimpleTable headers={['Member', 'Certification', 'Issued by', 'Achieved', 'Expires', 'Certificate']} empty={t('No certifications.')}>
             {certs.slice(0, 50).map((c) => {
               const isExpiring = new Date(c.expiry_date) < soon;
               return (
@@ -97,6 +103,25 @@ export default async function TrainingPage() {
                   <Td className="font-mono">{c.date_achieved ?? '—'}</Td>
                   <Td className={`font-mono ${isExpiring ? 'font-semibold text-severity-critical-ink' : ''}`}>
                     {c.expiry_date}
+                  </Td>
+                  <Td>
+                    {c.file_path ? (
+                      <span className="inline-flex items-center gap-3 whitespace-nowrap text-xs font-semibold">
+                        <a href={`/api/certificates/${c.id}`} target="_blank" rel="noreferrer" className="text-accent hover:underline">{t('View')}</a>
+                        <a href={`/api/certificates/${c.id}?download=1`} className="inline-flex items-center gap-1 text-accent hover:underline">
+                          <FileDown className="h-3.5 w-3.5" aria-hidden /> {t('PDF')}
+                        </a>
+                      </span>
+                    ) : (
+                      <form action={attachCertificateAction} className="flex items-center gap-2">
+                        <input type="hidden" name="id" value={c.id} />
+                        <input name="file" type="file" required accept="application/pdf,image/jpeg,image/png" aria-label={t('Certificate file')}
+                          className="w-40 text-xs file:mr-2 file:rounded file:border-0 file:bg-muted file:px-2 file:py-1 file:text-xs" />
+                        <button type="submit" className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-semibold hover:bg-muted">
+                          <Paperclip className="h-3.5 w-3.5" aria-hidden /> {t('Upload')}
+                        </button>
+                      </form>
+                    )}
                   </Td>
                 </Tr>
               );

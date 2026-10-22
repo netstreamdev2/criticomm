@@ -135,7 +135,9 @@ const t = (
 
 const SUSPECTS = ['suspectCount', 'weapons', 'suspectLooks', 'suspectVehicle', 'direction', 'suspectThere'];
 const PATIENT = ['age', 'sex', 'awake', 'breathing'];
-const VEHICLES = ['vehicleCount', 'registrations', 'roadBlocked', 'trapped', 'fuelFire'];
+const VEHICLES = ['vehicleCount', 'vehicleTypes', 'vehiclesSeen', 'registrations', 'roadBlocked', 'trapped', 'fuelFire'];
+/** Asked on every crash: what each vehicle is, and its make, model and colour. */
+const WHICH_VEHICLES = ['What vehicles: car, bakkie, taxi, bus or truck?|vehicleTypes', 'Make, model and colour of each?|vehiclesSeen'];
 const FIRE = ['burning', 'inside', 'spreading'];
 const ASSAULTS = ['Common assault', 'Assault with the intent to inflict grievous bodily harm'];
 const BURGLARIES = ['Burglary at residential premises', 'Burglary at non-residential premises'];
@@ -359,7 +361,7 @@ export const INCIDENT_CATALOGUE: readonly CatalogueType[] = [
 
   // ── Traffic ──
   t('Traffic', '10-50', 'Motor Vehicle Accident', [P], 'Medium', false, 'crash accident collision mva car', {
-    ask: ['Is anyone hurt or trapped?|hurt', 'How many vehicles?|vehicleCount', 'Is the road blocked?|roadBlocked'],
+    ask: ['Is anyone hurt or trapped?|hurt', 'How many vehicles?|vehicleCount', ...WHICH_VEHICLES, 'Is the road blocked?|roadBlocked'],
     details: [...VEHICLES, 'hurt'],
     opening: ['Vehicle accident.'],
     hints: ['Head injury', 'Broken bone / fracture', 'Spinal / neck injury', 'Cuts and bruises'],
@@ -370,7 +372,7 @@ export const INCIDENT_CATALOGUE: readonly CatalogueType[] = [
     opening: ['Traffic violation.'],
   }),
   t('Traffic', '10-50 PI', 'Crash with injuries', [P, M], 'High', true, 'crash accident injured hurt collision', {
-    ask: ['How many people are hurt?', 'Is anyone trapped?|trapped', 'Is there fuel leaking or fire?|fuelFire'],
+    ask: ['How many people are hurt?', 'Is anyone trapped?|trapped', ...WHICH_VEHICLES, 'Is there fuel leaking or fire?|fuelFire'],
     details: VEHICLES,
     opening: ['Crash with injuries.'],
     hints: ['Head injury', 'Severe bleeding', 'Broken bone / fracture', 'Spinal / neck injury', 'Trapped person'],
@@ -426,13 +428,13 @@ export const INCIDENT_CATALOGUE: readonly CatalogueType[] = [
     opening: ['Abandoned vehicle.'],
   }),
   t('Traffic', '10-50 PD', 'Accident (Property Damage)', [P], 'Low', false, 'accident crash damage fender bender', {
-    ask: ['How many vehicles?|vehicleCount', 'What was damaged?|damage'],
-    details: ['vehicleCount', 'registrations', 'damage', 'roadBlocked'],
+    ask: ['How many vehicles?|vehicleCount', ...WHICH_VEHICLES, 'What was damaged?|damage'],
+    details: ['vehicleCount', 'vehicleTypes', 'vehiclesSeen', 'registrations', 'damage', 'roadBlocked'],
     opening: ['Accident with damage only.'],
     v4: true,
   }),
   t('Traffic', '10-50 F', 'Accident (Fatality)', [P, M], 'High', true, 'accident crash fatal dead killed', {
-    ask: ['How many vehicles?|vehicleCount', 'Is anyone else trapped?|trapped'],
+    ask: ['How many vehicles?|vehicleCount', ...WHICH_VEHICLES, 'Is anyone else trapped?|trapped'],
     details: VEHICLES,
     opening: ['Fatal accident.'],
     injuries: ['Deceased'],
@@ -1171,3 +1173,50 @@ export function composeDescription(args: {
 /** As composeDescription, without details (kept for callers that have none). */
 export const draftDescription = (args: { incidentType?: string | null; injuries: readonly string[]; victims: number | null; isCallerPatient: boolean | null }) =>
   composeDescription(args);
+
+/** What the form already holds, so Criti's questions do not ask for it again. */
+export type KnownOnForm = {
+  /** People hurt, chosen or counted from the patients named. */
+  victims: number | null;
+  isCallerPatient: boolean | null;
+  injuries: readonly string[];
+  patientsNamed: number;
+};
+
+const ASKS_HOW_MANY = /\bhow many\b.*\b(people|persons?|patients?|victims?|injured|hurt|casualt(y|ies)|wounded)\b/i;
+const ASKS_ANYONE_HURT = /\b(is|are|was|were)\s+(any(one|body)|someone|people|anybody)\b.*\b(hurt|injured|wounded)\b/i;
+const ASKS_CALLER_PATIENT = /\b(caller|you)\b.*\b(the )?(patient|hurt|injured)\b|\bpatient\b.*\bcaller\b/i;
+const ASKS_WHO_PATIENT = /\b(who|name)\b.*\bpatients?\b|\bpatients?'?s? names?\b/i;
+
+const words = (q: string) => new Set(q.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((w) => w.length > 2));
+
+/**
+ * The questions to show, without those the form already answers (how many
+ * are hurt, whether anyone is, whether the caller is the patient, who the
+ * patients are) and without the same question asked twice in other words.
+ * The AI is told what is filled in; this makes sure.
+ */
+export function withoutAnswered(questions: readonly string[], known: KnownOnForm): string[] {
+  const hurtKnown = known.victims !== null || known.patientsNamed > 0 || known.isCallerPatient === true;
+  const out: string[] = [];
+  const seen: Array<Set<string>> = [];
+  for (const raw of questions) {
+    const q = raw.trim();
+    if (!q) continue;
+    if (hurtKnown && ASKS_HOW_MANY.test(q)) continue;
+    if ((hurtKnown || known.injuries.length > 0) && ASKS_ANYONE_HURT.test(q)) continue;
+    if (known.isCallerPatient !== null && ASKS_CALLER_PATIENT.test(q)) continue;
+    if (known.patientsNamed > 0 && ASKS_WHO_PATIENT.test(q)) continue;
+    // Asked already in other words: most of the words are the same.
+    const w = words(q);
+    const twice = seen.some((s) => {
+      let same = 0;
+      for (const x of w) if (s.has(x)) same++;
+      return w.size > 0 && same / Math.min(w.size, s.size) >= 0.75;
+    });
+    if (twice) continue;
+    seen.push(w);
+    out.push(q);
+  }
+  return out;
+}

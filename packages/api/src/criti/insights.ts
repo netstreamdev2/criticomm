@@ -3,8 +3,9 @@ import { suggestedDesks } from '@criticom/db/desks';
 import { GLOBAL_ROLES, RESPONDER_ROLES } from '@criticom/db/roles';
 import { DESKS, canPropose, deptList, deptName, deskSiloOf } from './abilities.ts';
 import { viewProposal } from './proposals.ts';
-import type {
-  CritiCrew, CritiIncident, CritiMe, CritiThresholds, DeskSilo, Insight, InsightAction, InsightKind, InsightTone,
+import {
+  OUT_OF_TOUCH_MS, silentFor,
+  type CritiCrew, type CritiIncident, type CritiMe, type CritiThresholds, type DeskSilo, type Insight, type InsightAction, type InsightKind, type InsightTone,
 } from './types.ts';
 
 /**
@@ -82,11 +83,14 @@ export function freeCrewsFor(
   silos: DeskSilo[],
   t: Pick<CritiThresholds, 'etaSpeedKmh' | 'etaRoadFactor'>,
   exclude: string | null = null,
+  /** Given, crews whose app has been silent for hours are left out (gone home still marked on duty). */
+  now: Date | null = null,
 ): CrewOption[] {
   const hasPin = incident.location_lat !== null && incident.location_lng !== null
     && !(incident.location_lat === 0 && incident.location_lng === 0);
   return crews
-    .filter((c) => c.activeCalls === 0 && c.userId !== exclude && silos.includes(c.silo as DeskSilo))
+    // Free, and their app still in touch: one silent for hours has most likely gone home.
+    .filter((c) => c.activeCalls === 0 && c.userId !== exclude && silos.includes(c.silo as DeskSilo) && !(now && silentFor(c, now, OUT_OF_TOUCH_MS)))
     .map((crew) => {
       if (!hasPin || crew.lat === null || crew.lng === null) return { crew, minutes: null };
       const road = km(crew.lat, crew.lng, incident.location_lat!, incident.location_lng!) * t.etaRoadFactor;
@@ -189,7 +193,7 @@ export function computeInsights(input: InsightInput, now: Date = new Date()): In
       if (PENDING.has(i.status)) {
         const wait = minutesSince(i.call_timestamp || i.incident_created_at, now);
         const silos = dispatchSilos(i);
-        const options = dispatches ? freeCrewsFor(i, crews, silos, t) : [];
+        const options = dispatches ? freeCrewsFor(i, crews, silos, t, null, now) : [];
         const sent = tagsOf(i);
         const where = `${i.incident_type} at ${i.location_address}.${sent.length ? ` Sent to the ${deptList(sent)} desk${sent.length === 1 ? '' : 's'}.` : ''}`;
         const actions: InsightAction[] = dispatches
@@ -218,7 +222,7 @@ export function computeInsights(input: InsightInput, now: Date = new Date()): In
         const since = i.assigned_at ?? i.dispatch_time;
         if (minutesSince(since, now) >= t.notAcceptedMinutes) {
           const silos = dispatchSilos(i);
-          const options = dispatches ? freeCrewsFor(i, crews, silos, t, i.assigned_to) : [];
+          const options = dispatches ? freeCrewsFor(i, crews, silos, t, i.assigned_to, now) : [];
           push('not_accepted', i.id, severe ? 'high' : 'warning', severe ? 2.5 : 5, 'No one has responded',
             i.assigned_to_name
               ? `${i.assigned_to_name} has not pressed Responding on ${i.incident_number}.${dispatches ? crewLine(options, silos) : ''}`
@@ -334,7 +338,7 @@ export function computeInsights(input: InsightInput, now: Date = new Date()): In
       const calls = waiting.filter((i) => tagsOf(i).includes(silo)).length;
       if (calls === 0) continue;
       const onDuty = crews.filter((c) => c.silo === silo);
-      const free = onDuty.filter((c) => c.activeCalls === 0).length;
+      const free = onDuty.filter((c) => c.activeCalls === 0 && !silentFor(c, now, OUT_OF_TOUCH_MS)).length;
       if (onDuty.length === 0) {
         push('no_crews', silo, 'high', 2.8, `Nobody on duty in ${deptName(silo)}`,
           `${calls} call${calls === 1 ? ' is' : 's are'} waiting for ${deptName(silo)}, and no one from ${deptName(silo)} is on duty in the app.`,

@@ -20,11 +20,8 @@ import { departmentOf, wordsIn } from '@/lib/department';
 import { DeptBadge } from '@/components/dept-badge';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, KeyValue, Muted, SectionLabel, Title } from '@/components/ui';
-import { MyIncidents } from '@/components/my-incidents';
-import { MyShiftsCard } from '@/components/my-shifts-card';
-import { MyPerformance } from '@/components/my-performance';
 import { CritiHead } from '@/components/criti-head';
-import { FinesCard } from '@/components/fines-card';
+import { WorkLinks } from '@/components/work-links';
 import { OrgMark } from '@/components/org-mark';
 import { LanguagePicker } from '@/components/language-picker';
 import { useT } from '@/lib/i18n';
@@ -242,12 +239,9 @@ export default function ProfileScreen() {
       </Card>
 
       {/* Alerts */}
-      {/* My work — each card opens its own page; performance and fines live here, not on Home */}
+      {/* My work: one clear button per section, each opening its own page */}
       <SectionLabel>{t('My work')}</SectionLabel>
-      <MyShiftsCard />
-      <MyIncidents />
-      <MyPerformance />
-      <FinesCard />
+      <WorkLinks />
 
       <SectionLabel>{t('Dispatch alerts')}</SectionLabel>
       <Card accent={pushEnabled ? colors.accent : colors.medium}>
@@ -298,14 +292,6 @@ export default function ProfileScreen() {
       <SectionLabel>{t('Self-service')}</SectionLabel>
       <Card>
         <View style={{ gap: space.sm }}>
-          {featureOn('mobile.leave') ? (
-            <Button
-              label={t('Apply for leave')}
-              icon="calendar-outline"
-              variant="subtle"
-              onPress={() => router.push('/leave')}
-            />
-          ) : null}
           {featureOn('mobile.assistant') ? (
             <Button
               label={t('Ask Criti')}

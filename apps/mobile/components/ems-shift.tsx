@@ -20,6 +20,7 @@ import { errorWords } from '@/lib/offline-cache-policy';
 import { READINESS_ITEMS } from '@/lib/inspection-187c';
 import { newEntryId } from '@/lib/outbox-policy';
 import { colors, makeStyles, radius, space } from '@/lib/theme';
+import { FieldKitCard } from '@/components/field-kit-card';
 import { Banner, Input, KeyValue, Stepper } from './ui';
 import { HikTechLogo } from './hiktech-logo';
 import { FireButton, FireCheck } from './fire-ui';
@@ -353,8 +354,9 @@ export function EmsShift({ gated = false }: { gated?: boolean }) {
             {record ? <KeyValue label={t('Filed (SAST)')} value={new Intl.DateTimeFormat('en-ZA', { timeZone: 'Africa/Johannesburg', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(record.checked_at))} /> : null}
           </View>
           <Text style={styles.success}>{t('6 readiness checks · {EMS_CHECK_COUNT} vehicle & stock checks · sanitisation', { EMS_CHECK_COUNT })}</Text>
+          <View style={{ marginVertical: space.md }}><FieldKitCard /></View>
           <FireButton label={state?.personnel.is_on_duty ? t('Go to dashboard') : t('Go on duty & open dashboard')} icon="pulse" onPress={goOnDuty} busy={busy} />
-        </View> : null}
+</View> : null}
         {step && error ? <View style={{ gap: 10 }}><Banner tone="error">{error}</Banner>{step === 'readiness' || step === 'vehicle' || step === 'stock' ? null : <FireButton label={t('Reload saved shift progress')} secondary icon="refresh" onPress={() => void run(load)} busy={busy} />}</View> : null}
         <Text style={styles.footer}>{t('EMERGENCY MEDICAL SERVICES · START OF SHIFT')}</Text>
       </ScrollView>

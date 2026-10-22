@@ -85,6 +85,21 @@ export async function standDownAction(_prev: FormState, formData: FormData): Pro
 }
 
 /**
+ * Dispatch confirms a crew is at the scene, saying how it knows (0102): the
+ * "not verified" flag clears and the report can be filed.
+ */
+export async function confirmArrivalAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const { supabase } = await getSession();
+  const incidentId = String(formData.get('incident_id'));
+  const department = String(formData.get('department')) as Silo;
+  const note = String(formData.get('note') ?? '').trim();
+  const { error } = await supabase.rpc('confirm_arrival', { p_incident: incidentId, p_silo: department, p_note: note });
+  if (error) return { error: refusal(error) };
+  revalidatePath(`/incidents/${incidentId}`);
+  return { done: 'Arrival confirmed. The crew can file the report.' };
+}
+
+/**
  * NotificationsController.TriggerLocationSms — mint a share token and SMS the
  * caller a GPS-share deep link.
  */

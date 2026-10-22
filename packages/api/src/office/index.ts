@@ -37,26 +37,29 @@ export type OfficeModule = {
   info: string;
 };
 
-/** The duty office screens, in the order the old system lists them. */
+/**
+ * The duty office screens, as the two menus list them: Staff, then Duty.
+ * Plain names; the old system's codes (STFM, DUTM…) stay underneath for access.
+ */
 export const OFFICE_MODULES: OfficeModule[] = [
-  { code: 'STFM', label: tx('Staff Maintenance'), href: '/modules/staff', group: 'staff',
-    info: tx('Each member’s record: numbers, rank, station, section, weekend group, contacts and access.') },
+  { code: 'STFM', label: tx('Staff'), href: '/modules/staff', group: 'staff',
+    info: tx('Every member: numbers, rank, station, section, contacts and sign-in.') },
   { code: 'CSNM', label: tx('Call Signs'), href: '/modules/call-signs', group: 'staff',
-    info: tx('Each call sign with its patrol area, hours, break and the rank it needs.') },
+    info: tx('Each call sign with its area, hours and the rank it needs.') },
   { code: 'SECM', label: tx('Sections'), href: '/modules/sections', group: 'staff',
-    info: tx('The units duty is allocated to, and the stations they work from.') },
+    info: tx('The units duty is given to, and the stations they work from.') },
   { code: 'ENTM', label: tx('Endorsements'), href: '/modules/endorsements', group: 'staff',
-    info: tx('Instructions for a member, such as court. They print on the duty sheet.') },
-  { code: 'DUTA', label: tx('Duty Allocation'), href: '/modules/duty-allocation', group: 'duty',
-    info: tx('Pick a section and dates, then pair call signs with staff.') },
-  { code: 'DUTM', label: tx('Duty Maintenance'), href: '/modules/duty-maintenance', group: 'duty',
-    info: tx('Look up who worked a call sign, and change a duty.') },
-  { code: 'DUTR', label: tx('Duty Operations'), href: '/modules/duty-operations', group: 'duty',
-    info: tx('The daily duty sheet for parade: sign on, sign off and overtime.') },
-  { code: 'ABSM', label: tx('Absence'), href: '/modules/absence', group: 'duty',
-    info: tx('The absence codes: AL, SL, AWOL and the rest.') },
+    info: tx('Notes for a member, such as court. They print on the duty sheet.') },
+  { code: 'DUTM', label: tx('Duty Roster'), href: '/modules/duty-maintenance', group: 'duty',
+    info: tx('Who works which call sign and when. Assign or change one duty.') },
+  { code: 'DUTA', label: tx('Allocate Duties'), href: '/modules/duty-allocation', group: 'duty',
+    info: tx('Fill a whole section for some days: pair call signs with staff.') },
+  { code: 'DUTR', label: tx('Duty Sheet'), href: '/modules/duty-operations', group: 'duty',
+    info: tx('The day’s sheet to print for parade: sign on, sign off and overtime.') },
   { code: 'LEAM', label: tx('Leave'), href: '/modules/leave', group: 'duty',
-    info: tx('Approve leave and capture leave or absence for a member.') },
+    info: tx('Approve leave, or capture leave or absence for a member.') },
+  { code: 'ABSM', label: tx('Absence Codes'), href: '/modules/absence', group: 'duty',
+    info: tx('The list of absence types: AL, SL, AWOL and the rest.') },
 ];
 
 export const MODULE_BY_CODE = Object.fromEntries(OFFICE_MODULES.map((m) => [m.code, m])) as Record<ModuleCode, OfficeModule>;

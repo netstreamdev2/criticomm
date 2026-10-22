@@ -3,7 +3,7 @@ import { deptList, deptName } from './abilities.ts';
 import { tagsOf } from './insights.ts';
 import { abilitiesText, knowledgeFor } from './knowledge.ts';
 import type { CodeGroup } from './resolve.ts';
-import type { CritiCrew, CritiIncident, CritiMe, CritiThresholds, Insight, ProposalKind } from './types.ts';
+import { OUT_OF_TOUCH_MS, QUIET_MS, silentFor, type CritiCrew, type CritiIncident, type CritiMe, type CritiThresholds, type Insight, type ProposalKind } from './types.ts';
 
 /**
  * What Criti's AI model is told, and how its answer is read. Pure text in,
@@ -64,6 +64,10 @@ function crewLine(c: CritiCrew, now: Date): string {
     c.unitNumber ? `unit ${c.unitNumber}` : null,
     c.station ? one(c.station, 40) : null,
     c.onDutySince ? `on duty ${span(c.onDutySince, now)}` : null,
+    // Marked on duty, but their app has gone quiet: say so rather than offer them.
+    silentFor(c, now, OUT_OF_TOUCH_MS)
+      ? `app silent for ${span(c.lastContactAt ?? c.seenAt, now)}: probably left without going off duty, do not count them as available`
+      : silentFor(c, now, QUIET_MS) ? `app not heard from for ${span(c.lastContactAt ?? c.seenAt, now)}` : null,
     c.lat === null ? 'no location' : null,
   ].filter(Boolean).join(' | ');
 }

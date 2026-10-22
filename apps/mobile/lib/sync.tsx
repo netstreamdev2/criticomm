@@ -6,7 +6,7 @@ import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import * as FileSystem from 'expo-file-system';
 import {
-  addIncidentUpdate, closeDepartmentPart, fileFireReport, fileIncidentReport, filePcr, filePostMortem, issueFines, raisePanic, toggleDuty, updateResponderStatus,
+  addIncidentUpdate, closeDepartmentPart, fileFireReport, fileIncidentReport, filePcr, filePostMortem, issueFines, raisePanic, recordTrack, toggleDuty, updateResponderStatus,
   uploadIncidentEvidence,
 } from '@criticom/api';
 import type { CriticomClient, IncidentStatus } from '@criticom/db';
@@ -14,7 +14,7 @@ import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import {
   asUuid, backoffMs, comparePriority, dedupeKeyOf, describe, isMine, isPermanent, MAX_ATTEMPTS, newEntryId,
-  readOutbox, releaseAttachment, writeOutbox,
+  readOutbox, releaseAttachment, setLiveEnqueue, writeOutbox,
   type OutboxEntry, type OutboxOp,
 } from '@/lib/outbox';
 
@@ -75,10 +75,21 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
    */
   incident_status: async (client, entry) => {
     const op = entry.op as Extract<OutboxOp, { kind: 'incident_status' }>;
+    // On scene worked out by the phone: its fix goes first, so the server
+    // checks the arrival against it (0099). Already on file is skipped there.
+    if (op.fix) {
+      try {
+        await recordTrack(client, [op.fix]);
+      } catch (error) {
+        // Too old to take (over 72 hours): the status still goes, unverified.
+        if ((error as { code?: string }).code !== '22023') throw error;
+      }
+    }
     await updateResponderStatus(client, {
       incident_id: op.incidentId,
       status: op.status as IncidentStatus,
       occurred_at: entry.occurredAt,
+      ...(op.reason ? { reason: op.reason } : {}),
     });
   },
 
@@ -256,7 +267,7 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
    */
   close_part: async (client, entry) => {
     const op = entry.op as Extract<OutboxOp, { kind: 'close_part' }>;
-    await closeDepartmentPart(client, { incidentId: op.incidentId, occurredAt: entry.occurredAt });
+    await closeDepartmentPart(client, { incidentId: op.incidentId, occurredAt: entry.occurredAt, disposition: op.disposition ?? null });
   },
 
   /**
@@ -506,6 +517,12 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
     void flush();
     return id;
   }, [commit, flush, session]);
+
+  // The route recorder queues through this while the app runs (lib/arrival-watch.ts).
+  useEffect(() => {
+    setLiveEnqueue(enqueue);
+    return () => setLiveEnqueue(null);
+  }, [enqueue]);
 
   const retryAll = useCallback(async () => {
     const userId = session?.user.id;

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   INCIDENT_CATALOGUE, INJURY_TYPES, MED_PRIORITIES, catalogueType, draftDescription, intakeAdvice, maxSeverity,
-  searchInjuries, searchTypes, topPriority, typeMeta, type IntakeState,
+  searchInjuries, searchTypes, topPriority, typeMeta, withoutAnswered, type IntakeState,
 } from './intake.ts';
 import { DESK_SILOS } from './desks.ts';
 
@@ -111,4 +111,25 @@ test('the drafted description reads plainly', () => {
     'Bus or taxi crash. 5 or more people hurt, including the caller.');
   assert.equal(draftDescription({ injuries: [], victims: null, isCallerPatient: true }), 'The caller is the patient.');
   assert.equal(draftDescription({ injuries: [], victims: null, isCallerPatient: null }), '');
+});
+
+test('Criti does not ask again what the form already holds', () => {
+  const asks = [
+    'How many patients are there?', 'Is anyone hurt?', 'Is the caller the patient?', 'Is the shooter still there?',
+    'Is the shooter still at the scene?', 'Where was the person shot?',
+  ];
+  assert.deepEqual(
+    withoutAnswered(asks, { victims: 2, isCallerPatient: false, injuries: [], patientsNamed: 0 }),
+    ['Is the shooter still there?', 'Where was the person shot?'],
+  );
+  assert.deepEqual(
+    withoutAnswered(['How many people are hurt?', 'What are the patients names?'], { victims: null, isCallerPatient: null, injuries: [], patientsNamed: 1 }),
+    [],
+    'patients named at the top count',
+  );
+  assert.deepEqual(
+    withoutAnswered(['How many people are hurt?', 'Is the caller the patient?'], { victims: null, isCallerPatient: null, injuries: [], patientsNamed: 0 }),
+    ['How many people are hurt?', 'Is the caller the patient?'],
+    'still asked while not known',
+  );
 });

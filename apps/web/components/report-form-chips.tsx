@@ -8,8 +8,9 @@ export const CASE_TONE = '#3b82f6';
 /**
  * The forms a police report carries, each in its own colour with a tick, as
  * the officer ticked them on the phone: the case report, then the DMPS forms.
+ * With `jump`, each chip is a link down to its form on the page.
  */
-export async function ReportFormChips({ forms, withCase = true }: { forms: readonly PoliceReportForm[]; withCase?: boolean }) {
+export async function ReportFormChips({ forms, withCase = true, jump = false }: { forms: readonly PoliceReportForm[]; withCase?: boolean; jump?: boolean }) {
   const { t } = await requestT();
   const items = [
     ...(withCase ? [{ key: 'case', text: 'Case report', tone: CASE_TONE }] : []),
@@ -18,15 +19,22 @@ export async function ReportFormChips({ forms, withCase = true }: { forms: reado
   return (
     <ul className="flex flex-wrap gap-1.5" aria-label={t('Forms filed')}>
       {items.map((i) => (
-        <li
-          key={i.key}
-          className="inline-flex items-center gap-1.5 rounded-full border py-0.5 pl-1 pr-2.5 text-xs font-semibold"
-          style={{ borderColor: `${i.tone}66`, backgroundColor: `${i.tone}14` }}
-        >
-          <span className="flex h-4 w-4 items-center justify-center rounded-full text-white" style={{ backgroundColor: i.tone }}>
-            <Check className="h-3 w-3" aria-hidden />
-          </span>
-          {i.text}
+        <li key={i.key}>
+          {(() => {
+            const body = (
+              <>
+                <span className="flex h-4 w-4 items-center justify-center rounded-full text-white" style={{ backgroundColor: i.tone }}>
+                  <Check className="h-3 w-3" aria-hidden />
+                </span>
+                {i.text}
+              </>
+            );
+            const cls = 'inline-flex items-center gap-1.5 rounded-full border py-0.5 pl-1 pr-2.5 text-xs font-semibold';
+            const style = { borderColor: `${i.tone}66`, backgroundColor: `${i.tone}14` };
+            return jump
+              ? <a href={`#form-${i.key}`} className={`${cls} hover:brightness-125`} style={style}>{body}</a>
+              : <span className={cls} style={style}>{body}</span>;
+          })()}
         </li>
       ))}
     </ul>

@@ -19,6 +19,12 @@ export type OutboxOp =
       incidentId: string;
       status: string;
       incidentNumber?: string;
+      /** Why they marked on scene by hand, when the phone had not put them there (0099). */
+      reason?: string;
+      /** Responding: where the scene is, so the phone can tell when it gets there with no signal. */
+      scene?: { lat: number; lng: number };
+      /** On scene worked out by the phone: the fix that put it there, sent first so the server checks it. */
+      fix?: { t: string; lat: number; lng: number; acc: number | null; spd: number | null; hdg: number | null; mock?: true };
     }
   | {
       kind: 'incident_note';
@@ -72,6 +78,8 @@ export type OutboxOp =
       kind: 'close_part';
       incidentId: string;
       incidentNumber: string;
+      /** How the call ended (0098); absent from closes queued before it. */
+      disposition?: string;
     }
   | {
       kind: 'panic';

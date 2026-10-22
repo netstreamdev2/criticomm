@@ -1,3 +1,4 @@
+import { OfficeMenuBar } from '@/components/office/office-menu-bar';
 import { redirect } from 'next/navigation';
 import {
   getScheduleSettings, listPublicHolidays, listRotations, listShiftTemplates, listTeamMembers, saDay,
@@ -34,9 +35,10 @@ export default async function ShiftSetupPage({ searchParams }: { searchParams: P
 
   return (
     <div className="space-y-4">
+      <OfficeMenuBar />
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">{t('Shift setup')}</h1>
+          <h1 className="text-2xl font-bold">{t('Shift Patterns')}</h1>
           <p className="text-muted-foreground">{DEPARTMENT_NAMES[target]}</p>
         </div>
         {isScheduleHr(role) ? (

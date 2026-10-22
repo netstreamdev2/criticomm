@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { colors, makeStyles } from '@/lib/theme';
+import { useFinesTab } from '@/components/fines-card';
 import { tx } from '@criticom/db/i18n';
 import { useT } from '@/lib/i18n';
 
@@ -11,7 +12,7 @@ type TabBarProps = Parameters<NonNullable<React.ComponentProps<typeof Tabs>['tab
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
 /**
- * The curved tab bar: four tabs either side of a raised red Incidents button
+ * The curved tab bar: two tabs either side of a raised red Incidents button
  * that sits in a notch cut into the navy bar. Incidents is the centre because
  * it is the screen a responder opens most, and the one that must be found
  * without looking.
@@ -29,10 +30,13 @@ const CENTRE_SLOT = 96;
 const SIDE_TABS: Record<string, { label: string; icon: IconName; active: IconName }> = {
   index: { label: tx('Home'), icon: 'home-outline', active: 'home' },
   shift: { label: tx('Shift'), icon: 'clipboard-outline', active: 'clipboard' },
+  fines: { label: tx('Fines'), icon: 'receipt-outline', active: 'receipt' },
   schedule: { label: tx('Schedule'), icon: 'calendar-outline', active: 'calendar' },
   profile: { label: tx('Profile'), icon: 'person-outline', active: 'person' },
 };
+// Fines sit next to Home for those who issue them; Shift is then on Home and the profile.
 const LEFT = ['index', 'shift'];
+const LEFT_WITH_FINES = ['index', 'fines'];
 const RIGHT = ['schedule', 'profile'];
 const CENTRE = 'incidents';
 
@@ -68,6 +72,7 @@ export function CurvedTabBar({ state, navigation }: TabBarProps) {
   const bottomPad = height - BAR;
 
   const focusedName = state.routes[state.index]?.name;
+  const left = useFinesTab() ? LEFT_WITH_FINES : LEFT;
 
   const press = (name: string) => {
     const route = state.routes.find((r) => r.name === name);
@@ -106,7 +111,7 @@ export function CurvedTabBar({ state, navigation }: TabBarProps) {
       </Svg>
 
       <View style={[styles.row, { paddingBottom: bottomPad }]}>
-        {LEFT.map(side)}
+        {left.map(side)}
         {/* Same structure as a side tab, with the raised button in place of the
             icon, so the label lines up with the others. */}
         <Pressable
@@ -134,7 +139,7 @@ export function CurvedTabBar({ state, navigation }: TabBarProps) {
           pressed && { transform: [{ scale: 0.94 }] },
         ]}
       >
-        <Ionicons name={centreFocused ? 'radio' : 'radio-outline'} size={28} color="#fff" />
+        <Ionicons name={centreFocused ? 'warning' : 'warning-outline'} size={28} color="#fff" />
       </Pressable>
     </View>
   );

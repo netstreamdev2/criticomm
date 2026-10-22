@@ -175,3 +175,6 @@ export function presenceSignedIn() {
   signedOut = false;
   notStaff = false;
 }
+
+/** When the server last took a report from this radio (0 when not yet), for the radio's own setup screen. */
+export const presenceSentAt = () => lastSent;

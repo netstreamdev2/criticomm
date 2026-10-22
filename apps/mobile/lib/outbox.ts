@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system';
-import type { OutboxEntry } from './outbox-policy.ts';
+import { newEntryId, type OutboxEntry, type OutboxOp } from './outbox-policy.ts';
 
 /**
  * The outbox — durable storage for work the phone has accepted but not yet
@@ -69,6 +69,30 @@ export async function writeOutbox(entries: OutboxEntry[]): Promise<void> {
     // the in-memory queue still delivers for this session.
     console.warn('[criticom] could not persist outbox', e);
   }
+}
+
+/* ── Queuing from outside the app's screens ─────────────────────────── */
+
+type Enqueue = (op: OutboxOp, opts?: { occurredAt?: string }) => Promise<string>;
+let live: Enqueue | null = null;
+
+/** The sync provider hands over its queue while it runs (lib/sync.tsx). */
+export function setLiveEnqueue(fn: Enqueue | null) {
+  live = fn;
+}
+
+/**
+ * Queue work from code with no screen: the route recorder, running in the
+ * background with the app closed. With the app running it joins the live
+ * queue (and sends at once); otherwise it is written straight to the phone
+ * and sent when the app next opens.
+ */
+export async function enqueueQuietly(op: OutboxOp, userId: string, occurredAt: string): Promise<string> {
+  if (live) return live(op, { occurredAt });
+  const id = newEntryId();
+  const entries = await readOutbox();
+  await writeOutbox([...entries, { id, op, userId, occurredAt, attempts: 0, status: 'queued', nextAttemptAt: 0 }]);
+  return id;
 }
 
 /* ── Attachments ────────────────────────────────────────────────────── */

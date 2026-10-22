@@ -10,7 +10,7 @@ import { useAuth } from '@/lib/auth';
 import { getSupabase } from '@/lib/supabase';
 import { askMicrophone, liveKitNative, startTalkAudio, stopTalkAudio } from '@/lib/talk-native';
 import { setTalkPresence, useRadioId } from '@/lib/presence';
-import { screenTalk } from '@/lib/radio-talk';
+import { screenTalk, setScreenPtt } from '@/lib/radio-talk';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, EmptyState } from '@/components/ui';
 import { useT } from '@/lib/i18n';
@@ -120,6 +120,11 @@ export default function TalkScreen() {
     holding.current = false;
     await talk.current?.release();
   }, []);
+  // The radio's own talk button works the big button while this is open.
+  useEffect(() => {
+    setScreenPtt({ press: () => { void press(); }, release: () => { void release(); } });
+    return () => setScreenPtt(null);
+  }, [press, release]);
 
   if (!available) {
     return (

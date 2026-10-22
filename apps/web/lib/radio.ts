@@ -1,6 +1,6 @@
 import 'server-only';
 import {
-  joinRadios, listRadioPresence, listRadioRegister, presenceRadios, radioCounts, type ProviderPicture, type RadioView,
+  joinRadios, listKit, listRadioPresence, listRadioRegister, presenceRadios, radioCounts, type ProviderPicture, type RadioView,
 } from '@criticom/api';
 import type { CriticomClient } from '@criticom/db';
 
@@ -35,6 +35,26 @@ async function askApp(supabase: CriticomClient): Promise<ProviderPicture> {
   }
 }
 
+/** Registered hard hats and radios that run the app (0101), by Radio ID, with who booked each. */
+async function kitByDevice(supabase: CriticomClient): Promise<Map<string, { assetNo: string; holder: string | null }>> {
+  const out = new Map<string, { assetNo: string; holder: string | null }>();
+  try {
+    const items = (await listKit(supabase)).filter((k) => k.device_id);
+    for (const k of items) out.set(k.device_id!, { assetNo: k.asset_no, holder: k.holder?.name ?? null });
+  } catch { /* before 0101: no numbers to show */ }
+  return out;
+}
+
+/** Each device with its number, named after whoever booked it for the shift when the register names nobody. */
+function withKit(views: RadioView[], kit: Map<string, { assetNo: string; holder: string | null }>): RadioView[] {
+  if (!kit.size) return views;
+  return views.map((v) => {
+    const tag = kit.get(v.live?.provider === 'hiktech' ? v.live.account : v.account);
+    if (!tag) return v;
+    return { ...v, kit: tag, title: v.register?.personName || tag.holder || v.title };
+  });
+}
+
 export type RadioDesk = {
   views: RadioView[];
   counts: ReturnType<typeof radioCounts>;
@@ -46,6 +66,6 @@ export async function loadRadioDesk(supabase: CriticomClient): Promise<RadioDesk
     listRadioRegister(supabase).catch(() => []),
     Promise.all([askPocStar(), askApp(supabase)]),
   ]);
-  const views = joinRadios(register, pictures.flatMap((p) => p.radios));
+  const views = withKit(joinRadios(register, pictures.flatMap((p) => p.radios)), await kitByDevice(supabase));
   return { views, counts: radioCounts(views), at: new Date().toISOString() };
 }

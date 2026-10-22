@@ -121,6 +121,15 @@ test('a new critical call: nearest free crew first, with a road estimate', () =>
   assert.deepEqual(all.view.proposal.silos, ['MetroFire']);
 });
 
+test('someone marked on duty whose app went silent hours ago is not offered', () => {
+  const c = call({ incident_severity: 'Critical', call_timestamp: ago(3), incident_created_at: ago(3) });
+  const gone = crew({ name: 'Firefighter Gone', lastContactAt: ago(60 * 30), seenAt: ago(60 * 30) });
+  const here = crew({ name: 'Firefighter Here', ...FAR, lastContactAt: ago(2) });
+  assert.deepEqual(freeCrewsFor(c, [gone, here], ['MetroFire'], DEFAULT_THRESHOLDS, null, NOW).map((o) => o.crew.name), ['Firefighter Here']);
+  const [tile] = insights(me('Dispatcher', 'MetroFire'), [c], [gone, here]);
+  assert.match(tile!.body, /Firefighter Here is free/);
+});
+
 test('late dispatch follows the escalation minutes', () => {
   const warn = call({ call_timestamp: ago(12), incident_created_at: ago(12) });
   const bad = call({ call_timestamp: ago(25), incident_created_at: ago(25) });

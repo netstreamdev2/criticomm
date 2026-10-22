@@ -13,7 +13,7 @@ export const col = (f: Omit<ReportField, 'column'>): ReportField => ({ ...f, col
 export const RESPONSE: ReportSection = {
   title: 'Response',
   fields: [
-    col({ key: 'partner_name', label: 'Partner / crew member', kind: 'text' }),
+    // The partner / crew member is no longer asked (2026-10-22); reports that have one still show it (police-report-view).
     col({ key: 'bodycam_active', label: 'Body camera active', kind: 'yesno' }),
     col({
       key: 'use_of_force', label: 'Use of force', kind: 'choice',

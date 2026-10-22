@@ -33,7 +33,8 @@ export default async function AbsencePage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="space-y-4">
-      <OfficeHeader title={tx('Absence Codes')} info={tx('Every leave or absence is captured under one of these codes. Office-only codes (AWOL, Suspended …) are never asked for by members.')}
+      <OfficeHeader title={tx('Absence Codes')}
+        steps={[tx('The list of absence types used for leave and on the duty sheet.'), tx('Add a type, or change one, here.')]} info={tx('Every leave or absence is captured under one of these codes. Office-only codes (AWOL, Suspended …) are never asked for by members.')}
         target={target} global={ctx.global} canEdit={ctx.canEdit} path="/modules/absence" />
 
       <div className="grid gap-4 xl:grid-cols-[1fr_22rem]">

@@ -4,6 +4,7 @@ import type { PresenceRow, RadioKind, RadioProvider, RegisterEntry } from './liv
 
 export * from './live.ts';
 export * from './talk.ts';
+export * from './kit.ts';
 
 /** The radio register (0082), as this person may read it, with whose each radio is. */
 export async function listRadioRegister(client: CriticomClient, opts: { includeRetired?: boolean } = {}): Promise<RegisterEntry[]> {

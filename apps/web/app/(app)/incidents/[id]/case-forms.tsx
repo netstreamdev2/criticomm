@@ -4,7 +4,7 @@ import { useActionState, useState } from 'react';
 import { CANCEL_REASON_MIN } from '@criticom/db';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { closeCaseAction, setStatusAction, standDownAction, type FormState } from './actions';
+import { closeCaseAction, confirmArrivalAction, setStatusAction, standDownAction, type FormState } from './actions';
 import { useT } from '@/components/i18n';
 
 function Outcome({ state }: { state: FormState }) {
@@ -123,6 +123,40 @@ export function StatusOverride({
 }
 
 /** A department is not needed on this call (0073): say why; its crew is told to stand down. */
+/** The crew's arrival is not proven by their phone: dispatch confirms it, saying how it knows (0102). */
+export function ConfirmArrival({ incidentId, department }: { incidentId: string; department: string }) {
+  const { t } = useT();
+  const [state, action, pending] = useActionState(confirmArrivalAction, null);
+  const [note, setNote] = useState('');
+  if (state?.done) return <Outcome state={state} />;
+  return (
+    <details className="group">
+      <summary className="cursor-pointer text-xs font-semibold text-severity-high-ink hover:underline">{t('Confirm arrival')}</summary>
+      <form action={action} className="mt-2 space-y-2">
+        <input type="hidden" name="incident_id" value={incidentId} />
+        <input type="hidden" name="department" value={department} />
+        <Textarea
+          name="note"
+          rows={2}
+          required
+          maxLength={200}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder={t('How do you know they are there? e.g. Called the officer; seen on the bodycam')}
+        />
+        <button
+          type="submit"
+          disabled={pending || note.trim().length < 3}
+          className="rounded-md border border-severity-high/50 bg-severity-high/10 px-3 py-1.5 text-xs font-semibold text-severity-high-ink disabled:opacity-50"
+        >
+          {pending ? t('Saving…') : t('Confirm they are on scene')}
+        </button>
+        <Outcome state={state} />
+      </form>
+    </details>
+  );
+}
+
 export function StandDown({ incidentId, department, label }: { incidentId: string; department: string; label: string }) {
   const { t } = useT();
   const [state, action, pending] = useActionState(standDownAction, null);

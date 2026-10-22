@@ -6,6 +6,7 @@ import {
 import { OFFICE_MODULES, getMyModules, type MyModules } from '@criticom/api';
 import { canAccess, type ModuleCode } from '@criticom/db';
 import { InfoTip } from '@/components/ui/info-tip';
+import { SetupGuide } from '@/components/office/setup-guide';
 import { getSession } from '@/lib/session';
 import { requestT } from '@/lib/i18n';
 
@@ -74,6 +75,7 @@ export default async function ModulesPage({ searchParams }: { searchParams: Prom
           {t('System Modules')} <InfoTip text={t('The duty office screens. The systems controller decides who may open each one, and whether they may change it.')} />
         </h1>
       </header>
+      <SetupGuide />
       {staff.length + duty.length === 0 ? (
         <p className="rounded-lg border border-border bg-bg-card p-6 text-sm text-muted-foreground">
           {t('You have no duty office screens yet. Ask the systems controller for access.')}

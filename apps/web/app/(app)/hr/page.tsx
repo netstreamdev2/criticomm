@@ -20,7 +20,7 @@ export const metadata = { title: 'HR Command Centre · HikTech' };
 const QUICK = [
   { href: '/leave', label: 'Leave', desc: 'Balances, calendar, approvals', icon: Briefcase },
   { href: '/roster', label: 'Roster', desc: 'Shifts, generators, endorsements', icon: CalendarClock },
-  { href: '/roster/duty-sheet', label: 'Duty Sheet', desc: 'Printable parade sheet', icon: IdCard },
+  { href: '/modules/duty-operations', label: 'Duty Sheet', desc: 'Printable parade sheet', icon: IdCard },
   { href: '/training', label: 'Training', desc: 'Records & certifications', icon: GraduationCap },
   { href: '/performance/reports', label: 'Performance Reports', desc: 'By member, department, incident', icon: BarChart3 },
   { href: '/hierarchy', label: 'Hierarchy', desc: 'Chain of command', icon: Users },

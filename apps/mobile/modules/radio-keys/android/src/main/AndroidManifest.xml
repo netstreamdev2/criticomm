@@ -8,10 +8,26 @@
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+  <!-- Radios and hard hats open the app when switched on (BootReceiver). -->
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+  <!-- Asked once on a radio or hard hat: left out of battery saving, so duty keeps running. -->
+  <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
   <application>
     <service
       android:name="za.co.ethekwini.radiokeys.DutyMediaService"
       android:exported="false"
       android:foregroundServiceType="camera|microphone|location" />
+    <receiver
+      android:name="za.co.ethekwini.radiokeys.BootReceiver"
+      android:exported="true"
+      android:directBootAware="false">
+      <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED" />
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+        <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+      </intent-filter>
+    </receiver>
   </application>
 </manifest>

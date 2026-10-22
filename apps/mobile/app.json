@@ -70,7 +70,8 @@
       "expo-asset",
       "expo-font",
       "@livekit/react-native-expo-plugin",
-      "@config-plugins/react-native-webrtc"
+      "@config-plugins/react-native-webrtc",
+      "./plugins/with-radio-keys"
     ],
     "experiments": {
       "typedRoutes": false

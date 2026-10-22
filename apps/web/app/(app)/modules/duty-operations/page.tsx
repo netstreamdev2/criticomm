@@ -10,7 +10,7 @@ import { requestT } from '@/lib/i18n';
 import { PrintButton } from '../../roster/duty-sheet/print-button';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Duty Operations · HikTech' };
+export const metadata = { title: 'Duty Sheet · HikTech' };
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 const hm = (iso: string | null) =>
@@ -43,7 +43,8 @@ export default async function DutyOperationsPage({
 
   return (
     <div className="space-y-4">
-      <OfficeHeader title={tx('Duties for Operation')} info={tx('The daily duty sheet for parade. Choose the section, the date and the operation, then print. Times members signed on or off in the app fill in.')}
+      <OfficeHeader title={tx('Duty Sheet')}
+        steps={[tx('Choose the day and the section.'), tx('Press Print. Each call sign is listed with its members, vehicle and area.'), tx('On parade, members sign on, sign off and sign for overtime on the paper.')]} info={tx('The daily duty sheet for parade. Choose the section, the date and the operation, then print. Times members signed on or off in the app fill in.')}
         target={target} global={ctx.global} canEdit={ctx.canEdit} path="/modules/duty-operations" />
 
       <section className={cn(ox.card, 'no-print')}>

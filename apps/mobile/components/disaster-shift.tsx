@@ -11,6 +11,7 @@ import { useDuty } from '@/lib/duty';
 import { READINESS_ITEMS } from '@/lib/inspection-187c';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, Button, Card, Input, Muted, Stepper, Title } from '@/components/ui';
+import { FieldKitCard } from '@/components/field-kit-card';
 import { HikTechLogo } from '@/components/hiktech-logo';
 import { tx } from '@criticom/db/i18n';
 import { useT } from '@/lib/i18n';
@@ -197,6 +198,7 @@ export function DisasterShift({ gated = false }: { gated?: boolean }) {
           <View style={styles.done}><Ionicons name="shield-checkmark" size={30} color="#fff" /></View>
           <Title>{t('Ready for duty')}</Title>
           <Muted>{t('Your readiness check for today is on record.')}</Muted>
+          <View style={{ marginTop: space.md }}><FieldKitCard /></View>
           <View style={{ marginTop: space.lg }}>
             <Button label={onDuty ? t('Go to Dashboard') : t('Go on Duty')} icon="arrow-forward-circle" variant="success" size="lg" busy={busy} onPress={goOnDuty} />
           </View>

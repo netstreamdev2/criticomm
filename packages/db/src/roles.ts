@@ -661,7 +661,9 @@ export const ROUTE_RULES: RouteRule[] = [
   { prefix: '/hr',           roles: [...SUPERVISORY_ROLES, 'SystemController'] },
   // Everyone who works here files leave — the desk (dispatch tier) included.
   { prefix: '/leave',        roles: [...ADMIN_ROLES, 'Staff', 'Supervisor', ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'CaseManager', 'SystemController'] },
-  { prefix: '/training',     roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES] },
+  // Training and certificates: command and crews, and the desks (dispatch, the
+  // control room, case managers) whose own training is on record too.
+  { prefix: '/training',     roles: [...SUPERVISORY_ROLES, ...RESPONDER_ROLES, ...DISPATCH_ROLES, 'CaseManager'] },
   // Self-service performance views are open to field members; management views stay restricted.
   { prefix: '/performance/mine', roles: [...RESPONDER_ROLES, ...SUPERVISORY_ROLES, ...DISPATCH_ROLES, 'Viewer'] },
   // The three-axis reports centre: command staff, dispatch leadership and viewers.
@@ -677,6 +679,9 @@ export const ROUTE_RULES: RouteRule[] = [
   // recorded footage adds case managers. The database checks each view again.
   { prefix: '/cameras/footage', roles: BODYCAM_FOOTAGE_ROLES },
   { prefix: '/cameras',      roles: BODYCAM_LIVE_ROLES },
+  // Hard hats and radios (0101): who has what. Command looks after the
+  // register; dispatch and the control room see whose kit it is.
+  { prefix: '/kit',          roles: [...SUPERVISORY_ROLES, 'Dispatcher', 'ControlRoom'] },
   // The SANRAL freeway camera wall keeps the camera wall's old rule.
   { prefix: '/sanral',       roles: [...DISPATCH_ROLES, 'Viewer'] },
   { prefix: '/notifications' },

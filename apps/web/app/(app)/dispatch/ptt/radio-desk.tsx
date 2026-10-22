@@ -77,7 +77,10 @@ function RadioRow({ v, selected, onSelect, onMap }: { v: RadioView; selected: bo
           <Dot v={v} />
           <Icon className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-base font-bold">{v.title}</span>
+            <span className="flex items-center gap-2 truncate text-base font-bold">
+              {v.title}
+              {v.kit ? <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-xs font-bold text-muted-foreground">{v.kit.assetNo}</span> : null}
+            </span>
             <span className="block text-sm"><StatusWord v={v} /></span>
           </span>
         </button>
@@ -122,6 +125,7 @@ function RadioPanel({ v, route, routeState, onShowRoute, onClose }: {
         <div className="flex min-w-0 items-center gap-3">
           <Dot v={v} size={18} />
           <h2 className="truncate text-xl font-bold">{v.title}</h2>
+          {v.kit ? <span className="shrink-0 rounded-md bg-muted px-2 py-0.5 font-mono text-sm font-bold">{v.kit.assetNo}</span> : null}
         </div>
         <button type="button" onClick={onClose} aria-label={t('Close')} className="rounded-md p-1.5 hover:bg-bg-soft/70"><X className="h-5 w-5" /></button>
       </div>

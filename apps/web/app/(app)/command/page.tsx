@@ -47,7 +47,7 @@ const MODULE_GROUPS: { label: string; items: { href: string; label: string }[] }
     items: [
       { href: '/roster/allocation', label: 'Duty Allocation' },
       { href: '/duty-tasks', label: 'Duty Maintenance' },
-      { href: '/roster/duty-sheet', label: 'Duty Operations' },
+      { href: '/modules/duty-operations', label: 'Duty Sheet' },
       { href: '/attendance', label: 'Absence' },
       { href: '/leave', label: 'Leave' },
     ],

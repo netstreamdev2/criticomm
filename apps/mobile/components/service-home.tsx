@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { getIncidentOverview, getMyPersonnel, subscribeIncidentUpdates, subscribeNewIncidents, subscribePersonnel } from '@criticom/api';
@@ -11,9 +11,10 @@ import { pickActivity } from '@/lib/response';
 import { useMapPins } from '@/lib/use-map-pins';
 import { colors, radius, severityColor, space, makeStyles } from '@/lib/theme';
 import { ACTIVITY, HomeHeader } from './home-header';
-import { FinesQuick } from './fines-card';
+import { HomeKpis } from './home-kpis';
 import { IncidentMap } from './incident-map';
 import { FireBackdrop } from './fire-ui';
+import { TodayCard, useMyDay } from './off-duty';
 import { useT } from '@/lib/i18n';
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -26,15 +27,18 @@ export type ServiceHomeContent = {
   noVehicle?: boolean;
   /** Show how many of the team are on duty under the map. */
   showTeamOnDuty?: boolean;
-  /** Issue a fine and Check owing under the card (Police). */
-  fines?: boolean;
 };
 
 /**
  * The responder home, the same for Police, Fire, EMS and Disaster: the time
- * and duty, one card with the next thing to do, and the live map. Performance
- * and fines figures are on the profile; everything else is a tab away. Wide
- * screens (tablets) get a taller map.
+ * and duty, the glowing figures strip (live, closed today, mine, assigned
+ * today), one card with the next thing to do, and the live map. Fines are a
+ * tab of their own (Police); everything else is on the profile. Wide screens
+ * (tablets) get a taller map.
+ *
+ * Off duty the home stays open: the card says how to start, then today's
+ * shift or leave, and the off-duty screens. The live map and fines are duty
+ * work and wait for the shift.
  */
 export function ServiceHome({ content }: { content: ServiceHomeContent }) {
   const { t } = useT();
@@ -42,7 +46,8 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { session } = useAuth();
-  const { teamOnDuty } = useDuty();
+  const { teamOnDuty, cleared } = useDuty();
+  const day = useMyDay();
   const open = useOpenCall();
   const { pins } = useMapPins();
   const [overview, setOverview] = useState<Awaited<ReturnType<typeof getIncidentOverview>> | null>(null);
@@ -74,12 +79,8 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
     ? [unit.unit_number, unit.name].filter(Boolean).join(' · ')
     : (person?.station || null);
 
-  // One quiet line under the map instead of a row of tiles.
-  const figures = [
-    overview ? t('{n} live', { n: overview.live }) : null,
-    overview ? t('{n} closed today', { n: overview.closedToday }) : null,
-    content.showTeamOnDuty !== false && teamOnDuty !== null ? t('{n} on duty', { n: teamOnDuty }) : null,
-  ].filter(Boolean).join('  ·  ');
+  // Live and closed are on the strip; under the map, only who is on duty.
+  const figures = content.showTeamOnDuty !== false && teamOnDuty !== null ? t('{n} on duty', { n: teamOnDuty }) : '';
 
   return (
     <View style={styles.screen}>
@@ -98,10 +99,18 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
       }>
         <HomeHeader minimal />
 
+        {cleared ? <HomeKpis live={overview?.live} closedToday={overview?.closedToday} /> : null}
+
         <NowCard open={open} where={where} unitIcon={content.unitIcon} />
 
-        {content.fines ? <FinesQuick /> : null}
+        {!cleared ? (
+          <>
+            <TodayCard day={day} />
+            <OffDutyLinks />
+          </>
+        ) : null}
 
+        {cleared ? (
         <View style={styles.mapCard}>
           <View style={styles.mapHead}>
             <View style={styles.liveDot} />
@@ -125,6 +134,7 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
           />
           {figures ? <Text style={styles.figures}>{figures}</Text> : null}
         </View>
+        ) : null}
       </ScrollView>
     </View>
   );
@@ -145,7 +155,8 @@ function NowCard({ open, where, unitIcon }: {
   const styles = useStyles();
   const router = useRouter();
   const { silo } = useAuth();
-  const { shiftStarted, onDuty } = useDuty();
+  const { shiftStarted, onDuty, goOnDuty } = useDuty();
+  const [busy, setBusy] = useState(false);
   const reportingFor = useReportingFor();
   const { calls, awaiting, reportQueued } = open;
   const activity = pickActivity(calls, (id) => reportQueued.has(id) || reportingFor === id, awaiting);
@@ -211,7 +222,8 @@ function NowCard({ open, where, unitIcon }: {
     );
   }
 
-  if (shiftStarted === false && onDuty !== true) {
+  // Today's start of shift first; then, if they went off duty, back on in one tap.
+  if (shiftStarted === false) {
     return (
       <Prompt
         icon="clipboard-outline"
@@ -228,7 +240,11 @@ function NowCard({ open, where, unitIcon }: {
         icon="moon-outline"
         title={t('You are off duty')}
         action={t('Go on duty')}
-        onPress={() => router.push('/(tabs)/profile')}
+        busy={busy}
+        onPress={() => {
+          setBusy(true);
+          void goOnDuty().catch(() => {}).finally(() => setBusy(false));
+        }}
       />
     );
   }
@@ -251,9 +267,37 @@ function NowCard({ open, where, unitIcon }: {
   );
 }
 
+/** Off duty: the screens that stay open, a tap away. */
+function OffDutyLinks() {
+  const { t } = useT();
+  const styles = useStyles();
+  const router = useRouter();
+  const links: Array<{ icon: IconName; label: string; href: string }> = [
+    { icon: 'calendar-outline', label: t('My Schedule'), href: '/(tabs)/schedule' },
+    { icon: 'airplane-outline', label: t('Leave'), href: '/leave' },
+    { icon: 'stats-chart-outline', label: t('My Performance'), href: '/my-performance' },
+    { icon: 'person-circle-outline', label: t('Profile'), href: '/(tabs)/profile' },
+  ];
+  return (
+    <View style={styles.links}>
+      {links.map((l) => (
+        <Pressable
+          key={l.href}
+          accessibilityRole="button"
+          onPress={() => router.push(l.href as never)}
+          style={({ pressed }) => [styles.link, pressed && styles.pressed]}
+        >
+          <Ionicons name={l.icon} size={22} color={colors.accent} />
+          <Text style={styles.linkText} numberOfLines={1}>{l.label}</Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
 /** A card with one thing to do before the day can start. */
-function Prompt({ icon, title, action, onPress }: {
-  icon: IconName; title: string; action: string; onPress: () => void;
+function Prompt({ icon, title, action, onPress, busy = false }: {
+  icon: IconName; title: string; action: string; onPress: () => void; busy?: boolean;
 }) {
   const styles = useStyles();
   return (
@@ -265,11 +309,13 @@ function Prompt({ icon, title, action, onPress }: {
       </View>
       <Pressable
         onPress={onPress}
+        disabled={busy}
         accessibilityRole="button"
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+        accessibilityState={{ busy }}
+        style={({ pressed }) => [styles.button, (pressed || busy) && styles.pressed]}
       >
         <Text style={styles.buttonText}>{action}</Text>
-        <Ionicons name="arrow-forward" size={18} color="#fff" />
+        {busy ? <ActivityIndicator color="#fff" /> : <Ionicons name="arrow-forward" size={18} color="#fff" />}
       </Pressable>
     </View>
   );
@@ -324,4 +370,11 @@ const useStyles = makeStyles(() => StyleSheet.create({
   map: { flex: 1, minHeight: 260, borderRadius: radius.lg, overflow: 'hidden' },
   mapWide: { minHeight: 480 },
   figures: { color: colors.muted, fontSize: 12, fontWeight: '600', textAlign: 'center', marginTop: space.sm },
+
+  links: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  link: {
+    flexBasis: '47%', flexGrow: 1, minHeight: 84, alignItems: 'center', justifyContent: 'center', gap: 6,
+    borderRadius: radius.lg, borderWidth: 1, borderColor: colors.panelBorder, backgroundColor: colors.panel,
+  },
+  linkText: { color: colors.text, fontSize: 14, fontWeight: '700' },
 }));

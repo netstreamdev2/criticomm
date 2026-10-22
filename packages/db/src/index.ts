@@ -18,6 +18,7 @@ export * from './desks';
 export * from './intake';
 export * from './intake-details';
 export * from './incident-number';
+export * from './dispositions';
 export * from './incident-edits';
 export * from './call-facts';
 export * from './unfinished-call';

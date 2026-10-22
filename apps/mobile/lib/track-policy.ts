@@ -26,6 +26,8 @@ export type TrackPoint = {
   acc: number | null;
   spd: number | null;
   hdg: number | null;
+  /** Android says a location-faking app gave this fix (0100): kept, but it proves nothing. */
+  mock?: true;
 };
 
 export const MIN_MOVE_M = 20;
@@ -56,6 +58,7 @@ const round = (n: number, places: number) => Math.round(n * 10 ** places) / 10 *
 /** A fix from expo-location, as a point — or null when it is not a usable position. */
 export function fromLocation(loc: {
   timestamp: number;
+  mocked?: boolean;
   coords: { latitude: number; longitude: number; accuracy?: number | null; speed?: number | null; heading?: number | null };
 }): TrackPoint | null {
   const { latitude: lat, longitude: lng } = loc.coords ?? ({} as never);
@@ -72,6 +75,7 @@ export function fromLocation(loc: {
     // The phones report -1 for "unknown".
     spd: finite(spd) && spd >= 0 ? round(spd, 1) : null,
     hdg: finite(hdg) && hdg >= 0 ? round(hdg, 0) : null,
+    ...(loc.mocked === true ? { mock: true as const } : {}),
   };
 }
 

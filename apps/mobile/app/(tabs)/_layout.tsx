@@ -9,7 +9,7 @@ import { colors, useTheme } from '@/lib/theme';
 import { fontFamily } from '@/lib/font';
 import { CurvedTabBar } from '@/components/tab-bar';
 import { BrandMarks } from '@/components/police-badge';
-import { AlertsBell, HeaderSearch, HeaderTalk } from '@/components/alerts-bell';
+import { AlertsBell, HeaderCriti, HeaderSearch, HeaderTalk } from '@/components/alerts-bell';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useT } from '@/lib/i18n';
 
@@ -73,6 +73,7 @@ export default function TabsLayout() {
         headerRight: () => (
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <ThemeToggle />
+            <HeaderCriti />
             {doctor ? null : <HeaderTalk />}
             {doctor ? null : <HeaderSearch />}
             {alertsOn ? <AlertsBell count={unread} /> : <View style={{ width: 12 }} />}
@@ -91,6 +92,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen name="shift" options={{ title: t('Shift') }} />
+      <Tabs.Screen name="fines" options={{ title: t('Fines') }} />
       <Tabs.Screen name="incidents" options={{ title: t('Incidents') }} />
       <Tabs.Screen name="schedule" options={{ title: t('My Schedule') }} />
       <Tabs.Screen name="profile" options={{ title: t('Profile') }} />

@@ -6,7 +6,7 @@ import {
   listMyWorkedIncidents, openParts, partFor, partOpen, partWords, sortParts, subscribeIncidentUpdates, waitingParts,
   type DepartmentPart, type FieldIncident,
 } from '@criticom/api';
-import { DEPARTMENT_NAMES } from '@criticom/db';
+import { DEPARTMENT_NAMES, dispositionLabel, dispositionsFor } from '@criticom/db';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useSync } from '@/lib/sync';
@@ -167,10 +167,10 @@ export function ClosedIncidents({ header, query, liveCalls, openId, onOpened }: 
 
   const selected = rows.find((r) => r.call.id === selectedId) ?? null;
 
-  const send = async (row: Row) => {
+  const send = async (row: Row, disposition: string) => {
     setBusy(true);
     try {
-      await enqueue({ kind: 'close_part', incidentId: row.call.id, incidentNumber: row.call.incident_number });
+      await enqueue({ kind: 'close_part', incidentId: row.call.id, incidentNumber: row.call.incident_number, disposition });
     } catch (e) {
       setError(errorWords(e));
     } finally {
@@ -178,7 +178,7 @@ export function ClosedIncidents({ header, query, liveCalls, openId, onOpened }: 
     }
   };
 
-  const confirmClose = (row: Row) => {
+  const confirmClose = (row: Row, disposition: string) => {
     Alert.alert(
       t('Close {incident_number}?', { incident_number: row.call.incident_number }),
       row.waiting.length
@@ -186,7 +186,7 @@ export function ClosedIncidents({ header, query, liveCalls, openId, onOpened }: 
         : t('Dispatch is told you have closed.'),
       [
         { text: t('Cancel'), style: 'cancel' },
-        { text: t('Close incident'), onPress: () => void send(row) },
+        { text: t('Close incident'), onPress: () => void send(row, disposition) },
       ],
     );
   };
@@ -271,7 +271,7 @@ export function ClosedIncidents({ header, query, liveCalls, openId, onOpened }: 
         online={online}
         busy={busy}
         onClose={() => setSelectedId(null)}
-        onCloseIncident={() => { if (selected) confirmClose(selected); }}
+        onCloseIncident={(disposition) => { if (selected) confirmClose(selected, disposition); }}
         onOpenFull={() => {
           const id = selectedId;
           setSelectedId(null);
@@ -291,11 +291,16 @@ function ClosedSheet({ row, silo, userId, myName, online, busy, onClose, onClose
   online: boolean;
   busy: boolean;
   onClose: () => void;
-  onCloseIncident: () => void;
+  /** With how the call ended, from this department's list (0098). */
+  onCloseIncident: (disposition: string) => void;
   onOpenFull: () => void;
 }) {
   const { t } = useT();
   const styles = useStyles();
+  const [outcome, setOutcome] = useState<string | null>(null);
+  // A new call in the sheet starts with nothing chosen.
+  const rowId = row?.call.id;
+  useEffect(() => { setOutcome(null); }, [rowId]);
   if (!row) return <BottomSheet visible={false} onClose={onClose}>{null}</BottomSheet>;
 
   const { call, finish, waiting } = row;
@@ -355,14 +360,35 @@ function ClosedSheet({ row, silo, userId, myName, online, busy, onClose, onClose
       footer={(
         <View style={{ gap: space.sm }}>
           {finish.kind === 'to_close' ? (
-            <Button
-              label={t('Close incident')}
-              icon="checkmark-done"
-              variant="success"
-              size="lg"
-              busy={busy}
-              onPress={onCloseIncident}
-            />
+            <>
+              <Text style={styles.section}>{t('HOW DID IT END?')}</Text>
+              <View style={styles.outcomes}>
+                {dispositionsFor(silo).map((d) => {
+                  const on = outcome === d.code;
+                  return (
+                    <Pressable
+                      key={d.code}
+                      onPress={() => setOutcome(d.code)}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: on }}
+                      style={[styles.outcome, on && styles.outcomeOn]}
+                    >
+                      <Ionicons name={on ? 'radio-button-on' : 'radio-button-off'} size={18} color={on ? colors.low : colors.muted} />
+                      <Text style={[styles.outcomeText, on && { color: colors.text }]} numberOfLines={2}>{t(d.label)}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <Button
+                label={outcome ? t('Close incident') : t('Choose how it ended')}
+                icon="checkmark-done"
+                variant="success"
+                size="lg"
+                busy={busy}
+                disabled={!outcome}
+                onPress={() => { if (outcome) onCloseIncident(outcome); }}
+              />
+            </>
           ) : null}
           <Button label={t('Full details')} icon="open-outline" variant="outline" onPress={onOpenFull} />
         </View>
@@ -373,6 +399,12 @@ function ClosedSheet({ row, silo, userId, myName, online, busy, onClose, onClose
           <Ionicons name={look.icon} size={18} color={look.tone} />
           <Text style={styles.stateText}>{headline}</Text>
         </View>
+        {part?.disposition ? (
+          <View style={styles.meta}>
+            <Ionicons name="flag-outline" size={15} color={colors.muted} />
+            <Text style={styles.metaText}>{t('Outcome: {outcome}', { outcome: t(dispositionLabel(part.disposition) ?? '') })}</Text>
+          </View>
+        ) : null}
         {waiting.length ? (
           <View style={styles.waitingBox}>
             <Ionicons name="hourglass-outline" size={14} color={colors.medium} />
@@ -434,6 +466,13 @@ function PartLine({ part }: { part: DepartmentPart }) {
 }
 
 const useStyles = makeStyles(() => StyleSheet.create({
+  outcomes: { gap: 6, marginBottom: space.sm },
+  outcome: {
+    flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 44, paddingHorizontal: space.md,
+    borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgSoft,
+  },
+  outcomeOn: { borderColor: colors.low, backgroundColor: colors.lowSoft },
+  outcomeText: { flex: 1, color: colors.textDim, fontSize: 15, fontWeight: '700' },
   list: { padding: space.lg, paddingBottom: space['3xl'] },
   summary: { ...type.small, color: colors.muted, fontWeight: '700', marginTop: space.sm },
 

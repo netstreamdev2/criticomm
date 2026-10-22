@@ -12,6 +12,7 @@ import { getSupabase } from '@/lib/supabase';
 import { errorWords } from '@/lib/offline-cache-policy';
 import { READINESS_ITEMS } from '@/lib/inspection-187c';
 import { colors, makeStyles, radius, space } from '@/lib/theme';
+import { FieldKitCard } from '@/components/field-kit-card';
 import { Banner, Input, KeyValue, Stepper } from './ui';
 import { HikTechLogo } from './hiktech-logo';
 import { SignaturePad } from './signature-pad';
@@ -258,8 +259,9 @@ export function FireShift({ gated = false }: { gated?: boolean }) {
           <KeyValue label={t('Reference')} value={record?.inspection_ref ?? '—'} /><KeyValue label={t('Firefighter')} value={record?.inspector_name ?? officerName} /><KeyValue label={t('Appliance')} value={state?.appliance?.unit_number ?? '—'} /><KeyValue label={t('Fuel')} value={record?.fuel_level ?? '—'} />
           {record ? <KeyValue label={t('Filed (SAST)')} value={new Intl.DateTimeFormat('en-ZA', { timeZone: 'Africa/Johannesburg', dateStyle: 'medium', timeStyle: 'short' }).format(new Date(record.checked_at))} /> : null}
           <Text style={styles.success}>{t('6 readiness checks · 11 appliance & equipment checks')}</Text>
+          <View style={{ marginVertical: space.md }}><FieldKitCard /></View>
           <FireButton label={state?.personnel.is_on_duty ? t('Go to dashboard') : t('Go on duty & open dashboard')} icon="flame" onPress={goOnDuty} busy={busy} />
-        </View> : null}
+</View> : null}
         {step && error ? <View style={{ gap: 10 }}><Banner tone="error">{error}</Banner><FireButton label={t('Reload saved shift progress')} secondary icon="refresh" onPress={() => void run(load)} busy={busy} /></View> : null}
         <Text style={styles.footer}>{t('METRO FIRE & RESCUE · START OF SHIFT')}</Text>
       </ScrollView>

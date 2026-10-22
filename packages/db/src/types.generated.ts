@@ -331,6 +331,8 @@ export type Database = {
           longitude: number | null;
           /** When the position above was taken (0071). */
           location_at: string | null;
+          /** When this officer's phone last sent a faked location (0100). */
+          fake_gps_at: string | null;
           is_on_duty: boolean;
           /** Set by migration 0041: when the officer went on duty in the app. */
           duty_started_at: string | null;
@@ -400,6 +402,8 @@ export type Database = {
           accuracy: number | null;
           speed: number | null;
           heading: number | null;
+          /** A location-faking app gave this fix (0100): kept as evidence, used for nothing. */
+          mocked: boolean;
         };
         Insert: Partial<Database['public']['Tables']['duty_tracks']['Row']>;
         Update: Partial<Database['public']['Tables']['duty_tracks']['Row']>;
@@ -419,6 +423,16 @@ export type Database = {
           status: IncidentStatus;
           joined_at: string;
           updated_at: string;
+          /** Where they set off from, and how far that was from the scene (0099). */
+          start_lat: number | null;
+          start_lng: number | null;
+          start_distance_m: number | null;
+          /** How their arrival was recorded (0099): gps, officer (see arrived_verified) or desk. */
+          arrived_at: string | null;
+          arrived_by: 'gps' | 'officer' | 'desk' | null;
+          arrived_distance_m: number | null;
+          arrived_verified: boolean | null;
+          arrive_note: string | null;
         };
         Insert: Partial<Database['public']['Tables']['incident_responders']['Row']>;
         Update: Partial<Database['public']['Tables']['incident_responders']['Row']>;
@@ -1697,6 +1711,12 @@ export type Database = {
           closed_by: string | null;
           closed_by_name: string | null;
           close_note: string | null;
+          /** How the call ended for this department, picked when closing on scene (0098). */
+          disposition: string | null;
+          /** How the lead's arrival was recorded (0099): gps, officer (see arrived_verified) or desk. */
+          arrived_by: 'gps' | 'officer' | 'desk' | null;
+          arrived_distance_m: number | null;
+          arrived_verified: boolean | null;
           /** Filed from the console by this desk user, as radioed in by radioed_by (0075). */
           radio_filed_by: string | null;
           radio_filed_by_name: string | null;
@@ -2720,6 +2740,53 @@ export type Database = {
         Update: never;
         Relationships: [];
       };
+      /** The hard hat and radio register (0101): one row per item, by the number written on it. Written only by its functions. */
+      field_kit: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          kind: 'hard_hat' | 'radio';
+          asset_no: string;
+          serial: string | null;
+          /** The Radio ID the app shows when it runs on this device (HT-XXXX-XXXX). */
+          device_id: string | null;
+          model: string | null;
+          status: 'available' | 'in_use' | 'repair' | 'lost' | 'retired';
+          status_note: string | null;
+          notes: string | null;
+          retired_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** Who had a hard hat or radio, from when to when, and how it came back (0101). */
+      field_kit_bookings: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          kit_id: string;
+          user_id: string;
+          personnel_id: string | null;
+          name: string | null;
+          booked_how: 'device' | 'number';
+          booked_at: string;
+          returned_at: string | null;
+          returned_by: string | null;
+          returned_by_name: string | null;
+          return_condition: 'fine' | 'damaged' | 'lost' | 'taken_over' | null;
+          return_note: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
       /** What the app says about the radio it runs on (0087). Written only by report_radio_presence(). */
       radio_presence: {
         Row: {
@@ -3026,6 +3093,21 @@ export type Database = {
         };
         Returns: Database['public']['Tables']['radio_devices']['Row'];
       };
+      /** Dispatch confirms a crew is at the scene, saying how it knows (0102). Returns how many were confirmed. */
+      confirm_arrival: { Args: { p_incident: string; p_silo: Silo; p_note: string }; Returns: number };
+      // ── Hard hats and radios (0101) ──
+      save_field_kit: { Args: { p: Record<string, unknown> }; Returns: Database['public']['Tables']['field_kit']['Row'] };
+      add_field_kit_range: {
+        Args: { p_kind: string; p_prefix: string; p_from: number; p_to: number; p_digits: number; p_silo: Silo; p_model?: string | null };
+        Returns: number;
+      };
+      retire_field_kit: { Args: { p_id: string; p_reason: string }; Returns: Database['public']['Tables']['field_kit']['Row'] };
+      book_field_kit: {
+        Args: { p_kind?: string | null; p_asset_no?: string | null; p_kit_id?: string | null; p_device_id?: string | null };
+        Returns: Record<string, unknown>;
+      };
+      return_field_kit: { Args: { p_booking_id: string; p_condition?: string; p_note?: string | null }; Returns: Record<string, unknown> };
+      return_my_field_kit: { Args: Record<string, never>; Returns: number };
       /** Dismiss an SOS pressed by mistake (0093). */
       dismiss_sos: { Args: { p_incident: string; p_reason: string }; Returns: Database['public']['Tables']['incidents']['Row'] };
       // ── Live camera from a radio (0091) ──
@@ -3201,12 +3283,12 @@ export type Database = {
       };
       /** The desk closes a department's part on scene for its crew (0075). */
       close_department_part_from_desk: {
-        Args: { p_incident_id: string; p_silo: Silo; p_note?: string | null };
+        Args: { p_incident_id: string; p_silo: Silo; p_note?: string | null; p_disposition?: string | null };
         Returns: Database['public']['Tables']['incident_departments']['Row'];
       };
       /** The lead closes their own department's part after its report (0074). */
       close_department_part: {
-        Args: { p_incident_id: string; p_note?: string | null; p_occurred_at?: string | null };
+        Args: { p_incident_id: string; p_note?: string | null; p_occurred_at?: string | null; p_disposition?: string | null };
         Returns: Database['public']['Tables']['incident_departments']['Row'];
       };
       update_responder_status: {
@@ -3215,6 +3297,8 @@ export type Database = {
           p_status: IncidentStatus;
           /** When the responder acted — set for updates queued offline (0024). */
           p_occurred_at?: string | null;
+          /** Why they marked on scene by hand (0099). */
+          p_reason?: string | null;
         };
         Returns: Database['public']['Tables']['incidents']['Row'];
       };

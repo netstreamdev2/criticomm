@@ -1104,3 +1104,30 @@ main table td {
     color: rgb(255 255 255);
   }
 }
+
+/* ── Response tracker (0099): the light bar on a crew's vehicle ───────────
+   Two lights flashing in turn, as on a real light bar; the vehicle glides
+   along the strip as the crew closes in. Still for those who ask for less
+   motion. */
+@keyframes lightbar {
+  0%, 45% { opacity: 1; transform: scale(1); }
+  50%, 100% { opacity: 0.15; transform: scale(0.8); }
+}
+.lightbar-a { animation: lightbar 0.9s infinite; }
+.lightbar-b { animation: lightbar 0.9s infinite 0.45s; }
+@keyframes vehicle-glow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--glow); }
+  50% { box-shadow: 0 0 0 7px transparent; }
+}
+.vehicle-moving { animation: vehicle-glow 1.6s ease-out infinite; }
+.vehicle-glide { transition: left 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .lightbar-a, .lightbar-b, .vehicle-moving { animation: none; }
+  .vehicle-glide { transition: none; }
+}
+/* A crew's vehicle on the big map glides between fixes, never during a zoom. */
+.leaflet-marker-icon.vehicle-marker { transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.leaflet-zoom-anim .leaflet-marker-icon.vehicle-marker { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  .leaflet-marker-icon.vehicle-marker { transition: none; }
+}

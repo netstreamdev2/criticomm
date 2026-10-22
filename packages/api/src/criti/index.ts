@@ -7,3 +7,4 @@ export * from './knowledge.ts';
 export * from './board.ts';
 export * from './model.ts';
 export * from './intake.ts';
+export * from './field.ts';

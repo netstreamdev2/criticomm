@@ -7,7 +7,8 @@ import { AuthProvider, useAuth } from '@/lib/auth';
 import { I18nProvider } from '@/lib/i18n';
 import { BrandingProvider } from '@/lib/branding';
 import { NotificationsProvider, useNotificationRouting } from '@/lib/notifications';
-import { DutyProvider, useDuty } from '@/lib/duty';
+import { DutyProvider, isDutyRoute, useDuty } from '@/lib/duty';
+import { OffDutyGate } from '@/components/off-duty';
 import { SyncProvider } from '@/lib/sync';
 import { FeaturesProvider } from '@/lib/features';
 import { RadioPresence, RouteTracker } from '@/lib/route-tracker';
@@ -20,9 +21,9 @@ import { RadioCameraNotice } from '@/components/radio-camera-notice';
 import { SyncTray } from '@/components/sync-tray';
 import { colors, space, type, makeStyles, useTheme, loadThemeMode } from '@/lib/theme';
 import { HikTechLogo } from '@/components/hiktech-logo';
-import ShiftScreen from './(tabs)/shift';
 import { RUBIK_FONTS, fontFamily } from '@/lib/font';
 import { useT } from '@/lib/i18n';
+import { HeaderCriti } from '@/components/alerts-bell';
 
 /**
  * Root error boundary. expo-router renders this instead of unmounting when
@@ -61,7 +62,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   const { t } = useT();
   const styles = useStyles();
   const { session, loading, role } = useAuth();
-  const { shiftStarted, checking } = useDuty();
+  const { cleared, checking } = useDuty();
   const segments = useSegments();
   const router = useRouter();
 
@@ -83,18 +84,20 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       </View>
     );
   }
-  // Expo Router needs its root navigator mounted before any redirects. Cover it
-  // with a full-screen, touch-blocking assessment while clearance is pending.
-  // Nothing underneath is visible, tappable, or exposed to screen readers.
-  // The receiving doctor does not start a shift or take an ambulance.
-  if (session && shiftStarted !== true && role !== 'Doctor') {
+  // Off duty the app is open: home, the roster, leave, the profile. A duty
+  // screen (calls, their reports, Talk, the map, fines) is covered until today's
+  // start of shift is done and they are on duty. Expo Router needs its root
+  // navigator mounted, so it is covered rather than replaced: nothing
+  // underneath is visible, tappable, or read out. The receiving doctor does not
+  // start a shift or take an ambulance.
+  if (session && role !== 'Doctor' && !cleared && isDutyRoute(segments)) {
     return (
       <View style={{ flex: 1 }}>
         <View style={{ flex: 1 }} pointerEvents="none" importantForAccessibility="no-hide-descendants">
           {children}
         </View>
         <View style={StyleSheet.absoluteFillObject}>
-          <ShiftScreen gated />
+          <OffDutyGate />
         </View>
       </View>
     );
@@ -165,7 +168,10 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen
               name="incident/[id]"
-              options={{ title: t('Incident'), headerBackTitle: t('Back') }}
+              options={({ route }) => ({
+                title: t('Incident'), headerBackTitle: t('Back'),
+                headerRight: () => <HeaderCriti incidentId={(route.params as { id?: string } | undefined)?.id} />,
+              })}
             />
             <Stack.Screen
               name="route/[id]"
@@ -173,19 +179,31 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="report/[id]"
-              options={{ title: t('Incident Report'), headerBackTitle: t('Back') }}
+              options={({ route }) => ({
+                title: t('Incident Report'), headerBackTitle: t('Back'),
+                headerRight: () => <HeaderCriti incidentId={(route.params as { id?: string } | undefined)?.id} />,
+              })}
             />
             <Stack.Screen
               name="fire-report/[id]"
-              options={{ title: t('Fire Report'), headerBackTitle: t('Back') }}
+              options={({ route }) => ({
+                title: t('Fire Report'), headerBackTitle: t('Back'),
+                headerRight: () => <HeaderCriti incidentId={(route.params as { id?: string } | undefined)?.id} />,
+              })}
             />
             <Stack.Screen
               name="pcr/[id]"
-              options={{ title: t('Patient Report'), headerBackTitle: t('Back') }}
+              options={({ route }) => ({
+                title: t('Patient Report'), headerBackTitle: t('Back'),
+                headerRight: () => <HeaderCriti incidentId={(route.params as { id?: string } | undefined)?.id} />,
+              })}
             />
             <Stack.Screen
               name="post-mortem/[id]"
-              options={{ title: t('Post-Mortem'), headerBackTitle: t('Back') }}
+              options={({ route }) => ({
+                title: t('Post-Mortem'), headerBackTitle: t('Back'),
+                headerRight: () => <HeaderCriti incidentId={(route.params as { id?: string } | undefined)?.id} />,
+              })}
             />
             <Stack.Screen
               name="assistant"
@@ -194,6 +212,14 @@ export default function RootLayout() {
             <Stack.Screen
               name="leave"
               options={{ title: t('Leave'), headerBackTitle: t('Back') }}
+            />
+            <Stack.Screen
+              name="kit"
+              options={{ title: t('Radio and hard hat'), headerBackTitle: t('Back') }}
+            />
+            <Stack.Screen
+              name="radio-setup"
+              options={{ title: t('Radio setup'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="end-shift"

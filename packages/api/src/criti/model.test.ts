@@ -89,6 +89,17 @@ test('the board reads in plain lines', () => {
   assert.equal(span(ago(3 * 24 * 60), NOW), '3 days');
 });
 
+test('someone marked on duty but silent for hours is not counted as available', () => {
+  const gone: CritiCrew = {
+    userId: 'c2', name: 'Medic Pillay', badge: 'M1', silo: 'Medical', station: null, unitNumber: null,
+    lat: null, lng: null, seenAt: ago(2 * 24 * 60), lastContactAt: ago(2 * 24 * 60), onDutySince: ago(10 * 24 * 60), busyWith: null, activeCalls: 0,
+  };
+  const quiet: CritiCrew = { ...gone, userId: 'c3', name: 'Medic Naidoo', seenAt: ago(45), lastContactAt: ago(45) };
+  const text = boardForModel({ incidents: [], crews: [gone, quiet] }, [], NOW);
+  assert.match(text, /Medic Pillay .*app silent for 2 days: probably left without going off duty, do not count them as available/);
+  assert.match(text, /Medic Naidoo .*app not heard from for 45 min/);
+});
+
 test('Criti is told about an SOS dismissed as a mistake, and that it is no longer an emergency', () => {
   const text = boardForModel({
     incidents: [], crews: [],

@@ -10,7 +10,7 @@ import { requestT } from '@/lib/i18n';
 import { AllocationBoard } from './allocation-board';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Duty Allocation · HikTech' };
+export const metadata = { title: 'Allocate Duties · HikTech' };
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -41,7 +41,8 @@ export default async function DutyAllocationPage({
 
   return (
     <div className="space-y-4">
-      <OfficeHeader title={tx('Duty Allocation')} info={tx('Choose a section and the dates. Tick call signs and staff, press Allocate selected to pair them in order, then Confirm & save. Each member is told once.')}
+      <OfficeHeader title={tx('Allocate Duties')}
+        steps={[tx('Choose the section and the days.'), tx('Each call sign is a row: pick the member for it.'), tx('Save. The duties show on the Duty Roster and the Duty Sheet.')]} info={tx('Choose a section and the dates. Tick call signs and staff, press Allocate selected to pair them in order, then Confirm & save. Each member is told once.')}
         target={target} global={ctx.global} canEdit={ctx.canEdit} path="/modules/duty-allocation" />
 
       <section className={ox.card}>

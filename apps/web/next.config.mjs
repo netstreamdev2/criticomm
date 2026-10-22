@@ -72,6 +72,8 @@ const nextConfig = {
   typedRoutes: false,
   // Version/stack disclosure serves an attacker, not an operator.
   poweredByHeader: false,
+  // Scanned certificates (Training) are uploaded through a form action: up to 10 MB each.
+  experimental: { serverActions: { bodySizeLimit: '12mb' } },
   // The handbook pages are read from disk at request time; make sure they ship
   // with the route that serves them.
   outputFileTracingIncludes: {

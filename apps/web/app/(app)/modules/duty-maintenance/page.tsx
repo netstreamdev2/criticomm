@@ -10,7 +10,7 @@ import { AssignWizard } from './assign-wizard';
 import { EditDuty } from './edit-duty';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Duty Maintenance · HikTech' };
+export const metadata = { title: 'Duty Roster · HikTech' };
 
 const saStamp = (iso: string | null) =>
   iso ? new Intl.DateTimeFormat('en-ZA', { timeZone: 'Africa/Johannesburg', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(iso)) : '';
@@ -42,7 +42,8 @@ export default async function DutyMaintenancePage({
 
   return (
     <div className="space-y-4">
-      <OfficeHeader title={tx('Duty Maintenance')} info={tx('See who worked a call sign and when, book a single duty, or change one. A duty that has started keeps its member and hours.')}
+      <OfficeHeader title={tx('Duty Roster')}
+        steps={[tx('To see who worked a call sign, choose it under Call sign history.'), tx('To give one member a duty, press Assign / Update Duty and follow the 4 steps.'), tx('To change a duty, press Edit on its row in All duty records.'), tx('To fill a whole section at once, use Duty ▾ Allocate Duties.')]} info={tx('See who worked a call sign and when, book a single duty, or change one. A duty that has started keeps its member and hours.')}
         target={target} global={ctx.global} canEdit={ctx.canEdit} path="/modules/duty-maintenance" />
 
       <div className="grid gap-4 xl:grid-cols-[1fr_24rem]">

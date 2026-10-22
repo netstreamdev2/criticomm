@@ -1,9 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import {
-  countOnDuty, getMyPersonnel, hasCompletedShiftStartToday, onDutyFlip, subscribePersonnel,
+  countOnDuty, getMyPersonnel, hasCompletedShiftStartToday, onDutyFlip, subscribePersonnel, toggleDuty,
 } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { bookThisDevice } from '@/lib/kit';
 
 /**
  * Start-of-duty gate.
@@ -22,7 +23,14 @@ import { useAuth } from '@/lib/auth';
  * Alongside it, live: whether this officer is on duty (and so receives
  * dispatches) and how many in their department are. Both follow the personnel
  * table in real time — toggled here, on the Shift tab, or by the server.
+ *
+ * Off duty the app is open: home, the roster, leave, the profile. Only the
+ * duty screens (DUTY_ROUTES: calls, their reports, Talk, the map, fines) ask
+ * for today's start of shift and being on duty first (`cleared`).
  */
+
+export { DUTY_ROUTES, clearedForDuty, isDutyRoute } from './duty-policy.ts';
+import { clearedForDuty } from './duty-policy.ts';
 
 type DutyState = {
   /** null while we are still asking. */
@@ -34,10 +42,15 @@ type DutyState = {
   onDuty: boolean | null;
   /** Officers on duty in this department right now. null until known. */
   teamOnDuty: number | null;
+  /** May open the duty screens (clearedForDuty). */
+  cleared: boolean;
+  /** Back on duty, when today's start of shift is already done. True when cleared. */
+  goOnDuty: () => Promise<boolean>;
 };
 
 const Ctx = createContext<DutyState>({
   shiftStarted: null, checking: true, refresh: async () => false, onDuty: null, teamOnDuty: null,
+  cleared: false, goOnDuty: async () => false,
 });
 
 export function useDuty(): DutyState {
@@ -104,8 +117,21 @@ export function DutyProvider({ children }: { children: React.ReactNode }) {
     };
   }, [session, silo]);
 
+  const goOnDuty = useCallback(async () => {
+    await toggleDuty(getSupabase(), { onDuty: true });
+    setOnDuty(true);
+    return refresh();
+  }, [refresh]);
+
+  // On duty on a registered radio or smart hard hat: it is booked to them (0101).
+  useEffect(() => {
+    if (session && onDuty) void bookThisDevice(session.user.id).catch(() => null);
+  }, [session, onDuty]);
+
+  const cleared = clearedForDuty(shiftStarted, onDuty);
+
   return (
-    <Ctx.Provider value={{ shiftStarted, checking, refresh, onDuty, teamOnDuty }}>
+    <Ctx.Provider value={{ shiftStarted, checking, refresh, onDuty, teamOnDuty, cleared, goOnDuty }}>
       {children}
     </Ctx.Provider>
   );

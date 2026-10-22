@@ -34,7 +34,8 @@ export default async function EndorsementsPage({
 
   return (
     <div className="space-y-4">
-      <OfficeHeader title={tx('Endorsement Maintenance')} info={tx('An endorsement is an instruction for one member: court, a special event, a briefing. Active ones print on the duty sheet; court keeps the member off duty that day.')}
+      <OfficeHeader title={tx('Endorsements')}
+        steps={[tx('An endorsement is a note for one member for some days, such as court.'), tx('It prints on the duty sheet beside their name.')]} info={tx('An endorsement is an instruction for one member: court, a special event, a briefing. Active ones print on the duty sheet; court keeps the member off duty that day.')}
         target={target} global={ctx.global} canEdit={ctx.canEdit} path="/modules/endorsements" />
 
       <div className="grid gap-4 xl:grid-cols-[1fr_22rem]">

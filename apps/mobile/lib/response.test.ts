@@ -15,7 +15,7 @@ const fire = { silo: 'MetroFire' };
 
 test('police calls go en route, on scene, then report', () => {
   assert.deepEqual(nextStep(police, 'Dispatched'), { kind: 'status', status: 'En Route', label: 'Accept · Mark En Route' });
-  assert.deepEqual(nextStep(police, 'En Route'), { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.deepEqual(nextStep(police, 'En Route'), { kind: 'arriving', status: 'On Scene', label: 'On scene is marked when you arrive' });
   assert.equal(nextStep(police, 'On Scene')?.kind, 'report');
   assert.equal(nextStep(routedToPolice, 'On Scene')?.kind, 'report', 'routed from the control room');
 });
@@ -34,7 +34,7 @@ test('nothing is left once the report is filed or the call is closed', () => {
 });
 
 test('other services keep the full ladder', () => {
-  assert.deepEqual(nextStep(fire, 'En Route'), { kind: 'status', status: 'Arrived', label: 'Mark Arrived' });
+  assert.deepEqual(nextStep(fire, 'En Route'), { kind: 'arriving', status: 'Arrived', label: 'On scene is marked when you arrive' });
   assert.deepEqual(nextStep(fire, 'Transporting'), { kind: 'status', status: 'Resolved', label: 'Mark Resolved' });
 });
 
@@ -110,7 +110,7 @@ test('the lead works the ladder; backup marks on scene and stops', () => {
     responders: [{ user_id: 'me', name: 'Me', role: 'lead', status: 'En Route' }],
   }, me);
   assert.equal(lead.role, 'lead');
-  assert.deepEqual(lead.action, { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.deepEqual(lead.action, { kind: 'arriving', status: 'On Scene', label: 'On scene is marked when you arrive' });
   assert.equal(callView({ ...sent, status: 'On Scene', accepted_by: 'me' }, me).action?.kind, 'report');
 
   const withBackup: FieldCall = {
@@ -123,7 +123,7 @@ test('the lead works the ladder; backup marks on scene and stops', () => {
   const backup = callView(withBackup, me);
   assert.equal(backup.role, 'backup');
   assert.equal(backup.myStatus, 'En Route', "my own status, not the lead's");
-  assert.deepEqual(backup.action, { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.deepEqual(backup.action, { kind: 'arriving', status: 'On Scene', label: 'On scene is marked when you arrive' });
   assert.equal(backup.backups.length, 1);
 
   const arrived = callView(withBackup, me, 'On Scene');
@@ -170,7 +170,7 @@ import { reportPathFor, secondaryStep } from './response.ts';
 test('a firefighter accepts, arrives, may mark Transporting, and closes with the fire report', () => {
   const fire = { silo: 'MetroFire' };
   assert.deepEqual(nextStep(fire, 'Dispatched', 'MetroFire'), { kind: 'status', status: 'En Route', label: 'Accept · Mark En Route' });
-  assert.deepEqual(nextStep(fire, 'En Route', 'MetroFire'), { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.deepEqual(nextStep(fire, 'En Route', 'MetroFire'), { kind: 'arriving', status: 'On Scene', label: 'On scene is marked when you arrive' });
   assert.deepEqual(nextStep(fire, 'On Scene', 'MetroFire'), { kind: 'report', label: 'File fire report' });
   assert.deepEqual(nextStep(fire, 'Transporting', 'MetroFire'), { kind: 'report', label: 'File fire report' });
   assert.deepEqual(secondaryStep(fire, 'On Scene', 'MetroFire'), { kind: 'status', status: 'Transporting', label: 'Mark Transporting' });
@@ -203,7 +203,7 @@ test('the lead files the report for their own department', () => {
 test('a paramedic accepts, arrives, may mark Transporting, and closes with the patient report', () => {
   const ems = { silo: 'Medical' };
   assert.deepEqual(nextStep(ems, 'Dispatched', 'Medical'), { kind: 'status', status: 'En Route', label: 'Accept · Mark En Route' });
-  assert.deepEqual(nextStep(ems, 'En Route', 'Medical'), { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.deepEqual(nextStep(ems, 'En Route', 'Medical'), { kind: 'arriving', status: 'On Scene', label: 'On scene is marked when you arrive' });
   assert.deepEqual(nextStep(ems, 'On Scene', 'Medical'), { kind: 'report', label: 'File patient report' });
   assert.deepEqual(nextStep(ems, 'Transporting', 'Medical'), { kind: 'report', label: 'File patient report' });
   assert.deepEqual(secondaryStep(ems, 'On Scene', 'Medical'), { kind: 'status', status: 'Transporting', label: 'Mark Transporting' });
@@ -227,7 +227,7 @@ test('a paramedic leading a call shared with Police files the patient report, no
 test('a Disaster officer accepts, arrives and closes with the post-mortem; no Transporting', () => {
   const dm = { silo: 'EthekwiniDisaster' };
   assert.deepEqual(nextStep(dm, 'Dispatched', 'EthekwiniDisaster'), { kind: 'status', status: 'En Route', label: 'Accept · Mark En Route' });
-  assert.deepEqual(nextStep(dm, 'En Route', 'EthekwiniDisaster'), { kind: 'status', status: 'On Scene', label: 'Mark On Scene' });
+  assert.deepEqual(nextStep(dm, 'En Route', 'EthekwiniDisaster'), { kind: 'arriving', status: 'On Scene', label: 'On scene is marked when you arrive' });
   assert.deepEqual(nextStep(dm, 'On Scene', 'EthekwiniDisaster'), { kind: 'report', label: 'File post-mortem' });
   assert.equal(secondaryStep(dm, 'On Scene', 'EthekwiniDisaster'), null);
   assert.equal(reportPathFor('i1', 'EthekwiniDisaster'), '/post-mortem/i1');

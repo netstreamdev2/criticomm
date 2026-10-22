@@ -108,7 +108,7 @@ function ModuleHome() {
         </Pressable>
 
         <Pressable style={styles.status} onPress={() => router.push('/(tabs)/incidents')}>
-          <Ionicons name="radio" size={16} color={colors.accent} />
+          <Ionicons name="warning" size={16} color={colors.accent} />
           <Text style={styles.statusLabel}>
             {assigned === null ? t('— assigned') : t('{n} assigned', { n: assigned })}
           </Text>

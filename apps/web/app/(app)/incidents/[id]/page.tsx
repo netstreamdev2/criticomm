@@ -4,8 +4,9 @@ import { FileText, Lock } from 'lucide-react';
 import {
   deskTags, featureEnabled, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listIncidentEdits, listBookedOutBodycams,
   listIncidentAttachments, listIncidentMapZones, listIncidentResponders, partFor, partWords, searchBodycamBookings, signIncidentMedia,
-  statusForPart, type IncidentResponder,
+  statusForPart, getOperationalSettings, listOnDutyOfficers, sortParts, type IncidentResponder,
 } from '@criticom/api';
+import { ResponseTracker, type TrackPart } from '@/components/response-tracker';
 import {
   DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, STATUS_OVERRIDE_ROLES, departmentName, STATUS_OVERRIDE_STEPS, canAccess, canDismissSos, canWatchBodycam, caseStage, mayFinishCall,
   type Database, type Silo, type UserRole,
@@ -111,6 +112,18 @@ export default async function IncidentDetailPage({
   // part at the top (0073); the other departments are on the departments
   // card. The control room and the organisation follow the whole call.
   const myPart = silo !== 'Ethekwini' ? partFor(parts, silo) : null;
+
+  // Following the crews to the scene (0099): their live positions and the ETA settings.
+  const crewIds = new Set(responders.map((r) => r.user_id));
+  const [opsSettings, crewPositions] = await Promise.all([
+    getOperationalSettings(supabase).catch(() => null),
+    parts.length && crewIds.size && stage === 'live'
+      ? listOnDutyOfficers(supabase).then((all) => all.filter((o) => crewIds.has(o.userId))).catch(() => [])
+      : Promise.resolve([]),
+  ]);
+  // My own department first; the others in their usual order.
+  const trackParts = sortParts(parts).sort((a, b) => Number(b.silo === myPart?.silo) - Number(a.silo === myPart?.silo)) as unknown as TrackPart[];
+  const scene = incident.location_lat && incident.location_lng ? { lat: incident.location_lat, lng: incident.location_lng } : null;
   const myLabel = myPart ? DEPARTMENT_NAMES[myPart.silo] : null;
 
   // Transporting has no column of its own: the crew's status note records it.
@@ -244,6 +257,24 @@ export default async function IncidentDetailPage({
 
       {/* Live: a crew's En Route, On Scene, Transporting and report re-render this page. */}
       <IncidentLive incidentId={incident.id} />
+      {parts.length > 0 ? (
+        <Card>
+          <CardContent className="space-y-3 p-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('Where the crews are')}</p>
+              <p className="text-xs text-muted-foreground">{t('On scene is set by the crew’s own phone reaching the scene. Click a strip to see the crew.')}</p>
+            </div>
+            <ResponseTracker
+              scene={scene}
+              parts={trackParts}
+              responders={responders}
+              officers={crewPositions}
+              eta={{ speedKmh: opsSettings?.['dispatch.eta_speed_kmh'] ?? 42, roadFactor: opsSettings?.['dispatch.eta_road_factor'] ?? 1.35 }}
+              live={stage === 'live'}
+            />
+          </CardContent>
+        </Card>
+      ) : (
       <Card>
         <CardContent className="p-4">
           {myPart ? (
@@ -293,6 +324,7 @@ export default async function IncidentDetailPage({
           </p>
         </CardContent>
       </Card>
+      )}
 
       {parts.length > 0 ? (
         <DepartmentsCard

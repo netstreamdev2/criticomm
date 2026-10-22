@@ -4,6 +4,7 @@ import type { IncidentStatus } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useSync } from '@/lib/sync';
+import { rememberScenes } from '@/lib/arrival-watch';
 
 export type OpenCall = {
   id: string;
@@ -107,6 +108,12 @@ export function useOpenCall() {
         };
       });
       setServerCalls(current);
+      // The scenes they are driving to, for the phone to spot arrival with no signal.
+      void rememberScenes(session.user.id, rows.flatMap((r) => {
+        const mine = r.responders.find((x) => x.user_id === session.user.id);
+        if (!mine || mine.status !== 'En Route' || mine.arrived_at || r.location_lat == null || r.location_lng == null) return [];
+        return [{ incidentId: r.id, incidentNumber: r.incident_number, lat: r.location_lat, lng: r.location_lng, since: mine.joined_at ?? new Date().toISOString() }];
+      }));
     } catch {
       // keep `current` as last known
     }

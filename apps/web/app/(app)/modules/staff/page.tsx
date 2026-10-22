@@ -17,7 +17,7 @@ import { addLeoAction, removeLeoAction, saveAccessAction, saveStaffAction } from
 import { LoginsView } from './logins-view';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Staff Maintenance · HikTech' };
+export const metadata = { title: 'Staff · HikTech' };
 
 type LoginState = 'has' | 'invited' | 'none' | 'off' | 'left';
 
@@ -94,7 +94,8 @@ export default async function StaffPage({
 
   return (
     <div className="space-y-4">
-      <OfficeHeader title={tx('Staff Maintenance')} info={tx('Each member’s record as the old system kept it: numbers, rank, station, section, weekend group, contacts, LEO record and screen access.')}
+      <OfficeHeader title={tx('Staff')}
+        steps={[tx('Find a member: search by name or staff number, or filter by station and rank.'), tx('Click a name to see their record. Change it and save.'), tx('Add New Staff for someone new. Rank and station are picked from a list.'), tx('Create login lets the member sign in to the app.')]} info={tx('Each member’s record as the old system kept it: numbers, rank, station, section, weekend group, contacts, LEO record and screen access.')}
         target={target} global={ctx.global} canEdit={ctx.canEdit} path="/modules/staff">
         {canImport ? (
           <Link href="/modules/staff/import" className={ox.topButton}><FileUp className="h-4 w-4" aria-hidden /> {t('Import staff list')}</Link>
@@ -205,12 +206,16 @@ export default async function StaffPage({
                   {input('service_number', tx('Service no.'), person?.service_number, { upper: true })}
                   {input('persal_number', tx('Persal no.'), person?.persal_number)}
                   <label><span className={ox.label}>{t('Rank')}</span>
-                    <input name="rank" list="staff-ranks" defaultValue={person?.rank ?? ''} readOnly={ro} className={cn(ox.input, 'uppercase')} />
-                    <datalist id="staff-ranks">{ranks.map((r) => <option key={r} value={r} />)}</datalist></label>
+                    <select name="rank" defaultValue={person?.rank ?? ''} disabled={ro} className={ox.input}>
+                      <option value="">{t('Choose…')}</option>
+                      {[...new Set([...(person?.rank ? [person.rank] : []), ...ranks])].map((r) => <option key={r} value={r}>{r}</option>)}
+                    </select></label>
                   {input('force_number', tx('Force'), person?.force_number, { info: tx('The force number printed on the duty sheet.') })}
                   <label><span className={ox.label}>{t('Region')}</span>
-                    <input name="region" list="staff-regions" defaultValue={person?.region ?? ''} readOnly={ro} className={cn(ox.input, 'uppercase')} />
-                    <datalist id="staff-regions">{REGIONS.map((r) => <option key={r} value={r} />)}</datalist></label>
+                    <select name="region" defaultValue={person?.region ?? ''} disabled={ro} className={ox.input}>
+                      <option value="">{t('Choose…')}</option>
+                      {[...new Set([...(person?.region ? [person.region] : []), ...REGIONS])].map((r) => <option key={r} value={r}>{r}</option>)}
+                    </select></label>
                   {input('la_code', tx('LA code'), person?.la_code)}
                   {input('department_name', tx('Dept'), person?.department_name, { upper: true })}
                   <label><span className={ox.label}>{t('Username')} <InfoTip text={t('The account this member signs in with. Accounts are made by invitation.')} /></span>

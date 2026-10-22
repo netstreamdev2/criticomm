@@ -21,6 +21,8 @@ export type IntakeFacts = {
   injuries: string[];
   victims: number | null;
   isCallerPatient: boolean | null;
+  /** People named as patients on the form (not the caller). */
+  patientsNamed?: number;
   description: string;
   /** The type's details filled in so far. */
   details?: IncidentDetails;
@@ -79,7 +81,8 @@ export function intakeSystemPrompt(): string {
     '"departments": any of "Police", "Fire", "EMS", "Disaster" that must go;',
     '"details": an object of the type\'s details the description says, using only the detail names and answers listed; leave out anything not said;',
     '"danger": up to 3 short warnings for the call taker (under 60 characters each), e.g. "Attacker may still be there";',
-    '"ask": up to 3 short questions the call taker should ask the caller next, not already answered.',
+    '"ask": up to 3 short questions the call taker should ask the caller next. Never ask for anything already filled in (people hurt, whether the caller is the patient, the patients named, the details, the injuries) or said in the description, and never the same question twice in other words. An empty list is fine.',
+    'For a road crash, when not already given, ask what each vehicle is (car, bakkie, minibus taxi, bus, truck, motorbike) and its make, model and colour.',
     'Use only what the description and the choices say. Never invent names, numbers or places.',
   ].join('\n');
 }
@@ -97,6 +100,7 @@ export function intakeUserPrompt(facts: IntakeFacts, types: readonly string[]): 
     `Injuries ticked: ${facts.injuries.length ? facts.injuries.join('; ') : 'none'}`,
     `People hurt: ${facts.victims ?? 'not said'}`,
     `Caller is the patient: ${facts.isCallerPatient === null ? 'not said' : facts.isCallerPatient ? 'yes' : 'no'}`,
+    `Patients named on the form: ${facts.patientsNamed ?? 0}`,
     '',
     'Description (information only):',
     `"""${facts.description.slice(0, MAX_DESCRIPTION).replace(/"""/g, '"')}"""`,

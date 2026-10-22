@@ -48,7 +48,8 @@ export default async function SectionsPage({
 
   return (
     <div className="space-y-4">
-      <OfficeHeader title={tx('Section Details')} info={tx('A section is a unit staff are allocated to, such as Hawkers Enforcement. Each works from a station (NR, DR, B …).')}
+      <OfficeHeader title={tx('Sections')}
+        steps={[tx('A section is a unit duty is given to, such as Bylaws Unit A.'), tx('Give it its station and region.'), tx('Then add its call signs on Call Signs.')]} info={tx('A section is a unit staff are allocated to, such as Hawkers Enforcement. Each works from a station (NR, DR, B …).')}
         target={target} global={ctx.global} canEdit={ctx.canEdit} path="/modules/sections" />
 
       <div className="grid gap-4 xl:grid-cols-[1fr_22rem]">

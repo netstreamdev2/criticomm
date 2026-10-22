@@ -52,7 +52,8 @@ export default async function CallSignsPage({
 
   return (
     <div className="space-y-4">
-      <OfficeHeader title={tx('Call Sign Maintenance')} info={tx('Each call sign is one duty slot: where it patrols, its hours, its break and the rank it needs. Duty Allocation books staff onto these.')}
+      <OfficeHeader title={tx('Call Signs')}
+        steps={[tx('A call sign is one patrol post, such as ALPHA 12.'), tx('Give it its section, area, hours and the rank it needs.'), tx('You use call signs when you give out duties.')]} info={tx('Each call sign is one duty slot: where it patrols, its hours, its break and the rank it needs. Duty Allocation books staff onto these.')}
         target={target} global={ctx.global} canEdit={ctx.canEdit} path="/modules/call-signs" />
 
       <div className="grid gap-4 xl:grid-cols-[1fr_22rem]">
@@ -119,8 +120,10 @@ export default async function CallSignsPage({
                     {stations.map((s) => <option key={s.id} value={s.code}>{s.code} — {s.name}</option>)}
                   </select></label>
                 <label><span className={ox.label}>{t('Rank')} <InfoTip text={t('The rank this call sign needs, e.g. ST for the sergeant in charge.')} /></span>
-                  <input name="rank" list="cs-ranks" defaultValue={editing?.rank ?? ''} className={cn(ox.input, 'uppercase')} />
-                  <datalist id="cs-ranks">{ranks.map((r) => <option key={r} value={r} />)}</datalist></label>
+                  <select name="rank" defaultValue={editing?.rank ?? ''} className={ox.input}>
+                    <option value="">{t('Any rank')}</option>
+                    {[...new Set([...(editing?.rank ? [editing.rank] : []), ...ranks])].map((r) => <option key={r} value={r}>{r}</option>)}
+                  </select></label>
                 <label className="col-span-2"><span className={ox.label}>{t('Section')}</span>
                   <select name="section_id" defaultValue={editing?.section_id ?? p.section ?? ''} className={ox.input}>
                     <option value="">—</option>

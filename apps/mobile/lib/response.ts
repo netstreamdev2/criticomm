@@ -31,8 +31,18 @@ export function isPoliceCall(call: CallLike) {
 
 export type NextStep =
   | { kind: 'status'; status: IncidentStatus; label: string }
+  /** On the way (0099): on scene is marked by the phone reaching the scene, not by a button. */
+  | { kind: 'arriving'; status: IncidentStatus; label: string }
   | { kind: 'report'; label: string }
   | null;
+
+const ARRIVING = tx('On scene is marked when you arrive');
+/** The step after En Route is arriving: the phone marks it (0099); anything else is a button. */
+function stepTo(from: IncidentStatus, to: IncidentStatus, label: string, t: Translate): NonNullable<NextStep> {
+  return from === 'En Route' && (to === 'On Scene' || to === 'Arrived')
+    ? { kind: 'arriving', status: to, label: t(ARRIVING) }
+    : { kind: 'status', status: to, label };
+}
 
 /** A firefighter works a call with the fire report, whatever department owns it. */
 export function isFireResponder(silo: string | null | undefined) {
@@ -99,7 +109,7 @@ export function nextStep(call: CallLike, status: IncidentStatus, meSilo?: string
       };
     }
     const to = FIRE_LADDER[status];
-    return to ? { kind: 'status', status: to, label: markLabel(to, t) } : null;
+    return to ? stepTo(status, to, markLabel(to, t), t) : null;
   }
   if (isPoliceCall(call)) {
     if (call.report_filed_at) return null;
@@ -107,10 +117,10 @@ export function nextStep(call: CallLike, status: IncidentStatus, meSilo?: string
       return { kind: 'report', label: t('File incident report') };
     }
     const to = POLICE_LADDER[status];
-    return to ? { kind: 'status', status: to, label: markLabel(to, t) } : null;
+    return to ? stepTo(status, to, markLabel(to, t), t) : null;
   }
   const to = LADDER[status];
-  return to ? { kind: 'status', status: to, label: to === 'En Route' ? t('Mark En Route') : markLabel(to, t) } : null;
+  return to ? stepTo(status, to, to === 'En Route' ? t('Mark En Route') : markLabel(to, t), t) : null;
 }
 
 /**
@@ -154,6 +164,7 @@ export type Assignment =
 export type CallAction =
   | { kind: 'respond'; asLead: boolean; label: string }
   | { kind: 'status'; status: IncidentStatus; label: string }
+  | { kind: 'arriving'; status: IncidentStatus; label: string }
   | { kind: 'report'; label: string };
 
 export type CallView = {
@@ -233,7 +244,7 @@ export function callView(
     return view;
   }
   if (role === 'backup') {
-    if (myStatus === 'En Route') view.action = { kind: 'status', status: 'On Scene', label: t('Mark On Scene') };
+    if (myStatus === 'En Route') view.action = { kind: 'arriving', status: 'On Scene', label: t(ARRIVING) };
     else view.note = t('You are backup on this incident — the lead {person} files the {report}.', { person: words.person, report: words.report });
     return view;
   }

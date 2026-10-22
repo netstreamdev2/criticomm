@@ -71,7 +71,7 @@ const LINKS: Record<Persona, QuickLink[]> = {
   ],
   supervisor: [
     { href: '/roster', label: 'Roster', desc: 'Allocate duty + endorsements', icon: 'CalendarClock', tone: 'bg-severity-medium/15 text-severity-medium-ink' },
-    { href: '/roster/duty-sheet', label: 'Duty Sheet', desc: 'Printable parade sheet', icon: 'IdCard' },
+    { href: '/modules/duty-operations', label: 'Duty Sheet', desc: 'Printable parade sheet', icon: 'IdCard' },
     { href: '/shift/unit-compliance', label: 'Unit Compliance', desc: 'Team readiness today', icon: 'Gauge' },
     { href: '/performance/operational', label: 'Operational KPIs', desc: 'Team throughput', icon: 'BarChart3' },
     { href: '/performance/plans', label: 'Appraisals', desc: 'Mid-year & final scoring', icon: 'Target' },

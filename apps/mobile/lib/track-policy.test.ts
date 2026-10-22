@@ -24,6 +24,8 @@ test('a fix from the phone becomes a point, or nothing', () => {
   assert.equal(fromLocation({ timestamp: T0, coords: { latitude: 0, longitude: 0 } }), null, 'null island is no fix');
   assert.equal(fromLocation({ timestamp: T0, coords: { latitude: 91, longitude: 31 } }), null);
   assert.equal(fromLocation({ timestamp: Number.NaN, coords: { latitude: -29.85, longitude: 31.02 } }), null);
+  assert.equal(fromLocation({ timestamp: T0, mocked: true, coords: { latitude: -29.85, longitude: 31.02 } })?.mock, true, 'a faked fix is marked');
+  assert.equal(p && 'mock' in p, false, 'a real one is not');
 });
 
 test('a crew on the move is kept every 20 m; a parked unit checks in once a minute', () => {

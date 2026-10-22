@@ -13,7 +13,7 @@ import {
 } from '@criticom/api';
 import {
   CALLER_NOT_GIVEN, DESCRIPTION_TO_FOLLOW, MED_PRIORITIES, askField, catalogueType, composeDescription, injuriesFor, intakeAdvice,
-  maxSeverity, typeMeta,
+  maxSeverity, typeMeta, withoutAnswered,
   type CompleteCallIntakeInput, type DeskSilo, type IncidentDetails, type IncidentSeverity, type LogIncomingCallInput, type Silo,
 } from '@criticom/db';
 import { useT } from '@/components/i18n';
@@ -271,9 +271,12 @@ export function LogCallForm({
   const [aiState, setAiState] = useState<AiState>('idle');
   const factsRef = useRef({
     incidentType: null as string | null, group: null as string | null, injuries: [] as string[], victims: null as number | null,
-    isCallerPatient: null as boolean | null, details: {} as IncidentDetails,
+    isCallerPatient: null as boolean | null, details: {} as IncidentDetails, patientsNamed: 0,
   });
-  factsRef.current = { incidentType: incidentType || null, group: category || null, injuries, victims: victimsNum, isCallerPatient: isPatient, details };
+  factsRef.current = {
+    incidentType: incidentType || null, group: category || null, injuries, victims: victimsNum, isCallerPatient: isPatient, details,
+    patientsNamed: patients.filter((p) => p.name.trim()).length,
+  };
 
   // Once the call taker pauses typing. Criti's own draft is not read back to it.
   useEffect(() => {
@@ -400,7 +403,12 @@ export function LogCallForm({
     else if (draft !== description) setDescription(draft);
   }, [draft, description, by.description, mark]);
 
-  const ask = useMemo(() => [...new Set([...advice.ask, ...(ai?.ask ?? [])])].slice(0, 6), [advice.ask, ai]);
+  // Nothing the form already holds is asked again (how many hurt, the patient, who they are), nor twice.
+  const patientsNamed = patients.filter((p) => p.name.trim()).length;
+  const ask = useMemo(
+    () => withoutAnswered([...advice.ask, ...(ai?.ask ?? [])], { victims: victimsNum, isCallerPatient: isPatient, injuries, patientsNamed }).slice(0, 6),
+    [advice.ask, ai, victimsNum, isPatient, injuries, patientsNamed],
+  );
   // The type's questions, each with its answer, for the Description window.
   const questions = useMemo<QuestionRow[]>(() => {
     const list = [...(chosen?.prompts ?? []), ...(catalogueType(incidentType)?.prompts ?? [])];
@@ -550,13 +558,15 @@ export function LogCallForm({
     })();
   };
 
-  const dial = () => {
+  // Calls the caller back (a dropped call) on the desk's softphone. Zoiper is
+  // opened by its own link: Windows often hands tel: links to Phone Link or
+  // Teams instead. Another phone app: the tel: link under the button.
+  const dial = (app: 'zoiper' | 'tel' = 'zoiper') => {
     if (!phoneCheck.ok) {
       setPhoneTouched(true);
       return;
     }
-    // Zoiper and most softphones register the tel: scheme.
-    window.location.href = `tel:${phoneCheck.e164}`;
+    window.location.href = `${app === 'zoiper' ? 'zoiper:' : 'tel:'}${phoneCheck.e164}`;
   };
 
   /* ── The values as the database takes them ──────────────────────── */
@@ -1308,7 +1318,7 @@ export function LogCallForm({
                   onBlur={() => { setPhoneTouched(true); checkDup(); saveNow(); }}
                 />
                 <button
-                  type="button" onClick={dial} disabled={!phoneCheck.ok}
+                  type="button" onClick={() => dial('zoiper')} disabled={!phoneCheck.ok} title={t('Call back on Zoiper')}
                   className="inline-flex h-11 shrink-0 items-center gap-2 rounded-lg bg-severity-low px-5 text-xs font-bold uppercase tracking-wider transition-opacity hover:opacity-90 disabled:opacity-40"
                 >
                   <Phone className="h-3.5 w-3.5" /> {t('Call')}
@@ -1316,7 +1326,7 @@ export function LogCallForm({
               </div>
               <p id="callerPhoneHelp" className={cn('mt-1.5 text-xs', phoneTouched && !phoneCheck.ok ? 'text-severity-critical-ink' : 'text-muted-foreground')}>
                 {phoneCheck.ok
-                  ? t('Saved as {number}', { number: phoneCheck.display })
+                  ? <>{t('Saved as {number}', { number: phoneCheck.display })}{' · '}<button type="button" onClick={() => dial('tel')} className="font-semibold text-accent hover:underline">{t('Call with another phone app')}</button></>
                   : phoneTouched && phone.trim() ? phoneCheck.error : `${phoneCheck.country.name} · +${phoneCheck.country.code}`}
               </p>
             </div>

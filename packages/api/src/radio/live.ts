@@ -117,6 +117,8 @@ export type RadioView = {
   /** The app is standing in because the radio's platform is not answering for it. */
   fallback: boolean;
   freshness: Freshness;
+  /** Its number in the hard hat and radio register (0101), and who booked it for the shift. */
+  kit?: { assetNo: string; holder: string | null } | null;
 };
 
 /** How current a position is: live (under 2 minutes), recent (under 30), old, or none. */
