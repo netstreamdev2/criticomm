@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { requireOptionalNativeModule } from 'expo';
-import { isRadioModel } from '@criticom/api';
+import { isHardHatModel, isRadioModel } from '@criticom/api';
 
 /**
  * The push-to-talk radio's SOS key, for the SOS button (components/panic-button.tsx).
@@ -15,7 +15,7 @@ import { isRadioModel } from '@criticom/api';
  * Expo Go, on iOS, or in an older build it is simply absent.
  */
 
-export type RadioKeyEvent = { key: 'sos' | 'ptt'; pressed: boolean; at: number; source?: 'broadcast' | 'key'; action?: string };
+export type RadioKeyEvent = { key: 'sos' | 'ptt' | 'camera'; pressed: boolean; at: number; source?: 'broadcast' | 'key'; action?: string };
 /** Any key press while the app is on screen, for the Buttons screen to learn from. */
 export type HardwareKeyEvent = { code: number; scan: number; name: string; pressed: boolean; at: number };
 
@@ -36,6 +36,16 @@ type RadioKeysModule = {
   setOpenOnBoot?: (on: boolean) => boolean;
   ignoresBatterySaving?: () => boolean;
   askToIgnoreBatterySaving?: () => boolean;
+  /** From the build of 23 October 2026 (afternoon): the watchdog and the home screen. */
+  armWatchdog?: (on: boolean) => boolean;
+  beat?: () => boolean;
+  setHome?: (on: boolean) => boolean;
+  isHome?: () => boolean;
+  openAndroidSettings?: () => boolean;
+  /** From the build of 23 October 2026 (late afternoon): timers with the screen off, and waking the screen. */
+  keepJsRunning?: (on: boolean) => boolean;
+  wakeScreen?: () => boolean;
+  speak?: (text: string) => boolean;
   /** From the build after 1.3.0; older builds do not have it. */
   battery?: () => { level: number; charging: boolean } | null;
   /** The camera's standby while on duty (0091); from the build after that. */
@@ -89,6 +99,13 @@ export const currentKeyMap = () => keyMap;
 export function onRadioPttKey(listener: (e: RadioKeyEvent) => void): () => void {
   if (!native) return () => {};
   const sub = native.addListener('onRadioKey', (e) => { if (e.key === 'ptt') listener(e); });
+  return () => sub.remove();
+}
+
+/** The hard hat's camera button: pressed. Does nothing where the build cannot hear it. */
+export function onRadioCameraKey(listener: () => void): () => void {
+  if (!native || !isRadioDevice()) return () => {};
+  const sub = native.addListener('onRadioKey', (e) => { if (e.key === 'camera' && e.pressed) listener(); });
   return () => sub.remove();
 }
 
@@ -207,7 +224,86 @@ export async function chooseOpenOnBoot(on: boolean): Promise<void> {
 /** The app started: the taught buttons handed to the build, and a radio set to open when switched on. */
 export async function initRadioButtons(): Promise<void> {
   await loadKeyMap();
-  if (isRadioDevice()) setOpenOnBoot(await openOnBootChoice());
+  if (!isRadioDevice()) return;
+  setOpenOnBoot(await openOnBootChoice());
+  // A radio or hard hat: HikTech is its home screen unless turned off on its setup screen.
+  if (await homeScreenChoice()) setHomeScreen(true);
+}
+
+/* ── Keeping it on the air (modules/radio-keys Watchdog.kt) ───────────── */
+
+const HOME_KEY = 'criticom.radio.home.v1';
+
+/**
+ * A smart hard hat's screen stays on while on duty (2026-10-23). On battery
+ * with the screen off, the H1's maker freezes every app, whatever the
+ * settings say (and it puts the screen timeout back on a restart), so the
+ * console's camera and Talk calls went unanswered until it was plugged in.
+ * HikTech is its home screen, always in front, so keeping the screen on
+ * keeps it on the air. Expo's keep-awake, already in the build.
+ */
+const keepAwake = Platform.OS === 'android'
+  ? requireOptionalNativeModule<{ activate(tag: string): Promise<void>; deactivate(tag: string): Promise<void> }>('ExpoKeepAwake')
+  : null;
+const AWAKE_TAG = 'hiktech-hard-hat-duty';
+export const isHardHatDevice = () => Platform.OS === 'android' && isHardHatModel(MODEL);
+
+/** On duty on a radio or hard hat: the app's timers keep running with the screen off. */
+export function keepJsRunning(on: boolean): void {
+  try { native?.keepJsRunning?.(on && isRadioDevice()); } catch { /* an older build */ }
+}
+
+/** Said out loud (a hard hat has hardly a screen); nothing where the build or device cannot. */
+export function say(text: string): void {
+  try { native?.speak?.(text); } catch { /* an older build */ }
+}
+
+/** Screen on and HikTech in front (the control room opened the camera). */
+export function wakeScreen(): boolean {
+  try { return Boolean(native?.wakeScreen?.()); } catch { return false; }
+}
+
+/** The screen held on while the control room watches the camera (radios; the hard hat already stays on). */
+export function keepAwakeForCamera(on: boolean): void {
+  if (!keepAwake || !isRadioDevice()) return;
+  void (on ? keepAwake.activate('hiktech-camera-live') : keepAwake.deactivate('hiktech-camera-live')).catch(() => {});
+}
+
+export function keepHardHatAwake(on: boolean): void {
+  if (!keepAwake || !isHardHatDevice()) return;
+  void (on ? keepAwake.activate(AWAKE_TAG) : keepAwake.deactivate(AWAKE_TAG)).catch(() => { /* no screen yet: tried again when it comes to the front */ });
+}
+
+/** The watchdog: on, the app is opened again whenever it goes quiet (radios and hard hats). */
+export function armWatchdog(on: boolean): void {
+  try { native?.armWatchdog?.(on && isRadioDevice()); } catch { /* an older build */ }
+}
+
+/** The app is alive: the watchdog's clock starts again. */
+export function watchdogBeat(): void {
+  try { native?.beat?.(); } catch { /* an older build */ }
+}
+
+/** Whether HikTech should be this radio's home screen: yes unless turned off. */
+export async function homeScreenChoice(): Promise<boolean> {
+  return (await AsyncStorage.getItem(HOME_KEY).catch(() => null)) !== 'off';
+}
+
+/** HikTech as the device's home screen; false where the build cannot. */
+export function setHomeScreen(on: boolean): boolean {
+  try { return Boolean(native?.setHome?.(on && isRadioDevice())); } catch { return false; }
+}
+
+export async function chooseHomeScreen(on: boolean): Promise<void> {
+  setHomeScreen(on);
+  await AsyncStorage.setItem(HOME_KEY, on ? 'on' : 'off').catch(() => {});
+}
+
+export const hasWatchdog = () => Boolean(native?.armWatchdog);
+
+/** The device's own settings, for maintenance (HikTech keeps running). */
+export function openAndroidSettings(): boolean {
+  try { return Boolean(native?.openAndroidSettings?.()); } catch { return false; }
 }
 
 /**

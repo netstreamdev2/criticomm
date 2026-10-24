@@ -9,7 +9,13 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import android.speech.tts.TextToSpeech
 import android.view.KeyEvent
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.UiThreadUtil
+import com.facebook.react.jstasks.HeadlessJsTaskConfig
+import com.facebook.react.jstasks.HeadlessJsTaskContext
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
@@ -36,6 +42,12 @@ import expo.modules.kotlin.modules.ModuleDefinition
  */
 class RadioKeysModule : Module() {
   private var receiver: BroadcastReceiver? = null
+  /** The background task that keeps the app's timers running with the screen off (keepJsRunning). */
+  private var keepTask: Int? = null
+  /** Spoken words for a device with no proper screen (the hard hat: "Paired to …"). */
+  private var tts: TextToSpeech? = null
+  private var ttsReady = false
+  private var ttsWaiting: String? = null
 
   override fun definition() = ModuleDefinition {
     Name("RadioKeys")
@@ -124,6 +136,83 @@ class RadioKeysModule : Module() {
       true
     }
 
+    // The watchdog (Watchdog.kt): on, the app is opened again whenever it goes quiet; beat says it is alive.
+    Function("armWatchdog") { on: Boolean ->
+      val context = appContext.reactContext ?: return@Function false
+      Watchdog.arm(context, on)
+      true
+    }
+    Function("beat") {
+      val context = appContext.reactContext ?: return@Function false
+      Watchdog.beat(context)
+      true
+    }
+
+    // React Native pauses the app's timers when it is not on screen, unless a background
+    // task runs; on duty a radio's camera and Talk need them (2026-10-23). A task that
+    // never ends (JS: HikTechKeepRunning) while on; finished when off.
+    Function("keepJsRunning") { on: Boolean ->
+      val context = appContext.reactContext as? ReactContext ?: return@Function false
+      UiThreadUtil.runOnUiThread {
+        try {
+          val tasks = HeadlessJsTaskContext.getInstance(context)
+          val id = keepTask
+          if (on && id == null) {
+            keepTask = tasks.startTask(HeadlessJsTaskConfig("HikTechKeepRunning", Arguments.createMap(), 0, true))
+          } else if (!on && id != null) {
+            keepTask = null
+            if (tasks.isTaskRunning(id)) tasks.finishTask(id)
+          }
+        } catch (_: Exception) { /* no JS yet: tried again on the next call */ }
+      }
+      true
+    }
+
+    // Say something out loud: a hard hat has hardly a screen ("Paired to Constable Khumalo").
+    // False when the device has no speech engine; the buzz and the banner still tell them.
+    Function("speak") { text: String ->
+      val context = appContext.reactContext ?: return@Function false
+      val engine = tts
+      if (engine == null) {
+        ttsWaiting = text
+        tts = TextToSpeech(context.applicationContext) { status ->
+          ttsReady = status == TextToSpeech.SUCCESS
+          val waiting = ttsWaiting
+          ttsWaiting = null
+          if (ttsReady && waiting != null) tts?.speak(waiting, TextToSpeech.QUEUE_FLUSH, null, "hiktech")
+        }
+        return@Function true
+      }
+      if (!ttsReady) { ttsWaiting = text; return@Function true }
+      engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, "hiktech") == TextToSpeech.SUCCESS
+    }
+
+    // The screen on and HikTech in front: the control room opened the camera (the officer sees it).
+    Function("wakeScreen") {
+      val context = appContext.reactContext ?: return@Function false
+      Watchdog.wakeAndOpen(context)
+      true
+    }
+
+    // HikTech as the device's home screen (radios and hard hats); off gives the normal home back.
+    Function("setHome") { on: Boolean ->
+      val context = appContext.reactContext ?: return@Function false
+      try { Watchdog.setHome(context, on); true } catch (_: Exception) { false }
+    }
+    Function("isHome") {
+      val context = appContext.reactContext ?: return@Function false
+      Watchdog.isHome(context)
+    }
+
+    // Open the device's own home screen or settings (maintenance), leaving HikTech running.
+    Function("openAndroidSettings") {
+      val context = appContext.reactContext ?: return@Function false
+      try {
+        context.startActivity(Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        true
+      } catch (_: Exception) { false }
+    }
+
     // Left out of battery saving: true, or false when the system may stop the app to save battery.
     Function("ignoresBatterySaving") {
       val context = appContext.reactContext ?: return@Function true
@@ -155,6 +244,8 @@ class RadioKeysModule : Module() {
 
     OnDestroy {
       stop()
+      tts?.shutdown()
+      tts = null
       KeyHub.emit = null
       DutyMediaService.onTick = null
       DutyMediaService.onFix = null
@@ -170,16 +261,17 @@ class RadioKeysModule : Module() {
         val key = when (action) {
           in PTT_DOWN, in PTT_UP -> "ptt"
           in SOS_DOWN, in SOS_UP -> "sos"
+          in CAMERA_DOWN, in CAMERA_UP -> "camera"
           else -> return
         }
-        val pressed = action in PTT_DOWN || action in SOS_DOWN
+        val pressed = action in PTT_DOWN || action in SOS_DOWN || action in CAMERA_DOWN
         KeyHub.emit?.invoke(EVENT, mapOf(
           "key" to key, "pressed" to pressed, "at" to System.currentTimeMillis().toDouble(), "source" to "broadcast", "action" to action,
         ))
       }
     }
     val filter = IntentFilter().apply {
-      (PTT_DOWN + PTT_UP + SOS_DOWN + SOS_UP).forEach { addAction(it) }
+      (PTT_DOWN + PTT_UP + SOS_DOWN + SOS_UP + CAMERA_DOWN + CAMERA_UP).forEach { addAction(it) }
     }
     // The device's system sends them, so they come from outside the app.
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -213,21 +305,29 @@ class RadioKeysModule : Module() {
       "android.intent.action.PTT.down", "android.intent.action.PTT_DOWN", "android.intent.action.PTT_KEY_DOWN",
       "android.intent.action.ptt.down", "com.android.action.PTT_DOWN", "com.sonim.intent.action.PTT_KEY_DOWN",
       "com.runbo.ptt.key.down", "com.zello.ptt.down", "android.intent.action.side_key.keydown.PTT",
+      // The H1 smart hard hat's talk button (read off the hard hat, 2026-10-23).
+      "com.huawei.internalit.isdmobile.safetyhelmet.customize_1.down",
     )
     val PTT_UP = setOf(
       "android.intent.action.PTT.up", "android.intent.action.PTT_UP", "android.intent.action.PTT_KEY_UP",
       "android.intent.action.ptt.up", "com.android.action.PTT_UP", "com.sonim.intent.action.PTT_KEY_UP",
       "com.runbo.ptt.key.up", "com.zello.ptt.up", "android.intent.action.side_key.keyup.PTT",
+      "com.huawei.internalit.isdmobile.safetyhelmet.customize_1.up",
     )
     /** The SOS button: the E977's own, and the usual spellings. */
     val SOS_DOWN = setOf(
       "android.intent.action.SOS.down", "android.intent.action.SOS_DOWN", "android.intent.action.SOS_KEY_DOWN",
       "com.sonim.intent.action.SOS_KEY_DOWN", "com.runbo.sos.key.down", "android.intent.action.side_key.keydown.SOS",
+      "com.huawei.internalit.isdmobile.safetyhelmet.sos.down",
     )
     val SOS_UP = setOf(
       "android.intent.action.SOS.up", "android.intent.action.SOS_UP", "android.intent.action.SOS_KEY_UP",
       "com.sonim.intent.action.SOS_KEY_UP", "com.runbo.sos.key.up", "android.intent.action.side_key.keyup.SOS",
+      "com.huawei.internalit.isdmobile.safetyhelmet.sos.up",
     )
+    /** The hard hat's camera button: a photo for the officer's call. */
+    val CAMERA_DOWN = setOf("com.huawei.internalit.isdmobile.safetyhelmet.camera.down")
+    val CAMERA_UP = setOf("com.huawei.internalit.isdmobile.safetyhelmet.camera.up")
   }
 }
 

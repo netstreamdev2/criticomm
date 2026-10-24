@@ -53,7 +53,7 @@ export function IncidentSheet({
   busy: boolean;
   onClose: () => void;
   onAction: () => void;
-  /** The optional step beside the main one (a firefighter on scene: Mark Transporting). */
+  /** The optional step beside the main one (a paramedic on scene: Mark Transporting). */
   onSecondary?: () => void;
   onOpenFull: () => void;
 }) {
@@ -76,9 +76,7 @@ export function IncidentSheet({
 
 
   const action = view.action;
-  const actionLabel = !action ? null
-    : action.kind === 'respond' ? t('Accept')
-        : action.label;
+  const actionLabel = action ? action.label : null;
 
   return (
     <BottomSheet
@@ -121,7 +119,7 @@ export function IncidentSheet({
             <View>
               <Button
                 label={actionLabel}
-                icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'checkmark-circle' : 'arrow-forward-circle'}
+                icon={action.kind === 'report' ? 'document-text' : action.kind === 'assessment' ? 'clipboard' : action.kind === 'respond' ? 'checkmark-circle' : 'arrow-forward-circle'}
                 variant={action.kind === 'report' ? 'success' : 'primary'}
                 size="lg"
                 busy={busy}
@@ -132,10 +130,10 @@ export function IncidentSheet({
                 <View style={{ marginTop: space.sm }}>
                   <Button
                     label={view.secondary.label}
-                    icon="medkit-outline"
+                    icon={view.secondary.kind === 'report' ? 'document-text-outline' : 'medkit-outline'}
                     variant="outline"
                     busy={busy}
-                    disabled={Boolean(view.blocked)}
+                    // Not disabled with the report: moving a patient never waits for the arrival.
                     onPress={onSecondary}
                   />
                 </View>

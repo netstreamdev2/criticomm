@@ -10,7 +10,7 @@ import { wordsIn } from './department.ts';
  * goes En Route (responding), On Scene, then files the report — the server
  * resolves the call when the report lands (migration 0039) and refuses a bare
  * "Resolved" from the field. A firefighter works the same way with the fire
- * report (migration 0059), and may mark Transporting on the way. A paramedic
+ * report (migration 0059); Fire does not transport. A paramedic
  * works it with the patient care report (migrations 0063, 0064), the same
  * way, and a Disaster Management officer with the post-mortem (migration
  * 0065). Other services keep the full ladder.
@@ -57,6 +57,11 @@ export function isEmsResponder(silo: string | null | undefined) {
 /** A Disaster Management officer closes an incident with the post-mortem (migration 0065). */
 export function isDisasterResponder(silo: string | null | undefined) {
   return silo === 'EthekwiniDisaster';
+}
+
+/** Where a Disaster Management officer files the assessment of a place (0107). */
+export function assessmentPathFor(incidentId: string) {
+  return `/assessment/${incidentId}`;
 }
 
 /** Where the lead files the report that closes the call. */
@@ -124,11 +129,12 @@ export function nextStep(call: CallLike, status: IncidentStatus, meSilo?: string
 }
 
 /**
- * The optional step beside the main one: a firefighter on scene may mark
- * Transporting (casualties to hospital, the appliance moving) before filing.
+ * The optional step beside the main one: a paramedic on scene may mark
+ * Transporting (the patient to hospital) before filing the patient report.
+ * Fire & Rescue does not transport, so it has no Transporting step.
  */
 export function secondaryStep(call: CallLike, status: IncidentStatus, meSilo?: string, t: Translate = english.t): NextStep {
-  if (!(isFireResponder(meSilo) || isEmsResponder(meSilo)) || call.report_filed_at) return null;
+  if (!isEmsResponder(meSilo) || call.report_filed_at) return null;
   return status === 'On Scene' ? { kind: 'status', status: 'Transporting', label: t('Mark Transporting') } : null;
 }
 
@@ -140,7 +146,12 @@ export type Responder = {
   name: string | null;
   role: 'lead' | 'backup';
   status: IncidentStatus;
+  /** False: marked on scene away from it, not confirmed yet (0099); the report waits (0102). */
+  arrived_verified?: boolean | null;
 };
+
+/** The reports that wait for a proven arrival (0102): police, fire and patient reports, not the post-mortem. */
+const REPORT_WAITS_FOR_ARRIVAL = tx('Your arrival is not confirmed yet. It confirms itself when your phone shows you at the scene, or ask dispatch to confirm it. Then file the report.');
 
 export type FieldCall = CallLike & {
   id: string;
@@ -165,7 +176,9 @@ export type CallAction =
   | { kind: 'respond'; asLead: boolean; label: string }
   | { kind: 'status'; status: IncidentStatus; label: string }
   | { kind: 'arriving'; status: IncidentStatus; label: string }
-  | { kind: 'report'; label: string };
+  | { kind: 'report'; label: string }
+  /** Disaster Management on site: the assessment of a place (0107). */
+  | { kind: 'assessment'; label: string };
 
 export type CallView = {
   /** My place on the call, if I am responding. */
@@ -177,9 +190,9 @@ export type CallView = {
   backups: Responder[];
   /** The one thing I can do next, if anything. */
   action: CallAction | null;
-  /** An optional step beside it (a firefighter on scene: Mark Transporting). */
+  /** An optional step beside it (a paramedic on scene: Mark Transporting). */
   secondary: CallAction | null;
-  /** Why the action cannot be taken right now (shown, button disabled). */
+  /** Why the action cannot be taken right now (shown, button disabled); the secondary step is never held by it. */
   blocked: string | null;
   /** Why there is no action at all, when that is worth saying. */
   note: string | null;
@@ -241,11 +254,25 @@ export function callView(
   if (role === 'lead' && myStatus) {
     view.action = nextStep(call, myStatus, me.silo, t);
     view.secondary = secondaryStep(call, myStatus, me.silo, t);
+    // Disaster Management on site: assess first, place by place; the
+    // post-mortem beside it closes the call (0107).
+    if (isDisasterResponder(me.silo) && view.action?.kind === 'report') {
+      view.secondary = view.action;
+      view.action = { kind: 'assessment', label: t('Assessment') };
+    }
+    // The server refuses the report until the arrival is confirmed (0102):
+    // say so here, rather than let it be written and refused from the outbox.
+    if (view.action?.kind === 'report' && mine?.arrived_verified === false && !isDisasterResponder(me.silo)) {
+      view.blocked = t(REPORT_WAITS_FOR_ARRIVAL);
+    }
     return view;
   }
   if (role === 'backup') {
     if (myStatus === 'En Route') view.action = { kind: 'arriving', status: 'On Scene', label: t(ARRIVING) };
-    else view.note = t('You are backup on this incident — the lead {person} files the {report}.', { person: words.person, report: words.report });
+    // A Disaster team splits up to assess the streets; the lead files the post-mortem.
+    else if (isDisasterResponder(me.silo) && (myStatus === 'Arrived' || myStatus === 'On Scene')) {
+      view.action = { kind: 'assessment', label: t('Assessment') };
+    } else view.note = t('You are backup on this incident — the lead {person} files the {report}.', { person: words.person, report: words.report });
     return view;
   }
 
@@ -256,8 +283,10 @@ export function callView(
     return view;
   }
   const asLead = !lead && (!call.assigned_to || assignedToMe);
-  view.action = { kind: 'respond', asLead, label: t('Accept') };
-  if (me.onDuty === false) view.blocked = t('Go on duty to respond to incidents.');
+  // Disaster Management is called out from standby, not dispatched on duty.
+  const standby = isDisasterResponder(me.silo);
+  view.action = { kind: 'respond', asLead, label: standby ? t('Accept call-out') : t('Accept') };
+  if (me.onDuty === false) view.blocked = standby ? t('Start standby to accept call-outs.') : t('Go on duty to respond to incidents.');
   return view;
 }
 

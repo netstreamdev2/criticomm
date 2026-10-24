@@ -9,7 +9,7 @@ import type { TalkPass, TalkSession, TalkState } from '@criticom/api/talk';
 import { useAuth } from '@/lib/auth';
 import { getSupabase } from '@/lib/supabase';
 import { askMicrophone, liveKitNative, startTalkAudio, stopTalkAudio } from '@/lib/talk-native';
-import { setTalkPresence, useRadioId } from '@/lib/presence';
+import { radioId, setTalkPresence, useRadioId } from '@/lib/presence';
 import { screenTalk, setScreenPtt } from '@/lib/radio-talk';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { Banner, EmptyState } from '@/components/ui';
@@ -80,7 +80,8 @@ export default function TalkScreen() {
       const supabase = getSupabase();
       const s = new Session(channel, {
         getPass: async (c) => {
-          const { data, error } = await supabase.rpc('talk_pass', { p_channel: c });
+          // Each device its own name (0103): the phone and a radio on one account both stay on.
+          const { data, error } = await supabase.rpc('talk_pass', { p_channel: c, p_device: await radioId() });
           if (error) throw new Error(error.message);
           return data as TalkPass;
         },

@@ -1,14 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View,
-} from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import { forDepartment, getIncident, getMyPersonnel, listIncidentAttachments } from '@criticom/api';
-import {
-  FIRE_REPORT_SECTIONS, fireFieldShown, fireReportPayload, fireReportProblems, formatDuration, type FireField,
-} from '@criticom/db/fire-report';
+import { answeredCount, forDepartment, getIncident, getMyPersonnel, listIncidentAttachments, type ReportSection } from '@criticom/api';
+import { fireReportPayload, formatDuration } from '@criticom/db/fire-report';
 import type { Database } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
@@ -16,26 +12,31 @@ import { useDept } from '@/lib/branding';
 import { useSync } from '@/lib/sync';
 import { leadsOnPhone, mediaOnPhone, statusOnPhone } from '@/lib/outbox';
 import { setReportingFor } from '@/lib/open-call';
-import { colors, radius, space, makeStyles } from '@/lib/theme';
+import { FIRE_PHOTOS_STEP, FIRE_STEP_ICONS, fireAnswer, fireStepProblems, fireSteps, problemsOn } from '@/lib/report-steps';
+import { colors, radius, space, type, makeStyles } from '@/lib/theme';
 import { OrgMark } from '@/components/org-mark';
-import { Banner, Button, Card, EmptyState, Input, KeyValue, Muted, Segmented, SeverityPill } from '@/components/ui';
+import { ReportWizard, type WizardSpec } from '@/components/report-wizard';
+import { ReportStartCard, StepTiles, type StepTile } from '@/components/report-steps-cover';
+import { Banner, Button, Card, EmptyState, KeyValue, Muted, SectionLabel, SeverityPill, Title } from '@/components/ui';
 import { useT } from '@/lib/i18n';
 
 type Incident = Database['public']['Tables']['incidents']['Row'];
 
-const YES_NO = ['Yes', 'No'] as const;
 const draftKey = (id: string) => `hiktech.fire-report-draft.${id}`;
 const sast = (iso: string | null | undefined) =>
   iso ? new Date(iso).toLocaleTimeString('en-ZA', { timeZone: 'Africa/Johannesburg', hour: '2-digit', minute: '2-digit' }) : '—';
+const noop = () => {};
 
 /**
  * The fire incident report — the step that closes a Fire incident (0059).
  *
- * Incident details and the response timeline come from the incident and are
- * shown, not typed; the firefighter writes what only they know. Answers are
- * kept on the phone until filed, so a dead battery or another call does not
- * lose them. Filing goes through the outbox; the server files the report,
- * resolves the incident and tells dispatch and command.
+ * The report is filled in as a step-by-step wizard, as the police forms are:
+ * one section per step, Next checks the step and Done checks the lot. The
+ * incident details and the response timeline come from the incident and are
+ * shown, not typed. Answers are kept on the phone until filed, so a dead
+ * battery or another call does not lose them. Filing goes through the outbox;
+ * the server files the report, resolves the incident and tells dispatch and
+ * command.
  */
 export default function FireReportScreen() {
   const { t } = useT();
@@ -52,10 +53,12 @@ export default function FireReportScreen() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [photosOnFile, setPhotos] = useState(0);
   const [problems, setProblems] = useState<string[]>([]);
-  // Set once File is pressed: from then on missing answers glow red until fixed.
+  // Set once File is pressed: from then on the steps with something missing turn red.
   const [tried, setTried] = useState(false);
   const [busy, setBusy] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  /** The wizard's step while it is open. */
+  const [openAt, setOpenAt] = useState<number | null>(null);
   const draftLoaded = useRef(false);
 
   const load = useCallback(async () => {
@@ -113,7 +116,8 @@ export default function FireReportScreen() {
     return () => clearTimeout(timer);
   }, [id, answers]);
 
-  const set = (key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: value }));
+  // Counts are whole numbers and amounts are money, as the form always took them.
+  const set = (key: string, value: string) => setAnswers((cur) => ({ ...cur, [key]: fireAnswer(key, value) }));
 
   /** The officer's status as they last set it, delivered or not. */
   const status = useMemo(() => statusOnPhone(pending, id ?? '', incident?.status), [pending, id, incident]);
@@ -121,15 +125,14 @@ export default function FireReportScreen() {
   // Photos still waiting to send count as taken.
   const photos = photosOnFile + mediaOnPhone(pending, id ?? '').photos;
 
+  /** The steps, with only the questions that apply to the answers so far. */
+  const steps = useMemo(() => fireSteps(answers, photos), [answers, photos]);
   /** Everything still missing, with the fields to mark. */
-  const missing = useMemo(() => {
-    const found = fireReportProblems(answers);
-    if (photos === 0 && !(answers.no_photo_reason ?? '').trim()) {
-      found.push({ message: 'Add photos on the incident, or say why there are none.', keys: ['no_photo_reason'] });
-    }
-    return found;
-  }, [answers, photos]);
-  const invalid = useMemo(() => new Set(tried ? missing.flatMap((p) => p.keys) : []), [tried, missing]);
+  const missing = useMemo(() => fireStepProblems(answers, photos), [answers, photos]);
+  const check = useCallback(
+    (on: readonly ReportSection[], a: Record<string, string>) => problemsOn(fireStepProblems(a, photos), on),
+    [photos],
+  );
 
   // Once fixed, a problem leaves the list by itself.
   useEffect(() => {
@@ -209,126 +212,68 @@ export default function FireReportScreen() {
 
   const onScene = status === 'Arrived' || status === 'On Scene' || status === 'Transporting';
   const arrived = incident.arrived_timestamp ? new Date(incident.arrived_timestamp).getTime() : null;
-  const sections = FIRE_REPORT_SECTIONS;
+  const tone = colors.accent;
+  const ready = missing.length === 0;
+  const overall = answeredCount(steps, answers);
 
-  const renderField = (f: FireField) => {
-    if (!fireFieldShown(f, answers)) return null;
-    const value = answers[f.key] ?? '';
-    const label = `${t(f.label)}${f.required ? ' *' : ''}`;
-    // A missing answer after File was pressed: the field glows red until it is filled.
-    const bad = invalid.has(f.key);
-    const fieldStyle = [styles.field, bad && styles.fieldBad];
-    if (f.kind === 'select') {
-      return (
-        <View key={f.key} style={fieldStyle}>
-          <Text style={[styles.label, bad && styles.labelBad]}>{label.toUpperCase()}{bad ? t(' — REQUIRED') : ''}</Text>
-          <View style={styles.chips}>
-            {(f.options ?? []).map((o) => {
-              const on = value === o;
-              return (
-                <Pressable
-                  key={o}
-                  onPress={() => set(f.key, o)}
-                  accessibilityRole="radio"
-                  accessibilityState={{ selected: on }}
-                  style={({ pressed }) => [styles.chip, on && styles.chipOn, pressed && { opacity: 0.75 }]}
-                >
-                  <Text style={[styles.chipText, on && styles.chipTextOn]}>{t(o)}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </View>
-      );
-    }
-    if (f.kind === 'yesno') {
-      return (
-        <View key={f.key} style={fieldStyle}>
-          <Text style={styles.label}>{label.toUpperCase()}</Text>
-          <Segmented options={YES_NO} value={(value || 'No') as (typeof YES_NO)[number]} onChange={(v) => set(f.key, v)} />
-        </View>
-      );
-    }
-    return (
-      <View key={f.key} style={fieldStyle}>
-        {bad ? <Text style={styles.badHint}>{t('Required — fill this in')}</Text> : null}
-        <Input
-          label={label}
-          value={value}
-          onChangeText={(v) => set(f.key, f.kind === 'count' ? v.replace(/[^0-9]/g, '') : f.kind === 'money' ? v.replace(/[^0-9.]/g, '') : v)}
-          placeholder={f.placeholder ?? (f.kind === 'count' || f.kind === 'money' ? '0' : undefined)}
-          keyboardType={f.kind === 'count' ? 'number-pad' : f.kind === 'money' ? 'decimal-pad' : 'default'}
-          multiline={f.kind === 'multiline'}
-          style={f.kind === 'multiline' ? { minHeight: 96, textAlignVertical: 'top' } : undefined}
-        />
-      </View>
-    );
+  const tiles: StepTile[] = steps.map((s) => {
+    const toFix = problemsOn(missing, [s]).length;
+    const { answered, total } = answeredCount([s], answers);
+    const state = tried && toFix
+      ? (toFix === 1 ? t('1 to fix') : t('{n} to fix', { n: toFix }))
+      : s.key === FIRE_PHOTOS_STEP && photos
+        ? (photos === 1 ? t('1 photo') : t('{n} photos', { n: photos }))
+        : t('{answered} of {total} answered', { answered, total });
+    return {
+      key: s.key ?? s.title,
+      title: s.title,
+      icon: FIRE_STEP_ICONS[s.key ?? ''] ?? 'document-outline',
+      state,
+      done: !toFix && (answered > 0 || total === 0),
+      toFix: tried && toFix > 0,
+    };
+  });
+
+  /** The first step with something to fix, else the first. */
+  const firstToFix = Math.max(0, steps.findIndex((s) => problemsOn(missing, [s]).length > 0));
+
+  const spec: WizardSpec | null = openAt === null ? null : {
+    code: 'FIRE',
+    title: 'Fire incident report',
+    tone,
+    icon: 'flame',
+    sections: steps,
   };
 
-  return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <Card accent={colors.accent}>
-          <OrgMark style={{ marginBottom: space.md }} />
-          <View style={styles.rowBetween}>
-            <View style={styles.titleRow}>
-              <Ionicons name="flame" size={18} color={colors.accent} />
-              <Text style={styles.number}>{incident.incident_number}</Text>
+  /** What a step shows beside its questions: the incident's own record, and the photos. */
+  const extra = (s: ReportSection) => {
+    if (s.key === 'incident') {
+      return (
+        <View style={{ gap: space.md }}>
+          <Card>
+            <KeyValue label={t('Report number')} value={`FR-${incident.incident_number}`} />
+            <KeyValue label={t('Date')} value={new Date(incident.call_timestamp ?? incident.incident_created_at).toLocaleDateString('en-ZA', { timeZone: 'Africa/Johannesburg' })} />
+            <KeyValue label={t('Time of call')} value={sast(incident.call_timestamp ?? incident.incident_created_at)} />
+          </Card>
+          <Card>
+            <Text style={styles.cardHead}>{t('Response timeline')}</Text>
+            <View style={styles.synced}>
+              <Ionicons name="lock-closed" size={12} color={colors.cyan} />
+              <Text style={styles.syncedText}>{t('Timestamps auto-synced from the incident')}</Text>
             </View>
-            <SeverityPill severity={incident.incident_severity} />
-          </View>
-          <Text style={styles.type}>{incident.incident_type}</Text>
-          <Muted>{incident.location_address}</Muted>
-        </Card>
-
-        {!onScene ? <Banner tone="info">{t('Mark yourself on scene before filing. You can start writing now; the draft is kept.')}</Banner> : null}
-
-        {sections.map((section) => (
-          <View key={section.id}>
-            <View style={styles.sectionHead}>
-              <Ionicons name={section.icon as keyof typeof Ionicons.glyphMap} size={16} color={colors.accent} />
-              <Text style={styles.sectionTitle}>{t(section.title)}</Text>
+            <KeyValue label={t('Dispatched')} value={sast(incident.dispatch_time)} />
+            <KeyValue label={t('Responding')} value={sast(incident.accepted_at)} />
+            <KeyValue label={t('Arrived on scene')} value={sast(incident.arrived_timestamp)} />
+            <View style={styles.total}>
+              <Text style={styles.totalLabel}>{t('TOTAL TIME ON SCENE')}</Text>
+              <Text style={styles.totalValue}>{arrived ? formatDuration((now - arrived) / 1000) : '—'}</Text>
             </View>
-            <Card>
-              {section.id === 'incident' ? (
-                <View style={{ marginBottom: space.md }}>
-                  <KeyValue label={t('Report number')} value={`FR-${incident.incident_number}`} />
-                  <KeyValue label={t('Date')} value={new Date(incident.call_timestamp ?? incident.incident_created_at).toLocaleDateString('en-ZA', { timeZone: 'Africa/Johannesburg' })} />
-                  <KeyValue label={t('Time of call')} value={sast(incident.call_timestamp ?? incident.incident_created_at)} />
-                </View>
-              ) : null}
-              {section.fields.map(renderField)}
-            </Card>
-
-            {/* The response timeline, straight from the incident, after its details. */}
-            {section.id === 'incident' ? (
-              <>
-                <View style={styles.sectionHead}>
-                  <Ionicons name="time-outline" size={16} color={colors.accent} />
-                  <Text style={styles.sectionTitle}>{t('Response timeline')}</Text>
-                </View>
-                <Card>
-                  <View style={styles.synced}>
-                    <Ionicons name="lock-closed" size={12} color={colors.cyan} />
-                    <Text style={styles.syncedText}>{t('Timestamps auto-synced from the incident')}</Text>
-                  </View>
-                  <KeyValue label={t('Dispatched')} value={sast(incident.dispatch_time)} />
-                  <KeyValue label={t('Responding')} value={sast(incident.accepted_at)} />
-                  <KeyValue label={t('Arrived on scene')} value={sast(incident.arrived_timestamp)} />
-                  <View style={styles.total}>
-                    <Text style={styles.totalLabel}>{t('TOTAL TIME ON SCENE')}</Text>
-                    <Text style={styles.totalValue}>{arrived ? formatDuration((now - arrived) / 1000) : '—'}</Text>
-                  </View>
-                </Card>
-              </>
-            ) : null}
-          </View>
-        ))}
-
-        <View style={styles.sectionHead}>
-          <Ionicons name="camera-outline" size={16} color={colors.accent} />
-          <Text style={styles.sectionTitle}>{t('Photos')}</Text>
+          </Card>
         </View>
+      );
+    }
+    if (s.key === FIRE_PHOTOS_STEP) {
+      return (
         <Card>
           <Muted>
             {photos
@@ -337,71 +282,108 @@ export default function FireReportScreen() {
                 : t('{n} photos on the incident are filed with this report.', { n: photos })
               : t('No photos on the incident yet. Add them from the incident screen, or say why there are none.')}
           </Muted>
-          {photos === 0 ? (
-            <View style={[{ marginTop: space.md }, invalid.has('no_photo_reason') && styles.fieldBad]}>
-              {invalid.has('no_photo_reason') ? <Text style={styles.badHint}>{t('Required — fill this in')}</Text> : null}
-              <Input label={t('Why no photos *')} value={answers.no_photo_reason ?? ''} onChangeText={(v) => set('no_photo_reason', v)} placeholder={t('e.g. Night, no safe vantage point')} />
+        </Card>
+      );
+    }
+    return null;
+  };
+
+  // Done: back to the report and straight on to filing, when on scene.
+  const done = () => {
+    setOpenAt(null);
+    if (onScene) setTimeout(file, 350);
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Card accent={tone}>
+          <OrgMark style={styles.letterhead} />
+          <View style={styles.rowBetween}>
+            <View style={styles.titleRow}>
+              <Ionicons name="flame" size={18} color={tone} />
+              <Text style={styles.number}>{incident.incident_number}</Text>
             </View>
-          ) : null}
-          <View style={{ marginTop: space.md }}>
-            <Button label={t('Open the incident')} icon="open-outline" variant="outline" onPress={() => router.push(`/incident/${incident.id}`)} />
+            <SeverityPill severity={incident.incident_severity} />
+          </View>
+          <Title>{incident.incident_type}</Title>
+          <View style={styles.metaRow}>
+            <Ionicons name="location-outline" size={13} color={colors.muted} />
+            <Text style={styles.metaText}>{incident.location_address}</Text>
+          </View>
+          <View style={styles.metaRow}>
+            <Ionicons name="camera-outline" size={13} color={colors.muted} />
+            <Text style={styles.metaText}>{photos === 1 ? t('1 photo') : t('{n} photos', { n: photos })}</Text>
+            <Text style={styles.link} onPress={() => router.push(`/incident/${incident.id}`)} accessibilityRole="link">{t('Open the incident')}</Text>
           </View>
         </Card>
 
-        <View style={{ marginTop: space.lg }}>
-          {/* Why it will not file, right where the button is pressed. */}
-          {problems.length ? (
-            <View style={{ marginBottom: space.sm }}>
-              <Banner tone="error" onDismiss={() => setProblems([])}>
-                {`${problems.length === 1 ? t('One thing is missing — marked in red above:') : t('{n} things are missing — marked in red above:', { n: problems.length })}\n• ${problems.join('\n• ')}`}
-              </Banner>
-            </View>
-          ) : null}
-          <Button
-            label={t('File fire report')}
-            icon="document-text"
-            variant="success"
-            size="lg"
-            busy={busy}
-            disabled={!onScene}
-            onPress={file}
-          />
-          <Muted style={{ textAlign: 'center', marginTop: space.sm }}>
-            {t('Filing resolves the incident. The report is permanent and visible to command and case managers.')}
-          </Muted>
-        </View>
+        {!onScene ? <Banner tone="info">{t('Mark yourself on scene before filing. You can start writing now; the draft is kept.')}</Banner> : null}
+
+        <ReportStartCard
+          title={t('Fire incident report')}
+          sub={ready ? t('Ready to file') : t('Step by step · {answered} of {total} answered', { answered: overall.answered, total: overall.total })}
+          icon="flame"
+          tone={tone}
+          ready={ready}
+          onPress={() => setOpenAt(ready ? 0 : firstToFix)}
+        />
+
+        <SectionLabel>{t('Steps')}</SectionLabel>
+        <StepTiles tiles={tiles} tone={tone} onOpen={setOpenAt} />
+
+        {/* Why it will not file, right where the button is pressed. */}
+        {problems.length ? (
+          <View style={{ marginBottom: space.sm }}>
+            <Banner tone="error" onDismiss={() => setProblems([])}>
+              {`${problems.length === 1 ? t('One thing is missing:') : t('{n} things are missing:', { n: problems.length })}\n• ${problems.map((p) => t(p)).join('\n• ')}`}
+            </Banner>
+          </View>
+        ) : null}
+        <Button
+          label={t('File fire report')}
+          icon="document-text"
+          variant="success"
+          size="lg"
+          busy={busy}
+          disabled={!onScene}
+          onPress={file}
+        />
+        <Muted style={{ textAlign: 'center', marginTop: space.sm }}>
+          {t('Filing resolves the incident. The report is permanent and visible to command and case managers.')}
+        </Muted>
       </ScrollView>
-    </KeyboardAvoidingView>
+
+      <ReportWizard
+        spec={spec}
+        answers={answers}
+        set={set}
+        addRow={noop}
+        removeRow={noop}
+        onDone={done}
+        onClose={() => setOpenAt(null)}
+        check={check}
+        extra={extra}
+        startStep={openAt ?? 0}
+      />
+    </View>
   );
 }
 
 const useStyles = makeStyles(() => StyleSheet.create({
   container: { padding: space.lg, paddingBottom: space['3xl'] },
   center: { flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center', gap: space.sm },
+  letterhead: {
+    marginBottom: space.md, paddingBottom: space.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border,
+  },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  number: { color: colors.text, fontSize: 16, fontWeight: '900', fontFamily: 'monospace' },
-  type: { color: colors.text, fontSize: 18, fontWeight: '800', marginTop: space.sm },
-  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: space.md, marginBottom: space.sm },
-  sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '800' },
-  field: { marginBottom: space.md },
-  // The red glow on a missing answer.
-  fieldBad: {
-    padding: space.sm, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.critical,
-    backgroundColor: colors.criticalSoft,
-    shadowColor: colors.critical, shadowOpacity: 0.7, shadowRadius: 10, shadowOffset: { width: 0, height: 0 }, elevation: 6,
-  },
-  label: { color: colors.muted, fontSize: 11, fontWeight: '800', letterSpacing: 0.8, marginBottom: 6 },
-  labelBad: { color: colors.critical },
-  badHint: { color: colors.critical, fontSize: 11, fontWeight: '800', marginBottom: 4 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  chip: {
-    paddingHorizontal: 12, minHeight: 36, justifyContent: 'center', borderRadius: 18,
-    borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgElevated,
-  },
-  chipOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  chipText: { color: colors.textDim, fontSize: 13, fontWeight: '700' },
-  chipTextOn: { color: '#fff' },
+  number: { ...type.mono, color: colors.text },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 5 },
+  metaText: { ...type.small, color: colors.muted, flexShrink: 1 },
+  link: { ...type.small, color: colors.accent, fontWeight: '800', marginLeft: 'auto' },
+  cardHead: { ...type.bodyStrong, color: colors.text, marginBottom: space.sm },
   synced: {
     flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', marginBottom: space.md,
     paddingHorizontal: 10, paddingVertical: 6, borderRadius: radius.md, borderWidth: 1, borderColor: `${colors.cyan}55`,

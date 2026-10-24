@@ -60,8 +60,10 @@ test('backup is told who files, in their own department’s words', () => {
     'You are backup on this incident — the lead firefighter files the fire report.');
   assert.equal(callView(ledByOther('Medical'), me('Medical')).note,
     'You are backup on this incident — the lead paramedic files the patient report.');
-  assert.equal(callView(ledByOther('EthekwiniDisaster'), me('EthekwiniDisaster')).note,
-    'You are backup on this incident — the lead officer files the post-mortem.');
+  // Disaster backup on site assesses its own streets (0107); the lead files the post-mortem.
+  const disaster = callView(ledByOther('EthekwiniDisaster'), me('EthekwiniDisaster'));
+  assert.equal(disaster.action?.kind, 'assessment');
+  assert.equal(disaster.note, null);
 });
 
 test('a lead with no name is another of the same department', () => {

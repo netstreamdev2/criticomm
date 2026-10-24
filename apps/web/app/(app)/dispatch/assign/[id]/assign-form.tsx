@@ -127,6 +127,9 @@ export function AssignForm({
   // Sent out and not yet answered, per department.
   const sentOut = parts.filter((p) => p.status === 'Dispatched' && !p.lead_id && allowed.includes(p.silo as Department));
   const [targets, setTargets] = useState<Department[]>(initialTargets);
+  // Disaster Management is called out from standby, not dispatched on duty (0107).
+  const standby = (allowedSilos?.length === 1 && allowedSilos[0] === 'EthekwiniDisaster')
+    || (targets.length === 1 && targets[0] === 'EthekwiniDisaster');
 
   const perDept = useMemo(() => {
     const counts = new Map<Silo, number>();
@@ -222,8 +225,9 @@ export function AssignForm({
   };
 
   const submitLabel = mode === 'assign'
-    ? selected ? `Assign to ${selected.officer.name}` : 'Pick an officer'
-    : nobody ? 'No one on duty' : `Dispatch to ${onDuty} on duty`;
+    ? selected ? (standby ? `Call out ${selected.officer.name}` : `Assign to ${selected.officer.name}`) : 'Pick an officer'
+    : nobody ? (standby ? 'No one on standby' : 'No one on duty')
+      : standby ? `Call out ${onDuty} on standby` : `Dispatch to ${onDuty} on duty`;
 
   return (
     <form onSubmit={onSubmit} className="overflow-visible rounded-2xl border border-border bg-bg-card">
@@ -261,8 +265,8 @@ export function AssignForm({
         {/* How to send it */}
         <div aria-label={t('How to dispatch')} className="grid gap-2 sm:grid-cols-2">
           {([
-            { id: 'all', icon: Users, title: 'Send to all on duty', blurb: 'First to respond leads; others can join as backup.' },
-            { id: 'assign', icon: UserCheck, title: 'Assign to officer', blurb: 'Pick one officer — they lead. Others can still back up.' },
+            { id: 'all', icon: Users, title: standby ? 'Call out all on standby' : 'Send to all on duty', blurb: 'First to respond leads; others can join as backup.' },
+            { id: 'assign', icon: UserCheck, title: standby ? 'Call out one officer' : 'Assign to officer', blurb: 'Pick one officer — they lead. Others can still back up.' },
           ] as const).map((m) => {
             const active = mode === m.id;
             const Icon = m.icon;
@@ -317,7 +321,7 @@ export function AssignForm({
                 >
                   <span className="inline-flex items-center gap-2"><Icon className="h-4 w-4" /> {d.label}</span>
                   <span className="text-[10px] font-semibold normal-case tracking-normal opacity-80">
-                    {t('{count} on duty', { count })}</span>
+                    {d.id === 'EthekwiniDisaster' ? t('{count} on standby', { count }) : t('{count} on duty', { count })}</span>
                 </button>
               );
             })}

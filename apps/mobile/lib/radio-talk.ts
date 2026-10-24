@@ -2,9 +2,10 @@ import { Vibration } from 'react-native';
 import { openTalkWakes, subscribeTalkWakes, type TalkWake } from '@criticom/api';
 import type { TalkPass, TalkSession } from '@criticom/api/talk';
 import { getSupabase } from './supabase';
-import { setTalkPresence } from './presence';
+import { radioId, setTalkPresence } from './presence';
 import { isCameraRadio } from './radio-camera';
 import { onRadioPttKey } from './radio-keys';
+import { lendCameraMic } from './radio-camera';
 import { askMicrophone, liveKitNative, startTalkAudio, stopTalkAudio } from './talk-native';
 
 /**
@@ -27,6 +28,13 @@ import { askMicrophone, liveKitNative, startTalkAudio, stopTalkAudio } from './t
  * and leaves a minute later, as above. The screen need not be on. With Talk
  * open, the button works the screen's big button instead. Every transmission
  * is logged, as from the screen (log_talk).
+ *
+ * Fast first press (2026-10-23): the Talk pass for the person's department
+ * is fetched ahead and kept until near its expiry, and a call from the
+ * console is joined ready to answer, so a reply goes out at once. With
+ * "always on" (feature mobile.talkAlwaysOn, for a voice server without a
+ * minutes cap) the radio stays joined to its department's group all shift
+ * and every press is instant.
  */
 
 /** Stays on this long after the last word heard. */
@@ -45,6 +53,33 @@ let lastAsked = 0;
 let home: string | null = null;
 /** The talk button is held down. */
 let held = false;
+/** Always joined to the department's group while on duty (feature mobile.talkAlwaysOn). */
+let alwaysOn = false;
+/** Talk passes fetched ahead, by group: they hold for two hours; renewed a quarter of an hour early. */
+const passes = new Map<string, TalkPass>();
+const PASS_SPARE_MS = 15 * 60_000;
+let prefetchTimer: ReturnType<typeof setInterval> | null = null;
+
+async function fetchPass(channel: string): Promise<TalkPass> {
+  const { data, error } = await getSupabase().rpc('talk_pass', { p_channel: channel, p_device: await radioId() });
+  if (error) throw new Error(error.message);
+  const pass = data as TalkPass;
+  passes.set(channel, pass);
+  return pass;
+}
+
+/** A pass from the ones fetched ahead while it still holds, else a fresh one. */
+async function passFor(channel: string): Promise<TalkPass> {
+  const kept = passes.get(channel);
+  if (kept && Date.parse(kept.expiresAt) - Date.now() > PASS_SPARE_MS) return kept;
+  return fetchPass(channel);
+}
+
+/** The department's pass, fetched ahead so the first press does not wait for it. */
+function prefetchHome() {
+  if (home) void passFor(home).catch(() => { /* no signal: fetched on the press */ });
+}
+
 /** With Talk open, the button works the screen's own button. */
 let screenKeys: { press: () => void; release: () => void } | null = null;
 
@@ -54,13 +89,22 @@ export function setScreenPtt(keys: { press: () => void; release: () => void } | 
 }
 
 /** On duty: wait for the console's calls, and for the talk button. */
-export function startTalkWatch(homeChannel?: string): void {
+export function startTalkWatch(homeChannel?: string, opts: { alwaysOn?: boolean } = {}): void {
   if (homeChannel) home = homeChannel;
+  alwaysOn = Boolean(opts.alwaysOn);
   if (watching || !isCameraRadio() || !liveKitNative()) return;
   const off = subscribeTalkWakes(getSupabase(), (w) => { void onWake(w); });
   const offKey = onRadioPttKey((e) => { void (e.pressed ? keyDown() : keyUp()); });
   const timer = setInterval(hang, 5_000);
-  watching = () => { off(); offKey(); clearInterval(timer); };
+  prefetchHome();
+  prefetchTimer = setInterval(prefetchHome, 30 * 60_000);
+  watching = () => {
+    off(); offKey(); clearInterval(timer);
+    if (prefetchTimer) clearInterval(prefetchTimer);
+    prefetchTimer = null;
+  };
+  // Always on: joined to the department's group now, ready to talk.
+  if (alwaysOn && home) void join(home, Number.MAX_SAFE_INTEGER, true);
   // The button speaks: the microphone is asked for now, with the app on screen.
   void askMicrophone().catch(() => false);
   void checkTalk(true);
@@ -70,6 +114,8 @@ export function startTalkWatch(homeChannel?: string): void {
 async function keyDown() {
   if (held) return;
   held = true;
+  // The live camera's microphone, lent to the talk button while it is held.
+  await lendCameraMic(true);
   if (screenHasIt) { screenKeys?.press(); return; }
   const channel = live?.channel ?? home;
   if (!channel) { Vibration.vibrate([0, 80, 80, 80]); return; }
@@ -89,11 +135,12 @@ async function keyDown() {
 /** The talk button let go: off the air, listening. */
 async function keyUp() {
   held = false;
-  if (screenHasIt) { screenKeys?.release(); return; }
-  if (live?.s.state.transmitting) {
+  if (screenHasIt) screenKeys?.release();
+  else if (live?.s.state.transmitting) {
     await live.s.release();
     live.lastHeard = Date.now();
   }
+  await lendCameraMic(false);
 }
 
 /** Off duty or signed out: stop waiting, and leave. */
@@ -129,6 +176,8 @@ export async function checkTalk(force = false): Promise<void> {
 
 async function onWake(w: TalkWake) {
   if (!watching || screenHasIt) return;
+  // A call to one device only (0103): another device on the same account leaves it.
+  if (w.channel.startsWith('radio:') && w.channel.toUpperCase() !== `RADIO:${await radioId()}`) return;
   const until = Date.parse(w.until);
   if (!(until > Date.now())) return;
   if (live?.channel === w.channel) {
@@ -137,7 +186,8 @@ async function onWake(w: TalkWake) {
   }
   // Someone is speaking where it is now, or the button is held: it stays.
   if (live?.s.state.talking || held) return;
-  await join(w.channel, until);
+  // Joined ready to answer: the microphone opens only while the button is held.
+  await join(w.channel, until, true);
 }
 
 async function join(channel: string, until: number, speak = false) {
@@ -152,11 +202,8 @@ async function join(channel: string, until: number, speak = false) {
     const { TalkSession: Session } = require('@criticom/api/talk') as typeof import('@criticom/api/talk');
     const supabase = getSupabase();
     const s: TalkSession = new Session(channel, {
-      getPass: async (c) => {
-        const { data, error } = await supabase.rpc('talk_pass', { p_channel: c });
-        if (error) throw new Error(error.message);
-        return data as TalkPass;
-      },
+      // Each device its own name (0103); fetched ahead where it could be (a fast first press).
+      getPass: (c) => passFor(c),
       logTalk: async (c, startedAt, endedAt) => {
         await supabase.rpc('log_talk', { p_channel: c, p_started_at: startedAt.toISOString(), p_ended_at: endedAt.toISOString() });
       },
@@ -185,7 +232,11 @@ function hang() {
   if (!live) return;
   const now = Date.now();
   if (live.s.state.talking || live.s.state.transmitting || held) { live.lastHeard = now; return; }
-  if (now > live.until && now - live.lastHeard > HANG_MS) void leave();
+  if (now > live.until && now - live.lastHeard > HANG_MS) {
+    // Always on: back to the department's group, not off Talk.
+    if (alwaysOn && home && live.channel !== home) void join(home, Number.MAX_SAFE_INTEGER, true);
+    else if (!alwaysOn) void leave();
+  }
 }
 
 async function leave() {

@@ -13,11 +13,26 @@
   <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
   <!-- Asked once on a radio or hard hat: left out of battery saving, so duty keeps running. -->
   <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+  <!-- The watchdog (Watchdog.kt): an alarm that comes in deep sleep too. -->
+  <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+  <!-- Wake by SMS: a text saying HIKTECH WAKE opens the app (radios and hard hats with a SIM). -->
+  <uses-permission android:name="android.permission.RECEIVE_SMS" />
+  <!-- Reopening the app from the background on Android 10 and later (granted at set-up). -->
+  <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
   <application>
     <service
       android:name="za.co.ethekwini.radiokeys.DutyMediaService"
       android:exported="false"
       android:foregroundServiceType="camera|microphone|location" />
+    <receiver android:name="za.co.ethekwini.radiokeys.WatchdogReceiver" android:exported="false" />
+    <receiver
+      android:name="za.co.ethekwini.radiokeys.SmsWakeReceiver"
+      android:exported="true"
+      android:permission="android.permission.BROADCAST_SMS">
+      <intent-filter>
+        <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+      </intent-filter>
+    </receiver>
     <receiver
       android:name="za.co.ethekwini.radiokeys.BootReceiver"
       android:exported="true"

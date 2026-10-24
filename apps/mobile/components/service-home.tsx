@@ -5,7 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { getIncidentOverview, getMyPersonnel, subscribeIncidentUpdates, subscribeNewIncidents, subscribePersonnel } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
-import { useDuty } from '@/lib/duty';
+import { departmentOf } from '@/lib/department';
+import { useDuty, needsShiftStart } from '@/lib/duty';
 import { useOpenCall, useReportingFor } from '@/lib/open-call';
 import { pickActivity } from '@/lib/response';
 import { useMapPins } from '@/lib/use-map-pins';
@@ -45,7 +46,7 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
   const styles = useStyles();
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { session } = useAuth();
+  const { session, silo } = useAuth();
   const { teamOnDuty, cleared } = useDuty();
   const day = useMyDay();
   const open = useOpenCall();
@@ -80,11 +81,13 @@ export function ServiceHome({ content }: { content: ServiceHomeContent }) {
     : (person?.station || null);
 
   // Live and closed are on the strip; under the map, only who is on duty.
-  const figures = content.showTeamOnDuty !== false && teamOnDuty !== null ? t('{n} on duty', { n: teamOnDuty }) : '';
+  const figures = content.showTeamOnDuty !== false && teamOnDuty !== null
+    ? (departmentOf(silo) === 'disaster' ? t('{n} on standby', { n: teamOnDuty }) : t('{n} on duty', { n: teamOnDuty }))
+    : '';
 
   return (
     <View style={styles.screen}>
-      <FireBackdrop />
+      <FireBackdrop firefighter={departmentOf(silo) === 'fire'} />
       <ScrollView contentContainerStyle={styles.container} refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -157,6 +160,8 @@ function NowCard({ open, where, unitIcon }: {
   const { silo } = useAuth();
   const { shiftStarted, onDuty, goOnDuty } = useDuty();
   const [busy, setBusy] = useState(false);
+  // Disaster Management is on standby and called out (0107).
+  const standby = departmentOf(silo) === 'disaster';
   const reportingFor = useReportingFor();
   const { calls, awaiting, reportQueued } = open;
   const activity = pickActivity(calls, (id) => reportQueued.has(id) || reportingFor === id, awaiting);
@@ -215,20 +220,32 @@ function NowCard({ open, where, unitIcon }: {
           accessibilityRole="button"
           style={({ pressed }) => [styles.button, pressed && styles.pressed]}
         >
-          <Text style={styles.buttonText}>{assigned ? t('Open and respond') : t('Open incident')}</Text>
+          <Text style={styles.buttonText}>{assigned ? (standby ? t('Open call-out') : t('Open and respond')) : t('Open incident')}</Text>
           <Ionicons name="arrow-forward" size={18} color="#fff" />
         </Pressable>
       </View>
     );
   }
 
-  // Today's start of shift first; then, if they went off duty, back on in one tap.
-  if (shiftStarted === false) {
+  // Today's start of shift first (not while still on last night's shift); then, if they went off duty, back on in one tap.
+  if (needsShiftStart(shiftStarted, onDuty)) {
     return (
       <Prompt
         icon="clipboard-outline"
-        title={t('Your shift has not started')}
-        action={t('Start shift')}
+        title={standby ? t('Your standby has not started') : t('Your shift has not started')}
+        action={standby ? t('Start standby') : t('Start shift')}
+        onPress={() => router.push('/(tabs)/shift')}
+      />
+    );
+  }
+
+  // Standby starts with its kit check, so it is never one tap.
+  if (onDuty === false && standby) {
+    return (
+      <Prompt
+        icon="moon-outline"
+        title={t('You are not on standby')}
+        action={t('Start standby')}
         onPress={() => router.push('/(tabs)/shift')}
       />
     );
@@ -255,7 +272,7 @@ function NowCard({ open, where, unitIcon }: {
         <Ionicons name="checkmark" size={18} color={colors.low} />
       </View>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Text style={styles.calmTitle}>{t('No incidents for you')}</Text>
+        <Text style={styles.calmTitle}>{standby ? t('On standby — no call-outs') : t('No incidents for you')}</Text>
         {where ? (
           <View style={styles.line}>
             <Ionicons name={unitIcon} size={12} color={colors.muted} />

@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FileText, Lock } from 'lucide-react';
 import {
-  deskTags, featureEnabled, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listIncidentEdits, listBookedOutBodycams,
+  deskTags, featureEnabled, listDisasterAssessments, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listIncidentEdits, listBookedOutBodycams,
   listIncidentAttachments, listIncidentMapZones, listIncidentResponders, partFor, partWords, searchBodycamBookings, signIncidentMedia,
   statusForPart, getOperationalSettings, listOnDutyOfficers, sortParts, type IncidentResponder,
 } from '@criticom/api';
 import { ResponseTracker, type TrackPart } from '@/components/response-tracker';
+import { AssessmentFigures, AssessmentList } from '@/components/disaster-assessments';
 import {
   DEPARTMENT_NAMES, DISPATCH_DESK_ROLES, STATUS_OVERRIDE_ROLES, departmentName, STATUS_OVERRIDE_STEPS, canAccess, canDismissSos, canWatchBodycam, caseStage, mayFinishCall,
   type Database, type Silo, type UserRole,
@@ -64,7 +65,7 @@ export default async function IncidentDetailPage({
 
   const incident = await getIncident(supabase, id).catch(() => null);
   if (!incident) notFound();
-  const [updates, attachments, audit, report, responders, zones, fireReport, pcr, postMortem, edits] = await Promise.all([
+  const [updates, attachments, audit, report, responders, zones, fireReport, pcr, postMortem, edits, assessments] = await Promise.all([
     getIncidentUpdates(supabase, id),
     listIncidentAttachments(supabase, id),
     // Console actions log as 'incident', server RPCs as 'incidents' — the id is enough.
@@ -81,6 +82,8 @@ export default async function IncidentDetailPage({
     getPostMortemForIncident(supabase, id).catch(() => null),
     // What the call taker and dispatchers changed, before and after (0079).
     listIncidentEdits(supabase, id),
+    // Disaster Management's assessment of each place (0107); empty until it is run.
+    listDisasterAssessments(supabase, id).catch(() => []),
   ]);
   const media = await signIncidentMedia(supabase, attachments.map((a) => a.storage_path)).catch(
     () => new Map<string, string>(),
@@ -628,6 +631,19 @@ export default async function IncidentDetailPage({
           {pcr ? <PcrCard pcr={pcr as unknown as Parameters<typeof PcrCard>[0]['pcr']} showLink /> : null}
           {postMortem ? <PostMortemCard report={postMortem} /> : null}
         </div>
+      ) : null}
+
+      {assessments.length ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('Disaster Management assessment')}</CardTitle>
+            <CardDescription>{t('Every place assessed on site, added up.')}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <AssessmentFigures rows={assessments} t={t} />
+          </CardContent>
+          <AssessmentList rows={assessments} t={t} />
+        </Card>
       ) : null}
 
       <CallEdits edits={edits} loggedBy={incident.call_taken_by} />

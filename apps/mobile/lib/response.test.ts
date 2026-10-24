@@ -163,18 +163,18 @@ test('my own SOS: no Responding, just the reassurance', () => {
   assert.equal(callView({ ...sos, created_by: 'someone-else' }, me).action?.kind, 'respond');
 });
 
-/* ── Fire (0059): closed by the fire report, Transporting on the way ──── */
+/* ── Fire (0059): closed by the fire report; Fire does not transport ──── */
 
 import { reportPathFor, secondaryStep } from './response.ts';
 
-test('a firefighter accepts, arrives, may mark Transporting, and closes with the fire report', () => {
+test('a firefighter accepts, arrives, and closes with the fire report; no Transporting', () => {
   const fire = { silo: 'MetroFire' };
   assert.deepEqual(nextStep(fire, 'Dispatched', 'MetroFire'), { kind: 'status', status: 'En Route', label: 'Accept · Mark En Route' });
   assert.deepEqual(nextStep(fire, 'En Route', 'MetroFire'), { kind: 'arriving', status: 'On Scene', label: 'On scene is marked when you arrive' });
   assert.deepEqual(nextStep(fire, 'On Scene', 'MetroFire'), { kind: 'report', label: 'File fire report' });
   assert.deepEqual(nextStep(fire, 'Transporting', 'MetroFire'), { kind: 'report', label: 'File fire report' });
-  assert.deepEqual(secondaryStep(fire, 'On Scene', 'MetroFire'), { kind: 'status', status: 'Transporting', label: 'Mark Transporting' });
-  assert.equal(secondaryStep(fire, 'Transporting', 'MetroFire'), null, 'transporting once is enough');
+  // Fire & Rescue does not transport; an older call already marked Transporting can still be filed.
+  assert.equal(secondaryStep(fire, 'On Scene', 'MetroFire'), null);
   assert.equal(nextStep({ ...fire, report_filed_at: '2026-10-07T10:00:00Z' }, 'On Scene', 'MetroFire'), null);
   assert.equal(nextStep(fire, 'Resolved', 'MetroFire'), null);
   for (const s of ['Dispatched', 'En Route', 'On Scene', 'Transporting'] as const) {
@@ -195,7 +195,7 @@ test('the lead files the report for their own department', () => {
   const both = { id: 'i1', silo: 'Ethekwini', dispatched_silos: ['MetroPolice', 'MetroFire'], status: 'On Scene' as const, accepted_by: 'f1' };
   const view = callView(both, { userId: 'f1', silo: 'MetroFire', onDuty: true });
   assert.equal(view.action?.label, 'File fire report');
-  assert.equal(view.secondary?.label, 'Mark Transporting');
+  assert.equal(view.secondary, null, 'fire does not transport');
 });
 
 /* ── EMS (0063): closed by the patient care report ───────────────────── */
@@ -235,4 +235,61 @@ test('a Disaster officer accepts, arrives and closes with the post-mortem; no Tr
     const step = nextStep(dm, s, 'EthekwiniDisaster');
     assert.ok(!(step?.kind === 'status' && step.status === 'Resolved'), `no bare Resolved from ${s}`);
   }
+});
+
+/* ── The report waits for a proven arrival (0102) ────────────────────── */
+
+test('a lead marked on scene away from it is told why the report waits, for police, fire and EMS', () => {
+  const unproven = (silo: string, verified: boolean | null) => callView(
+    { id: 'i1', silo, status: 'On Scene', accepted_by: 'u1',
+      responders: [{ user_id: 'u1', name: 'Lead', role: 'lead', status: 'On Scene', arrived_verified: verified }] },
+    { userId: 'u1', silo, onDuty: true },
+  );
+  for (const silo of ['MetroPolice', 'MetroFire', 'Medical']) {
+    const view = unproven(silo, false);
+    assert.equal(view.action?.kind, 'report', silo);
+    assert.match(view.blocked ?? '', /arrival is not confirmed/, silo);
+    assert.equal(unproven(silo, true).blocked, null, `${silo}: confirmed, the report goes`);
+    assert.equal(unproven(silo, null).blocked, null, `${silo}: by the desk or from before 0099, the report goes`);
+  }
+  // Moving a patient never waits for the arrival.
+  assert.equal(unproven('Medical', false).secondary?.label, 'Mark Transporting');
+  // The post-mortem is not held by the arrival.
+  assert.equal(unproven('EthekwiniDisaster', false).blocked, null);
+});
+
+/* ── Disaster Management: called out from standby, assess on site (0107) ── */
+
+test('a Disaster officer accepts a call-out, assesses on site, and the post-mortem sits beside it', () => {
+  const call = { id: 'i1', silo: 'MetroFire', dispatched_silos: ['MetroFire', 'EthekwiniDisaster'], status: 'Dispatched' as const };
+  const me = { userId: 'd1', silo: 'EthekwiniDisaster', onDuty: true };
+  const offered = callView(call, me);
+  assert.equal(offered.action?.kind, 'respond');
+  assert.equal(offered.action?.label, 'Accept call-out');
+  assert.equal(callView(call, { ...me, onDuty: false }).blocked, 'Start standby to accept call-outs.');
+
+  const onSite = callView(
+    { ...call, status: 'On Scene', accepted_by: 'd1', responders: [{ user_id: 'd1', name: 'Thandi', role: 'lead', status: 'On Scene', arrived_verified: false }] },
+    me,
+  );
+  assert.deepEqual(onSite.action, { kind: 'assessment', label: 'Assessment' });
+  assert.deepEqual(onSite.secondary, { kind: 'report', label: 'File post-mortem' });
+  assert.equal(onSite.blocked, null, 'the post-mortem is not held by the arrival check');
+
+  // A second officer splits off to assess another street.
+  const backup = callView(
+    { ...call, status: 'On Scene', accepted_by: 'd1', responders: [
+      { user_id: 'd1', name: 'Thandi', role: 'lead', status: 'On Scene' },
+      { user_id: 'd2', name: 'Sipho', role: 'backup', status: 'On Scene' },
+    ] },
+    { ...me, userId: 'd2' },
+  );
+  assert.deepEqual(backup.action, { kind: 'assessment', label: 'Assessment' });
+  assert.equal(backup.secondary, null);
+});
+
+test('the other services still say Accept and go on duty', () => {
+  const call = { id: 'i1', silo: 'MetroPolice', status: 'Dispatched' as const, dispatched_silos: ['MetroPolice'] };
+  assert.equal(callView(call, { userId: 'p1', silo: 'MetroPolice', onDuty: true }).action?.label, 'Accept');
+  assert.equal(callView(call, { userId: 'p1', silo: 'MetroPolice', onDuty: false }).blocked, 'Go on duty to respond to incidents.');
 });

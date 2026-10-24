@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
 } from 'react-native';
@@ -129,7 +129,7 @@ export function ReportFieldInput({ field, value, onChange, tone = colors.accent 
         label={label}
         value={value}
         onChangeText={onChange}
-        placeholder={field.placeholder ?? (field.kind === 'date' ? t('YYYY-MM-DD') : field.kind === 'time' ? t('HH:MM') : undefined)}
+        placeholder={field.placeholder ? t(field.placeholder) : field.kind === 'date' ? t('YYYY-MM-DD') : field.kind === 'time' ? t('HH:MM') : undefined}
         keyboardType={field.kind === 'number' ? 'decimal-pad' : field.kind === 'date' || field.kind === 'time' ? 'numbers-and-punctuation' : 'default'}
         autoCapitalize={/plate|vin|reg/.test(field.key) ? 'characters' : field.kind === 'date' || field.kind === 'time' ? 'none' : 'sentences'}
         multiline={field.kind === 'multiline'}
@@ -225,9 +225,14 @@ export type WizardSpec = {
  * One form, full screen, one section per step. The bar across the top is in
  * the form's colour and shows every step; tap one to jump to it. Next checks
  * the step, Done checks the whole form and jumps to anything missing.
+ *
+ * The police forms use it as it is. The fire and patient reports bring their
+ * own rules (`check`) and the parts that are not plain answers (`extra`: the
+ * timeline, casualties, signature pads).
  */
 export function ReportWizard({
   spec, answers, set, addRow, removeRow, onDone, onClose, onRemove,
+  check = checkSections, extra, extraKeys, headingFor, noteFor, startStep = 0, scrollLocked = false,
 }: {
   spec: WizardSpec | null;
   answers: Record<string, string>;
@@ -238,6 +243,20 @@ export function ReportWizard({
   onClose: () => void;
   /** Take a ticked form back off the report. */
   onRemove?: () => void;
+  /** What is wrong in these steps, by answer key. Defaults to the police form checks. */
+  check?: (sections: readonly ReportSection[], answers: Record<string, string>) => ReadonlyArray<{ key: string }>;
+  /** Drawn at the top of a step, above its questions; `bad` is what is marked red. */
+  extra?: (section: ReportSection, bad: ReadonlySet<string>) => ReactNode;
+  /** Answers a step's `extra` holds (a signature), so Done can go back to it. */
+  extraKeys?: (section: ReportSection) => readonly string[];
+  /** A small heading before a question. */
+  headingFor?: (key: string) => string | undefined;
+  /** A line under a question (the GCS total). */
+  noteFor?: (key: string) => string | undefined;
+  /** The step the form opens on. */
+  startStep?: number;
+  /** Holds the page still while a signature is drawn. */
+  scrollLocked?: boolean;
 }) {
   const { t } = useT();
   const styles = useStyles();
@@ -247,10 +266,11 @@ export function ReportWizard({
   const scroll = useRef<ScrollView>(null);
   const openKey = spec ? `${spec.code}:${spec.title}` : null;
 
-  // Every time a form opens: its first step, nothing marked.
+  // Every time a form opens: the step asked for, nothing marked.
   useEffect(() => {
-    setStep(0);
+    setStep(startStep);
     setBad(new Set());
+    // Only on opening: the start step does not move a form already open.
   }, [openKey]);
 
   const sections = spec?.sections ?? [];
@@ -260,9 +280,9 @@ export function ReportWizard({
   // A fixed answer stops glowing red.
   const stillBad = useMemo(() => {
     if (!bad.size) return bad;
-    const now = new Set(checkSections(sections, answers).map((p) => p.key));
+    const now = new Set(check(sections, answers).map((p) => p.key));
     return new Set([...bad].filter((k) => now.has(k)));
-  }, [bad, sections, answers]);
+  }, [bad, sections, answers, check]);
 
   if (!spec || !section) return null;
   const tone = spec.tone;
@@ -274,16 +294,21 @@ export function ReportWizard({
     scroll.current?.scrollTo({ y: 0, animated: false });
   };
 
+  const holds = (s: ReportSection, keys: ReadonlySet<string>) =>
+    sectionFields(s, answers).some((f) => keys.has(f.key)) || (extraKeys?.(s) ?? []).some((k) => keys.has(k));
+
   const next = () => {
-    const problems = checkSections([section], answers);
+    const problems = check([section], answers);
     if (problems.length) { setBad(new Set(problems.map((p) => p.key))); return; }
     if (!last) { go(step + 1); return; }
-    const all = checkSections(sections, answers);
+    const all = check(sections, answers);
     if (all.length) {
       const keys = new Set(all.map((p) => p.key));
+      const first = sections.findIndex((s) => holds(s, keys));
+      // Nothing on these steps to fix: the screen checks again when it files.
+      if (first < 0) { onDone(); return; }
       setBad(keys);
-      const first = sections.findIndex((s) => sectionFields(s, answers).some((f) => keys.has(f.key)));
-      if (first >= 0) go(first);
+      go(first);
       return;
     }
     onDone();
@@ -291,7 +316,8 @@ export function ReportWizard({
 
   const rows = section.repeat ? rowCount(section, answers) : 1;
   const fields = sectionFields(section, answers);
-  const stepProblems = fields.filter((f) => stillBad.has(f.key)).length;
+  const stepProblems = fields.filter((f) => stillBad.has(f.key)).length
+    + (extraKeys?.(section) ?? []).filter((k) => stillBad.has(k)).length;
 
   return (
     <Modal visible animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose} statusBarTranslucent>
@@ -329,7 +355,8 @@ export function ReportWizard({
           {t('Step {n} of {total}', { n: step + 1, total: sections.length })} · <Text style={{ color: colors.text }}>{stepTitle}</Text>
         </Text>
 
-        <ScrollView ref={scroll} style={{ flex: 1 }} contentContainerStyle={styles.wBody} keyboardShouldPersistTaps="handled">
+        <ScrollView ref={scroll} style={{ flex: 1 }} contentContainerStyle={styles.wBody} keyboardShouldPersistTaps="handled" scrollEnabled={!scrollLocked}>
+          {extra?.(section, stillBad)}
           {Array.from({ length: rows }, (_, i) => i + 1).map((row) => (
             <View key={row} style={section.repeat ? styles.wRow : undefined}>
               {section.repeat ? (
@@ -344,10 +371,16 @@ export function ReportWizard({
               ) : null}
               {fields.filter((f) => (section.repeat ? f.row === row : true)).map(({ key, field }) => {
                 const isBad = stillBad.has(key);
+                const heading = headingFor?.(key);
+                const note = noteFor?.(key);
                 return (
-                  <View key={key} style={[styles.wField, isBad && styles.fieldBad]}>
-                    {isBad ? <Text style={styles.badHint}>{field.required && !(answers[key] ?? '').trim() ? t('Required — fill this in') : t('Check this answer')}</Text> : null}
-                    <ReportFieldInput field={field} value={answers[key] ?? ''} onChange={(v) => set(key, v)} tone={tone} />
+                  <View key={key}>
+                    {heading ? <Text style={[styles.wGroup, { color: tone }]}>{t(heading)}</Text> : null}
+                    <View style={[styles.wField, isBad && styles.fieldBad]}>
+                      {isBad ? <Text style={styles.badHint}>{field.required && !(answers[key] ?? '').trim() ? t('Required — fill this in') : t('Check this answer')}</Text> : null}
+                      <ReportFieldInput field={field} value={answers[key] ?? ''} onChange={(v) => set(key, v)} tone={tone} />
+                      {note ? <Text style={styles.wNote}>{note}</Text> : null}
+                    </View>
                   </View>
                 );
               })}
@@ -445,6 +478,8 @@ const useStyles = makeStyles(() => StyleSheet.create({
   wStep: { ...type.small, color: colors.muted, paddingHorizontal: space.lg, marginTop: space.sm, fontWeight: '700' },
   wBody: { padding: space.lg, paddingBottom: space['3xl'], gap: space.md },
   wField: { marginBottom: space.sm },
+  wGroup: { fontSize: 12, fontWeight: '900', letterSpacing: 0.8, textTransform: 'uppercase', marginTop: space.sm, marginBottom: space.sm },
+  wNote: { ...type.bodyStrong, color: colors.text, marginTop: space.sm },
   wRow: {
     borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: space.md,
     backgroundColor: colors.bgCard, gap: space.sm,

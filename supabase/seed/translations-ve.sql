@@ -1,4 +1,4 @@
--- Tshivenḓa: 2033 translations by Claude, approved on the
+-- Tshivenḓa: 2000 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -123,7 +123,6 @@ from (values
 ('11 Truck: articulated multiple', 've', '11 Lori: i kokodzaho nnzhi'),
 ('11 to 50', 've', '11 u swika kha 50'),
 ('12 125cc and under', 've', '12 125cc na fhasi'),
-('123 Main Street', 've', '123 Main Street'),
 ('13 Above 125cc', 've', '13 Nṱha ha 125cc'),
 ('13-digit ID number', 've', 'Nomboro ya ḓivhazwakhe ya nomboro dza 13'),
 ('13-digit ID or passport number', 've', 'Nomboro ya ḓivhazwakhe ya nomboro dza 13 kana ya phasipoto'),
@@ -180,7 +179,6 @@ from (values
 ('A failed check prevents sign-on. Filing this inspection will take the appliance out of service and notify command.', 've', 'Ndingo yo kundelwaho i thivhela u dzhena mushumoni. U rumela ndingo iyi zwi ḓo bvisa tshishumiswa mushumoni na u ḓivhadza vhalanguli.'),
 ('A failed check sends the bodycam for repair. You will need to choose another one, or say why you have none.', 've', 'Ndingo yo kundelwaho i rumela khamera ya muvhili u lugiswa. Ni ḓo tea u nanga iṅwe, kana ni ambe uri ndi ngani ni si na yone.'),
 ('A failed safety check or damage sends the firearm to the armourer. You will need to select another one.', 've', 'Ndingo ya tsireledzo yo kundelwaho kana tshinyalelo i rumela tshigidi kha mulanguli wa zwigidi. Ni ḓo tea u nanga tshiṅwe.'),
-('A failed vehicle check takes the ambulance off the road when you file. Carry on to the stock check and describe the fault there.', 've', 'Ndingo ya goloi yo kundelwaho i bvisa ambulennse dakani musi ni tshi rumela. Bvelani phanḓa kha ndingo ya thundu ni ṱalutshedze vhukhakhi henefho.'),
 ('A home', 've', 'Hayani'),
 ('A house', 've', 'Nnḓu'),
 ('A patient’s severity is their own: the incident can be Critical while the patient has minor injuries.', 've', 'Vhuvhi ha mulwadze ndi ha mulwadze: tshiitea tshi nga vha tsha Ndeme Vhukuma musi mulwadze e na u huvhala huṱuku.'),
@@ -236,7 +234,6 @@ from (values
 ('Account Look-up', 've', 'U ṱoḓa akhaunthu'),
 ('Account email', 've', 'Imeili ya akhaunthu'),
 ('Account look-up', 've', 'U ṱoḓa akhaunthu'),
-('Account on the platform', 've', 'Akhaunthu kha phulathifomo'),
 ('Account status', 've', 'Tshiimo tsha akhaunthu'),
 ('Account →', 've', 'Akhaunthu →'),
 ('Accounts are deactivated, never deleted, so their records stay intact.', 've', 'Akhaunthu dzi a thivhelwa, a dzi phumulwi, uri rekhodo dzadzo dzi dzule dzo fhelela.'),
@@ -289,7 +286,6 @@ from (values
 ('Add certification', 've', 'Engedzani tshitifikheithi'),
 ('Add entry', 've', 'Engedzani ndivho'),
 ('Add filter', 've', 'Engedzani tshikhethi'),
-('Add it', 've', 'Zwi engedzeni'),
 ('Add it to the description', 've', 'Zwi engedzeni kha ṱhaluso'),
 ('Add measure', 've', 'Engedzani tshikalo'),
 ('Add number', 've', 'Engedzani nomboro'),
@@ -303,13 +299,11 @@ from (values
 ('Add the location address.', 've', 'Engedzani diresi ya fhethu.'),
 ('Add the rest after.', 've', 'Engedzani zwiṅwe nga murahu.'),
 ('Add them first →', 've', 'Vha engedzeni u thoma →'),
-('Add them to the register', 've', 'Vha engedzeni kha redzhisitara'),
 ('Add {document}', 've', 'Engedzani {document}'),
 ('Add {lowerCase}', 've', 'Engedzani {lowerCase}'),
 ('Add {noun}', 've', 'Engedzani {noun}'),
 ('Added {time}', 've', 'Zwo engedzwa {time}'),
 ('Adding…', 've', 'Zwi khou engedzwa…'),
-('Additional Inspector Notes', 've', 'Nothi dzo engedzwaho dza muṱoli'),
 ('Additional notes', 've', 'Nothi dzo engedzwaho'),
 ('Address', 've', 'Diresi'),
 ('Adds bodycams to the register and updates the ones already there, matched by serial number. Who has a bodycam right now never changes by import; that happens only when it is booked out or handed back.', 've', 'I engedza khamera dza muvhili kha redzhisitara nahone i vusulusa dzo no vhaho hone, nga u vhambedza nomboro ya serial. Ane a vha na khamera ya muvhili zwino ha shanduki nga u dzhenisa; izwo zwi itea fhedzi musi i tshi bviswa kana i tshi vhuiswa.'),
@@ -364,7 +358,6 @@ from (values
 ('All partners', 've', 'Vhashumisani vhoṱhe'),
 ('All regions', 've', 'Dzingu dzoṱhe'),
 ('All reports', 've', 'Mivhigo yoṱhe'),
-('All results', 've', 'Mvelelo dzoṱhe'),
 ('All safety items ticked — this checklist will file as PASSED.', 've', 'Zwithu zwoṱhe zwa tsireledzo zwo swaywa — uyu mutevhe wa ndingo u ḓo rumelwa SA WO BVELELAHO.'),
 ('All severities', 've', 'Maimo oṱhe a vhuvhi'),
 ('All six categories', 've', 'Khethekanyo dzoṱhe ṱhanu na ṱhihi'),
@@ -455,7 +448,6 @@ from (values
 ('Appliances & Shift', 've', 'Zwishumiswa na tshifithi'),
 ('Applied to appraisal plans this cycle.', 've', 'Zwo shumiswa kha mbekanyamushumo dza ndingo kha uyu mutevhe.'),
 ('Apply', 've', 'Shumisani'),
-('Apply for leave', 've', 'Humbelani u awela'),
 ('Apply from the field; balances shown before the form.', 've', 'Humbelani ni fhethu; mbalo dzi sumbedzwa phanḓa ha fomo.'),
 ('Appraisal', 've', 'Ndingo'),
 ('Appraisal /5', 've', 'Ndingo /5'),
@@ -504,7 +496,15 @@ from (values
 ('Arresting officer', 've', 'Muofisiri o faraho'),
 ('Arrests', 've', 'U fariwa'),
 ('Arrival time', 've', 'Tshifhinga tsha u swika'),
-('Arrived on scene', 've', 'O swika fhethu')
+('Arrived on scene', 've', 'O swika fhethu'),
+('Articulated vehicle', 've', 'Goloi i kokodzaho'),
+('As found on scene', 've', 'Sa zwe zwa wanala fhethu'),
+('As logged', 've', 'Sa zwe zwa ṅwalwa'),
+('As on your appointment letter or ID card. {INVITATION_ATTEMPTS} wrong tries lock the code.', 've', 'Sa zwi re kha vhurifhi haṋu ha u thomiwa kana karaṱa ya ḓivhazwakhe. Lingedzo dza {INVITATION_ATTEMPTS} dzo khakheaho dzi hidzha khoudu.'),
+('As printed, if you also write in a notice book', 've', 'Sa zwo gandiswaho, arali na ṅwala hafhu kha bugu ya ndivhadzo'),
+('Ask', 've', 'Vhudzisani'),
+('Ask Criti', 've', 'Vhudzisani Criti'),
+('Ask Criti  (Ctrl+J)', 've', 'Vhudzisani Criti  (Ctrl+J)')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -514,17 +514,8 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Articulated vehicle', 've', 'Goloi i kokodzaho'),
-('As found on scene', 've', 'Sa zwe zwa wanala fhethu'),
-('As logged', 've', 'Sa zwe zwa ṅwalwa'),
-('As on your appointment letter or ID card. {INVITATION_ATTEMPTS} wrong tries lock the code.', 've', 'Sa zwi re kha vhurifhi haṋu ha u thomiwa kana karaṱa ya ḓivhazwakhe. Lingedzo dza {INVITATION_ATTEMPTS} dzo khakheaho dzi hidzha khoudu.'),
-('As printed, if you also write in a notice book', 've', 'Sa zwo gandiswaho, arali na ṅwala hafhu kha bugu ya ndivhadzo'),
-('Ask', 've', 'Vhudzisani'),
-('Ask Criti', 've', 'Vhudzisani Criti'),
-('Ask Criti  (Ctrl+J)', 've', 'Vhudzisani Criti  (Ctrl+J)'),
 ('Ask Criti · Ctrl+J', 've', 'Vhudzisani Criti · Ctrl+J'),
 ('Ask about the board, or tell me what to do…', 've', 'Vhudzisani nga ha bodo, kana ni mmbudze zwine nda tea u zwi ita…'),
-('Ask about your incidents, crew or shift…', 've', 'Vhudzisani nga ha zwiitea zwaṋu, tshigwada kana tshifithi…'),
 ('Ask about your incidents, your crew, your shift — scoped to what you can already see.', 've', 'Vhudzisani nga ha zwiitea zwaṋu, tshigwada tshaṋu, tshifithi tshaṋu — kha zwine na kha ḓi zwi vhona.'),
 ('Ask for a swap', 've', 'Humbelani u shandukana'),
 ('Ask for leave', 've', 'Humbelani u awela'),
@@ -582,11 +573,9 @@ from (values
 ('Average time to scene {formatMinutes}', 've', 'Tshifhinga tsha vhukati tsha u swika fhethu {formatMinutes}'),
 ('Average {value} / 5 across {length} KPIs.', 've', 'Tshikalo {value} / 5 kha dzi-KPI dza {length}.'),
 ('Avg call duration', 've', 'Vhulapfu ha vhukati ha founu'),
-('Avg response (min)', 've', 'Phindulo ya vhukati (mimin.)'),
 ('Avg response time', 've', 'Tshifhinga tsha vhukati tsha phindulo'),
 ('Awaiting Review', 've', 'Zwi khou lindela ndingo'),
 ('Awaiting court', 've', 'Zwi khou lindela khothe'),
-('Awaiting its endpoint — set the URL under Admin → Configuration → OpsLink', 've', 'Zwi khou lindela vhufhelo hazwo — dzudzanyani URL nga fhasi ha Admin → Ndugiselo → OpsLink'),
 ('Awaiting review', 've', 'Zwi khou lindela ndingo'),
 ('Awake?', 've', 'O vuwa?'),
 ('BACKUP', 've', 'THUSO'),
@@ -633,7 +622,6 @@ from (values
 ('Begin shift checks', 've', 'Thomani ndingo dza tshifithi'),
 ('Begin your shift with a readiness assessment, sign onto an ambulance, then check the vehicle and its stock.', 've', 'Thomani tshifithi tshaṋu nga ndingo ya u ḓilugisa, ni dzhene kha ambulennse, nga murahu ni ṱole goloi na thundu yayo.'),
 ('Begin your shift with a readiness assessment, sign onto an appliance, and check your fire equipment.', 've', 'Thomani tshifithi tshaṋu nga ndingo ya u ḓilugisa, ni dzhene kha tshishumiswa, ni ṱole zwishumiswa zwaṋu zwa mulilo.'),
-('Begin your start-of-shift readiness check to go on duty.', 've', 'Thomani ndingo yaṋu ya u ḓilugisa mathomoni a tshifithi uri ni dzhene mushumoni.'),
 ('Begin your start-of-shift readiness checks to go on duty.', 've', 'Thomani ndingo dzaṋu dza u ḓilugisa mathomoni a tshifithi uri ni dzhene mushumoni.'),
 ('Beige', 've', 'Beige'),
 ('Belongs to', 've', 'Ndi ya'),
@@ -720,8 +708,6 @@ from (values
 ('Bus or taxi crash', 've', 'Khombo ya bisi kana ya thekisi'),
 ('Bus or taxi rank', 've', 'Fhethu ha bisi kana ha thekisi'),
 ('Busiest stations', 've', 'Zwiṱitshi zwo farakanaho vhukuma'),
-('Business / Site Name', 've', 'Dzina ḽa bindu / ḽa fhethu'),
-('Business and site inspections, newest first.', 've', 'Ndingo dza mabindu na fhethu, dzi swa u thoma.'),
 ('By day', 've', 'Nga ḓuvha'),
 ('By department', 've', 'Nga muhasho'),
 ('By department and station', 've', 'Nga muhasho na tshiṱitshi'),
@@ -749,7 +735,6 @@ from (values
 ('Calibre of shells', 've', 'Vhuhulu ha makhokhonya'),
 ('Call', 've', 'Founu'),
 ('Call Complainant (Telephone)', 've', 'Founelani mumbilaheli (founu)'),
-('Call Intake', 've', 'U ṱanganedza founu'),
 ('Call caller', 've', 'Founelani o founaho'),
 ('Call control room', 've', 'Founelani kamara ya vhulanguli'),
 ('Call detail ({length} of {callDetailTotal})', 've', 'Zwidodombedzwa zwa founu ({length} kha {callDetailTotal})'),
@@ -762,8 +747,6 @@ from (values
 ('Call to', 've', 'Founu kha'),
 ('Call volume — today', 've', 'Tshivhalo tsha founu — ṋamusi'),
 ('Call {incidentNumber}{value}{value2}', 've', 'Founu {incidentNumber}{value}{value2}'),
-('Call → closed today · target {value} min', 've', 'Founu → yo valwa ṋamusi · tshipikwa {value} mimin.'),
-('Call → on scene today · target {value} min · dispatch {avgDispatch} min', 've', 'Founu → fhethu ṋamusi · tshipikwa {value} mimin. · u rumela {avgDispatch} mimin.'),
 ('Caller', 've', 'O founaho'),
 ('Caller & location info', 've', 'Mafhungo a o founaho na a fhethu'),
 ('Caller and dispatch', 've', 'O founaho na u rumela'),
@@ -827,7 +810,6 @@ from (values
 ('Care level', 've', 'Vhuimo ha ndondolo'),
 ('Carjacking', 've', 'U dzhielwa goloi nga maanḓa'),
 ('Carried passengers for reward?', 've', 'No vha no hwala vhaṋameli nga mbadelo?'),
-('Carry on', 've', 'Bvelani phanḓa'),
 ('Case Audit Trail', 've', 'Mukondo wa ṱhoḓisiso ya mulandu'),
 ('Case Dashboard', 've', 'Deshibodo ya milandu'),
 ('Case Management', 've', 'Vhulanguli ha milandu'),
@@ -880,7 +862,6 @@ from (values
 ('Changes since it was logged', 've', 'Tshanduko u bva musi i tshi ṅwaliswa'),
 ('Changes to powerful roles wait here for a second SystemAdmin. You cannot decide a request you made, or one about your own account. Requests close after {value} days.', 've', 'Tshanduko kha mishumo ya maanḓa dzi khou lindela fhano SystemAdmin wa vhuvhili. A ni nga dzhii tsheo kha khumbelo ye na i ita, kana i re nga ha akhaunthu yaṋu. Khumbelo dzi valwa nga murahu ha maḓuvha a {value}.'),
 ('Channel clear', 've', 'Tshanela yo kuna'),
-('Channel clear. {value}', 've', 'Tshanela yo kuna. {value}'),
 ('Charge', 've', 'Mulandu'),
 ('Charge Book', 've', 'Bugu ya milandu'),
 ('Charge Transactions', 've', 'Mbadelo dza mulandu'),
@@ -1013,16 +994,7 @@ from (values
 ('Close layers', 've', 'Valani zwipiḓa zwa mmapa'),
 ('Close list', 've', 'Valani mutevhe'),
 ('Close navigation', 've', 'Valani u tshimbila'),
-('Close on scene', 've', 'Valani ni fhethu')
-) as v(key, lang, text)
-on conflict (key, lang) do update
-   set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
-       updated_at = now(), approved_by = null, approved_by_name = excluded.approved_by_name, approved_at = now()
- where not (t.status = 'approved' and t.drafted_by = 'person');
-
-insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
-select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
-from (values
+('Close on scene', 've', 'Valani ni fhethu'),
 ('Close the description?', 've', 'Valani ṱhaluso?'),
 ('Close this bodycam', 've', 'Valani khamera iyi ya muvhili'),
 ('Close without a report', 've', 'Valani ni si na muvhigo'),
@@ -1041,7 +1013,16 @@ from (values
 ('Closing', 've', 'Zwi khou valwa'),
 ('Closing note', 've', 'Nothi ya u vala'),
 ('Closing. Sends when you have signal.', 've', 'Zwi khou valwa. Zwi ḓo rumelwa musi ni na siginala.'),
-('Closing…', 've', 'Zwi khou valwa…'),
+('Closing…', 've', 'Zwi khou valwa…')
+) as v(key, lang, text)
+on conflict (key, lang) do update
+   set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
+       updated_at = now(), approved_by = null, approved_by_name = excluded.approved_by_name, approved_at = now()
+ where not (t.status = 'approved' and t.drafted_by = 'person');
+
+insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
+select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
+from (values
 ('Closure rate', 've', 'Tshikalo tsha u vala'),
 ('Clothes, height, anything to know them by', 've', 'Zwiambaro, vhulapfu, tshiṅwe na tshiṅwe tshine vha nga ḓivhiwa ngatsho'),
 ('Clutch Levels', 've', 'Maimo a clutch'),
@@ -1063,7 +1044,6 @@ from (values
 ('Command', 've', 'Vhulanguli'),
 ('Command Board', 've', 'Bodo ya vhulanguli'),
 ('Command Centre', 've', 'Senthara ya vhulanguli'),
-('Command bar', 've', 'Bara ya ndaela'),
 ('Command palette', 've', 'Phalethe ya ndaela'),
 ('Command post', 've', 'Fhethu ha vhulanguli'),
 ('Commander / Dispatcher Name', 've', 'Dzina ḽa mulanguli / murumeli'),
@@ -1118,7 +1098,6 @@ from (values
 ('Consumables', 've', 'Zwithu zwine zwa shumiswa'),
 ('Contact', 've', 'Vhukwamani'),
 ('Contact Number', 've', 'Nomboro ya vhukwamani'),
-('Contact Person', 've', 'Muthu wa vhukwamani'),
 ('Contact and radio channels for joint operations.', 've', 'Tshanela dza vhukwamani na dza radio dza mishumo yo ṱanganaho.'),
 ('Contact number', 've', 'Nomboro ya vhukwamani'),
 ('Contained to object', 've', 'Zwo thivhelwa kha tshithu'),
@@ -1209,7 +1188,6 @@ from (values
 ('Crime zones could not be loaded.', 've', 'Fhethu ha vhutshinyi a ho ngo kona u dzheniswa.'),
 ('Crime{value}', 've', 'Vhutshinyi{value}'),
 ('Criti Assistant', 've', 'Muthusi Criti'),
-('Criti can see the same board you can — your incidents, your crew, your shift. It cannot see another department''s records.', 've', 'Criti u vhona bodo i fanaho na yaṋu — zwiitea zwaṋu, tshigwada tshaṋu, tshifithi tshaṋu. A nga si vhone rekhodo dza muṅwe muhasho.'),
 ('Criti could not draft just now.', 've', 'Criti o kundelwa u ṅwala tshiolwa zwino.'),
 ('Criti could not write it up just now.', 've', 'Criti o kundelwa u zwi ṅwala zwino.'),
 ('Criti drafted {saved}. {left} still to draft.', 've', 'Criti o ṅwala tshiolwa tsha {saved}. Ho sala {left} zwine zwa tea u ṅwalwa.'),
@@ -1241,7 +1219,6 @@ from (values
 ('Cycle {cycleLabel} · {value} · status', 've', 'Mutevhe {cycleLabel} · {value} · tshiimo'),
 ('DEPARTMENTS', 've', 'MIHASHO'),
 ('DESCRIPTION', 've', 'ṰHALUSO'),
-('DISASTER MANAGEMENT · STEP 1 OF 2', 've', 'VHULANGULI HA KHOMBO KHULWANE · ṰHANGANYISO 1 KHA 2'),
 ('DMPS 12(a): the arrest, its references, the suspect and any recovered vehicle.', 've', 'DMPS 12(a): u fariwa, ndaela dzaho, musumbiwa na goloi ifhio na ifhio yo wanalaho.'),
 ('DMPS 211(a): the vehicle towed, its condition, the operator, SAPS notification and release.', 've', 'DMPS 211(a): goloi yo kokodzwaho, tshiimo tshayo, mushumi, ndivhadzo ya SAPS na u vhofhololwa.'),
 ('DMPS 216(e): the shooting, members, firearms, targets, arrests and trauma counselling.', 've', 'DMPS 216(e): u thunya, mirado, zwigidi, zwe zwa vha zwo livhiswa, u fariwa na tshumelo ya u thusa kha mutsiko.'),
@@ -1353,7 +1330,6 @@ from (values
 ('Destination Facility', 've', 'Tshiimiswa tshine ha yiwa khatsho'),
 ('Detail', 've', 'Tshidodombedzwa'),
 ('Detail (optional)', 've', 'Tshidodombedzwa (a zwi kombetshedzwi)'),
-('Detail any violations, hazards, or warnings issued...', 've', 'Ṱalutshedzani u pfuka mulayo, khombo, kana tsevho dzo ṋewaho...'),
 ('Details', 've', 'Zwidodombedzwa'),
 ('Details for the type', 've', 'Zwidodombedzwa zwa lushaka'),
 ('Details of the incident', 've', 'Zwidodombedzwa zwa tshiitea'),
@@ -1398,7 +1374,6 @@ from (values
 ('Dispatch Resources', 've', 'Rumelani zwishumiswa'),
 ('Dispatch SOS', 've', 'Rumelani SOS'),
 ('Dispatch alerts', 've', 'Tsevho dza u rumela'),
-('Dispatch already has them. Carry on to add what is missing; each change goes to the call.', 've', 'Vharumeli vho no vha nazwo. Bvelani phanḓa u engedza zwi shayeaho; tshanduko iṅwe na iṅwe i ya kha founu.'),
 ('Dispatch and command have been alerted ({number}) and will send help. Stay on the radio.', 've', 'Vharumeli na vhalanguli vho sevhiwa ({number}) nahone vha ḓo rumela thuso. Dzulani kha radio.'),
 ('Dispatch and command have been alerted and will send help. Stay on the radio.', 've', 'Vharumeli na vhalanguli vho sevhiwa nahone vha ḓo rumela thuso. Dzulani kha radio.'),
 ('Dispatch call', 've', 'Rumelani founu'),
@@ -1495,7 +1470,6 @@ from (values
 ('Duty', 've', 'Mushumo'),
 ('Duty & People', 've', 'Mushumo na vhathu'),
 ('Duty & Reporting', 've', 'Mushumo na u vhiga'),
-('Duty Allocation', 've', 'U kovhelwa ha mushumo'),
 ('Duty Board', 've', 'Bodo ya mushumo'),
 ('Duty Maintenance', 've', 'Ndondolo ya mushumo'),
 ('Duty acknowledged', 've', 'Mushumo wo ṱanganedzwa'),
@@ -1504,7 +1478,6 @@ from (values
 ('Duty date', 've', 'Ḓuvha ḽa mushumo'),
 ('Duty maintenance', 've', 'Ndondolo ya mushumo'),
 ('Duty officer name', 've', 'Dzina ḽa muofisiri wa mushumo'),
-('Duty sheet', 've', 'Bammbiri ḽa mushumo'),
 ('Duty status', 've', 'Tshiimo tsha mushumo'),
 ('Duty type', 've', 'Lushaka lwa mushumo'),
 ('EMERGENCY MEDICAL SERVICES', 've', 'TSHUMELO DZA TSHIṰUṰUWO DZA MUTAKALO'),
@@ -1522,16 +1495,7 @@ from (values
 ('Each person gets their own invitation, as their confirmed role, by the route shown: email where HR gave an address, SMS where there is only a cellphone{value}, otherwise a printed code. Each link or code works once and expires after its set time.', 've', 'Muthu muṅwe na muṅwe u wana tshirambo tshawe, sa mushumo wawe wo khwaṱhisedzwaho, nga nḓila yo sumbedzwaho: imeili hune HR ya ṋea diresi, SMS hune ha vha na selefoni fhedzi{value}, arali zwi si zwone khoudu yo gandiswaho. Vhukwamani kana khoudu iṅwe na iṅwe i shuma luthihi nahone i fhela nga murahu ha tshifhinga tshayo tsho vhewaho.'),
 ('Each rule acts at most once per thing per threshold — a call that breaches its SLA raises one alert at each tier, not one every five minutes. Thresholds are stored per rule, so changing “escalate after 10 minutes” to 15 needs no deployment. Every change and every manual run is written to the audit trail with your name on it.', 've', 'Mulayo muṅwe na muṅwe u shuma luthihi fhedzi kha tshithu tshiṅwe na tshiṅwe kha mukano muṅwe na muṅwe — founu ine ya fhira SLA yayo i vusa tsevho nthihi kha vhuimo vhuṅwe na vhuṅwe, hu si nthihi minetse iṅwe na iṅwe ya ṱhanu. Mikano i vhulungwa nga mulayo muṅwe na muṅwe, nga zwenezwo u shandukisa "engedzani nga murahu ha minetse ya 10" u vha 15 a zwi ṱoḓi u dzheniswa. Tshanduko iṅwe na iṅwe na u shuma huṅwe na huṅwe nga tshanḓa zwi ṅwalwa kha mukondo wa ṱhoḓisiso na dzina ḽaṋu.'),
 ('Each service''s identity — crest, colours and naming — as it appears across the platform, the responder app and printed reports.', 've', 'Vhuṋe ha tshumelo iṅwe na iṅwe — tshiga, mivhala na madzina — sa zwine zwa bvelela kha phulathifomo yoṱhe, kha app ya vhafhinduli na kha mivhigo yo gandiswaho.'),
-('East', 've', 'Vhubvaḓuvha')
-) as v(key, lang, text)
-on conflict (key, lang) do update
-   set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
-       updated_at = now(), approved_by = null, approved_by_name = excluded.approved_by_name, approved_at = now()
- where not (t.status = 'approved' and t.drafted_by = 'person');
-
-insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
-select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
-from (values
+('East', 've', 'Vhubvaḓuvha'),
 ('Edit', 've', 'Lugisani'),
 ('Edit PCR', 've', 'Lugisani PCR'),
 ('Edit before dispatch', 've', 'Lugisani phanḓa ha u rumela'),
@@ -1552,14 +1516,22 @@ from (values
 ('Emergency', 've', 'Tshiṱuṱuwo'),
 ('Emergency / Officer Needs Assistance', 've', 'Tshiṱuṱuwo / Muofisiri u ṱoḓa thuso'),
 ('Emergency Equipment Stocked', 've', 'Zwishumiswa zwa tshiṱuṱuwo zwo ḓala'),
-('Emergency Exits Clear?', 've', 'Nḓila dza u bva nga tshiṱuṱuwo dzo vulea?'),
 ('Emergency Medical Services', 've', 'Tshumelo dza Tshiṱuṱuwo dza Mutakalo'),
 ('Emergency Medical Services · Administration', 've', 'Tshumelo dza Tshiṱuṱuwo dza Mutakalo · Vhulanguli'),
 ('Emergency contact', 've', 'Muthu wa vhukwamani nga tshifhinga tsha tshiṱuṱuwo'),
 ('Emergency equipment stocked & accessible', 've', 'Zwishumiswa zwa tshiṱuṱuwo zwo ḓala nahone zwi a swikelelea'),
 ('Emergency lights & siren functioning', 've', 'Maḽambi a tshiṱuṱuwo na siireni zwi a shuma'),
 ('Emergency — hold to call for assistance', 've', 'Tshiṱuṱuwo — farani u humbela thuso'),
-('Emergency-flagged rows are highlighted. Resolve inline once handled.', 've', 'Mitalo yo swaywaho sa tshiṱuṱuwo yo ombedzelwa. I tanduleni fhano musi yo no shumiwa.'),
+('Emergency-flagged rows are highlighted. Resolve inline once handled.', 've', 'Mitalo yo swaywaho sa tshiṱuṱuwo yo ombedzelwa. I tanduleni fhano musi yo no shumiwa.')
+) as v(key, lang, text)
+on conflict (key, lang) do update
+   set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
+       updated_at = now(), approved_by = null, approved_by_name = excluded.approved_by_name, approved_at = now()
+ where not (t.status = 'approved' and t.drafted_by = 'person');
+
+insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
+select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
+from (values
 ('Emotional Wellbeing (Feeling mentally balanced?)', 've', 'Mutakalo wa maipfi (Ni ḓipfa no linganea muhumbuloni?)'),
 ('Employee', 've', 'Mushumi'),
 ('Employee name', 've', 'Dzina ḽa mushumi'),
@@ -1618,7 +1590,6 @@ from (values
 ('Every organisation on this deployment. Each tenant’s data, users, configuration and feature switches are isolated at the database — a row in one tenant does not exist for another, on any screen, in any export, in any search.', 've', 'Dzangano ḽiṅwe na ḽiṅwe kha u shumiswa uhu. Data ya muhiri muṅwe na muṅwe, vhashumisi, ndugiselo na zwikhunyeledzo zwa zwithu zwo khethekanywa kha database — mutalo wa muhiri muthihi a u ho kha muṅwe, kha sikirini ifhio na ifhio, kha u rumela nnḓa hufhio na hufhio, kha ṱhoḓo ifhio na ifhio.'),
 ('Every police report. Search, filter, export, or open one to read it in full.', 've', 'Muvhigo muṅwe na muṅwe wa mapholisa. Ṱoḓani, khethani, rumelani nnḓa, kana ni vule muthihi u u vhala woṱhe.'),
 ('Every punch, newest first.', 've', 'U dzhena mushumoni huṅwe na huṅwe, hu swa u thoma.'),
-('Every radio and hard hat, as the person it belongs to.', 've', 'Radio iṅwe na iṅwe na tshigwaḓa tsho khwaṱhaho, sa muthu ane ya vha yawe.'),
 ('Every recorded action on a case: who logged it, routed it, responded, filed the report and closed it. Audit rows are permanent.', 've', 'Nyito iṅwe na iṅwe yo ṅwalwaho kha mulandu: ane a u ṅwala, ane a u livhisa, ane a fhindula, ane a rumela muvhigo na ane a u vala. Mitalo ya ṱhoḓisiso ndi ya tshoṱhe.'),
 ('Every report officers file, colour-coded by form. Choose where to go.', 've', 'Muvhigo muṅwe na muṅwe une vhaofisiri vha u rumela, wo khethekanywa nga mivhala u ya nga fomo. Nangani hune na khou ya hone.'),
 ('Every section, from observations to sign-off.', 've', 'Khethekanyo iṅwe na iṅwe, u bva kha u ṱhogomela u swika kha u saina.'),
@@ -1661,7 +1632,6 @@ from (values
 ('Exposures threatened', 've', 'Fhethu ha tsini hu re khomboni'),
 ('External Lights', 've', 'Maḽambi a nnḓa'),
 ('External lights', 've', 'Maḽambi a nnḓa'),
-('Extinguishers Present & Serviced?', 've', 'Zwidzimamulilo zwi hone nahone zwo ṱolwa?'),
 ('Extra form prompts (one per line)', 've', 'Mbudziso dzo engedzwaho dza fomo (nthihi kha mutalo muṅwe na muṅwe)'),
 ('Extreme', 've', 'Vhukuma vhukuma'),
 ('F11 for edge-to-edge · Esc to leave', 've', 'F11 u ḓadza sikirini · Esc u bva'),
@@ -1722,7 +1692,6 @@ from (values
 ('Filter menu…', 've', 'Khethani menyu…'),
 ('Filter navigation', 've', 'Khethani u tshimbila'),
 ('Filters', 've', 'Zwikhethi'),
-('Final Inspection Result', 've', 'Mvelelo ya ndingo ya u fhedza'),
 ('Find a name', 've', 'Wanani dzina'),
 ('Find a person', 've', 'Wanani muthu'),
 ('Find footage', 've', 'Wanani rekhodo'),
@@ -1900,8 +1869,6 @@ from (values
 ('Glossary', 've', 'Mutevhe wa maipfi'),
 ('Gloves & PPE', 've', 'Zwiambaro zwa zwanḓa na PPE'),
 ('Glucose', 've', 'Swigiri maloleni'),
-('Go on Duty', 've', 'Thomani mushumo'),
-('Go on Duty — Begin Check', 've', 'Thomani mushumo — Thomani u ṱola'),
 ('Go on Duty — Begin Checks', 've', 'Thomani mushumo — Thomani u ṱola'),
 ('Go on duty', 've', 'Thomani mushumo'),
 ('Go on duty & open dashboard', 've', 'Thomani mushumo ni vule dashboard'),
@@ -2031,16 +1998,7 @@ from (values
 ('How many are hurt', 've', 'Ndi vhangana vho huvhalaho'),
 ('How many are trapped, and where?', 've', 'Ndi vhangana vho farekanaho, nahone vha ngafhi?'),
 ('How many are trapped?', 've', 'Ndi vhangana vho farekanaho?'),
-('How many escaped, and what do they look like?', 've', 'Ndi vhangana vho shavhaho, nahone vha vhonala hani?')
-) as v(key, lang, text)
-on conflict (key, lang) do update
-   set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
-       updated_at = now(), approved_by = null, approved_by_name = excluded.approved_by_name, approved_at = now()
- where not (t.status = 'approved' and t.drafted_by = 'person');
-
-insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
-select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
-from (values
+('How many escaped, and what do they look like?', 've', 'Ndi vhangana vho shavhaho, nahone vha vhonala hani?'),
 ('How many feeds', 've', 'Ndi dzi-feed dzingana'),
 ('How many homes are burning?', 've', 'Ndi haya dzingana dzi swaho?'),
 ('How many homes are damaged?', 've', 'Ndi haya dzingana dzo tshinyalaho?'),

@@ -29,7 +29,7 @@ import { bookThisDevice } from '@/lib/kit';
  * for today's start of shift and being on duty first (`cleared`).
  */
 
-export { DUTY_ROUTES, clearedForDuty, isDutyRoute } from './duty-policy.ts';
+export { DUTY_ROUTES, clearedForDuty, isDutyRoute, needsShiftStart } from './duty-policy.ts';
 import { clearedForDuty } from './duty-policy.ts';
 
 type DutyState = {

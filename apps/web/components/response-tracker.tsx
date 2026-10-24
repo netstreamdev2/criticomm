@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Ambulance, CarFront, ChevronDown, ChevronUp, MapPinOff, ShieldAlert, ShieldCheck, Truck, Radio } from 'lucide-react';
+import { ChevronDown, ChevronUp, MapPinOff, ShieldAlert, ShieldCheck, Radio } from 'lucide-react';
 import {
   STALE_FIX_MS, arrivalWords, distanceWords, etaMinutes, metresApart, progressAlong, vehicleFor,
   type IncidentResponder, type OnDutyOfficer,
@@ -10,6 +10,7 @@ import { useOnDutyOfficers } from '@/lib/on-duty';
 import { CrewRouteMap, type MapCrew } from '@/components/crew-route-map';
 import { useT } from '@/components/i18n';
 import { cn } from '@/lib/utils';
+import { ResponseVehicle } from '@/components/response-vehicle';
 
 /**
  * Following each department's crew to the scene, the way a ride app follows
@@ -43,7 +44,7 @@ const NAMES: Record<string, string> = {
 };
 /** Two lights flashing in turn, each department its own pair. */
 const LIGHTS: Record<string, [string, string]> = {
-  MetroPolice: ['#3b82f6', '#ef4444'], Ethekwini: ['#3b82f6', '#ef4444'],
+  MetroPolice: ['#3b82f6', '#60a5fa'], Ethekwini: ['#3b82f6', '#60a5fa'],
   Medical: ['#ef4444', '#ffffff'], MetroFire: ['#ef4444', '#fbbf24'], EthekwiniDisaster: ['#facc15', '#f59e0b'],
 };
 const clock = new Intl.DateTimeFormat('en-ZA', { timeZone: 'Africa/Johannesburg', hour: '2-digit', minute: '2-digit', hour12: false });
@@ -158,7 +159,6 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
   const { p, crew, lead, pos, left, enRoute } = track;
   const v = vehicleFor(p.silo);
   const [lightA, lightB] = LIGHTS[p.silo] ?? LIGHTS.MetroPolice!;
-  const Icon = v.kind === 'car' ? CarFront : v.kind === 'ambulance' ? Ambulance : Truck;
   const stoodDown = p.status === 'Not needed' || p.status === 'Cancelled';
 
   const stops = [
@@ -191,8 +191,10 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
   const mapCrew = useMemo(() => placed, [placedKey]);
   const leftM = enRoute ? (road ? road.km * 1000 : left) : null;
   const overlay = (
-    <div className="min-w-[15rem] max-w-[19rem] rounded-2xl bg-slate-950/85 px-4 py-3 text-white shadow-2xl ring-1 ring-white/10 backdrop-blur-md">
-      <p className="text-[11px] font-bold uppercase tracking-[0.18em]" style={{ color: v.light }}>
+    <div className="relative w-[17rem] max-w-full overflow-hidden rounded-2xl bg-slate-950/95 px-5 py-4 text-white shadow-2xl ring-1 ring-white/15 backdrop-blur-md">
+      <div className="absolute inset-x-0 top-0 h-1" style={{ background: v.tone }} />
+      <ResponseVehicle silo={p.silo} className="absolute right-3 top-5 h-12 w-20 opacity-90" />
+      <p className="relative pr-20 text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: v.light }}>
         {enRoute ? t('On the way') : p.arrived_at ? t('On scene') : p.accepted_at ? t('Finished') : t('Waiting for a crew')}
       </p>
       {enRoute ? (
@@ -207,8 +209,8 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
                 minutes !== null ? t('arrives {time}', { time: clock.format(new Date(now + minutes * 60_000)) }) : null].filter(Boolean).join(' · ')}
             </p>
             {progress !== null ? (
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15">
-                <div className="h-full rounded-full transition-[width] duration-1000" style={{ width: `${Math.round(progress * 100)}%`, background: v.light }} />
+              <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/15">
+                <div className="h-full rounded-full transition-[width] duration-1000 motion-reduce:transition-none" style={{ width: `${Math.round(progress * 100)}%`, background: v.light }} />
               </div>
             ) : null}
           </>
@@ -222,7 +224,8 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
         </>
       ) : null}
       {lead ? (
-        <p className="mt-2 border-t border-white/10 pt-2 text-xs text-white/70">
+        // The clock moves between the server's drawing and the browser's: "seen 43 s ago" may read 44.
+        <p suppressHydrationWarning className="mt-2 border-t border-white/10 pt-2 text-xs text-white/70">
           <span className="font-bold text-white">{lead.name ?? t('Officer')}</span>
           {pos ? ` · ${pos.stale ? t('last seen {ago}', { ago: ago(pos.seenAt, now) }) : t('live')}` : ''}
           {crew.length > 1 ? ` · ${t('+{n} backup', { n: crew.length - 1 })}` : ''}
@@ -238,11 +241,11 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
     if (enRoute) {
       if (!pos) return <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><MapPinOff className="h-4 w-4" />{t('No live position')}</span>;
       return (
-        <span className="text-right">
-          <span className="block text-lg font-black leading-none tabular-nums" style={{ color: v.tone }}>
+        <span className="rounded-xl border border-border bg-bg-soft px-3 py-2 text-right">
+          <span className="block text-2xl font-bold leading-none tracking-tight text-fg tabular-nums">
             {minutes !== null ? t('{n} min', { n: minutes }) : '—'}
           </span>
-          <span className="text-xs text-muted-foreground">
+          <span suppressHydrationWarning className="text-xs text-muted-foreground">
             {[distanceWords(road ? road.km * 1000 : left), minutes !== null ? t('ETA {time}', { time: clock.format(new Date(now + minutes * 60_000)) }) : null].filter(Boolean).join(' · ')}
             {pos.stale ? ` · ${t('position {ago}', { ago: ago(pos.seenAt, now) })}` : ''}
           </span>
@@ -265,44 +268,47 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
   })();
 
   return (
-    <section className="overflow-hidden rounded-xl border bg-bg-card" style={{ borderColor: `${v.tone}55` }}>
+    <section className="response-card overflow-hidden rounded-2xl border border-border bg-bg-card shadow-sm" style={{ ['--response-tone' as string]: v.tone }}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="block w-full px-4 pb-2 pt-3 text-left"
+        className="block w-full px-4 py-4 text-left transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:px-5"
       >
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="flex items-center gap-2 text-sm font-bold">
-              <span className="h-2.5 w-2.5 rounded-full" style={{ background: v.tone }} />
-              {t(NAMES[p.silo] ?? p.silo)}
-            </p>
-            {crewNames ? <p className="truncate text-xs text-muted-foreground">{crewNames}</p> : null}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 flex-[1_1_12rem] items-center gap-3">
+            <span className="flex h-14 w-20 shrink-0 items-center justify-center rounded-xl border border-border bg-bg-soft">
+              <ResponseVehicle silo={p.silo} className="h-12 w-[76px]" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-bold tracking-tight sm:text-base">{t(NAMES[p.silo] ?? p.silo)}</p>
+              {crewNames ? <p className="mt-1 truncate text-xs text-muted-foreground">{crewNames}</p> : null}
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2">
             {status}
-            {crew.length || scene ? <ChevronDown className={cn('h-4 w-4 text-muted-foreground transition-transform', open && 'rotate-180')} /> : null}
+            {crew.length || scene ? <ChevronDown className={cn('h-7 w-7 shrink-0 rounded-full border border-border p-1.5 text-muted-foreground transition-transform motion-reduce:transition-none', open && 'rotate-180')} /> : null}
           </div>
         </div>
 
         {/* Folded: the strip. Open: the big map below takes its place. */}
         {stoodDown || open ? null : (
-          <div className="relative mx-4 mb-7 mt-6 h-2 sm:mx-6">
-            <div className="absolute inset-0 rounded-full bg-muted" />
-            {at !== null ? (
-              <div
-                className="vehicle-glide absolute inset-y-0 left-0 rounded-full"
-                style={{ width: `${at}%`, background: `linear-gradient(90deg, ${v.tone}40, ${v.tone})`, transition: 'width 1.2s cubic-bezier(0.22, 1, 0.36, 1)' }}
-              />
-            ) : null}
+          <div className="response-journey relative mx-5 mb-10 mt-10 h-7 sm:mx-6">
+            <div className="response-rail absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 overflow-hidden rounded-full bg-border/70">
+              {at !== null ? (
+                <div
+                  className="response-road-progress h-full rounded-full"
+                  style={{ width: `${at}%`, background: `linear-gradient(90deg, ${v.tone}, ${v.light})` }}
+                />
+              ) : null}
+            </div>
             {stops.map((s, i) => (
               <div key={s.key} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${posOf(i)}%` }}>
                 <span
-                  className="block h-3.5 w-3.5 rounded-full border-2"
-                  style={s.done ? { background: v.tone, borderColor: v.tone } : { background: 'rgb(var(--c-bg-card))', borderColor: 'rgb(var(--c-border))' }}
+                  className="block h-2 w-2 rounded-full ring-2 ring-bg-card"
+                  style={{ background: s.done ? v.tone : 'rgb(var(--c-border))' }}
                 />
-                <span className={cn('absolute left-1/2 top-5 -translate-x-1/2 whitespace-nowrap text-center text-[10px] font-semibold',
+                <span data-stagger={i % 2 === 0} className={cn('response-stop-label absolute left-1/2 top-7 w-14 -translate-x-1/2 text-center text-[10px] font-semibold leading-tight sm:w-20',
                   s.done ? 'text-fg' : 'text-muted-foreground', i === 0 && 'left-0 translate-x-0 text-left', i === stops.length - 1 && 'left-auto right-0 translate-x-0 text-right')}>
                   {t(s.label)}
                   {s.at ? <span className="hidden font-normal text-muted-foreground sm:block">{hhmm(s.at)}</span> : null}
@@ -310,18 +316,17 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
               </div>
             ))}
             {at !== null ? (
-              <div className="vehicle-glide absolute top-1/2 z-10 -translate-x-1/2 -translate-y-1/2" style={{ left: `${at}%` }} aria-hidden>
+              <div className="vehicle-glide absolute bottom-1/2 z-10 -translate-x-1/2 translate-y-1.5" style={{ left: `${at}%` }} aria-hidden>
                 <div
-                  className={cn('relative flex h-8 w-11 items-center justify-center rounded-lg text-white shadow-lg ring-2 ring-white/70', enRoute && 'vehicle-moving')}
-                  style={{ background: v.tone, ['--glow' as string]: `${v.light}aa` }}
+                  className="relative flex h-12 w-20 items-center justify-center"
                 >
                   {working ? (
-                    <span className="absolute -top-1.5 left-1/2 flex -translate-x-1/2 gap-0.5">
-                      <span className="lightbar-a h-1.5 w-3 rounded-full" style={{ background: lightA, boxShadow: `0 0 6px ${lightA}` }} />
-                      <span className="lightbar-b h-1.5 w-3 rounded-full" style={{ background: lightB, boxShadow: `0 0 6px ${lightB}` }} />
+                    <span className="absolute left-1/2 top-2 z-10 flex -translate-x-1/2 gap-0.5">
+                      <span className="lightbar-a h-1 w-2 rounded-full" style={{ background: lightA, boxShadow: `0 0 6px ${lightA}` }} />
+                      <span className="lightbar-b h-1 w-2 rounded-full" style={{ background: lightB, boxShadow: `0 0 6px ${lightB}` }} />
                     </span>
                   ) : null}
-                  <Icon className="h-5 w-5" />
+                  <ResponseVehicle silo={p.silo} className="h-12 w-20 drop-shadow-md" />
                 </div>
               </div>
             ) : null}
@@ -330,7 +335,7 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
       </button>
 
       {/* The crew, sliding out: each officer, how far, how long, how they arrived. */}
-      <div className={cn('grid transition-[grid-template-rows] duration-300 ease-out', open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')}>
+      <div className={cn('grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none', open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')}>
         <div className="overflow-hidden">
           {open && scene && !stoodDown ? (
             <div className="px-3 pb-3">
@@ -339,7 +344,7 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
                 crew={mapCrew}
                 path={enRoute ? road?.path ?? null : null}
                 onTheWay={enRoute}
-                kind={v.kind}
+                silo={p.silo}
                 tone={v.tone}
                 lights={[lightA, lightB]}
                 overlay={overlay}
@@ -354,8 +359,8 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
               const arrived = arrivalWords({ arrived_by: r.arrived_by ?? null, arrived_verified: r.arrived_verified ?? null, arrived_distance_m: r.arrived_distance_m ?? null });
               const onWay = r.status === 'En Route' && !r.arrived_at;
               return (
-                <li key={r.user_id} className="flex items-center gap-3 px-4 py-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-black text-white" style={{ background: v.tone }}>
+                <li key={r.user_id} className="flex items-center gap-3 px-5 py-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-bg-soft text-sm font-bold text-fg">
                     {initials(r.name)}
                   </span>
                   <div className="min-w-0 flex-1">
@@ -365,7 +370,7 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
                         {t(r.role === 'lead' ? 'Lead' : 'Backup')}
                       </span>
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p suppressHydrationWarning className="text-xs text-muted-foreground">
                       {onWay
                         ? me ? [distanceWords(away), mins !== null ? t('about {n} min', { n: mins }) : null, t('position {ago}', { ago: ago(me.seenAt, now) })].filter(Boolean).join(' · ')
                           : t('No live position from their phone')

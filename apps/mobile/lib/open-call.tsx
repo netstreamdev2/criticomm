@@ -13,6 +13,8 @@ export type OpenCall = {
   status: IncidentStatus | null;
   /** Null while a Responding is still queued on this phone. */
   role: 'lead' | 'backup' | null;
+  /** The call's department, for filing its photos; absent while only queued on this phone. */
+  silo?: string;
   /** For display; absent while only queued on this phone. */
   incident_type?: string;
   incident_severity?: string;
@@ -102,6 +104,7 @@ export function useOpenCall() {
           incident_number: r.incident_number,
           status: role === 'lead' ? r.status : (mine?.status ?? null),
           role,
+          silo: r.silo,
           incident_type: r.incident_type,
           incident_severity: r.incident_severity,
           location_address: r.location_address,

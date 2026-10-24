@@ -3,25 +3,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, makeStyles, radius, space, useTheme } from '@/lib/theme';
 import { useT } from '@/lib/i18n';
 
-/**
- * Fire looks like every other department: the same backdrop, colours and
- * elements as the Police app, with Fire's own content. Only the words and
- * icons say Fire & Rescue.
- */
-
-/** The home backdrop the Police app uses: earth at night in dark mode, plain in light. */
-export function FireBackdrop() {
+/** A quiet photographic backdrop for Fire; the shared home keeps its existing art. */
+export function FireBackdrop({ firefighter = false }: { firefighter?: boolean }) {
   const { isDark } = useTheme();
-  if (!isDark) return null;
+  if (!isDark && !firefighter) return null;
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       <Image
-        source={require('../assets/shift-earth-network-portrait.png')}
+        source={firefighter ? require('../assets/fire-home-v1.jpg') : require('../assets/shift-earth-network-portrait.png')}
         resizeMode="cover"
-        style={StyleSheet.absoluteFillObject}
+        style={[StyleSheet.absoluteFillObject, firefighter && { width: '100%', height: '100%' }]}
         accessibilityIgnoresInvertColors
       />
-      <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(5,5,16,0.55)' }]} />
+      <View style={[StyleSheet.absoluteFillObject, {
+        backgroundColor: !isDark ? 'rgba(242,244,249,0.92)' : firefighter ? 'rgba(5,5,16,0.66)' : 'rgba(5,5,16,0.55)',
+      }]} />
     </View>
   );
 }

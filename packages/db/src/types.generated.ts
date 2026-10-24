@@ -2402,9 +2402,113 @@ export type Database = {
           inspector_id: string;
           inspector_name: string | null;
           inspected_at: string;
+          /** Site inspections (0106): the premises, why the visit, the by-law checklist and what followed. */
+          premises_id: string | null;
+          kind: 'Routine' | 'Complaint' | 'Re-inspection' | 'Certificate' | 'After a fire' | 'Event' | null;
+          checklist: Record<string, 'yes' | 'no' | 'na'>;
+          outcome: 'Compliant' | 'Compliance notice' | 'Instruction' | null;
+          /** The compliance notice (s.81): each fault, its section, what to do and the days given. */
+          notice_items: Array<{ key: string; label: string; section: string; remedy: string; days: number }>;
+          comply_by: string | null;
+          reinspect_on: string | null;
+          instruction: 'Close the premises' | 'Evacuate the premises' | 'Stop the activity' | null;
+          instruction_reason: string | null;
+          person_in_charge: string | null;
+          served: 'Handed over' | 'Refused to sign' | 'Affixed to the premises' | null;
+          lat: number | null;
+          lng: number | null;
+          accuracy: number | null;
+          client_ref: string | null;
+          previous_id: string | null;
+          /** A re-inspection found a fault its notice named still there. */
+          repeat_failure: boolean;
         };
         Insert: Partial<Database['public']['Tables']['fire_safety_inspections']['Row']>;
         Update: Partial<Database['public']['Tables']['fire_safety_inspections']['Row']>;
+        Relationships: [];
+      };
+      /** Fire safety premises register (0106). */
+      fire_premises: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          name: string;
+          address: string;
+          occupancy: string;
+          risk: 'High' | 'Moderate' | 'Low';
+          interval_months: 6 | 12 | 24;
+          contact_person: string | null;
+          contact_number: string | null;
+          lat: number | null;
+          lng: number | null;
+          last_inspection_id: string | null;
+          last_inspected_at: string | null;
+          last_outcome: 'Compliant' | 'Compliance notice' | 'Instruction' | null;
+          next_due: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['fire_premises']['Row']>;
+        Update: Partial<Database['public']['Tables']['fire_premises']['Row']>;
+        Relationships: [];
+      };
+      /** Disaster Management standby register (0107). */
+      disaster_standby: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          user_id: string;
+          name: string | null;
+          /** "+27…", the number the call centre dials. */
+          contact_number: string | null;
+          kit: Record<string, boolean>;
+          kit_missing: string[];
+          started_at: string;
+          ended_at: string | null;
+          end_reason: string | null;
+          ended_by: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_standby']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_standby']['Row']>;
+        Relationships: [];
+      };
+      /** Disaster Management initial and needs assessment, one per place (0107). */
+      disaster_assessments: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          client_ref: string | null;
+          place: string;
+          ward: string | null;
+          hazard: string;
+          households_affected: number;
+          people_affected: number;
+          people_displaced: number;
+          injured: number;
+          deaths: number;
+          missing: number;
+          homes_destroyed: number;
+          homes_damaged: number;
+          services: string[];
+          needs: string[];
+          relief: Record<string, number>;
+          shelter_name: string | null;
+          people_sheltered: number;
+          notes: string | null;
+          lat: number | null;
+          lng: number | null;
+          accuracy: number | null;
+          filed_by: string;
+          filed_by_name: string | null;
+          filed_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_assessments']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_assessments']['Row']>;
         Relationships: [];
       };
       post_mortem_reports: {
@@ -2775,7 +2879,7 @@ export type Database = {
           user_id: string;
           personnel_id: string | null;
           name: string | null;
-          booked_how: 'device' | 'number';
+          booked_how: 'device' | 'number' | 'paired' | 'issued';
           booked_at: string;
           returned_at: string | null;
           returned_by: string | null;
@@ -3065,7 +3169,7 @@ export type Database = {
       // ── Talk (0083) ──
       talk_access: { Args: { p_channel: string }; Returns: { listen: boolean; speak: boolean; priority: boolean; name: string | null } };
       talk_pass: {
-        Args: { p_channel: string };
+        Args: { p_channel: string; p_device?: string | null };
         Returns: { url: string; token: string; room: string; channel: string; name: string; canSpeak: boolean; priority: boolean; identity: string; expiresAt: string };
       };
       log_talk: { Args: { p_channel: string; p_started_at: string; p_ended_at: string }; Returns: unknown };
@@ -3108,6 +3212,11 @@ export type Database = {
       };
       return_field_kit: { Args: { p_booking_id: string; p_condition?: string; p_note?: string | null }; Returns: Record<string, unknown> };
       return_my_field_kit: { Args: Record<string, never>; Returns: number };
+      // ── Pairing a hard hat (0105) ──
+      open_hat_pairing: { Args: Record<string, never>; Returns: Record<string, unknown> };
+      hat_pairing: { Args: { p_id: string }; Returns: Record<string, unknown> };
+      hard_hat_button: { Args: { p_device: string }; Returns: Record<string, unknown> };
+      issue_field_kit: { Args: { p_kit_id: string; p_personnel_id: string }; Returns: Record<string, unknown> };
       /** Dismiss an SOS pressed by mistake (0093). */
       dismiss_sos: { Args: { p_incident: string; p_reason: string }; Returns: Database['public']['Tables']['incidents']['Row'] };
       // ── Live camera from a radio (0091) ──
@@ -3583,6 +3692,28 @@ export type Database = {
       file_post_mortem: {
         Args: { p_incident_id: string; p_fields: Record<string, string> };
         Returns: Database['public']['Tables']['post_mortem_reports']['Row'];
+      };
+      /** Site inspections (0106). */
+      file_fire_inspection: {
+        Args: { p_client_ref: string; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['fire_safety_inspections']['Row'];
+      };
+      save_fire_premises: {
+        Args: { p_id: string | null; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['fire_premises']['Row'];
+      };
+      /** Disaster Management standby and assessment (0107). */
+      start_standby: {
+        Args: { p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_standby']['Row'];
+      };
+      end_standby: {
+        Args: { p_reason?: string | null };
+        Returns: Database['public']['Tables']['disaster_standby']['Row'];
+      };
+      file_disaster_assessment: {
+        Args: { p_incident_id: string; p_client_ref: string; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_assessments']['Row'];
       };
       file_pcr: {
         Args: { p_incident_id: string; p_fields: Record<string, string> };

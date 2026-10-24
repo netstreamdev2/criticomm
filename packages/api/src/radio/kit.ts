@@ -13,10 +13,10 @@ export type KitBookingRow = Database['public']['Tables']['field_kit_bookings']['
 export type KitCondition = 'fine' | 'damaged' | 'lost';
 
 /** One item with who has it now. */
-export type KitEntry = KitItem & { holder: { bookingId: string; name: string | null; userId: string; since: string; how: 'device' | 'number' } | null };
+export type KitEntry = KitItem & { holder: { bookingId: string; name: string | null; userId: string; since: string; how: KitBookingRow['booked_how'] } | null };
 
 /** What the officer holds now. */
-export type MyKit = { bookingId: string; kitId: string; kind: KitKind; assetNo: string; since: string; how: 'device' | 'number' };
+export type MyKit = { bookingId: string; kitId: string; kind: KitKind; assetNo: string; since: string; how: KitBookingRow['booked_how'] };
 
 export const KIT_WORD: Record<KitKind, string> = { hard_hat: 'Hard hat', radio: 'Radio' };
 
@@ -57,7 +57,7 @@ export async function listMyKit(client: CriticomClient, userId: string): Promise
     .select('id, kit_id, booked_at, booked_how, kit:field_kit!inner(kind, asset_no)')
     .eq('user_id', userId).is('returned_at', null).order('booked_at');
   if (error) throw error;
-  return ((data ?? []) as unknown as Array<{ id: string; kit_id: string; booked_at: string; booked_how: 'device' | 'number'; kit: { kind: KitKind; asset_no: string } }>)
+  return ((data ?? []) as unknown as Array<{ id: string; kit_id: string; booked_at: string; booked_how: KitBookingRow['booked_how']; kit: { kind: KitKind; asset_no: string } }>)
     .map((b) => ({ bookingId: b.id, kitId: b.kit_id, kind: b.kit.kind, assetNo: b.kit.asset_no, since: b.booked_at, how: b.booked_how }));
 }
 
@@ -141,4 +141,36 @@ export async function retireKit(client: CriticomClient, id: string, reason: stri
 export function noKitRegister(error: unknown): boolean {
   const e = error as { code?: string; message?: string } | null;
   return Boolean(e && (e.code === '42P01' || e.code === 'PGRST205' || e.code === 'PGRST202' || /field_kit/.test(e.message ?? '')));
+}
+
+/* ── Pairing a hard hat (0105) ─────────────────────────────────────────── */
+
+export type HatPairingState = 'waiting' | 'paired' | 'clash' | 'expired';
+
+/** The officer is about to press their hard hat's button: a 20-second window. */
+export async function openHatPairing(client: CriticomClient): Promise<{ id: string; expires_at: string }> {
+  const { data, error } = await client.rpc('open_hat_pairing', {});
+  if (error) throw error;
+  return data as { id: string; expires_at: string };
+}
+
+/** How the officer's window went. */
+export async function hatPairing(client: CriticomClient, id: string): Promise<{ state: HatPairingState; asset_no: string | null }> {
+  const { data, error } = await client.rpc('hat_pairing', { p_id: id });
+  if (error) throw error;
+  return data as { state: HatPairingState; asset_no: string | null };
+}
+
+/** The hard hat's own button was pressed (the app on it, with its Radio ID). */
+export async function hardHatButton(client: CriticomClient, deviceId: string): Promise<{ paired: boolean; name?: string; asset_no?: string; clash?: boolean }> {
+  const { data, error } = await client.rpc('hard_hat_button', { p_device: deviceId });
+  if (error) throw error;
+  return (data ?? { paired: false }) as { paired: boolean; name?: string; asset_no?: string; clash?: boolean };
+}
+
+/** The armoury issues an item to an officer (command only). */
+export async function issueKit(client: CriticomClient, kitId: string, personnelId: string) {
+  const { data, error } = await client.rpc('issue_field_kit', { p_kit_id: kitId, p_personnel_id: personnelId });
+  if (error) throw error;
+  return data as { booking_id: string; asset_no: string; name: string };
 }

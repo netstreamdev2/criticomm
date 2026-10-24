@@ -124,6 +124,66 @@ export async function listPostMortems(client: CriticomClient) {
   return data ?? [];
 }
 
+/* ── On standby and the assessment on site (0107) ───────────────────────── */
+
+export type StandbyRecord = Tables['disaster_standby']['Row'];
+export type DisasterAssessment = Tables['disaster_assessments']['Row'];
+
+/**
+ * Go on standby: today's readiness check must be done; the number the call
+ * centre dials and the kit are recorded (a missing item is noted, not refused).
+ */
+export async function startStandby(client: CriticomClient, args: { contactNumber: string; kit: Record<string, boolean> }) {
+  const { data, error } = await client.rpc('start_standby', { p_fields: { contact_number: args.contactNumber, kit: args.kit } });
+  if (error) throw error;
+  return data as StandbyRecord;
+}
+
+/** End standby (refused while leading an open call-out). */
+export async function endStandby(client: CriticomClient, reason?: string | null) {
+  const { data, error } = await client.rpc('end_standby', { p_reason: reason ?? null });
+  if (error) throw error;
+  return data as StandbyRecord;
+}
+
+/** This officer's standby now, if on standby. */
+export async function getMyStandby(client: CriticomClient, userId: string) {
+  const { data, error } = await client.from('disaster_standby').select('*')
+    .eq('user_id', userId).is('ended_at', null).maybeSingle();
+  if (error) throw error;
+  return data as StandbyRecord | null;
+}
+
+/** Who is on standby now, longest first: for the call centre and the JOC. */
+export async function listOnStandby(client: CriticomClient) {
+  const { data, error } = await client.from('disaster_standby').select('*')
+    .is('ended_at', null).order('started_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as StandbyRecord[];
+}
+
+/** File one place's assessment; the same client reference returns the one filed. */
+export async function fileDisasterAssessment(
+  client: CriticomClient,
+  args: { incidentId: string; clientRef: string; fields: Record<string, unknown> },
+) {
+  const { data, error } = await client.rpc('file_disaster_assessment', {
+    p_incident_id: args.incidentId, p_client_ref: args.clientRef, p_fields: args.fields,
+  });
+  if (error) throw error;
+  return data as DisasterAssessment;
+}
+
+/** The places assessed on a call (or on several), oldest first. */
+export async function listDisasterAssessments(client: CriticomClient, incidentIds: string | string[]) {
+  const ids = Array.isArray(incidentIds) ? incidentIds : [incidentIds];
+  if (ids.length === 0) return [] as DisasterAssessment[];
+  const { data, error } = await client.from('disaster_assessments').select('*')
+    .in('incident_id', ids).order('filed_at', { ascending: true }).limit(1000);
+  if (error) throw error;
+  return (data ?? []) as DisasterAssessment[];
+}
+
 /** Relief stock inventory */
 export async function listReliefStocks(client: CriticomClient) {
   const { data, error } = await client

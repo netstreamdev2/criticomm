@@ -20,3 +20,8 @@ android {
     abortOnError false
   }
 }
+
+dependencies {
+  // React Native itself: the background task that keeps timers running (keepJsRunning).
+  implementation 'com.facebook.react:react-android'
+}

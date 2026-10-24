@@ -25,6 +25,8 @@
     "./fire-report": "./src/fire-report.ts",
     "./pcr": "./src/pcr.ts",
     "./post-mortem": "./src/post-mortem.ts",
+    "./fire-inspection": "./src/fire-inspection.ts",
+    "./disaster": "./src/disaster.ts",
     "./desks": "./src/desks.ts",
     "./intake": "./src/intake.ts",
     "./intake-details": "./src/intake-details.ts",

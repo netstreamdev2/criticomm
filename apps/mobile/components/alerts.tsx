@@ -13,7 +13,7 @@ import { useSync } from '@/lib/sync';
 import { useDuty } from '@/lib/duty';
 import { confirmAccept } from '@/lib/accept';
 import { departmentName } from '@criticom/db';
-import { personTitle } from '@/lib/department';
+import { departmentOf, personTitle } from '@/lib/department';
 import { colors, getThemeMode, radius, severityColor, space, type, makeStyles } from '@/lib/theme';
 import { Button } from '@/components/ui';
 import { useT } from '@/lib/i18n';
@@ -141,7 +141,7 @@ export function AssignmentAlert() {
   const { t } = useT();
   const styles = useStyles();
   const { assignments, clearAssignment } = useNotifications();
-  const { session } = useAuth();
+  const { session, silo: mySilo } = useAuth();
   const router = useRouter();
   const pulse = useRef(new Animated.Value(0)).current;
   const { enqueue } = useSync();
@@ -152,6 +152,8 @@ export function AssignmentAlert() {
   // A colleague's SOS: raised (to command, kind 'sos') or dispatched to me
   // (the server leads the title with "SOS", migration 0043).
   const sos = current?.kind === 'sos' || Boolean(current?.title.startsWith('SOS'));
+  // Disaster Management is called out from standby (0107): the same alert, in its words.
+  const standby = departmentOf(mySilo) === 'disaster' && !sos;
   // Whose SOS it is: the SOS incident is logged under the department of the
   // person who pressed it, so the heading names them (a paramedic, a firefighter).
   const [sosSilo, setSosSilo] = useState<{ incidentId: string; silo: string } | null>(null);
@@ -215,10 +217,11 @@ export function AssignmentAlert() {
     const incidentId = current.incident_id;
     if (!incidentId) return;
     if (onDuty === false) {
-      Alert.alert(t('You are off duty'), t('Go on duty to accept incidents.'));
+      if (standby) Alert.alert(t('You are not on standby'), t('Start standby to accept call-outs.'));
+      else Alert.alert(t('You are off duty'), t('Go on duty to accept incidents.'));
       return;
     }
-    if (!(await confirmAccept(incidentNumberOf(current.title)))) return;
+    if (!(await confirmAccept(incidentNumberOf(current.title), mySilo))) return;
     setAccepting(true);
     try {
       await enqueue({ kind: 'incident_status', incidentId, status: 'En Route', incidentNumber: incidentNumberOf(current.title) ?? undefined });
@@ -252,7 +255,7 @@ export function AssignmentAlert() {
               <Text style={styles.cardHeading}>
                 {sos
                   ? (sosSilo && sosSilo.incidentId === current.incident_id ? t('{personTitle} SOS', { personTitle: personTitle(sosSilo.silo).toUpperCase() }) : t('SOS'))
-                  : open ? t('New incident') : t('Incident assigned')}
+                  : standby ? t('Call-out') : open ? t('New incident') : t('Incident assigned')}
               </Text>
             </View>
           </View>
@@ -282,7 +285,9 @@ export function AssignmentAlert() {
 
             {open ? (
               <Text style={styles.open}>
-                {t('Sent to everyone on duty. The first to respond leads; others can join as backup.')}
+                {standby
+                  ? t('Sent to everyone on standby. The first to respond leads; others can join as backup.')
+                  : t('Sent to everyone on duty. The first to respond leads; others can join as backup.')}
               </Text>
             ) : null}
 
@@ -293,7 +298,7 @@ export function AssignmentAlert() {
             <View style={{ gap: space.sm, marginTop: space.xl }}>
               {current.incident_id && current.kind !== 'sos' ? (
                 <>
-                  <Button label={t('Accept incident')} icon="checkmark-circle" size="lg" busy={accepting} onPress={() => void accept()} />
+                  <Button label={standby ? t('Accept call-out') : t('Accept incident')} icon="checkmark-circle" size="lg" busy={accepting} onPress={() => void accept()} />
                   <Button label={t('Acknowledge')} icon="eye-outline" variant="outline" size="lg" onPress={() => acknowledge(true)} />
                   <Button label={t('Navigate')} icon="navigate" variant="outline" size="lg" onPress={navigate} />
                 </>

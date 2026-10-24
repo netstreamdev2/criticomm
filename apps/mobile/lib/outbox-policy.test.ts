@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  asUuid, backoffMs, comparePriority, dedupeKeyOf, describe, isMine, isPermanent, leadsOnPhone, MAX_ATTEMPTS, mediaOnPhone,
+  asUuid, backoffMs, comparePriority, dedupeKeyOf, describe, errorText, isMine, isPermanent, leadsOnPhone, MAX_ATTEMPTS, mediaOnPhone,
   newEntryId, statusOnPhone,
   type OutboxEntry, type OutboxOp,
 } from './outbox-policy.ts';
@@ -83,6 +83,16 @@ test('only position fixes collapse; evidential ops never do', () => {
 });
 
 /* ── Retry policy ───────────────────────────────────────────────────── */
+
+test('a refusal reads as the server said it, never [object Object]', () => {
+  // The database's refusals arrive as plain objects, not Errors.
+  const refused = { code: 'P0001', message: 'Your arrival at the scene is not confirmed yet.', details: null, hint: null };
+  assert.equal(errorText(refused), 'Your arrival at the scene is not confirmed yet.');
+  assert.equal(errorText({ message: 'Incident not found', hint: 'Open the call again.' }), 'Incident not found Open the call again.');
+  assert.equal(errorText(new Error('Network request failed')), 'Network request failed');
+  assert.equal(errorText('timed out'), 'timed out');
+  for (const odd of [{}, null, undefined, 42]) assert.equal(errorText(odd), 'Unknown error');
+});
 
 test('network failures are retryable — that is the whole point of the queue', () => {
   assert.equal(isPermanent(new Error('Network request failed')), false);

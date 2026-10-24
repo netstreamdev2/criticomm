@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { tx } from '@criticom/db/i18n';
 import { useFeatures } from '@/lib/features';
+import { useAuth } from '@/lib/auth';
+import { departmentOf } from '@/lib/department';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { useFinesTab } from '@/components/fines-card';
 import { useT } from '@/lib/i18n';
@@ -22,6 +24,7 @@ export function WorkLinks() {
   const router = useRouter();
   const { enabled } = useFeatures();
   const fines = useFinesTab();
+  const { silo } = useAuth();
 
   const rows: Row[] = [
     { href: '/(tabs)/shift', icon: 'clipboard-outline', tone: colors.accent, title: tx('My shift'), sub: tx('Start of shift, your unit and kit') },
@@ -29,6 +32,8 @@ export function WorkLinks() {
     { href: '/kit', icon: 'construct-outline', tone: '#f59e0b', title: tx('Radio and hard hat'), sub: tx('What is booked to you today') },
     { href: '/my-incidents', icon: 'warning-outline', tone: colors.critical, title: tx('My incidents'), sub: tx('The calls you worked') },
     { href: '/my-performance', icon: 'stats-chart-outline', tone: colors.low, title: tx('My performance'), sub: tx('Your figures this month') },
+    // Fire & Rescue's site inspections (0106).
+    ...(departmentOf(silo) === 'fire' ? [{ href: '/inspections', icon: 'business-outline' as IconName, tone: '#f97316', title: tx('Site inspections'), sub: tx('Sites due and new inspections') }] : []),
     ...(fines ? [{ href: '/(tabs)/fines', icon: 'receipt-outline' as IconName, tone: colors.medium, title: tx('Fines'), sub: tx('Notices you issued') }] : []),
     // The radio or hard hat itself: connection, battery, start-up and its buttons.
     ...(isRadioDevice() ? [{ href: '/radio-setup', icon: 'radio-outline' as IconName, tone: colors.accent, title: tx('Radio setup'), sub: tx('Connection, battery and buttons') }] : []),

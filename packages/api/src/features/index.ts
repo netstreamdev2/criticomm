@@ -110,6 +110,16 @@ export const FEATURES: FeatureDef[] = [
     defaultEnabled: true,
   },
   {
+    key: 'mobile.talkAlwaysOn', surface: 'mobile', label: 'Talk always connected (radios)',
+    description: 'On: radios and hard hats stay joined to their department\'s Talk group all shift, so every press of the talk button is instant. Each connected device uses voice-server minutes all shift: leave off on a plan with a monthly minutes cap (the free plan has 5,000 a month and then stops); turn on with our own voice server or a paid plan.',
+    defaultEnabled: false,
+  },
+  {
+    key: 'mobile.testOnScene', surface: 'mobile', label: 'On Scene button (testing)',
+    description: 'On: while on the way, a one-tap Mark On Scene button sits beside the automatic GPS arrival, for testing away from a real scene. A tap away from the scene is still recorded as not verified. Turn off before go-live.',
+    defaultEnabled: true,
+  },
+  {
     key: 'mobile.leave', surface: 'mobile', label: 'Leave from the phone',
     description: 'Off: leave applications are console-only.',
     defaultEnabled: true,

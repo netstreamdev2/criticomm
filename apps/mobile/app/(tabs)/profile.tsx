@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { getMyPersonnel, getMyShiftKit, toggleDuty } from '@criticom/api';
+import { endStandby, getMyPersonnel, getMyShiftKit, toggleDuty } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useNotifications, type PushStatus } from '@/lib/notifications';
@@ -72,6 +72,8 @@ export default function ProfileScreen() {
   const dept = useDept();
   const words = wordsIn(silo, t);
   const police = departmentOf(silo) === 'police';
+  // Disaster Management is on standby, started with its kit check (0107).
+  const standby = departmentOf(silo) === 'disaster';
   const { refresh: refreshOpenCall } = useOpenCall();
   const [onDuty, setOnDuty] = useState(false);
   const [unit, setUnit] = useState<string | null>(null);
@@ -117,11 +119,12 @@ export default function ProfileScreen() {
   };
 
   const flipDuty = async (value: boolean) => {
-    if (!value && (await stillOnCall(t('go off duty')))) return;
+    if (!value && (await stillOnCall(standby ? t('end your standby') : t('go off duty')))) return;
     setOnDuty(value);
     setError(null);
     try {
-      await toggleDuty(getSupabase(), { onDuty: value });
+      if (standby && !value) await endStandby(getSupabase());
+      else await toggleDuty(getSupabase(), { onDuty: value });
     } catch (e) {
       setOnDuty(!value);
       setError(errorWords(e));
@@ -192,17 +195,17 @@ export default function ProfileScreen() {
       </Card>
 
       {/* Duty */}
-      <SectionLabel>{t('Duty status')}</SectionLabel>
+      <SectionLabel>{standby ? t('Standby') : t('Duty status')}</SectionLabel>
       <Card accent={onDuty ? colors.low : colors.border}>
         <View style={styles.rowBetween}>
           <View style={{ flex: 1, paddingRight: space.md }}>
             <View style={styles.dutyHeading}>
               <View style={[styles.dutyDot, { backgroundColor: onDuty ? colors.low : colors.muted }]} />
-              <Title>{onDuty ? t('On duty') : t('Off duty')}</Title>
+              <Title>{standby ? (onDuty ? t('On standby') : t('Not on standby')) : (onDuty ? t('On duty') : t('Off duty'))}</Title>
             </View>
             <Muted>
               {!onDuty
-                ? t('Going on duty shares your route with dispatch.')
+                ? (standby ? t('Start standby to be called out.') : t('Going on duty shares your route with dispatch.'))
                 : route.mode === 'denied'
                   ? t('Location is off. Dispatch cannot see where you are.')
                   : route.waiting > 0 && !online
@@ -214,7 +217,7 @@ export default function ProfileScreen() {
           </View>
           <Switch
             value={onDuty}
-            onValueChange={(v) => void flipDuty(v)}
+            onValueChange={(v) => (standby && v ? router.push('/(tabs)/shift') : void flipDuty(v))}
             trackColor={{ true: colors.low, false: colors.borderStrong }}
             thumbColor="#fff"
             accessibilityLabel={t('Toggle duty status')}
@@ -230,10 +233,11 @@ export default function ProfileScreen() {
         ) : null}
         {error ? <View style={{ marginTop: space.md }}><Banner tone="error" onDismiss={() => setError(null)}>{error}</Banner></View> : null}
         <View style={styles.endShift}>
-          <Button label={t('End shift')} icon="moon-outline" variant="subtle" onPress={() => router.push('/end-shift')} />
+          <Button label={standby ? t('End standby') : t('End shift')} icon="moon-outline" variant="subtle" onPress={() => router.push('/end-shift')} />
           <Muted style={{ marginTop: space.xs }}>
             {police ? t('Hand back your firearm and vehicle, then go off duty.')
-              : words.unit ? t('Hand back your {unit}, then go off duty.', { unit: words.unit }) : t('End your shift and go off duty.')}
+              : words.unit ? t('Hand back your {unit}, then go off duty.', { unit: words.unit })
+                : standby ? t('Hand back your kit, then end your standby.') : t('End your shift and go off duty.')}
           </Muted>
         </View>
       </Card>

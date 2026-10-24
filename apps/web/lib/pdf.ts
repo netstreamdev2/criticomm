@@ -48,10 +48,10 @@ export class ReportPdf {
     r.page.drawText('HIKTECH - eThekwini Emergency Services', {
       x: r.margin, y: r.page.getHeight() - 32, size: 10, font: r.bold, color: rgb(0.89, 0.12, 0.17),
     });
-    r.page.drawText(pdfSafe(title), {
-      x: r.margin, y: r.page.getHeight() - 52, size: 16, font: r.bold, color: rgb(1, 1, 1),
-    });
-    if (brand) await r.letterhead(brand);
+    // The crest and the municipality go in first, so the title is then sized
+    // to the space left of them and never runs under them (long ETK numbers).
+    const rightBlockLeft = brand ? await r.letterhead(brand) : r.page.getWidth() - r.margin;
+    r.fitHeading(pdfSafe(title), r.margin, r.page.getHeight() - 52, rightBlockLeft - r.margin - 14);
     r.y = r.page.getHeight() - 95;
     r.text(subtitle, 9, rgb(0.4, 0.4, 0.4));
     r.y -= 8;
@@ -59,10 +59,28 @@ export class ReportPdf {
   }
 
   /**
+   * The title in the dark band, shrunk to fit the width up to the crest, and
+   * truncated with an ellipsis only if it is still too wide at the smallest
+   * size — so a long ETK number never collides with the municipal branding.
+   */
+  private fitHeading(text: string, x: number, y: number, maxWidth: number) {
+    let size = 16;
+    while (size > 9 && this.bold.widthOfTextAtSize(text, size) > maxWidth) size -= 0.5;
+    let shown = text;
+    if (this.bold.widthOfTextAtSize(shown, size) > maxWidth) {
+      while (shown.length > 1 && this.bold.widthOfTextAtSize(`${shown}…`, size) > maxWidth) shown = shown.slice(0, -1);
+      shown = `${shown}…`;
+    }
+    this.page.drawText(shown, { x, y, size, font: this.bold, color: rgb(1, 1, 1) });
+  }
+
+  /**
    * The municipality's crest (on a white tile, so a coloured crest reads on
    * the dark band) and name; on a police record, the police badge beside it.
+   * Returns the left edge of this right-hand block, so the title can be sized
+   * to stop before it.
    */
-  private async letterhead(brand: PdfBrand) {
+  private async letterhead(brand: PdfBrand): Promise<number> {
     this.brandName = pdfSafe(brand.name);
     const top = this.page.getHeight();
     const right = this.page.getWidth() - this.margin;
@@ -89,9 +107,12 @@ export class ReportPdf {
     const width = this.bold.widthOfTextAtSize(this.brandName, size);
     this.page.drawText(this.brandName, { x: textRight - width, y: top - 32, size, font: this.bold, color: rgb(0.85, 0.87, 0.92) });
     const sub = 'Municipal record';
+    const subWidth = this.font.widthOfTextAtSize(sub, 7);
     this.page.drawText(sub, {
-      x: textRight - this.font.widthOfTextAtSize(sub, 7), y: top - 43, size: 7, font: this.font, color: rgb(0.6, 0.64, 0.72),
+      x: textRight - subWidth, y: top - 43, size: 7, font: this.font, color: rgb(0.6, 0.64, 0.72),
     });
+    // The leftmost x this right-hand block reaches: the title stops before it.
+    return textRight - Math.max(width, subWidth);
   }
 
   private newPage() {

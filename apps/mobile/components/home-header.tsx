@@ -3,8 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/lib/auth';
-import { personTitle, wordsFor } from '@/lib/department';
-import { useDuty } from '@/lib/duty';
+import { departmentOf, personTitle, wordsFor } from '@/lib/department';
+import { useDuty, needsShiftStart } from '@/lib/duty';
 import { useOpenCall, useReportingFor } from '@/lib/open-call';
 import { pickActivity, type Activity } from '@/lib/response';
 import { colors, radius, space, type, makeStyles } from '@/lib/theme';
@@ -20,7 +20,8 @@ export const ACTIVITY = (silo: string): Record<Activity['kind'], { label: string
   on_scene: { label: tx('On scene'), icon: 'location', tone: colors.critical },
   transporting: { label: tx('Transporting'), icon: 'medkit', tone: colors.purple },
   reporting: { label: tx('Filing report'), icon: 'document-text', tone: colors.cyan },
-  assigned: { label: tx('Assigned to you'), icon: 'person-add', tone: colors.medium },
+  // Disaster Management is called out from standby (0107).
+  assigned: { label: departmentOf(silo) === 'disaster' ? tx('Call-out for you') : tx('Assigned to you'), icon: 'person-add', tone: colors.medium },
 });
 const DAYS = [tx('Sunday'), tx('Monday'), tx('Tuesday'), tx('Wednesday'), tx('Thursday'), tx('Friday'), tx('Saturday')];
 const MONTHS = [tx('January'), tx('February'), tx('March'), tx('April'), tx('May'), tx('June'), tx('July'), tx('August'),
@@ -61,7 +62,11 @@ export function HomeHeader({ minimal = false }: { minimal?: boolean }) {
 
   const name = (fullName || '').split('@')[0]?.trim() || personTitle(silo, t);
   const live = onDuty === true;
-  const dutyLabel = shiftStarted === false && !live ? t('SHIFT NOT STARTED') : live ? t('ON DUTY') : t('OFF DUTY');
+  // Disaster Management is on standby, not on duty (0107).
+  const standby = departmentOf(silo) === 'disaster';
+  const dutyLabel = needsShiftStart(shiftStarted, onDuty) && !live
+    ? (standby ? t('STANDBY NOT STARTED') : t('SHIFT NOT STARTED'))
+    : live ? (standby ? t('ON STANDBY') : t('ON DUTY')) : (standby ? t('NOT ON STANDBY') : t('OFF DUTY'));
 
   return (
     <View style={[styles.wrap, minimal && styles.wrapMinimal]}>
@@ -77,7 +82,7 @@ export function HomeHeader({ minimal = false }: { minimal?: boolean }) {
         </View>
         <View style={styles.right}>
           <Pressable
-            onPress={() => router.push(shiftStarted === false ? '/(tabs)/shift' : '/(tabs)/profile')}
+            onPress={() => router.push(needsShiftStart(shiftStarted, onDuty) ? '/(tabs)/shift' : '/(tabs)/profile')}
             accessibilityRole="button"
             accessibilityLabel={dutyLabel.toLowerCase()}
             hitSlop={8}

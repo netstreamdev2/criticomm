@@ -1,12 +1,12 @@
 import { useSyncExternalStore } from 'react';
-import { PermissionsAndroid, Platform, Vibration } from 'react-native';
+import { AppState, PermissionsAndroid, Platform, Vibration } from 'react-native';
 import type { Room as LiveKitRoom } from 'livekit-client';
 import { isRadioModel, myRadioCamera, radioCameraPass } from '@criticom/api';
 import { getSupabase } from './supabase';
 import { radioId } from './presence';
 import { liveKitNative } from './talk-native';
 import { tNow } from './translator';
-import { hasCameraStandby, hasGoogleServices, startCameraStandby, stopCameraStandby } from './radio-keys';
+import { hasCameraStandby, hasGoogleServices, keepAwakeForCamera, startCameraStandby, stopCameraStandby, wakeScreen } from './radio-keys';
 
 /**
  * The radio's camera for the control room (0091).
@@ -54,6 +54,8 @@ export async function askCameraPermissions(): Promise<boolean> {
   try {
     const want = [PermissionsAndroid.PERMISSIONS.CAMERA, PermissionsAndroid.PERMISSIONS.RECORD_AUDIO]
       .filter((p): p is NonNullable<typeof p> => Boolean(p));
+    // Already allowed: no question, so this works with the screen off too.
+    if ((await Promise.all(want.map((p) => PermissionsAndroid.check(p)))).every(Boolean)) return true;
     const got = await PermissionsAndroid.requestMultiple(want);
     return want.every((p) => got[p] === PermissionsAndroid.RESULTS.GRANTED);
   } catch {
@@ -135,6 +137,12 @@ async function startCamera(viewId: string) {
   await stopCamera();
   current = { viewId, room: null };
   setLive(true);
+  // Screen off: the screen comes on with HikTech in front, so nothing waits (Android pauses
+  // an app's timers off screen) and the officer sees the camera is on. It stays on while live.
+  if (AppState.currentState !== 'active' && wakeScreen()) {
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+  keepAwakeForCamera(true);
   await tellOfficer(viewId);
   try {
     if (!liveKitNative()) throw new Error('This build cannot send video');
@@ -168,11 +176,35 @@ async function startCamera(viewId: string) {
   }
 }
 
+/**
+ * The talk button needs the microphone the live camera is sending. Android
+ * 8 (the H1 hard hat) lets only one recording run at a time, so while the
+ * officer talks the camera gives its microphone back (the picture carries
+ * on), and takes it again when they let go.
+ */
+export async function lendCameraMic(lend: boolean): Promise<void> {
+  const room = current?.room;
+  if (!room) return;
+  try {
+    const { Track } = require('livekit-client') as typeof import('livekit-client');
+    if (lend) {
+      const pub = room.localParticipant.getTrackPublication(Track.Source.Microphone);
+      // Unpublished and stopped: the recording is released, not just silenced.
+      if (pub?.track) await room.localParticipant.unpublishTrack(pub.track, true);
+    } else {
+      await room.localParticipant.setMicrophoneEnabled(true);
+    }
+  } catch (e) {
+    console.warn('[criticom] camera microphone', lend ? 'not lent' : 'not taken back', (e as Error).message);
+  }
+}
+
 async function stopCamera() {
   const was = current;
   current = null;
   if (!was) return;
   setLive(false);
+  keepAwakeForCamera(false);
   await was.room?.disconnect().catch(() => {});
   await untellOfficer(was.viewId);
 }

@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { listDisasterLogs, listOpenDisasterIncidents, listReliefStocks, listPostMortems } from '@criticom/api';
+import { listDisasterAssessments, listDisasterLogs, listOnStandby, listOpenDisasterIncidents, listReliefStocks, listPostMortems } from '@criticom/api';
+import { AssessmentFigures, StandbyList } from '@/components/disaster-assessments';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { LeafletMap } from '@/components/leaflet-map';
 import { WindWidget } from './wind-widget';
@@ -20,12 +21,18 @@ type TimelineEntry = { timestamp: string; text: string };
 export default async function DisasterPage() {
   const { t } = await requestT();
   const { supabase, role, silo } = await getSession();
-  const [logs, stocks, postMortems, activeIncidents] = await Promise.all([
+  const [logs, stocks, postMortems, activeIncidents, standby] = await Promise.all([
     listDisasterLogs(supabase),
     listReliefStocks(supabase).catch(() => []),
     listPostMortems(supabase),
     listOpenDisasterIncidents(supabase).catch(() => []),
+    // Empty until migration 0107 is run.
+    listOnStandby(supabase).catch(() => []),
   ]);
+  const assessments = await listDisasterAssessments(supabase, activeIncidents.map((i) => i.id)).catch(() => []);
+  const assessed = activeIncidents
+    .map((i) => ({ incident: i, rows: assessments.filter((a) => a.incident_id === i.id) }))
+    .filter((x) => x.rows.length > 0);
   const lowStock = stocks.filter((s) => s.quantity < 10);
   // V4's dashboard figures.
   const displaced = postMortems.reduce((n, p) => n + (p.displaced_people ?? 0), 0);
@@ -95,6 +102,32 @@ export default async function DisasterPage() {
           </CardContent>
         </Card>
         <WindWidget />
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('On standby now ({n})', { n: standby.length })}</CardTitle>
+            <CardDescription>{t('Who the call centre can call out.')}</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0"><StandbyList rows={standby} t={t} /></CardContent>
+        </Card>
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>{t('Assessed on open calls')}</CardTitle>
+            <CardDescription>{t('Every place assessed on site, added up per call.')}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {assessed.length === 0 ? <p className="text-sm text-muted-foreground">{t('No assessments yet.')}</p> : null}
+            {assessed.map(({ incident, rows }) => (
+              <div key={incident.id} className="space-y-2">
+                <Link href={`/incidents/${incident.id}`} className="font-mono text-sm text-accent hover:underline">{incident.incident_number}</Link>
+                <span className="ml-2 text-sm text-muted-foreground">{incident.incident_type} · {incident.location_address}</span>
+                <AssessmentFigures rows={rows} t={t} />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </section>
 
       <section className="space-y-4">

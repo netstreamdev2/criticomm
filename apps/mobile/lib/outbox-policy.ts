@@ -74,6 +74,27 @@ export type OutboxOp =
       fields: Record<string, string>;
     }
   | {
+      /**
+       * Disaster Management's assessment of one place on a call-out (0107).
+       * The entry id is the server's client reference: a resend never files it twice.
+       */
+      kind: 'disaster_assessment';
+      incidentId: string;
+      incidentNumber: string;
+      place: string;
+      fields: Record<string, unknown>;
+    }
+  | {
+      /**
+       * A fire safety site inspection (0106). The entry id is the server's
+       * client reference: a resend never files it twice.
+       */
+      kind: 'fire_inspection';
+      fields: Record<string, unknown>;
+      /** The business or site, for the sync tray. */
+      label: string;
+    }
+  | {
       /** The lead closes their department's part after its report (migration 0074). */
       kind: 'close_part';
       incidentId: string;
@@ -245,6 +266,10 @@ export function describe(op: OutboxOp, t: Translate = english.t): string {
       return `${t('Patient report')} · ${op.incidentNumber}`;
     case 'post_mortem':
       return `${t('Post-mortem')} · ${op.incidentNumber}`;
+    case 'disaster_assessment':
+      return `${t('Assessment')} · ${op.place} · ${op.incidentNumber}`;
+    case 'fire_inspection':
+      return `${t('Site inspection')} · ${op.label}`;
     case 'close_part':
       return `${t('Close')} · ${op.incidentNumber}`;
     case 'panic':
@@ -288,6 +313,8 @@ const PRIORITY: Record<OutboxOp['kind'], number> = {
   fire_report: 2,
   pcr: 2,
   post_mortem: 2,
+  // What the JOC and relief work from: with the reports.
+  disaster_assessment: 2,
   duty_location: 2,
   // After the report it closes (the server wants it filed first).
   close_part: 3,
@@ -298,6 +325,7 @@ const PRIORITY: Record<OutboxOp['kind'], number> = {
   // A served notice is paperwork too: after anything a live incident is
   // waiting on, ahead of photos.
   issue_fine: 4,
+  fire_inspection: 4,
   // Small, and nothing a live incident waits on.
   alert_read: 3,
   allocation_ack: 4,
@@ -354,6 +382,20 @@ export function isPermanent(error: unknown): boolean {
   // 401/403 mean the session is not authorised for this write; 404 means the
   // target is gone. 408/409/429 and every 5xx stay retryable.
   return e.status === 401 || e.status === 403 || e.status === 404;
+}
+
+/**
+ * The reason a delivery failed, in words. The database's refusals arrive as
+ * plain objects ({ message, code, … }), not Errors, so String() gave the crew
+ * "[object Object]" in the sync tray instead of what to do about it.
+ */
+export function errorText(error: unknown): string {
+  if (typeof error === 'string') return error || 'Unknown error';
+  const e = error as { message?: unknown; hint?: unknown } | null;
+  const message = e && typeof e.message === 'string' ? e.message.trim() : '';
+  const hint = e && typeof e.hint === 'string' ? e.hint.trim() : '';
+  if (message) return hint ? `${message} ${hint}` : message;
+  return 'Unknown error';
 }
 
 /**

@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { addKitRange, retireKit, returnKit, saveKit, type KitCondition, type KitKind } from '@criticom/api';
+import { addKitRange, issueKit, retireKit, returnKit, saveKit, type KitCondition, type KitKind } from '@criticom/api';
 import type { Silo } from '@criticom/db';
 import { getSession } from '@/lib/session';
 
@@ -77,6 +77,18 @@ export async function receiveKitAction(_prev: KitFormState, formData: FormData):
     return { done: 'Received back.' };
   } catch (e) {
     return { error: plain(e, 'It could not be received back.') };
+  }
+}
+
+/** Issued from the armoury to an officer (0105): the console books it to them. */
+export async function issueKitAction(_prev: KitFormState, formData: FormData): Promise<KitFormState> {
+  const { supabase } = await getSession();
+  try {
+    const r = await issueKit(supabase, text(formData, 'id') ?? '', text(formData, 'personnel_id') ?? '');
+    refresh();
+    return { done: `${r.asset_no} issued to ${r.name}.` };
+  } catch (e) {
+    return { error: plain(e, 'It could not be issued.') };
   }
 }
 

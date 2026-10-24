@@ -6,7 +6,9 @@ import { distanceWords, etaMinutes, metresApart, progressAlong, vehicleFor } fro
 import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { Button } from '@/components/ui';
 import { useT } from '@/lib/i18n';
+import { useFeatures } from '@/lib/features';
 import { tx } from '@criticom/db/i18n';
+import { ResponseVehicle } from './response-vehicle';
 
 /**
  * On the way to the scene (0099): the officer's own progress, as a ride app
@@ -18,10 +20,9 @@ import { tx } from '@criticom/db/i18n';
 
 const REASONS = [tx('GPS is not working'), tx('The pin is in the wrong place'), tx('I am at the scene')] as const;
 const LIGHTS: Record<string, [string, string]> = {
-  MetroPolice: ['#3b82f6', '#ef4444'], Ethekwini: ['#3b82f6', '#ef4444'],
+  MetroPolice: ['#3b82f6', '#60a5fa'], Ethekwini: ['#3b82f6', '#60a5fa'],
   Medical: ['#ef4444', '#ffffff'], MetroFire: ['#ef4444', '#fbbf24'], EthekwiniDisaster: ['#facc15', '#f59e0b'],
 };
-const ICON: Record<string, keyof typeof Ionicons.glyphMap> = { car: 'car-sport', ambulance: 'medkit', truck: 'bus' };
 
 export function ArrivalStrip({ scene, silo, startDistanceM, busy, onMark }: {
   /** The call's map position; null when it has none (then marking by hand is all there is). */
@@ -39,6 +40,7 @@ export function ArrivalStrip({ scene, silo, startDistanceM, busy, onMark }: {
   // A location-faking app on the phone (0100): its positions count for nothing.
   const [faked, setFaked] = useState(false);
   const [asking, setAsking] = useState(false);
+  const testing = useFeatures().enabled('mobile.testOnScene');
   const v = vehicleFor(silo);
   const [lightA, lightB] = LIGHTS[silo] ?? LIGHTS.MetroPolice!;
 
@@ -79,10 +81,13 @@ export function ArrivalStrip({ scene, silo, startDistanceM, busy, onMark }: {
   return (
     <View style={[styles.box, { borderColor: `${v.tone}66` }]}>
       <View style={styles.head}>
-        <Text style={[styles.label, { color: v.tone }]}>{close ? t('ARRIVING') : t('HEADING TO THE SCENE')}</Text>
+        <View style={styles.heading}>
+          <View style={[styles.statusDot, { backgroundColor: v.tone }]} />
+          <Text style={styles.label}>{close ? t('ARRIVING') : t('HEADING TO THE SCENE')}</Text>
+        </View>
         {scene ? (
-          <View style={{ alignItems: 'flex-end' }}>
-            <Text style={[styles.eta, { color: v.tone }]}>{minutes !== null ? t('{n} min', { n: minutes }) : '—'}</Text>
+          <View style={styles.etaCard}>
+            <Text style={styles.eta}>{minutes !== null ? t('{n} min', { n: minutes }) : '—'}</Text>
             <Text style={styles.sub}>{left !== null ? distanceWords(left) : t('Finding your position…')}</Text>
           </View>
         ) : null}
@@ -92,19 +97,25 @@ export function ArrivalStrip({ scene, silo, startDistanceM, busy, onMark }: {
         <View style={styles.track}>
           <View style={styles.rail} />
           <View style={[styles.fill, { width: `${progress * 100}%`, backgroundColor: v.tone }]} />
-          <Ionicons name="flag" size={18} color={colors.text} style={styles.flag} />
-          <View style={[styles.vehicle, { left: `${progress * 100}%`, backgroundColor: v.tone }]}>
+          <View style={[styles.origin, { backgroundColor: v.tone }]} />
+          <View style={styles.flag}><Ionicons name="flag" size={13} color={colors.text} /></View>
+          <View style={[styles.vehicle, { left: `${progress * 100}%` }]} pointerEvents="none">
+            <ResponseVehicle silo={silo} />
             <View style={styles.lights}>
               <Animated.View style={[styles.light, { backgroundColor: lightA, opacity: flash }]} />
               <Animated.View style={[styles.light, { backgroundColor: lightB, opacity: Animated.subtract(1, flash) }]} />
             </View>
-            <Ionicons name={ICON[v.kind] ?? 'car-sport'} size={18} color="#fff" />
           </View>
         </View>
       ) : null}
 
       {faked ? (
         <Text style={styles.warn}>{t('A fake location app is on. Turn it off: your position cannot be used and your supervisor is told.')}</Text>
+      ) : null}
+
+      {/* Testing (feature mobile.testOnScene): one tap beside the automatic arrival. */}
+      {scene && testing ? (
+        <Button label={t('Mark On Scene')} icon="flag" size="lg" busy={busy} onPress={() => onMark('Marked on scene (testing)')} />
       ) : null}
 
       <Text style={styles.note}>
@@ -135,25 +146,29 @@ export function ArrivalStrip({ scene, silo, startDistanceM, busy, onMark }: {
 }
 
 const useStyles = makeStyles(() => StyleSheet.create({
-  box: { borderWidth: 1, borderRadius: radius.lg, padding: space.md, gap: space.sm, backgroundColor: colors.panel },
-  head: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
-  label: { fontSize: 12, fontWeight: '900', letterSpacing: 1, marginTop: 4 },
-  eta: { fontSize: 24, fontWeight: '900', fontVariant: ['tabular-nums'] },
-  sub: { color: colors.textDim, fontSize: 13 },
-  track: { height: 44, justifyContent: 'center', marginHorizontal: 18, marginVertical: 4 },
-  rail: { position: 'absolute', left: 0, right: 0, height: 6, borderRadius: 3, backgroundColor: colors.bgSoft },
-  fill: { position: 'absolute', left: 0, height: 6, borderRadius: 3 },
-  flag: { position: 'absolute', right: -16, top: 2 },
+  box: { borderWidth: 1, borderRadius: 22, padding: space.md, gap: space.sm, backgroundColor: colors.panel },
+  head: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  heading: { flexDirection: 'row', alignItems: 'center', gap: 7, flexShrink: 1 },
+  statusDot: { width: 6, height: 6, borderRadius: 3 },
+  label: { color: colors.text, fontSize: 11, fontWeight: '800', letterSpacing: 0.8, flexShrink: 1 },
+  etaCard: { alignItems: 'flex-end', borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.bgSoft, paddingHorizontal: 12, paddingVertical: 8 },
+  eta: { color: colors.text, fontSize: 27, fontWeight: '800', letterSpacing: -1, fontVariant: ['tabular-nums'] },
+  sub: { color: colors.textDim, fontSize: 12, marginTop: 2 },
+  track: { height: 60, justifyContent: 'center', marginHorizontal: 24, marginTop: 14, marginBottom: 0 },
+  rail: { position: 'absolute', left: 0, right: 0, height: 4, borderRadius: 2, backgroundColor: colors.border },
+  fill: { position: 'absolute', left: 0, height: 4, borderRadius: 2 },
+  origin: { position: 'absolute', left: -4, width: 8, height: 8, borderRadius: 4, borderWidth: 2, borderColor: colors.bgCard },
+  flag: { position: 'absolute', right: -10, width: 22, height: 22, alignItems: 'center', justifyContent: 'center', borderRadius: 11, backgroundColor: colors.bgCard, borderWidth: 1, borderColor: colors.border },
   vehicle: {
-    position: 'absolute', width: 42, height: 30, marginLeft: -21, borderRadius: 9,
-    alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'rgba(255,255,255,0.8)',
+    position: 'absolute', width: 76, height: 46, marginLeft: -38,
+    alignItems: 'center', justifyContent: 'center', transform: [{ translateY: -17 }],
   },
-  lights: { position: 'absolute', top: -6, flexDirection: 'row', gap: 2 },
-  light: { width: 10, height: 5, borderRadius: 3 },
-  note: { color: colors.textDim, fontSize: 13 },
+  lights: { position: 'absolute', top: 8, flexDirection: 'row', gap: 2 },
+  light: { width: 7, height: 3, borderRadius: 2 },
+  note: { color: colors.textDim, fontSize: 12, lineHeight: 18 },
   warn: { color: colors.medium, fontSize: 13 },
-  manual: { alignSelf: 'flex-start', paddingVertical: 6 },
-  manualText: { color: colors.accent, fontSize: 14, fontWeight: '700', textDecorationLine: 'underline' },
+  manual: { alignSelf: 'stretch', paddingVertical: 12, paddingHorizontal: 10, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border },
+  manualText: { color: colors.accentInk, fontSize: 13, fontWeight: '700', textAlign: 'center' },
   cancel: { alignSelf: 'center', padding: 8 },
   cancelText: { color: colors.muted, fontSize: 14, fontWeight: '700' },
 }));

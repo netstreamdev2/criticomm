@@ -7,7 +7,7 @@ import { useDuty } from '@/lib/duty';
 import { presenceSentAt, reportPresence, useRadioId } from '@/lib/presence';
 import { cameraStandby, checkCamera } from '@/lib/radio-camera';
 import {
-  askToIgnoreBatterySaving, chooseOpenOnBoot, currentKeyMap, hasButtonLearning, ignoresBatterySaving, isRadioDevice, loadKeyMap,
+  askToIgnoreBatterySaving, chooseHomeScreen, chooseOpenOnBoot, hasWatchdog, homeScreenChoice, openAndroidSettings, currentKeyMap, hasButtonLearning, ignoresBatterySaving, isRadioDevice, loadKeyMap,
   onAnyButton, openOnBootChoice, saveKeyMap,
 } from '@/lib/radio-keys';
 import { startTalkWatch, stopTalkWatch } from '@/lib/radio-talk';
@@ -36,6 +36,7 @@ export default function RadioSetupScreen() {
   const [now, setNow] = useState(Date.now());
   const [battery, setBattery] = useState(ignoresBatterySaving());
   const [boot, setBoot] = useState(true);
+  const [home, setHome] = useState(true);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);
   const [learning, setLearning] = useState<'ptt' | 'sos' | null>(null);
@@ -50,6 +51,7 @@ export default function RadioSetupScreen() {
     const app = AppState.addEventListener('change', (s) => { if (s === 'active') setBattery(ignoresBatterySaving()); });
     void loadKeyMap().then(setMap);
     void openOnBootChoice().then(setBoot);
+    void homeScreenChoice().then(setHome);
     return () => { clearInterval(timer); app.remove(); };
   }, []);
 
@@ -57,7 +59,7 @@ export default function RadioSetupScreen() {
   useEffect(() => onAnyButton((e) => {
     const text = e.kind === 'key'
       ? `${e.key.pressed ? '▼' : '▲'} ${e.key.name} (${e.key.code})`
-      : `${e.radio.pressed ? '▼' : '▲'} ${e.radio.key === 'ptt' ? t('Talk button') : t('SOS button')} · ${e.radio.action ?? ''}`;
+      : `${e.radio.pressed ? '▼' : '▲'} ${e.radio.key === 'ptt' ? t('Talk button') : e.radio.key === 'camera' ? t('Camera button') : t('SOS button')} · ${e.radio.action ?? ''}`;
     setHeard((h) => [{ at: Date.now(), text }, ...h].slice(0, 10));
     const want = learningRef.current;
     if (!want || e.kind !== 'key' || !e.key.pressed) return;
@@ -142,6 +144,20 @@ export default function RadioSetupScreen() {
             </View>
             <Switch value={boot} onValueChange={toggleBoot} />
           </View>
+          {hasWatchdog() ? (
+            <View style={styles.row}>
+              <View style={{ flex: 1 }}>
+                <Title>{t('HikTech is the home screen')}</Title>
+                <Muted>{t('The radio always comes back to HikTech, after a restart too.')}</Muted>
+              </View>
+              <Switch value={home} onValueChange={(on) => { setHome(on); void chooseHomeScreen(on); }} />
+            </View>
+          ) : null}
+          {hasWatchdog() ? (
+            <Pressable onLongPress={() => { openAndroidSettings(); }} delayLongPress={1500} hitSlop={8}>
+              <Text style={styles.maintenance}>{t('Maintenance: hold here for Android settings')}</Text>
+            </Pressable>
+          ) : null}
         </Card>
       ) : null}
 
@@ -191,5 +207,6 @@ const useStyles = makeStyles(() => StyleSheet.create({
   rowLabel: { color: colors.text, fontSize: 16, fontWeight: '700' },
   rowDetail: { flex: 1, textAlign: 'right', color: colors.textDim, fontSize: 13 },
   link: { color: colors.accent, fontWeight: '700', textAlign: 'center', paddingVertical: space.sm },
+  maintenance: { color: colors.muted, fontSize: 12, textAlign: 'center', paddingTop: space.sm },
   log: { color: colors.text, fontFamily: 'monospace', fontSize: 13, paddingVertical: 2, borderRadius: radius.sm },
 }));

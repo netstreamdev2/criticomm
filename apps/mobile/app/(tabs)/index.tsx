@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { countUnreadAlerts, getMyPersonnel, listMyAssignedIncidents } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
-import { useDuty } from '@/lib/duty';
+import { useDuty, needsShiftStart } from '@/lib/duty';
 import { useSync } from '@/lib/sync';
 import { useFeatures } from '@/lib/features';
 import { homeModules } from '@/lib/modules';
@@ -48,7 +48,9 @@ function ModuleHome() {
   const styles = useStyles();
   const router = useRouter();
   const { session, silo } = useAuth();
-  const { shiftStarted } = useDuty();
+  const { shiftStarted, onDuty } = useDuty();
+  // Still on last night's shift counts as started (a shift runs past midnight).
+  const notStarted = needsShiftStart(shiftStarted, onDuty);
   const { pending, failed, online } = useSync();
   const { enabled } = useFeatures();
 
@@ -94,16 +96,16 @@ function ModuleHome() {
       {/* The three states that matter between calls */}
       <View style={styles.statusRow}>
         <Pressable
-          style={[styles.status, shiftStarted === false && styles.statusWarn]}
+          style={[styles.status, notStarted && styles.statusWarn]}
           onPress={() => router.push('/(tabs)/shift')}
         >
           <Ionicons
-            name={shiftStarted === false ? 'alert-circle' : 'shield-checkmark'}
+            name={notStarted ? 'alert-circle' : 'shield-checkmark'}
             size={16}
-            color={shiftStarted === false ? colors.medium : colors.low}
+            color={notStarted ? colors.medium : colors.low}
           />
           <Text style={styles.statusLabel}>
-            {shiftStarted === false ? t('Shift not started') : t('Cleared for duty')}
+            {notStarted ? t('Shift not started') : t('Cleared for duty')}
           </Text>
         </Pressable>
 

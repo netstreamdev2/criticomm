@@ -12,7 +12,7 @@ import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { useSync } from '@/lib/sync';
 import { useFeature } from '@/lib/features';
-import { callView, type CallView, reportPathFor } from '@/lib/response';
+import { assessmentPathFor, callView, type CallView, reportPathFor } from '@/lib/response';
 import { colors, radius, severityColor, space, timeAgo, type, makeStyles } from '@/lib/theme';
 import { Banner, EmptyState, Segmented } from '@/components/ui';
 import { formatDistance, incidentHaystack, matchesQuery } from '@/lib/incident-search';
@@ -238,7 +238,8 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
 
   const act = async (row: Row, which: 'action' | 'secondary' = 'action', reason?: string) => {
     const action = which === 'secondary' ? row.view.secondary : row.view.action;
-    if (!action || row.view.blocked) return;
+    // What blocks the main step (off duty, the report waiting for the arrival) never blocks Transporting.
+    if (!action || (which === 'action' && row.view.blocked)) return;
     // On scene comes from the phone (0099); by hand only with a reason.
     if (action.kind === 'arriving' && !reason) return;
     if (action.kind === 'report') {
@@ -246,7 +247,12 @@ export function IncidentsList({ mineOnly = false }: { mineOnly?: boolean }) {
       router.push(reportPathFor(row.call.id, silo) as never);
       return;
     }
-    if (action.kind === 'respond' && !(await confirmAccept(row.call.incident_number))) return;
+    if (action.kind === 'assessment') {
+      setSelectedId(null);
+      router.push(assessmentPathFor(row.call.id) as never);
+      return;
+    }
+    if (action.kind === 'respond' && !(await confirmAccept(row.call.incident_number, silo))) return;
     setBusyId(row.call.id);
     try {
       // Queued, not sent: returns once it is on disk, so a dead zone never

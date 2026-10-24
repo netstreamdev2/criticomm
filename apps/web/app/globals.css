@@ -1109,6 +1109,13 @@ main table td {
    Two lights flashing in turn, as on a real light bar; the vehicle glides
    along the strip as the crew closes in. Still for those who ask for less
    motion. */
+.response-card { container-type: inline-size; border-top: 3px solid var(--response-tone); }
+.response-road-progress { transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
+@container (max-width: 460px) {
+  .response-journey { margin-bottom: 5rem; }
+  .response-stop-label { width: 3.5rem; }
+  .response-stop-label[data-stagger='true'] { top: 3rem; }
+}
 @keyframes lightbar {
   0%, 45% { opacity: 1; transform: scale(1); }
   50%, 100% { opacity: 0.15; transform: scale(0.8); }
@@ -1123,7 +1130,7 @@ main table td {
 .vehicle-glide { transition: left 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
 @media (prefers-reduced-motion: reduce) {
   .lightbar-a, .lightbar-b, .vehicle-moving { animation: none; }
-  .vehicle-glide { transition: none; }
+  .vehicle-glide, .response-road-progress { transition: none; }
 }
 /* A crew's vehicle on the big map glides between fixes, never during a zoom. */
 .leaflet-marker-icon.vehicle-marker { transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1); }

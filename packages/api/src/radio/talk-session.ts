@@ -150,6 +150,11 @@ export class TalkSession {
       try {
         // Ready but silent: the microphone is open and muted, so keying up is instant.
         await withTimeout(room.localParticipant.setMicrophoneEnabled(true), CONNECT_TIMEOUT_MS, 'The microphone');
+        // Off the air the microphone is released, not only silenced: a hard
+        // hat records one thing at a time (Android 8), and its live camera
+        // needs it back. Keying up opens it again.
+        const track = this.mic()?.track as { stopOnMute?: boolean } | undefined;
+        if (track) track.stopOnMute = true;
         await this.mic()?.mute();
       } catch (e) {
         this.hooks.log?.(`[talk] microphone: ${(e as Error).message}`);

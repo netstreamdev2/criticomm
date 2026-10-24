@@ -1,4 +1,4 @@
-const { withMainActivity } = require('expo/config-plugins');
+const { withAndroidManifest, withMainActivity } = require('expo/config-plugins');
 
 /**
  * The radio's and hard hat's own buttons (modules/radio-keys): MainActivity
@@ -14,7 +14,36 @@ const METHOD = `
   }
 `;
 
+/**
+ * HikTech as the home screen of a radio or hard hat (modules/radio-keys
+ * Watchdog.kt): an alias of MainActivity in the home category, switched off
+ * here and switched on only by the app on those devices. Android brings the
+ * home screen back by itself after a crash, a kill or a restart.
+ */
+const HOME_ALIAS = 'za.co.ethekwini.criticom.HikTechHome';
+function withHomeAlias(config) {
+  return withAndroidManifest(config, (c) => {
+    const app = c.modResults.manifest.application?.[0];
+    if (!app) throw new Error('with-radio-keys: no application in the manifest');
+    app['activity-alias'] = (app['activity-alias'] ?? []).filter((a) => a.$['android:name'] !== HOME_ALIAS);
+    app['activity-alias'].push({
+      $: {
+        'android:name': HOME_ALIAS,
+        'android:targetActivity': '.MainActivity',
+        'android:enabled': 'false',
+        'android:exported': 'true',
+      },
+      'intent-filter': [{
+        action: [{ $: { 'android:name': 'android.intent.action.MAIN' } }],
+        category: [{ $: { 'android:name': 'android.intent.category.HOME' } }, { $: { 'android:name': 'android.intent.category.DEFAULT' } }],
+      }],
+    });
+    return c;
+  });
+}
+
 module.exports = function withRadioKeys(config) {
+  config = withHomeAlias(config);
   return withMainActivity(config, (c) => {
     if (c.modResults.language !== 'kt') {
       throw new Error('with-radio-keys: MainActivity is expected in Kotlin');

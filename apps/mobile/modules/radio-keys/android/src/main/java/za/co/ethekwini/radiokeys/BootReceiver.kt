@@ -20,6 +20,8 @@ class BootReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent?) {
     val action = intent?.action ?: return
     if (action !in STARTS) return
+    // The watchdog comes back with the device.
+    if (Watchdog.armed(context)) Watchdog.schedule(context)
     val prefs = context.getSharedPreferences(RadioKeysModule.PREFS, Context.MODE_PRIVATE)
     if (!prefs.getBoolean(RadioKeysModule.PREF_OPEN_ON_BOOT, false)) return
     val open = context.packageManager.getLaunchIntentForPackage(context.packageName)

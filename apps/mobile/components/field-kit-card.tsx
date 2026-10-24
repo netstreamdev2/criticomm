@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { bookKit, kitNumber, listFreeHardHats, listMyKit, noKitRegister, returnKit, type MyKit } from '@criticom/api';
+import { bookKit, hatPairing, kitNumber, listFreeHardHats, listMyKit, noKitRegister, openHatPairing, returnKit, type MyKit } from '@criticom/api';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { bookThisDevice } from '@/lib/kit';
+import { isHardHatDevice } from '@/lib/radio-keys';
 import { Banner, Button, Card, Muted, Title } from '@/components/ui';
 import { colors, radius, space, makeStyles } from '@/lib/theme';
 import { useT } from '@/lib/i18n';
@@ -12,7 +13,8 @@ import { useT } from '@/lib/i18n';
 /**
  * My radio and hard hat (0101). The radio or smart hard hat this app runs on
  * books itself; a plain hard hat is taken by the number written on it, or
- * "No hard hat today". Handing back happens at the end of the shift; here it
+ * "No hard hat today". Or paired (0105): "Pair hard hat", then press any
+ * button on the hard hat within 20 seconds. Handing back happens at the end of the shift; here it
  * can be done early (damaged or lost needs a word on what happened).
  */
 export function FieldKitCard({ compact = false }: { compact?: boolean }) {
@@ -29,6 +31,10 @@ export function FieldKitCard({ compact = false }: { compact?: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [giving, setGiving] = useState<{ bookingId: string; condition: 'damaged' | 'lost'; text: string } | null>(null);
+  // Pairing a hard hat by its button (0105): seconds left, while waiting.
+  const [pairLeft, setPairLeft] = useState<number | null>(null);
+  const pairing = useRef<{ id: string; timer: ReturnType<typeof setInterval> } | null>(null);
+  useEffect(() => () => { if (pairing.current) clearInterval(pairing.current.timer); }, []);
 
   const load = useCallback(async () => {
     if (!session) return;
@@ -74,6 +80,45 @@ export function FieldKitCard({ compact = false }: { compact?: boolean }) {
       setError((e as Error).message);
     } finally {
       setBusy(false);
+    }
+  };
+
+  const stopPairing = () => {
+    if (pairing.current) clearInterval(pairing.current.timer);
+    pairing.current = null;
+    setPairLeft(null);
+  };
+
+  /** "Press any button on your hard hat": a 20-second window, asked every second and a half. */
+  const pair = async () => {
+    setError(null);
+    setNote(null);
+    stopPairing();
+    try {
+      const w = await openHatPairing(getSupabase());
+      const until = Date.parse(w.expires_at);
+      setPairLeft(20);
+      const timer = setInterval(() => {
+        const left = Math.max(0, Math.ceil((until - Date.now()) / 1000));
+        setPairLeft(left);
+        void hatPairing(getSupabase(), w.id).then(async (r) => {
+          if (pairing.current?.id !== w.id) return;
+          if (r.state === 'paired') {
+            stopPairing();
+            setNote(t('Hard hat {no} is yours for this shift.', { no: r.asset_no ?? '' }));
+            await load();
+          } else if (r.state === 'clash') {
+            stopPairing();
+            setError(t('Two officers paired at the same moment. Press Pair hard hat again, then the button on your hard hat.'));
+          } else if (r.state === 'expired' || left === 0) {
+            stopPairing();
+            setError(t('No hard hat answered. Press Pair hard hat again, or type the number on it.'));
+          }
+        }).catch(() => { /* no signal for a moment: asked again */ });
+      }, 1500);
+      pairing.current = { id: w.id, timer };
+    } catch (e) {
+      setError((e as Error).message);
     }
   };
 
@@ -141,7 +186,13 @@ export function FieldKitCard({ compact = false }: { compact?: boolean }) {
         </View>
       ) : null}
 
-      {!hat && !noHat ? (
+      {!hat && !noHat && pairLeft !== null ? (
+        <View style={styles.box}>
+          <Text style={styles.pairTitle}>{t('Press any button on your hard hat now')}</Text>
+          <Muted>{t('{n} seconds left', { n: pairLeft })}</Muted>
+          <Button label={t('Cancel')} variant="outline" onPress={stopPairing} />
+        </View>
+      ) : !hat && !noHat ? (
         picking ? (
           <View style={styles.box}>
             <Text style={styles.label}>{t('Number on the hard hat')}</Text>
@@ -160,9 +211,15 @@ export function FieldKitCard({ compact = false }: { compact?: boolean }) {
             </View>
           </View>
         ) : (
-          <View style={styles.choices}>
-            <Button label={t('Take a hard hat')} icon="construct-outline" onPress={() => void openPicker()} style={{ flex: 1 }} />
-            <Button label={t('No hard hat')} variant="outline" onPress={() => setNoHat(true)} style={{ flex: 1 }} />
+          <View style={{ gap: space.sm, marginTop: space.sm }}>
+            {/* On the hard hat itself there is nothing to pair: it books itself. */}
+            {!isHardHatDevice() ? (
+              <Button label={t('Pair hard hat')} icon="link-outline" size="lg" onPress={() => void pair()} />
+            ) : null}
+            <View style={styles.choices}>
+              <Button label={t('Type its number')} icon="keypad-outline" variant="outline" onPress={() => void openPicker()} style={{ flex: 1 }} />
+              <Button label={t('No hard hat')} variant="outline" onPress={() => setNoHat(true)} style={{ flex: 1 }} />
+            </View>
           </View>
         )
       ) : null}
@@ -192,4 +249,5 @@ const useStyles = makeStyles(() => StyleSheet.create({
   choice: { flex: 1, alignItems: 'center', borderRadius: radius.md, borderWidth: 1, borderColor: colors.panelBorder, paddingVertical: 10 },
   choiceOn: { borderColor: colors.accent, backgroundColor: `${colors.accent}22` },
   choiceText: { color: colors.text, fontWeight: '800' },
+  pairTitle: { color: colors.text, fontSize: 18, fontWeight: '900' },
 }));

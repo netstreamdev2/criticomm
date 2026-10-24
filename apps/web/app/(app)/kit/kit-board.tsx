@@ -6,7 +6,7 @@ import { HardHat, Radio, Search, Smartphone, X } from 'lucide-react';
 import type { KitBookingRow, KitEntry } from '@criticom/api/radio';
 import { useT } from '@/components/i18n';
 import { cn, formatSaTime, timeAgo } from '@/lib/utils';
-import { addRangeAction, receiveKitAction, retireKitAction, saveKitAction, type KitFormState } from './actions';
+import { addRangeAction, issueKitAction, receiveKitAction, retireKitAction, saveKitAction, type KitFormState } from './actions';
 
 type Option = { id: string; label: string };
 type KindFilter = 'all' | 'hard_hat' | 'radio';
@@ -28,7 +28,7 @@ const KindIcon = ({ kind, className }: { kind: KitEntry['kind']; className?: str
   kind === 'hard_hat' ? <HardHat className={className} aria-hidden /> : <Radio className={className} aria-hidden />;
 
 /** The register: who has what, filters, and the side panel for one item or adding more. */
-export function KitBoard({ items, picked, history, manages, showRetired, departments, defaultSilo }: {
+export function KitBoard({ items, picked, history, manages, showRetired, departments, defaultSilo, people }: {
   items: KitEntry[];
   picked: KitEntry | null;
   history: KitBookingRow[];
@@ -36,6 +36,8 @@ export function KitBoard({ items, picked, history, manages, showRetired, departm
   showRetired: boolean;
   departments: Option[];
   defaultSilo: string;
+  /** Who the armoury may issue kit to. */
+  people: Option[];
 }) {
   const { t } = useT();
   const [kind, setKind] = useState<KindFilter>('all');
@@ -140,7 +142,7 @@ export function KitBoard({ items, picked, history, manages, showRetired, departm
 
         <aside className="space-y-4 lg:sticky lg:top-4 lg:self-start">
           {picked ? (
-            <ItemPanel key={picked.id} item={picked} history={history} manages={manages} departments={departments} close={`/kit${showRetired ? '?retired=1' : ''}`} />
+            <ItemPanel key={picked.id} item={picked} history={history} manages={manages} departments={departments} people={people} close={`/kit${showRetired ? '?retired=1' : ''}`} />
           ) : manages ? (
             <AddPanel departments={departments} defaultSilo={defaultSilo} />
           ) : (
@@ -168,13 +170,14 @@ function Result({ state }: { state: KitFormState }) {
 }
 
 /** One item: who has it, receive it back, change it, its history, take it out of service. */
-function ItemPanel({ item, history, manages, departments, close }: {
-  item: KitEntry; history: KitBookingRow[]; manages: boolean; departments: Option[]; close: string;
+function ItemPanel({ item, history, manages, departments, people, close }: {
+  item: KitEntry; history: KitBookingRow[]; manages: boolean; departments: Option[]; people: Option[]; close: string;
 }) {
   const { t } = useT();
   const [tab, setTab] = useState<'history' | 'edit'>('history');
   const [received, receive, receiving] = useActionState(receiveKitAction, null);
   const [retired, retire, retiring] = useActionState(retireKitAction, null);
+  const [issued, issue, issuing] = useActionState(issueKitAction, null);
   const [condition, setCondition] = useState<'fine' | 'damaged' | 'lost'>('fine');
 
   return (
@@ -220,6 +223,22 @@ function ItemPanel({ item, history, manages, departments, close }: {
         </div>
       ) : item.status_note ? (
         <p className="rounded-lg border border-border p-3 text-sm">{item.status_note}</p>
+      ) : null}
+
+      {/* The armoury issues it (0105): pick the officer, it is booked to them. */}
+      {manages && people.length && (item.status === 'available' || item.status === 'in_use') ? (
+        <form action={issue} className="space-y-2 rounded-lg border border-border p-3">
+          <input type="hidden" name="id" value={item.id} />
+          <label className={label} htmlFor="issue-to">{item.holder ? t('Give it to someone else') : t('Issue to an officer')}</label>
+          <select id="issue-to" name="personnel_id" required defaultValue="" className={field}>
+            <option value="" disabled>{t('Choose the officer')}</option>
+            {people.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+          </select>
+          <Result state={issued} />
+          <button type="submit" disabled={issuing} className="h-9 w-full rounded-md bg-primary text-sm font-semibold disabled:opacity-60">
+            {issuing ? t('Saving…') : t('Issue it')}
+          </button>
+        </form>
       ) : null}
 
       {manages ? (

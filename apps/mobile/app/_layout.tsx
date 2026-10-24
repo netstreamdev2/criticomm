@@ -18,6 +18,7 @@ import { AlertBanners, AssignmentAlert } from '@/components/alerts';
 import { PanicButton } from '@/components/panic-button';
 import { BodycamWatchNotice } from '@/components/bodycam-watch';
 import { RadioCameraNotice } from '@/components/radio-camera-notice';
+import { HatPairedBanner } from '@/components/hat-paired-banner';
 import { SyncTray } from '@/components/sync-tray';
 import { colors, space, type, makeStyles, useTheme, loadThemeMode } from '@/lib/theme';
 import { HikTechLogo } from '@/components/hiktech-logo';
@@ -206,6 +207,25 @@ export default function RootLayout() {
               })}
             />
             <Stack.Screen
+              name="assessment/[id]"
+              options={({ route }) => ({
+                title: t('Assessment'), headerBackTitle: t('Back'),
+                headerRight: () => <HeaderCriti incidentId={(route.params as { id?: string } | undefined)?.id} />,
+              })}
+            />
+            <Stack.Screen
+              name="inspections"
+              options={{ title: t('Site inspections'), headerBackTitle: t('Back') }}
+            />
+            <Stack.Screen
+              name="inspection/new"
+              options={{ title: t('Site inspection'), headerBackTitle: t('Back') }}
+            />
+            <Stack.Screen
+              name="inspection/[id]"
+              options={{ title: t('Inspection'), headerBackTitle: t('Back') }}
+            />
+            <Stack.Screen
               name="assistant"
               options={{ title: t('Criti'), headerBackTitle: t('Back') }}
             />
@@ -275,6 +295,7 @@ export default function RootLayout() {
           <SyncTray />
           <BodycamWatchNotice />
           <RadioCameraNotice />
+          <HatPairedBanner />
         </NotificationsProvider>
         </SyncProvider>
         </FeaturesProvider>

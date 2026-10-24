@@ -1,14 +1,16 @@
 import { useEffect } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
 import { recordFixes, refreshRouteStatus, sendRoute, startRoute, stopRoute } from '@/lib/tracker';
-import { askBatteryAtShiftStart, initRadioButtons, onDutyFix, onDutyTick } from '@/lib/radio-keys';
+import { armWatchdog, askBatteryAtShiftStart, initRadioButtons, keepHardHatAwake, keepJsRunning, onDutyFix, onDutyTick, watchdogBeat } from '@/lib/radio-keys';
 import { HEARTBEAT_MS, presenceSignedIn, reportPresence } from '@/lib/presence';
 import { cameraStandby, checkCamera } from '@/lib/radio-camera';
 import { checkTalk, startTalkWatch, stopTalkWatch } from '@/lib/radio-talk';
+import { startHatPairing } from '@/lib/hat-pairing';
 import { deptChannel } from '@criticom/api';
+import { useFeature } from '@/lib/features';
 
 /**
  * Records the officer's route while they are on duty, whichever screen is
@@ -65,11 +67,35 @@ export function RouteTracker() {
  */
 export function RadioPresence() {
   const { session, silo } = useAuth();
+  const talkAlwaysOn = useFeature('mobile.talkAlwaysOn');
   const { onDuty } = useDuty();
   const userId = session?.user.id ?? null;
 
   // The taught buttons, and a radio set to open when switched on (modules/radio-keys).
   useEffect(() => { void initRadioButtons(); }, []);
+
+  // A hard hat signed in: its buttons can pair it to an officer's radio (0105).
+  useEffect(() => (userId ? startHatPairing() : undefined), [userId]);
+
+  // On duty on a hard hat: the screen stays on (its maker freezes apps once it is off on battery).
+  useEffect(() => {
+    if (onDuty === null) return;
+    const on = Boolean(userId) && onDuty;
+    keepHardHatAwake(on);
+    // Timers keep running with the screen off (camera, Talk), radios and hard hats.
+    keepJsRunning(on);
+    if (!on) return;
+    const app = AppState.addEventListener('change', (s) => { if (s === 'active') keepHardHatAwake(true); });
+    return () => app.remove();
+  }, [userId, onDuty]);
+
+  // On duty on a radio or hard hat: the watchdog keeps the app on the air.
+  // Off duty the app is quiet by design, so the watchdog is off too.
+  useEffect(() => {
+    if (onDuty === null) return;
+    armWatchdog(Boolean(userId) && onDuty);
+    if (userId && onDuty) watchdogBeat();
+  }, [userId, onDuty]);
 
   // On duty: battery saving must not stop the route, the camera and Talk.
   useEffect(() => {
@@ -83,7 +109,7 @@ export function RadioPresence() {
     const start = () => {
       if (timer) return;
       void reportPresence();
-      timer = setInterval(() => { void reportPresence(); }, HEARTBEAT_MS);
+      timer = setInterval(() => { watchdogBeat(); void reportPresence(); }, HEARTBEAT_MS);
     };
     const stop = () => {
       if (timer) clearInterval(timer);
@@ -108,6 +134,8 @@ export function RadioPresence() {
   useEffect(() => {
     if (!userId) return;
     const offTick = onDutyTick(() => {
+      // Alive: the watchdog waits again (it opens the app when these stop).
+      watchdogBeat();
       void reportPresence({ minGapMs: 30_000 });
       void checkCamera();
       void checkTalk();
@@ -128,16 +156,20 @@ export function RadioPresence() {
     };
   }, [userId]);
 
-  // The radio's camera for the control room (0091): its standby starts only
-  // with the app on screen, on duty; the check runs every few seconds while
-  // open (with the screen off, the route recorder runs it).
+  // The radio's camera for the control room (0091): its standby starts on
+  // duty with the app on screen; the check runs every few seconds while open
+  // (with the screen off, the route recorder runs it). Before Android 12 (the
+  // H1 hard hat) it may also start with the screen off, so an app restarted
+  // in the background (an update, a crash) comes back by itself: a hard hat
+  // has no one to open it.
   useEffect(() => {
     if (!userId || onDuty === null) return;
-    const standby = () => { if (AppState.currentState === 'active') void cameraStandby(onDuty); };
+    const mayStartUnseen = Platform.OS === 'android' && Number(Platform.Version) < 31;
+    const standby = () => { if (AppState.currentState === 'active' || mayStartUnseen) void cameraStandby(onDuty); };
     standby();
     if (!onDuty) return;
     // The console's calls (0095): heard with the screen off, no Talk screen needed.
-    startTalkWatch(deptChannel(silo));
+    startTalkWatch(deptChannel(silo), { alwaysOn: talkAlwaysOn });
     const timer = setInterval(() => { void checkCamera(); }, 8_000);
     void checkCamera();
     const app = AppState.addEventListener('change', (s) => { if (s === 'active') { standby(); void checkCamera(); } });
@@ -146,7 +178,7 @@ export function RadioPresence() {
       app.remove();
       void stopTalkWatch();
     };
-  }, [userId, onDuty, silo]);
+  }, [userId, onDuty, silo, talkAlwaysOn]);
 
   return null;
 }

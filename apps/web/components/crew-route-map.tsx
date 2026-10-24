@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { Ambulance, CarFront, Crosshair, Flag, Truck } from 'lucide-react';
+import { Crosshair, Flag } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import { escapeHtml } from '@/lib/utils';
 import { useT } from '@/components/i18n';
+import { responseVehicleSrc } from '@/components/response-vehicle';
 
 /**
  * The big view of a crew on its way (0099), as a ride app shows the car: a
@@ -26,30 +27,27 @@ export type MapCrew = {
 };
 
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services';
-const ICONS = { car: CarFront, ambulance: Ambulance, truck: Truck } as const;
+const vehicleSize = (lead: boolean) => lead ? 40 : 34;
 
-function vehicleHtml(kind: keyof typeof ICONS, tone: string, lights: [string, string], lead: boolean, stale: boolean) {
-  const Icon = ICONS[kind];
-  const size = lead ? 40 : 32;
-  const svg = renderToStaticMarkup(<Icon size={lead ? 20 : 16} color="#fff" strokeWidth={2.4} />);
+function vehicleHtml(silo: string, lights: [string, string], lead: boolean, stale: boolean) {
+  const size = vehicleSize(lead);
   return `<div style="position:relative;width:${size}px;height:${size}px;opacity:${stale ? 0.45 : 1}">
-    ${lead && !stale ? `<span class="animate-ping" style="position:absolute;inset:-4px;border-radius:14px;background:${tone};opacity:.35"></span>` : ''}
-    <span style="position:absolute;inset:0;border-radius:12px;background:${tone};border:2.5px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center">${svg}</span>
-    ${stale ? '' : `<span style="position:absolute;top:-6px;left:50%;transform:translateX(-50%);display:flex;gap:2px">
-      <span class="lightbar-a" style="display:block;width:11px;height:5px;border-radius:3px;background:${lights[0]};box-shadow:0 0 8px ${lights[0]}"></span>
-      <span class="lightbar-b" style="display:block;width:11px;height:5px;border-radius:3px;background:${lights[1]};box-shadow:0 0 8px ${lights[1]}"></span>
+    <img src="${responseVehicleSrc(silo)}" alt="" draggable="false" width="${size}" height="${size}" style="position:absolute;inset:0;width:${size}px;height:${size}px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))" />
+    ${stale ? '' : `<span style="position:absolute;top:24%;left:50%;transform:translateX(-50%);display:flex;gap:2px">
+      <span class="lightbar-a" style="display:block;width:4px;height:2px;border-radius:2px;background:${lights[0]};box-shadow:0 0 3px ${lights[0]}"></span>
+      <span class="lightbar-b" style="display:block;width:4px;height:2px;border-radius:2px;background:${lights[1]};box-shadow:0 0 3px ${lights[1]}"></span>
     </span>`}
   </div>`;
 }
 
-export function CrewRouteMap({ scene, crew, path, onTheWay = true, kind, tone, lights, overlay }: {
+export function CrewRouteMap({ scene, crew, path, onTheWay = true, silo, tone, lights, overlay }: {
   /** Still heading there: draw the road. Arrived: no line. */
   onTheWay?: boolean;
   scene: { lat: number; lng: number };
   crew: MapCrew[];
   /** The road from the lead to the scene, latitude first. */
   path: Array<[number, number]> | null;
-  kind: keyof typeof ICONS;
+  silo: string;
   tone: string;
   lights: [string, string];
   /** The numbers on top of the map. */
@@ -127,10 +125,10 @@ export function CrewRouteMap({ scene, crew, path, onTheWay = true, kind, tone, l
     const seen = new Set<string>();
     for (const c of crew) {
       seen.add(c.userId);
-      const html = vehicleHtml(kind, tone, lights, c.lead, c.stale);
+      const html = vehicleHtml(silo, lights, c.lead, c.stale);
       let m = markers.current.get(c.userId);
       if (!m) {
-        const size = c.lead ? 40 : 32;
+        const size = vehicleSize(c.lead);
         m = L.marker([c.lat, c.lng], {
           icon: L.divIcon({ className: 'vehicle-marker', iconSize: [size, size], iconAnchor: [size / 2, size / 2], html }),
           zIndexOffset: c.lead ? 1000 : 800,
@@ -143,7 +141,7 @@ export function CrewRouteMap({ scene, crew, path, onTheWay = true, kind, tone, l
     for (const [id, m] of markers.current) {
       if (!seen.has(id)) { m.remove(); markers.current.delete(id); }
     }
-  }, [ready, crew, kind, tone, lights]);
+  }, [ready, crew, silo, tone, lights]);
 
   // Following: the crew and the scene in view as they close in.
   useEffect(() => {
@@ -155,10 +153,10 @@ export function CrewRouteMap({ scene, crew, path, onTheWay = true, kind, tone, l
   }, [ready, follow, crew, path, scene]);
 
   return (
-    <div className="relative h-[380px] overflow-hidden rounded-xl border border-border sm:h-[460px]">
+    <div className="relative h-[420px] overflow-hidden rounded-2xl border border-border sm:h-[480px]">
       <div ref={el} className="absolute inset-0 bg-[#1a1d24]" />
       <div className="pointer-events-none absolute inset-x-3 top-3 z-[500] flex justify-start">
-        <div className="pointer-events-auto">{overlay}</div>
+        <div className="pointer-events-auto max-w-full">{overlay}</div>
       </div>
       {!follow ? (
         <button

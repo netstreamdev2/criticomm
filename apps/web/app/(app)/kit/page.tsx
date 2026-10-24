@@ -1,7 +1,7 @@
 import { HardHat } from 'lucide-react';
-import { DEPARTMENT_LABELS, listKit, listKitHistory, noKitRegister, type KitEntry } from '@criticom/api';
+import { DEPARTMENT_LABELS, listKit, listKitHistory, listPersonnel, noKitRegister, type KitEntry } from '@criticom/api';
 import type { UserRole } from '@criticom/db';
-import { getSession } from '@/lib/session';
+import { getSession, siloFilter } from '@/lib/session';
 import { requestT } from '@/lib/i18n';
 import { KitBoard } from './kit-board';
 
@@ -34,6 +34,12 @@ export default async function KitPage({ searchParams }: { searchParams: Promise<
   const picked = items.find((i) => i.id === one(params.item)) ?? null;
   const history = picked ? await listKitHistory(supabase, picked.id).catch(() => []) : [];
   const manages = MANAGERS.includes(role);
+  // Who the armoury may issue to: the department's people with a sign-in.
+  const people = manages
+    ? (await listPersonnel(supabase, siloFilter(silo)).catch(() => []))
+        .filter((p) => p.user_id)
+        .map((p) => ({ id: p.id, label: `${[p.rank, p.first_name, p.last_name].filter(Boolean).join(' ')}${p.badge_number ? ` (${p.badge_number})` : ''}` }))
+    : [];
   const departments = role === 'Admin' || role === 'Supervisor' || role === 'Captain' || role === 'FireChief'
     ? [silo]
     : Object.keys(DEPARTMENT_LABELS);
@@ -65,6 +71,7 @@ export default async function KitPage({ searchParams }: { searchParams: Promise<
           showRetired={one(params.retired) === '1'}
           departments={departments.map((d) => ({ id: d, label: DEPARTMENT_LABELS[d] ?? d }))}
           defaultSilo={silo === 'Ethekwini' ? '' : silo}
+          people={people}
         />
       )}
     </div>

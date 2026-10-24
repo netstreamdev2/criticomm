@@ -6,14 +6,15 @@ import { AppState } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import * as FileSystem from 'expo-file-system';
 import {
-  addIncidentUpdate, closeDepartmentPart, fileFireReport, fileIncidentReport, filePcr, filePostMortem, issueFines, raisePanic, recordTrack, toggleDuty, updateResponderStatus,
+  addIncidentUpdate, closeDepartmentPart, fileDisasterAssessment, fileFireInspection, fileFireReport, fileIncidentReport, filePcr,
+  filePostMortem, issueFines, raisePanic, recordTrack, toggleDuty, updateResponderStatus,
   uploadIncidentEvidence,
 } from '@criticom/api';
 import type { CriticomClient, IncidentStatus } from '@criticom/db';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import {
-  asUuid, backoffMs, comparePriority, dedupeKeyOf, describe, isMine, isPermanent, MAX_ATTEMPTS, newEntryId,
+  asUuid, backoffMs, comparePriority, dedupeKeyOf, describe, errorText, isMine, isPermanent, MAX_ATTEMPTS, newEntryId,
   readOutbox, releaseAttachment, setLiveEnqueue, writeOutbox,
   type OutboxEntry, type OutboxOp,
 } from '@/lib/outbox';
@@ -347,6 +348,18 @@ const HANDLERS: { [K in OutboxOp['kind']]: Handler } = {
     if (error) throw error;
   },
 
+  /** Idempotent on the server: the entry id is the assessment's client reference (0107). */
+  disaster_assessment: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'disaster_assessment' }>;
+    await fileDisasterAssessment(client, { incidentId: op.incidentId, clientRef: asUuid(entry.id), fields: op.fields });
+  },
+
+  /** Idempotent on the server: the entry id is the inspection's client reference (0106). */
+  fire_inspection: async (client, entry) => {
+    const op = entry.op as Extract<OutboxOp, { kind: 'fire_inspection' }>;
+    await fileFireInspection(client, { clientRef: asUuid(entry.id), fields: op.fields });
+  },
+
   issue_fine: async (client, entry) => {
     const op = entry.op as Extract<OutboxOp, { kind: 'issue_fine' }>;
     await issueFines(client, {
@@ -471,7 +484,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
           const attempts = entry.attempts + 1;
           const permanent = isPermanent(error);
           const exhausted = attempts >= MAX_ATTEMPTS;
-          const message = error instanceof Error ? error.message : String(error);
+          const message = errorText(error);
 
           await commit(ref.current.map((e) => (
             e.id === entry.id

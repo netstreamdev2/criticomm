@@ -13,7 +13,7 @@ import type { Database, IncidentStatus } from '@criticom/db/types';
 import { getSupabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useDuty } from '@/lib/duty';
-import { callView, isPoliceCall, MAX_PHOTOS, photosRemaining, reportPathFor } from '@/lib/response';
+import { assessmentPathFor, callView, isPoliceCall, MAX_PHOTOS, photosRemaining, reportPathFor } from '@/lib/response';
 import { departmentOf, personTitle, wordsIn } from '@/lib/department';
 import { openDirections } from '@/lib/navigate';
 import { useSync } from '@/lib/sync';
@@ -140,13 +140,14 @@ export default function IncidentDetailScreen() {
     const action = which === 'secondary' ? current.secondary : current.action;
     if (!action) return;
     if (action.kind === 'report') { router.push(reportPathFor(incident.id, silo) as never); return; }
+    if (action.kind === 'assessment') { router.push(assessmentPathFor(incident.id) as never); return; }
     // On scene comes from the phone (0099); by hand only with a reason.
     if (action.kind === 'arriving' && !reason) return;
     if (action.kind === 'respond' && onDuty === false) {
       notify(t('You are off duty. Go on duty to respond to incidents.'));
       return;
     }
-    if (action.kind === 'respond' && !(await confirmAccept(incident.incident_number))) return;
+    if (action.kind === 'respond' && !(await confirmAccept(incident.incident_number, silo))) return;
     setBusy('status');
     try {
       // Queued, not sent; the server decides lead or backup and tells dispatch.
@@ -409,8 +410,8 @@ export default function IncidentDetailScreen() {
               />
             ) : (
               <Button
-                label={action.kind === 'respond' ? t('Accept') : action.label}
-                icon={action.kind === 'report' ? 'document-text' : action.kind === 'respond' ? 'checkmark-circle' : 'arrow-forward-circle'}
+                label={action.label}
+                icon={action.kind === 'report' ? 'document-text' : action.kind === 'assessment' ? 'clipboard' : action.kind === 'respond' ? 'checkmark-circle' : 'arrow-forward-circle'}
                 variant={action.kind === 'report' ? 'success' : 'primary'}
                 size="lg"
                 busy={busy === 'status'}
@@ -422,10 +423,10 @@ export default function IncidentDetailScreen() {
               <View style={{ marginTop: space.sm }}>
                 <Button
                   label={view.secondary.label}
-                  icon="medkit-outline"
+                  icon={view.secondary.kind === 'report' ? 'document-text-outline' : 'medkit-outline'}
                   variant="outline"
                   busy={busy === 'status'}
-                  disabled={Boolean(view.blocked)}
+                  // Not disabled with the report: moving a patient never waits for the arrival.
                   onPress={() => void advance('secondary')}
                 />
               </View>

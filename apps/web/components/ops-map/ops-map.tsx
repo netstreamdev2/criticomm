@@ -34,7 +34,7 @@ import {
   Crosshair, Layers, Maximize2, Minimize2, Shapes, Siren, Wind, X,
 } from 'lucide-react';
 import {
-  listBodycamHolders, listCameras, listCrimeZones, listDutyTracks, listHydrants, subscribeBodycams,
+  listBodycamHolders, listCameras, listCrimeZones, listDutyTracks, listHydrantsInArea, subscribeBodycams,
   type DutyTrackPoint, type LiveMapZone, type OnDutyOfficer,
 } from '@criticom/api';
 import {
@@ -80,6 +80,8 @@ type WeatherNow = {
 };
 
 const DURBAN: [number, number] = [-29.8587, 31.0218];
+/** Hydrants show from street level: zoomed out, the city's 34,000 would bury the map. */
+const HYDRANT_MIN_ZOOM = 15;
 /** SOS pins this close together are listed together in one card. */
 const SOS_SPOT_M = 60;
 // v2: the perimeters layer arrived, on by default.
@@ -651,10 +653,6 @@ export function OpsMap({
       setCrime(r);
       if (!r.stations.length) note('crime', 'No crime statistics loaded yet (pnpm db:load-crime).');
     });
-    load('hydrants', hydrants, () => listHydrants(sb), (rows) => {
-      setHydrants(rows);
-      if (!rows.length) note('hydrants', 'The hydrant register is empty.');
-    });
     load('cameras', cameras, () => listCameras(sb), (rows) => {
       setCameras(rows);
       if (!rows.some((c) => hasPosition(c.latitude, c.longitude))) note('cameras', 'No registered camera has a position.');
@@ -667,7 +665,48 @@ export function OpsMap({
         setFacilities([]);
       }
     });
-  }, [active, crime, hydrants, cameras, facilities, note]);
+  }, [active, crime, cameras, facilities, note]);
+
+  // Hydrants: the city's whole register is about 34,000, so only those in
+  // view are read, from street level, again each time the map stops moving.
+  const hydrantsOn = active.includes('hydrants');
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!ready || !map || !hydrantsOn) return;
+    let sb: ReturnType<typeof getBrowserSupabase>;
+    try {
+      sb = getBrowserSupabase();
+    } catch {
+      return;
+    }
+    let asked = 0;
+    let wait: ReturnType<typeof setTimeout> | undefined;
+    const read = () => {
+      const ask = ++asked;
+      if (map.getZoom() < HYDRANT_MIN_ZOOM) {
+        setHydrants([]);
+        note('hydrants', 'Zoom in to street level to see hydrants.');
+        return;
+      }
+      const b = map.getBounds().pad(0.2);
+      listHydrantsInArea(sb, { south: b.getSouth(), west: b.getWest(), north: b.getNorth(), east: b.getEast() })
+        .then((rows) => {
+          if (ask !== asked) return;
+          setHydrants(rows);
+          note('hydrants', rows.length ? null : 'No hydrants on the register here.');
+        })
+        .catch(() => { if (ask === asked) note('hydrants', 'Could not load — switch it off and on to retry.'); });
+    };
+    const later = () => { clearTimeout(wait); wait = setTimeout(read, 300); };
+    read();
+    map.on('moveend', later);
+    return () => {
+      asked++;
+      clearTimeout(wait);
+      map.off('moveend', later);
+      setHydrants(null);
+    };
+  }, [ready, hydrantsOn, note]);
 
   // Traffic changes by the minute: reload every five while it is on.
   const trafficOn = active.includes('traffic');
@@ -777,9 +816,9 @@ export function OpsMap({
   useEffect(() => {
     const L = lib.current;
     const g = groups.current.hydrants;
-    if (!ready || !L || !g || !hydrants) return;
+    if (!ready || !L || !g) return;
     g.clearLayers();
-    for (const h of hydrants) {
+    for (const h of hydrants ?? []) {
       if (!hasPosition(h.latitude, h.longitude)) continue;
       const colour = HYDRANT_COLOUR[h.status] ?? '#38bdf8';
       L.circleMarker([h.latitude, h.longitude], {

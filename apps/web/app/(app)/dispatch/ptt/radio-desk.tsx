@@ -106,12 +106,14 @@ function Count({ value, label, tone }: { value: number; label: string; tone: str
   );
 }
 
-function RadioPanel({ v, route, routeState, onShowRoute, onClose }: {
+function RadioPanel({ v, route, routeState, onShowRoute, onClose, onTalkTo }: {
   v: RadioView;
   route: DutyTrackPoint[] | null;
   routeState: 'idle' | 'loading' | 'error';
   onShowRoute: () => void;
   onClose: () => void;
+  /** Talk to this device only (0103); absent when it does not run the app. */
+  onTalkTo?: () => void;
 }) {
   const { t } = useT();
   const l = v.live;
@@ -150,6 +152,15 @@ function RadioPanel({ v, route, routeState, onShowRoute, onClose }: {
         </button>
       ) : null}
 
+      {onTalkTo ? (
+        <button
+          type="button" onClick={onTalkTo}
+          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-primary text-base font-bold text-primary hover:bg-primary/10"
+        >
+          <Mic className="h-5 w-5" /> {t('Talk to this radio only')}
+        </button>
+      ) : null}
+
       {l?.userId ? (
         <button
           type="button" onClick={onShowRoute} disabled={routeState === 'loading'}
@@ -173,6 +184,9 @@ export function RadioDesk({ initial, talk, canManage }: {
   const [desk, setDesk] = useState(initial);
   const [q, setQ] = useState('');
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  // Talking to one device only (0103): its own talk group, first in the Talk panel.
+  const [direct, setDirect] = useState<TalkChannel | null>(null);
+  const talkChannels = useMemo(() => (direct ? [direct, ...talk.channels] : talk.channels), [direct, talk.channels]);
   const [mode, setMode] = useState<Mode>('list');
   const [route, setRoute] = useState<{ key: string; points: DutyTrackPoint[] } | null>(null);
   const [routeState, setRouteState] = useState<'idle' | 'loading' | 'error'>('idle');
@@ -241,7 +255,8 @@ export function RadioDesk({ initial, talk, canManage }: {
       </h1>
 
       {talk.channels.length ? (
-        <TalkPanel channels={talk.channels} title={t('Talk')} />
+        // Remounted when a device is picked, so the panel opens on it. Its other buttons go back to the groups.
+        <TalkPanel key={direct?.channel ?? 'groups'} channels={talkChannels} title={t('Talk')} />
       ) : (
         <p className="frost rounded-xl border border-border px-4 py-3 text-base">
           {t('Talk is not ready.')}{' '}
@@ -304,6 +319,12 @@ export function RadioDesk({ initial, talk, canManage }: {
             routeState={routeState}
             onShowRoute={() => { changeMode('map'); void loadRoute(selected); }}
             onClose={() => select(null)}
+            onTalkTo={selected.live?.provider === 'hiktech' && talk.channels.length
+              ? () => {
+                setDirect({ channel: `radio:${selected.live!.account}`, name: `${selected.title} only`, speak: true, priority: true });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+              : undefined}
           />
         ) : null}
       </div>

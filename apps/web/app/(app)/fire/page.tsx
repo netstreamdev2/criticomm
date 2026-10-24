@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { listActiveIncidents, listFirefighterReports, listHydrants, listPublicIncidentReports } from '@criticom/api';
+import { countHydrants, listActiveIncidents, listFirefighterReports, listPublicIncidentReports } from '@criticom/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SimpleTable, Tr, Td } from '@/components/simple-table';
 import { IncidentLive } from '@/components/incident-live';
@@ -30,10 +30,9 @@ export default async function FirePage() {
   const [active, reports, hydrants, pirs] = await Promise.all([
     listActiveIncidents(supabase, 'MetroFire').catch(() => []),
     listFirefighterReports(supabase),
-    listHydrants(supabase),
+    countHydrants(supabase).catch(() => ({ total: 0, operational: 0 })),
     listPublicIncidentReports(supabase),
   ]);
-  const operationalHydrants = hydrants.filter((h) => h.status === 'Operational').length;
   const live = active.filter((i) => !['New', 'Pending', 'Pending Dispatch', 'Pending Analysis'].includes(i.status));
   const count = (s: string[]) => live.filter((i) => s.includes(i.status)).length;
   const today = new Date(Date.now() + 2 * 3600_000).toISOString().slice(0, 10);
@@ -102,7 +101,7 @@ export default async function FirePage() {
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs uppercase text-muted-foreground">{t('Hydrants operational')}</p>
-          <p className="mt-2 text-3xl font-bold text-severity-low-ink">{operationalHydrants}/{hydrants.length}</p>
+          <p className="mt-2 text-3xl font-bold text-severity-low-ink">{hydrants.operational.toLocaleString('en-ZA')}/{hydrants.total.toLocaleString('en-ZA')}</p>
           <Link href="/fire/hydrants" className="text-sm text-accent hover:underline">{t('Hydrant register →')}</Link>
         </CardContent></Card>
         <Card><CardContent className="p-4">

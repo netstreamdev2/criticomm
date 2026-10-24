@@ -1,4 +1,4 @@
--- isiNdebele: 2033 translations by Claude, approved on the
+-- isiNdebele: 2000 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -123,7 +123,6 @@ from (values
 ('11 Truck: articulated multiple', 'nr', '11 Iloli: edosa okunengi'),
 ('11 to 50', 'nr', '11 ukuya ku-50'),
 ('12 125cc and under', 'nr', '12 125cc nangaphasi'),
-('123 Main Street', 'nr', '123 Main Street'),
 ('13 Above 125cc', 'nr', '13 Ngaphezu kwe-125cc'),
 ('13-digit ID number', 'nr', 'Inomboro kamazisi eneenomboro ezili-13'),
 ('13-digit ID or passport number', 'nr', 'Inomboro kamazisi eneenomboro ezili-13 namkha yephasipoti'),
@@ -180,7 +179,6 @@ from (values
 ('A failed check prevents sign-on. Filing this inspection will take the appliance out of service and notify command.', 'nr', 'Ukuhlolwa okwehlulekileko kuvimbela ukungena emsebenzini. Ukufaka ukuhlolwa lokhu kuzokukhupha umtjhini emsebenzini begodu kwazise abaphathi.'),
 ('A failed check sends the bodycam for repair. You will need to choose another one, or say why you have none.', 'nr', 'Ukuhlolwa okwehlulekileko kuthumela ikhamera yomzimba bona ilungiswe. Uzokutlhoga ukukhetha enye, namkha utjho bona kubayini ungenayo.'),
 ('A failed safety check or damage sends the firearm to the armourer. You will need to select another one.', 'nr', 'Ukuhlolwa kokuphepha okwehlulekileko namkha umonakalo kuthumela isibhamu kumphathi wezikhali. Uzokutlhoga ukukhetha esinye.'),
-('A failed vehicle check takes the ambulance off the road when you file. Carry on to the stock check and describe the fault there.', 'nr', 'Ukuhlolwa kwekoloyi okwehlulekileko kukhupha i-ambulensi endleleni nawufakako. Ragela phambili ekuhlolweni kwesitokho bese uhlathulula iphoso lapho.'),
 ('A home', 'nr', 'Ikhaya'),
 ('A house', 'nr', 'Indlu'),
 ('A patient’s severity is their own: the incident can be Critical while the patient has minor injuries.', 'nr', 'Ubudisi besiguli bungobakhe: isehlakalo singaba Sibudisi khulu kanti isiguli sinokulimala okuncani.'),
@@ -236,7 +234,6 @@ from (values
 ('Account Look-up', 'nr', 'Ukufuna i-akhawunti'),
 ('Account email', 'nr', 'I-imeyili ye-akhawunti'),
 ('Account look-up', 'nr', 'Ukufuna i-akhawunti'),
-('Account on the platform', 'nr', 'I-akhawunti ephulathifomeni'),
 ('Account status', 'nr', 'Ubujamo be-akhawunti'),
 ('Account →', 'nr', 'I-akhawunti →'),
 ('Accounts are deactivated, never deleted, so their records stay intact.', 'nr', 'Ama-akhawunti ayavalwa, akasulwa, bona amarekhodo wawo ahlale aphelele.'),
@@ -289,7 +286,6 @@ from (values
 ('Add certification', 'nr', 'Engeza isitifikeyitha'),
 ('Add entry', 'nr', 'Engeza okufakiweko'),
 ('Add filter', 'nr', 'Engeza isihlungi'),
-('Add it', 'nr', 'Kwengeze'),
 ('Add it to the description', 'nr', 'Kwengeze ehlathululweni'),
 ('Add measure', 'nr', 'Engeza isilinganiso'),
 ('Add number', 'nr', 'Engeza inomboro'),
@@ -303,13 +299,11 @@ from (values
 ('Add the location address.', 'nr', 'Engeza ikheli lendawo.'),
 ('Add the rest after.', 'nr', 'Engeza okhunye ngemva.'),
 ('Add them first →', 'nr', 'Bengeze kokuthoma →'),
-('Add them to the register', 'nr', 'Bengeze erejistarini'),
 ('Add {document}', 'nr', 'Engeza {document}'),
 ('Add {lowerCase}', 'nr', 'Engeza {lowerCase}'),
 ('Add {noun}', 'nr', 'Engeza {noun}'),
 ('Added {time}', 'nr', 'Kwengezelelwe {time}'),
 ('Adding…', 'nr', 'Kuyengezwa…'),
-('Additional Inspector Notes', 'nr', 'Amanothi engezelelweko womhloli'),
 ('Additional notes', 'nr', 'Amanothi engezelelweko'),
 ('Address', 'nr', 'Ikheli'),
 ('Adds bodycams to the register and updates the ones already there, matched by serial number. Who has a bodycam right now never changes by import; that happens only when it is booked out or handed back.', 'nr', 'Kwengeza iinkhamera zomzimba erejistarini begodu kubuyeleza lezo esele zikhona, ngokumadanisa inomboro ye-serial. Ophethe ikhamera yomzimba nje akatjhuguluki ngokungeniswa; lokho kwenzeka kwaphela nayikhutjhwako namkha ibuyiswa.'),
@@ -364,7 +358,6 @@ from (values
 ('All partners', 'nr', 'Boke abasebenzisani'),
 ('All regions', 'nr', 'Zoke iingingi'),
 ('All reports', 'nr', 'Yoke imibiko'),
-('All results', 'nr', 'Yoke imiphumela'),
 ('All safety items ticked — this checklist will file as PASSED.', 'nr', 'Zoke izinto zokuphepha zimakiwe — irhelo lokuhlola lizokufakwa NJENGELIPHUMELELEKO.'),
 ('All severities', 'nr', 'Woke amazinga wobudisi'),
 ('All six categories', 'nr', 'Zoke iinhlobo ezisithandathu'),
@@ -455,7 +448,6 @@ from (values
 ('Appliances & Shift', 'nr', 'Imitjhini neshifu'),
 ('Applied to appraisal plans this cycle.', 'nr', 'Kusetjenziswe emahlelweni wokuhlola kumjikelezo lo.'),
 ('Apply', 'nr', 'Sebenzisa'),
-('Apply for leave', 'nr', 'Faka isibawo samalanga wokuphumula'),
 ('Apply from the field; balances shown before the form.', 'nr', 'Faka isibawo usendaweni; amabhalansi atjengiswa ngaphambi kwefomu.'),
 ('Appraisal', 'nr', 'Ukuhlolwa'),
 ('Appraisal /5', 'nr', 'Ukuhlolwa /5'),
@@ -504,7 +496,15 @@ from (values
 ('Arresting officer', 'nr', 'Isikhulu esibophileko'),
 ('Arrests', 'nr', 'Ukubotjhwa'),
 ('Arrival time', 'nr', 'Isikhathi sokufika'),
-('Arrived on scene', 'nr', 'Ufike endaweni')
+('Arrived on scene', 'nr', 'Ufike endaweni'),
+('Articulated vehicle', 'nr', 'Ikoloyi edosako'),
+('As found on scene', 'nr', 'Njengalokha kufunyenwe endaweni'),
+('As logged', 'nr', 'Njengalokha kutloliwe'),
+('As on your appointment letter or ID card. {INVITATION_ATTEMPTS} wrong tries lock the code.', 'nr', 'Njengalokha kusencwadini yakho yokuqatjhwa namkha ikarada kamazisi. Amalinga angakalungi ali-{INVITATION_ATTEMPTS} akhiya ikhowudi.'),
+('As printed, if you also write in a notice book', 'nr', 'Njengalokha kuphrintiwe, nawutlola godu encwadini yeenaziso'),
+('Ask', 'nr', 'Buza'),
+('Ask Criti', 'nr', 'Buza uCriti'),
+('Ask Criti  (Ctrl+J)', 'nr', 'Buza uCriti  (Ctrl+J)')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -514,17 +514,8 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Articulated vehicle', 'nr', 'Ikoloyi edosako'),
-('As found on scene', 'nr', 'Njengalokha kufunyenwe endaweni'),
-('As logged', 'nr', 'Njengalokha kutloliwe'),
-('As on your appointment letter or ID card. {INVITATION_ATTEMPTS} wrong tries lock the code.', 'nr', 'Njengalokha kusencwadini yakho yokuqatjhwa namkha ikarada kamazisi. Amalinga angakalungi ali-{INVITATION_ATTEMPTS} akhiya ikhowudi.'),
-('As printed, if you also write in a notice book', 'nr', 'Njengalokha kuphrintiwe, nawutlola godu encwadini yeenaziso'),
-('Ask', 'nr', 'Buza'),
-('Ask Criti', 'nr', 'Buza uCriti'),
-('Ask Criti  (Ctrl+J)', 'nr', 'Buza uCriti  (Ctrl+J)'),
 ('Ask Criti · Ctrl+J', 'nr', 'Buza uCriti · Ctrl+J'),
 ('Ask about the board, or tell me what to do…', 'nr', 'Buza ngebhodo, namkha ungitjele okufanele ngikwenze…'),
-('Ask about your incidents, crew or shift…', 'nr', 'Buza ngeensehlakalo zakho, iqembu namkha ishifu…'),
 ('Ask about your incidents, your crew, your shift — scoped to what you can already see.', 'nr', 'Buza ngeensehlakalo zakho, iqembu lakho, ishifu yakho — kilokho esele ukghona ukukubona.'),
 ('Ask for a swap', 'nr', 'Bawa ukutjhentjhana'),
 ('Ask for leave', 'nr', 'Bawa amalanga wokuphumula'),
@@ -582,11 +573,9 @@ from (values
 ('Average time to scene {formatMinutes}', 'nr', 'Isikhathi esiphakathi sokufika endaweni {formatMinutes}'),
 ('Average {value} / 5 across {length} KPIs.', 'nr', 'Isilinganiso {value} / 5 kuma-KPI ali-{length}.'),
 ('Avg call duration', 'nr', 'Isikhathi esiphakathi sefowuni'),
-('Avg response (min)', 'nr', 'Ukuphendula okuphakathi (imiz.)'),
 ('Avg response time', 'nr', 'Isikhathi esiphakathi sokuphendula'),
 ('Awaiting Review', 'nr', 'Kulindelwe ukubuyekezwa'),
 ('Awaiting court', 'nr', 'Kulindelwe ikhotho'),
-('Awaiting its endpoint — set the URL under Admin → Configuration → OpsLink', 'nr', 'Kulindelwe i-endpoint yayo — hlela i-URL ngaphasi kwe-Admin → Ukuhlela → OpsLink'),
 ('Awaiting review', 'nr', 'Kulindelwe ukubuyekezwa'),
 ('Awake?', 'nr', 'Uphaphamile?'),
 ('BACKUP', 'nr', 'ISIZO'),
@@ -633,7 +622,6 @@ from (values
 ('Begin shift checks', 'nr', 'Thoma ukuhlola kweshifu'),
 ('Begin your shift with a readiness assessment, sign onto an ambulance, then check the vehicle and its stock.', 'nr', 'Thoma ishifu yakho ngokuhlolwa kokulungela, ungene ku-ambulensi, bese uhlola ikoloyi nesitokho sayo.'),
 ('Begin your shift with a readiness assessment, sign onto an appliance, and check your fire equipment.', 'nr', 'Thoma ishifu yakho ngokuhlolwa kokulungela, ungene emtjhinini, bese uhlola imitjhini yakho yomlilo.'),
-('Begin your start-of-shift readiness check to go on duty.', 'nr', 'Thoma ukuhlolwa kwakho kokulungela ekuthomeni kweshifu bona ungene emsebenzini.'),
 ('Begin your start-of-shift readiness checks to go on duty.', 'nr', 'Thoma ukuhlolwa kwakho kokulungela ekuthomeni kweshifu bona ungene emsebenzini.'),
 ('Beige', 'nr', 'Beige'),
 ('Belongs to', 'nr', 'Ngeka'),
@@ -720,8 +708,6 @@ from (values
 ('Bus or taxi crash', 'nr', 'Ingozi yebhesi namkha yetekisi'),
 ('Bus or taxi rank', 'nr', 'Irenki yeembhesi namkha yeentekisi'),
 ('Busiest stations', 'nr', 'Iinstetjhi ezimatasatasa khulu'),
-('Business / Site Name', 'nr', 'Ibizo lebhizinisi / lendawo'),
-('Business and site inspections, newest first.', 'nr', 'Ukuhlolwa kwamabhizinisi neendawo, okutja kokuthoma.'),
 ('By day', 'nr', 'Ngelanga'),
 ('By department', 'nr', 'Ngomnyango'),
 ('By department and station', 'nr', 'Ngomnyango nesitetjhi'),
@@ -749,7 +735,6 @@ from (values
 ('Calibre of shells', 'nr', 'Ubukhulu bamagobolondo'),
 ('Call', 'nr', 'Ifowuni'),
 ('Call Complainant (Telephone)', 'nr', 'Fowunela ummangali (ifowuni)'),
-('Call Intake', 'nr', 'Ukwamukela iifowuni'),
 ('Call caller', 'nr', 'Fowunela obekafowunile'),
 ('Call control room', 'nr', 'Fowunela ikamero yokulawula'),
 ('Call detail ({length} of {callDetailTotal})', 'nr', 'Imininingwana yefowuni ({length} ku-{callDetailTotal})'),
@@ -762,8 +747,6 @@ from (values
 ('Call to', 'nr', 'Ifowuni eya ku'),
 ('Call volume — today', 'nr', 'Inani leefowuni — namhlanje'),
 ('Call {incidentNumber}{value}{value2}', 'nr', 'Ifowuni {incidentNumber}{value}{value2}'),
-('Call → closed today · target {value} min', 'nr', 'Ifowuni → ivalwe namhlanje · umnqopho {value} imiz.'),
-('Call → on scene today · target {value} min · dispatch {avgDispatch} min', 'nr', 'Ifowuni → endaweni namhlanje · umnqopho {value} imiz. · ukuthumela {avgDispatch} imiz.'),
 ('Caller', 'nr', 'Obekafowunile'),
 ('Caller & location info', 'nr', 'Imininingwana yobekafowunile neyendawo'),
 ('Caller and dispatch', 'nr', 'Obekafowunile nokuthumela'),
@@ -827,7 +810,6 @@ from (values
 ('Care level', 'nr', 'Izinga lokutlhogomela'),
 ('Carjacking', 'nr', 'Ukuthathwa kwekoloyi ngenkani'),
 ('Carried passengers for reward?', 'nr', 'Bewuthwele abagibeli ngenkhokhelo na?'),
-('Carry on', 'nr', 'Ragela phambili'),
 ('Case Audit Trail', 'nr', 'Umkhondo wokucwaningwa komlandu'),
 ('Case Dashboard', 'nr', 'Ideshibhodo yemilandu'),
 ('Case Management', 'nr', 'Ukuphathwa kwemilandu'),
@@ -880,7 +862,6 @@ from (values
 ('Changes since it was logged', 'nr', 'Itjhugululo kusukela kwatlolisiswa'),
 ('Changes to powerful roles wait here for a second SystemAdmin. You cannot decide a request you made, or one about your own account. Requests close after {value} days.', 'nr', 'Iintjhugululo eendimeni ezinamandla zilindele lapha i-SystemAdmin yesibili. Ngeze waqunta isibawo osenzileko, namkha esimalungana ne-akhawunti yakho. Iimbawo ziyavalwa ngemva kwamalanga ali-{value}.'),
 ('Channel clear', 'nr', 'Itjhaneli ikhululekile'),
-('Channel clear. {value}', 'nr', 'Itjhaneli ikhululekile. {value}'),
 ('Charge', 'nr', 'Umlandu'),
 ('Charge Book', 'nr', 'Incwadi yemilandu'),
 ('Charge Transactions', 'nr', 'Iinkhokhelo zomlandu'),
@@ -1013,16 +994,7 @@ from (values
 ('Close layers', 'nr', 'Vala iingqimba zemephu'),
 ('Close list', 'nr', 'Vala irhelo'),
 ('Close navigation', 'nr', 'Vala ukukhamba'),
-('Close on scene', 'nr', 'Vala usendaweni')
-) as v(key, lang, text)
-on conflict (key, lang) do update
-   set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
-       updated_at = now(), approved_by = null, approved_by_name = excluded.approved_by_name, approved_at = now()
- where not (t.status = 'approved' and t.drafted_by = 'person');
-
-insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
-select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
-from (values
+('Close on scene', 'nr', 'Vala usendaweni'),
 ('Close the description?', 'nr', 'Vala ihlathululo na?'),
 ('Close this bodycam', 'nr', 'Vala ikhamera yomzimba le'),
 ('Close without a report', 'nr', 'Vala ngaphandle kombiko'),
@@ -1041,7 +1013,16 @@ from (values
 ('Closing', 'nr', 'Kuyavalwa'),
 ('Closing note', 'nr', 'Inothi lokuvala'),
 ('Closing. Sends when you have signal.', 'nr', 'Kuyavalwa. Kuzokuthunyelwa nawunesignali.'),
-('Closing…', 'nr', 'Kuyavalwa…'),
+('Closing…', 'nr', 'Kuyavalwa…')
+) as v(key, lang, text)
+on conflict (key, lang) do update
+   set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
+       updated_at = now(), approved_by = null, approved_by_name = excluded.approved_by_name, approved_at = now()
+ where not (t.status = 'approved' and t.drafted_by = 'person');
+
+insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
+select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
+from (values
 ('Closure rate', 'nr', 'Izinga lokuvala'),
 ('Clothes, height, anything to know them by', 'nr', 'Iimpahla, ubude, nanyana yini abangaziwa ngayo'),
 ('Clutch Levels', 'nr', 'Amazinga we-clutch'),
@@ -1063,7 +1044,6 @@ from (values
 ('Command', 'nr', 'Abaphathi'),
 ('Command Board', 'nr', 'Ibhodo labaphathi'),
 ('Command Centre', 'nr', 'Isikhungo sabaphathi'),
-('Command bar', 'nr', 'Ibha yemiyalo'),
 ('Command palette', 'nr', 'Iphalethi yemiyalo'),
 ('Command post', 'nr', 'Indawo yokuyala'),
 ('Commander / Dispatcher Name', 'nr', 'Ibizo lomphathi / lomthumeli'),
@@ -1118,7 +1098,6 @@ from (values
 ('Consumables', 'nr', 'Iinto ezisetjenziswako'),
 ('Contact', 'nr', 'Othintana naye'),
 ('Contact Number', 'nr', 'Inomboro yokuthintana'),
-('Contact Person', 'nr', 'Umuntu wokuthintana'),
 ('Contact and radio channels for joint operations.', 'nr', 'Iintjhaneli zokuthintana nezomrhatjho zemisebenzi ehlanganyelweko.'),
 ('Contact number', 'nr', 'Inomboro yokuthintana'),
 ('Contained to object', 'nr', 'Kuvinjelwe entweni'),
@@ -1209,7 +1188,6 @@ from (values
 ('Crime zones could not be loaded.', 'nr', 'Iindawo zobugebengu azikghonanga ukulayitjhwa.'),
 ('Crime{value}', 'nr', 'Ubugebengu{value}'),
 ('Criti Assistant', 'nr', 'Umsizi uCriti'),
-('Criti can see the same board you can — your incidents, your crew, your shift. It cannot see another department''s records.', 'nr', 'UCriti ubona ibhodo elifanako nelakho — iinsehlakalo zakho, iqembu lakho, ishifu yakho. Akakghoni ukubona amarekhodo womunye umnyango.'),
 ('Criti could not draft just now.', 'nr', 'UCriti akakghonanga ukutlola isinyathelo sokuthoma nje.'),
 ('Criti could not write it up just now.', 'nr', 'UCriti akakghonanga ukukutlola nje.'),
 ('Criti drafted {saved}. {left} still to draft.', 'nr', 'UCriti utlole isinyathelo sokuthoma saka-{saved}. Kusele u-{left} okufanele kutlolwe.'),
@@ -1241,7 +1219,6 @@ from (values
 ('Cycle {cycleLabel} · {value} · status', 'nr', 'Umjikelezo {cycleLabel} · {value} · ubujamo'),
 ('DEPARTMENTS', 'nr', 'IMINYANGO'),
 ('DESCRIPTION', 'nr', 'IHLATHULULO'),
-('DISASTER MANAGEMENT · STEP 1 OF 2', 'nr', 'UKUPHATHWA KWEENHLEKELELE · ISIGABA 1 KWE-2'),
 ('DMPS 12(a): the arrest, its references, the suspect and any recovered vehicle.', 'nr', 'DMPS 12(a): ukubotjhwa, iinkhombo zakho, umsolwa nanyana ngiyiphi ikoloyi efunyenweko.'),
 ('DMPS 211(a): the vehicle towed, its condition, the operator, SAPS notification and release.', 'nr', 'DMPS 211(a): ikoloyi edosiweko, ubujamo bayo, umsebenzisi, isaziso se-SAPS nokukhululwa.'),
 ('DMPS 216(e): the shooting, members, firearms, targets, arrests and trauma counselling.', 'nr', 'DMPS 216(e): ukudubula, amalunga, iimbhamu, okuhlosiweko, ukubotjhwa nokwelulekwa ngobuhlungu bengqondo.'),
@@ -1353,7 +1330,6 @@ from (values
 ('Destination Facility', 'nr', 'Isikhungo okuyiwa kiso'),
 ('Detail', 'nr', 'Imininingwana'),
 ('Detail (optional)', 'nr', 'Imininingwana (akukateleleki)'),
-('Detail any violations, hazards, or warnings issued...', 'nr', 'Hlathulula nanyana ngikuphi ukwephula umthetho, iingozi, namkha iinyeleliso ezikhutjhiweko...'),
 ('Details', 'nr', 'Imininingwana'),
 ('Details for the type', 'nr', 'Imininingwana yohlobo'),
 ('Details of the incident', 'nr', 'Imininingwana yesehlakalo'),
@@ -1398,7 +1374,6 @@ from (values
 ('Dispatch Resources', 'nr', 'Thumela iinsiza'),
 ('Dispatch SOS', 'nr', 'Thumela i-SOS'),
 ('Dispatch alerts', 'nr', 'Iinyeleliso zokuthumela'),
-('Dispatch already has them. Carry on to add what is missing; each change goes to the call.', 'nr', 'Abathumeli sele banazo. Ragela phambili bona wengeze okungekho; yoke itjhugululo iya efowunini.'),
 ('Dispatch and command have been alerted ({number}) and will send help. Stay on the radio.', 'nr', 'Abathumeli nabaphathi baziswe ({number}) begodu bazokuthumela isizo. Hlala emrhatjhweni.'),
 ('Dispatch and command have been alerted and will send help. Stay on the radio.', 'nr', 'Abathumeli nabaphathi baziswe begodu bazokuthumela isizo. Hlala emrhatjhweni.'),
 ('Dispatch call', 'nr', 'Thumela ifowuni'),
@@ -1495,7 +1470,6 @@ from (values
 ('Duty', 'nr', 'Umsebenzi'),
 ('Duty & People', 'nr', 'Umsebenzi nabantu'),
 ('Duty & Reporting', 'nr', 'Umsebenzi nokubika'),
-('Duty Allocation', 'nr', 'Ukwabiwa komsebenzi'),
 ('Duty Board', 'nr', 'Ibhodo lomsebenzi'),
 ('Duty Maintenance', 'nr', 'Ukutlhogonyelwa komsebenzi'),
 ('Duty acknowledged', 'nr', 'Umsebenzi wamukelwe'),
@@ -1504,7 +1478,6 @@ from (values
 ('Duty date', 'nr', 'Ilanga lomsebenzi'),
 ('Duty maintenance', 'nr', 'Ukutlhogonyelwa komsebenzi'),
 ('Duty officer name', 'nr', 'Ibizo lesikhulu esisemsebenzini'),
-('Duty sheet', 'nr', 'Iphepha lomsebenzi'),
 ('Duty status', 'nr', 'Ubujamo bomsebenzi'),
 ('Duty type', 'nr', 'Uhlobo lomsebenzi'),
 ('EMERGENCY MEDICAL SERVICES', 'nr', 'IINSIZA ZEZIMO EZIPHUTHUMAKO ZEZEMPILO'),
@@ -1522,16 +1495,7 @@ from (values
 ('Each person gets their own invitation, as their confirmed role, by the route shown: email where HR gave an address, SMS where there is only a cellphone{value}, otherwise a printed code. Each link or code works once and expires after its set time.', 'nr', 'Umuntu ngamunye uthola isimemo sakhe, njengendima yakhe eqinisekisiweko, ngendlela etjengisiweko: i-imeyili lapho i-HR inikele ikheli khona, i-SMS lapho kunesiselula kwaphela{value}, nakungasinjalo ikhowudi ephrintiweko. Isihlanganisi namkha ikhowudi ngayinye isebenza kanye begodu iphelelwa sikhathi ngemva kwesikhathi sayo esibekiweko.'),
 ('Each rule acts at most once per thing per threshold — a call that breaches its SLA raises one alert at each tier, not one every five minutes. Thresholds are stored per rule, so changing “escalate after 10 minutes” to 15 needs no deployment. Every change and every manual run is written to the audit trail with your name on it.', 'nr', 'Umthetho ngamunye wenza kanye kwaphela entweni ngayinye emkhawulweni ngamunye — ifowuni edlula i-SLA yayo ivusa isiyeleliso sinye ezingeni ngalinye, ingasi sinye qobe mizuzu emihlanu. Imikhawulo ibulungwa ngomthetho ngamunye, ngalokho ukutjhugulula "khuphula ngemva kwemizuzu eli-10" kube li-15 akutlhogi ukufakwa. Yoke itjhugululo nakho koke ukwenziwa ngesandla kutlolwa emkhondweni wokucwaningwa nebizo lakho.'),
 ('Each service''s identity — crest, colours and naming — as it appears across the platform, the responder app and printed reports.', 'nr', 'Ubunjalo besiphathelelo ngasinye — uphawu, imibala namabizo — njengalokha kuvela kuphulathifomu yoke, ku-app yabaphenduli nemibikweni ephrintiweko.'),
-('East', 'nr', 'Ipumalanga')
-) as v(key, lang, text)
-on conflict (key, lang) do update
-   set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
-       updated_at = now(), approved_by = null, approved_by_name = excluded.approved_by_name, approved_at = now()
- where not (t.status = 'approved' and t.drafted_by = 'person');
-
-insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
-select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
-from (values
+('East', 'nr', 'Ipumalanga'),
 ('Edit', 'nr', 'Hlela'),
 ('Edit PCR', 'nr', 'Hlela i-PCR'),
 ('Edit before dispatch', 'nr', 'Hlela ngaphambi kokuthumela'),
@@ -1552,14 +1516,22 @@ from (values
 ('Emergency', 'nr', 'Isimo esiphuthumako'),
 ('Emergency / Officer Needs Assistance', 'nr', 'Isimo esiphuthumako / Isikhulu sitlhoga isizo'),
 ('Emergency Equipment Stocked', 'nr', 'Imitjhini yezimo eziphuthumako izalisiwe'),
-('Emergency Exits Clear?', 'nr', 'Iindlela zokuphuma ngesikhathi esiphuthumako zivulekile na?'),
 ('Emergency Medical Services', 'nr', 'Iinsiza Zezimo Eziphuthumako Zezempilo'),
 ('Emergency Medical Services · Administration', 'nr', 'Iinsiza Zezimo Eziphuthumako Zezempilo · Ukuphatha'),
 ('Emergency contact', 'nr', 'Othintana naye ngesikhathi esiphuthumako'),
 ('Emergency equipment stocked & accessible', 'nr', 'Imitjhini yezimo eziphuthumako izalisiwe begodu iyafikeleleka'),
 ('Emergency lights & siren functioning', 'nr', 'Iinbani zezimo eziphuthumako nesayirini kuyasebenza'),
 ('Emergency — hold to call for assistance', 'nr', 'Isimo esiphuthumako — bamba bona ubawe isizo'),
-('Emergency-flagged rows are highlighted. Resolve inline once handled.', 'nr', 'Imigqa emakwe njengesimo esiphuthumako iqakathekisiwe. Kurarulule lapha nasele kuphathiwe.'),
+('Emergency-flagged rows are highlighted. Resolve inline once handled.', 'nr', 'Imigqa emakwe njengesimo esiphuthumako iqakathekisiwe. Kurarulule lapha nasele kuphathiwe.')
+) as v(key, lang, text)
+on conflict (key, lang) do update
+   set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
+       updated_at = now(), approved_by = null, approved_by_name = excluded.approved_by_name, approved_at = now()
+ where not (t.status = 'approved' and t.drafted_by = 'person');
+
+insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
+select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
+from (values
 ('Emotional Wellbeing (Feeling mentally balanced?)', 'nr', 'Ukuphila kuhle kwemizwa (Uzizwa unokulinganisela engqondweni na?)'),
 ('Employee', 'nr', 'Isisebenzi'),
 ('Employee name', 'nr', 'Ibizo lesisebenzi'),
@@ -1618,7 +1590,6 @@ from (values
 ('Every organisation on this deployment. Each tenant’s data, users, configuration and feature switches are isolated at the database — a row in one tenant does not exist for another, on any screen, in any export, in any search.', 'nr', 'Yoke ihlangano kukufakwa lokhu. Idatha yomqatjhi ngamunye, abasebenzisi, ukuhlela neenkinobho zeensici kwehlukaniswe kudathabheyisi — umugqa womqatjhi munye awukho komunye, kunanyana ngisiphi isikrini, kunanyana ngikuphi ukuthunyelwa ngaphandle, kunanyana ngikuphi ukufuna.'),
 ('Every police report. Search, filter, export, or open one to read it in full.', 'nr', 'Woke umbiko wamapholisa. Funa, hlunga, thumela ngaphandle, namkha uvule munye bona uwufunde woke.'),
 ('Every punch, newest first.', 'nr', 'Koke ukungena emsebenzini, okutja kokuthoma.'),
-('Every radio and hard hat, as the person it belongs to.', 'nr', 'Yoke irediyo nesigqoko esiqinileko, njengomuntu ekungeyakhe.'),
 ('Every recorded action on a case: who logged it, routed it, responded, filed the report and closed it. Audit rows are permanent.', 'nr', 'Zoke iinzenzo ezitloliweko emlandwini: ngubani owutlolileko, owunqophisileko, ophendulileko, ofake umbiko nowuvalileko. Imigqa yokucwaningwa ihlala unomphela.'),
 ('Every report officers file, colour-coded by form. Choose where to go.', 'nr', 'Woke umbiko iinkhulu eziwufakako, wehlukaniswe ngemibala ngokwefomu. Khetha lapho uya khona.'),
 ('Every section, from observations to sign-off.', 'nr', 'Zoke iingcenye, kusukela ekuqaphelisiseni ukuya ekusayineni.'),
@@ -1661,7 +1632,6 @@ from (values
 ('Exposures threatened', 'nr', 'Iindawo eziseduze ezisengozini'),
 ('External Lights', 'nr', 'Iinbani zangaphandle'),
 ('External lights', 'nr', 'Iinbani zangaphandle'),
-('Extinguishers Present & Serviced?', 'nr', 'Iincimamlilo zikhona begodu zihloliwe na?'),
 ('Extra form prompts (one per line)', 'nr', 'Imibuzo eyengezelelweko yefomu (munye emugqeni ngamunye)'),
 ('Extreme', 'nr', 'Khulu khulu'),
 ('F11 for edge-to-edge · Esc to leave', 'nr', 'F11 bona kuzale isikrini · Esc bona uphume'),
@@ -1722,7 +1692,6 @@ from (values
 ('Filter menu…', 'nr', 'Hlunga imenyu…'),
 ('Filter navigation', 'nr', 'Hlunga ukukhamba'),
 ('Filters', 'nr', 'Iinhlungi'),
-('Final Inspection Result', 'nr', 'Umphumela wokuhlola wokugcina'),
 ('Find a name', 'nr', 'Fumana ibizo'),
 ('Find a person', 'nr', 'Fumana umuntu'),
 ('Find footage', 'nr', 'Fumana okurekhodiweko'),
@@ -1900,8 +1869,6 @@ from (values
 ('Glossary', 'nr', 'Irhelo lamagama'),
 ('Gloves & PPE', 'nr', 'Iinglavu ne-PPE'),
 ('Glucose', 'nr', 'Iswigiri eengazini'),
-('Go on Duty', 'nr', 'Thoma umsebenzi'),
-('Go on Duty — Begin Check', 'nr', 'Thoma umsebenzi — Thoma ukuhlola'),
 ('Go on Duty — Begin Checks', 'nr', 'Thoma umsebenzi — Thoma ukuhlola'),
 ('Go on duty', 'nr', 'Thoma umsebenzi'),
 ('Go on duty & open dashboard', 'nr', 'Thoma umsebenzi uvule ideshibhodi'),
@@ -2031,16 +1998,7 @@ from (values
 ('How many are hurt', 'nr', 'Bangaki abalimeleko'),
 ('How many are trapped, and where?', 'nr', 'Bangaki ababambekileko, begodu baphi?'),
 ('How many are trapped?', 'nr', 'Bangaki ababambekileko?'),
-('How many escaped, and what do they look like?', 'nr', 'Bangaki abaphunyukileko, begodu babukeka njani?')
-) as v(key, lang, text)
-on conflict (key, lang) do update
-   set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
-       updated_at = now(), approved_by = null, approved_by_name = excluded.approved_by_name, approved_at = now()
- where not (t.status = 'approved' and t.drafted_by = 'person');
-
-insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
-select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
-from (values
+('How many escaped, and what do they look like?', 'nr', 'Bangaki abaphunyukileko, begodu babukeka njani?'),
 ('How many feeds', 'nr', 'Mangaki ama-feed'),
 ('How many homes are burning?', 'nr', 'Mangaki amakhaya atjhako?'),
 ('How many homes are damaged?', 'nr', 'Mangaki amakhaya alimeleko?'),
