@@ -7,7 +7,8 @@ import { RELIEF_ITEMS } from '@criticom/db/disaster-plan';
 import { CallButton } from '@/components/disaster/call-button';
 import { useT } from '@/components/i18n';
 import { cn } from '@/lib/utils';
-import { closeShelterAction, openShelterAction, updateShelterAction } from '../actions';
+import { SUPPLY_STATES, WATER_SUPPLY } from '@criticom/db/disaster-departments';
+import { closeShelterAction, openShelterAction, shelterServicesAction, updateShelterAction } from '../actions';
 
 /**
  * Reception centres for the call (0112): council halls opened for the people
@@ -19,6 +20,8 @@ export type BoardOpening = {
   id: string; shelterId: string; name: string; capacity: number; free: number; keyHolder: string | null; keyHolderPhone: string | null;
   peopleNow: number; peak: number; households: number; children: number; elderly: number; disabled: number;
   relief: Record<string, number>; openedAt: string; closedAt: string | null;
+  /** Supplies (0113). */
+  food: string | null; toiletries: string | null; water: string | null; toilets: number; temporaryToilets: number;
 };
 export type BoardShelter = { id: string; name: string; municipality: string; ward: string | null; capacity: number; free: number };
 
@@ -90,6 +93,7 @@ function OpenShelter({ incidentId, o, live, onError }: { incidentId: string; o: 
       </div>
       {live ? (
         <div className="mt-3 space-y-3">
+          <Supplies incidentId={incidentId} o={o} onError={onError} />
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-6">
             <label className="text-xs text-muted-foreground">{t('Arrived')}<input value={arrived} onChange={(e) => setArrived(num(e.target.value))} inputMode="numeric" className={small} /></label>
             <label className="text-xs text-muted-foreground">{t('Left')}<input value={left} onChange={(e) => setLeft(num(e.target.value))} inputMode="numeric" className={small} /></label>
@@ -153,6 +157,49 @@ function OpenForm({ incidentId, register, onError }: { incidentId: string; regis
         className="h-11 rounded-md border border-border bg-bg-soft px-3 text-sm" />
       <button type="button" onClick={submit} disabled={pending || !shelterId}
         className="h-11 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{t('Open')}</button>
+    </div>
+  );
+}
+
+/** Food, drinking water, toilets and toiletries at the shelter, as the people there report them. */
+function Supplies({ incidentId, o, onError }: { incidentId: string; o: BoardOpening; onError: (e: string) => void }) {
+  const { t } = useT();
+  const [v, setV] = useState({ food: o.food ?? '', water: o.water ?? '', toiletries: o.toiletries ?? '', toilets: String(o.toilets || ''), temporary_toilets: String(o.temporaryToilets || '') });
+  const [pending, start] = useTransition();
+  const changed = v.food !== (o.food ?? '') || v.water !== (o.water ?? '') || v.toiletries !== (o.toiletries ?? '')
+    || v.toilets !== String(o.toilets || '') || v.temporary_toilets !== String(o.temporaryToilets || '');
+  const save = () => start(async () => {
+    const res = await shelterServicesAction(incidentId, o.id, v);
+    if ('error' in res) onError(res.error);
+  });
+  const sel = 'h-10 w-full rounded-md border border-border bg-bg-card px-2 text-sm';
+  const tone = (x: string) => (x === 'None' ? 'text-severity-critical-ink' : x === 'Running low' ? 'text-severity-medium-ink' : '');
+  return (
+    <div className="rounded-lg border border-border bg-bg-card p-3">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('Supplies')}</p>
+      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <label className={cn('text-xs text-muted-foreground', tone(v.food))}>{t('Food')}
+          <select value={v.food} onChange={(e) => setV({ ...v, food: e.target.value })} className={sel}>
+            <option value="">{t('Not said')}</option>{SUPPLY_STATES.map((x) => <option key={x} value={x}>{t(x)}</option>)}
+          </select></label>
+        <label className={cn('text-xs text-muted-foreground', v.water === 'None' && 'text-severity-critical-ink')}>{t('Drinking water')}
+          <select value={v.water} onChange={(e) => setV({ ...v, water: e.target.value })} className={sel}>
+            <option value="">{t('Not said')}</option>{WATER_SUPPLY.map((x) => <option key={x} value={x}>{t(x)}</option>)}
+          </select></label>
+        <label className={cn('text-xs text-muted-foreground', tone(v.toiletries))}>{t('Toiletries')}
+          <select value={v.toiletries} onChange={(e) => setV({ ...v, toiletries: e.target.value })} className={sel}>
+            <option value="">{t('Not said')}</option>{SUPPLY_STATES.map((x) => <option key={x} value={x}>{t(x)}</option>)}
+          </select></label>
+        <label className="text-xs text-muted-foreground">{t('Toilets')}
+          <input value={v.toilets} onChange={(e) => setV({ ...v, toilets: num(e.target.value) })} inputMode="numeric" className={sel} /></label>
+        <label className="text-xs text-muted-foreground">{t('Temporary toilets')}
+          <input value={v.temporary_toilets} onChange={(e) => setV({ ...v, temporary_toilets: num(e.target.value) })} inputMode="numeric" className={sel} /></label>
+      </div>
+      {changed ? (
+        <button type="button" onClick={save} disabled={pending} className="mt-2 h-9 rounded-md bg-accent px-4 text-sm font-semibold text-accent-foreground disabled:opacity-60">
+          {pending ? t('Saving…') : t('Save supplies')}
+        </button>
+      ) : null}
     </div>
   );
 }

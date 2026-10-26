@@ -9,7 +9,11 @@
  * called out by the desk, which files their assessment for them; the duty
  * roster and the SCG duty chair; the post-mortem takes the title, hazard,
  * level, municipalities, call-outs and shelters from the record; and no
- * table takes a write except through the functions.
+ * table takes a write except through the functions. And 0113: the desk
+ * opens an incident; only the departments an incident needs, each with its
+ * role from the Plan; department contacts; sitreps with figures; casualties
+ * kept to the desk and read only through an audited function; shelter
+ * supplies; and the SMS sent.
  *
  * CASE_PGLITE_MODULE=file:///path/to/@electric-sql/pglite/dist/index.js node scripts/test-disaster-doc.mjs
  */
@@ -67,6 +71,7 @@ try {
     create schema auth;
     create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.user', true), '')::uuid $$;
     create type public.silo as enum ('MetroPolice', 'MetroFire', 'Medical', 'EthekwiniDisaster', 'Ethekwini');
+    create type public.incident_severity as enum ('Low', 'Medium', 'High', 'Critical');
     create type public.incident_status as enum ('New', 'Pending', 'Pending Dispatch', 'Pending Analysis', 'Dispatched', 'En Route', 'Arrived', 'On Scene', 'Transporting', 'Active', 'Resolved', 'Closed');
     create function public.current_tenant() returns uuid language sql stable as $$ select '${T}'::uuid $$;
     create function public.current_silo() returns public.silo language sql stable as $$ select current_setting('test.silo', true)::public.silo $$;
@@ -86,11 +91,17 @@ try {
         and (p.role in ('SystemAdmin', 'SuperAdmin', 'SystemController', 'System')
              or (p.role in ('Dispatcher', 'ControlRoom', 'Operator', 'Supervisor', 'Captain', 'FireChief', 'Chief', 'Admin')
                  and p.silo in ('Ethekwini', p_silo)))) $$;
-    create table public.incidents (id uuid primary key, tenant_id uuid default '${T}', silo public.silo, incident_number text,
+    create table public.incidents (id uuid primary key default gen_random_uuid(), tenant_id uuid default '${T}', silo public.silo, incident_number text,
       status public.incident_status, unit_status text, dispatched_silos public.silo[], tagged_silos public.silo[],
       accepted_by uuid, accepted_at timestamptz, assigned_to uuid, assigned_to_name text, report_filed_at timestamptz,
       unit_id uuid, responding_officer text, dispatch_time timestamptz, arrived_timestamp timestamptz, resolved_at timestamptz,
-      resolved_by uuid, disaster_type text, incident_type text, location_address text, updated_at timestamptz);
+      resolved_by uuid, disaster_type text, incident_type text, location_address text, updated_at timestamptz,
+      source text, client_ref uuid, caller_name text, caller_number text, call_description text, incident_severity public.incident_severity,
+      suburb text, city text, location_lat double precision, location_lng double precision, number_of_victims int,
+      call_timestamp timestamptz, incident_created_at timestamptz, call_taken_by text, created_by uuid, intake_complete boolean);
+    create sequence public.etk_seq;
+    create function public.next_incident_number(p_silo public.silo, p_tags public.silo[], p_at timestamptz default now()) returns text
+      language sql as $$ select 'ETK-ED-' || nextval('public.etk_seq') $$;
     create table public.incident_responders (incident_id uuid, user_id uuid, unit_id uuid, status public.incident_status, arrived_at timestamptz);
     create table public.incident_departments (id uuid primary key default gen_random_uuid(), tenant_id uuid default '${T}',
       incident_id uuid, silo public.silo, status text default 'Waiting', dispatched_at timestamptz, dispatched_by uuid,
@@ -179,7 +190,7 @@ try {
     create table public.disaster_logs (incident_id uuid, updates jsonb);
     create table public.incident_updates (seq bigint generated always as identity, silo public.silo, incident_id uuid, message text,
       created_by uuid, created_by_name text, timestamp timestamptz default now());
-    create table public.audit_logs (tenant_id uuid, silo public.silo, user_id uuid, user_name text, department text, action_type text,
+    create table public.audit_logs (timestamp timestamptz not null default now(), tenant_id uuid, silo public.silo, user_id uuid, user_name text, department text, action_type text,
       entity_type text, entity_id text, details text);
     create table public.chain (kind text, title text, body text);
     create function public.notify_incident_chain(i public.incidents, k text, t text, b text) returns integer language sql as $$
@@ -201,6 +212,8 @@ try {
   await db.exec(sql('0111_disaster_desk.sql'));
   await db.exec(sql('0112_disaster_doc.sql'));
   await db.exec(sql('0112_disaster_doc.sql')); // safe to re-run
+  await db.exec(sql('0113_disaster_operations.sql'));
+  await db.exec(sql('0113_disaster_operations.sql')); // safe to re-run
   await db.query('begin');
 
   await scenario('the partner list is public: private companies off, the public list on, each saying if its number is checked', async () => {
@@ -360,8 +373,124 @@ try {
     }
   });
 
+  const OPEN = { short_title: 'Bluff flooding', hazard: 'Flood', severity: 'High', municipality: 'eThekwini Metro', ward: '68',
+    location_address: 'Bluff Road, Bluff', lat: -29.93, lng: 31.02, reported_through: 'Field report', first_report: 'Water a metre deep in 40 homes', people_affected: 160 };
+
+  await scenario('0113: the desk opens an incident, numbered and Bronze, with its title, hazard and ward', async () => {
+    await refused(() => call(U.cop, 'open_disaster_incident($1, $2::jsonb)', [ref(), JSON.stringify(OPEN)]), /Only the Disaster desk/);
+    await refused(() => call(U.desk, 'open_disaster_incident($1, $2::jsonb)', [ref(), JSON.stringify({ ...OPEN, hazard: 'Rain' })]), /hazard from the list/);
+    await refused(() => call(U.desk, 'open_disaster_incident($1, $2::jsonb)', [ref(), JSON.stringify({ ...OPEN, lat: 'x' })]), /on the map/);
+    const r = ref();
+    const inc = await call(U.desk, 'open_disaster_incident($1, $2::jsonb)', [r, JSON.stringify(OPEN)]);
+    assert.match(inc.incident_number, /^ETK-ED-/);
+    assert.equal(inc.status, 'Pending Dispatch');
+    assert.equal(inc.incident_severity, 'High');
+    assert.equal((await call(U.desk, 'open_disaster_incident($1, $2::jsonb)', [r, JSON.stringify(OPEN)])).id, inc.id);
+    const facts = await sql1('select * from public.disaster_call_facts where incident_id = $1', [inc.id]);
+    assert.equal(facts.short_title, 'Bluff flooding');
+    assert.equal(facts.level, 'Bronze');
+    assert.equal(facts.ward, '68');
+    assert.equal(facts.reported_through, 'Field report');
+    assert.match((await timeline()).at(-1), /^\[OPENED\] Bluff flooding: Flood, Bluff Road, Bluff\. Reported through Field report, 160 people affected/);
+  });
+
+  await scenario('0113: only the departments needed, each with its role from the Plan; status follows the work', async () => {
+    await refused(() => call(U.desk, 'add_line_function($1, $2)', [CALL, 'police']), /from the list/);
+    const metro = await call(U.desk, 'add_line_function($1, $2)', [CALL, 'metro']);
+    assert.equal(metro.status, 'Not started');
+    await call(U.desk, 'add_line_function($1, $2)', [CALL, 'fire']);
+    await call(U.desk, 'remove_line_function($1, $2)', [CALL, 'fire']);
+    assert.equal((await rows('select department from public.disaster_line_reports')).length, 1);
+    await refused(() => call(U.desk, 'save_line_report($1, $2, $3::jsonb)', [CALL, 'metro', '{"duties":{"0":"Maybe"}}']), /Done, Under way or Not needed/);
+    const part = await call(U.desk, 'save_line_report($1, $2, $3::jsonb)', [CALL, 'metro', JSON.stringify({
+      representative_name: 'Supt. R Naidoo', representative_post: 'Regional Commander', representative_phone: '082 444 1111', at_doc: true,
+      duties: { 3: 'Done', 0: 'Under way', x: 'Done' }, figures: { roads_closed: '4', bad_key: '' } })]);
+    assert.equal(part.status, 'In progress');
+    assert.deepEqual(part.duties, { 0: 'Under way', 3: 'Done' });
+    assert.deepEqual(part.figures, { roads_closed: 4 });
+    await refused(() => call(U.desk, 'remove_line_function($1, $2)', [CALL, 'metro']), /Mark its duties Not needed/);
+    const done = await call(U.desk, 'save_line_report($1, $2, $3::jsonb)', [CALL, 'metro', '{"done":true}']);
+    assert.equal(done.status, 'Done');
+    assert.equal(done.representative_name, 'Supt. R Naidoo');
+    assert.ok((await timeline()).some((m) => m.startsWith('[DEPARTMENT] metro: report done (Supt. R Naidoo)')));
+  });
+
+  await scenario('0113: department contacts fill in the representative', async () => {
+    const c = await call(U.desk, 'save_department_contact($1, $2::jsonb)', [null, JSON.stringify({ department: 'health', name: 'Dr N Mthembu', post: 'Head: Health', phone: '031 311 0000', doc_rep: true })]);
+    assert.equal(c.doc_rep, true);
+    await refused(() => call(U.desk, 'save_department_contact($1, $2::jsonb)', [null, '{"department":"health","name":""}']), /person's name/);
+    await refused(() => call(U.cop, 'save_department_contact($1, $2::jsonb)', [null, '{"department":"health","name":"X"}']), /Only the Disaster desk/);
+  });
+
+  await scenario('0113: a sitrep carries its figures, how people were moved and where to', async () => {
+    const u = await call(U.desk, 'log_disaster_update($1, $2, $3::jsonb)', [CALL, ref(), JSON.stringify({
+      source: 'Radio', from_name: 'Bluff FCP', figures: { injured: '3', people_evacuated: 120, dead: '' }, moved_by: 'City Fleet bus', moved_to: 'Bluff Community Hall' })]);
+    assert.deepEqual(u.figures, { injured: 3, people_evacuated: 120 });
+    assert.equal(u.text, '3 injured, 120 people evacuated. Moved to Bluff Community Hall');
+    await refused(() => call(U.desk, 'log_disaster_update($1, $2, $3::jsonb)', [CALL, ref(), '{"source":"Radio","figures":{"injured":"three"}}']), /whole number/);
+    await refused(() => call(U.desk, 'log_disaster_update($1, $2, $3::jsonb)', [CALL, ref(), '{"source":"Radio","moved_by":"Taxi","moved_to":"X"}']), /from the list/);
+    assert.ok((await timeline()).some((m) => m.includes('moved city fleet bus to Bluff Community Hall')));
+  });
+
+  await scenario('0113: casualties stay on the desk, read only through the audited function, never on the timeline by name', async () => {
+    const r = ref();
+    const c = await call(U.desk, 'record_disaster_casualty($1, $2, $3::jsonb)', [CALL, r, JSON.stringify({ kind: 'Deceased', gender: 'Male',
+      description: 'About 40, blue jeans, grey jacket', taken_to: 'Gale Street mortuary' })]);
+    assert.equal(c.name, null);
+    assert.equal((await call(U.desk, 'record_disaster_casualty($1, $2, $3::jsonb)', [CALL, r, '{"kind":"Injured"}'])).id, c.id);
+    await call(U.desk, 'record_disaster_casualty($1, $2, $3::jsonb)', [CALL, ref(), '{"kind":"Injured","name":"T Dlamini","phone":"072 000 1111"}']);
+    await refused(() => call(U.desk, 'record_disaster_casualty($1, $2, $3::jsonb)', [CALL, ref(), '{"kind":"Hurt"}']), /injured, deceased or missing/);
+    const fixed = await call(U.desk, 'update_disaster_casualty($1, $2::jsonb)', [c.id, '{"name":"Identified: S Khumalo"}']);
+    assert.equal(fixed.name, 'Identified: S Khumalo');
+    await as(U.desk);
+    await refused(() => db.query('select * from public.disaster_casualties'), /permission denied/);
+    const seen = (await db.query('select * from public.list_disaster_casualties($1)', [CALL])).rows;
+    assert.equal(seen.length, 2);
+    await db.query('select * from public.list_disaster_casualties($1)', [CALL]);
+    assert.equal((await rows("select * from public.audit_logs where action_type = 'CASUALTIES_VIEWED'")).length, 1);
+    await refused(() => call(U.cop, 'list_disaster_casualties($1)', [CALL]), /kept for the Disaster desk/);
+    const counts = await call(U.cop, 'disaster_casualty_counts($1)', [CALL]);
+    assert.deepEqual(counts.disaster_casualty_counts, { injured: 1, deceased: 1, missing: 0 });
+    const tl = await timeline();
+    assert.ok(tl.some((m) => m.startsWith('[CASUALTY] One person recorded as deceased')));
+    assert.ok(!tl.some((m) => /Dlamini|Khumalo|072 000/.test(m)));
+  });
+
+  await scenario('0113: shelter supplies and position; the SMS sent stays on record', async () => {
+    const hall = await call(U.desk, 'save_disaster_shelter($1, $2::jsonb)', [null, '{"name":"Bluff Community Hall","capacity":200}']);
+    const o = await call(U.desk, 'open_disaster_shelter($1, $2, $3, $4::jsonb)', [CALL, hall.id, ref(), '{"people":120}']);
+    await refused(() => call(U.desk, 'set_shelter_services($1, $2::jsonb)', [o.id, '{"food":"Lots"}']), /enough, running low or none/);
+    const s = await call(U.desk, 'set_shelter_services($1, $2::jsonb)', [o.id, '{"food":"Running low","water":"Water tanker","toilets":"4","temporary_toilets":6,"toiletries":"None"}']);
+    assert.equal(s.food, 'Running low');
+    assert.equal(s.temporary_toilets, 6);
+    assert.ok((await timeline()).some((m) => m.startsWith('[SHELTER] Bluff Community Hall supplies: food running low, drinking water water tanker, toilets 4, temporary toilets 6, toiletries none')));
+    const pos = await call(U.desk, 'set_shelter_position($1, $2, $3)', [hall.id, -29.94, 31.01]);
+    assert.equal(pos.lat, -29.94);
+    const sms = await call(U.desk, 'log_disaster_sms($1, $2::jsonb)', [CALL, JSON.stringify({ to_name: 'Supt. R Naidoo', to_number: '+27824441111',
+      body: 'ETK-ED-1: Bluff flooding. Please close Bluff Road at Marine Drive.', status: 'Sent' })]);
+    assert.equal(sms.status, 'Sent');
+    await as(U.desk);
+    await refused(() => db.query('delete from public.disaster_sms'), /permission denied/);
+    await db.query('reset role');
+    await refused(() => db.query('delete from public.disaster_sms'), /stays on record/);
+    await refused(() => call(U.cop, 'log_disaster_sms($1, $2::jsonb)', [CALL, '{"to_number":"1","body":"x","status":"Sent"}']), /Only the Disaster desk/);
+  });
+
+  await scenario('0113: no direct writes; anonymous users get nothing', async () => {
+    await as(U.desk);
+    for (const t of ['disaster_line_reports', 'disaster_department_contacts', 'disaster_sms']) {
+      await refused(() => db.query(`delete from public.${t}`), /permission denied/);
+    }
+    await db.query('reset role');
+    await db.query('set local role anon');
+    for (const fn of ['open_disaster_incident(null, null)', "add_line_function(null, 'metro')", 'list_disaster_casualties(null)',
+      'record_disaster_casualty(null, null, null)', 'log_disaster_sms(null, null)']) {
+      await refused(() => db.query(`select public.${fn}`), /permission denied/);
+    }
+  });
+
   await db.query('rollback');
-  console.log(`\n${checks} scenarios passed; 0112 applied twice over 0111.`);
+  console.log(`\n${checks} scenarios passed; 0112 and 0113 applied twice over 0111.`);
 } finally {
   await db.close();
 }

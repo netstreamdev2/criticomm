@@ -23,6 +23,7 @@ type Props = {
   facts: { hazard: string | null; level: CoordinationLevel; municipalities: string[]; docActivated: boolean; scgConvened: boolean; fcp: string | null; eoc: string | null };
   callouts: Array<{ name: string; type: string | null; status: string; calledAt: string; onSceneAt: string | null; leftAt: string | null }>;
   shelters: Array<{ name: string; peak: number; households: number; relief: Record<string, number> }>;
+  departments: Array<{ name: string; status: string; representative: string | null }>;
   timeline: Array<{ at: string; text: string }>;
   initial: Record<string, string>;
 };
@@ -99,6 +100,16 @@ export function DeskPostMortemForm(p: Props) {
             </li>
           ))}
         </ul>
+        {p.departments.length ? (
+          <ul className="mt-4 space-y-2 text-sm">
+            {p.departments.map((d) => (
+              <li key={d.name} className="flex flex-wrap justify-between gap-2 rounded-lg border border-border bg-bg-soft px-3 py-2">
+                <span className="font-semibold">{d.name}{d.representative ? <span className="ml-2 font-normal text-muted-foreground">{d.representative}</span> : null}</span>
+                <span className="text-muted-foreground">{t(d.status)}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
         {p.shelters.length ? (
           <ul className="mt-4 space-y-2 text-sm">
             {p.shelters.map((s, i) => (

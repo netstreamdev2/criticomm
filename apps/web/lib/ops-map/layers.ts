@@ -18,9 +18,10 @@ export type LayerId =
   | 'incidents' | 'units' | 'routes' | 'zones' | 'cameras'
   | 'crime' | 'hydrants'
   | 'rain' | 'clouds' | 'temp' | 'wind'
-  | 'traffic' | 'facilities';
+  | 'traffic' | 'facilities'
+  | 'radar' | 'flights' | 'vessels' | 'shelters';
 
-export type LayerGroup = 'Operations' | 'Risk' | 'Weather' | 'City';
+export type LayerGroup = 'Operations' | 'Risk' | 'Weather' | 'City' | 'Air and sea';
 
 export type LayerDef = {
   id: LayerId;
@@ -44,9 +45,13 @@ export const LAYERS: readonly LayerDef[] = [
   { id: 'wind', label: 'Wind speed', group: 'Weather', hint: 'Wind now (OpenWeather).' },
   { id: 'traffic', label: 'Traffic incidents', group: 'City', hint: 'Crashes, closures and jams (TomTom).' },
   { id: 'facilities', label: 'Hospitals & police stations', group: 'City', hint: 'Emergency facilities nearby (TomTom).' },
+  { id: 'shelters', label: 'Shelters', group: 'Operations', hint: 'Reception centres in the register: people in and places free.' },
+  { id: 'radar', label: 'Rain radar', group: 'Weather', hint: 'Rain measured by radar in the last ten minutes (RainViewer).' },
+  { id: 'flights', label: 'Aircraft', group: 'Air and sea', hint: 'Aircraft over Durban, live (FlightRadar24).' },
+  { id: 'vessels', label: 'Ships', group: 'Air and sea', hint: 'Ships at the port and anchorage, live (marine AIS).' },
 ];
 
-export const LAYER_GROUPS: readonly LayerGroup[] = ['Operations', 'Risk', 'Weather', 'City'];
+export const LAYER_GROUPS: readonly LayerGroup[] = ['Operations', 'Risk', 'Weather', 'City', 'Air and sea'];
 
 export const WEATHER_LAYERS = ['rain', 'clouds', 'temp', 'wind'] as const;
 export type WeatherLayer = (typeof WEATHER_LAYERS)[number];
@@ -75,9 +80,10 @@ export function isBasemap(value: unknown): value is Basemap {
  * /sanral screen; routes are for the desks and command who oversee crews
  * (canSeeRoutes).
  */
-export function availableLayers(opts: { cameras: boolean; routes?: boolean }): LayerId[] {
+export function availableLayers(opts: { cameras: boolean; routes?: boolean; shelters?: boolean }): LayerId[] {
   return LAYERS.map((l) => l.id)
     .filter((id) => id !== 'cameras' || opts.cameras)
+    .filter((id) => id !== 'shelters' || Boolean(opts.shelters))
     .filter((id) => id !== 'routes' || Boolean(opts.routes));
 }
 
@@ -95,7 +101,7 @@ export function defaultLayers(role: UserRole): LayerId[] {
     case 'Doctor':
       return [...base, 'facilities'];
     case 'Disaster':
-      return [...base, 'rain'];
+      return [...base, 'radar', 'shelters'];
     // The desks that send crews follow where they go.
     case 'Dispatcher':
     case 'ControlRoom':

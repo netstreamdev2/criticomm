@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Home, Pencil, Plus } from 'lucide-react';
 import { MUNICIPALITIES, SHELTER_KINDS } from '@criticom/db/disaster-plan';
 import { CallButton } from '@/components/disaster/call-button';
+import { AddressSearch, type PickedPlace } from '@/components/disaster/address-search';
 import { useT } from '@/components/i18n';
 import { cn } from '@/lib/utils';
 import { saveShelterAction } from '../desk/actions';
@@ -117,11 +118,20 @@ function HallForm({ hall, onDone, onError }: { hall: Hall | null; onDone: () => 
     key_holder_phone: hall?.keyHolderPhone ?? '', notes: hall?.notes ?? '',
   });
   const [active, setActive] = useState(hall?.active ?? true);
+  // The point picked from the address search: saved as the hall's place on the map.
+  const [at, setAt] = useState<{ lat: number; lng: number } | null>(null);
   const [pending, start] = useTransition();
-  const set = (k: keyof typeof v, x: string) => setV({ ...v, [k]: x });
+  const set = (k: keyof typeof v, x: string) => setV((cur) => ({ ...cur, [k]: x }));
+  const place = (p: PickedPlace) => {
+    setAt({ lat: p.lat, lng: p.lng });
+    setV((cur) => ({
+      ...cur, address: p.label, ward: p.ward ?? cur.ward,
+      municipality: p.municipality && (MUNICIPALITIES as readonly string[]).includes(p.municipality) ? p.municipality : cur.municipality,
+    }));
+  };
   const save = () => start(async () => {
     onError(null);
-    const res = await saveShelterAction(hall?.id ?? null, { ...v, capacity: v.capacity || '0', is_active: active });
+    const res = await saveShelterAction(hall?.id ?? null, { ...v, capacity: v.capacity || '0', is_active: active }, at);
     if ('error' in res) onError(res.error);
     else onDone();
   });
@@ -133,11 +143,12 @@ function HallForm({ hall, onDone, onError }: { hall: Hall | null; onDone: () => 
         <label className="block text-sm font-medium sm:col-span-2">{t('Name')}<input value={v.name} onChange={(e) => set('name', e.target.value)} maxLength={200} className={field} /></label>
         <label className="block text-sm font-medium">{t('Type')}
           <select value={v.kind} onChange={(e) => set('kind', e.target.value)} className={field}>{SHELTER_KINDS.map((k) => <option key={k} value={k}>{t(k)}</option>)}</select></label>
+        <div className="block text-sm font-medium sm:col-span-2">{t('Address')}
+          <AddressSearch label={t('Address')} value={v.address} onText={(x) => { set('address', x); setAt(null); }} onPlace={place} className={field} /></div>
+        <label className="block text-sm font-medium">{t('Ward')}<input value={v.ward} onChange={(e) => set('ward', e.target.value)} maxLength={40} className={field} /></label>
         <label className="block text-sm font-medium">{t('Municipality')}
           <select value={v.municipality} onChange={(e) => set('municipality', e.target.value)} className={field}>{MUNICIPALITIES.map((m) => <option key={m} value={m}>{m}</option>)}</select></label>
-        <label className="block text-sm font-medium">{t('Ward')}<input value={v.ward} onChange={(e) => set('ward', e.target.value)} maxLength={40} className={field} /></label>
         <label className="block text-sm font-medium">{t('Capacity (people)')}<input value={v.capacity} onChange={(e) => set('capacity', e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" className={field} /></label>
-        <label className="block text-sm font-medium sm:col-span-2">{t('Address')}<input value={v.address} onChange={(e) => set('address', e.target.value)} maxLength={300} className={field} /></label>
         <label className="block text-sm font-medium">{t('Key holder')}<input value={v.key_holder} onChange={(e) => set('key_holder', e.target.value)} maxLength={120} className={field} /></label>
         <label className="block text-sm font-medium">{t('Key holder phone')}<input value={v.key_holder_phone} onChange={(e) => set('key_holder_phone', e.target.value)} maxLength={60} inputMode="tel" className={field} /></label>
         <label className="block text-sm font-medium sm:col-span-2">{t('Notes')}<input value={v.notes} onChange={(e) => set('notes', e.target.value)} maxLength={1000} placeholder={t('Kitchen, toilets, wheelchair access…')} className={field} /></label>

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { readModelJson, saveDisasterBrief } from '@criticom/api';
 import {
   EMPTY_BRIEF, deskChecks, disasterSystemPrompt, disasterUserPrompt, postMortemSystemPrompt, postMortemUserPrompt,
+  readSms, smsSystemPrompt, smsUserPrompt, type SmsRecipient,
   readDisasterBrief, readMarker, readPostMortemDraft, type DisasterBrief,
 } from '@criticom/api/criti/disaster';
 import { canAccess } from '@criticom/db';
@@ -18,6 +19,8 @@ import { loadDesk } from '@/lib/disaster-desk';
  *   call and every few minutes while it is open. A reading already made for
  *   the same updates and call-outs in the last three minutes is returned
  *   as it is, so every dispatcher on the desk sees the same one.
+ *   mode "sms" (0113): a short, professional SMS to the caller, a department's
+ *   manager or a partner (recipient, who), for the dispatcher to check and send.
  *   mode "post-mortem": a draft of the after-action report from the timeline,
  *   for the dispatcher to check before filing.
  *
@@ -54,6 +57,20 @@ export async function POST(req: Request) {
   const now = new Date();
   const configured = configuredProviders().length > 0;
   const settings = configured ? await integrationSettings(supabase) : undefined;
+
+  // 0113: an SMS for the desk to check and send.
+  if (body.mode === 'sms') {
+    if (!configured) return NextResponse.json({ sms: null, configured: false });
+    const recipient: SmsRecipient = body.recipient === 'caller' || body.recipient === 'manager' ? body.recipient : 'partner';
+    const who = typeof body.who === 'string' ? body.who.slice(0, 120) : null;
+    try {
+      const answer = await complete(smsSystemPrompt(), smsUserPrompt(desk.ctx, recipient, who, now), { maxTokens: 300, timeoutMs: 15_000, settings });
+      const sms = readSms(answer.text);
+      return NextResponse.json({ sms: sms || null, configured: true, provider: answer.provider });
+    } catch (e) {
+      return NextResponse.json({ sms: null, configured: true, error: (e as Error).message });
+    }
+  }
 
   if (body.mode === 'post-mortem') {
     if (!configured) return NextResponse.json({ draft: null, configured: false });

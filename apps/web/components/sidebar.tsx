@@ -371,9 +371,10 @@ const FIRE_COMMAND_GROUPS: NavGroup[] = [
 // monitor or start of shift here. Each person sees only what they may open.
 const DISASTER_GROUPS: NavGroup[] = [
   { id: 'disaster-operations', label: 'Operations', items: [
-    adminLink('/disaster/desk'),
     adminLink('/disaster', 'Disaster Dashboard'),
+    adminLink('/disaster/desk'),
     adminLink('/disaster/shelters'),
+    adminLink('/disaster/departments'),
     adminLink('/disaster/partners', 'Partner List'),
     adminLink('/disaster/post-mortem'),
     adminLink('/incidents', 'Disaster Incidents'),

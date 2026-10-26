@@ -237,11 +237,18 @@ export async function setCalloutStatus(
 /** Log what came in, how and from whom; the same clientRef returns the one logged. */
 export async function logDeskUpdate(
   client: CriticomClient,
-  args: { incidentId: string; clientRef: string; source: DeskChannel; text: string; calloutId?: string | null; fromName?: string | null },
+  args: {
+    incidentId: string; clientRef: string; source: DeskChannel; text: string; calloutId?: string | null; fromName?: string | null;
+    /** A sitrep's figures and who was moved how and where (0113). */
+    figures?: Record<string, string | number>; movedBy?: string | null; movedTo?: string | null;
+  },
 ) {
   const { data, error } = await client.rpc('log_disaster_update', {
     p_incident_id: args.incidentId, p_client_ref: args.clientRef,
-    p_fields: { source: args.source, text: args.text, callout_id: args.calloutId ?? null, from_name: args.fromName ?? null },
+    p_fields: {
+      source: args.source, text: args.text, callout_id: args.calloutId ?? null, from_name: args.fromName ?? null,
+      figures: args.figures ?? {}, moved_by: args.movedBy ?? null, moved_to: args.movedTo ?? null,
+    },
   });
   if (error) throw error;
   return data as DisasterDeskUpdate;
@@ -414,3 +421,63 @@ export async function listAllPartners(client: CriticomClient): Promise<MutualAid
   if (error) throw error;
   return (data ?? []) as MutualAidPartner[];
 }
+
+/* ── Disaster operations from the desk (0113) ───────────────────────────── */
+
+export type LineReport = Tables['disaster_line_reports']['Row'];
+export type DepartmentContact = Tables['disaster_department_contacts']['Row'];
+export type DisasterSms = Tables['disaster_sms']['Row'];
+export type DisasterCasualty = Tables['disaster_casualties']['Row'];
+
+/** The desk opens an incident; the same clientRef returns the one opened. */
+export const openDisasterIncident = (client: CriticomClient, clientRef: string, fields: Record<string, unknown>) =>
+  rpc<Tables['incidents']['Row']>(client, 'open_disaster_incident', { p_client_ref: clientRef, p_fields: fields });
+
+export async function listLineReports(client: CriticomClient, incidentId: string): Promise<LineReport[]> {
+  const { data, error } = await client.from('disaster_line_reports').select('*').eq('incident_id', incidentId).order('added_at');
+  if (error) return [];
+  return (data ?? []) as LineReport[];
+}
+export const addLineFunction = (client: CriticomClient, incidentId: string, department: string) =>
+  rpc<LineReport>(client, 'add_line_function', { p_incident_id: incidentId, p_department: department });
+export const removeLineFunction = (client: CriticomClient, incidentId: string, department: string) =>
+  rpc<null>(client, 'remove_line_function', { p_incident_id: incidentId, p_department: department });
+export const saveLineReport = (client: CriticomClient, incidentId: string, department: string, fields: Record<string, unknown>) =>
+  rpc<LineReport>(client, 'save_line_report', { p_incident_id: incidentId, p_department: department, p_fields: fields });
+
+export async function listDepartmentContacts(client: CriticomClient): Promise<DepartmentContact[]> {
+  const { data, error } = await client.from('disaster_department_contacts').select('*').eq('is_active', true).order('name');
+  if (error) return [];
+  return (data ?? []) as DepartmentContact[];
+}
+export const saveDepartmentContact = (client: CriticomClient, id: string | null, fields: Record<string, unknown>) =>
+  rpc<DepartmentContact>(client, 'save_department_contact', { p_id: id, p_fields: fields });
+
+/** Casualties' personal details, for those who may see them (each read audited); empty for everyone else. */
+export async function listCasualties(client: CriticomClient, incidentId: string): Promise<DisasterCasualty[] | null> {
+  const { data, error } = await (client.rpc as unknown as Rpc)('list_disaster_casualties', { p_incident_id: incidentId });
+  if (error) return null;
+  return (data ?? []) as DisasterCasualty[];
+}
+export async function casualtyCounts(client: CriticomClient, incidentId: string) {
+  const { data, error } = await (client.rpc as unknown as Rpc)('disaster_casualty_counts', { p_incident_id: incidentId });
+  if (error || !data) return { injured: 0, deceased: 0, missing: 0 };
+  return data as { injured: number; deceased: number; missing: number };
+}
+export const recordCasualty = (client: CriticomClient, incidentId: string, clientRef: string, fields: Record<string, unknown>) =>
+  rpc<DisasterCasualty>(client, 'record_disaster_casualty', { p_incident_id: incidentId, p_client_ref: clientRef, p_fields: fields });
+export const updateCasualty = (client: CriticomClient, id: string, fields: Record<string, unknown>) =>
+  rpc<DisasterCasualty>(client, 'update_disaster_casualty', { p_id: id, p_fields: fields });
+
+export const setShelterServices = (client: CriticomClient, openingId: string, fields: Record<string, unknown>) =>
+  rpc<ShelterOpening>(client, 'set_shelter_services', { p_opening_id: openingId, p_fields: fields });
+export const setShelterPosition = (client: CriticomClient, id: string, lat: number | null, lng: number | null) =>
+  rpc<DisasterShelter>(client, 'set_shelter_position', { p_id: id, p_lat: lat, p_lng: lng });
+
+export async function listDisasterSms(client: CriticomClient, incidentId: string): Promise<DisasterSms[]> {
+  const { data, error } = await client.from('disaster_sms').select('*').eq('incident_id', incidentId).order('sent_at');
+  if (error) return [];
+  return (data ?? []) as DisasterSms[];
+}
+export const logDisasterSms = (client: CriticomClient, incidentId: string, fields: Record<string, unknown>) =>
+  rpc<DisasterSms>(client, 'log_disaster_sms', { p_incident_id: incidentId, p_fields: fields });

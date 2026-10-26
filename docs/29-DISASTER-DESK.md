@@ -101,8 +101,14 @@ CASE_PGLITE_MODULE=file:///path/to/@electric-sql/pglite/dist/index.js node scrip
 
 ## To do before go-live
 
-- Run `0111_disaster_desk.sql` in Supabase (after 0108–0110).
-- Translate the new desk wording (about 70 sentences) through
+- Run `0111_disaster_desk.sql`, then `0112_disaster_doc.sql`, then
+  `0113_disaster_operations.sql` in Supabase (after 0108–0110). Each checks
+  the one before it is in.
+- Set `BULKSMS_TOKEN_ID` and `BULKSMS_TOKEN_SECRET` on the web host, and buy
+  BulkSMS credits. Without them the desk still drafts and logs each SMS as
+  "Not set up".
+- Make Zoiper the computer's handler for phone links, so Call opens it.
+- Translate the new desk wording (278 sentences on 2026-10-26) through
   `.claude/translations/TRANSLATIONS.md`; until then it shows in English.
 
 ## The eThekwini way (0112)
@@ -155,3 +161,50 @@ Tests: `scripts/test-disaster-doc.mjs` (8 scenarios, 0112 applied twice over 011
 Phase 2 (next): department readiness (line functions, DOC representatives,
 plan reviews), forum meetings and Technical Task Teams, the Framework's
 measures.
+
+## Operations (0113)
+
+- **Open incident** (`/disaster/desk/new`): the desk opens a call itself
+  (EMACC, the desk's own line, radio, WhatsApp, walk-in). The address search
+  fills the ward and suburb; the hazard is picked from the incident type.
+  `open_disaster_incident` numbers it on the Disaster sequence and writes the
+  facts and the first timeline line in one step.
+- **Departments**: the Plan's 19 line functions with their roles during
+  disaster operations, word for word. Disaster Management and Metro Police
+  are on every incident (Metro for road closures and cordons); the rest are
+  suggested by hazard (no Fire form for a flood) and added only when needed.
+  Each has a four-step form in a modal that asks before closing with unsaved
+  work: DOC representative (picked from `/disaster/departments` contacts),
+  duties (Done, Under way, Not needed), figures and notes, review. The list
+  shows Not started, In progress or Done. Health handles an outbreak.
+- **Sitrep figures**: injured, dead, missing, evacuated, people helped,
+  households affected, and how and where people were moved. The newest
+  figures fill the situation strip at the top of the board.
+- **Casualties**: everything optional; a description for someone not
+  identified ("blue jeans, about 30"). Names and contact details only on the
+  web desk, for the Disaster desk and command, case managers and admins;
+  everyone else sees counts. The table has no direct read: the list comes
+  through `list_disaster_casualties`, and each read is audited (once per ten
+  minutes per person and call). The timeline never carries a name.
+- **Shelter supplies**: food and toiletries (Enough, Running low, None),
+  water (Mains, Water tanker, Bottled, None), toilets and temporary toilets, and services on site, updated by
+  whoever is on the ground through the desk. Criti warns when a hall is full,
+  when supplies run low, and when people were evacuated with no hall open.
+  A hall saved with an address is placed on the map.
+- **SMS**: to the caller, a department's representative or a partner called
+  out. Criti drafts in plain, professional words (no dashes); the dispatcher
+  reads it and presses Send (BulkSMS). Every SMS is logged with its result,
+  stays on record, and is capped at 60 an hour per incident.
+- **Live map**: the incident, zones, reception centres (green, red when
+  full), measured rain radar (through `/api/weather/radar`), traffic, and
+  aircraft and ships when switched on. Ward boundaries wait for open data.
+- **Report (PDF)** (`/api/pdf/disaster/[id]`): the Official After-Action
+  Report with everything on the record: the incident, impact, command and
+  co-ordination, call-outs with times, each department's representative,
+  duties and figures, reception centres with relief and supplies, casualty
+  counts (names only for those allowed, marked confidential), the analysis,
+  the SMS log and the timeline. From the board header and the filed
+  post-mortem.
+
+Tests: `scripts/test-disaster-doc.mjs` (15 scenarios: 0112 and 0113 applied
+twice over 0111).

@@ -22,6 +22,8 @@ export type GeoResult = {
   lat: number;
   lng: number;
   suburb: string | null;
+  /** The municipal ward, when the map names it ("eThekwini Ward 35" gives "35"). */
+  ward?: string | null;
   city: string;
   postalCode: string | null;
   /** A named place (a mall, a fuel station, a hospital), when it is one. */
@@ -51,6 +53,14 @@ const NOT_A_PLACE = new Set(['highway', 'place', 'boundary', 'landuse', 'waterwa
 
 /** The suburb, not the ward: the maps give "eThekwini Ward 35" beside "Somerset Park". */
 const suburbOf = (...names: Array<string | undefined>) => names.find((n) => n && !/\bward\s+\d+/i.test(n)) ?? null;
+/** The ward number the maps give beside the suburb. */
+const wardOf = (...names: Array<string | undefined>) => {
+  for (const n of names) {
+    const m = n ? /\bward\s+(\d{1,3})\b/i.exec(n) : null;
+    if (m) return m[1] ?? null;
+  }
+  return null;
+};
 
 /** "Gateway Theatre of Shopping, Sugar Road, Somerset Park, Umhlanga": short, place first. */
 function shortLabel(name: string | null, street: string | null, suburb: string | null, town: string | null) {
@@ -82,6 +92,7 @@ function fromPhoton(f: PhotonFeature): GeoResult {
     lat: f.geometry.coordinates[1],
     lng: f.geometry.coordinates[0],
     suburb,
+    ward: wardOf(p.locality, p.district, p.name),
     city,
     postalCode: p.postcode ?? null,
     place: isPlace ? p.name! : null,
@@ -150,6 +161,7 @@ function fromNominatim(p: NominatimPlace): GeoResult {
     lat: Number(p.lat),
     lng: Number(p.lon),
     suburb,
+    ward: wardOf(a.suburb, a.neighbourhood, a.city_district, a.quarter, a.municipality),
     city: a.city ?? a.town ?? a.municipality ?? 'Durban',
     postalCode: a.postcode ?? null,
     place: isPlace ? p.name! : null,
@@ -296,4 +308,58 @@ export async function reverseLookup(lat: string, lng: string): Promise<GeoResult
   if (photonUp()) results = await photonReverse(lat, lng).catch(() => { photonFailed(); return [] as GeoResult[]; });
   if (results.length === 0) results = await nominatimReverse(lat, lng).catch(() => []);
   return results;
+}
+
+/* ── The ward and municipality at a point ───────────────────────────── */
+
+export type AreaAt = {
+  /** The ward the point falls inside ("76"), from the ward boundaries on the map. */
+  ward: string | null;
+  /** The municipality, as the Plan lists them ("eThekwini Metro", "Ugu"); null outside KwaZulu-Natal's list. */
+  municipality: string | null;
+};
+
+const areaCache = new Map<string, { at: number; area: AreaAt }>();
+const AREA_CACHE_MS = 24 * 60 * 60_000;
+
+/** "eThekwini Metropolitan Municipality" → "eThekwini Metro"; "Ugu District Municipality" → "Ugu". */
+function municipalityOf(names: Array<string | undefined>, list: readonly string[]): string | null {
+  for (const n of names) {
+    if (!n) continue;
+    const name = n.toLowerCase();
+    const found = list.find((m) => name.startsWith(m.toLowerCase().replace(/ metro$/, '')));
+    if (found) return found;
+  }
+  return null;
+}
+
+/**
+ * The ward a point falls inside, not the ward a nearby place is named after:
+ * asked at the zoom of ward boundaries, the map answers with the boundary
+ * that holds the point ("eThekwini Ward 76"). Kept a day: wards move only at
+ * elections. Never throws; null when the map cannot be asked.
+ */
+export async function areaAt(lat: number, lng: number, municipalities: readonly string[]): Promise<AreaAt | null> {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
+  const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+  const hit = areaCache.get(key);
+  if (hit && Date.now() - hit.at < AREA_CACHE_MS) return hit.area;
+  try {
+    const res = await timed(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=14&lat=${lat}&lon=${lng}`,
+    );
+    if (!res.ok) return null;
+    const p = (await res.json()) as NominatimPlace & { error?: string };
+    if (p.error) return null;
+    const a = p.address ?? {};
+    const area = {
+      ward: wardOf(p.name, a.suburb, a.city_district, a.quarter, a.neighbourhood, a.municipality),
+      municipality: municipalityOf([a.county, a.municipality, a.city, a.state_district], municipalities),
+    };
+    if (areaCache.size > 2000) areaCache.clear();
+    areaCache.set(key, { at: Date.now(), area });
+    return area;
+  } catch {
+    return null;
+  }
 }

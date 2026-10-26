@@ -159,10 +159,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   if (role === 'CaseManager') redirect('/case-manager');
   // The receiving doctor's console is the handovers list.
   if (role === 'Doctor') redirect('/medical/handovers');
-  // As V4: fire command opens on the fire board. Disaster opens on its desk;
-  // its supervisor and administrator on the dashboard.
+  // As V4: fire command opens on the fire board. Disaster opens on its
+  // dashboard (the live map and the open calls), one press from the desk.
   if (isFireCommand(role, silo)) redirect('/fire');
-  if (isDisasterDesk(role, silo)) redirect(role === 'Admin' || role === 'Supervisor' ? '/disaster' : '/disaster/desk');
+  if (isDisasterDesk(role, silo)) redirect('/disaster');
   const params = await searchParams;
   // Fines (0057): for those who see the whole register, when enforcement is on.
   const showFines = canViewAllFines({ role, silo })

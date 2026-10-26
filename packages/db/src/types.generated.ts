@@ -2560,6 +2560,10 @@ export type Database = {
           logged_by: string;
           logged_by_name: string | null;
           logged_at: string;
+          /** A sitrep's figures (0113): totals so far as reported. */
+          figures?: Record<string, number>;
+          moved_by?: string | null;
+          moved_to?: string | null;
         };
         Insert: Partial<Database['public']['Tables']['disaster_desk_updates']['Row']>;
         Update: Partial<Database['public']['Tables']['disaster_desk_updates']['Row']>;
@@ -2585,9 +2589,106 @@ export type Database = {
           updated_at: string;
           updated_by: string | null;
           updated_by_name: string | null;
+          /** How the desk heard of it, and the ward (0113). */
+          reported_through?: string | null;
+          ward?: string | null;
         };
         Insert: Partial<Database['public']['Tables']['disaster_call_facts']['Row']>;
         Update: Partial<Database['public']['Tables']['disaster_call_facts']['Row']>;
+        Relationships: [];
+      };
+      /** A line function's part on a Disaster incident (0113). */
+      disaster_line_reports: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          department: string;
+          status: 'Not started' | 'In progress' | 'Done';
+          representative_name: string | null;
+          representative_post: string | null;
+          representative_phone: string | null;
+          at_doc: boolean;
+          duties: Record<string, 'Done' | 'Under way' | 'Not needed'>;
+          figures: Record<string, number>;
+          notes: string | null;
+          added_at: string;
+          added_by_name: string | null;
+          updated_at: string;
+          updated_by_name: string | null;
+          done_at: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_line_reports']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_line_reports']['Row']>;
+        Relationships: [];
+      };
+      /** The Plan's staff resources database: who represents each department at the DOC (0113). */
+      disaster_department_contacts: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          department: string;
+          name: string;
+          post: string | null;
+          phone: string | null;
+          email: string | null;
+          doc_rep: boolean;
+          is_active: boolean;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_department_contacts']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_department_contacts']['Row']>;
+        Relationships: [];
+      };
+      /** SMS sent from the Disaster desk about an incident (0113). */
+      disaster_sms: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          to_name: string | null;
+          to_number: string;
+          body: string;
+          status: 'Sent' | 'Failed' | 'Not set up';
+          detail: string | null;
+          sent_by: string;
+          sent_by_name: string | null;
+          sent_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_sms']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_sms']['Row']>;
+        Relationships: [];
+      };
+      /** Injured, deceased and missing people (0113): read through list_disaster_casualties() only. */
+      disaster_casualties: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          client_ref: string | null;
+          kind: 'Injured' | 'Deceased' | 'Missing';
+          name: string | null;
+          phone: string | null;
+          address: string | null;
+          gender: 'Female' | 'Male' | 'Unknown' | null;
+          age: string | null;
+          description: string | null;
+          condition: string | null;
+          taken_to: string | null;
+          notes: string | null;
+          recorded_by: string;
+          recorded_by_name: string | null;
+          recorded_at: string;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_casualties']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_casualties']['Row']>;
         Relationships: [];
       };
       /** Halls and facilities for emergency assembly and shelter (0112). */
@@ -2608,6 +2709,8 @@ export type Database = {
           is_active: boolean;
           updated_at: string;
           updated_by_name: string | null;
+          lat?: number | null;
+          lng?: number | null;
         };
         Insert: Partial<Database['public']['Tables']['disaster_shelters']['Row']>;
         Update: Partial<Database['public']['Tables']['disaster_shelters']['Row']>;
@@ -2634,6 +2737,13 @@ export type Database = {
           opened_by_name: string | null;
           closed_at: string | null;
           closed_by_name: string | null;
+          /** Supplies at the shelter (0113). */
+          food?: string | null;
+          toiletries?: string | null;
+          water?: string | null;
+          toilets?: number;
+          temporary_toilets?: number;
+          services_at?: string | null;
         };
         Insert: Partial<Database['public']['Tables']['disaster_shelter_openings']['Row']>;
         Update: Partial<Database['public']['Tables']['disaster_shelter_openings']['Row']>;

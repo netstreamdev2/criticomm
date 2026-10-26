@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/external';
-import { reverseLookup, searchPlaces } from '@/lib/geocode';
+import { MUNICIPALITIES } from '@criticom/db/disaster-plan';
+import { areaAt, reverseLookup, searchPlaces } from '@/lib/geocode';
 
 /**
  * Address ⇄ coordinate lookup for the dispatch console, proxied server-side
@@ -8,6 +9,7 @@ import { reverseLookup, searchPlaces } from '@/lib/geocode';
  *
  *   GET /api/geocode?q=7+Chris+Hani+Rd        → forward lookup
  *   GET /api/geocode?lat=-29.79&lng=31.03     → reverse lookup
+ *   GET /api/geocode?lat=…&lng=…&area=1       → the ward and municipality the point is in
  */
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -27,6 +29,7 @@ export async function GET(req: Request) {
   const lng = url.searchParams.get('lng');
 
   try {
+    if (lat && lng && url.searchParams.get('area')) return NextResponse.json({ area: await areaAt(Number(lat), Number(lng), MUNICIPALITIES) });
     if (lat && lng) return NextResponse.json({ results: await reverseLookup(lat, lng) });
     if (q && q.trim().length >= 3) return NextResponse.json({ results: await searchPlaces(q) });
     return NextResponse.json({ results: [] });

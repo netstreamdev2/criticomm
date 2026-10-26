@@ -69,6 +69,9 @@ export default async function DisasterDeskPage() {
           <Link href="/disaster/partners" className="inline-flex items-center rounded-xl border border-border bg-bg-card px-4 text-sm font-semibold shadow-sm hover:bg-muted">
             {t('Partner list')}
           </Link>
+          <Link href="/disaster/desk/new" className="inline-flex items-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm">
+            {t('Open incident')}
+          </Link>
         </div>
       </header>
 

@@ -112,6 +112,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/medical/restock', label: 'Ambulance Restock', icon: Archive, keywords: 'ambulance stock drugs inventory restock medical' },
       { href: '/disaster', label: 'Disaster Mgmt', icon: Mountain, keywords: 'flood relief mutual aid' },
       { href: '/disaster/desk', label: 'Disaster Desk', icon: Siren, keywords: 'disaster calls call out partners eskom fire station updates criti command board' },
+      { href: '/disaster/departments', label: 'Departments', icon: Landmark, keywords: 'departments line functions doc representative heads contacts staff resources' },
       { href: '/disaster/shelters', label: 'Shelters', icon: Building2, keywords: 'shelters reception centres community halls key holders capacity displaced' },
       { href: '/disaster/duty', label: 'Duty Roster', icon: CalendarClock, keywords: 'duty roster standby principal stand-by officer mdmc duty officer scg chair' },
       { href: '/disaster/post-mortem', label: 'Post-Mortems', icon: FileCheck, keywords: 'after action report aar post mortem lessons' },

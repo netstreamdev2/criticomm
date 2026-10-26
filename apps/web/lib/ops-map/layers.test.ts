@@ -21,7 +21,7 @@ test('CCTV is offered only to viewers who may open the camera screen', () => {
 test('each desk opens with the layers its work needs', () => {
   assert.deepEqual(defaultLayers('Police'), ['incidents', 'units', 'zones', 'crime']);
   assert.deepEqual(defaultLayers('FireChief'), ['incidents', 'units', 'zones', 'hydrants']);
-  assert.deepEqual(defaultLayers('Disaster'), ['incidents', 'units', 'zones', 'rain']);
+  assert.deepEqual(defaultLayers('Disaster'), ['incidents', 'units', 'zones', 'radar', 'shelters'], 'measured rain and the reception centres (0113)');
   assert.deepEqual(defaultLayers('Dispatcher'), ['incidents', 'units', 'zones', 'routes'], 'the desk that sends crews follows where they go');
   assert.deepEqual(defaultLayers('Supervisor'), ['incidents', 'units', 'zones', 'routes']);
   assert.deepEqual(defaultLayers('Viewer'), ['incidents', 'units', 'zones']);

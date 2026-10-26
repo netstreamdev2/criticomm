@@ -27,6 +27,7 @@
     "./pcr": "./src/pcr.ts",
     "./post-mortem": "./src/post-mortem.ts",
     "./disaster-plan": "./src/disaster-plan.ts",
+    "./disaster-departments": "./src/disaster-departments.ts",
     "./fire-inspection": "./src/fire-inspection.ts",
     "./disaster": "./src/disaster.ts",
     "./desks": "./src/desks.ts",

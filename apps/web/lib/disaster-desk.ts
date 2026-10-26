@@ -1,19 +1,28 @@
 import 'server-only';
 import {
+  casualtyCounts, listCasualties, listDepartmentContacts, listDisasterSms, listLineReports,
   getCallFacts, getDeskRecord, getIncident, getIncidentUpdates, listCallShelters, listDisasterOfficers, listDuty,
   listMutualAidPartners, listOpenShelters, listShelterEntries, listShelters,
   type DisasterCallout, type DisasterDeskUpdate,
 } from '@criticom/api';
 import type { DeskCallout, DeskContext, DeskUpdate } from '@criticom/api/criti/disaster';
 import type { CriticomClient } from '@criticom/db';
+import { lineFunction } from '@criticom/db/disaster-departments';
+
+/** The latest figure for each key across the sitreps, oldest first (each sitrep gives totals so far). */
+export function latestFigures(updates: Array<{ figures?: Record<string, number> | null }>): Record<string, number> {
+  const out: Record<string, number> = {};
+  for (const u of updates) for (const [k, v] of Object.entries(u.figures ?? {})) if (typeof v === 'number') out[k] = v;
+  return out;
+}
 
 /**
  * Everything the Disaster desk shows and Criti reads for one call, read with
  * the dispatcher's own sign-in (the database decides what they may see).
  */
 
-/** Lines the desk writes on the call's own timeline (0111, 0112): shown from the desk's tables instead. */
-const DESK_LINE = /^\[(CALL-OUT|PARTNER|SHELTER|UPDATE · [^\]]*)\]/;
+/** Lines the desk writes on the call's own timeline (0111–0113): shown from the desk's tables instead. */
+const DESK_LINE = /^\[(CALL-OUT|PARTNER|SHELTER|SMS|UPDATE · [^\]]*)\]/;
 
 export const toDeskCallout = (c: DisasterCallout): DeskCallout => ({
   id: c.id, partnerId: c.partner_id, name: c.agency_name, type: c.resource_type, how: c.how, status: c.status,
@@ -38,6 +47,12 @@ export async function loadDesk(supabase: CriticomClient, incidentId: string) {
     listDisasterOfficers(supabase),
     listDuty(supabase),
   ]);
+  // 0113: the departments on the incident, their contacts, casualties (only for those who may see them), SMS sent.
+  const [lineReports, contacts, casualties, counts, sms] = await Promise.all([
+    listLineReports(supabase, incident.id), listDepartmentContacts(supabase), listCasualties(supabase, incident.id),
+    casualtyCounts(supabase, incident.id), listDisasterSms(supabase, incident.id),
+  ]);
+  const figures = latestFigures(record.updates);
   const notes = timeline
     .filter((u) => !DESK_LINE.test(u.message))
     .map((u) => ({ at: u.timestamp, text: u.message, by: u.created_by_name }))
@@ -69,8 +84,14 @@ export async function loadDesk(supabase: CriticomClient, incidentId: string) {
     municipalities: facts?.municipalities ?? [],
     shelters: callShelters.filter((o) => !o.closed_at).map((o) => ({
       name: hallById.get(o.shelter_id)?.name ?? 'Shelter', peopleNow: o.people_now, capacity: hallById.get(o.shelter_id)?.capacity ?? 0,
+      food: o.food ?? null, toiletries: o.toiletries ?? null, water: o.water ?? null, temporaryToilets: o.temporary_toilets ?? 0,
     })),
+    departments: lineReports.map((r) => ({ key: r.department, name: lineFunction(r.department)?.name ?? r.department, status: r.status })),
+    figures,
     onDuty: onDutyNow.map((d) => ({ name: d.name, duty: d.duty, status: d.status })),
   };
-  return { incident, record, notes, partners, facts, callShelters, register, inShelter, entries, officers, onDutyNow, ctx };
+  return {
+    incident, record, notes, partners, facts, callShelters, register, inShelter, entries, officers, onDutyNow, ctx,
+    lineReports, contacts, casualties, counts, sms, figures,
+  };
 }

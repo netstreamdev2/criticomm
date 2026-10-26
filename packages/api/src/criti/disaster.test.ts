@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  deskChecks, disasterUserPrompt, lastHeard, readDisasterBrief, readMarker, readPostMortemDraft,
+  deskChecks, disasterUserPrompt, lastHeard, readDisasterBrief, readMarker, readPostMortemDraft, readSms,
   type DeskCallout, type DeskContext,
 } from './disaster.ts';
 
@@ -31,9 +31,10 @@ test('a partner not on the way after 20 minutes is chased; late against their ow
     callout({ calledAt: ago(25) }),
     callout({ id: 'c2', partnerId: TOTI.id, name: TOTI.name, status: 'On the way', onWayAt: ago(30), etaMinutes: 12, calledAt: ago(32) }),
   ], updates: [{ at: ago(5), source: 'Radio', from: null, text: 'x' }] }), NOW);
-  assert.deepEqual(checks.map((c) => c.calloutId), ['c1', 'c2']);
-  assert.match(checks[0]!.text, /called 25 min ago and is not on the way yet/);
-  assert.match(checks[1]!.text, /18 min later than they said/);
+  const chased = checks.filter((c) => c.calloutId);
+  assert.deepEqual(chased.map((c) => c.calloutId), ['c1', 'c2']);
+  assert.match(chased[0]!.text, /called 25 min ago and is not on the way yet/);
+  assert.match(chased[1]!.text, /18 min later than they said/);
 });
 
 test("V4's heartbeat: no update for 30 minutes while partners work the call", () => {
@@ -41,7 +42,7 @@ test("V4's heartbeat: no update for 30 minutes while partners work the call", ()
   assert.match(quiet[0]!.text, /No update for 40 min/);
   const fresh = deskChecks(ctx({ callouts: [callout({ status: 'On scene', calledAt: ago(60), onSceneAt: ago(45) })],
     updates: [{ at: ago(3), source: 'WhatsApp', from: 'Ward councillor', text: 'Hall open' }] }), NOW);
-  assert.equal(fresh.length, 0);
+  assert.ok(!fresh.some((c) => /No update/.test(c.text)));
   assert.equal(lastHeard(ctx({ updates: [{ at: ago(3), source: 'Call', from: null, text: 'x' }] })), ago(3));
 });
 
@@ -123,4 +124,24 @@ test('level advice only when it changes the level', () => {
   assert.deepEqual(up.levelAdvice, { level: 'Gold', why: 'Two wards, City resources needed' });
   assert.equal(readDisasterBrief({ summary: 'x', level_advice: { level: 'Gold', why: 'y' } }, { partners: [], callouts: [], level: 'Gold' }).levelAdvice, null);
   assert.equal(readDisasterBrief({ summary: 'x', level_advice: { level: 'Platinum' } }, { partners: [], callouts: [], level: 'Bronze' }).levelAdvice, null);
+});
+
+test('Metro Police on every incident; people moved with nowhere to go; a shelter running out', () => {
+  const working = [callout({ name: 'Amanzimtoti Fire Station', partnerId: 'p-toti', status: 'On scene', calledAt: ago(10), onSceneAt: ago(5) })];
+  const fresh = [{ at: ago(1), source: 'Radio' as const, from: null, text: 'x' }];
+  const noMetro = deskChecks(ctx({ callouts: working, updates: fresh }), NOW);
+  assert.ok(noMetro.some((c) => /Metro Police is not on this incident/.test(c.text)));
+  const withMetro = deskChecks(ctx({ callouts: [...working, callout({ id: 'm', name: 'Durban Metro Police HQ', partnerId: 'p-m' })], updates: fresh }), NOW);
+  assert.ok(!withMetro.some((c) => /Metro Police/.test(c.text)));
+  const nowhere = deskChecks(ctx({ callouts: working, updates: fresh, shelters: [], figures: { people_evacuated: 120 } }), NOW);
+  assert.ok(nowhere.some((c) => /120 people evacuated and no reception centre open/.test(c.text)));
+  const short = deskChecks(ctx({ callouts: working, updates: fresh, shelters: [{ name: 'Bluff Hall', peopleNow: 200, capacity: 200, food: 'Running low', toiletries: 'None' }] }), NOW);
+  assert.ok(short.some((c) => c.text === 'Bluff Hall: food running low, toiletries none.'));
+  assert.ok(short.some((c) => c.text === 'Bluff Hall is full. Open another hall.'));
+});
+
+test('an SMS reads professionally: no dashes, semicolons or exclamation marks, at most 300 characters', () => {
+  assert.equal(readSms('"ETK-ED-12: Bluff flooding — please close Bluff Road; confirm on 031 361 0000!"'),
+    'ETK-ED-12: Bluff flooding, please close Bluff Road, confirm on 031 361 0000.');
+  assert.equal(readSms('x'.repeat(400)).length, 300);
 });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Pencil, Plus, Search } from 'lucide-react';
+import { Pencil, Plus, Search, X } from 'lucide-react';
 import { PARTNER_SECTORS, PARTNER_TYPES } from '@criticom/db/disaster-plan';
 import { CallButton } from '@/components/disaster/call-button';
 import { useT } from '@/components/i18n';
@@ -13,18 +13,47 @@ type Partner = {
   sector: string | null; verified: boolean; notes: string | null; active: boolean; sort: number;
 };
 
-/** The partner list, grouped by type, each with its number to press and whether it has been checked. */
+/** How sure the desk is of a partner's number. */
+const NUMBER_STATES = ['Checked', 'To check', 'Radio channel', 'No number'] as const;
+type NumberState = (typeof NUMBER_STATES)[number];
+const numberIs = (p: Partner, s: NumberState) =>
+  s === 'Checked' ? p.verified && !!p.phone
+  : s === 'To check' ? !p.verified
+  : s === 'Radio channel' ? !!p.radio
+  : !p.phone;
+
+type Filters = { type: string | null; sector: string | null; number: NumberState | null };
+
+/**
+ * The partner list, grouped by type, each with its number to press and
+ * whether it has been checked. Filters by type, level of government and the
+ * number, together with the search; each choice shows how many it leaves.
+ */
 export function PartnerList({ partners, canEdit }: { partners: Partner[]; canEdit: boolean }) {
   const { t } = useT();
   const [q, setQ] = useState('');
   const [editing, setEditing] = useState<string | null>(null);
   const [showOff, setShowOff] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Filters>({ type: null, sector: null, number: null });
   const needle = q.trim().toLowerCase();
-  const shown = partners
-    .filter((p) => (p.active || showOff) && (!needle || `${p.name} ${p.type} ${p.commander ?? ''} ${p.notes ?? ''}`.toLowerCase().includes(needle)))
-    .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
-  const types = [...PARTNER_TYPES, ...new Set(shown.map((p) => p.type).filter((x) => !(PARTNER_TYPES as readonly string[]).includes(x)))];
+  const digits = needle.replace(/D/g, '');
+  const found = (p: Partner) => !needle
+    || `${p.name} ${p.type} ${p.sector ?? ''} ${p.commander ?? ''} ${p.notes ?? ''} ${p.radio ?? ''}`.toLowerCase().includes(needle)
+    || (digits.length >= 3 && (p.phone ?? '').replace(/D/g, '').includes(digits));
+  // Everything but one filter: the count beside each choice of that filter.
+  const passes = (p: Partner, skip?: keyof Filters) => (p.active || showOff) && found(p)
+    && (skip === 'type' || !filters.type || p.type === filters.type)
+    && (skip === 'sector' || !filters.sector || p.sector === filters.sector)
+    && (skip === 'number' || !filters.number || numberIs(p, filters.number));
+  const shown = partners.filter((p) => passes(p)).sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name));
+  const allTypes = [...PARTNER_TYPES, ...new Set(partners.map((p) => p.type).filter((x) => !(PARTNER_TYPES as readonly string[]).includes(x)))];
+  const count = (skip: keyof Filters, test: (p: Partner) => boolean) => partners.filter((p) => passes(p, skip) && test(p)).length;
+  const typeChoices = allTypes.map((x) => ({ value: x, n: count('type', (p) => p.type === x) })).filter((c) => c.n > 0 || c.value === filters.type);
+  const sectorChoices = PARTNER_SECTORS.map((x) => ({ value: x, n: count('sector', (p) => p.sector === x) })).filter((c) => c.n > 0 || c.value === filters.sector);
+  const numberChoices = NUMBER_STATES.map((x) => ({ value: x, n: count('number', (p) => numberIs(p, x)) })).filter((c) => c.n > 0 || c.value === filters.number);
+  const anyFilter = !!(filters.type || filters.sector || filters.number || needle);
+  const clear = () => { setFilters({ type: null, sector: null, number: null }); setQ(''); };
   const unchecked = partners.filter((p) => p.active && !p.verified).length;
 
   return (
@@ -47,10 +76,27 @@ export function PartnerList({ partners, canEdit }: { partners: Partner[]; canEdi
           ) : null}
         </div>
       </div>
+      <div className="space-y-3 rounded-xl border border-border bg-bg-card p-4 shadow-sm">
+        <FilterRow label={t('Type')} choices={typeChoices} value={filters.type} onChange={(type) => setFilters({ ...filters, type })} />
+        <FilterRow label={t('Level')} choices={sectorChoices} value={filters.sector} onChange={(sector) => setFilters({ ...filters, sector })} />
+        <FilterRow label={t('Number')} choices={numberChoices} value={filters.number}
+          onChange={(number) => setFilters({ ...filters, number: number as NumberState | null })} />
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-sm">
+          <span className="text-muted-foreground" aria-live="polite">
+            {t('{n} of {total} partners', { n: shown.length, total: partners.filter((p) => p.active || showOff).length })}
+          </span>
+          {anyFilter ? (
+            <button type="button" onClick={clear} className="inline-flex h-10 items-center gap-1.5 rounded-md border border-border px-4 font-medium hover:bg-muted">
+              <X className="h-4 w-4" aria-hidden />{t('Clear filters')}
+            </button>
+          ) : null}
+        </div>
+      </div>
+
       {error ? <p role="alert" className="rounded-lg border border-severity-critical bg-bg-card px-4 py-3 text-sm font-medium text-severity-critical-ink">{error}</p> : null}
       {editing === 'new' ? <PartnerForm partner={null} onDone={() => setEditing(null)} onError={setError} /> : null}
 
-      {types.map((type) => {
+      {allTypes.map((type) => {
         const group = shown.filter((p) => p.type === type);
         if (group.length === 0) return null;
         return (
@@ -87,6 +133,27 @@ export function PartnerList({ partners, canEdit }: { partners: Partner[]; canEdi
       })}
       {shown.length === 0 ? <p className="rounded-xl border border-border bg-bg-card p-8 text-center text-sm text-muted-foreground shadow-sm">{t('No partner matches.')}</p> : null}
     </div>
+  );
+}
+
+/** One filter: All, then each choice with how many it leaves. Press a chosen one again to let it go. */
+function FilterRow({ label, choices, value, onChange }: {
+  label: string; choices: Array<{ value: string; n: number }>; value: string | null; onChange: (v: string | null) => void;
+}) {
+  const { t } = useT();
+  const chip = (on: boolean) => cn('inline-flex h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-medium transition-colors',
+    on ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-bg-soft hover:bg-muted');
+  return (
+    <fieldset className="flex flex-wrap items-center gap-2">
+      <legend className="sr-only">{label}</legend>
+      <span aria-hidden className="w-16 shrink-0 text-sm font-semibold text-muted-foreground">{label}</span>
+      <button type="button" aria-pressed={!value} onClick={() => onChange(null)} className={chip(!value)}>{t('All')}</button>
+      {choices.map((c) => (
+        <button key={c.value} type="button" aria-pressed={value === c.value} onClick={() => onChange(value === c.value ? null : c.value)} className={chip(value === c.value)}>
+          {t(c.value)}<span className={cn('text-xs', value === c.value ? 'opacity-80' : 'text-muted-foreground')}>{c.n}</span>
+        </button>
+      ))}
+    </fieldset>
   );
 }
 

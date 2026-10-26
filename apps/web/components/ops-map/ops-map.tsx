@@ -64,6 +64,10 @@ import { DrawToolbar, PlacingBar, ZonesList } from './zones/zone-tools';
 import { DispatchMapModal } from '@/components/dispatch-map-modal';
 import { DismissSos } from '@/components/sos-dismiss';
 import { useT } from '@/components/i18n';
+import {
+  aircraftIcon, aircraftTooltip, parseAircraft, parseVessels, shelterIcon, shelterTooltip, vesselIcon, vesselTooltip,
+  type Aircraft, type MapShelter, type Vessel,
+} from './air-sea';
 
 type L = typeof Leaflet;
 type Incident = Database['public']['Tables']['incidents']['Row'];
@@ -110,7 +114,7 @@ const WEATHER_OPACITY: Record<(typeof WEATHER_LAYERS)[number], number> = {
 };
 
 /** Overlays drawn from data (weather layers are tiles, handled apart). */
-const DATA_GROUPS = ['incidents', 'units', 'routes', 'zones', 'cameras', 'crime', 'hydrants', 'traffic', 'facilities'] as const;
+const DATA_GROUPS = ['incidents', 'units', 'routes', 'zones', 'cameras', 'crime', 'hydrants', 'traffic', 'facilities', 'flights', 'vessels', 'shelters'] as const;
 type DataGroup = (typeof DATA_GROUPS)[number];
 type GroupKey = DataGroup | 'sos';
 
@@ -183,12 +187,14 @@ export type OpsMapProps = {
    * drawing, and a click zooms in instead of opening anything.
    */
   onlyMine?: boolean;
+  /** Reception centres to show on the Shelters layer (0113): the Disaster desk's register. */
+  shelters?: MapShelter[];
 };
 
 export function OpsMap({
   incidents: initialIncidents, officers: initialOfficers, silo, layers: available, defaults,
   basemap: defaultBasemap, scopeLabel, height = 560, startInWall = false,
-  me, focusZoneId = null, drawForIncidentId = null, bodycams = false, liveRoutes = null, onlyMine = false,
+  me, focusZoneId = null, drawForIncidentId = null, bodycams = false, liveRoutes = null, onlyMine = false, shelters = [],
 }: OpsMapProps) {
   const { t } = useT();
   const router = useRouter();
@@ -391,7 +397,25 @@ export function OpsMap({
       if (tiles && on && !map.hasLayer(tiles)) tiles.addTo(map);
       if (tiles && !on && map.hasLayer(tiles)) tiles.remove();
     }
+    // Rain radar (0113): measured rain, served through the console.
+    const radarOn = active.includes('radar');
+    let radar = weatherTiles.current.radar;
+    if (radarOn && !radar) {
+      radar = L.tileLayer('/api/weather/radar/{z}/{x}/{y}', {
+        opacity: 0.6, zIndex: 6, maxZoom: 19, maxNativeZoom: 7, attribution: 'Radar &copy; RainViewer',
+      });
+      weatherTiles.current.radar = radar;
+    }
+    if (radar && radarOn && !map.hasLayer(radar)) radar.addTo(map);
+    if (radar && !radarOn && map.hasLayer(radar)) radar.remove();
   }, [ready, active, weatherOff]);
+
+  // The radar frame moves on every ten minutes: redraw it while it is on.
+  useEffect(() => {
+    if (!ready || !active.includes('radar')) return;
+    const t = setInterval(() => weatherTiles.current.radar?.redraw(), 10 * 60_000);
+    return () => clearInterval(t);
+  }, [ready, active]);
 
   /* ── New calls: a pulse on the pin and a banner ───────────────────── */
 
@@ -707,6 +731,74 @@ export function OpsMap({
       setHydrants(null);
     };
   }, [ready, hydrantsOn, note]);
+
+  // Aircraft every half minute, ships every minute, while switched on (0113).
+  const [aircraft, setAircraft] = useState<Aircraft[] | null>(null);
+  const [vessels, setVessels] = useState<Vessel[] | null>(null);
+  const flightsOn = active.includes('flights');
+  const vesselsOn = active.includes('vessels');
+  useEffect(() => {
+    if (!flightsOn) return;
+    let alive = true;
+    const load = async () => {
+      const feed = await fetchFeed('/api/external/flights');
+      if (!alive) return;
+      if (!feed.ok) { note('flights', feed.message); setAircraft([]); return; }
+      const rows = parseAircraft(feed.json);
+      note('flights', rows.length ? null : 'No aircraft in view right now.');
+      setAircraft(rows);
+    };
+    void load();
+    const t = setInterval(load, 30_000);
+    return () => { alive = false; clearInterval(t); };
+  }, [flightsOn, note]);
+  useEffect(() => {
+    if (!vesselsOn) return;
+    let alive = true;
+    const load = async () => {
+      const feed = await fetchFeed('/api/external/vessels');
+      if (!alive) return;
+      if (!feed.ok) { note('vessels', feed.message); setVessels([]); return; }
+      const rows = parseVessels(feed.json);
+      note('vessels', rows.length ? null : 'No ships reported right now.');
+      setVessels(rows);
+    };
+    void load();
+    const t = setInterval(load, 60_000);
+    return () => { alive = false; clearInterval(t); };
+  }, [vesselsOn, note]);
+  useEffect(() => {
+    const L = lib.current;
+    const g = groups.current.flights;
+    if (!ready || !L || !g || !aircraft) return;
+    g.clearLayers();
+    for (const a of aircraft) {
+      L.marker([a.lat, a.lng], { icon: aircraftIcon(L, a), keyboard: false, zIndexOffset: 300 })
+        .bindTooltip(aircraftTooltip(a), { direction: 'top', opacity: 0.97 }).addTo(g);
+    }
+  }, [ready, aircraft]);
+  useEffect(() => {
+    const L = lib.current;
+    const g = groups.current.vessels;
+    if (!ready || !L || !g || !vessels) return;
+    g.clearLayers();
+    for (const v of vessels) {
+      L.marker([v.lat, v.lng], { icon: vesselIcon(L, v), keyboard: false, zIndexOffset: 200 })
+        .bindTooltip(vesselTooltip(v), { direction: 'top', opacity: 0.97 }).addTo(g);
+    }
+  }, [ready, vessels]);
+  const shelterKey = shelters.map((x) => `${x.id}:${x.people}:${x.capacity}`).join(',');
+  useEffect(() => {
+    const L = lib.current;
+    const g = groups.current.shelters;
+    if (!ready || !L || !g) return;
+    g.clearLayers();
+    for (const x of shelters) {
+      L.marker([x.lat, x.lng], { icon: shelterIcon(L, x), keyboard: false, zIndexOffset: 400 })
+        .bindTooltip(shelterTooltip(x), { direction: 'top', opacity: 0.97 }).addTo(g);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, shelterKey]);
 
   // Traffic changes by the minute: reload every five while it is on.
   const trafficOn = active.includes('traffic');
@@ -1602,6 +1694,9 @@ function Legend({ isOn, wall, unplaced, crimeYear, bodycams }: {
       {isOn('hydrants') && dot(HYDRANT_COLOUR['Out of Service']!, 'Hydrant out of service')}
       {isOn('cameras') && dot('#2dd4bf', 'SANRAL camera')}
       {isOn('traffic') && dot('#fb923c', 'Traffic')}
+      {isOn('shelters') && dot('#16a34a', 'Shelter')}
+      {isOn('flights') && dot('#facc15', 'Aircraft')}
+      {isOn('vessels') && dot('#38bdf8', 'Ship')}
       {unplaced > 0 && isOn('incidents') && (
         <span className="text-amber-300">{t('{unplaced} call{value} without a map position', { unplaced, value: unplaced === 1 ? '' : 's' })}</span>
       )}

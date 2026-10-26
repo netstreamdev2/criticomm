@@ -12,6 +12,7 @@ import {
 } from '@criticom/api/criti/disaster';
 import { LeafletMap } from '@/components/leaflet-map';
 import { CallButton } from '@/components/disaster/call-button';
+import { MOVED_BY } from '@criticom/db/disaster-departments';
 import { CritiMascot } from '@/components/criti/mascot';
 import { useT } from '@/components/i18n';
 import { cn, escapeHtml } from '@/lib/utils';
@@ -19,6 +20,10 @@ import { callOutAction, calloutStatusAction, deskUpdateAction, setLevelAction } 
 import { AssessmentTile, type BoardAssessment } from './assessment-tile';
 import { CallFacts, LevelChip, type BoardFacts } from './call-facts';
 import { SheltersTile, type BoardOpening, type BoardShelter } from './shelters-tile';
+import { DepartmentsTile, type BoardContact, type BoardLineReport } from './departments-tile';
+import { CasualtiesTile, type BoardCasualty } from './casualties-tile';
+import { SmsButton, type SmsTarget } from './sms-button';
+import { SituationStrip } from './situation-strip';
 
 /**
  * The Disaster desk's command board for one call (0111, 0112): the whole
@@ -54,6 +59,15 @@ type Props = {
   register: BoardShelter[];
   officers: BoardOfficer[];
   assessments: BoardAssessment[];
+  /** 0113: the departments on the incident, their contacts, casualties, who to SMS, the latest figures. */
+  lineReports: BoardLineReport[];
+  contacts: BoardContact[];
+  casualties: BoardCasualty[] | null;
+  counts: { injured: number; deceased: number; missing: number };
+  smsTargets: SmsTarget[];
+  figures: Record<string, number>;
+  /** The live map, drawn on the server's side of the page (OpsMap). */
+  map?: React.ReactNode;
 };
 export type BoardOfficer = { id: string; name: string; phone: string | null; duty: string | null; status: string | null };
 
@@ -107,8 +121,12 @@ export function DeskBoard(props: Props) {
   const live = canWrite && ready && !incident.finished;
   const working = callouts.filter(isWorking);
   const checks = useMemo(
-    () => (incident.finished ? [] : deskChecks({ calledInAt: incident.calledInAt, callouts, updates }, new Date(now))),
-    [incident.finished, incident.calledInAt, callouts, updates, now],
+    () => (incident.finished ? [] : deskChecks({
+      calledInAt: incident.calledInAt, callouts, updates, figures: props.figures,
+      departments: props.lineReports.map((r) => ({ key: r.department, name: r.department, status: r.status })),
+      shelters: props.openings.filter((o) => !o.closedAt).map((o) => ({ name: o.name, peopleNow: o.peopleNow, capacity: o.capacity, food: o.food, toiletries: o.toiletries, water: o.water })),
+    }, new Date(now))),
+    [incident.finished, incident.calledInAt, callouts, updates, now, props.figures, props.lineReports, props.openings],
   );
   const quiet = mins(lastHeard({ calledInAt: incident.calledInAt, callouts, updates }), now);
   const [error, setError] = useState<string | null>(null);
@@ -132,10 +150,15 @@ export function DeskBoard(props: Props) {
         </p>
       ) : null}
 
+      <SituationStrip figures={props.figures} counts={props.counts}
+        sheltered={props.openings.filter((o) => !o.closedAt).reduce((n, o) => n + o.peopleNow, 0)}>
+        {live ? <SmsButton incidentId={incident.id} targets={props.smsTargets} /> : null}
+      </SituationStrip>
       <CallFacts incidentId={incident.id} facts={props.facts} live={live} onError={setError} />
       {/* What came in, with Criti beside it reading it. */}
       <div className={cn('grid items-stretch gap-6', live && 'xl:grid-cols-2')}>
-        {live ? <UpdateComposer incidentId={incident.id} callouts={callouts} onError={setError} /> : null}
+        {live ? <UpdateComposer incidentId={incident.id} callouts={callouts} onError={setError}
+          shelters={props.openings.filter((o) => !o.closedAt).map((o) => o.name)} /> : null}
         <CritiPanel {...props} checks={checks} live={live} onError={setError} />
       </div>
       {/* The record so far, and the partners on the call. */}
@@ -147,12 +170,21 @@ export function DeskBoard(props: Props) {
           <CalloutList incidentId={incident.id} callouts={callouts} now={now} live={live} onError={setError} />
         </div>
       </div>
+      {props.map ? (
+        <section className="overflow-hidden rounded-xl border border-border bg-bg-card shadow-sm">
+          <h2 className="border-b border-border px-5 py-4 font-semibold">{t('Live map')}</h2>
+          {props.map}
+        </section>
+      ) : null}
+      {/* The departments the incident needs, each with its form. */}
+      <DepartmentsTile incidentId={incident.id} hazard={props.facts.hazard} reports={props.lineReports} contacts={props.contacts} live={live} onError={setError} />
       {/* The people displaced, and what was found on site. */}
       <div className="grid items-start gap-6 xl:grid-cols-12">
         <div className="xl:col-span-7">
           <SheltersTile incidentId={incident.id} openings={props.openings} register={props.register} live={live} onError={setError} />
         </div>
-        <div className="xl:col-span-5">
+        <div className="space-y-6 xl:col-span-5">
+          <CasualtiesTile incidentId={incident.id} people={props.casualties} counts={props.counts} live={live} onError={setError} />
           <AssessmentTile incidentId={incident.id} assessments={props.assessments} live={live} onError={setError}
             officers={callouts.filter((c) => c.type === 'Disaster Management officer').map((c) => c.name)} />
         </div>
@@ -205,6 +237,9 @@ function Header({ incident, facts, now, quiet, working, total, anyCalled }: {
             <Link href={`/incidents/${incident.id}`} className="inline-flex h-10 items-center rounded-md border border-border bg-bg-soft px-4 text-sm hover:bg-muted">
               {t('Full call record')}
             </Link>
+            <a href={`/api/pdf/disaster/${incident.id}`} download className="inline-flex h-10 items-center rounded-md border border-border bg-bg-soft px-4 text-sm hover:bg-muted">
+              {t('Report (PDF)')}
+            </a>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2 self-start lg:grid-cols-1">
@@ -698,26 +733,40 @@ function ChannelChips({ value, onChange }: { value: DeskChannel; onChange: (c: D
 
 /* ── Logging what came in ─────────────────────────────────────────────── */
 
-function UpdateComposer({ incidentId, callouts, onError }: { incidentId: string; callouts: BoardCallout[]; onError: (e: string) => void }) {
+const SITREP_FIGURES: Array<[string, string]> = [
+  ['injured', 'Injured'], ['dead', 'Dead'], ['missing', 'Missing'], ['people_helped', 'People helped'],
+  ['people_evacuated', 'People evacuated'], ['homes_affected', 'Homes affected'],
+];
+
+function UpdateComposer({ incidentId, callouts, shelters, onError }: {
+  incidentId: string; callouts: BoardCallout[]; shelters: string[]; onError: (e: string) => void;
+}) {
   const { t } = useT();
   const [source, setSource] = useState<DeskChannel>('Radio');
   const [from, setFrom] = useState('');
   const [fromName, setFromName] = useState('');
   const [text, setText] = useState('');
+  const [withFigures, setWithFigures] = useState(false);
+  const [figures, setFigures] = useState<Record<string, string>>({});
+  const [movedBy, setMovedBy] = useState('');
+  const [movedTo, setMovedTo] = useState('');
   const [pending, start] = useTransition();
   const ref = useRef(newRef());
   const working = callouts.filter(isWorking);
+  const hasFigures = Object.values(figures).some((v) => v.trim() !== '') || movedTo.trim() !== '';
   const submit = () => {
-    if (!text.trim()) return;
+    if (!text.trim() && !hasFigures) return;
     start(async () => {
       const res = await deskUpdateAction({
         incidentId, clientRef: ref.current, source, text,
         calloutId: from && from !== '_other' && from !== '_caller' ? from : null,
         fromName: from === '_caller' ? t('Caller') : from === '_other' ? fromName : null,
+        figures: Object.fromEntries(Object.entries(figures).map(([k, v]) => [k === 'homes_affected' ? 'households_affected' : k, v])),
+        movedBy: movedBy || null, movedTo: movedTo || null,
       });
       if ('error' in res) { onError(res.error); return; }
       ref.current = newRef();
-      setText('');
+      setText(''); setFigures({}); setMovedBy(''); setMovedTo('');
     });
   };
   return (
@@ -741,7 +790,37 @@ function UpdateComposer({ incidentId, callouts, onError }: { incidentId: string;
         onKeyDown={(e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submit(); }}
         placeholder={t('What did they say? For example: 30 homes affected, 6 on fire, power off in the area.')}
         className="mt-3 min-h-[6rem] w-full flex-1 resize-none rounded-md border border-border bg-bg-soft px-3 py-2 text-[15px]" />
-      <button type="button" onClick={submit} disabled={pending || !text.trim()}
+      <button type="button" onClick={() => setWithFigures(!withFigures)} aria-expanded={withFigures}
+        className="mt-3 self-start text-sm font-semibold text-accent hover:underline">
+        {withFigures ? t('Hide the figures') : t('Add figures: injured, evacuated, moved to')}
+      </button>
+      {withFigures ? (
+        <div className="mt-3 space-y-3 rounded-lg border border-border bg-bg-soft p-3">
+          <p className="text-xs text-muted-foreground">{t('Totals so far, as they report them.')}</p>
+          <div className="grid grid-cols-3 gap-2">
+            {SITREP_FIGURES.map(([k, label]) => (
+              <label key={k} className="text-xs text-muted-foreground">{t(label)}
+                <input value={figures[k] ?? ''} onChange={(e) => setFigures({ ...figures, [k]: e.target.value.replace(/\D/g, '').slice(0, 6) })}
+                  inputMode="numeric" className="h-10 w-full rounded-md border border-border bg-bg-card px-2 text-center text-sm" />
+              </label>
+            ))}
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className="text-xs text-muted-foreground">{t('Moved by')}
+              <select value={movedBy} onChange={(e) => setMovedBy(e.target.value)} className="h-10 w-full rounded-md border border-border bg-bg-card px-2 text-sm">
+                <option value="">{t('Not said')}</option>
+                {MOVED_BY.map((m) => <option key={m} value={m}>{t(m)}</option>)}
+              </select>
+            </label>
+            <label className="text-xs text-muted-foreground">{t('Moved to')}
+              <input value={movedTo} onChange={(e) => setMovedTo(e.target.value)} list="desk-moved-to" maxLength={200}
+                className="h-10 w-full rounded-md border border-border bg-bg-card px-2 text-sm" />
+              <datalist id="desk-moved-to">{shelters.map((x) => <option key={x} value={x} />)}</datalist>
+            </label>
+          </div>
+        </div>
+      ) : null}
+      <button type="button" onClick={submit} disabled={pending || (!text.trim() && !hasFigures)}
         className="mt-3 h-12 w-full shrink-0 rounded-md bg-accent text-base font-semibold text-accent-foreground disabled:opacity-50">
         {pending ? t('Saving…') : t('Log update')}
       </button>

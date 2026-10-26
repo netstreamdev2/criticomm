@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { listDisasterAssessments } from '@criticom/api';
 import type { DisasterBrief } from '@criticom/api/criti/disaster';
 import { saStamp } from '@criticom/db/post-mortem';
+import { lineFunction } from '@criticom/db/disaster-departments';
 import { loadDesk } from '@/lib/disaster-desk';
 import { getSession } from '@/lib/session';
 import { requestT } from '@/lib/i18n';
@@ -23,12 +24,20 @@ export default async function DeskPostMortemPage({ params }: { params: Promise<{
   const { supabase, fullName } = await getSession();
   const desk = await loadDesk(supabase, id);
   if (!desk) notFound();
-  const { incident, record, facts, callShelters, register, notes } = desk;
+  const { incident, record, facts, callShelters, register, notes, counts, figures, lineReports } = desk;
   if (incident.report_filed_at || ['Resolved', 'Closed'].includes(incident.status)) {
     return (
       <div className="rounded-xl border border-border bg-bg-card p-6">
         <p className="font-semibold">{t('Post-mortem already filed')}</p>
-        <Link href={`/incidents/${incident.id}`} className="mt-2 inline-block text-sm text-accent hover:underline">{t('Open the call record')}</Link>
+        <div className="mt-3 flex flex-wrap gap-3">
+          <a href={`/api/pdf/disaster/${incident.id}`} download
+            className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground">
+            {t('Download the report (PDF)')}
+          </a>
+          <Link href={`/incidents/${incident.id}`} className="inline-flex h-10 items-center rounded-md border border-border bg-bg-soft px-4 text-sm hover:bg-muted">
+            {t('Open the call record')}
+          </Link>
+        </div>
       </div>
     );
   }
@@ -53,6 +62,10 @@ export default async function DeskPostMortemPage({ params }: { params: Promise<{
       }}
       callouts={record.callouts.map((c) => ({ name: c.agency_name, type: c.resource_type, status: c.status, calledAt: c.called_at, onSceneAt: c.on_scene_at, leftAt: c.left_at }))}
       shelters={callShelters.map((o) => ({ name: hall.get(o.shelter_id) ?? t('Shelter'), peak: o.peak_people, households: o.households, relief: o.relief ?? {} }))}
+      departments={lineReports.map((r) => ({
+        name: lineFunction(r.department)?.name ?? r.department, status: r.status,
+        representative: r.representative_name ? [r.representative_name, r.representative_post].filter(Boolean).join(', ') : null,
+      }))}
       timeline={[
         ...notes.map((n) => ({ at: n.at, text: n.text })),
         ...record.updates.map((u) => ({ at: u.logged_at, text: `${u.from_name ? `${u.from_name}: ` : ''}${u.text}` })),
@@ -61,10 +74,10 @@ export default async function DeskPostMortemPage({ params }: { params: Promise<{
       initial={{
         start_time: saStamp(incident.call_timestamp),
         end_time: saStamp(lastLeft ? new Date(lastLeft) : new Date()),
-        injuries: most(sum('injured'), brief?.figures?.injured),
-        fatalities: most(sum('deaths'), brief?.figures?.deaths),
-        displaced_people: most(sum('people_displaced'), sheltered, brief?.figures?.peopleDisplaced),
-        households_affected: String(sum('households_affected')),
+        injuries: most(sum('injured'), brief?.figures?.injured, figures.injured, counts.injured),
+        fatalities: most(sum('deaths'), brief?.figures?.deaths, figures.dead, counts.deceased),
+        displaced_people: most(sum('people_displaced'), sheltered, brief?.figures?.peopleDisplaced, figures.people_evacuated),
+        households_affected: most(sum('households_affected'), figures.households_affected),
         homes_destroyed: String(sum('homes_destroyed')),
         homes_damaged: String(sum('homes_damaged')),
         people_sheltered: String(sheltered),
