@@ -2,7 +2,7 @@
  * Approved translations (af). Written by Admin → Translations → Download
  * approved file; only approved sentences belong here. The key is the English.
  *
- * 6582 sentences translated by Claude and approved on the owner's
+ * 6581 sentences translated by Claude and approved on the owner's
  * instruction (docs/23). A speaker's correction in Admin → Translations
  * replaces any of them.
  */
@@ -1558,7 +1558,6 @@ const dictionary: Record<string, string> = {
   "Disaster Management assessment": "Rampbestuur-assessering",
   "Disaster Mgmt": "Rampbestuur",
   "Disaster management": "Rampbestuur",
-  "Disaster map": "Rampkaart",
   "Disc": "Skyf",
   "Discard": "Gooi weg",
   "Discard this update": "Gooi hierdie bywerking weg",

@@ -8,6 +8,8 @@ import {
 import { Modal } from '@/components/ui/modal';
 import { CallButton } from '@/components/disaster/call-button';
 import { useT } from '@/components/i18n';
+import { FieldProblem, problemBorder } from '@/components/disaster/field-problem';
+import { anyProblem, checkCount, checkName, checkPhone, figureMax } from '@/lib/disaster-checks';
 import { cn } from '@/lib/utils';
 import { addDepartmentAction, removeDepartmentAction, saveDepartmentReportAction } from '../actions';
 
@@ -162,6 +164,11 @@ function DepartmentWizard({ incidentId, report, contacts, onClose, onError }: {
     if (close) onClose();
   });
   const marked = Object.keys(duties).length;
+  // What is wrong, by step: Save waits until it is put right; the step shows where.
+  const bad = { name: checkName(rep.name), phone: checkPhone(rep.phone) };
+  const badFigure = Object.fromEntries(d.figures.map((x) => [x.key, checkCount(figures[x.key], figureMax(x.key))]));
+  const stepBad = [anyProblem(bad.name, bad.phone), false, anyProblem(...Object.values(badFigure)), false];
+  const blocked = stepBad.some(Boolean);
   const field = 'mt-1 h-11 w-full rounded-md border border-border bg-bg-soft px-3 text-[15px]';
 
   return (
@@ -172,12 +179,12 @@ function DepartmentWizard({ incidentId, report, contacts, onClose, onError }: {
           <button type="button" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0 || pending}
             className="h-11 rounded-md border border-border px-5 text-sm hover:bg-muted disabled:opacity-40">{t('Back')}</button>
           <div className="flex gap-2">
-            <button type="button" onClick={() => save(true)} disabled={pending || !dirty}
+            <button type="button" onClick={() => save(true)} disabled={pending || !dirty || blocked}
               className="h-11 rounded-md border border-border px-5 text-sm font-semibold hover:bg-muted disabled:opacity-40">{t('Save and close')}</button>
             {step < STEPS.length - 1 ? (
               <button type="button" onClick={() => setStep(step + 1)} className="h-11 rounded-md bg-primary px-6 text-sm font-semibold text-primary-foreground">{t('Next')}</button>
             ) : (
-              <button type="button" onClick={() => save(true)} disabled={pending}
+              <button type="button" onClick={() => save(true)} disabled={pending || blocked}
                 className="h-11 rounded-md bg-severity-low px-6 text-sm font-semibold text-severity-low-fg disabled:opacity-60">{pending ? t('Saving…') : t('Save')}</button>
             )}
           </div>
@@ -188,9 +195,11 @@ function DepartmentWizard({ incidentId, report, contacts, onClose, onError }: {
           <li key={s}>
             <button type="button" onClick={() => setStep(i)} aria-current={step === i ? 'step' : undefined}
               className={cn('flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-sm',
-                step === i ? 'border-accent bg-accent/10 font-semibold text-accent' : 'border-border text-muted-foreground hover:bg-muted')}>
-              <span className={cn('grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold', i < step ? 'bg-severity-low text-severity-low-fg' : 'bg-muted')}>
-                {i < step ? <Check className="h-3.5 w-3.5" aria-hidden /> : i + 1}
+                step === i ? 'border-accent bg-accent/10 font-semibold text-accent' : 'border-border text-muted-foreground hover:bg-muted',
+                stepBad[i] && 'border-severity-critical text-severity-critical-ink')}>
+              <span className={cn('grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold',
+                stepBad[i] ? 'bg-severity-critical text-white' : i < step ? 'bg-severity-low text-severity-low-fg' : 'bg-muted')}>
+                {stepBad[i] ? '!' : i < step ? <Check className="h-3.5 w-3.5" aria-hidden /> : i + 1}
               </span>
               <span className="truncate">{t(s)}</span>
             </button>
@@ -217,9 +226,9 @@ function DepartmentWizard({ incidentId, report, contacts, onClose, onError }: {
             </div>
           ) : <p className="text-sm text-muted-foreground">{t('No contacts kept for this department yet. Type them below; add them under Departments to fill in next time.')}</p>}
           <div className="grid gap-4 sm:grid-cols-3">
-            <label className="block text-sm font-medium">{t('Name')}<input value={rep.name} onChange={(e) => setRep({ ...rep, name: e.target.value })} maxLength={160} className={field} /></label>
+            <label className="block text-sm font-medium">{t('Name')}<input value={rep.name} onChange={(e) => setRep({ ...rep, name: e.target.value })} maxLength={160} className={cn(field, problemBorder(bad.name))} /><FieldProblem problem={bad.name} /></label>
             <label className="block text-sm font-medium">{t('Post')}<input value={rep.post} onChange={(e) => setRep({ ...rep, post: e.target.value })} maxLength={120} placeholder={d.head} className={field} /></label>
-            <label className="block text-sm font-medium">{t('Phone')}<input value={rep.phone} onChange={(e) => setRep({ ...rep, phone: e.target.value })} maxLength={60} inputMode="tel" className={field} /></label>
+            <label className="block text-sm font-medium">{t('Phone')}<input value={rep.phone} onChange={(e) => setRep({ ...rep, phone: e.target.value })} maxLength={60} inputMode="tel" placeholder="082 123 4567" className={cn(field, problemBorder(bad.phone))} /><FieldProblem problem={bad.phone} /></label>
           </div>
           <div className="flex flex-wrap items-center gap-4">
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={atDoc} onChange={(e) => setAtDoc(e.target.checked)} className="h-5 w-5" />{t('At the DOC')}</label>
@@ -261,7 +270,8 @@ function DepartmentWizard({ incidentId, report, contacts, onClose, onError }: {
               {d.figures.map((x) => (
                 <label key={x.key} className="block text-sm font-medium">{t(x.label)}
                   <input value={figures[x.key] ?? ''} onChange={(e) => setFigures({ ...figures, [x.key]: e.target.value.replace(/\D/g, '').slice(0, 6) })}
-                    inputMode="numeric" className={field} />
+                    inputMode="numeric" className={cn(field, problemBorder(badFigure[x.key] ?? null))} />
+                  <FieldProblem problem={badFigure[x.key] ?? null} />
                 </label>
               ))}
             </div>
@@ -286,6 +296,11 @@ function DepartmentWizard({ incidentId, report, contacts, onClose, onError }: {
               <li key={role} className="flex gap-3"><span className={cn('w-24 shrink-0 font-semibold', duties[String(i)] ? '' : 'text-muted-foreground')}>{duties[String(i)] ? t(duties[String(i)]!) : t('Not marked')}</span><span className="text-muted-foreground">{role}</span></li>
             ))}
           </ul>
+          {blocked ? (
+            <p role="alert" className="rounded-lg border border-severity-critical bg-bg-soft px-4 py-3 text-sm font-medium text-severity-critical-ink">
+              {t('Something on step {n} needs fixing before this can be saved.', { n: stepBad.findIndex(Boolean) + 1 })}
+            </p>
+          ) : null}
           <label className="flex items-center gap-3 rounded-lg border border-border bg-bg-soft p-4 text-[15px] font-semibold">
             <input type="checkbox" checked={done} onChange={(e) => setDone(e.target.checked)} className="h-5 w-5" />
             {t('This department’s report is done')}

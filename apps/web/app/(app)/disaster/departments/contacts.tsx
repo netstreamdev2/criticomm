@@ -5,6 +5,8 @@ import { ChevronDown, Pencil, Plus } from 'lucide-react';
 import { LINE_FUNCTIONS } from '@criticom/db/disaster-departments';
 import { CallButton } from '@/components/disaster/call-button';
 import { useT } from '@/components/i18n';
+import { FieldProblem, problemBorder } from '@/components/disaster/field-problem';
+import { anyProblem, checkEmail, checkName, checkPhone } from '@/lib/disaster-checks';
 import { cn } from '@/lib/utils';
 import { saveContactAction } from '../desk/actions';
 
@@ -77,6 +79,7 @@ function ContactForm({ department, contact, onDone, onError }: {
   const [v, setV] = useState({ name: contact?.name ?? '', post: contact?.post ?? '', phone: contact?.phone ?? '', email: contact?.email ?? '' });
   const [rep, setRep] = useState(contact?.docRep ?? false);
   const [active, setActive] = useState(true);
+  const bad = { name: checkName(v.name), phone: checkPhone(v.phone), email: checkEmail(v.email) };
   const [pending, start] = useTransition();
   const save = () => start(async () => {
     onError(null);
@@ -88,17 +91,17 @@ function ContactForm({ department, contact, onDone, onError }: {
   return (
     <div className="space-y-3 rounded-lg border border-accent bg-bg-soft p-4">
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block text-sm font-medium">{t('Name')}<input value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} maxLength={160} className={field} /></label>
+        <label className="block text-sm font-medium">{t('Name')}<input value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} maxLength={160} className={cn(field, problemBorder(bad.name))} /><FieldProblem problem={bad.name} /></label>
         <label className="block text-sm font-medium">{t('Post')}<input value={v.post} onChange={(e) => setV({ ...v, post: e.target.value })} maxLength={120} placeholder={t('Head, Deputy Head or Senior Manager')} className={field} /></label>
-        <label className="block text-sm font-medium">{t('Phone')}<input value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value })} maxLength={60} inputMode="tel" className={field} /></label>
-        <label className="block text-sm font-medium">{t('Email')}<input value={v.email} onChange={(e) => setV({ ...v, email: e.target.value })} maxLength={160} inputMode="email" className={field} /></label>
+        <label className="block text-sm font-medium">{t('Phone')}<input value={v.phone} onChange={(e) => setV({ ...v, phone: e.target.value })} maxLength={60} inputMode="tel" placeholder="082 123 4567" className={cn(field, problemBorder(bad.phone))} /><FieldProblem problem={bad.phone} /></label>
+        <label className="block text-sm font-medium">{t('Email')}<input value={v.email} onChange={(e) => setV({ ...v, email: e.target.value })} maxLength={160} inputMode="email" className={cn(field, problemBorder(bad.email))} /><FieldProblem problem={bad.email} /></label>
       </div>
       <div className="flex flex-wrap gap-5 text-sm">
         <label className="flex items-center gap-2"><input type="checkbox" checked={rep} onChange={(e) => setRep(e.target.checked)} className="h-4 w-4" />{t('DOC representative')}</label>
         {contact ? <label className="flex items-center gap-2"><input type="checkbox" checked={!active} onChange={(e) => setActive(!e.target.checked)} className="h-4 w-4" />{t('No longer in this post')}</label> : null}
       </div>
       <div className="flex gap-2">
-        <button type="button" onClick={save} disabled={pending || !v.name.trim()} className="h-10 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{pending ? t('Saving…') : t('Save')}</button>
+        <button type="button" onClick={save} disabled={pending || !v.name.trim() || anyProblem(bad.name, bad.phone, bad.email)} className="h-10 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{pending ? t('Saving…') : t('Save')}</button>
         <button type="button" onClick={onDone} className="h-10 rounded-md border border-border px-5 text-sm hover:bg-muted">{t('Cancel')}</button>
       </div>
     </div>

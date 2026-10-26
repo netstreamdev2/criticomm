@@ -4,6 +4,8 @@ import { useRef, useState, useTransition } from 'react';
 import { Lock, Plus, UserRound } from 'lucide-react';
 import { CallButton } from '@/components/disaster/call-button';
 import { useT } from '@/components/i18n';
+import { FieldProblem, problemBorder } from '@/components/disaster/field-problem';
+import { anyProblem, checkAge, checkName, checkPhone } from '@/lib/disaster-checks';
 import { cn } from '@/lib/utils';
 import { recordCasualtyAction, updateCasualtyAction } from '../actions';
 
@@ -87,6 +89,7 @@ function CasualtyForm({ incidentId, person, onDone, onError }: {
   const [pending, start] = useTransition();
   const ref = useRef(crypto.randomUUID());
   const set = (k: keyof typeof v, x: string) => setV({ ...v, [k]: x });
+  const bad = { name: checkName(v.name), phone: checkPhone(v.phone), age: checkAge(v.age) };
   const save = () => start(async () => {
     const res = person ? await updateCasualtyAction(incidentId, person.id, v) : await recordCasualtyAction(incidentId, ref.current, v);
     if ('error' in res) onError(res.error);
@@ -103,9 +106,9 @@ function CasualtyForm({ incidentId, person, onDone, onError }: {
       </div>
       <p className="text-xs text-muted-foreground">{t('Fill in only what is known.')}</p>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <label className="block text-sm font-medium sm:col-span-2">{t('Name')}<input value={v.name} onChange={(e) => set('name', e.target.value)} maxLength={160} className={field} /></label>
-        <label className="block text-sm font-medium">{t('Phone')}<input value={v.phone} onChange={(e) => set('phone', e.target.value)} maxLength={60} inputMode="tel" className={field} /></label>
-        <label className="block text-sm font-medium">{t('Age (about)')}<input value={v.age} onChange={(e) => set('age', e.target.value)} maxLength={30} className={field} /></label>
+        <label className="block text-sm font-medium sm:col-span-2">{t('Name')}<input value={v.name} onChange={(e) => set('name', e.target.value)} maxLength={160} className={cn(field, problemBorder(bad.name))} /><FieldProblem problem={bad.name} /></label>
+        <label className="block text-sm font-medium">{t('Phone')}<input value={v.phone} onChange={(e) => set('phone', e.target.value)} maxLength={60} inputMode="tel" placeholder="082 123 4567" className={cn(field, problemBorder(bad.phone))} /><FieldProblem problem={bad.phone} /></label>
+        <label className="block text-sm font-medium">{t('Age (about)')}<input value={v.age} onChange={(e) => set('age', e.target.value.replace(/D/g, '').slice(0, 3))} inputMode="numeric" placeholder={t('Years')} className={cn(field, problemBorder(bad.age))} /><FieldProblem problem={bad.age} /></label>
         <label className="block text-sm font-medium sm:col-span-2">{t('Address')}<input value={v.address} onChange={(e) => set('address', e.target.value)} maxLength={300} className={field} /></label>
         <label className="block text-sm font-medium">{t('Gender')}
           <select value={v.gender} onChange={(e) => set('gender', e.target.value)} className={field}>
@@ -119,7 +122,7 @@ function CasualtyForm({ incidentId, person, onDone, onError }: {
         <label className="block text-sm font-medium sm:col-span-2">{t('Notes')}<input value={v.notes} onChange={(e) => set('notes', e.target.value)} maxLength={1000} className={field} /></label>
       </div>
       <div className="flex gap-2">
-        <button type="button" onClick={save} disabled={pending} className="h-10 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{pending ? t('Saving…') : t('Save')}</button>
+        <button type="button" onClick={save} disabled={pending || anyProblem(bad.name, bad.phone, bad.age)} className="h-10 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{pending ? t('Saving…') : t('Save')}</button>
         <button type="button" onClick={onDone} className="h-10 rounded-md border border-border px-5 text-sm hover:bg-muted">{t('Cancel')}</button>
       </div>
     </div>

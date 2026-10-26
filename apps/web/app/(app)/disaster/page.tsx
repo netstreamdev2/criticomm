@@ -13,38 +13,14 @@ import { getSession } from '@/lib/session';
 import { cn, formatSaTime, timeAgo } from '@/lib/utils';
 import { readable } from '@/lib/readable';
 import { requestT } from '@/lib/i18n';
+import type { ComponentProps } from 'react';
+import { InfoTile } from '@/components/disaster/info-tile';
 import { WindWidget } from './wind-widget';
 import { LiveClock } from './live-clock';
 import { LevelChip } from './desk/[id]/call-facts';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Disaster Management · HikTech' };
-
-type Tone = 'critical' | 'warn' | 'info' | 'calm' | 'plain';
-/** Each tile's colour: the bar on top, the icon and the figure. */
-const TONE: Record<Tone, { rail: string; icon: string; value: string }> = {
-  critical: { rail: 'border-t-severity-critical', icon: 'bg-severity-critical/15 text-severity-critical-ink', value: 'text-severity-critical-ink' },
-  warn: { rail: 'border-t-severity-medium', icon: 'bg-severity-medium/15 text-severity-medium-ink', value: 'text-severity-medium-ink' },
-  info: { rail: 'border-t-accent', icon: 'bg-accent/15 text-accent', value: 'text-accent' },
-  calm: { rail: 'border-t-severity-low', icon: 'bg-severity-low/15 text-severity-low-ink', value: '' },
-  plain: { rail: 'border-t-border', icon: 'bg-muted text-muted-foreground', value: '' },
-};
-
-/** One figure: big and coloured by how it stands, with a line saying what it counts. A link when there is more behind it. */
-function Tile({ label, value, hint, icon: Icon, tone, href }: { label: string; value: string | number; hint: string; icon: LucideIcon; tone: Tone; href?: string }) {
-  const body = (
-    <>
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold">{label}</p>
-        <span className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-lg', TONE[tone].icon)}><Icon className="h-5 w-5" aria-hidden /></span>
-      </div>
-      <p className={cn('mt-3 text-4xl font-bold tabular-nums leading-none', TONE[tone].value)}>{value}</p>
-      <p className="mt-2 text-xs text-muted-foreground">{hint}</p>
-    </>
-  );
-  const box = cn('block rounded-2xl border border-t-4 border-border bg-bg-card p-4 shadow-sm', TONE[tone].rail);
-  return href ? <Link href={href} className={cn(box, 'transition-colors hover:bg-muted')}>{body}</Link> : <div className={box}>{body}</div>;
-}
 
 const RAIL: Record<string, string> = {
   Critical: 'border-l-severity-critical', High: 'border-l-severity-high', Medium: 'border-l-severity-medium', Low: 'border-l-severity-low',
@@ -93,13 +69,48 @@ export default async function DisasterPage() {
   const displaced = postMortems.reduce((n, p) => n + (p.displaced_people ?? 0), 0);
   const lowStock = stocks.filter((s) => s.quantity < 10);
 
-  const tiles: Array<{ label: string; value: string | number; hint: string; icon: LucideIcon; tone: Tone; href?: string }> = [
-    { label: t('Open calls'), value: open.length, hint: open.length ? t('Not closed yet') : t('All clear'), icon: Siren, tone: open.length ? 'critical' : 'calm', href: '#calls' },
-    { label: t('Need the desk'), value: needing, hint: needing ? t('Need a call-out or news') : t('Nothing waiting'), icon: TriangleAlert, tone: needing ? 'warn' : 'calm', href: '#calls' },
-    { label: t('Partners working'), value: working, hint: t('Called out and not left'), icon: Network, tone: 'info', href: '/disaster/partners' },
-    { label: t('First call-out'), value: avgResponse, hint: t('Average, from the call'), icon: Timer, tone: 'plain' },
-    { label: t('In shelters now'), value: sheltered, hint: t('{n} halls open', { n: halls.length }), icon: Building2, tone: sheltered ? 'warn' : 'plain', href: '/disaster/shelters' },
-    { label: t('Displaced'), value: displaced, hint: t('From filed post-mortems'), icon: Footprints, tone: 'plain', href: '/disaster/post-mortem' },
+  const title = (i: (typeof open)[number]) => facts.get(i.id)?.short_title || i.disaster_type || i.incident_type;
+  const titleOf = new Map(open.map((i) => [i.id, title(i)]));
+  const icon = (I: LucideIcon) => <I className="h-5 w-5" aria-hidden />;
+  const tiles: Array<Omit<ComponentProps<typeof InfoTile>, 'align'>> = [
+    {
+      label: t('Open calls'), value: open.length, hint: open.length ? t('Not closed yet') : t('All clear'), icon: icon(Siren), tone: open.length ? 'critical' : 'calm',
+      explain: t('Every Disaster incident not closed yet, newest first.'),
+      items: calls.map(({ i }) => ({ key: i.id, label: title(i), note: `${i.incident_number} · ${t('called in {ago}', { ago: timeAgo(i.call_timestamp) })}`, href: `/disaster/desk/${i.id}` })),
+      more: { href: '/disaster/desk', label: t('Open the Disaster desk') },
+    },
+    {
+      label: t('Need action'), value: needing, hint: needing ? t('The desk must act now') : t('Nothing waiting'), icon: icon(TriangleAlert), tone: needing ? 'warn' : 'calm',
+      explain: t('Incidents where the desk must do something now: nobody called out yet, no news for too long, or a partner who has not set off.'),
+      items: calls.filter((c) => c.checks.length).map(({ i, checks }) => ({ key: i.id, label: title(i), note: checks[0]!.text, href: `/disaster/desk/${i.id}`, urgent: checks[0]!.level === 'urgent' })),
+    },
+    {
+      label: t('Partners working'), value: working, hint: t('Called out and not left'), icon: icon(Network), tone: 'info',
+      explain: t('Partners called out who have not left the scene yet, on every open incident.'),
+      items: callouts.filter((c) => isWorking({ status: c.status })).map((c) => ({
+        key: c.id, label: c.agency_name, note: `${t(c.status)} · ${titleOf.get(c.incident_id) ?? ''}`, href: `/disaster/desk/${c.incident_id}` })),
+      more: { href: '/disaster/partners', label: t('Partner list') },
+    },
+    {
+      label: t('First call-out'), value: avgResponse, hint: t('Average, from the call'), icon: icon(Timer), tone: 'plain',
+      explain: t('On average, how long from the call coming in to the first partner being called out. Shorter is better.'),
+      items: calls.filter((c) => c.mine.length).map(({ i, mine }) => ({
+        key: i.id, label: title(i), href: `/disaster/desk/${i.id}`,
+        note: t('first call-out after {span}', { span: readable(Math.max(0, (new Date(mine[0]!.calledAt).getTime() - new Date(i.call_timestamp).getTime()) / 60_000)) }) })),
+    },
+    {
+      label: t('In shelters now'), value: sheltered, hint: t('{n} halls open', { n: halls.length }), icon: icon(Building2), tone: sheltered ? 'warn' : 'plain',
+      explain: t('People in reception centres right now, across every hall open.'),
+      items: halls.map((h) => ({ key: h.id, label: h.name, note: h.capacity ? t('{n} of {cap} places', { n: inHall.get(h.id) ?? 0, cap: h.capacity }) : t('{n} people', { n: inHall.get(h.id) ?? 0 }) })),
+      more: { href: '/disaster/shelters', label: t('Shelters') },
+    },
+    {
+      label: t('Displaced'), value: displaced, hint: t('From filed post-mortems'), icon: icon(Footprints), tone: 'plain',
+      explain: t('People who had to leave their homes, added up from the post-mortems filed.'),
+      items: postMortems.filter((p) => (p.displaced_people ?? 0) > 0).map((p) => ({
+        key: p.id, label: p.short_title || p.incident_type || '—', note: t('{n} displaced · {place}', { n: p.displaced_people ?? 0, place: p.location ?? '—' }) })),
+      more: { href: '/disaster/post-mortem', label: t('All post-mortems') },
+    },
   ];
 
   return (
@@ -115,7 +126,7 @@ export default async function DisasterPage() {
             <Link href="/disaster/desk" className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground">
               <Siren className="h-4 w-4" aria-hidden />{t('Open the Disaster desk')}</Link>
             <Link href="/disaster/desk/new" className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-bg-soft px-4 text-sm font-medium hover:bg-muted">
-              <Plus className="h-4 w-4" aria-hidden />{t('Open incident')}</Link>
+              <Plus className="h-4 w-4" aria-hidden />{t('Add an incident')}</Link>
             <Link href="/disaster/post-mortem" className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-bg-soft px-4 text-sm hover:bg-muted">
               <FileText className="h-4 w-4" aria-hidden />{t('Post-mortems')}</Link>
             <Link href="/disaster/partners" className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-bg-soft px-4 text-sm hover:bg-muted">
@@ -126,7 +137,7 @@ export default async function DisasterPage() {
       </header>
 
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
-        {tiles.map((x) => <Tile key={x.label} {...x} />)}
+        {tiles.map((x, n) => <InfoTile key={x.label} {...x} align={n >= tiles.length - 2 ? 'right' : 'left'} />)}
       </section>
       {lowStock.length ? (
         <p className="rounded-lg border border-severity-medium/40 bg-bg-card px-4 py-2 text-sm font-medium text-severity-medium-ink">

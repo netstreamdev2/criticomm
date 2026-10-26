@@ -15,6 +15,8 @@ import { CallButton } from '@/components/disaster/call-button';
 import { MOVED_BY } from '@criticom/db/disaster-departments';
 import { CritiMascot } from '@/components/criti/mascot';
 import { useT } from '@/components/i18n';
+import { FieldProblem, problemBorder } from '@/components/disaster/field-problem';
+import { MAX_PEOPLE, anyProblem, checkCount, checkPhone } from '@/lib/disaster-checks';
 import { cn, escapeHtml } from '@/lib/utils';
 import { callOutAction, calloutStatusAction, deskUpdateAction, setLevelAction } from '../actions';
 import { AssessmentTile, type BoardAssessment } from './assessment-tile';
@@ -545,9 +547,13 @@ function CalloutRow({ incidentId, c, now, live, onError }: {
         <div className="mt-3 flex flex-wrap items-center gap-2 pl-8">
           {c.status === 'Called' ? (
             <>
-              <input value={eta} onChange={(e) => setEta(e.target.value.replace(/\D/g, '').slice(0, 4))} inputMode="numeric"
-                placeholder={t('min')} aria-label={t('Minutes until they arrive')}
-                className="h-10 w-16 rounded-md border border-border bg-bg-soft px-2 text-center text-sm" />
+              <label className="flex h-10 items-center gap-1.5 rounded-md border border-border bg-bg-soft pl-3 pr-2 text-sm text-muted-foreground">
+                {t('Arrives in')}
+                <input value={eta} onChange={(e) => setEta(e.target.value.replace(/\D/g, '').slice(0, 4))} inputMode="numeric"
+                  placeholder="?" aria-label={t('Minutes until they arrive')}
+                  className="h-8 w-10 rounded bg-bg-card text-center font-semibold text-fg" />
+                {t('min')}
+              </label>
               <StatusButton icon={Truck} label={t('On the way')} onClick={() => move('On the way')} pending={pending} />
             </>
           ) : null}
@@ -682,6 +688,7 @@ function CallOutForm({ incidentId, partner, officer, onDone, onError }: {
   const [reason, setReason] = useState('');
   const [pending, start] = useTransition();
   const ref = useRef(newRef());
+  const bad = { number: partner || officer ? null : checkPhone(number, { short: true }), eta: checkCount(eta, 24 * 60) };
   const submit = () => start(async () => {
     const res = await callOutAction({
       incidentId, clientRef: ref.current, how, partnerId: partner?.id ?? null, officerId: officer?.id ?? null,
@@ -697,18 +704,26 @@ function CallOutForm({ incidentId, partner, officer, onDone, onError }: {
         <div className="grid gap-2 sm:grid-cols-2">
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('Who')} aria-label={t('Who')}
             className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
-          <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder={t('Number')} aria-label={t('Number')} inputMode="tel"
-            className="h-10 rounded-md border border-border bg-bg-soft px-3 text-sm" />
+          <div>
+            <input value={number} onChange={(e) => setNumber(e.target.value)} placeholder={t('Number')} aria-label={t('Number')} inputMode="tel"
+              className={cn('h-10 w-full rounded-md border border-border bg-bg-soft px-3 text-sm', problemBorder(bad.number))} />
+            <FieldProblem problem={bad.number} />
+          </div>
         </div>
       )}
       <ChannelChips value={how} onChange={setHow} />
       <div className="flex gap-2">
-        <input value={eta} onChange={(e) => setEta(e.target.value.replace(/\D/g, '').slice(0, 4))} inputMode="numeric"
-          placeholder={t('min')} aria-label={t('Minutes until they arrive')} className="h-10 w-16 rounded-md border border-border bg-bg-soft px-2 text-center text-sm" />
+        <label className="flex h-10 shrink-0 items-center gap-1.5 rounded-md border border-border bg-bg-soft pl-3 pr-2 text-sm text-muted-foreground">
+          {t('Arrives in')}
+          <input value={eta} onChange={(e) => setEta(e.target.value.replace(/\D/g, '').slice(0, 4))} inputMode="numeric"
+            placeholder="?" aria-label={t('Minutes until they arrive')} className="h-8 w-10 rounded bg-bg-card text-center font-semibold text-fg" />
+          {t('min')}
+        </label>
         <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t('What for (optional)')} maxLength={500}
           className="h-10 min-w-0 flex-1 rounded-md border border-border bg-bg-soft px-3 text-sm" />
       </div>
-      <button type="button" onClick={submit} disabled={pending || (!partner && !officer && !name.trim())}
+      <FieldProblem problem={bad.eta} />
+      <button type="button" onClick={submit} disabled={pending || (!partner && !officer && !name.trim()) || anyProblem(bad.number, bad.eta)}
         className="h-11 w-full rounded-md bg-primary text-sm font-semibold text-primary-foreground disabled:opacity-60">
         {pending ? t('Saving…') : t('Called out')}
       </button>
@@ -754,8 +769,10 @@ function UpdateComposer({ incidentId, callouts, shelters, onError }: {
   const ref = useRef(newRef());
   const working = callouts.filter(isWorking);
   const hasFigures = Object.values(figures).some((v) => v.trim() !== '') || movedTo.trim() !== '';
+  const badFigure = Object.fromEntries(SITREP_FIGURES.map(([k]) => [k, checkCount(figures[k], MAX_PEOPLE)]));
+  const figureProblem = Object.values(badFigure).find(Boolean) ?? null;
   const submit = () => {
-    if (!text.trim() && !hasFigures) return;
+    if ((!text.trim() && !hasFigures) || figureProblem) return;
     start(async () => {
       const res = await deskUpdateAction({
         incidentId, clientRef: ref.current, source, text,
@@ -801,10 +818,11 @@ function UpdateComposer({ incidentId, callouts, shelters, onError }: {
             {SITREP_FIGURES.map(([k, label]) => (
               <label key={k} className="text-xs text-muted-foreground">{t(label)}
                 <input value={figures[k] ?? ''} onChange={(e) => setFigures({ ...figures, [k]: e.target.value.replace(/\D/g, '').slice(0, 6) })}
-                  inputMode="numeric" className="h-10 w-full rounded-md border border-border bg-bg-card px-2 text-center text-sm" />
+                  inputMode="numeric" className={cn('h-10 w-full rounded-md border border-border bg-bg-card px-2 text-center text-sm', problemBorder(badFigure[k] ?? null))} />
               </label>
             ))}
           </div>
+          <FieldProblem problem={figureProblem} />
           <div className="grid gap-2 sm:grid-cols-2">
             <label className="text-xs text-muted-foreground">{t('Moved by')}
               <select value={movedBy} onChange={(e) => setMovedBy(e.target.value)} className="h-10 w-full rounded-md border border-border bg-bg-card px-2 text-sm">
@@ -820,7 +838,7 @@ function UpdateComposer({ incidentId, callouts, shelters, onError }: {
           </div>
         </div>
       ) : null}
-      <button type="button" onClick={submit} disabled={pending || (!text.trim() && !hasFigures)}
+      <button type="button" onClick={submit} disabled={pending || (!text.trim() && !hasFigures) || !!figureProblem}
         className="mt-3 h-12 w-full shrink-0 rounded-md bg-accent text-base font-semibold text-accent-foreground disabled:opacity-50">
         {pending ? t('Saving…') : t('Log update')}
       </button>

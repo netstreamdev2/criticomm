@@ -14,9 +14,9 @@ export function LiveClock() {
     return () => clearInterval(t);
   }, []);
   return (
-    <div className="text-right">
-      <p className="font-mono text-4xl font-bold tabular-nums leading-none tracking-tight" aria-live="off">{now ? TIME.format(now) : '--:--:--'}</p>
-      <p className="mt-1.5 text-sm text-muted-foreground">{now ? DAY.format(now) : ' '} · SAST</p>
+    <div className="rounded-xl border border-border bg-bg-soft px-5 py-3 text-right">
+      <p className="font-mono text-5xl font-black tabular-nums leading-none tracking-tight sm:text-6xl" aria-live="off">{now ? TIME.format(now) : '--:--:--'}</p>
+      <p className="mt-2 text-base font-semibold">{now ? DAY.format(now) : ' '} <span className="font-normal text-muted-foreground">· SAST</span></p>
     </div>
   );
 }

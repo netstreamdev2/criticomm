@@ -214,6 +214,8 @@ try {
   await db.exec(sql('0112_disaster_doc.sql')); // safe to re-run
   await db.exec(sql('0113_disaster_operations.sql'));
   await db.exec(sql('0113_disaster_operations.sql')); // safe to re-run
+  await db.exec(sql('0114_disaster_checks.sql'));
+  await db.exec(sql('0114_disaster_checks.sql')); // safe to re-run
   await db.query('begin');
 
   await scenario('the partner list is public: private companies off, the public list on, each saying if its number is checked', async () => {
@@ -489,8 +491,37 @@ try {
     }
   });
 
+  await scenario('0114: nothing made up gets in: numbers, wards, names, ages, counts', async () => {
+    const rec = (fields) => call(U.desk, 'record_disaster_casualty($1, $2, $3::jsonb)', [CALL, ref(), JSON.stringify({ kind: 'Injured', ...fields })]);
+    await refused(() => rec({ phone: '123' }), /full number/);
+    await refused(() => rec({ phone: '0000000000' }), /full number/);
+    await refused(() => rec({ name: 'Thandi 2' }), /no numbers/);
+    await refused(() => rec({ age: '130' }), /0 to 120/);
+    await refused(() => rec({ age: 'about 30' }), /0 to 120/);
+    assert.equal((await rec({ name: 'Thandi Mkhize', phone: '+27 82 123 4567', age: ' 34 ' })).age, '34');
+
+    await refused(() => call(U.desk, 'save_line_report($1, $2, $3::jsonb)', [CALL, 'eta', '{"representative_phone":"12345"}']), /full number/);
+    await refused(() => call(U.desk, 'save_line_report($1, $2, $3::jsonb)', [CALL, 'water', '{"figures":{"water_tankers":"5000"}}']), /More than 1,000 for water tankers/);
+    assert.deepEqual((await call(U.desk, 'save_line_report($1, $2, $3::jsonb)', [CALL, 'fire', '{"figures":{"people_rescued":"5000"}}'])).figures, { people_rescued: 5000 });
+    await refused(() => call(U.desk, 'log_disaster_update($1, $2, $3::jsonb)', [CALL, ref(), '{"source":"Radio","figures":{"people_evacuated":"900000"}}']), /More than 500,000/);
+    await refused(() => call(U.desk, 'save_department_contact($1, $2::jsonb)', [null, '{"department":"health","name":"N Mthembu","email":"n@durban"}']), /email address/);
+
+    await refused(() => call(U.desk, 'save_disaster_shelter($1, $2::jsonb)', [null, '{"name":"Hall","capacity":30000}']), /1 to 20 000/);
+    await refused(() => call(U.desk, 'save_disaster_shelter($1, $2::jsonb)', [null, '{"name":"Hall","ward":"150"}']), /wards 1 to 111/);
+    await refused(() => call(U.desk, 'save_disaster_shelter($1, $2::jsonb)', [null, '{"name":"Hall","ward":"Umlazi"}']), /ward number/);
+    const hall = await call(U.desk, 'save_disaster_shelter($1, $2::jsonb)', [null, '{"name":"Umlazi Hall","ward":"Ward 076","capacity":300,"key_holder_phone":"031 906 1234"}']);
+    assert.equal(hall.ward, '76');
+
+    // An older record typed before 0114 still moves on the map.
+    await db.query('reset role');
+    await db.query('alter table public.disaster_shelters disable trigger check_disaster_shelter');
+    await db.query("update public.disaster_shelters set key_holder_phone = '999' where id = $1", [hall.id]);
+    await db.query('alter table public.disaster_shelters enable trigger check_disaster_shelter');
+    assert.equal((await call(U.desk, 'set_shelter_position($1, $2, $3)', [hall.id, -29.97, 30.93])).lat, -29.97);
+  });
+
   await db.query('rollback');
-  console.log(`\n${checks} scenarios passed; 0112 and 0113 applied twice over 0111.`);
+  console.log(`\n${checks} scenarios passed; 0112, 0113 and 0114 applied twice over 0111.`);
 } finally {
   await db.close();
 }

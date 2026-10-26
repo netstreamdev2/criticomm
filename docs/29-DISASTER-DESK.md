@@ -102,8 +102,8 @@ CASE_PGLITE_MODULE=file:///path/to/@electric-sql/pglite/dist/index.js node scrip
 ## To do before go-live
 
 - Run `0111_disaster_desk.sql`, then `0112_disaster_doc.sql`, then
-  `0113_disaster_operations.sql` in Supabase (after 0108–0110). Each checks
-  the one before it is in.
+  `0113_disaster_operations.sql`, then `0114_disaster_checks.sql` in Supabase
+  (after 0108–0110). Each checks the one before it is in.
 - Set `BULKSMS_TOKEN_ID` and `BULKSMS_TOKEN_SECRET` on the web host, and buy
   BulkSMS credits. Without them the desk still drafts and logs each SMS as
   "Not set up".
@@ -208,3 +208,29 @@ measures.
 
 Tests: `scripts/test-disaster-doc.mjs` (15 scenarios: 0112 and 0113 applied
 twice over 0111).
+
+## Checks on what is typed (0114)
+
+Only the obvious rules, each refused with one short sentence, checked as the
+form is filled in (`apps/web/lib/disaster-checks.ts`) and again by the
+database (triggers on each Disaster table), so nothing made up gets in
+whichever way it is sent:
+
+- Phone numbers: South African (082 123 4567, +27 82 123 4567) or
+  international (+44 …), not one digit over and over. A partner called out by
+  hand may have a short number (10111, 10177).
+- Wards: a number; eThekwini 1 to 111, elsewhere up to 120 ("Ward 76" is kept
+  as "76").
+- Names: letters, not numbers. Ages: whole years, 0 to 120. Email:
+  name@place.domain.
+- Hall capacity: 1 to 20 000 (0: not known yet). Figures: things (vehicles,
+  tankers, roads) up to 1 000; people and homes up to 500 000. Arrival time:
+  up to 24 hours.
+
+A change is checked only on what it changes, so an older record typed before
+0114 still saves when something else on it changes. The caller's number on
+an incident the desk adds is checked by the web server (it lives on the
+shared incidents table).
+
+Tests: `scripts/test-disaster-doc.mjs` (16 scenarios: 0112, 0113 and 0114
+applied twice over 0111) and `apps/web/lib/disaster-checks.test.ts`.

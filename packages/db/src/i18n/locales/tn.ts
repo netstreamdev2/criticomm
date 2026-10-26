@@ -2,7 +2,7 @@
  * Approved translations (tn). Written by Admin → Translations → Download
  * approved file; only approved sentences belong here. The key is the English.
  *
- * 6582 sentences translated by Claude and approved on the owner's
+ * 6581 sentences translated by Claude and approved on the owner's
  * instruction (docs/23). A speaker's correction in Admin → Translations
  * replaces any of them.
  */
@@ -1558,7 +1558,6 @@ const dictionary: Record<string, string> = {
   "Disaster Management assessment": "Tshekatsheko ya Taolo ya Maswe",
   "Disaster Mgmt": "Tsamaiso ya masetlapelo",
   "Disaster management": "Tsamaiso ya masetlapelo",
-  "Disaster map": "Mmapa wa masetlapelo",
   "Disc": "Tisiki",
   "Discard": "Latlha",
   "Discard this update": "Latlha ntšhafatso eno",

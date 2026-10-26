@@ -11,6 +11,7 @@ import { DESK_POST_MORTEM_FIELDS, deskPostMortemPayload, validatePostMortem } fr
 import { getSession } from '@/lib/session';
 import { searchPlaces } from '@/lib/geocode';
 import { normalizeSaPhone, sendSms } from '@/lib/sms';
+import { checkPhone } from '@/lib/disaster-checks';
 
 /**
  * The Disaster desk's buttons (0111, 0112). Each goes through its guarded
@@ -293,6 +294,9 @@ export async function fileDeskPostMortemAction(incidentId: string, answers: Reco
 /** Open incident: the desk opens one itself. Returns the new incident's id. */
 export async function openIncidentAction(clientRef: string, fields: Record<string, unknown>): Promise<{ error: string } | { id: string }> {
   const { supabase } = await getSession();
+  // The caller's number goes on the incident itself, which 0114 does not check.
+  const number = checkPhone(typeof fields.caller_number === 'string' ? fields.caller_number : '');
+  if (number) return { error: number.text };
   try {
     const inc = await openDisasterIncident(supabase, clientRef, fields);
     revalidatePath('/disaster/desk');

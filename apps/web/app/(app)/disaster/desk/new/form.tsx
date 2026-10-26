@@ -7,6 +7,8 @@ import { HAZARD_GROUPS, MUNICIPALITIES } from '@criticom/db/disaster-plan';
 import { LocationPicker } from '@/components/location-picker';
 import { areaAt } from '@/components/disaster/address-search';
 import { useT } from '@/components/i18n';
+import { FieldProblem, problemBorder } from '@/components/disaster/field-problem';
+import { MAX_PEOPLE, anyProblem, checkCount, checkName, checkPhone, checkWard } from '@/lib/disaster-checks';
 import { cn } from '@/lib/utils';
 import { openIncidentAction } from '../actions';
 
@@ -69,6 +71,11 @@ export function OpenIncidentForm() {
     fillArea(p);
   };
 
+  const bad = {
+    ward: checkWard(v.ward, v.municipality), affected: checkCount(v.people_affected, MAX_PEOPLE),
+    caller: checkName(v.caller_name), number: checkPhone(v.caller_number),
+  };
+  const blocked = anyProblem(bad.ward, bad.affected, bad.caller, bad.number);
   const submit = () => start(async () => {
     setError(null);
     const res = await openIncidentAction(ref.current, { ...v, lat: pin?.lat ?? null, lng: pin?.lng ?? null });
@@ -131,7 +138,7 @@ export function OpenIncidentForm() {
             <input value={v.location_address} onChange={(e) => set('location_address', e.target.value)} maxLength={200} className={field} />
           </label>
           <label className={label}>{t('Suburb')}<input value={v.suburb} onChange={(e) => set('suburb', e.target.value)} maxLength={100} className={field} /></label>
-          <label className={label}>{t('Ward')}<input value={v.ward} onChange={(e) => set('ward', e.target.value)} maxLength={40} className={field} /></label>
+          <label className={label}>{t('Ward')}<input value={v.ward} onChange={(e) => set('ward', e.target.value)} maxLength={40} inputMode="numeric" className={cn(field, problemBorder(bad.ward))} /><FieldProblem problem={bad.ward} /></label>
           <label className={cn(label, 'sm:col-span-2')}>{t('Municipality')}
             <select value={v.municipality} onChange={(e) => set('municipality', e.target.value)} className={field}>
               {MUNICIPALITIES.map((m) => <option key={m} value={m}>{m}</option>)}
@@ -148,14 +155,17 @@ export function OpenIncidentForm() {
             </select>
           </label>
           <label className={label}>{t('People affected')}
-            <input value={v.people_affected} onChange={(e) => set('people_affected', e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" className={field} />
+            <input value={v.people_affected} onChange={(e) => set('people_affected', e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" className={cn(field, problemBorder(bad.affected))} />
+            <FieldProblem problem={bad.affected} />
           </label>
           <div />
           <label className={cn(label, 'sm:col-span-2')}>{t('Reported by (if known)')}
-            <input value={v.caller_name} onChange={(e) => set('caller_name', e.target.value)} maxLength={100} className={field} />
+            <input value={v.caller_name} onChange={(e) => set('caller_name', e.target.value)} maxLength={100} className={cn(field, problemBorder(bad.caller))} />
+            <FieldProblem problem={bad.caller} />
           </label>
           <label className={cn(label, 'sm:col-span-2')}>{t('Their number (for an SMS back)')}
-            <input value={v.caller_number} onChange={(e) => set('caller_number', e.target.value)} maxLength={30} inputMode="tel" className={field} />
+            <input value={v.caller_number} onChange={(e) => set('caller_number', e.target.value)} maxLength={30} inputMode="tel" placeholder="082 123 4567" className={cn(field, problemBorder(bad.number))} />
+            <FieldProblem problem={bad.number} />
           </label>
         </div>
         <label className={label}>{t('First report')}
@@ -167,9 +177,9 @@ export function OpenIncidentForm() {
       {error ? <p role="alert" className="rounded-lg border border-severity-critical bg-bg-card px-4 py-3 text-sm font-medium text-severity-critical-ink">{error}</p> : null}
       <div className="flex justify-end gap-3">
         <button type="button" onClick={() => router.push('/disaster/desk')} className="h-12 rounded-md border border-border px-6 text-sm hover:bg-muted">{t('Cancel')}</button>
-        <button type="button" onClick={submit} disabled={pending}
+        <button type="button" onClick={submit} disabled={pending || blocked}
           className="h-12 rounded-md bg-primary px-8 text-base font-semibold text-primary-foreground disabled:opacity-60">
-          {pending ? t('Opening…') : t('Open incident')}
+          {pending ? t('Adding…') : t('Add the incident')}
         </button>
       </div>
     </div>

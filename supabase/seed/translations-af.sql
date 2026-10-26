@@ -1,4 +1,4 @@
--- Afrikaans: 6582 translations by Claude, approved on the
+-- Afrikaans: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -1583,7 +1583,6 @@ from (values
 ('Disaster Management assessment', 'af', 'Rampbestuur-assessering'),
 ('Disaster Mgmt', 'af', 'Rampbestuur'),
 ('Disaster management', 'af', 'Rampbestuur'),
-('Disaster map', 'af', 'Rampkaart'),
 ('Disc', 'af', 'Skyf'),
 ('Discard', 'af', 'Gooi weg'),
 ('Discard this update', 'af', 'Gooi hierdie bywerking weg'),
@@ -2031,7 +2030,8 @@ from (values
 ('Fire report', 'af', 'Brandverslag'),
 ('Fire report already filed', 'af', 'Brandverslag reeds ingedien'),
 ('Fire report filed', 'af', 'Brandverslag ingedien'),
-('Fire report · {value}', 'af', 'Brandverslag · {value}')
+('Fire report · {value}', 'af', 'Brandverslag · {value}'),
+('Fire reports', 'af', 'Brandverslae')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -2041,7 +2041,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 'af', 'Brandverslae'),
 ('Fire station', 'af', 'Brandweerstasie'),
 ('Fire with people trapped', 'af', 'Brand met mense vasgekeer'),
 ('Fire, flood, gas, chemical or structural danger.', 'af', 'Brand-, vloed-, gas-, chemiese of strukturele gevaar.'),
@@ -2540,7 +2539,8 @@ from (values
 ('Injuries', 'af', 'Beserings'),
 ('Injuries / treatment', 'af', 'Beserings / behandeling'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 'af', 'In- en uitklokke word per persoon gepaar; iemand wat nog werk, tel tot nou.{value}'),
-('Insights & Tools', 'af', 'Insigte en gereedskap')
+('Insights & Tools', 'af', 'Insigte en gereedskap'),
+('Inspect', 'af', 'Inspekteer')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -2550,7 +2550,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 'af', 'Inspekteer'),
 ('Inspect again', 'af', 'Inspekteer weer'),
 ('Inspect {name}', 'af', 'Inspekteer {name}'),
 ('Inspected', 'af', 'Geïnspekteer'),
@@ -3049,7 +3048,8 @@ from (values
 ('Metro Police inspection badge', 'af', 'Metropolisie-inspeksiekenteken'),
 ('Metro Police officers and command staff check what is owed.', 'af', 'Metropolisiebeamptes en bevelspersoneel kyk wat verskuldig is.'),
 ('Metro Police · Captain', 'af', 'Metropolisie · Kaptein'),
-('Metro Police · Enforcement', 'af', 'Metropolisie · Handhawing')
+('Metro Police · Enforcement', 'af', 'Metropolisie · Handhawing'),
+('Microphone permission denied.', 'af', 'Mikrofoontoestemming geweier.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -3059,7 +3059,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 'af', 'Mikrofoontoestemming geweier.'),
 ('Mileage', 'af', 'Afstand'),
 ('Milestones from call to close.', 'af', 'Mylpale van oproep tot sluiting.'),
 ('Military', 'af', 'Militêr'),
@@ -3558,7 +3557,8 @@ from (values
 ('Nothing attended in {period}.', 'af', 'Niks in {period} bygewoon nie.'),
 ('Nothing attended today.', 'af', 'Niks vandag bygewoon nie.'),
 ('Nothing closed yet.', 'af', 'Nog niks gesluit nie.'),
-('Nothing decided yet.', 'af', 'Nog niks besluit nie.')
+('Nothing decided yet.', 'af', 'Nog niks besluit nie.'),
+('Nothing due in the next two weeks.', 'af', 'Niks in die volgende twee weke verskuldig nie.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -3568,7 +3568,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 'af', 'Niks in die volgende twee weke verskuldig nie.'),
 ('Nothing expiring this month.', 'af', 'Niks verval hierdie maand nie.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 'af', 'Niks gevind vir “{value}” nie. Probeer ''n straat of ''n nabygeleë plek, of klik op die kaart.'),
 ('Nothing here yet.', 'af', 'Nog niks hier nie.'),
@@ -4067,7 +4066,8 @@ from (values
 ('Pregnancy complications', 'af', 'Swangerskapkomplikasies'),
 ('Premises register', 'af', 'Persele-register'),
 ('Preparing the fire report…', 'af', 'Berei die brandverslag voor…'),
-('Preparing the report…', 'af', 'Berei die verslag voor…')
+('Preparing the report…', 'af', 'Berei die verslag voor…'),
+('Prescription & OTC', 'af', 'Voorskrif en oor die toonbank')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -4077,7 +4077,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 'af', 'Voorskrif en oor die toonbank'),
 ('Presenting Problem', 'af', 'Aanmeldingsprobleem'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 'af', 'Druk Druk. Elke roepsein word gelys met sy lede, voertuig en area.'),
 ('Press Send to send it to {desks}.', 'af', 'Druk Stuur om dit na {desks} te stuur.'),
@@ -4576,7 +4575,8 @@ from (values
 ('SGA (iGel/LMA)', 'af', 'SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 'af', 'SKOF NIE BEGIN NIE'),
 ('SIM number', 'af', 'SIM-nommer'),
-('SIRA grade', 'af', 'SIRA-graad')
+('SIRA grade', 'af', 'SIRA-graad'),
+('SIRA number', 'af', 'SIRA-nommer')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -4586,7 +4586,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 'af', 'SIRA-nommer'),
 ('SIRA-compliant register entry.', 'af', 'SIRA-voldoenende registerinskrywing.'),
 ('SOS', 'af', 'SOS'),
 ('SOS active', 'af', 'SOS aktief'),
@@ -5085,7 +5084,8 @@ from (values
 ('Status', 'af', 'Status'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 'af', 'Statusveranderinge, notas en {media} bereik die bediener terwyl jy dit vaslê.'),
 ('Status now', 'af', 'Status nou'),
-('Status now:', 'af', 'Status nou:')
+('Status now:', 'af', 'Status nou:'),
+('Status {status}. Mid-year average {value} / 5.', 'af', 'Status {status}. Middeljaargemiddeld {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -5095,7 +5095,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 'af', 'Status {status}. Middeljaargemiddeld {value} / 5.'),
 ('Status → {status}', 'af', 'Status → {status}'),
 ('Statute / act', 'af', 'Statuut / wet'),
 ('Stays on the map', 'af', 'Bly op die kaart'),
@@ -5594,7 +5593,8 @@ from (values
 ('Type it again', 'af', 'Tik dit weer'),
 ('Type its number', 'af', 'Tik sy nommer'),
 ('Type of arrest', 'af', 'Tipe arrestasie'),
-('Type of incident', 'af', 'Tipe voorval')
+('Type of incident', 'af', 'Tipe voorval'),
+('Type of shooting', 'af', 'Tipe skietery')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -5604,7 +5604,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 'af', 'Tipe skietery'),
 ('Type the slug to confirm', 'af', 'Tik die slug om te bevestig'),
 ('Type: {type} · Location: {location}', 'af', 'Tipe: {type} · Ligging: {location}'),
 ('Tyre Burst', 'af', 'Bandbars'),
@@ -6103,7 +6102,8 @@ from (values
 ('Your radio', 'af', 'Jou radio'),
 ('Your radio and hard hat', 'af', 'Jou radio en veiligheidshelm'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 'af', 'Jou gereedheidsbeoordeling en ondertekende brandweertoestelinspeksie is op rekord.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'af', 'Jou gereedheidsbeoordeling en die ambulans- en voorraadkontrole is op rekord. Die ambulans is skoon en gereed.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'af', 'Jou gereedheidsbeoordeling en die ambulans- en voorraadkontrole is op rekord. Die ambulans is skoon en gereed.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'af', 'Jou gereedheidsverklaring is op rekord. Jy is nie goedgekeur om aan diens te gaan nie. Kontak jou skoftoesighouer voordat jy voortgaan.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -6113,7 +6113,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'af', 'Jou gereedheidsverklaring is op rekord. Jy is nie goedgekeur om aan diens te gaan nie. Kontak jou skoftoesighouer voordat jy voortgaan.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 'af', 'Jou gereedheidsverklaring is op rekord. Jy is nie goedgekeur om aan diens te gaan nie. Kontak jou stasiebevelvoerder of toesighouer voordat jy voortgaan.'),
 ('Your recent checks', 'af', 'Jou onlangse kontroles'),
 ('Your report for {incident_number} is on record.', 'af', 'Jou verslag vir {incident_number} is op rekord.'),
@@ -6612,7 +6611,8 @@ from (values
 ('{type} · {from} to {to}', 'af', '{type} · {from} tot {to}'),
 ('{type}, {from} to {to}.', 'af', '{type}, {from} tot {to}.'),
 ('{unit_number} {name}, taken', 'af', '{unit_number} {name}, geneem'),
-('{unit} failed a vehicle check and is out of service', 'af', '{unit} het ''n voertuigkontrole gedruip en is buite diens')
+('{unit} failed a vehicle check and is out of service', 'af', '{unit} het ''n voertuigkontrole gedruip en is buite diens'),
+('{unit} is back in the pool.', 'af', '{unit} is terug in die poel.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -6622,7 +6622,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 'af', '{unit} is terug in die poel.'),
 ('{unit} is booked for maintenance.', 'af', '{unit} is vir instandhouding bespreek.'),
 ('{unit} is handed back at {km} km.', 'af', '{unit} is teen {km} km teruggegee.'),
 ('{unit} is handed back for maintenance at {km} km.', 'af', '{unit} is teen {km} km vir instandhouding teruggegee.'),

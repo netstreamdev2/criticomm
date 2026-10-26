@@ -7,6 +7,8 @@ import { MUNICIPALITIES, SHELTER_KINDS } from '@criticom/db/disaster-plan';
 import { CallButton } from '@/components/disaster/call-button';
 import { AddressSearch, type PickedPlace } from '@/components/disaster/address-search';
 import { useT } from '@/components/i18n';
+import { FieldProblem, problemBorder } from '@/components/disaster/field-problem';
+import { anyProblem, checkCapacity, checkName, checkPhone, checkWard } from '@/lib/disaster-checks';
 import { cn } from '@/lib/utils';
 import { saveShelterAction } from '../desk/actions';
 
@@ -129,6 +131,7 @@ function HallForm({ hall, onDone, onError }: { hall: Hall | null; onDone: () => 
       municipality: p.municipality && (MUNICIPALITIES as readonly string[]).includes(p.municipality) ? p.municipality : cur.municipality,
     }));
   };
+  const bad = { ward: checkWard(v.ward, v.municipality), capacity: checkCapacity(v.capacity), keyHolder: checkName(v.key_holder), phone: checkPhone(v.key_holder_phone) };
   const save = () => start(async () => {
     onError(null);
     const res = await saveShelterAction(hall?.id ?? null, { ...v, capacity: v.capacity || '0', is_active: active }, at);
@@ -145,19 +148,19 @@ function HallForm({ hall, onDone, onError }: { hall: Hall | null; onDone: () => 
           <select value={v.kind} onChange={(e) => set('kind', e.target.value)} className={field}>{SHELTER_KINDS.map((k) => <option key={k} value={k}>{t(k)}</option>)}</select></label>
         <div className="block text-sm font-medium sm:col-span-2">{t('Address')}
           <AddressSearch label={t('Address')} value={v.address} onText={(x) => { set('address', x); setAt(null); }} onPlace={place} className={field} /></div>
-        <label className="block text-sm font-medium">{t('Ward')}<input value={v.ward} onChange={(e) => set('ward', e.target.value)} maxLength={40} className={field} /></label>
+        <label className="block text-sm font-medium">{t('Ward')}<input value={v.ward} onChange={(e) => set('ward', e.target.value)} maxLength={40} inputMode="numeric" className={cn(field, problemBorder(bad.ward))} /><FieldProblem problem={bad.ward} /></label>
         <label className="block text-sm font-medium">{t('Municipality')}
           <select value={v.municipality} onChange={(e) => set('municipality', e.target.value)} className={field}>{MUNICIPALITIES.map((m) => <option key={m} value={m}>{m}</option>)}</select></label>
-        <label className="block text-sm font-medium">{t('Capacity (people)')}<input value={v.capacity} onChange={(e) => set('capacity', e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" className={field} /></label>
-        <label className="block text-sm font-medium">{t('Key holder')}<input value={v.key_holder} onChange={(e) => set('key_holder', e.target.value)} maxLength={120} className={field} /></label>
-        <label className="block text-sm font-medium">{t('Key holder phone')}<input value={v.key_holder_phone} onChange={(e) => set('key_holder_phone', e.target.value)} maxLength={60} inputMode="tel" className={field} /></label>
+        <label className="block text-sm font-medium">{t('Capacity (people)')}<input value={v.capacity} onChange={(e) => set('capacity', e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" className={cn(field, problemBorder(bad.capacity))} /><FieldProblem problem={bad.capacity} /></label>
+        <label className="block text-sm font-medium">{t('Key holder')}<input value={v.key_holder} onChange={(e) => set('key_holder', e.target.value)} maxLength={120} className={cn(field, problemBorder(bad.keyHolder))} /><FieldProblem problem={bad.keyHolder} /></label>
+        <label className="block text-sm font-medium">{t('Key holder phone')}<input value={v.key_holder_phone} onChange={(e) => set('key_holder_phone', e.target.value)} maxLength={60} inputMode="tel" placeholder="082 123 4567" className={cn(field, problemBorder(bad.phone))} /><FieldProblem problem={bad.phone} /></label>
         <label className="block text-sm font-medium sm:col-span-2">{t('Notes')}<input value={v.notes} onChange={(e) => set('notes', e.target.value)} maxLength={1000} placeholder={t('Kitchen, toilets, wheelchair access…')} className={field} /></label>
       </div>
       {hall ? (
         <label className="mt-4 flex items-center gap-2 text-sm"><input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} className="h-4 w-4" />{t('Can be used as a shelter')}</label>
       ) : null}
       <div className="mt-5 flex gap-2">
-        <button type="button" onClick={save} disabled={pending || !v.name.trim()}
+        <button type="button" onClick={save} disabled={pending || !v.name.trim() || anyProblem(bad.ward, bad.capacity, bad.keyHolder, bad.phone)}
           className="h-11 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{pending ? t('Saving…') : t('Save')}</button>
         <button type="button" onClick={onDone} className="h-11 rounded-md border border-border px-5 text-sm hover:bg-muted">{t('Cancel')}</button>
       </div>

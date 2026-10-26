@@ -1,8 +1,8 @@
--- All 10 languages (about 6 582 sentences each): Claude's translations,
+-- All 10 languages (about 6 581 sentences each): Claude's translations,
 -- approved on the owner's instruction. Run in the Supabase SQL editor after 0078.
 -- Safe to re-run; it never overwrites a translation a person approved.
 
--- isiZulu: 6582 translations by Claude, approved on the
+-- isiZulu: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -1587,7 +1587,6 @@ from (values
 ('Disaster Management assessment', 'zu', 'Ukuhlola Kokuphathwa Kwezinhlekelele'),
 ('Disaster Mgmt', 'zu', 'Ukuphathwa kwezinhlekelele'),
 ('Disaster management', 'zu', 'Ukuphathwa kwezinhlekelele'),
-('Disaster map', 'zu', 'Imephu yezinhlekelele'),
 ('Disc', 'zu', 'Idiski'),
 ('Discard', 'zu', 'Lahla'),
 ('Discard this update', 'zu', 'Lahla lesi sibuyekezo'),
@@ -2035,7 +2034,8 @@ from (values
 ('Fire report', 'zu', 'Umbiko womlilo'),
 ('Fire report already filed', 'zu', 'Umbiko womlilo usufakiwe'),
 ('Fire report filed', 'zu', 'Umbiko womlilo ufakiwe'),
-('Fire report · {value}', 'zu', 'Umbiko womlilo · {value}')
+('Fire report · {value}', 'zu', 'Umbiko womlilo · {value}'),
+('Fire reports', 'zu', 'Imibiko yomlilo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -2045,7 +2045,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 'zu', 'Imibiko yomlilo'),
 ('Fire station', 'zu', 'Isiteshi sabacimi bomlilo'),
 ('Fire with people trapped', 'zu', 'Umlilo onabantu ababhajiwe'),
 ('Fire, flood, gas, chemical or structural danger.', 'zu', 'Ingozi yomlilo, yezikhukhula, yegesi, yamakhemikhali noma yesakhiwo.'),
@@ -2544,7 +2543,8 @@ from (values
 ('Injuries', 'zu', 'Ukulimala'),
 ('Injuries / treatment', 'zu', 'Ukulimala / ukwelashwa'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 'zu', 'Ukungena kuhlanganiswa nokuphuma komuntu ngamunye; osesemsebenzini ubalelwa kuze kube manje.{value}'),
-('Insights & Tools', 'zu', 'Ukuqonda namathuluzi')
+('Insights & Tools', 'zu', 'Ukuqonda namathuluzi'),
+('Inspect', 'zu', 'Hlola')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -2554,7 +2554,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 'zu', 'Hlola'),
 ('Inspect again', 'zu', 'Hlola futhi'),
 ('Inspect {name}', 'zu', 'Hlola {name}'),
 ('Inspected', 'zu', 'Kuhloliwe'),
@@ -3053,7 +3052,8 @@ from (values
 ('Metro Police inspection badge', 'zu', 'Ibheji lokuhlola lamaPhoyisa eMetro'),
 ('Metro Police officers and command staff check what is owed.', 'zu', 'Izikhulu zamaPhoyisa eMetro nabaphathi bahlola okukweletwa.'),
 ('Metro Police · Captain', 'zu', 'Amaphoyisa eMetro · Ukaputeni'),
-('Metro Police · Enforcement', 'zu', 'Amaphoyisa eMetro · Ukuphoqelela umthetho')
+('Metro Police · Enforcement', 'zu', 'Amaphoyisa eMetro · Ukuphoqelela umthetho'),
+('Microphone permission denied.', 'zu', 'Imvume yemakrofoni yenqatshiwe.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -3063,7 +3063,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 'zu', 'Imvume yemakrofoni yenqatshiwe.'),
 ('Mileage', 'zu', 'Amakhilomitha'),
 ('Milestones from call to close.', 'zu', 'Izigaba ezibalulekile kusukela ocingweni kuze kuvalwe.'),
 ('Military', 'zu', 'Ezempi'),
@@ -3562,7 +3561,8 @@ from (values
 ('Nothing attended in {period}.', 'zu', 'Akukho okuhanjelwe ku-{period}.'),
 ('Nothing attended today.', 'zu', 'Akukho okuhanjelwe namuhla.'),
 ('Nothing closed yet.', 'zu', 'Akukho okuvaliwe okwamanje.'),
-('Nothing decided yet.', 'zu', 'Akukho okunqunyiwe okwamanje.')
+('Nothing decided yet.', 'zu', 'Akukho okunqunyiwe okwamanje.'),
+('Nothing due in the next two weeks.', 'zu', 'Akukho okufanele kwenziwe emasontweni amabili alandelayo.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -3572,7 +3572,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 'zu', 'Akukho okufanele kwenziwe emasontweni amabili alandelayo.'),
 ('Nothing expiring this month.', 'zu', 'Akukho okuphelelwa yisikhathi kule nyanga.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 'zu', 'Akukho okutholakele kokuthi “{value}”. Zama umgwaqo noma indawo eseduze, noma uchofoze ibalazwe.'),
 ('Nothing here yet.', 'zu', 'Akukho lutho lapha okwamanje.'),
@@ -4071,7 +4070,8 @@ from (values
 ('Pregnancy complications', 'zu', 'Izinkinga zokukhulelwa'),
 ('Premises register', 'zu', 'Irejista yezakhiwo'),
 ('Preparing the fire report…', 'zu', 'Kulungiswa umbiko womlilo…'),
-('Preparing the report…', 'zu', 'Kulungiswa umbiko…')
+('Preparing the report…', 'zu', 'Kulungiswa umbiko…'),
+('Prescription & OTC', 'zu', 'Okunikezwa ngudokotela nokuthengwa kwamakhemisi')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -4081,7 +4081,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 'zu', 'Okunikezwa ngudokotela nokuthengwa kwamakhemisi'),
 ('Presenting Problem', 'zu', 'Inkinga Ekhona'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 'zu', 'Cindezela u-Phrinta. Uphawu ngalunye lwekholi lubhalwe namalungu alo, imoto nendawo.'),
 ('Press Send to send it to {desks}.', 'zu', 'Cindezela u-Thumela ukuze ukuthumele ku-{desks}.'),
@@ -4580,7 +4579,8 @@ from (values
 ('SGA (iGel/LMA)', 'zu', 'I-SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 'zu', 'ISHIFU AYIKAQALI'),
 ('SIM number', 'zu', 'Inombolo ye-SIM'),
-('SIRA grade', 'zu', 'Ibanga le-SIRA')
+('SIRA grade', 'zu', 'Ibanga le-SIRA'),
+('SIRA number', 'zu', 'Inombolo ye-SIRA')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -4590,7 +4590,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 'zu', 'Inombolo ye-SIRA'),
 ('SIRA-compliant register entry.', 'zu', 'Okufakwe kurejista okuhambisana ne-SIRA.'),
 ('SOS', 'zu', 'SOS'),
 ('SOS active', 'zu', 'I-SOS iyasebenza'),
@@ -5089,7 +5088,8 @@ from (values
 ('Status', 'zu', 'Isimo'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 'zu', 'Izinguquko zesimo, amanothi ne-{media} kufika kuseva njengoba ukuthatha.'),
 ('Status now', 'zu', 'Isimo manje'),
-('Status now:', 'zu', 'Isimo manje:')
+('Status now:', 'zu', 'Isimo manje:'),
+('Status {status}. Mid-year average {value} / 5.', 'zu', 'Isimo {status}. Isilinganiso sasemaphakathi nonyaka {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -5099,7 +5099,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 'zu', 'Isimo {status}. Isilinganiso sasemaphakathi nonyaka {value} / 5.'),
 ('Status → {status}', 'zu', 'Isimo → {status}'),
 ('Statute / act', 'zu', 'Umthetho / isenzo'),
 ('Stays on the map', 'zu', 'Kuhlala ebalazweni'),
@@ -5598,7 +5597,8 @@ from (values
 ('Type it again', 'zu', 'Yithayiphe futhi'),
 ('Type its number', 'zu', 'Thayipha inombolo yayo'),
 ('Type of arrest', 'zu', 'Uhlobo lokuboshwa'),
-('Type of incident', 'zu', 'Uhlobo lwesigameko')
+('Type of incident', 'zu', 'Uhlobo lwesigameko'),
+('Type of shooting', 'zu', 'Uhlobo lokudubula')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -5608,7 +5608,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 'zu', 'Uhlobo lokudubula'),
 ('Type the slug to confirm', 'zu', 'Thayipha i-slug ukuze uqinisekise'),
 ('Type: {type} · Location: {location}', 'zu', 'Uhlobo: {type} · Indawo: {location}'),
 ('Tyre Burst', 'zu', 'Ukuqhuma Kwethayi'),
@@ -6107,7 +6106,8 @@ from (values
 ('Your radio', 'zu', 'Irediyo yakho'),
 ('Your radio and hard hat', 'zu', 'Irediyo yakho nesigqoko sokuzivikela'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 'zu', 'Ukuhlolwa kwakho kokulungela nokuhlolwa kwemoto yomlilo okusayiniwe kusemarekhodini.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'zu', 'Ukuhlolwa kwakho kokulungela nokuhlolwa kwe-ambulensi nezimpahla kusemarekhodini. I-ambulensi ihlanzekile futhi ilungile.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'zu', 'Ukuhlolwa kwakho kokulungela nokuhlolwa kwe-ambulensi nezimpahla kusemarekhodini. I-ambulensi ihlanzekile futhi ilungile.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'zu', 'Isimemezelo sakho sokulungela sisemarekhodini. Awuvunyelwe ukungena emsebenzini. Xhumana nomphathi weshifu yakho ngaphambi kokuqhubeka.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -6117,7 +6117,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'zu', 'Isimemezelo sakho sokulungela sisemarekhodini. Awuvunyelwe ukungena emsebenzini. Xhumana nomphathi weshifu yakho ngaphambi kokuqhubeka.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 'zu', 'Isimemezelo sakho sokulungela sisemarekhodini. Awuvunyelwe ukungena emsebenzini. Xhumana nesikhulu sesiteshi sakho noma umphathi ngaphambi kokuqhubeka.'),
 ('Your recent checks', 'zu', 'Ukuhlola kwakho kwakamuva'),
 ('Your report for {incident_number} is on record.', 'zu', 'Umbiko wakho ka-{incident_number} usemarekhodini.'),
@@ -6616,7 +6615,8 @@ from (values
 ('{type} · {from} to {to}', 'zu', '{type} · {from} kuya ku-{to}'),
 ('{type}, {from} to {to}.', 'zu', '{type}, {from} kuya ku-{to}.'),
 ('{unit_number} {name}, taken', 'zu', '{unit_number} {name}, ithathiwe'),
-('{unit} failed a vehicle check and is out of service', 'zu', 'I-{unit} yehlulekile ekuhlolweni kwemoto futhi ayisebenzi')
+('{unit} failed a vehicle check and is out of service', 'zu', 'I-{unit} yehlulekile ekuhlolweni kwemoto futhi ayisebenzi'),
+('{unit} is back in the pool.', 'zu', 'I-{unit} isibuyele eqoqweni.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -6626,7 +6626,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 'zu', 'I-{unit} isibuyele eqoqweni.'),
 ('{unit} is booked for maintenance.', 'zu', 'I-{unit} ibhukelwe ukulungiswa.'),
 ('{unit} is handed back at {km} km.', 'zu', 'I-{unit} ibuyiswe ngo-{km} km.'),
 ('{unit} is handed back for maintenance at {km} km.', 'zu', 'I-{unit} ibuyiselwe ukulungiswa ngo-{km} km.'),
@@ -6715,7 +6714,7 @@ on conflict (key, lang) do update
  where not (t.status = 'approved' and t.drafted_by = 'person');
 commit;
 
--- isiXhosa: 6582 translations by Claude, approved on the
+-- isiXhosa: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -8300,7 +8299,6 @@ from (values
 ('Disaster Management assessment', 'xh', 'Uhlolo loLawulo lweeNtlekele'),
 ('Disaster Mgmt', 'xh', 'Ulawulo lweentlekele'),
 ('Disaster management', 'xh', 'Ulawulo lweentlekele'),
-('Disaster map', 'xh', 'Imephu yeentlekele'),
 ('Disc', 'xh', 'Idiski'),
 ('Discard', 'xh', 'Lahla'),
 ('Discard this update', 'xh', 'Lahla olu hlaziyo'),
@@ -8748,7 +8746,8 @@ from (values
 ('Fire report', 'xh', 'Ingxelo yomlilo'),
 ('Fire report already filed', 'xh', 'Ingxelo yomlilo sele ingenisiwe'),
 ('Fire report filed', 'xh', 'Ingxelo yomlilo ingenisiwe'),
-('Fire report · {value}', 'xh', 'Ingxelo yomlilo · {value}')
+('Fire report · {value}', 'xh', 'Ingxelo yomlilo · {value}'),
+('Fire reports', 'xh', 'Iingxelo zomlilo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -8758,7 +8757,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 'xh', 'Iingxelo zomlilo'),
 ('Fire station', 'xh', 'Isikhululo somlilo'),
 ('Fire with people trapped', 'xh', 'Umlilo onabantu ababambekileyo'),
 ('Fire, flood, gas, chemical or structural danger.', 'xh', 'Ingozi yomlilo, yezikhukhula, yerhasi, yeekhemikhali okanye yesakhiwo.'),
@@ -9257,7 +9255,8 @@ from (values
 ('Injuries', 'xh', 'Ukwenzakala'),
 ('Injuries / treatment', 'xh', 'Ukwenzakala / unyango'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 'xh', 'Ukungena kudityaniswa nokuphuma komntu ngamnye; osasebenzayo ubalelwa ukuza kuthi ga ngoku.{value}'),
-('Insights & Tools', 'xh', 'Ukuqonda nezixhobo')
+('Insights & Tools', 'xh', 'Ukuqonda nezixhobo'),
+('Inspect', 'xh', 'Hlola')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -9267,7 +9266,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 'xh', 'Hlola'),
 ('Inspect again', 'xh', 'Hlola kwakhona'),
 ('Inspect {name}', 'xh', 'Hlola {name}'),
 ('Inspected', 'xh', 'Kuhloliwe'),
@@ -9766,7 +9764,8 @@ from (values
 ('Metro Police inspection badge', 'xh', 'Ibheji yokuhlola yamaPolisa eMetro'),
 ('Metro Police officers and command staff check what is owed.', 'xh', 'Amagosa amaPolisa eMetro nabaphathi bajonga okutyalwayo.'),
 ('Metro Police · Captain', 'xh', 'Amapolisa eMetro · Ukapteni'),
-('Metro Police · Enforcement', 'xh', 'Amapolisa eMetro · Ukunyanzeliswa komthetho')
+('Metro Police · Enforcement', 'xh', 'Amapolisa eMetro · Ukunyanzeliswa komthetho'),
+('Microphone permission denied.', 'xh', 'Imvume yemakrofoni yaliwe.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -9776,7 +9775,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 'xh', 'Imvume yemakrofoni yaliwe.'),
 ('Mileage', 'xh', 'Iikhilomitha'),
 ('Milestones from call to close.', 'xh', 'Amanqanaba abalulekileyo ukusuka kumnxeba ukuya ekuvalweni.'),
 ('Military', 'xh', 'Ezomkhosi'),
@@ -10275,7 +10273,8 @@ from (values
 ('Nothing attended in {period}.', 'xh', 'Akukho nto iye kuyo ku-{period}.'),
 ('Nothing attended today.', 'xh', 'Akukho nto iye kuyo namhlanje.'),
 ('Nothing closed yet.', 'xh', 'Akukho nto ivaliweyo okwangoku.'),
-('Nothing decided yet.', 'xh', 'Akukho nto igqitywe okwangoku.')
+('Nothing decided yet.', 'xh', 'Akukho nto igqitywe okwangoku.'),
+('Nothing due in the next two weeks.', 'xh', 'Akukho nto ifanele yenziwe kwiiveki ezimbini ezizayo.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -10285,7 +10284,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 'xh', 'Akukho nto ifanele yenziwe kwiiveki ezimbini ezizayo.'),
 ('Nothing expiring this month.', 'xh', 'Akukho nto iphelelwa lixesha kule nyanga.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 'xh', 'Akukho nto ifunyenweyo ye-“{value}”. Zama isitrato okanye indawo ekufutshane, okanye ucofe imephu.'),
 ('Nothing here yet.', 'xh', 'Akukho nto apha okwangoku.'),
@@ -10784,7 +10782,8 @@ from (values
 ('Pregnancy complications', 'xh', 'Iingxaki zokukhulelwa'),
 ('Premises register', 'xh', 'Irejista yezakhiwo'),
 ('Preparing the fire report…', 'xh', 'Kulungiswa ingxelo yomlilo…'),
-('Preparing the report…', 'xh', 'Kulungiswa ingxelo…')
+('Preparing the report…', 'xh', 'Kulungiswa ingxelo…'),
+('Prescription & OTC', 'xh', 'Okunikwa ngugqirha nokuthengwa kwiikhemesti')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -10794,7 +10793,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 'xh', 'Okunikwa ngugqirha nokuthengwa kwiikhemesti'),
 ('Presenting Problem', 'xh', 'Ingxaki Ekhoyo'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 'xh', 'Cofa u-Shicilela. Uphawu ngalunye lomnxeba ludweliswe namalungu alo, isithuthi nendawo.'),
 ('Press Send to send it to {desks}.', 'xh', 'Cofa u-Thumela ukuze uyithumele kwi-{desks}.'),
@@ -11293,7 +11291,8 @@ from (values
 ('SGA (iGel/LMA)', 'xh', 'I-SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 'xh', 'ISHIFTI AYIKAQALI'),
 ('SIM number', 'xh', 'Inombolo ye-SIM'),
-('SIRA grade', 'xh', 'Ibakala le-SIRA')
+('SIRA grade', 'xh', 'Ibakala le-SIRA'),
+('SIRA number', 'xh', 'Inombolo ye-SIRA')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -11303,7 +11302,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 'xh', 'Inombolo ye-SIRA'),
 ('SIRA-compliant register entry.', 'xh', 'Ungeniso lwerejista oluhambelana ne-SIRA.'),
 ('SOS', 'xh', 'SOS'),
 ('SOS active', 'xh', 'I-SOS iyasebenza'),
@@ -11802,7 +11800,8 @@ from (values
 ('Status', 'xh', 'Imeko'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 'xh', 'Utshintsho lwemeko, amanqaku ne-{media} zifika kwiseva njengoko uzithatha.'),
 ('Status now', 'xh', 'Imeko ngoku'),
-('Status now:', 'xh', 'Imeko ngoku:')
+('Status now:', 'xh', 'Imeko ngoku:'),
+('Status {status}. Mid-year average {value} / 5.', 'xh', 'Imeko {status}. Umyinge waphakathi konyaka {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -11812,7 +11811,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 'xh', 'Imeko {status}. Umyinge waphakathi konyaka {value} / 5.'),
 ('Status → {status}', 'xh', 'Imeko → {status}'),
 ('Statute / act', 'xh', 'Umthetho / isenzo'),
 ('Stays on the map', 'xh', 'Kuhlala kwimephu'),
@@ -12311,7 +12309,8 @@ from (values
 ('Type it again', 'xh', 'Yichwetheze kwakhona'),
 ('Type its number', 'xh', 'Chwetheza inombolo yayo'),
 ('Type of arrest', 'xh', 'Uhlobo lokubanjwa'),
-('Type of incident', 'xh', 'Uhlobo lwesiganeko')
+('Type of incident', 'xh', 'Uhlobo lwesiganeko'),
+('Type of shooting', 'xh', 'Uhlobo lokudubula')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -12321,7 +12320,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 'xh', 'Uhlobo lokudubula'),
 ('Type the slug to confirm', 'xh', 'Chwetheza i-slug ukuze uqinisekise'),
 ('Type: {type} · Location: {location}', 'xh', 'Uhlobo: {type} · Indawo: {location}'),
 ('Tyre Burst', 'xh', 'Ukuqhuma Kwevili'),
@@ -12820,7 +12818,8 @@ from (values
 ('Your radio', 'xh', 'Irediyo yakho'),
 ('Your radio and hard hat', 'xh', 'Irediyo yakho nesigcina-ntloko'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 'xh', 'Uvavanyo lwakho lokulungela nohlolo lwesithuthi somlilo olutyikitywe zikwirekhodi.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'xh', 'Uvavanyo lwakho lokulungela nohlolo lwe-ambulensi neempahla zikwirekhodi. I-ambulensi icocekile kwaye ilungile.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'xh', 'Uvavanyo lwakho lokulungela nohlolo lwe-ambulensi neempahla zikwirekhodi. I-ambulensi icocekile kwaye ilungile.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'xh', 'Isibhengezo sakho sokulungela sikwirekhodi. Awuvunyelwanga ukungena emsebenzini. Qhagamshelana nomphathi weshifti yakho phambi kokuqhubeka.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -12830,7 +12829,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'xh', 'Isibhengezo sakho sokulungela sikwirekhodi. Awuvunyelwanga ukungena emsebenzini. Qhagamshelana nomphathi weshifti yakho phambi kokuqhubeka.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 'xh', 'Isibhengezo sakho sokulungela sikwirekhodi. Awuvunyelwanga ukungena emsebenzini. Qhagamshelana negosa lesikhululo sakho okanye umphathi phambi kokuqhubeka.'),
 ('Your recent checks', 'xh', 'Uhlolo lwakho lwamva nje'),
 ('Your report for {incident_number} is on record.', 'xh', 'Ingxelo yakho ye-{incident_number} ikwirekhodi.'),
@@ -13329,7 +13327,8 @@ from (values
 ('{type} · {from} to {to}', 'xh', '{type} · {from} ukuya ku-{to}'),
 ('{type}, {from} to {to}.', 'xh', '{type}, {from} ukuya ku-{to}.'),
 ('{unit_number} {name}, taken', 'xh', '{unit_number} {name}, ithathiwe'),
-('{unit} failed a vehicle check and is out of service', 'xh', 'I-{unit} isilele kuhlolo lwesithuthi kwaye ayisebenzi')
+('{unit} failed a vehicle check and is out of service', 'xh', 'I-{unit} isilele kuhlolo lwesithuthi kwaye ayisebenzi'),
+('{unit} is back in the pool.', 'xh', 'I-{unit} ibuyele kwiqela.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -13339,7 +13338,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 'xh', 'I-{unit} ibuyele kwiqela.'),
 ('{unit} is booked for maintenance.', 'xh', 'I-{unit} ibhukishelwe ukulungiswa.'),
 ('{unit} is handed back at {km} km.', 'xh', 'I-{unit} ibuyiswe kwi-{km} km.'),
 ('{unit} is handed back for maintenance at {km} km.', 'xh', 'I-{unit} ibuyiselwe ukulungiswa kwi-{km} km.'),
@@ -13428,7 +13426,7 @@ on conflict (key, lang) do update
  where not (t.status = 'approved' and t.drafted_by = 'person');
 commit;
 
--- Afrikaans: 6582 translations by Claude, approved on the
+-- Afrikaans: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -15013,7 +15011,6 @@ from (values
 ('Disaster Management assessment', 'af', 'Rampbestuur-assessering'),
 ('Disaster Mgmt', 'af', 'Rampbestuur'),
 ('Disaster management', 'af', 'Rampbestuur'),
-('Disaster map', 'af', 'Rampkaart'),
 ('Disc', 'af', 'Skyf'),
 ('Discard', 'af', 'Gooi weg'),
 ('Discard this update', 'af', 'Gooi hierdie bywerking weg'),
@@ -15461,7 +15458,8 @@ from (values
 ('Fire report', 'af', 'Brandverslag'),
 ('Fire report already filed', 'af', 'Brandverslag reeds ingedien'),
 ('Fire report filed', 'af', 'Brandverslag ingedien'),
-('Fire report · {value}', 'af', 'Brandverslag · {value}')
+('Fire report · {value}', 'af', 'Brandverslag · {value}'),
+('Fire reports', 'af', 'Brandverslae')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -15471,7 +15469,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 'af', 'Brandverslae'),
 ('Fire station', 'af', 'Brandweerstasie'),
 ('Fire with people trapped', 'af', 'Brand met mense vasgekeer'),
 ('Fire, flood, gas, chemical or structural danger.', 'af', 'Brand-, vloed-, gas-, chemiese of strukturele gevaar.'),
@@ -15970,7 +15967,8 @@ from (values
 ('Injuries', 'af', 'Beserings'),
 ('Injuries / treatment', 'af', 'Beserings / behandeling'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 'af', 'In- en uitklokke word per persoon gepaar; iemand wat nog werk, tel tot nou.{value}'),
-('Insights & Tools', 'af', 'Insigte en gereedskap')
+('Insights & Tools', 'af', 'Insigte en gereedskap'),
+('Inspect', 'af', 'Inspekteer')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -15980,7 +15978,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 'af', 'Inspekteer'),
 ('Inspect again', 'af', 'Inspekteer weer'),
 ('Inspect {name}', 'af', 'Inspekteer {name}'),
 ('Inspected', 'af', 'Geïnspekteer'),
@@ -16479,7 +16476,8 @@ from (values
 ('Metro Police inspection badge', 'af', 'Metropolisie-inspeksiekenteken'),
 ('Metro Police officers and command staff check what is owed.', 'af', 'Metropolisiebeamptes en bevelspersoneel kyk wat verskuldig is.'),
 ('Metro Police · Captain', 'af', 'Metropolisie · Kaptein'),
-('Metro Police · Enforcement', 'af', 'Metropolisie · Handhawing')
+('Metro Police · Enforcement', 'af', 'Metropolisie · Handhawing'),
+('Microphone permission denied.', 'af', 'Mikrofoontoestemming geweier.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -16489,7 +16487,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 'af', 'Mikrofoontoestemming geweier.'),
 ('Mileage', 'af', 'Afstand'),
 ('Milestones from call to close.', 'af', 'Mylpale van oproep tot sluiting.'),
 ('Military', 'af', 'Militêr'),
@@ -16988,7 +16985,8 @@ from (values
 ('Nothing attended in {period}.', 'af', 'Niks in {period} bygewoon nie.'),
 ('Nothing attended today.', 'af', 'Niks vandag bygewoon nie.'),
 ('Nothing closed yet.', 'af', 'Nog niks gesluit nie.'),
-('Nothing decided yet.', 'af', 'Nog niks besluit nie.')
+('Nothing decided yet.', 'af', 'Nog niks besluit nie.'),
+('Nothing due in the next two weeks.', 'af', 'Niks in die volgende twee weke verskuldig nie.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -16998,7 +16996,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 'af', 'Niks in die volgende twee weke verskuldig nie.'),
 ('Nothing expiring this month.', 'af', 'Niks verval hierdie maand nie.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 'af', 'Niks gevind vir “{value}” nie. Probeer ''n straat of ''n nabygeleë plek, of klik op die kaart.'),
 ('Nothing here yet.', 'af', 'Nog niks hier nie.'),
@@ -17497,7 +17494,8 @@ from (values
 ('Pregnancy complications', 'af', 'Swangerskapkomplikasies'),
 ('Premises register', 'af', 'Persele-register'),
 ('Preparing the fire report…', 'af', 'Berei die brandverslag voor…'),
-('Preparing the report…', 'af', 'Berei die verslag voor…')
+('Preparing the report…', 'af', 'Berei die verslag voor…'),
+('Prescription & OTC', 'af', 'Voorskrif en oor die toonbank')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -17507,7 +17505,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 'af', 'Voorskrif en oor die toonbank'),
 ('Presenting Problem', 'af', 'Aanmeldingsprobleem'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 'af', 'Druk Druk. Elke roepsein word gelys met sy lede, voertuig en area.'),
 ('Press Send to send it to {desks}.', 'af', 'Druk Stuur om dit na {desks} te stuur.'),
@@ -18006,7 +18003,8 @@ from (values
 ('SGA (iGel/LMA)', 'af', 'SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 'af', 'SKOF NIE BEGIN NIE'),
 ('SIM number', 'af', 'SIM-nommer'),
-('SIRA grade', 'af', 'SIRA-graad')
+('SIRA grade', 'af', 'SIRA-graad'),
+('SIRA number', 'af', 'SIRA-nommer')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -18016,7 +18014,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 'af', 'SIRA-nommer'),
 ('SIRA-compliant register entry.', 'af', 'SIRA-voldoenende registerinskrywing.'),
 ('SOS', 'af', 'SOS'),
 ('SOS active', 'af', 'SOS aktief'),
@@ -18515,7 +18512,8 @@ from (values
 ('Status', 'af', 'Status'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 'af', 'Statusveranderinge, notas en {media} bereik die bediener terwyl jy dit vaslê.'),
 ('Status now', 'af', 'Status nou'),
-('Status now:', 'af', 'Status nou:')
+('Status now:', 'af', 'Status nou:'),
+('Status {status}. Mid-year average {value} / 5.', 'af', 'Status {status}. Middeljaargemiddeld {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -18525,7 +18523,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 'af', 'Status {status}. Middeljaargemiddeld {value} / 5.'),
 ('Status → {status}', 'af', 'Status → {status}'),
 ('Statute / act', 'af', 'Statuut / wet'),
 ('Stays on the map', 'af', 'Bly op die kaart'),
@@ -19024,7 +19021,8 @@ from (values
 ('Type it again', 'af', 'Tik dit weer'),
 ('Type its number', 'af', 'Tik sy nommer'),
 ('Type of arrest', 'af', 'Tipe arrestasie'),
-('Type of incident', 'af', 'Tipe voorval')
+('Type of incident', 'af', 'Tipe voorval'),
+('Type of shooting', 'af', 'Tipe skietery')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -19034,7 +19032,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 'af', 'Tipe skietery'),
 ('Type the slug to confirm', 'af', 'Tik die slug om te bevestig'),
 ('Type: {type} · Location: {location}', 'af', 'Tipe: {type} · Ligging: {location}'),
 ('Tyre Burst', 'af', 'Bandbars'),
@@ -19533,7 +19530,8 @@ from (values
 ('Your radio', 'af', 'Jou radio'),
 ('Your radio and hard hat', 'af', 'Jou radio en veiligheidshelm'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 'af', 'Jou gereedheidsbeoordeling en ondertekende brandweertoestelinspeksie is op rekord.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'af', 'Jou gereedheidsbeoordeling en die ambulans- en voorraadkontrole is op rekord. Die ambulans is skoon en gereed.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'af', 'Jou gereedheidsbeoordeling en die ambulans- en voorraadkontrole is op rekord. Die ambulans is skoon en gereed.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'af', 'Jou gereedheidsverklaring is op rekord. Jy is nie goedgekeur om aan diens te gaan nie. Kontak jou skoftoesighouer voordat jy voortgaan.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -19543,7 +19541,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'af', 'Jou gereedheidsverklaring is op rekord. Jy is nie goedgekeur om aan diens te gaan nie. Kontak jou skoftoesighouer voordat jy voortgaan.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 'af', 'Jou gereedheidsverklaring is op rekord. Jy is nie goedgekeur om aan diens te gaan nie. Kontak jou stasiebevelvoerder of toesighouer voordat jy voortgaan.'),
 ('Your recent checks', 'af', 'Jou onlangse kontroles'),
 ('Your report for {incident_number} is on record.', 'af', 'Jou verslag vir {incident_number} is op rekord.'),
@@ -20042,7 +20039,8 @@ from (values
 ('{type} · {from} to {to}', 'af', '{type} · {from} tot {to}'),
 ('{type}, {from} to {to}.', 'af', '{type}, {from} tot {to}.'),
 ('{unit_number} {name}, taken', 'af', '{unit_number} {name}, geneem'),
-('{unit} failed a vehicle check and is out of service', 'af', '{unit} het ''n voertuigkontrole gedruip en is buite diens')
+('{unit} failed a vehicle check and is out of service', 'af', '{unit} het ''n voertuigkontrole gedruip en is buite diens'),
+('{unit} is back in the pool.', 'af', '{unit} is terug in die poel.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -20052,7 +20050,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 'af', '{unit} is terug in die poel.'),
 ('{unit} is booked for maintenance.', 'af', '{unit} is vir instandhouding bespreek.'),
 ('{unit} is handed back at {km} km.', 'af', '{unit} is teen {km} km teruggegee.'),
 ('{unit} is handed back for maintenance at {km} km.', 'af', '{unit} is teen {km} km vir instandhouding teruggegee.'),
@@ -20141,7 +20138,7 @@ on conflict (key, lang) do update
  where not (t.status = 'approved' and t.drafted_by = 'person');
 commit;
 
--- Sepedi: 6582 translations by Claude, approved on the
+-- Sepedi: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -21726,7 +21723,6 @@ from (values
 ('Disaster Management assessment', 'nso', 'Tlhahlobo ya Taolo ya Dikotsi'),
 ('Disaster Mgmt', 'nso', 'Taolo ya dikotsi tše kgolo'),
 ('Disaster management', 'nso', 'Taolo ya dikotsi tše kgolo'),
-('Disaster map', 'nso', 'Mmapa wa dikotsi tše kgolo'),
 ('Disc', 'nso', 'Tisiki'),
 ('Discard', 'nso', 'Lahla'),
 ('Discard this update', 'nso', 'Lahla kaonafatšo ye'),
@@ -22174,7 +22170,8 @@ from (values
 ('Fire report', 'nso', 'Pego ya mollo'),
 ('Fire report already filed', 'nso', 'Pego ya mollo e šetše e rometšwe'),
 ('Fire report filed', 'nso', 'Pego ya mollo e rometšwe'),
-('Fire report · {value}', 'nso', 'Pego ya mollo · {value}')
+('Fire report · {value}', 'nso', 'Pego ya mollo · {value}'),
+('Fire reports', 'nso', 'Dipego tša mollo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -22184,7 +22181,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 'nso', 'Dipego tša mollo'),
 ('Fire station', 'nso', 'Seteišene sa ditimamollo'),
 ('Fire with people trapped', 'nso', 'Mollo wo o nago le batho bao ba tsenyegilego'),
 ('Fire, flood, gas, chemical or structural danger.', 'nso', 'Kotsi ya mollo, ya mafula, ya gase, ya dikhemikhale goba ya moago.'),
@@ -22683,7 +22679,8 @@ from (values
 ('Injuries', 'nso', 'Dikgobalo'),
 ('Injuries / treatment', 'nso', 'Dikgobalo / kalafo'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 'nso', 'Go tsena go nyalanywa le go tšwa ga motho yo mongwe le yo mongwe; yo a sa šomago o balelwa go fihla bjale.{value}'),
-('Insights & Tools', 'nso', 'Tsebo le didirišwa')
+('Insights & Tools', 'nso', 'Tsebo le didirišwa'),
+('Inspect', 'nso', 'Hlahloba')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -22693,7 +22690,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 'nso', 'Hlahloba'),
 ('Inspect again', 'nso', 'Hlahloba gape'),
 ('Inspect {name}', 'nso', 'Hlahloba {name}'),
 ('Inspected', 'nso', 'E hlahlobilwe'),
@@ -23192,7 +23188,8 @@ from (values
 ('Metro Police inspection badge', 'nso', 'Beche ya tekolo ya Maphodisa a Metro'),
 ('Metro Police officers and command staff check what is owed.', 'nso', 'Bahlankedi ba Maphodisa a Metro le balaodi ba lekola seo se kolotwago.'),
 ('Metro Police · Captain', 'nso', 'Maphodisa a Metro · Kapotene'),
-('Metro Police · Enforcement', 'nso', 'Maphodisa a Metro · Phethagatšo ya molao')
+('Metro Police · Enforcement', 'nso', 'Maphodisa a Metro · Phethagatšo ya molao'),
+('Microphone permission denied.', 'nso', 'Tumelelo ya maekrofouno e gannwe.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -23202,7 +23199,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 'nso', 'Tumelelo ya maekrofouno e gannwe.'),
 ('Mileage', 'nso', 'Dikhilomithara'),
 ('Milestones from call to close.', 'nso', 'Magato a bohlokwa go tloga mogaleng go fihla go tswalelwa.'),
 ('Military', 'nso', 'Tša sesole'),
@@ -23701,7 +23697,8 @@ from (values
 ('Nothing attended in {period}.', 'nso', 'Ga go na se se etetšwego ka {period}.'),
 ('Nothing attended today.', 'nso', 'Ga go na se se etetšwego lehono.'),
 ('Nothing closed yet.', 'nso', 'Ga go na se se tswaletšwego go fihla bjale.'),
-('Nothing decided yet.', 'nso', 'Ga go na se se phethilwego go fihla bjale.')
+('Nothing decided yet.', 'nso', 'Ga go na se se phethilwego go fihla bjale.'),
+('Nothing due in the next two weeks.', 'nso', 'Ga go na se se swanetšego go dirwa dibekeng tše pedi tše di latelago.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -23711,7 +23708,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 'nso', 'Ga go na se se swanetšego go dirwa dibekeng tše pedi tše di latelago.'),
 ('Nothing expiring this month.', 'nso', 'Ga go na se se felelwago ke nako kgweding ye.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 'nso', 'Ga go na se se hweditšwego sa “{value}”. Leka seterata goba lefelo la kgauswi, goba o kgotle mmapa.'),
 ('Nothing here yet.', 'nso', 'Ga go na selo mo go fihla bjale.'),
@@ -24210,7 +24206,8 @@ from (values
 ('Pregnancy complications', 'nso', 'Mathata a boimana'),
 ('Premises register', 'nso', 'Rejisetara ya mafelo'),
 ('Preparing the fire report…', 'nso', 'Go lokišwa pego ya mollo…'),
-('Preparing the report…', 'nso', 'Go lokišwa pego…')
+('Preparing the report…', 'nso', 'Go lokišwa pego…'),
+('Prescription & OTC', 'nso', 'Tšeo di ngwaletšwego le tše di rekwago ntle le lengwalo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -24220,7 +24217,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 'nso', 'Tšeo di ngwaletšwego le tše di rekwago ntle le lengwalo'),
 ('Presenting Problem', 'nso', 'Bothata bjo bo Lego Gona'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 'nso', 'Tobetša Gatiša. Leswao le lengwe le le lengwe la go bitša le ngwadilwe le maloko a lona, koloi le lefelo.'),
 ('Press Send to send it to {desks}.', 'nso', 'Tobetša Romela go e romela go {desks}.'),
@@ -24719,7 +24715,8 @@ from (values
 ('SGA (iGel/LMA)', 'nso', 'SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 'nso', 'ŠIFI GA E ESO THOME'),
 ('SIM number', 'nso', 'Nomoro ya SIM'),
-('SIRA grade', 'nso', 'Kreiti ya SIRA')
+('SIRA grade', 'nso', 'Kreiti ya SIRA'),
+('SIRA number', 'nso', 'Nomoro ya SIRA')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -24729,7 +24726,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 'nso', 'Nomoro ya SIRA'),
 ('SIRA-compliant register entry.', 'nso', 'Tsenyo ya rejisetara ye e obamelago SIRA.'),
 ('SOS', 'nso', 'SOS'),
 ('SOS active', 'nso', 'SOS e a šoma'),
@@ -25228,7 +25224,8 @@ from (values
 ('Status', 'nso', 'Seemo'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 'nso', 'Diphetogo tša seemo, dintlha le {media} di fihla sevareng ge o ntše o di tšea.'),
 ('Status now', 'nso', 'Seemo bjale'),
-('Status now:', 'nso', 'Seemo bjale:')
+('Status now:', 'nso', 'Seemo bjale:'),
+('Status {status}. Mid-year average {value} / 5.', 'nso', 'Seemo {status}. Palogare ya gare ga ngwaga {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -25238,7 +25235,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 'nso', 'Seemo {status}. Palogare ya gare ga ngwaga {value} / 5.'),
 ('Status → {status}', 'nso', 'Seemo → {status}'),
 ('Statute / act', 'nso', 'Molao / molaotheo'),
 ('Stays on the map', 'nso', 'E dula mmapeng'),
@@ -25737,7 +25733,8 @@ from (values
 ('Type it again', 'nso', 'E ngwale gape'),
 ('Type its number', 'nso', 'Ngwala nomoro ya yona'),
 ('Type of arrest', 'nso', 'Mohuta wa go swarwa'),
-('Type of incident', 'nso', 'Mohuta wa tiragalo')
+('Type of incident', 'nso', 'Mohuta wa tiragalo'),
+('Type of shooting', 'nso', 'Mohuta wa go thunya')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -25747,7 +25744,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 'nso', 'Mohuta wa go thunya'),
 ('Type the slug to confirm', 'nso', 'Ngwala slug go netefatša'),
 ('Type: {type} · Location: {location}', 'nso', 'Mohuta: {type} · Lefelo: {location}'),
 ('Tyre Burst', 'nso', 'Go Thuthupa ga Thaere'),
@@ -26246,7 +26242,8 @@ from (values
 ('Your radio', 'nso', 'Radio ya gago'),
 ('Your radio and hard hat', 'nso', 'Radio ya gago le kefa ya tšhireletšo'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 'nso', 'Tekolo ya gago ya go itokišetša le tekolo ya koloi ya mollo ye e saennwego di rekotong.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'nso', 'Tekolo ya gago ya go itokišetša le tekolo ya ambulense le dithoto di rekotong. Ambulense e hlwekile ebile e loketše.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'nso', 'Tekolo ya gago ya go itokišetša le tekolo ya ambulense le dithoto di rekotong. Ambulense e hlwekile ebile e loketše.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'nso', 'Kanegelo ya gago ya go itokišetša e rekotong. Ga o dumelelwe go tsena mošomong. Ikgokaganye le molaodi wa šifi ya gago pele o tšwela pele.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -26256,7 +26253,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'nso', 'Kanegelo ya gago ya go itokišetša e rekotong. Ga o dumelelwe go tsena mošomong. Ikgokaganye le molaodi wa šifi ya gago pele o tšwela pele.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 'nso', 'Kanegelo ya gago ya go itokišetša e rekotong. Ga o dumelelwe go tsena mošomong. Ikgokaganye le mohlankedi wa seteišene sa gago goba molaodi pele o tšwela pele.'),
 ('Your recent checks', 'nso', 'Ditekolo tša gago tša morago bjale'),
 ('Your report for {incident_number} is on record.', 'nso', 'Pego ya gago ya {incident_number} e rekotong.'),
@@ -26755,7 +26751,8 @@ from (values
 ('{type} · {from} to {to}', 'nso', '{type} · {from} go fihla {to}'),
 ('{type}, {from} to {to}.', 'nso', '{type}, {from} go fihla {to}.'),
 ('{unit_number} {name}, taken', 'nso', '{unit_number} {name}, e tšerwe'),
-('{unit} failed a vehicle check and is out of service', 'nso', '{unit} e paletšwe ke tekolo ya koloi gomme ga e šome')
+('{unit} failed a vehicle check and is out of service', 'nso', '{unit} e paletšwe ke tekolo ya koloi gomme ga e šome'),
+('{unit} is back in the pool.', 'nso', '{unit} e boetše sehlopheng.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -26765,7 +26762,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 'nso', '{unit} e boetše sehlopheng.'),
 ('{unit} is booked for maintenance.', 'nso', '{unit} e bukeletšwe go lokišwa.'),
 ('{unit} is handed back at {km} km.', 'nso', '{unit} e bušeditšwe ka {km} km.'),
 ('{unit} is handed back for maintenance at {km} km.', 'nso', '{unit} e bušeditšwe go lokišwa ka {km} km.'),
@@ -26854,7 +26850,7 @@ on conflict (key, lang) do update
  where not (t.status = 'approved' and t.drafted_by = 'person');
 commit;
 
--- Setswana: 6582 translations by Claude, approved on the
+-- Setswana: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -28439,7 +28435,6 @@ from (values
 ('Disaster Management assessment', 'tn', 'Tshekatsheko ya Taolo ya Maswe'),
 ('Disaster Mgmt', 'tn', 'Tsamaiso ya masetlapelo'),
 ('Disaster management', 'tn', 'Tsamaiso ya masetlapelo'),
-('Disaster map', 'tn', 'Mmapa wa masetlapelo'),
 ('Disc', 'tn', 'Tisiki'),
 ('Discard', 'tn', 'Latlha'),
 ('Discard this update', 'tn', 'Latlha ntšhafatso eno'),
@@ -28887,7 +28882,8 @@ from (values
 ('Fire report', 'tn', 'Pego ya molelo'),
 ('Fire report already filed', 'tn', 'Pego ya molelo e setse e rometswe'),
 ('Fire report filed', 'tn', 'Pego ya molelo e rometswe'),
-('Fire report · {value}', 'tn', 'Pego ya molelo · {value}')
+('Fire report · {value}', 'tn', 'Pego ya molelo · {value}'),
+('Fire reports', 'tn', 'Dipego tsa molelo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -28897,7 +28893,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 'tn', 'Dipego tsa molelo'),
 ('Fire station', 'tn', 'Seteišene sa bazimamolelo'),
 ('Fire with people trapped', 'tn', 'Molelo o o nang le batho ba ba tshwerweng'),
 ('Fire, flood, gas, chemical or structural danger.', 'tn', 'Kotsi ya molelo, ya morwalela, ya gase, ya dikhemikale kgotsa ya kago.'),
@@ -29396,7 +29391,8 @@ from (values
 ('Injuries', 'tn', 'Dikgobalo'),
 ('Injuries / treatment', 'tn', 'Dikgobalo / kalafi'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 'tn', 'Go tsena go tsamaisanngwa le go tswa ga motho mongwe le mongwe; yo o santseng a dira o balelwa go fitlha jaanong.{value}'),
-('Insights & Tools', 'tn', 'Kitso le didirisiwa')
+('Insights & Tools', 'tn', 'Kitso le didirisiwa'),
+('Inspect', 'tn', 'Tlhatlhoba')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -29406,7 +29402,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 'tn', 'Tlhatlhoba'),
 ('Inspect again', 'tn', 'Tlhatlhoba gape'),
 ('Inspect {name}', 'tn', 'Tlhatlhoba {name}'),
 ('Inspected', 'tn', 'E tlhatlhobilwe'),
@@ -29905,7 +29900,8 @@ from (values
 ('Metro Police inspection badge', 'tn', 'Beche ya tlhatlhobo ya Mapodisi a Metro'),
 ('Metro Police officers and command staff check what is owed.', 'tn', 'Bahlankedi ba Mapodisi a Metro le balaodi ba lekola se se kolotiwang.'),
 ('Metro Police · Captain', 'tn', 'Mapodisi a Metro · Kapotene'),
-('Metro Police · Enforcement', 'tn', 'Mapodisi a Metro · Tiragatso ya molao')
+('Metro Police · Enforcement', 'tn', 'Mapodisi a Metro · Tiragatso ya molao'),
+('Microphone permission denied.', 'tn', 'Tetla ya maekerofouno e gannwe.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -29915,7 +29911,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 'tn', 'Tetla ya maekerofouno e gannwe.'),
 ('Mileage', 'tn', 'Dikhilomitara'),
 ('Milestones from call to close.', 'tn', 'Dikgato tsa botlhokwa go simolola mo mogaleng go fitlha go tswalwa.'),
 ('Military', 'tn', 'Tsa sesole'),
@@ -30414,7 +30409,8 @@ from (values
 ('Nothing attended in {period}.', 'tn', 'Ga go na se se etetsweng ka {period}.'),
 ('Nothing attended today.', 'tn', 'Ga go na se se etetsweng gompieno.'),
 ('Nothing closed yet.', 'tn', 'Ga go na se se tswaletsweng go fitlha jaanong.'),
-('Nothing decided yet.', 'tn', 'Ga go na se se tsweletsweng go fitlha jaanong.')
+('Nothing decided yet.', 'tn', 'Ga go na se se tsweletsweng go fitlha jaanong.'),
+('Nothing due in the next two weeks.', 'tn', 'Ga go na se se tshwanetseng go dirwa mo dibekeng tse pedi tse di latelang.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -30424,7 +30420,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 'tn', 'Ga go na se se tshwanetseng go dirwa mo dibekeng tse pedi tse di latelang.'),
 ('Nothing expiring this month.', 'tn', 'Ga go na se se felelwang ke nako mo kgweding eno.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 'tn', 'Ga go na se se bonweng sa “{value}”. Leka mmila kgotsa lefelo le le gaufi, kgotsa o tobetse mmapa.'),
 ('Nothing here yet.', 'tn', 'Ga go na sepe fano go fitlha jaanong.'),
@@ -30923,7 +30918,8 @@ from (values
 ('Pregnancy complications', 'tn', 'Mathata a boimana'),
 ('Premises register', 'tn', 'Rejisetara ya mafelo'),
 ('Preparing the fire report…', 'tn', 'Go baakanngwa pego ya molelo…'),
-('Preparing the report…', 'tn', 'Go baakanngwa pego…')
+('Preparing the report…', 'tn', 'Go baakanngwa pego…'),
+('Prescription & OTC', 'tn', 'Tse di kwaletsweng le tse di rekiwang kwa ntle ga lekwalo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -30933,7 +30929,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 'tn', 'Tse di kwaletsweng le tse di rekiwang kwa ntle ga lekwalo'),
 ('Presenting Problem', 'tn', 'Bothata jo bo Leng Teng'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 'tn', 'Tobetsa Gatisa. Leswao lengwe le lengwe la pitso le kwadilwe le maloko a lone, koloi le lefelo.'),
 ('Press Send to send it to {desks}.', 'tn', 'Tobetsa Romela go e romela kwa {desks}.'),
@@ -31432,7 +31427,8 @@ from (values
 ('SGA (iGel/LMA)', 'tn', 'SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 'tn', 'ŠIFITI GA E ISE E SIMOLOLE'),
 ('SIM number', 'tn', 'Nomore ya SIM'),
-('SIRA grade', 'tn', 'Kereiti ya SIRA')
+('SIRA grade', 'tn', 'Kereiti ya SIRA'),
+('SIRA number', 'tn', 'Nomore ya SIRA')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -31442,7 +31438,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 'tn', 'Nomore ya SIRA'),
 ('SIRA-compliant register entry.', 'tn', 'Tsenyo ya rejisetara e e obamelang SIRA.'),
 ('SOS', 'tn', 'SOS'),
 ('SOS active', 'tn', 'SOS e a dira'),
@@ -31941,7 +31936,8 @@ from (values
 ('Status', 'tn', 'Seemo'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 'tn', 'Diphetogo tsa seemo, dintlha le {media} di goroga mo seveng fa o ntse o di tsaya.'),
 ('Status now', 'tn', 'Seemo jaanong'),
-('Status now:', 'tn', 'Seemo jaanong:')
+('Status now:', 'tn', 'Seemo jaanong:'),
+('Status {status}. Mid-year average {value} / 5.', 'tn', 'Seemo {status}. Palogare ya fa gare ga ngwaga {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -31951,7 +31947,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 'tn', 'Seemo {status}. Palogare ya fa gare ga ngwaga {value} / 5.'),
 ('Status → {status}', 'tn', 'Seemo → {status}'),
 ('Statute / act', 'tn', 'Molao / molaotheo'),
 ('Stays on the map', 'tn', 'E nna mo mmapeng'),
@@ -32450,7 +32445,8 @@ from (values
 ('Type it again', 'tn', 'E kwale gape'),
 ('Type its number', 'tn', 'Kwala nomore ya yone'),
 ('Type of arrest', 'tn', 'Mofuta wa go tshwarwa'),
-('Type of incident', 'tn', 'Mofuta wa tiragalo')
+('Type of incident', 'tn', 'Mofuta wa tiragalo'),
+('Type of shooting', 'tn', 'Mofuta wa go thunya')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -32460,7 +32456,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 'tn', 'Mofuta wa go thunya'),
 ('Type the slug to confirm', 'tn', 'Kwala slug go netefatsa'),
 ('Type: {type} · Location: {location}', 'tn', 'Mofuta: {type} · Lefelo: {location}'),
 ('Tyre Burst', 'tn', 'Go Thubega ga Thaere'),
@@ -32959,7 +32954,8 @@ from (values
 ('Your radio', 'tn', 'Radio ya gago'),
 ('Your radio and hard hat', 'tn', 'Radio ya gago le kepisi ya tshireletso'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 'tn', 'Tlhatlhobo ya gago ya go ipaakanya le tlhatlhobo ya koloi ya molelo e e saenilweng di mo rekotong.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'tn', 'Tlhatlhobo ya gago ya go ipaakanya le tlhatlhobo ya ambulense le dithoto di mo rekotong. Ambulense e phepa e bile e siametse.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'tn', 'Tlhatlhobo ya gago ya go ipaakanya le tlhatlhobo ya ambulense le dithoto di mo rekotong. Ambulense e phepa e bile e siametse.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'tn', 'Kanegelo ya gago ya go ipaakanya e mo rekotong. Ga o letlelelwe go tsena mo tirong. Ikgolaganye le motsamaisi wa šifiti ya gago pele o tswelela.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -32969,7 +32965,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'tn', 'Kanegelo ya gago ya go ipaakanya e mo rekotong. Ga o letlelelwe go tsena mo tirong. Ikgolaganye le motsamaisi wa šifiti ya gago pele o tswelela.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 'tn', 'Kanegelo ya gago ya go ipaakanya e mo rekotong. Ga o letlelelwe go tsena mo tirong. Ikgolaganye le mohlankedi wa seteišene sa gago kgotsa motsamaisi pele o tswelela.'),
 ('Your recent checks', 'tn', 'Ditlhatlhobo tsa gago tsa bosheng'),
 ('Your report for {incident_number} is on record.', 'tn', 'Pego ya gago ya {incident_number} e mo rekotong.'),
@@ -33468,7 +33463,8 @@ from (values
 ('{type} · {from} to {to}', 'tn', '{type} · {from} go fitlha {to}'),
 ('{type}, {from} to {to}.', 'tn', '{type}, {from} go fitlha {to}.'),
 ('{unit_number} {name}, taken', 'tn', '{unit_number} {name}, e tserwe'),
-('{unit} failed a vehicle check and is out of service', 'tn', '{unit} e paletswe ke tlhatlhobo ya koloi mme ga e dire')
+('{unit} failed a vehicle check and is out of service', 'tn', '{unit} e paletswe ke tlhatlhobo ya koloi mme ga e dire'),
+('{unit} is back in the pool.', 'tn', '{unit} e boetse mo setlhopheng.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -33478,7 +33474,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 'tn', '{unit} e boetse mo setlhopheng.'),
 ('{unit} is booked for maintenance.', 'tn', '{unit} e bukeletswe go baakanngwa.'),
 ('{unit} is handed back at {km} km.', 'tn', '{unit} e buseditswe ka {km} km.'),
 ('{unit} is handed back for maintenance at {km} km.', 'tn', '{unit} e buseditswe go baakanngwa ka {km} km.'),
@@ -33567,7 +33562,7 @@ on conflict (key, lang) do update
  where not (t.status = 'approved' and t.drafted_by = 'person');
 commit;
 
--- Sesotho: 6582 translations by Claude, approved on the
+-- Sesotho: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -35152,7 +35147,6 @@ from (values
 ('Disaster Management assessment', 'st', 'Tlhahlobo ya Taolo ya Dikotsi'),
 ('Disaster Mgmt', 'st', 'Tsamaiso ya dikotsi tse kgolo'),
 ('Disaster management', 'st', 'Tsamaiso ya dikotsi tse kgolo'),
-('Disaster map', 'st', 'Mmapa wa dikotsi tse kgolo'),
 ('Disc', 'st', 'Tisiki'),
 ('Discard', 'st', 'Lahla'),
 ('Discard this update', 'st', 'Lahla ntjhafatso ena'),
@@ -35600,7 +35594,8 @@ from (values
 ('Fire report', 'st', 'Tlaleho ya mollo'),
 ('Fire report already filed', 'st', 'Tlaleho ya mollo e se e rometswe'),
 ('Fire report filed', 'st', 'Tlaleho ya mollo e rometswe'),
-('Fire report · {value}', 'st', 'Tlaleho ya mollo · {value}')
+('Fire report · {value}', 'st', 'Tlaleho ya mollo · {value}'),
+('Fire reports', 'st', 'Ditlaleho tsa mollo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -35610,7 +35605,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 'st', 'Ditlaleho tsa mollo'),
 ('Fire station', 'st', 'Seteishene sa batimamollo'),
 ('Fire with people trapped', 'st', 'Mollo o nang le batho ba tshwasitsweng'),
 ('Fire, flood, gas, chemical or structural danger.', 'st', 'Kotsi ya mollo, ya morallo, ya kgase, ya dikhemikhale kapa ya moaho.'),
@@ -36109,7 +36103,8 @@ from (values
 ('Injuries', 'st', 'Dikotsi'),
 ('Injuries / treatment', 'st', 'Dikotsi / phekolo'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 'st', 'Ho kena ho bapisitswe le ho tswa ka motho; ya ntseng a sebetsa o balwa ho fihlela hona jwale.{value}'),
-('Insights & Tools', 'st', 'Dikgopolo le Disebediswa')
+('Insights & Tools', 'st', 'Dikgopolo le Disebediswa'),
+('Inspect', 'st', 'Hlahloba')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -36119,7 +36114,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 'st', 'Hlahloba'),
 ('Inspect again', 'st', 'Hlahloba hape'),
 ('Inspect {name}', 'st', 'Hlahloba {name}'),
 ('Inspected', 'st', 'E hlahlobilwe'),
@@ -36618,7 +36612,8 @@ from (values
 ('Metro Police inspection badge', 'st', 'Beche ya tlhahlobo ya Mapolesa a Metro'),
 ('Metro Police officers and command staff check what is owed.', 'st', 'Diofisiri tsa Mapolesa a Metro le balaodi ba hlahloba se kolotwang.'),
 ('Metro Police · Captain', 'st', 'Mapolesa a Metro · Kaptene'),
-('Metro Police · Enforcement', 'st', 'Mapolesa a Metro · Phethahatso ya molao')
+('Metro Police · Enforcement', 'st', 'Mapolesa a Metro · Phethahatso ya molao'),
+('Microphone permission denied.', 'st', 'Tumello ya maekrofounu e hannwe.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -36628,7 +36623,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 'st', 'Tumello ya maekrofounu e hannwe.'),
 ('Mileage', 'st', 'Dikhilomitara'),
 ('Milestones from call to close.', 'st', 'Mehato ya bohlokwa ho tloha mohaleng ho isa ho kwalweng.'),
 ('Military', 'st', 'Tsa sesole'),
@@ -37127,7 +37121,8 @@ from (values
 ('Nothing attended in {period}.', 'st', 'Ha ho se ileng sa etelwa ka {period}.'),
 ('Nothing attended today.', 'st', 'Ha ho se ileng sa etelwa kajeno.'),
 ('Nothing closed yet.', 'st', 'Ha ho se kwetsweng ho fihlela hajwale.'),
-('Nothing decided yet.', 'st', 'Ha ho se etseditsweng qeto ho fihlela hajwale.')
+('Nothing decided yet.', 'st', 'Ha ho se etseditsweng qeto ho fihlela hajwale.'),
+('Nothing due in the next two weeks.', 'st', 'Ha ho se tshwanetseng ho etswa dibekeng tse pedi tse latelang.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -37137,7 +37132,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 'st', 'Ha ho se tshwanetseng ho etswa dibekeng tse pedi tse latelang.'),
 ('Nothing expiring this month.', 'st', 'Ha ho se felloang ke nako kgweding ena.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 'st', 'Ha ho se fumanweng sa “{value}”. Leka seterata kapa sebaka se haufi, kapa o tobetse mmapa.'),
 ('Nothing here yet.', 'st', 'Ha ho letho mona ho fihlela hajwale.'),
@@ -37636,7 +37630,8 @@ from (values
 ('Pregnancy complications', 'st', 'Mathata a boimana'),
 ('Premises register', 'st', 'Rejisetara ya meaho'),
 ('Preparing the fire report…', 'st', 'Ho lokiswa tlaleho ya mollo…'),
-('Preparing the report…', 'st', 'Ho lokiswa tlaleho…')
+('Preparing the report…', 'st', 'Ho lokiswa tlaleho…'),
+('Prescription & OTC', 'st', 'Tse ngoletsweng le tse rekwang ntle le lengolo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -37646,7 +37641,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 'st', 'Tse ngoletsweng le tse rekwang ntle le lengolo'),
 ('Presenting Problem', 'st', 'Bothata bo Teng'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 'st', 'Tobetsa Hatisa. Letshwao le leng le le leng la pitso le ngotswe le ditho tsa lona, koloi le sebaka.'),
 ('Press Send to send it to {desks}.', 'st', 'Tobetsa Romela ho e romela ho {desks}.'),
@@ -38145,7 +38139,8 @@ from (values
 ('SGA (iGel/LMA)', 'st', 'SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 'st', 'SHIFI HA E ESO QALE'),
 ('SIM number', 'st', 'Nomoro ya SIM'),
-('SIRA grade', 'st', 'Kereiti ya SIRA')
+('SIRA grade', 'st', 'Kereiti ya SIRA'),
+('SIRA number', 'st', 'Nomoro ya SIRA')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -38155,7 +38150,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 'st', 'Nomoro ya SIRA'),
 ('SIRA-compliant register entry.', 'st', 'Kenyo ya rejisetara e latelang SIRA.'),
 ('SOS', 'st', 'SOS'),
 ('SOS active', 'st', 'SOS e a sebetsa'),
@@ -38654,7 +38648,8 @@ from (values
 ('Status', 'st', 'Boemo'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 'st', 'Diphetoho tsa boemo, dintlha le {media} di fihla sevareng ha o ntse o di nka.'),
 ('Status now', 'st', 'Boemo hona jwale'),
-('Status now:', 'st', 'Boemo hona jwale:')
+('Status now:', 'st', 'Boemo hona jwale:'),
+('Status {status}. Mid-year average {value} / 5.', 'st', 'Boemo {status}. Karolelano ya bohareng ba selemo {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -38664,7 +38659,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 'st', 'Boemo {status}. Karolelano ya bohareng ba selemo {value} / 5.'),
 ('Status → {status}', 'st', 'Boemo → {status}'),
 ('Statute / act', 'st', 'Molao / molaotheo'),
 ('Stays on the map', 'st', 'E dula mmapeng'),
@@ -39163,7 +39157,8 @@ from (values
 ('Type it again', 'st', 'E ngole hape'),
 ('Type its number', 'st', 'Ngola nomoro ya yona'),
 ('Type of arrest', 'st', 'Mofuta wa ho tshwarwa'),
-('Type of incident', 'st', 'Mofuta wa ketsahalo')
+('Type of incident', 'st', 'Mofuta wa ketsahalo'),
+('Type of shooting', 'st', 'Mofuta wa ho thunya')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -39173,7 +39168,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 'st', 'Mofuta wa ho thunya'),
 ('Type the slug to confirm', 'st', 'Ngola slug ho netefatsa'),
 ('Type: {type} · Location: {location}', 'st', 'Mofuta: {type} · Sebaka: {location}'),
 ('Tyre Burst', 'st', 'Ho Phatloha ha Thaere'),
@@ -39672,7 +39666,8 @@ from (values
 ('Your radio', 'st', 'Radio ya hao'),
 ('Your radio and hard hat', 'st', 'Radio ya hao le katiba ya tshireletso'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 'st', 'Tlhahlobo ya hao ya ho itokisa le tlhahlobo ya koloi ya mollo e saennweng di rekotong.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'st', 'Tlhahlobo ya hao ya ho itokisa le tlhahlobo ya ambulense le thepa di rekotong. Ambulense e hlwekile mme e lokile.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'st', 'Tlhahlobo ya hao ya ho itokisa le tlhahlobo ya ambulense le thepa di rekotong. Ambulense e hlwekile mme e lokile.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'st', 'Phatlalatso ya hao ya ho itokisa e rekotong. Ha o dumellwe ho kena mosebetsing. Ikopanye le mookamedi wa shifi ya hao pele o tswela pele.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -39682,7 +39677,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'st', 'Phatlalatso ya hao ya ho itokisa e rekotong. Ha o dumellwe ho kena mosebetsing. Ikopanye le mookamedi wa shifi ya hao pele o tswela pele.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 'st', 'Phatlalatso ya hao ya ho itokisa e rekotong. Ha o dumellwe ho kena mosebetsing. Ikopanye le mohlankedi wa seteishene sa hao kapa mookamedi pele o tswela pele.'),
 ('Your recent checks', 'st', 'Ditlhahlobo tsa hao tsa morao tjena'),
 ('Your report for {incident_number} is on record.', 'st', 'Tlaleho ya hao ya {incident_number} e rekotong.'),
@@ -40181,7 +40175,8 @@ from (values
 ('{type} · {from} to {to}', 'st', '{type} · {from} ho fihlela {to}'),
 ('{type}, {from} to {to}.', 'st', '{type}, {from} ho fihlela {to}.'),
 ('{unit_number} {name}, taken', 'st', '{unit_number} {name}, e nkilwe'),
-('{unit} failed a vehicle check and is out of service', 'st', '{unit} e hlolehile tlhahlobong ya koloi mme ha e sebetse')
+('{unit} failed a vehicle check and is out of service', 'st', '{unit} e hlolehile tlhahlobong ya koloi mme ha e sebetse'),
+('{unit} is back in the pool.', 'st', '{unit} e kgutletse sehlopheng.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -40191,7 +40186,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 'st', '{unit} e kgutletse sehlopheng.'),
 ('{unit} is booked for maintenance.', 'st', '{unit} e bukeletswe ho lokiswa.'),
 ('{unit} is handed back at {km} km.', 'st', '{unit} e kgutlisitswe ka {km} km.'),
 ('{unit} is handed back for maintenance at {km} km.', 'st', '{unit} e kgutlisitswe ho lokiswa ka {km} km.'),
@@ -40280,7 +40274,7 @@ on conflict (key, lang) do update
  where not (t.status = 'approved' and t.drafted_by = 'person');
 commit;
 
--- Xitsonga: 6582 translations by Claude, approved on the
+-- Xitsonga: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -41865,7 +41859,6 @@ from (values
 ('Disaster Management assessment', 'ts', 'Nkambelo wa Vulawuri bya Timhangu'),
 ('Disaster Mgmt', 'ts', 'Vulawuri bya makhombo lamakulu'),
 ('Disaster management', 'ts', 'Vulawuri bya makhombo lamakulu'),
-('Disaster map', 'ts', 'Mepe wa makhombo lamakulu'),
 ('Disc', 'ts', 'Disiki'),
 ('Discard', 'ts', 'Cukumeta'),
 ('Discard this update', 'ts', 'Cukumeta mpfuxeto lowu'),
@@ -42313,7 +42306,8 @@ from (values
 ('Fire report', 'ts', 'Xiviko xa ndzilo'),
 ('Fire report already filed', 'ts', 'Xiviko xa ndzilo xi se xi nghenisiwile'),
 ('Fire report filed', 'ts', 'Xiviko xa ndzilo xi nghenisiwile'),
-('Fire report · {value}', 'ts', 'Xiviko xa ndzilo · {value}')
+('Fire report · {value}', 'ts', 'Xiviko xa ndzilo · {value}'),
+('Fire reports', 'ts', 'Swiviko swa ndzilo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -42323,7 +42317,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 'ts', 'Swiviko swa ndzilo'),
 ('Fire station', 'ts', 'Xitichi xa vadzimi va ndzilo'),
 ('Fire with people trapped', 'ts', 'Ndzilo lowu nga na vanhu lava khomiweke'),
 ('Fire, flood, gas, chemical or structural danger.', 'ts', 'Khombo ra ndzilo, ra ndhambi, ra gasi, ra tikhemikhali kumbe ra xakhiwo.'),
@@ -42822,7 +42815,8 @@ from (values
 ('Injuries', 'ts', 'Ku vaviseka'),
 ('Injuries / treatment', 'ts', 'Ku vaviseka / vutshunguri'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 'ts', 'Ku nghena ku fambisiwa na ku huma hi munhu; loyi a ha tirhaka u hlayeriwa ku fikela sweswi.{value}'),
-('Insights & Tools', 'ts', 'Vutivi na Switirho')
+('Insights & Tools', 'ts', 'Vutivi na Switirho'),
+('Inspect', 'ts', 'Kambela')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -42832,7 +42826,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 'ts', 'Kambela'),
 ('Inspect again', 'ts', 'Kambela nakambe'),
 ('Inspect {name}', 'ts', 'Kambela {name}'),
 ('Inspected', 'ts', 'Yi kamberiwile'),
@@ -43331,7 +43324,8 @@ from (values
 ('Metro Police inspection badge', 'ts', 'Beji ya nkambelo ya Maphorisa ya Metro'),
 ('Metro Police officers and command staff check what is owed.', 'ts', 'Tiofisiri ta Maphorisa ya Metro na valawuri va kambela leswi kolotiwaka.'),
 ('Metro Police · Captain', 'ts', 'Maphorisa ya Metro · Kaptheni'),
-('Metro Police · Enforcement', 'ts', 'Maphorisa ya Metro · Ku tirhisa nawu')
+('Metro Police · Enforcement', 'ts', 'Maphorisa ya Metro · Ku tirhisa nawu'),
+('Microphone permission denied.', 'ts', 'Mpfumelelo wa maykrofoni wu ariwile.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -43341,7 +43335,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 'ts', 'Mpfumelelo wa maykrofoni wu ariwile.'),
 ('Mileage', 'ts', 'Tikhilomitara'),
 ('Milestones from call to close.', 'ts', 'Magoza ya nkoka ku suka eka riqingho ku fikela ku pfariwa.'),
 ('Military', 'ts', 'Swa vusocha'),
@@ -43840,7 +43833,8 @@ from (values
 ('Nothing attended in {period}.', 'ts', 'A ku na leswi enduriweke hi {period}.'),
 ('Nothing attended today.', 'ts', 'A ku na leswi enduriweke namuntlha.'),
 ('Nothing closed yet.', 'ts', 'A ku si na leswi pfariweke.'),
-('Nothing decided yet.', 'ts', 'A ku si na leswi bohiweke.')
+('Nothing decided yet.', 'ts', 'A ku si na leswi bohiweke.'),
+('Nothing due in the next two weeks.', 'ts', 'A ku na leswi faneleke ku endliwa eka mavhiki mambirhi lama landzelaka.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -43850,7 +43844,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 'ts', 'A ku na leswi faneleke ku endliwa eka mavhiki mambirhi lama landzelaka.'),
 ('Nothing expiring this month.', 'ts', 'A ku na leswi hela nkarhi eka n''hweti leyi.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 'ts', 'A ku na leswi kumiweke swa “{value}”. Ringeta xitarata kumbe ndhawu leyi nga kusuhi, kumbe u tshikelela mepe.'),
 ('Nothing here yet.', 'ts', 'A ku si na nchumu laha.'),
@@ -44349,7 +44342,8 @@ from (values
 ('Pregnancy complications', 'ts', 'Swiphiqo swa ku tika'),
 ('Premises register', 'ts', 'Rhijisitara ya tindhawu'),
 ('Preparing the fire report…', 'ts', 'Ku lunghiseriwa xiviko xa ndzilo…'),
-('Preparing the report…', 'ts', 'Ku lunghiseriwa xiviko…')
+('Preparing the report…', 'ts', 'Ku lunghiseriwa xiviko…'),
+('Prescription & OTC', 'ts', 'Leswi tsariweke hi dokodela na leswi xaviwaka handle ka papila')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -44359,7 +44353,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 'ts', 'Leswi tsariweke hi dokodela na leswi xaviwaka handle ka papila'),
 ('Presenting Problem', 'ts', 'Xiphiqo lexi nga Kona'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 'ts', 'Tshikelela Kandziyisa. Mfungho wun''wana ni wun''wana wa ku vitana wu tsariwile na swirho swa wona, movha na ndhawu.'),
 ('Press Send to send it to {desks}.', 'ts', 'Tshikelela Rhumela ku yi rhumela eka {desks}.'),
@@ -44858,7 +44851,8 @@ from (values
 ('SGA (iGel/LMA)', 'ts', 'SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 'ts', 'SHIFITI A YI SI SUNGULA'),
 ('SIM number', 'ts', 'Nomboro ya SIM'),
-('SIRA grade', 'ts', 'Ntlawa wa SIRA')
+('SIRA grade', 'ts', 'Ntlawa wa SIRA'),
+('SIRA number', 'ts', 'Nomboro ya SIRA')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -44868,7 +44862,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 'ts', 'Nomboro ya SIRA'),
 ('SIRA-compliant register entry.', 'ts', 'Ku nghenisa eka rhijisitara loku yingisaka SIRA.'),
 ('SOS', 'ts', 'SOS'),
 ('SOS active', 'ts', 'SOS ya tirha'),
@@ -45367,7 +45360,8 @@ from (values
 ('Status', 'ts', 'Xiyimo'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 'ts', 'Ku cinca ka xiyimo, swintsundzuxo na {media} swi fika eka sevha loko u ri karhi u swi teka.'),
 ('Status now', 'ts', 'Xiyimo sweswi'),
-('Status now:', 'ts', 'Xiyimo sweswi:')
+('Status now:', 'ts', 'Xiyimo sweswi:'),
+('Status {status}. Mid-year average {value} / 5.', 'ts', 'Xiyimo {status}. Avhareji ya le xikarhi ka lembe {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -45377,7 +45371,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 'ts', 'Xiyimo {status}. Avhareji ya le xikarhi ka lembe {value} / 5.'),
 ('Status → {status}', 'ts', 'Xiyimo → {status}'),
 ('Statute / act', 'ts', 'Nawu / xiendlo'),
 ('Stays on the map', 'ts', 'Swi tshama eka mepe'),
@@ -45876,7 +45869,8 @@ from (values
 ('Type it again', 'ts', 'Yi thayipe nakambe'),
 ('Type its number', 'ts', 'Thayipa nomboro ya yona'),
 ('Type of arrest', 'ts', 'Muxaka wa ku khomiwa'),
-('Type of incident', 'ts', 'Muxaka wa xiendlakalo')
+('Type of incident', 'ts', 'Muxaka wa xiendlakalo'),
+('Type of shooting', 'ts', 'Muxaka wo ba hi xibamu')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -45886,7 +45880,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 'ts', 'Muxaka wo ba hi xibamu'),
 ('Type the slug to confirm', 'ts', 'Thayipa slug ku tiyisisa'),
 ('Type: {type} · Location: {location}', 'ts', 'Muxaka: {type} · Ndhawu: {location}'),
 ('Tyre Burst', 'ts', 'Ku Buluka ka Thayere'),
@@ -46385,7 +46378,8 @@ from (values
 ('Your radio', 'ts', 'Radiyo ya wena'),
 ('Your radio and hard hat', 'ts', 'Radiyo ya wena na xihuku xa nsirhelelo'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 'ts', 'Nkambelo wa wena wa ku tilulamisela na nkambelo wa movha wa ndzilo lowu sayiniweke swi le ka rhekhodo.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'ts', 'Nkambelo wa wena wa ku tilulamisela na nkambelo wa ambulense na nhundzu swi le ka rhekhodo. Ambulense yi basile naswona yi lunghekile.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'ts', 'Nkambelo wa wena wa ku tilulamisela na nkambelo wa ambulense na nhundzu swi le ka rhekhodo. Ambulense yi basile naswona yi lunghekile.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'ts', 'Xiboho xa wena xa ku tilulamisela xi le ka rhekhodo. A wu pfumeleriwi ku nghena entirhweni. Tihlanganisa na mulanguteri wa shifiti ya wena u nga si ya emahlweni.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -46395,7 +46389,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'ts', 'Xiboho xa wena xa ku tilulamisela xi le ka rhekhodo. A wu pfumeleriwi ku nghena entirhweni. Tihlanganisa na mulanguteri wa shifiti ya wena u nga si ya emahlweni.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 'ts', 'Xiboho xa wena xa ku tilulamisela xi le ka rhekhodo. A wu pfumeleriwi ku nghena entirhweni. Tihlanganisa na ofisiri wa xitichi xa wena kumbe mulanguteri u nga si ya emahlweni.'),
 ('Your recent checks', 'ts', 'Minkambelo ya wena ya sweswinyana'),
 ('Your report for {incident_number} is on record.', 'ts', 'Xiviko xa wena xa {incident_number} xi le ka rhekhodo.'),
@@ -46894,7 +46887,8 @@ from (values
 ('{type} · {from} to {to}', 'ts', '{type} · {from} ku fikela {to}'),
 ('{type}, {from} to {to}.', 'ts', '{type}, {from} ku fikela {to}.'),
 ('{unit_number} {name}, taken', 'ts', '{unit_number} {name}, yi tekiwile'),
-('{unit} failed a vehicle check and is out of service', 'ts', '{unit} yi tsandzekile eka nkambelo wa movha naswona a yi tirhi')
+('{unit} failed a vehicle check and is out of service', 'ts', '{unit} yi tsandzekile eka nkambelo wa movha naswona a yi tirhi'),
+('{unit} is back in the pool.', 'ts', '{unit} yi tlhelerile eka ntlawa.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -46904,7 +46898,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 'ts', '{unit} yi tlhelerile eka ntlawa.'),
 ('{unit} is booked for maintenance.', 'ts', '{unit} yi bukeleriwile ku lunghisiwa.'),
 ('{unit} is handed back at {km} km.', 'ts', '{unit} yi tlheriseriwile hi {km} km.'),
 ('{unit} is handed back for maintenance at {km} km.', 'ts', '{unit} yi tlheriseriwile ku lunghisiwa hi {km} km.'),
@@ -46993,7 +46986,7 @@ on conflict (key, lang) do update
  where not (t.status = 'approved' and t.drafted_by = 'person');
 commit;
 
--- siSwati: 6582 translations by Claude, approved on the
+-- siSwati: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -48578,7 +48571,6 @@ from (values
 ('Disaster Management assessment', 'ss', 'Kuhlola Kwekuphatfwa Kwetinhlekelele'),
 ('Disaster Mgmt', 'ss', 'Kuphatfwa kwetinhlekelele'),
 ('Disaster management', 'ss', 'Kuphatfwa kwetinhlekelele'),
-('Disaster map', 'ss', 'Imephu yetinhlekelele'),
 ('Disc', 'ss', 'Lidiski'),
 ('Discard', 'ss', 'Lahla'),
 ('Discard this update', 'ss', 'Lahla lokuvuselela'),
@@ -49026,7 +49018,8 @@ from (values
 ('Fire report', 'ss', 'Umbiko wemlilo'),
 ('Fire report already filed', 'ss', 'Umbiko wemlilo sewufakiwe'),
 ('Fire report filed', 'ss', 'Umbiko wemlilo ufakiwe'),
-('Fire report · {value}', 'ss', 'Umbiko wemlilo · {value}')
+('Fire report · {value}', 'ss', 'Umbiko wemlilo · {value}'),
+('Fire reports', 'ss', 'Imibiko yemlilo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -49036,7 +49029,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 'ss', 'Imibiko yemlilo'),
 ('Fire station', 'ss', 'Siteshi sebacimi bemlilo'),
 ('Fire with people trapped', 'ss', 'Umlilo lonebantfu lababhajiwe'),
 ('Fire, flood, gas, chemical or structural danger.', 'ss', 'Ingoti yemlilo, yetikhukhula, yegesi, yemakhemikhali nome yesakhiwo.'),
@@ -49535,7 +49527,8 @@ from (values
 ('Injuries', 'ss', 'Kulimala'),
 ('Injuries / treatment', 'ss', 'Kulimala / kwelashwa'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 'ss', 'Kungena kuhlanganiswa nekuphuma ngemuntfu; lolosasebenta ubalwa kuze kube nyalo.{value}'),
-('Insights & Tools', 'ss', 'Kucondza neTinsita')
+('Insights & Tools', 'ss', 'Kucondza neTinsita'),
+('Inspect', 'ss', 'Hlola')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -49545,7 +49538,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 'ss', 'Hlola'),
 ('Inspect again', 'ss', 'Hlola futsi'),
 ('Inspect {name}', 'ss', 'Hlola {name}'),
 ('Inspected', 'ss', 'Kuhloliwe'),
@@ -50044,7 +50036,8 @@ from (values
 ('Metro Police inspection badge', 'ss', 'Libheji lekuhlola lemaPhoyisa eMetro'),
 ('Metro Police officers and command staff check what is owed.', 'ss', 'Tikhulu temaPhoyisa eMetro nebaphatsi bahlola lokukweletwa.'),
 ('Metro Police · Captain', 'ss', 'Emaphoyisa eMetro · Kaputeni'),
-('Metro Police · Enforcement', 'ss', 'Emaphoyisa eMetro · Kugcinwa kwemtsetfo')
+('Metro Police · Enforcement', 'ss', 'Emaphoyisa eMetro · Kugcinwa kwemtsetfo'),
+('Microphone permission denied.', 'ss', 'Imvumo yemakhrofoni yenqatjelwe.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -50054,7 +50047,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 'ss', 'Imvumo yemakhrofoni yenqatjelwe.'),
 ('Mileage', 'ss', 'Emakhilomitha'),
 ('Milestones from call to close.', 'ss', 'Tigaba letimcoka kusukela elucingweni kuze kuvalwe.'),
 ('Military', 'ss', 'Tetemphi'),
@@ -50553,7 +50545,8 @@ from (values
 ('Nothing attended in {period}.', 'ss', 'Kute lokuhanjelwe nga-{period}.'),
 ('Nothing attended today.', 'ss', 'Kute lokuhanjelwe lamuhla.'),
 ('Nothing closed yet.', 'ss', 'Kute lokuvaliwe kute kube nyalo.'),
-('Nothing decided yet.', 'ss', 'Kute lokunconywe kute kube nyalo.')
+('Nothing decided yet.', 'ss', 'Kute lokunconywe kute kube nyalo.'),
+('Nothing due in the next two weeks.', 'ss', 'Kute lokufanele kwentiwe emavikini lamabili latako.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -50563,7 +50556,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 'ss', 'Kute lokufanele kwentiwe emavikini lamabili latako.'),
 ('Nothing expiring this month.', 'ss', 'Kute lokuphelelwa sikhatsi kulenyanga.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 'ss', 'Kute lokutfolakele kwa-“{value}”. Zama umgwaco nome indzawo leseduze, nome uchofote libalave.'),
 ('Nothing here yet.', 'ss', 'Kute lutfo lapha kute kube nyalo.'),
@@ -51062,7 +51054,8 @@ from (values
 ('Pregnancy complications', 'ss', 'Tinkinga tekukhulelwa'),
 ('Premises register', 'ss', 'Lirejista letakhiwo'),
 ('Preparing the fire report…', 'ss', 'Kulungiswa umbiko wemlilo…'),
-('Preparing the report…', 'ss', 'Kulungiswa umbiko…')
+('Preparing the report…', 'ss', 'Kulungiswa umbiko…'),
+('Prescription & OTC', 'ss', 'Lokunikwa ngudokotela nalokutsengwa ngaphandle kwencwadzi')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -51072,7 +51065,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 'ss', 'Lokunikwa ngudokotela nalokutsengwa ngaphandle kwencwadzi'),
 ('Presenting Problem', 'ss', 'Inkinga Lekhona'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 'ss', 'Cindzetela Phrinta. Luphawu ngalunye lwekubita lubhalwe nemalunga alo, imoto nendzawo.'),
 ('Press Send to send it to {desks}.', 'ss', 'Cindzetela Tfumela kute ukutfumele ku-{desks}.'),
@@ -51571,7 +51563,8 @@ from (values
 ('SGA (iGel/LMA)', 'ss', 'I-SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 'ss', 'LISHIFU ALIKACALI'),
 ('SIM number', 'ss', 'Inombolo ye-SIM'),
-('SIRA grade', 'ss', 'Libanga le-SIRA')
+('SIRA grade', 'ss', 'Libanga le-SIRA'),
+('SIRA number', 'ss', 'Inombolo ye-SIRA')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -51581,7 +51574,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 'ss', 'Inombolo ye-SIRA'),
 ('SIRA-compliant register entry.', 'ss', 'Lokufakwe kulirejista lokuhambisana ne-SIRA.'),
 ('SOS', 'ss', 'SOS'),
 ('SOS active', 'ss', 'I-SOS iyasebenta'),
@@ -52080,7 +52072,8 @@ from (values
 ('Status', 'ss', 'Simo'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 'ss', 'Lushintjo lwesimo, emanothi ne-{media} kufika eseva njengoba ukutsatsa.'),
 ('Status now', 'ss', 'Simo nyalo'),
-('Status now:', 'ss', 'Simo nyalo:')
+('Status now:', 'ss', 'Simo nyalo:'),
+('Status {status}. Mid-year average {value} / 5.', 'ss', 'Simo {status}. Silinganiso semkhatsini wemnyaka {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -52090,7 +52083,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 'ss', 'Simo {status}. Silinganiso semkhatsini wemnyaka {value} / 5.'),
 ('Status → {status}', 'ss', 'Simo → {status}'),
 ('Statute / act', 'ss', 'Umtsetfo / sento'),
 ('Stays on the map', 'ss', 'Kuhlala ebalaveni'),
@@ -52589,7 +52581,8 @@ from (values
 ('Type it again', 'ss', 'Yithayiphe futsi'),
 ('Type its number', 'ss', 'Thayipha inombolo yayo'),
 ('Type of arrest', 'ss', 'Luhlobo lwekubotjwa'),
-('Type of incident', 'ss', 'Luhlobo lwesehlakalo')
+('Type of incident', 'ss', 'Luhlobo lwesehlakalo'),
+('Type of shooting', 'ss', 'Luhlobo lwekudubula')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -52599,7 +52592,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 'ss', 'Luhlobo lwekudubula'),
 ('Type the slug to confirm', 'ss', 'Thayipha i-slug kute ucinisekise'),
 ('Type: {type} · Location: {location}', 'ss', 'Luhlobo: {type} · Indzawo: {location}'),
 ('Tyre Burst', 'ss', 'Kucuma Kwelithayi'),
@@ -53098,7 +53090,8 @@ from (values
 ('Your radio', 'ss', 'Lirediyo lakho'),
 ('Your radio and hard hat', 'ss', 'Lirediyo lakho nesigcoko sekuvikela'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 'ss', 'Kuhlolwa kwakho kwekulungela nekuhlolwa kwemoto yemlilo lokusayinwe kusemarekhodini.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'ss', 'Kuhlolwa kwakho kwekulungela nekuhlolwa kwe-ambulensi netimphahla kusemarekhodini. I-ambulensi ihlantekile futsi ilungile.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'ss', 'Kuhlolwa kwakho kwekulungela nekuhlolwa kwe-ambulensi netimphahla kusemarekhodini. I-ambulensi ihlantekile futsi ilungile.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'ss', 'Simemetelo sakho sekulungela sisemarekhodini. Awuvunyelwa kungena emsebentini. Tsintsana nemphatsi welishifu lakho ngaphambi kwekuchubeka.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -53108,7 +53101,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'ss', 'Simemetelo sakho sekulungela sisemarekhodini. Awuvunyelwa kungena emsebentini. Tsintsana nemphatsi welishifu lakho ngaphambi kwekuchubeka.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 'ss', 'Simemetelo sakho sekulungela sisemarekhodini. Awuvunyelwa kungena emsebentini. Tsintsana nesikhulu sesiteshi sakho nome umphatsi ngaphambi kwekuchubeka.'),
 ('Your recent checks', 'ss', 'Kuhlola kwakho kwakamuva'),
 ('Your report for {incident_number} is on record.', 'ss', 'Umbiko wakho wa-{incident_number} usemarekhodini.'),
@@ -53607,7 +53599,8 @@ from (values
 ('{type} · {from} to {to}', 'ss', '{type} · {from} kuya ku-{to}'),
 ('{type}, {from} to {to}.', 'ss', '{type}, {from} kuya ku-{to}.'),
 ('{unit_number} {name}, taken', 'ss', '{unit_number} {name}, itsetfwe'),
-('{unit} failed a vehicle check and is out of service', 'ss', '{unit} yehlulekile ekuhlolweni kwemoto futsi ayisebenti')
+('{unit} failed a vehicle check and is out of service', 'ss', '{unit} yehlulekile ekuhlolweni kwemoto futsi ayisebenti'),
+('{unit} is back in the pool.', 'ss', '{unit} seyibuyele elicenjini.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -53617,7 +53610,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 'ss', '{unit} seyibuyele elicenjini.'),
 ('{unit} is booked for maintenance.', 'ss', '{unit} ibhukelwe kulungiswa.'),
 ('{unit} is handed back at {km} km.', 'ss', '{unit} ibuyiswe nga-{km} km.'),
 ('{unit} is handed back for maintenance at {km} km.', 'ss', '{unit} ibuyiselwe kulungiswa nga-{km} km.'),
@@ -53706,7 +53698,7 @@ on conflict (key, lang) do update
  where not (t.status = 'approved' and t.drafted_by = 'person');
 commit;
 
--- Tshivenḓa: 6582 translations by Claude, approved on the
+-- Tshivenḓa: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -55291,7 +55283,6 @@ from (values
 ('Disaster Management assessment', 've', 'Tsedzuluso ya Vhulanguli ha Khombo'),
 ('Disaster Mgmt', 've', 'Vhulanguli ha khombo khulwane'),
 ('Disaster management', 've', 'Vhulanguli ha khombo khulwane'),
-('Disaster map', 've', 'Mmapa wa khombo khulwane'),
 ('Disc', 've', 'Disiki'),
 ('Discard', 've', 'Laṱani'),
 ('Discard this update', 've', 'Laṱani mvusuludzo iyi'),
@@ -55739,7 +55730,8 @@ from (values
 ('Fire report', 've', 'Muvhigo wa mulilo'),
 ('Fire report already filed', 've', 'Muvhigo wa mulilo wo no rumelwa'),
 ('Fire report filed', 've', 'Muvhigo wa mulilo wo rumelwa'),
-('Fire report · {value}', 've', 'Muvhigo wa mulilo · {value}')
+('Fire report · {value}', 've', 'Muvhigo wa mulilo · {value}'),
+('Fire reports', 've', 'Mivhigo ya mulilo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -55749,7 +55741,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 've', 'Mivhigo ya mulilo'),
 ('Fire station', 've', 'Tshiṱitshi tsha vhadzimi vha mulilo'),
 ('Fire with people trapped', 've', 'Mulilo u re na vhathu vho valelwaho'),
 ('Fire, flood, gas, chemical or structural danger.', 've', 'Khombo ya mulilo, ya maḓi-mahulu, ya gese, ya khemikhala kana ya fhaṱo.'),
@@ -56248,7 +56239,8 @@ from (values
 ('Injuries', 've', 'Mavhaivhai'),
 ('Injuries / treatment', 've', 'Mavhaivhai / u alafhiwa'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 've', 'U dzhena hu ṱanganywa na u bva nga muthu; ane a kha ḓi shuma u vhalelwa u swika zwino.{value}'),
-('Insights & Tools', 've', 'Nḓivho na Zwishumiswa')
+('Insights & Tools', 've', 'Nḓivho na Zwishumiswa'),
+('Inspect', 've', 'Ṱolani')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -56258,7 +56250,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 've', 'Ṱolani'),
 ('Inspect again', 've', 'Ṱolani hafhu'),
 ('Inspect {name}', 've', 'Ṱolani {name}'),
 ('Inspected', 've', 'Zwo ṱoliwa'),
@@ -56757,7 +56748,8 @@ from (values
 ('Metro Police inspection badge', 've', 'Bedzhi ya tsedzuluso ya Mapholisa a Metro'),
 ('Metro Police officers and command staff check what is owed.', 've', 'Vhaofisiri vha Mapholisa a Metro na vhalanguli vha ṱola zwine zwa kolodiwa.'),
 ('Metro Police · Captain', 've', 'Mapholisa a Metro · Kaputeni'),
-('Metro Police · Enforcement', 've', 'Mapholisa a Metro · U khwaṱhisedza mulayo')
+('Metro Police · Enforcement', 've', 'Mapholisa a Metro · U khwaṱhisedza mulayo'),
+('Microphone permission denied.', 've', 'Thendelo ya maikhirofoni yo hanwa.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -56767,7 +56759,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 've', 'Thendelo ya maikhirofoni yo hanwa.'),
 ('Mileage', 've', 'Khilomitha'),
 ('Milestones from call to close.', 've', 'Zwiṱepisi zwa ndeme u bva kha founu u swika kha u valwa.'),
 ('Military', 've', 'Zwa vhuswole'),
@@ -57266,7 +57257,8 @@ from (values
 ('Nothing attended in {period}.', 've', 'A hu na zwo dalelwaho nga {period}.'),
 ('Nothing attended today.', 've', 'A hu na zwo dalelwaho ṋamusi.'),
 ('Nothing closed yet.', 've', 'A hu athu vha na zwo valwaho.'),
-('Nothing decided yet.', 've', 'A hu athu vha na zwo tsheiwaho.')
+('Nothing decided yet.', 've', 'A hu athu vha na zwo tsheiwaho.'),
+('Nothing due in the next two weeks.', 've', 'A hu na zwi tea u itwa kha vhege mbili dzi tevhelaho.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -57276,7 +57268,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 've', 'A hu na zwi tea u itwa kha vhege mbili dzi tevhelaho.'),
 ('Nothing expiring this month.', 've', 'A hu na zwi fhelelwaho nga tshifhinga kha ṅwedzi uyu.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 've', 'A hu na zwo wanalaho zwa “{value}”. Lingedzani bada kana fhethu hu re tsini, kana ni kwate mmapa.'),
 ('Nothing here yet.', 've', 'A hu athu vha na tshithu fhano.'),
@@ -57775,7 +57766,8 @@ from (values
 ('Pregnancy complications', 've', 'Thaidzo dza u vha na lutumbu'),
 ('Premises register', 've', 'Redzhistara ya fhethu'),
 ('Preparing the fire report…', 've', 'Hu khou lugiselwa muvhigo wa mulilo…'),
-('Preparing the report…', 've', 'Hu khou lugiselwa muvhigo…')
+('Preparing the report…', 've', 'Hu khou lugiselwa muvhigo…'),
+('Prescription & OTC', 've', 'Zwo ṅwalwaho nga dokotela na zwi rengwaho hu si na ḽiṅwalwa')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -57785,7 +57777,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 've', 'Zwo ṅwalwaho nga dokotela na zwi rengwaho hu si na ḽiṅwalwa'),
 ('Presenting Problem', 've', 'Thaidzo i re Hone'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 've', 'Kwatani Gandisa. Tshiga tshiṅwe na tshiṅwe tsha u vhidza tsho ṅwalwa na miraḓo yatsho, goloi na fhethu.'),
 ('Press Send to send it to {desks}.', 've', 'Kwatani Rumelani u i rumela kha {desks}.'),
@@ -58284,7 +58275,8 @@ from (values
 ('SGA (iGel/LMA)', 've', 'SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 've', 'TSHIFITHI A TSHI ATHU THOMA'),
 ('SIM number', 've', 'Nomboro ya SIM'),
-('SIRA grade', 've', 'Gireidi ya SIRA')
+('SIRA grade', 've', 'Gireidi ya SIRA'),
+('SIRA number', 've', 'Nomboro ya SIRA')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -58294,7 +58286,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 've', 'Nomboro ya SIRA'),
 ('SIRA-compliant register entry.', 've', 'U dzhenisa kha redzhistara hu tevhelaho SIRA.'),
 ('SOS', 've', 'SOS'),
 ('SOS active', 've', 'SOS i a shuma'),
@@ -58793,7 +58784,8 @@ from (values
 ('Status', 've', 'Nyimele'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 've', 'Tshanduko dza nyimele, notsi na {media} zwi swika kha seva musi ni tshi khou zwi dzhia.'),
 ('Status now', 've', 'Nyimele zwino'),
-('Status now:', 've', 'Nyimele zwino:')
+('Status now:', 've', 'Nyimele zwino:'),
+('Status {status}. Mid-year average {value} / 5.', 've', 'Nyimele {status}. Avhareidzhi ya vhukati ha ṅwaha {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -58803,7 +58795,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 've', 'Nyimele {status}. Avhareidzhi ya vhukati ha ṅwaha {value} / 5.'),
 ('Status → {status}', 've', 'Nyimele → {status}'),
 ('Statute / act', 've', 'Mulayo / nyito'),
 ('Stays on the map', 've', 'Zwi dzula kha mmapa'),
@@ -59302,7 +59293,8 @@ from (values
 ('Type it again', 've', 'I thaipheni hafhu'),
 ('Type its number', 've', 'Thaiphani nomboro yayo'),
 ('Type of arrest', 've', 'Lushaka lwa u fariwa'),
-('Type of incident', 've', 'Lushaka lwa tshiitea')
+('Type of incident', 've', 'Lushaka lwa tshiitea'),
+('Type of shooting', 've', 'Lushaka lwa u phula')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -59312,7 +59304,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 've', 'Lushaka lwa u phula'),
 ('Type the slug to confirm', 've', 'Thaiphani slug u khwaṱhisedza'),
 ('Type: {type} · Location: {location}', 've', 'Lushaka: {type} · Fhethu: {location}'),
 ('Tyre Burst', 've', 'U Thuthuba ha Thairi'),
@@ -59811,7 +59802,8 @@ from (values
 ('Your radio', 've', 'Radio yaṋu'),
 ('Your radio and hard hat', 've', 'Radio yaṋu na munwadzi wa tsireledzo'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 've', 'Ṱhoḓisiso yaṋu ya u ḓilugisela na tsedzuluso ya goloi ya mulilo yo sainwaho zwi kha rekhodo.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 've', 'Ṱhoḓisiso yaṋu ya u ḓilugisela na ṱhoḓisiso ya ambulentsi na thundu zwi kha rekhodo. Ambulentsi yo kuna nahone yo lugela.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 've', 'Ṱhoḓisiso yaṋu ya u ḓilugisela na ṱhoḓisiso ya ambulentsi na thundu zwi kha rekhodo. Ambulentsi yo kuna nahone yo lugela.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 've', 'Nḓivhadzo yaṋu ya u ḓilugisela i kha rekhodo. A ni tendelwi u dzhena mushumoni. Kwamani mulanguli wa tshifithi tshaṋu ni sa athu bvela phanḓa.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -59821,7 +59813,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 've', 'Nḓivhadzo yaṋu ya u ḓilugisela i kha rekhodo. A ni tendelwi u dzhena mushumoni. Kwamani mulanguli wa tshifithi tshaṋu ni sa athu bvela phanḓa.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 've', 'Nḓivhadzo yaṋu ya u ḓilugisela i kha rekhodo. A ni tendelwi u dzhena mushumoni. Kwamani muofisiri wa tshiṱitshi tshaṋu kana mulanguli ni sa athu bvela phanḓa.'),
 ('Your recent checks', 've', 'Ṱhoḓisiso dzaṋu dza zwino-zwino'),
 ('Your report for {incident_number} is on record.', 've', 'Muvhigo waṋu wa {incident_number} u kha rekhodo.'),
@@ -60320,7 +60311,8 @@ from (values
 ('{type} · {from} to {to}', 've', '{type} · {from} u swika {to}'),
 ('{type}, {from} to {to}.', 've', '{type}, {from} u swika {to}.'),
 ('{unit_number} {name}, taken', 've', '{unit_number} {name}, yo dzhiiwa'),
-('{unit} failed a vehicle check and is out of service', 've', '{unit} yo kundelwa nga ṱhoḓisiso ya goloi nahone a i shumi')
+('{unit} failed a vehicle check and is out of service', 've', '{unit} yo kundelwa nga ṱhoḓisiso ya goloi nahone a i shumi'),
+('{unit} is back in the pool.', 've', '{unit} yo vhuyelela kha tshigwada.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -60330,7 +60322,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 've', '{unit} yo vhuyelela kha tshigwada.'),
 ('{unit} is booked for maintenance.', 've', '{unit} yo bukhelwa u lugiswa.'),
 ('{unit} is handed back at {km} km.', 've', '{unit} yo vhuiswa nga {km} km.'),
 ('{unit} is handed back for maintenance at {km} km.', 've', '{unit} yo vhuiswa u lugiswa nga {km} km.'),
@@ -60419,7 +60410,7 @@ on conflict (key, lang) do update
  where not (t.status = 'approved' and t.drafted_by = 'person');
 commit;
 
--- isiNdebele: 6582 translations by Claude, approved on the
+-- isiNdebele: 6581 translations by Claude, approved on the
 -- owner's instruction. Run after 0078, in the SQL editor. Safe to re-run: a
 -- translation a person approved is left as it is.
 begin;
@@ -62004,7 +61995,6 @@ from (values
 ('Disaster Management assessment', 'nr', 'Ukuhlola kokuLawulwa kweeNgozi'),
 ('Disaster Mgmt', 'nr', 'Ukuphathwa kweenhlekelele'),
 ('Disaster management', 'nr', 'Ukuphathwa kweenhlekelele'),
-('Disaster map', 'nr', 'Imephu yeenhlekelele'),
 ('Disc', 'nr', 'Idiski'),
 ('Discard', 'nr', 'Lahla'),
 ('Discard this update', 'nr', 'Lahla ukubuyeleza lokhu'),
@@ -62452,7 +62442,8 @@ from (values
 ('Fire report', 'nr', 'Umbiko womlilo'),
 ('Fire report already filed', 'nr', 'Umbiko womlilo sele ufakiwe'),
 ('Fire report filed', 'nr', 'Umbiko womlilo ufakiwe'),
-('Fire report · {value}', 'nr', 'Umbiko womlilo · {value}')
+('Fire report · {value}', 'nr', 'Umbiko womlilo · {value}'),
+('Fire reports', 'nr', 'Imibiko yomlilo')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -62462,7 +62453,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Fire reports', 'nr', 'Imibiko yomlilo'),
 ('Fire station', 'nr', 'Isitetjhi sabacimi bomlilo'),
 ('Fire with people trapped', 'nr', 'Umlilo onabantu ababhajiweko'),
 ('Fire, flood, gas, chemical or structural danger.', 'nr', 'Ingozi yomlilo, yezikhukhula, yegesi, yamakhemikhali namkha yesakhiwo.'),
@@ -62961,7 +62951,8 @@ from (values
 ('Injuries', 'nr', 'Ukulimala'),
 ('Injuries / treatment', 'nr', 'Ukulimala / ukwelatjhwa'),
 ('Ins paired with outs per person; someone still on the clock accrues to now.{value}', 'nr', 'Ukungena kuhlanganiswa nokuphuma ngomuntu; osasebenzako ubalelwa bekube nje.{value}'),
-('Insights & Tools', 'nr', 'Ukuzwisisa neenSetjenziswa')
+('Insights & Tools', 'nr', 'Ukuzwisisa neenSetjenziswa'),
+('Inspect', 'nr', 'Hlola')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -62971,7 +62962,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Inspect', 'nr', 'Hlola'),
 ('Inspect again', 'nr', 'Hlola godu'),
 ('Inspect {name}', 'nr', 'Hlola {name}'),
 ('Inspected', 'nr', 'Kuhloliwe'),
@@ -63470,7 +63460,8 @@ from (values
 ('Metro Police inspection badge', 'nr', 'Ibheji yokuhlola yamaPholisa weMetro'),
 ('Metro Police officers and command staff check what is owed.', 'nr', 'Iinkhulu zamaPholisa weMetro nabaphathi bahlola okukolodwako.'),
 ('Metro Police · Captain', 'nr', 'Amapholisa weMetro · Ukaptheni'),
-('Metro Police · Enforcement', 'nr', 'Amapholisa weMetro · Ukugcinwa komthetho')
+('Metro Police · Enforcement', 'nr', 'Amapholisa weMetro · Ukugcinwa komthetho'),
+('Microphone permission denied.', 'nr', 'Imvumo yemakrofoni yaliwe.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -63480,7 +63471,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Microphone permission denied.', 'nr', 'Imvumo yemakrofoni yaliwe.'),
 ('Mileage', 'nr', 'Amakhilomitha'),
 ('Milestones from call to close.', 'nr', 'Amagadango aqakathekileko kusukela efowunini bekube kuvalwe.'),
 ('Military', 'nr', 'Ezamajoni'),
@@ -63979,7 +63969,8 @@ from (values
 ('Nothing attended in {period}.', 'nr', 'Akukho okuyelweko nge-{period}.'),
 ('Nothing attended today.', 'nr', 'Akukho okuyelweko namhlanje.'),
 ('Nothing closed yet.', 'nr', 'Akukabi nokuvaliweko.'),
-('Nothing decided yet.', 'nr', 'Akukabi nokuqunyiweko.')
+('Nothing decided yet.', 'nr', 'Akukabi nokuqunyiweko.'),
+('Nothing due in the next two weeks.', 'nr', 'Akukho okufanele kwenziwe emavikini amabili alandelako.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -63989,7 +63980,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Nothing due in the next two weeks.', 'nr', 'Akukho okufanele kwenziwe emavikini amabili alandelako.'),
 ('Nothing expiring this month.', 'nr', 'Akukho okuphelelwa sikhathi enyangeni le.'),
 ('Nothing found for “{value}”. Try a street or a nearby place, or click the map.', 'nr', 'Akukho okufunyenweko kwe-“{value}”. Linga isitarada namkha indawo eseduze, namkha ukghotjhoze ibalazwe.'),
 ('Nothing here yet.', 'nr', 'Akukabi nalitho lapha.'),
@@ -64488,7 +64478,8 @@ from (values
 ('Pregnancy complications', 'nr', 'Imiraro yokukhulelwa'),
 ('Premises register', 'nr', 'Irejista yezakhiwo'),
 ('Preparing the fire report…', 'nr', 'Kulungiswa umbiko womlilo…'),
-('Preparing the report…', 'nr', 'Kulungiswa umbiko…')
+('Preparing the report…', 'nr', 'Kulungiswa umbiko…'),
+('Prescription & OTC', 'nr', 'Okunikelwa ngudokotela nokuthengwa ngaphandle kwencwadi')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -64498,7 +64489,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Prescription & OTC', 'nr', 'Okunikelwa ngudokotela nokuthengwa ngaphandle kwencwadi'),
 ('Presenting Problem', 'nr', 'Umraro Okhona'),
 ('Press Print. Each call sign is listed with its members, vehicle and area.', 'nr', 'Gandelela u-Gadangisa. Uphawu ngalunye lokubiza lutlolwe namalunga walo, ikoloyi nendawo.'),
 ('Press Send to send it to {desks}.', 'nr', 'Gandelela u-Thumela bona ukuthumele ku-{desks}.'),
@@ -64997,7 +64987,8 @@ from (values
 ('SGA (iGel/LMA)', 'nr', 'I-SGA (iGel/LMA)'),
 ('SHIFT NOT STARTED', 'nr', 'ISHIFU AYIKATHOMI'),
 ('SIM number', 'nr', 'Inomboro ye-SIM'),
-('SIRA grade', 'nr', 'Ibanga le-SIRA')
+('SIRA grade', 'nr', 'Ibanga le-SIRA'),
+('SIRA number', 'nr', 'Inomboro ye-SIRA')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -65007,7 +64998,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('SIRA number', 'nr', 'Inomboro ye-SIRA'),
 ('SIRA-compliant register entry.', 'nr', 'Okufakwe erejistani okuhambisana ne-SIRA.'),
 ('SOS', 'nr', 'SOS'),
 ('SOS active', 'nr', 'I-SOS iyasebenza'),
@@ -65506,7 +65496,8 @@ from (values
 ('Status', 'nr', 'Isimo'),
 ('Status changes, notes and {media} are reaching the server as you capture them.', 'nr', 'Amatjhuguluko wesimo, amanothi ne-{media} kufika eseva njengombana ukuthatha.'),
 ('Status now', 'nr', 'Isimo nje'),
-('Status now:', 'nr', 'Isimo nje:')
+('Status now:', 'nr', 'Isimo nje:'),
+('Status {status}. Mid-year average {value} / 5.', 'nr', 'Isimo {status}. Isilinganiso sephakathi komnyaka {value} / 5.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -65516,7 +65507,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Status {status}. Mid-year average {value} / 5.', 'nr', 'Isimo {status}. Isilinganiso sephakathi komnyaka {value} / 5.'),
 ('Status → {status}', 'nr', 'Isimo → {status}'),
 ('Statute / act', 'nr', 'Umthetho / isenzo'),
 ('Stays on the map', 'nr', 'Kuhlala ebalazweni'),
@@ -66015,7 +66005,8 @@ from (values
 ('Type it again', 'nr', 'Yithayiphe godu'),
 ('Type its number', 'nr', 'Thayipha inomboro yayo'),
 ('Type of arrest', 'nr', 'Uhlobo lokubotjhwa'),
-('Type of incident', 'nr', 'Uhlobo lwesehlakalo')
+('Type of incident', 'nr', 'Uhlobo lwesehlakalo'),
+('Type of shooting', 'nr', 'Uhlobo lokudubula')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -66025,7 +66016,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Type of shooting', 'nr', 'Uhlobo lokudubula'),
 ('Type the slug to confirm', 'nr', 'Thayipha i-slug bona uqinisekise'),
 ('Type: {type} · Location: {location}', 'nr', 'Uhlobo: {type} · Indawo: {location}'),
 ('Tyre Burst', 'nr', 'Ukuqhuma Kwethayi'),
@@ -66524,7 +66514,8 @@ from (values
 ('Your radio', 'nr', 'Irediyo yakho'),
 ('Your radio and hard hat', 'nr', 'Irediyo yakho nesigqoko sokuvikela'),
 ('Your readiness assessment and signed Fire appliance inspection are on record.', 'nr', 'Ukuhlolwa kwakho kokulungela nokuhlolwa kwekoloyi yomlilo okutlikitlweko kuserekhodini.'),
-('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'nr', 'Ukuhlolwa kwakho kokulungela nokuhlolwa kwe-ambulensi neempahla kuserekhodini. I-ambulensi ihlwengekile begodu ilungile.')
+('Your readiness assessment and the ambulance and stock check are on record. The ambulance is clean and ready.', 'nr', 'Ukuhlolwa kwakho kokulungela nokuhlolwa kwe-ambulensi neempahla kuserekhodini. I-ambulensi ihlwengekile begodu ilungile.'),
+('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'nr', 'Isimemezelo sakho sokulungela siserekhodini. Awuvunyelwa ukungena emsebenzini. Thintana nomphathi weshifu yakho ngaphambi kokuragela phambili.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -66534,7 +66525,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('Your readiness declaration is on record. You are not cleared to go on duty. Contact your shift supervisor before continuing.', 'nr', 'Isimemezelo sakho sokulungela siserekhodini. Awuvunyelwa ukungena emsebenzini. Thintana nomphathi weshifu yakho ngaphambi kokuragela phambili.'),
 ('Your readiness declaration is on record. You are not cleared to go on duty. Contact your station officer or supervisor before continuing.', 'nr', 'Isimemezelo sakho sokulungela siserekhodini. Awuvunyelwa ukungena emsebenzini. Thintana nesikhulu sesitetjhi sakho namkha umphathi ngaphambi kokuragela phambili.'),
 ('Your recent checks', 'nr', 'Ukuhlola kwakho kwakamuva'),
 ('Your report for {incident_number} is on record.', 'nr', 'Umbiko wakho ka-{incident_number} userekhodini.'),
@@ -67033,7 +67023,8 @@ from (values
 ('{type} · {from} to {to}', 'nr', '{type} · {from} ukuya ku-{to}'),
 ('{type}, {from} to {to}.', 'nr', '{type}, {from} ukuya ku-{to}.'),
 ('{unit_number} {name}, taken', 'nr', '{unit_number} {name}, ithethwe'),
-('{unit} failed a vehicle check and is out of service', 'nr', 'I-{unit} yehlulekile ekuhlolweni kwekoloyi begodu ayisebenzi')
+('{unit} failed a vehicle check and is out of service', 'nr', 'I-{unit} yehlulekile ekuhlolweni kwekoloyi begodu ayisebenzi'),
+('{unit} is back in the pool.', 'nr', 'I-{unit} sele ibuyele eqoqweni.')
 ) as v(key, lang, text)
 on conflict (key, lang) do update
    set text = excluded.text, status = 'approved', drafted_by = 'criti', updated_by_name = excluded.updated_by_name,
@@ -67043,7 +67034,6 @@ on conflict (key, lang) do update
 insert into public.translations as t (key, lang, text, status, drafted_by, updated_by_name, updated_at, approved_by_name, approved_at)
 select v.key, v.lang, v.text, 'approved', 'criti', 'Claude', now(), 'Claude (auto-approved)', now()
 from (values
-('{unit} is back in the pool.', 'nr', 'I-{unit} sele ibuyele eqoqweni.'),
 ('{unit} is booked for maintenance.', 'nr', 'I-{unit} ibhukelwe ukulungiswa.'),
 ('{unit} is handed back at {km} km.', 'nr', 'I-{unit} ibuyiswe ngo-{km} km.'),
 ('{unit} is handed back for maintenance at {km} km.', 'nr', 'I-{unit} ibuyiselwe ukulungiswa ngo-{km} km.'),

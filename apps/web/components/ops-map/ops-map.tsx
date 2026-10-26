@@ -53,7 +53,7 @@ import {
   type Basemap, type CrimeKind, type CrimeStation, type Facility, type LayerId, type TrafficItem,
 } from '@/lib/ops-map/layers';
 import { distanceM, fromGeometry, kindsForShape, zoneKind, type LatLng, type ZoneDraft } from '@/lib/ops-map/zones';
-import { cn, timeAgo } from '@/lib/utils';
+import { cn, escapeHtml, timeAgo } from '@/lib/utils';
 import { saveZoneAction } from '@/app/(app)/incidents/map/actions';
 import * as M from './markers';
 import { ZoneDrawController, type DrawSnapshot } from './zones/draw-controller';
@@ -740,32 +740,47 @@ export function OpsMap({
   useEffect(() => {
     if (!flightsOn) return;
     let alive = true;
+    // Open data is named on the map while it is shown (its licence, ODbL).
+    let credit: string | null = null;
     const load = async () => {
       const feed = await fetchFeed('/api/external/flights');
       if (!alive) return;
       if (!feed.ok) { note('flights', feed.message); setAircraft([]); return; }
+      const source = (feed.json as { source?: unknown })?.source;
+      if (typeof source === 'string' && !credit) {
+        credit = `Aircraft &copy; ${escapeHtml(source)}`;
+        mapRef.current?.attributionControl?.addAttribution(credit);
+      }
       const rows = parseAircraft(feed.json);
       note('flights', rows.length ? null : 'No aircraft in view right now.');
       setAircraft(rows);
     };
     void load();
     const t = setInterval(load, 30_000);
-    return () => { alive = false; clearInterval(t); };
+    return () => {
+      alive = false;
+      clearInterval(t);
+      if (credit) mapRef.current?.attributionControl?.removeAttribution(credit);
+    };
   }, [flightsOn, note]);
   useEffect(() => {
     if (!vesselsOn) return;
     let alive = true;
+    let soon: ReturnType<typeof setTimeout> | null = null;
     const load = async () => {
       const feed = await fetchFeed('/api/external/vessels');
       if (!alive) return;
       if (!feed.ok) { note('vessels', feed.message); setVessels([]); return; }
       const rows = parseVessels(feed.json);
-      note('vessels', rows.length ? null : 'No ships reported right now.');
+      // Just switched on: ships report every few seconds to three minutes, so look again soon.
+      const warming = (feed.json as { warming?: unknown })?.warming === true;
+      note('vessels', rows.length ? null : warming ? 'Ships appear over the next few minutes.' : 'No ships reported right now.');
       setVessels(rows);
+      if (warming) soon = setTimeout(load, 15_000);
     };
     void load();
     const t = setInterval(load, 60_000);
-    return () => { alive = false; clearInterval(t); };
+    return () => { alive = false; clearInterval(t); if (soon) clearTimeout(soon); };
   }, [vesselsOn, note]);
   useEffect(() => {
     const L = lib.current;
