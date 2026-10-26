@@ -128,8 +128,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </div>
           )}
           {/* Every console sits on the earth-at-night backdrop (globals.css,
-              .console-backdrop), the same image as the shift screens. */}
-          <main className="console-backdrop flex-1 bg-bg p-3 sm:p-4">
+              .console-backdrop), the same image as the shift screens; Fire
+              uses the firefighter photo from the Fire app instead. */}
+          <main className={`console-backdrop ${silo === 'MetroFire' ? 'console-backdrop-fire ' : ''}flex-1 bg-bg p-3 sm:p-4`}>
             {/* An officer calling for help outranks whatever screen you are
                 on, so this sits above the page rather than inside one. It
                 renders nothing when there is no live panic. Suspended so its

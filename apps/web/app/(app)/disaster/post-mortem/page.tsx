@@ -12,6 +12,8 @@ export const metadata = { title: 'Post-Mortem Reports · HikTech' };
 
 const DEPLOYED = ['Dispatched', 'En Route', 'Arrived', 'On Scene', 'Transporting', 'Active'];
 const COMMAND = ['Supervisor', 'Admin', 'SystemAdmin', 'SuperAdmin'];
+// The Disaster desk runs the operation and files it (0111); the database checks each one.
+const DESK = ['Dispatcher', 'ControlRoom', 'Operator', 'Disaster'];
 
 export default async function PostMortemPage({ searchParams }: { searchParams: Promise<{ incident?: string }> }) {
   const { t } = await requestT();
@@ -21,8 +23,8 @@ export default async function PostMortemPage({ searchParams }: { searchParams: P
     listPostMortems(supabase),
     listOpenDisasterIncidents(supabase).catch(() => []),
   ]);
-  // Command closes out deployed incidents here; officers file from the scene on the phone.
-  const canFile = COMMAND.includes(role);
+  // Command and the Disaster desk close out deployed incidents here.
+  const canFile = COMMAND.includes(role) || DESK.includes(role);
   const deployed = open.filter((i) => DEPLOYED.includes(i.status)).map((i) => ({
     id: i.id, number: i.incident_number, type: i.disaster_type || i.incident_type, location: i.location_address,
     started: i.call_timestamp ?? i.incident_created_at,
@@ -37,7 +39,7 @@ export default async function PostMortemPage({ searchParams }: { searchParams: P
 
       {canFile ? (
         deployed.length ? (
-          <PostMortemForm incidents={deployed} officer={fullName} initialId={params.incident} />
+          <PostMortemForm incidents={deployed} officer={fullName} initialId={params.incident} endNow={!!params.incident} />
         ) : (
           <Card><CardContent className="p-6 text-sm text-muted-foreground">{t('No deployed incident is waiting for a post-mortem.')}</CardContent></Card>
         )

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp, MapPinOff, ShieldAlert, ShieldCheck, Radio } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Clock3, Map as MapIcon, MapPinOff, ShieldAlert, ShieldCheck, Radio } from 'lucide-react';
 import {
   STALE_FIX_MS, arrivalWords, distanceWords, etaMinutes, metresApart, progressAlong, vehicleFor,
   type IncidentResponder, type OnDutyOfficer,
@@ -181,6 +181,40 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
   const arrival = arrivalWords(p);
   const crewNames = crew.map((r) => r.name).filter(Boolean).join(', ');
 
+  // The journey's headline, as a goal tracker reads: the number that matters now, then the rest.
+  const afterDispatch = (iso: string | null) => (iso && p.dispatched_at
+    ? Math.max(0, Math.round((Date.parse(iso) - Date.parse(p.dispatched_at)) / 60_000)) : null);
+  const stepChip = `${Math.max(0, reached) + 1} / ${stops.length}`;
+  const roadLeft = enRoute ? (road ? road.km * 1000 : left) : null;
+  let head: JourneyHead;
+  let sub: string | null = null;
+  let chip: string | null = stepChip;
+  if (enRoute && pos && minutes !== null) {
+    head = { big: String(minutes), unit: t('min'), rest: t('arrives {time}', { time: clock.format(new Date(now + minutes * 60_000)) }) };
+    chip = progress !== null ? t('{n}% there', { n: Math.round(progress * 100) }) : stepChip;
+    sub = [roadLeft !== null ? t('{d} to the scene', { d: distanceWords(roadLeft) ?? '' }) : null,
+      pos.stale ? t('position {ago}', { ago: ago(pos.seenAt, now) }) : t('live position')].filter(Boolean).join(' · ');
+  } else if (enRoute) {
+    head = { big: t('On the way'), word: true };
+    sub = pos ? null : t('No live position from their phone yet.');
+  } else if (p.closed_at) {
+    head = { big: hhmm(p.closed_at) ?? '—', rest: t('closed') };
+  } else if (p.report_filed_at) {
+    head = { big: hhmm(p.report_filed_at) ?? '—', rest: t('report filed') };
+  } else if (p.arrived_at) {
+    const took = afterDispatch(p.arrived_at);
+    head = { big: hhmm(p.arrived_at) ?? '—', rest: t('on scene') };
+    sub = took !== null ? t('{n} min after dispatch', { n: took }) : null;
+  } else if (p.accepted_at) {
+    head = { big: t('Finished'), word: true };
+  } else if (p.dispatched_at) {
+    head = { big: t('Waiting for a crew'), word: true };
+    sub = t('Dispatched {time}', { time: hhmm(p.dispatched_at) ?? '' });
+  } else {
+    head = { big: t('Waiting to dispatch'), word: true };
+    chip = null;
+  }
+
   // The big view: the crew on the map, the numbers on top.
   const placed: MapCrew[] = crew.flatMap((r) => {
     const here = where(r.user_id);
@@ -236,19 +270,15 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
 
   const status = (() => {
     if (stoodDown) return <span className="text-sm font-semibold text-muted-foreground">{t(p.status === 'Cancelled' ? 'Cancelled' : 'Stood down')}</span>;
-    if (!p.dispatched_at) return <span className="text-sm text-muted-foreground">{t('Waiting to dispatch')}</span>;
-    if (!p.accepted_at) return <span className="text-sm font-semibold text-severity-medium-ink">{t('Waiting for a crew to accept')}</span>;
+    // Folded, the journey's headline already says these.
+    if (!p.dispatched_at) return open ? <span className="text-sm text-muted-foreground">{t('Waiting to dispatch')}</span> : null;
+    if (!p.accepted_at) return open ? <span className="text-sm font-semibold text-severity-medium-ink">{t('Waiting for a crew to accept')}</span> : null;
     if (enRoute) {
       if (!pos) return <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><MapPinOff className="h-4 w-4" />{t('No live position')}</span>;
       return (
-        <span className="rounded-xl border border-border bg-bg-soft px-3 py-2 text-right">
-          <span className="block text-2xl font-bold leading-none tracking-tight text-fg tabular-nums">
-            {minutes !== null ? t('{n} min', { n: minutes }) : '—'}
-          </span>
-          <span suppressHydrationWarning className="text-xs text-muted-foreground">
-            {[distanceWords(road ? road.km * 1000 : left), minutes !== null ? t('ETA {time}', { time: clock.format(new Date(now + minutes * 60_000)) }) : null].filter(Boolean).join(' · ')}
-            {pos.stale ? ` · ${t('position {ago}', { ago: ago(pos.seenAt, now) })}` : ''}
-          </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg-soft px-2.5 py-1 text-xs font-bold text-fg">
+          <span className={cn('h-2 w-2 rounded-full', !pos.stale && 'animate-pulse')} style={{ background: pos.stale ? 'rgb(var(--c-border))' : v.light }} />
+          {pos.stale ? t('Position {ago}', { ago: ago(pos.seenAt, now) }) : t('Live')}
         </span>
       );
     }
@@ -291,48 +321,26 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
           </div>
         </div>
 
-        {/* Folded: the strip. Open: the big map below takes its place. */}
-        {stoodDown || open ? null : (
-          <div className="response-journey relative mx-5 mb-10 mt-10 h-7 sm:mx-6">
-            <div className="response-rail absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 overflow-hidden rounded-full bg-border/70">
-              {at !== null ? (
-                <div
-                  className="response-road-progress h-full rounded-full"
-                  style={{ width: `${at}%`, background: `linear-gradient(90deg, ${v.tone}, ${v.light})` }}
-                />
-              ) : null}
-            </div>
-            {stops.map((s, i) => (
-              <div key={s.key} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${posOf(i)}%` }}>
-                <span
-                  className="block h-2 w-2 rounded-full ring-2 ring-bg-card"
-                  style={{ background: s.done ? v.tone : 'rgb(var(--c-border))' }}
-                />
-                <span data-stagger={i % 2 === 0} className={cn('response-stop-label absolute left-1/2 top-7 w-14 -translate-x-1/2 text-center text-[10px] font-semibold leading-tight sm:w-20',
-                  s.done ? 'text-fg' : 'text-muted-foreground', i === 0 && 'left-0 translate-x-0 text-left', i === stops.length - 1 && 'left-auto right-0 translate-x-0 text-right')}>
-                  {t(s.label)}
-                  {s.at ? <span className="hidden font-normal text-muted-foreground sm:block">{hhmm(s.at)}</span> : null}
-                </span>
-              </div>
-            ))}
-            {at !== null ? (
-              <div className="vehicle-glide absolute bottom-1/2 z-10 -translate-x-1/2 translate-y-1.5" style={{ left: `${at}%` }} aria-hidden>
-                <div
-                  className="relative flex h-12 w-20 items-center justify-center"
-                >
-                  {working ? (
-                    <span className="absolute left-1/2 top-2 z-10 flex -translate-x-1/2 gap-0.5">
-                      <span className="lightbar-a h-1 w-2 rounded-full" style={{ background: lightA, boxShadow: `0 0 6px ${lightA}` }} />
-                      <span className="lightbar-b h-1 w-2 rounded-full" style={{ background: lightB, boxShadow: `0 0 6px ${lightB}` }} />
-                    </span>
-                  ) : null}
-                  <ResponseVehicle silo={p.silo} className="h-12 w-20 drop-shadow-md" />
-                </div>
-              </div>
-            ) : null}
-          </div>
-        )}
       </button>
+
+      {/* Folded: the journey. Open: the big map below takes its place. */}
+      {stoodDown || open ? null : (
+        <JourneyStrip
+          silo={p.silo}
+          stops={stops}
+          at={at}
+          tone={v.tone}
+          light={v.light}
+          lights={[lightA, lightB]}
+          working={working}
+          moving={Boolean(enRoute && pos && !pos.stale)}
+          head={head}
+          sub={sub}
+          chip={chip}
+          onOpen={() => setOpen(true)}
+          t={t}
+        />
+      )}
 
       {/* The crew, sliding out: each officer, how far, how long, how they arrived. */}
       <div className={cn('grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none', open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')}>
@@ -394,5 +402,185 @@ function PartStrip({ track, road, eta, scene, where, now, t }: {
         </div>
       </div>
     </section>
+  );
+}
+
+/* ── The journey ─────────────────────────────────────────────────────── */
+
+type JourneyHead = { big: string; unit?: string; rest?: string; word?: boolean };
+type Stop = { key: string; label: string; done: boolean; at: string | null };
+
+/**
+ * The crew's journey as a goal tracker draws it: the number that matters
+ * now, a ticked rail filled in the department's colours with the vehicle at
+ * its head, and the checkpoints. Hover, tap or tab to a checkpoint and the
+ * vehicle pops up with when the crew reached it.
+ */
+function JourneyStrip({ silo, stops, at, tone, light, lights, working, moving, head, sub, chip, onOpen, t }: {
+  silo: string;
+  stops: Stop[];
+  /** Where the vehicle is along the rail, 0–100; null before dispatch. */
+  at: number | null;
+  tone: string;
+  light: string;
+  lights: [string, string];
+  /** The crew is working the call: the light bar flashes. */
+  working: boolean;
+  /** Closing in on a live position: the fill shimmers and the vehicle rolls. */
+  moving: boolean;
+  head: JourneyHead;
+  sub: string | null;
+  chip: string | null;
+  onOpen: () => void;
+  t: ReturnType<typeof useT>['t'];
+}) {
+  const [peek, setPeek] = useState<number | null>(null);
+  const last = stops.length - 1;
+  const posOf = (i: number) => (i / last) * 100;
+  const reached = stops.reduce((r, s, i) => (s.done ? i : r), -1);
+  const dispatchedAt = stops[0]?.at ? Date.parse(stops[0].at) : null;
+  const edge = (i: number) => (i === 0 ? '0%' : i === last ? '-100%' : '-50%');
+  const peeked = peek !== null ? stops[peek] ?? null : null;
+  const took = peeked?.at && dispatchedAt !== null && peek ? Math.max(0, Math.round((Date.parse(peeked.at) - dispatchedAt) / 60_000)) : null;
+  // The crew does not close the case: once it is closed the vehicle leaves the rail and the end is a tick.
+  const closed = stops[last]?.key === 'closed' && Boolean(stops[last]?.done);
+  const isClosedStop = (i: number) => i === last && closed;
+
+  return (
+    <div className="px-4 pb-4 sm:px-5">
+      <div className="flex items-end justify-between gap-3">
+        <p className="min-w-0 leading-none" suppressHydrationWarning>
+          <span className={cn('font-black tracking-tight tabular-nums text-fg', head.word ? 'text-xl sm:text-2xl' : 'text-3xl sm:text-4xl')}>{head.big}</span>
+          {head.unit ? <span className="ml-1 text-lg font-bold text-fg">{head.unit}</span> : null}
+          {head.rest ? <span className="ml-2 text-sm font-semibold text-muted-foreground">/ {head.rest}</span> : null}
+        </p>
+        {chip ? (
+          <span className="shrink-0 rounded-full border border-border bg-bg-soft px-2.5 py-1 text-xs font-bold tabular-nums text-muted-foreground">{chip}</span>
+        ) : null}
+      </div>
+
+      {/* One line, 13px up: faint ticks behind, the slim fill on them, the checkpoints on it, the vehicle just above. */}
+      <div className={cn('relative mx-6', at !== null && !closed ? 'mt-1 h-[70px]' : 'mt-3 h-8')}>
+        <div className="journey-ticks absolute inset-x-0 bottom-[8px] h-2.5 opacity-60" />
+        {at !== null ? (
+          <div
+            className="journey-fill absolute bottom-[10px] left-0 h-1.5 rounded-full"
+            data-moving={moving}
+            style={{ width: `${at}%`, background: `linear-gradient(90deg, ${tone}, ${light})`, boxShadow: `0 0 10px ${tone}66` }}
+          />
+        ) : null}
+
+        {/* The vehicle at the head of the fill, until the case is closed. */}
+        {at !== null && !closed ? (
+          <div className="vehicle-glide pointer-events-none absolute z-10 -translate-x-1/2" style={{ left: `${at}%`, bottom: 18 }} aria-hidden>
+            <div className="journey-car relative h-10 w-16" data-moving={moving}>
+              <span className="absolute inset-x-2 bottom-0 h-1 rounded-full blur-[3px]" style={{ background: `${tone}99` }} />
+              {working ? (
+                <span className="absolute left-1/2 top-1 z-10 flex -translate-x-1/2 gap-0.5">
+                  <span className="lightbar-a h-[3px] w-1.5 rounded-full" style={{ background: lights[0], boxShadow: `0 0 5px ${lights[0]}` }} />
+                  <span className="lightbar-b h-[3px] w-1.5 rounded-full" style={{ background: lights[1], boxShadow: `0 0 5px ${lights[1]}` }} />
+                </span>
+              ) : null}
+              <ResponseVehicle silo={silo} className="relative h-10 w-16 drop-shadow-lg" />
+            </div>
+          </div>
+        ) : null}
+
+        {/* The checkpoints, on the line. */}
+        <div className="absolute inset-x-0 bottom-[10px] h-1.5">
+          {stops.map((s, i) => {
+            const next = i === reached + 1 && reached >= 0;
+            return (
+              <button
+                key={s.key}
+                type="button"
+                data-peek={peek === i}
+                onMouseEnter={() => setPeek(i)}
+                onMouseLeave={() => setPeek(null)}
+                onFocus={() => setPeek(i)}
+                onBlur={() => setPeek(null)}
+                onClick={(e) => { e.stopPropagation(); setPeek(peek === i ? null : i); }}
+                aria-label={`${t(s.label)}: ${s.at ? hhmm(s.at) : s.done ? t('Done') : t('Not yet')}`}
+                className="journey-stop absolute top-1/2 z-20 flex h-6 w-6 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                style={{ left: `${posOf(i)}%` }}
+              >
+                {isClosedStop(i) ? (
+                  <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full ring-[3px] ring-bg-card" style={{ background: tone }}>
+                    <Check className="h-3 w-3 text-white" strokeWidth={3.5} />
+                  </span>
+                ) : (
+                  <span
+                    className={cn('block h-3 w-3 rounded-full ring-[3px] ring-bg-card', !s.done && 'border-2 border-border bg-bg-card', next && 'journey-next')}
+                    style={{ ...(s.done ? { background: tone } : {}), ['--ping' as string]: `${tone}99` }}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* The card a checkpoint pops: the vehicle, the step, when. */}
+        {peek !== null && peeked ? (
+          <div
+            key={peek}
+            className="journey-pop pointer-events-none absolute z-30 w-52 overflow-hidden rounded-xl border border-border bg-bg-card/95 p-2.5 shadow-xl backdrop-blur"
+            style={{ left: `${posOf(peek)}%`, bottom: 26, ['--pop-x' as string]: edge(peek), transform: `translateX(${edge(peek)})` }}
+            aria-live="polite"
+          >
+            <div className="absolute inset-x-0 top-0 h-0.5" style={{ background: `linear-gradient(90deg, ${tone}, ${light})` }} />
+            <div className="flex items-center gap-2.5">
+              {isClosedStop(peek) ? (
+                <span className="journey-pop-car flex h-9 w-14 shrink-0 items-center justify-center rounded-lg" style={{ background: `${tone}22`, color: tone }}>
+                  <Check className="h-5 w-5" strokeWidth={3} />
+                </span>
+              ) : peeked.done ? (
+                <ResponseVehicle silo={silo} className="journey-pop-car h-9 w-14 shrink-0" />
+              ) : (
+                <span className="flex h-9 w-14 shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground">
+                  <Clock3 className="h-4 w-4" />
+                </span>
+              )}
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{t(peeked.label)}</p>
+                <p className="text-lg font-black leading-tight tabular-nums text-fg">
+                  {peeked.at ? hhmm(peeked.at) : peeked.done ? t('Done') : peek === reached + 1 ? t('Next') : t('Not yet')}
+                </p>
+                {took !== null ? (
+                  <p className="text-[11px] font-semibold" style={{ color: tone }}>{t('{n} min after dispatch', { n: took })}</p>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      {/* The step names under the rail; a narrow card keeps only where the crew is and what is next. */}
+      <div className="relative mx-6 h-8">
+        {stops.map((s, i) => (
+          <span
+            key={s.key}
+            data-current={i === Math.max(0, reached) || i === reached + 1}
+            className={cn('journey-label absolute top-0 w-20 text-[10px] font-semibold leading-tight',
+              s.done ? 'text-fg' : 'text-muted-foreground',
+              i === 0 ? 'left-0 text-left' : i === last ? 'right-0 text-right' : '-translate-x-1/2 text-center')}
+            style={i === 0 || i === last ? undefined : { left: `${posOf(i)}%` }}
+          >
+            {t(s.label)}
+            {s.at ? <span className="block font-normal text-muted-foreground">{hhmm(s.at)}</span> : null}
+          </span>
+        ))}
+      </div>
+
+      <div className="mt-1 flex items-center justify-between gap-3">
+        <p suppressHydrationWarning className="min-w-0 text-xs font-medium text-muted-foreground">{sub}</p>
+        <button
+          type="button"
+          onClick={onOpen}
+          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs font-bold text-fg hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <MapIcon className="h-3.5 w-3.5" aria-hidden /> {t('Map')}
+        </button>
+      </div>
+    </div>
   );
 }

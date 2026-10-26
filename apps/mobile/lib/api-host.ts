@@ -90,21 +90,33 @@ export async function callApi<T>(path: string, body: unknown): Promise<T> {
   const { data: { session } } = await getSupabase().auth.getSession();
   if (!session) throw new ApiUnavailableError(tNow('Your session has expired — sign in again.'));
 
-  const res = await fetch(`${HOST}${path}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify(body),
-  });
+  // A server that never answers (wrong address, no route to it) must not
+  // leave the screen spinning for ever.
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), 20_000);
+  try {
+    const res = await fetch(`${HOST}${path}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(body),
+      signal: abort.signal,
+    });
 
-  if (!res.ok) {
-    // Surface the server's own message where it sent one — it is usually more
-    // actionable ("not configured on this deployment") than a status code.
-    const detail = await res.json().catch(() => null) as { error?: string } | null;
-    throw new Error(detail?.error ?? `Request failed (${res.status})`);
+    if (!res.ok) {
+      // Surface the server's own message where it sent one — it is usually more
+      // actionable ("not configured on this deployment") than a status code.
+      const detail = await res.json().catch(() => null) as { error?: string } | null;
+      throw new Error(detail?.error ?? `Request failed (${res.status})`);
+    }
+
+    return await res.json() as T;
+  } catch (e) {
+    if ((e as Error).name === 'AbortError') throw new Error(tNow('The server took too long to answer. Check your connection and try again.'));
+    throw e;
+  } finally {
+    clearTimeout(timer);
   }
-
-  return res.json() as Promise<T>;
 }

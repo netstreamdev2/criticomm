@@ -8,3 +8,4 @@ export * from './board.ts';
 export * from './model.ts';
 export * from './intake.ts';
 export * from './field.ts';
+export * from './disaster.ts';

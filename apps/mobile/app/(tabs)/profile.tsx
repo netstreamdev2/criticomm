@@ -24,6 +24,7 @@ import { CritiHead } from '@/components/criti-head';
 import { WorkLinks } from '@/components/work-links';
 import { OrgMark } from '@/components/org-mark';
 import { LanguagePicker } from '@/components/language-picker';
+import { PinSignInCard } from '@/components/pin-sign-in-card';
 import { useT } from '@/lib/i18n';
 
 /**
@@ -312,6 +313,9 @@ export default function ProfileScreen() {
       <Card>
         <LanguagePicker />
       </Card>
+
+      {/* Sign-in PIN, and this device for PIN sign-in (0108) */}
+      <PinSignInCard />
 
       {/* Account */}
       <SectionLabel>{t('Account')}</SectionLabel>

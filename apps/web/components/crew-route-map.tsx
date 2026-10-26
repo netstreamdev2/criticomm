@@ -27,16 +27,25 @@ export type MapCrew = {
 };
 
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services';
-const vehicleSize = (lead: boolean) => lead ? 40 : 34;
+const vehicleSize = (lead: boolean) => lead ? 30 : 26;
 
+/**
+ * A crew's vehicle on the map: small and solid, so it reads on the satellite
+ * picture without covering the road. An old position stays solid and wears a
+ * small clock instead of fading out.
+ */
 function vehicleHtml(silo: string, lights: [string, string], lead: boolean, stale: boolean) {
   const size = vehicleSize(lead);
-  return `<div style="position:relative;width:${size}px;height:${size}px;opacity:${stale ? 0.45 : 1}">
-    <img src="${responseVehicleSrc(silo)}" alt="" draggable="false" width="${size}" height="${size}" style="position:absolute;inset:0;width:${size}px;height:${size}px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))" />
-    ${stale ? '' : `<span style="position:absolute;top:24%;left:50%;transform:translateX(-50%);display:flex;gap:2px">
-      <span class="lightbar-a" style="display:block;width:4px;height:2px;border-radius:2px;background:${lights[0]};box-shadow:0 0 3px ${lights[0]}"></span>
-      <span class="lightbar-b" style="display:block;width:4px;height:2px;border-radius:2px;background:${lights[1]};box-shadow:0 0 3px ${lights[1]}"></span>
-    </span>`}
+  return `<div style="position:relative;width:${size}px;height:${size}px">
+    <img src="${responseVehicleSrc(silo)}" alt="" draggable="false" width="${size}" height="${size}" style="position:absolute;inset:0;width:${size}px;height:${size}px;object-fit:contain;filter:drop-shadow(0 0 1px #fff) drop-shadow(0 2px 3px rgba(0,0,0,.7))" />
+    ${stale
+      ? `<span title="" style="position:absolute;right:-4px;top:-4px;display:flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:9999px;background:#334155;border:1.5px solid #fff;box-shadow:0 1px 2px rgba(0,0,0,.5)">
+          <svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </span>`
+      : `<span style="position:absolute;top:22%;left:50%;transform:translateX(-50%);display:flex;gap:1.5px">
+          <span class="lightbar-a" style="display:block;width:3px;height:2px;border-radius:2px;background:${lights[0]};box-shadow:0 0 3px ${lights[0]}"></span>
+          <span class="lightbar-b" style="display:block;width:3px;height:2px;border-radius:2px;background:${lights[1]};box-shadow:0 0 3px ${lights[1]}"></span>
+        </span>`}
   </div>`;
 }
 
@@ -59,6 +68,8 @@ export function CrewRouteMap({ scene, crew, path, onTheWay = true, silo, tone, l
   const leafletRef = useRef<typeof import('leaflet') | null>(null);
   const routeRef = useRef<import('leaflet').LayerGroup | null>(null);
   const markers = useRef(new Map<string, import('leaflet').Marker>());
+  /** Each vehicle's drawing, so it is redrawn only when it changes. */
+  const looks = useRef(new Map<string, string>());
   const [ready, setReady] = useState(false);
   const [follow, setFollow] = useState(true);
 
@@ -136,10 +147,17 @@ export function CrewRouteMap({ scene, crew, path, onTheWay = true, silo, tone, l
         markers.current.set(c.userId, m);
       } else {
         m.setLatLng([c.lat, c.lng]);
+        // Gone stale or live again, or now the lead: redrawn, only then (a redraw skips the glide).
+        if (looks.current.get(c.userId) !== html) {
+          const size = vehicleSize(c.lead);
+          m.setIcon(L.divIcon({ className: 'vehicle-marker', iconSize: [size, size], iconAnchor: [size / 2, size / 2], html }));
+          m.setZIndexOffset(c.lead ? 1000 : 800);
+        }
       }
+      looks.current.set(c.userId, html);
     }
     for (const [id, m] of markers.current) {
-      if (!seen.has(id)) { m.remove(); markers.current.delete(id); }
+      if (!seen.has(id)) { m.remove(); markers.current.delete(id); looks.current.delete(id); }
     }
   }, [ready, crew, silo, tone, lights]);
 

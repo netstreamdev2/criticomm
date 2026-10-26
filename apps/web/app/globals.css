@@ -949,6 +949,14 @@ main table td {
   background-size: cover;
   background-attachment: fixed;
 }
+/* Fire department consoles use the firefighter photo from the Fire app. It
+   is a portrait, so on a wide screen keep the helmet and the truck in view. */
+.console-backdrop-fire {
+  background-image:
+    linear-gradient(180deg, var(--backdrop-veil-top), var(--backdrop-veil-mid) 45%, var(--backdrop-veil-bottom)),
+    url('/fire-home.jpg');
+  background-position: center 55%;
+}
 
 /* ── Paper slip ───────────────────────────────────────────────────────
    A white form on the console, whatever the theme: the report by radio
@@ -1110,12 +1118,6 @@ main table td {
    along the strip as the crew closes in. Still for those who ask for less
    motion. */
 .response-card { container-type: inline-size; border-top: 3px solid var(--response-tone); }
-.response-road-progress { transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
-@container (max-width: 460px) {
-  .response-journey { margin-bottom: 5rem; }
-  .response-stop-label { width: 3.5rem; }
-  .response-stop-label[data-stagger='true'] { top: 3rem; }
-}
 @keyframes lightbar {
   0%, 45% { opacity: 1; transform: scale(1); }
   50%, 100% { opacity: 0.15; transform: scale(0.8); }
@@ -1130,7 +1132,52 @@ main table td {
 .vehicle-glide { transition: left 1.2s cubic-bezier(0.22, 1, 0.36, 1); }
 @media (prefers-reduced-motion: reduce) {
   .lightbar-a, .lightbar-b, .vehicle-moving { animation: none; }
-  .vehicle-glide, .response-road-progress { transition: none; }
+  .vehicle-glide { transition: none; }
+}
+
+/* The journey: a ticked rail, the department's colour filling it, the
+   vehicle at its head; each checkpoint pops a card with when it was reached. */
+.journey-ticks {
+  background-image: repeating-linear-gradient(90deg, rgb(var(--c-border)) 0 2px, transparent 2px 7px);
+}
+/* Positioned by its own utilities (absolute, on the rail): never set position here. */
+.journey-fill { transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1); overflow: hidden; }
+.journey-fill[data-moving='true']::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgb(255 255 255 / 0.45) 50%, transparent 100%);
+  transform: translateX(-100%); animation: journey-shimmer 2.2s ease-in-out infinite;
+}
+@keyframes journey-shimmer { to { transform: translateX(100%); } }
+@keyframes journey-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+.journey-car[data-moving='true'] { animation: journey-bob 0.9s ease-in-out infinite; }
+@keyframes journey-ping {
+  0% { box-shadow: 0 0 0 0 var(--ping); }
+  100% { box-shadow: 0 0 0 9px transparent; }
+}
+.journey-next { animation: journey-ping 1.6s ease-out infinite; }
+@keyframes journey-pop {
+  0% { opacity: 0; transform: translate(var(--pop-x), 6px) scale(0.92); }
+  100% { opacity: 1; transform: translate(var(--pop-x), 0) scale(1); }
+}
+.journey-pop { animation: journey-pop 180ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes journey-pop-car {
+  0% { transform: translateX(-14px) scale(0.6); opacity: 0; }
+  70% { transform: translateX(2px) scale(1.06); opacity: 1; }
+  100% { transform: translateX(0) scale(1); }
+}
+.journey-pop-car { animation: journey-pop-car 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.journey-stop { transform: translate(-50%, -50%); transition: transform 150ms ease; }
+.journey-stop:hover, .journey-stop:focus-visible, .journey-stop[data-peek='true'] { transform: translate(-50%, -50%) scale(1.35); }
+@container (max-width: 460px) {
+  .journey-label:not([data-current='true']) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .journey-fill, .journey-stop { transition: none; }
+  .journey-fill[data-moving='true']::after, .journey-car[data-moving='true'], .journey-next,
+  .journey-pop, .journey-pop-car { animation: none; }
 }
 /* A crew's vehicle on the big map glides between fixes, never during a zoom. */
 .leaflet-marker-icon.vehicle-marker { transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1); }

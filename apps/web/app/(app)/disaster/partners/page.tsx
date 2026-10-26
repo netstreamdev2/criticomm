@@ -1,64 +1,37 @@
-import { listMutualAidPartners } from '@criticom/api';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { SimpleTable, Tr, Td } from '@/components/simple-table';
+import { listAllPartners } from '@criticom/api';
 import { getSession } from '@/lib/session';
 import { requestT } from '@/lib/i18n';
+import { PartnerList } from './list';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Mutual-Aid Partners · HikTech' };
+export const metadata = { title: 'Partner List · HikTech' };
 
-export default async function PartnersPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ resource?: string }>;
-}) {
+/** Who keeps the list: Disaster Management's command and administrators (save_mutual_aid_partner, 0112). */
+const KEEPERS = ['Admin', 'Supervisor', 'SystemAdmin', 'SuperAdmin', 'Disaster'];
+
+/**
+ * The partners the Disaster desk calls out (0112): the City's line
+ * functions, provincial and national departments, neighbouring districts'
+ * disaster centres and civil society relief organisations. Public only.
+ * Each number says whether it has been checked.
+ */
+export default async function PartnersPage() {
   const { t } = await requestT();
-  const { supabase } = await getSession();
-  const { resource } = await searchParams;
-  const partners = await listMutualAidPartners(supabase, resource);
-  const resourceTypes = [...new Set(partners.map((p) => p.resource_type))].sort();
-
+  const { supabase, role } = await getSession();
+  const partners = await listAllPartners(supabase).catch(() => []);
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">{t('Mutual-aid partner directory')}</h1>
-        <p className="text-muted-foreground">
-          {t('The partner organisations the disaster desk works with.')}</p>
+        <h1 className="text-2xl font-bold">{t('Partner list')}</h1>
+        <p className="max-w-3xl text-muted-foreground">{t('The public organisations the Disaster desk calls out. Press a number to call it.')}</p>
       </header>
-
-      <form method="get" className="flex items-end gap-3">
-        <div>
-          <label className="text-xs uppercase text-muted-foreground" htmlFor="resource">{t('Resource type')}</label>
-          <select id="resource" name="resource" defaultValue={resource ?? ''} className="mt-1 block h-10 rounded-md border border-border bg-bg-soft px-3 text-sm">
-            <option value="">{t('All')}</option>
-            {resourceTypes.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
-        </div>
-        <button type="submit" className="h-10 rounded-md bg-primary px-4 text-sm font-semibold">{t('Filter')}</button>
-      </form>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('{length} partners', { length: partners.length })}</CardTitle>
-          <CardDescription>{t('Contact and radio channels for joint operations.')}</CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          <SimpleTable
-            headers={['Agency', 'Resource type', 'Commander', 'Contact', 'Radio freq']}
-            empty={t('Directory is empty — load supabase/seed.')}
-          >
-            {partners.map((p) => (
-              <Tr key={p.id}>
-                <Td className="font-semibold">{p.agency_name}</Td>
-                <Td>{p.resource_type}</Td>
-                <Td>{p.commander_name ?? '—'}</Td>
-                <Td className="font-mono">{p.contact_number ?? '—'}</Td>
-                <Td className="font-mono">{p.radio_frequency ?? '—'}</Td>
-              </Tr>
-            ))}
-          </SimpleTable>
-        </CardContent>
-      </Card>
+      <PartnerList
+        canEdit={KEEPERS.includes(role)}
+        partners={partners.map((p) => ({
+          id: p.id, name: p.agency_name, type: p.resource_type, phone: p.contact_number, radio: p.radio_frequency, commander: p.commander_name,
+          sector: p.sector ?? null, verified: p.verified ?? false, notes: p.notes ?? null, active: p.is_active, sort: p.sort ?? 100,
+        }))}
+      />
     </div>
   );
 }

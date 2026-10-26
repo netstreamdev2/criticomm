@@ -365,21 +365,22 @@ const FIRE_COMMAND_GROUPS: NavGroup[] = [
   ] },
 ];
 
-// The Disaster Management desk (officers and admin): deployments, after-action
-// reports, partners, crews and settings.
+// The Disaster Management desk: its officers, dispatchers, supervisor and
+// administrator. Disaster has no field crews on the app (0111): the whole
+// operation runs from the desk, so there is no field dispatch, responder
+// monitor or start of shift here. Each person sees only what they may open.
 const DISASTER_GROUPS: NavGroup[] = [
-  { id: 'disaster-overview', label: 'Overview', items: [adminLink('/disaster', 'Disaster Dashboard')] },
   { id: 'disaster-operations', label: 'Operations', items: [
-    adminLink('/disaster/dispatch'),
+    adminLink('/disaster/desk'),
+    adminLink('/disaster', 'Disaster Dashboard'),
+    adminLink('/disaster/shelters'),
+    adminLink('/disaster/partners', 'Partner List'),
     adminLink('/disaster/post-mortem'),
-    adminLink('/disaster/partners'),
     adminLink('/incidents', 'Disaster Incidents'),
-    adminLink('/incidents/map', 'Live Map'),
-    adminLink('/responder/monitor', 'Active Responders'),
   ] },
-  { id: 'disaster-people', label: 'Shift & Crews', items: [
-    adminLink('/shift/today'),
-    adminLink('/shift/readiness-review'),
+  { id: 'disaster-people', label: 'Staff', items: [
+    adminLink('/disaster/duty'),
+    adminLink('/roster/mine'),
     adminLink('/admin', 'Users & Roles'),
     adminLink('/modules/staff', 'Staff'),
     adminLink('/modules/duty-maintenance', 'Duty Roster'),
@@ -475,6 +476,7 @@ const CONTROL_ROOM_GROUPS: NavGroup[] = [
   { id: 'control-calls', label: 'Calls', items: [
     adminLink('/dispatch/log-call', 'Log Incoming Call'),
     adminLink('/dispatch/pending', 'Pending Queue'),
+    adminLink('/disaster/desk'),
     adminLink('/incidents', 'Incidents'),
     adminLink('/incidents/map', 'Live Map'),
     adminLink('/responder/monitor', 'Active Responders'),

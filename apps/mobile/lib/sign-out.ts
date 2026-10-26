@@ -8,6 +8,7 @@ import { useNotifications } from '@/lib/notifications';
 import { sendRoute, stopRoute } from '@/lib/tracker';
 import { reportSignedOut } from '@/lib/presence';
 import { stopCameraForSignOut } from '@/lib/radio-camera';
+import { handOver } from '@/lib/pin-sign-in';
 
 /**
  * Signing out, the same way from every screen: send the route still on the
@@ -19,6 +20,10 @@ import { stopCameraForSignOut } from '@/lib/radio-camera';
  *
  * Not with no signal: the vehicle and duty would stay held on the server,
  * and dispatch would keep sending calls to someone who has gone.
+ *
+ * On a device registered for PIN sign-in that remembers this officer, the
+ * last step is a hand-over: the sign-in is set aside rather than ended, so
+ * they can take the device back up with their PIN with no signal (0108).
  */
 export function useSignOut() {
   const { releasePushToken } = useNotifications();
@@ -36,6 +41,8 @@ export function useSignOut() {
     await stopCameraForSignOut().catch(() => {});
     await reportSignedOut().catch(() => {});
     await cleanupOnLogout(sb).catch(() => {});
+    const userId = (await sb.auth.getSession().catch(() => null))?.data.session?.user.id;
+    if (userId && (await handOver(userId).catch(() => false))) return;
     await sb.auth.signOut();
   }, [releasePushToken]);
 }

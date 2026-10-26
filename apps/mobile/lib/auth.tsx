@@ -23,6 +23,23 @@ const AuthContext = createContext<AuthState>({
   session: null, loading: true, silo: 'Ethekwini', role: 'Viewer', fullName: '', offline: false,
 });
 
+/**
+ * A hand-over (lib/pin-sign-in.ts) signs out but keeps the officer's saved
+ * screens: they are filed under that officer (offline-cache.ts), so the next
+ * person sees none of them, and they are there again if the officer takes
+ * the device back up with no signal. Any other sign-out clears them.
+ */
+let keepCache = false;
+export function keepCacheAtNextSignOut(keep = true) {
+  keepCache = keep;
+}
+
+/** The provider's restore, so a sign-in put back by a PIN with no signal is taken up at once. */
+let adopt: (() => Promise<void>) | null = null;
+export async function adoptSavedSession(): Promise<void> {
+  await adopt?.();
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,6 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Without the finally the crew could sit on "Restoring your session…"
       // forever, which is indistinguishable from a hang.
       void restore().finally(() => { if (!cancelled) setLoading(false); });
+      adopt = restore;
 
       const { data: sub } = sb.auth.onAuthStateChange((event, s) => {
         if (cancelled) return;
@@ -78,7 +96,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === 'SIGNED_OUT') {
           use(null, false);
           // The next person on this handset sees nothing of this one's.
-          void clearOfflineCache();
+          if (keepCache) keepCache = false;
+          else void clearOfflineCache();
         }
       });
       unsubscribe = () => sub.subscription.unsubscribe();
@@ -91,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => {
       cancelled = true;
+      adopt = null;
       unsubscribe?.();
     };
   }, []);

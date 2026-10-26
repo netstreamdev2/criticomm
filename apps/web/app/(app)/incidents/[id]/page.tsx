@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FileText, Lock } from 'lucide-react';
 import {
-  deskTags, featureEnabled, listDisasterAssessments, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listIncidentEdits, listBookedOutBodycams,
+  deskTags, featureEnabled, listCallouts, listDisasterAssessments, getFireReportForIncident, getPcrForIncident, getPostMortemForIncident, getIncident, getIncidentReport, getIncidentUpdates, listAuditLogs, listIncidentEdits, listBookedOutBodycams,
   listIncidentAttachments, listIncidentMapZones, listIncidentResponders, partFor, partWords, searchBodycamBookings, signIncidentMedia,
   statusForPart, getOperationalSettings, listOnDutyOfficers, sortParts, type IncidentResponder,
 } from '@criticom/api';
@@ -124,8 +124,14 @@ export default async function IncidentDetailPage({
       ? listOnDutyOfficers(supabase).then((all) => all.filter((o) => crewIds.has(o.userId))).catch(() => [])
       : Promise.resolve([]),
   ]);
+  // Disaster has no crews on the app (0111): its part is run from the
+  // Disaster desk, so it is not on the crew tracker or the departments card.
+  const forDisaster = incident.silo === 'EthekwiniDisaster' || parts.some((p) => p.silo === 'EthekwiniDisaster')
+    || deskTags(incident).includes('EthekwiniDisaster');
+  const crewParts = parts.filter((p) => p.silo !== 'EthekwiniDisaster');
+  const deskCallouts = forDisaster ? await listCallouts(supabase, [incident.id]) : [];
   // My own department first; the others in their usual order.
-  const trackParts = sortParts(parts).sort((a, b) => Number(b.silo === myPart?.silo) - Number(a.silo === myPart?.silo)) as unknown as TrackPart[];
+  const trackParts = sortParts(crewParts).sort((a, b) => Number(b.silo === myPart?.silo) - Number(a.silo === myPart?.silo)) as unknown as TrackPart[];
   const scene = incident.location_lat && incident.location_lng ? { lat: incident.location_lat, lng: incident.location_lng } : null;
   const myLabel = myPart ? DEPARTMENT_NAMES[myPart.silo] : null;
 
@@ -220,6 +226,16 @@ export default async function IncidentDetailPage({
             <DismissSos incidentId={incident.id} className="no-print h-9 px-3"
               label={t("{value}'s SOS", { value: incident.caller_name ?? 'the officer' })} />
           ) : null}
+          {/* A call for Disaster is run from the Disaster desk (0111). */}
+          {(incident.silo === 'EthekwiniDisaster' || deskTags(incident).includes('EthekwiniDisaster')
+            || (incident.dispatched_silos ?? []).includes('EthekwiniDisaster')) && canAccess('/disaster/desk', role, silo) ? (
+            <Link
+              href={`/disaster/desk/${incident.id}`}
+              className="no-print rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            >
+              {t('Open on the Disaster desk')}
+            </Link>
+          ) : null}
           {/* Sent early and not finished: the person who logged it (or the control room) carries on (0076). */}
           {mayFinishCall({ userId, role, silo }, incident) ? (
             <Link
@@ -260,7 +276,31 @@ export default async function IncidentDetailPage({
 
       {/* Live: a crew's En Route, On Scene, Transporting and report re-render this page. */}
       <IncidentLive incidentId={incident.id} />
-      {parts.length > 0 ? (
+      {forDisaster ? (
+        <Card>
+          <CardContent className="space-y-3 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('Disaster desk')}</p>
+              {canAccess('/disaster/desk', role, silo) ? (
+                <Link href={`/disaster/desk/${incident.id}`} className="no-print text-sm font-semibold text-accent hover:underline">{t('Open on the Disaster desk')}</Link>
+              ) : null}
+            </div>
+            {deskCallouts.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t('Nobody called out yet.')}</p>
+            ) : (
+              <ul className="flex flex-wrap gap-2">
+                {deskCallouts.map((c) => (
+                  <li key={c.id} className="rounded-lg border border-border bg-bg-soft px-3 py-2 text-sm">
+                    <span className="font-semibold">{c.agency_name}</span>
+                    <span className="ml-2 text-muted-foreground">{c.status} · {formatSaTime(c.left_at ?? c.on_scene_at ?? c.on_way_at ?? c.called_at)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
+      {crewParts.length > 0 ? (
         <Card>
           <CardContent className="space-y-3 p-4">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -277,7 +317,7 @@ export default async function IncidentDetailPage({
             />
           </CardContent>
         </Card>
-      ) : (
+      ) : parts.length > 0 ? null : (
       <Card>
         <CardContent className="p-4">
           {myPart ? (
@@ -329,11 +369,11 @@ export default async function IncidentDetailPage({
       </Card>
       )}
 
-      {parts.length > 0 ? (
+      {crewParts.length > 0 ? (
         <DepartmentsCard
           incidentId={incident.id}
           incidentSilo={incident.silo}
-          parts={parts}
+          parts={crewParts}
           role={role}
           silo={silo}
           live={stage === 'live'}

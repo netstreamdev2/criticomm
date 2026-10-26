@@ -104,3 +104,31 @@ export function postMortemPayload(answers: Record<string, string>): Record<strin
   }
   return out;
 }
+
+/**
+ * The Disaster desk's post-mortem (0112): the phone's sections, with the
+ * Plan's impact counts beside them. The desk fills them from the call's
+ * record; the dispatcher checks them and files. The phone keeps its own.
+ */
+export const DESK_POST_MORTEM_SECTIONS: PostMortemSection[] = POST_MORTEM_SECTIONS.map((s) => s.id !== 'impact' ? s : {
+  ...s,
+  fields: [
+    ...s.fields,
+    { key: 'households_affected', label: 'Households Affected', kind: 'count' },
+    { key: 'homes_destroyed', label: 'Homes Destroyed', kind: 'count' },
+    { key: 'homes_damaged', label: 'Homes Damaged', kind: 'count' },
+    { key: 'people_sheltered', label: 'People Sheltered (Most at Once)', kind: 'count' },
+  ],
+});
+export const DESK_POST_MORTEM_FIELDS: PostMortemField[] = DESK_POST_MORTEM_SECTIONS.flatMap((s) => s.fields);
+
+/** The desk's answers as file_post_mortem() takes them: counts default to 0, and the yes/no. */
+export function deskPostMortemPayload(answers: Record<string, string>): Record<string, string | boolean> {
+  const out: Record<string, string | boolean> = {};
+  for (const f of DESK_POST_MORTEM_FIELDS) {
+    const v = (answers[f.key] ?? '').trim();
+    out[f.key] = f.kind === 'count' ? (v || '0') : v;
+  }
+  out.local_disaster_recommended = answers.local_disaster_recommended === 'yes';
+  return out;
+}

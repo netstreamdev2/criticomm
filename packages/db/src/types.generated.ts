@@ -2506,9 +2506,213 @@ export type Database = {
           filed_by: string;
           filed_by_name: string | null;
           filed_at: string;
+          /** The officer who reported it, when the desk filed it for them (0112). */
+          reported_by_name?: string | null;
         };
         Insert: Partial<Database['public']['Tables']['disaster_assessments']['Row']>;
         Update: Partial<Database['public']['Tables']['disaster_assessments']['Row']>;
+        Relationships: [];
+      };
+      /** A partner the Disaster desk called out to a call, and their progress (0111). */
+      disaster_callouts: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          client_ref: string | null;
+          partner_id: string | null;
+          /** A Disaster Management officer called out by the desk (0112): their personnel id. */
+          officer_id?: string | null;
+          agency_name: string;
+          resource_type: string | null;
+          contact_number: string | null;
+          radio_frequency: string | null;
+          how: 'Call' | 'Radio' | 'WhatsApp' | 'Other';
+          reason: string | null;
+          suggested_by_ai: boolean;
+          status: 'Called' | 'On the way' | 'On scene' | 'Left scene' | 'Stood down';
+          eta_minutes: number | null;
+          called_at: string;
+          on_way_at: string | null;
+          on_scene_at: string | null;
+          left_at: string | null;
+          called_by: string;
+          called_by_name: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_callouts']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_callouts']['Row']>;
+        Relationships: [];
+      };
+      /** What came in to the Disaster desk about a call: when, how, from whom (0111). */
+      disaster_desk_updates: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          client_ref: string | null;
+          source: 'Call' | 'Radio' | 'WhatsApp' | 'Other';
+          from_name: string | null;
+          callout_id: string | null;
+          text: string;
+          logged_by: string;
+          logged_by_name: string | null;
+          logged_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_desk_updates']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_desk_updates']['Row']>;
+        Relationships: [];
+      };
+      /** A Disaster call as the Plan names it (0112). */
+      disaster_call_facts: {
+        Row: {
+          incident_id: string;
+          tenant_id: string;
+          silo: Silo;
+          short_title: string | null;
+          hazard: string | null;
+          municipalities: string[];
+          level: 'Bronze' | 'Silver' | 'Gold';
+          highest_level: 'Bronze' | 'Silver' | 'Gold';
+          level_set_at: string | null;
+          level_set_by: string | null;
+          fcp_location: string | null;
+          eoc_location: string | null;
+          doc_activated_at: string | null;
+          scg_convened_at: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_call_facts']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_call_facts']['Row']>;
+        Relationships: [];
+      };
+      /** Halls and facilities for emergency assembly and shelter (0112). */
+      disaster_shelters: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          name: string;
+          kind: string;
+          municipality: string;
+          ward: string | null;
+          address: string | null;
+          capacity: number;
+          key_holder: string | null;
+          key_holder_phone: string | null;
+          notes: string | null;
+          is_active: boolean;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_shelters']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_shelters']['Row']>;
+        Relationships: [];
+      };
+      /** A shelter opened for a call (0112). */
+      disaster_shelter_openings: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          shelter_id: string;
+          client_ref: string | null;
+          people_now: number;
+          peak_people: number;
+          households: number;
+          children: number;
+          elderly: number;
+          disabled: number;
+          relief: Record<string, number>;
+          opened_at: string;
+          opened_by: string;
+          opened_by_name: string | null;
+          closed_at: string | null;
+          closed_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_shelter_openings']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_shelter_openings']['Row']>;
+        Relationships: [];
+      };
+      /** What happened at a shelter for a call (0112). */
+      disaster_shelter_entries: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          opening_id: string;
+          incident_id: string;
+          client_ref: string | null;
+          kind: 'Opened' | 'Arrived' | 'Left' | 'Relief' | 'Note' | 'Closed';
+          people: number;
+          relief: Record<string, number>;
+          note: string | null;
+          logged_by: string;
+          logged_by_name: string | null;
+          logged_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_shelter_entries']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_shelter_entries']['Row']>;
+        Relationships: [];
+      };
+      /** Disaster Management's duty roster (0112). */
+      disaster_duty: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          personnel_id: string | null;
+          name: string;
+          phone: string | null;
+          duty: string;
+          status: 'On duty' | 'On standby';
+          starts_at: string;
+          ends_at: string;
+          note: string | null;
+          created_by: string;
+          created_by_name: string | null;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_duty']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_duty']['Row']>;
+        Relationships: [];
+      };
+      /** The SCG duty chairperson for each month (0112). */
+      disaster_scg_chairs: {
+        Row: {
+          tenant_id: string;
+          silo: Silo;
+          year: number;
+          month: number;
+          name: string;
+          phone: string | null;
+          updated_by_name: string | null;
+          updated_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_scg_chairs']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_scg_chairs']['Row']>;
+        Relationships: [];
+      };
+      /** Criti's reading of a Disaster call, saved for the desk and the record (0111). */
+      disaster_ai_briefs: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          provider: string | null;
+          read_marker: string | null;
+          brief: Record<string, unknown>;
+          asked_by: string;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_ai_briefs']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_ai_briefs']['Row']>;
         Relationships: [];
       };
       post_mortem_reports: {
@@ -2533,6 +2737,19 @@ export type Database = {
           /** Filed against an incident by file_post_mortem() (0065): "PM-<incident number>". */
           report_number: string | null;
           filed_by: string | null;
+          /** The call as the Plan names it, taken from the record when filed (0112). */
+          short_title?: string | null;
+          hazard?: string | null;
+          coordination_level?: 'Bronze' | 'Silver' | 'Gold' | null;
+          municipalities?: string[];
+          households_affected?: number;
+          homes_destroyed?: number;
+          homes_damaged?: number;
+          people_sheltered?: number;
+          doc_activated?: boolean;
+          scg_convened?: boolean;
+          local_disaster_recommended?: boolean;
+          response?: Record<string, unknown>;
         };
         Insert: Partial<Database['public']['Tables']['post_mortem_reports']['Row']>;
         Update: Partial<Database['public']['Tables']['post_mortem_reports']['Row']>;
@@ -2562,6 +2779,11 @@ export type Database = {
           radio_frequency: string | null;
           commander_name: string | null;
           is_active: boolean;
+          /** Public partners (0112): who they are, whether the number is checked, a note, the order shown. */
+          sector?: 'eThekwini' | 'Provincial' | 'National' | 'District' | 'Civil society' | null;
+          verified?: boolean;
+          notes?: string | null;
+          sort?: number;
         };
         Insert: Partial<Database['public']['Tables']['mutual_aid_partners']['Row']>;
         Update: Partial<Database['public']['Tables']['mutual_aid_partners']['Row']>;
@@ -2886,6 +3108,31 @@ export type Database = {
           returned_by_name: string | null;
           return_condition: 'fine' | 'damaged' | 'lost' | 'taken_over' | null;
           return_note: string | null;
+        };
+        Insert: never;
+        Update: never;
+        Relationships: [];
+      };
+      /** Devices registered for PIN sign-in (0108). Written only by register_ and remove_sign_in_device(). */
+      sign_in_devices: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          /** The department whose officers sign in on it; null: every department. */
+          silo: Silo | null;
+          label: string;
+          radio_id: string | null;
+          secret_hash: string;
+          registered_by: string;
+          registered_by_name: string | null;
+          registered_at: string;
+          last_used_at: string | null;
+          last_used_by: string | null;
+          removed_at: string | null;
+          removed_by: string | null;
+          removed_reason: string | null;
+          /** 'database' since 0110; 'server' for the ones registered before, now removed. */
+          key_kind: string;
         };
         Insert: never;
         Update: never;
@@ -3217,6 +3464,45 @@ export type Database = {
       hat_pairing: { Args: { p_id: string }; Returns: Record<string, unknown> };
       hard_hat_button: { Args: { p_device: string }; Returns: Record<string, unknown> };
       issue_field_kit: { Args: { p_kit_id: string; p_personnel_id: string }; Returns: Record<string, unknown> };
+      // ── PIN sign-in on a registered device (0108) ──
+      register_sign_in_device: {
+        Args: { p_label: string; p_radio_id: string | null };
+        /** The device key, handed back once (0110). */
+        Returns: { id: string; label: string; silo: Silo | null; radio_id: string | null; key: string };
+      };
+      remove_sign_in_device: { Args: { p_id: string; p_reason: string }; Returns: undefined };
+      /** Server only (service role). */
+      sign_in_pin_lookup: {
+        Args: { p_device: string; p_device_key: string; p_user: string | null; p_badge: string | null };
+        Returns: { state: string; user_id?: string; full_name?: string | null; tries_left?: number };
+      };
+      /** Server only (service role). */
+      sign_in_pin_attempt: {
+        Args: { p_device: string; p_device_key: string; p_user: string; p_pin: string };
+        Returns: { state: string; user_id?: string; full_name?: string | null; tries_left?: number; email?: string };
+      };
+      /** Server only (service role). */
+      /** The signed-in officer chooses or changes their PIN, straight from the phone (0110). */
+      set_my_sign_in_pin: {
+        Args: { p_pin: string; p_current_pin?: string | null; p_password?: string | null };
+        Returns: { ok: boolean; state?: string; tries_left?: number; has_pin?: boolean };
+      };
+      reset_sign_in_pin: { Args: { p_user: string; p_reason: string }; Returns: undefined };
+      unlock_sign_in_pin: { Args: { p_user: string }; Returns: undefined };
+      sign_in_pin_board: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          user_id: string; full_name: string | null; badge_number: string | null; silo: Silo; role: string;
+          has_pin: boolean; set_at: string | null; failed_count: number; locked_at: string | null; last_used_at: string | null;
+        }>;
+      };
+      my_sign_in_pin: { Args: Record<string, never>; Returns: { has_pin: boolean; locked: boolean; set_at: string | null } | null };
+      record_sign_in_device_session: { Args: { p_device: string }; Returns: undefined };
+      /** Server only (service role): the officers a registered device lists (0109). */
+      sign_in_device_officers: {
+        Args: { p_device: string; p_device_key: string };
+        Returns: { state: string; officers?: Array<{ user_id: string; full_name: string | null; badge_number: string | null; silo: Silo }> };
+      };
       /** Dismiss an SOS pressed by mistake (0093). */
       dismiss_sos: { Args: { p_incident: string; p_reason: string }; Returns: Database['public']['Tables']['incidents']['Row'] };
       // ── Live camera from a radio (0091) ──
@@ -3714,6 +4000,68 @@ export type Database = {
       file_disaster_assessment: {
         Args: { p_incident_id: string; p_client_ref: string; p_fields: Record<string, unknown> };
         Returns: Database['public']['Tables']['disaster_assessments']['Row'];
+      };
+      /** The Disaster desk (0111). */
+      works_disaster_desk: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
+      disaster_call_out: {
+        Args: { p_incident_id: string; p_client_ref: string; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_callouts']['Row'];
+      };
+      set_callout_status: {
+        Args: { p_callout_id: string; p_status: string; p_fields?: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_callouts']['Row'];
+      };
+      log_disaster_update: {
+        Args: { p_incident_id: string; p_client_ref: string; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_desk_updates']['Row'];
+      };
+      /** The Disaster desk, the eThekwini way (0112). */
+      set_disaster_call: {
+        Args: { p_incident_id: string; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_call_facts']['Row'];
+      };
+      set_coordination_level: {
+        Args: { p_incident_id: string; p_level: string; p_note?: string | null };
+        Returns: Database['public']['Tables']['disaster_call_facts']['Row'];
+      };
+      save_mutual_aid_partner: {
+        Args: { p_id: string | null; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['mutual_aid_partners']['Row'];
+      };
+      save_disaster_shelter: {
+        Args: { p_id: string | null; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_shelters']['Row'];
+      };
+      open_disaster_shelter: {
+        Args: { p_incident_id: string; p_shelter_id: string; p_client_ref: string; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_shelter_openings']['Row'];
+      };
+      update_disaster_shelter: {
+        Args: { p_opening_id: string; p_client_ref: string; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_shelter_openings']['Row'];
+      };
+      close_disaster_shelter: {
+        Args: { p_opening_id: string; p_note?: string | null };
+        Returns: Database['public']['Tables']['disaster_shelter_openings']['Row'];
+      };
+      save_disaster_duty: {
+        Args: { p_id: string | null; p_fields: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_duty']['Row'];
+      };
+      end_disaster_duty: {
+        Args: { p_id: string };
+        Returns: Database['public']['Tables']['disaster_duty']['Row'];
+      };
+      set_scg_chair: {
+        Args: { p_year: number; p_month: number; p_name: string | null; p_phone?: string | null };
+        Returns: Database['public']['Tables']['disaster_scg_chairs']['Row'];
+      };
+      save_disaster_ai_brief: {
+        Args: { p_incident_id: string; p_provider: string | null; p_read_marker: string | null; p_brief: Record<string, unknown> };
+        Returns: Database['public']['Tables']['disaster_ai_briefs']['Row'];
       };
       file_pcr: {
         Args: { p_incident_id: string; p_fields: Record<string, string> };

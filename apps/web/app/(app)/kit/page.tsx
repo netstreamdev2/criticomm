@@ -1,4 +1,5 @@
-import { HardHat } from 'lucide-react';
+import Link from 'next/link';
+import { HardHat, KeyRound } from 'lucide-react';
 import { DEPARTMENT_LABELS, listKit, listKitHistory, listPersonnel, noKitRegister, type KitEntry } from '@criticom/api';
 import type { UserRole } from '@criticom/db';
 import { getSession, siloFilter } from '@/lib/session';
@@ -56,6 +57,11 @@ export default async function KitPage({ searchParams }: { searchParams: Promise<
             <p className="text-sm text-muted-foreground">{t('Who has what, right now.')}</p>
           </div>
         </div>
+        {manages ? (
+          <Link href="/kit/sign-in" className="flex items-center gap-1.5 rounded-md border border-border px-3 py-2 text-sm font-semibold hover:bg-muted">
+            <KeyRound className="h-4 w-4" aria-hidden />{t('PIN sign-in')}
+          </Link>
+        ) : null}
       </header>
 
       {missing ? (

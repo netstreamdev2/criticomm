@@ -25,6 +25,7 @@ import { HikTechLogo } from '@/components/hiktech-logo';
 import { RUBIK_FONTS, fontFamily } from '@/lib/font';
 import { useT } from '@/lib/i18n';
 import { HeaderCriti } from '@/components/alerts-bell';
+import { takePinSetupOffer } from '@/lib/pin-sign-in';
 
 /**
  * Root error boundary. expo-router renders this instead of unmounting when
@@ -72,7 +73,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     // Signed out, a person may sign in or activate an account with a printed code (0049).
     const signedOutScreen = segments[0] === 'login' || segments[0] === 'activate';
     if (!session && !signedOutScreen) { router.replace('/login'); return; }
-    if (session && signedOutScreen) { router.replace('/'); return; }
+    // Straight after a password sign-in on a registered device: choose a PIN, once (0108).
+    if (session && signedOutScreen) { router.replace(takePinSetupOffer() ? '/pin-setup' : '/'); return; }
 
   }, [session, loading, segments, router]);
 
@@ -232,6 +234,10 @@ export default function RootLayout() {
             <Stack.Screen
               name="leave"
               options={{ title: t('Leave'), headerBackTitle: t('Back') }}
+            />
+            <Stack.Screen
+              name="pin-setup"
+              options={{ title: t('Sign-in PIN'), headerBackTitle: t('Back') }}
             />
             <Stack.Screen
               name="kit"

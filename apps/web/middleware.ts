@@ -7,8 +7,11 @@ import type { Silo, UserRole } from '@criticom/db/types';
 
 // /invite, /activate and /legal are for people who do not have an account yet;
 // /api/onboarding is the phone app's way into the same steps.
+// /api/pin/sign-in is PIN sign-in on a registered device (0108): signed out by
+// nature; it checks the device's key and the PIN itself. /api/pin/officers is
+// that device's list of names to choose from (0109), for its key only.
 // /guide is the reviewers' walkthroughs: example data only.
-const PUBLIC_PATHS = ['/login', '/reset-password', '/share-location', '/invite', '/activate', '/legal', '/api/onboarding', '/guide'];
+const PUBLIC_PATHS = ['/login', '/reset-password', '/share-location', '/invite', '/activate', '/legal', '/api/onboarding', '/api/pin/sign-in', '/api/pin/officers', '/guide'];
 const PUBLIC_MARKETING_PATHS = new Set([
   '/why', '/story', '/decisions', '/platform', '/security', '/manual', '/faq',
 ]);

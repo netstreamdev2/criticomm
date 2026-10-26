@@ -34,18 +34,43 @@ const SAFE_KEY = KEY || 'unconfigured';
 
 let client: CriticomClient | null = null;
 
+/**
+ * While a registered device is handed over (lib/pin-sign-in.ts): the sign-in
+ * supabase-js removes is captured as it goes, and it is not ended at the
+ * server, so the officer can take it back up with their PIN with no signal.
+ */
+let handingOver: { captured: string | null } | null = null;
+
+const authStorage = {
+  getItem: (key: string) => AsyncStorage.getItem(key),
+  setItem: (key: string, value: string) => AsyncStorage.setItem(key, value),
+  removeItem: async (key: string) => {
+    // Read as it is removed: whatever renewal ran last, this is the newest.
+    if (handingOver && key === sessionStorageKey()) handingOver.captured = await AsyncStorage.getItem(key).catch(() => null);
+    await AsyncStorage.removeItem(key);
+  },
+};
+
+const urlOf = (input: RequestInfo | URL) => (typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url);
+
+/** The network, except that a hand-over's sign-out stays on the phone. */
+const network: typeof fetch = (input, init) => {
+  if (handingOver && urlOf(input).includes('/auth/v1/logout')) return Promise.resolve(new Response(null, { status: 204 }));
+  return fetch(input, init);
+};
+
 export function getSupabase(): CriticomClient {
   if (!client) {
     client = createGenericClient(SAFE_URL, SAFE_KEY, {
       auth: {
-        storage: AsyncStorage,
+        storage: authStorage,
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: false,
       },
       // Reads are kept on the phone and answered from it with no signal
       // (lib/offline-cache.ts); writes go through the outbox.
-      global: { fetch: createOfflineFetch((input, init) => fetch(input, init), SAFE_KEY) },
+      global: { fetch: createOfflineFetch(network, SAFE_KEY) },
     });
     keepUserOffline(client);
   }
@@ -90,6 +115,29 @@ function sessionStorageKey(): string {
  * renewed the moment signal returns. A sign-in the server refused is deleted
  * by supabase-js, so this never brings back a revoked one.
  */
+/**
+ * Signs this device out without ending the sign-in at the server, and
+ * returns the sign-in exactly as supabase-js kept it, to be set aside at a
+ * hand-over. Everything else about signing out happens as usual (the
+ * screens are told, the renewal stops). Needs signal if the sign-in is due
+ * for renewal, as signing out does.
+ */
+export async function signOutKeepingSession(): Promise<string | null> {
+  handingOver = { captured: null };
+  try {
+    const { error } = await getSupabase().auth.signOut({ scope: 'local' });
+    if (error) throw error;
+    return handingOver.captured;
+  } finally {
+    handingOver = null;
+  }
+}
+
+/** Puts a sign-in set aside at hand-over back where supabase-js keeps it. */
+export async function writeSavedSession(raw: string): Promise<void> {
+  await AsyncStorage.setItem(sessionStorageKey(), raw);
+}
+
 export async function readSavedSession(): Promise<Session | null> {
   try {
     const raw = await AsyncStorage.getItem(sessionStorageKey());

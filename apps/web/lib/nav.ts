@@ -5,7 +5,7 @@ import {
   RadioTower, Filter, SlidersHorizontal, IdCard, Target, Network, PlugZap, Activity,
   ToggleRight, Building2, LayoutGrid, Wrench, Timer, Mail, Receipt, Scale, Landmark,
   ScrollText, FileWarning, Grid3x3, Crosshair, Warehouse, ClipboardList, Video, Film, Cctv, BookOpen,
-  FileCheck, Siren, Archive, History, PieChart, HardHat,
+  FileCheck, Siren, Archive, History, PieChart, HardHat, KeyRound,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -51,6 +51,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/hierarchy', label: 'Dept Hierarchy', icon: Network, keywords: 'org chart chain of command' },
       { href: '/dispatch/ptt', label: 'Radio Desk', icon: RadioTower, keywords: 'push to talk ptt radio walkie talkie hard hat talk map battery' },
       { href: '/kit', label: 'Hard hats & radios', icon: HardHat, keywords: 'kit hard hat helmet radio booked out who has what equipment register numbers' },
+      { href: '/kit/sign-in', label: 'PIN sign-in', icon: KeyRound, keywords: 'pin sign in login radio shared device password locked unlock reset register phone' },
       { href: '/notifications', label: 'Notifications', icon: Bell, keywords: 'alerts' },
     ],
   },
@@ -110,7 +111,9 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/medical/handovers', label: 'Hospital Handovers', icon: Building2, keywords: 'handover hospital doctor receiving patient transfer of care' },
       { href: '/medical/restock', label: 'Ambulance Restock', icon: Archive, keywords: 'ambulance stock drugs inventory restock medical' },
       { href: '/disaster', label: 'Disaster Mgmt', icon: Mountain, keywords: 'flood relief mutual aid' },
-      { href: '/disaster/dispatch', label: 'Dispatch Resources', icon: Siren, keywords: 'deploy resources disaster log' },
+      { href: '/disaster/desk', label: 'Disaster Desk', icon: Siren, keywords: 'disaster calls call out partners eskom fire station updates criti command board' },
+      { href: '/disaster/shelters', label: 'Shelters', icon: Building2, keywords: 'shelters reception centres community halls key holders capacity displaced' },
+      { href: '/disaster/duty', label: 'Duty Roster', icon: CalendarClock, keywords: 'duty roster standby principal stand-by officer mdmc duty officer scg chair' },
       { href: '/disaster/post-mortem', label: 'Post-Mortems', icon: FileCheck, keywords: 'after action report aar post mortem lessons' },
       { href: '/disaster/partners', label: 'Mutual-Aid Partners', icon: Network, keywords: 'partners mutual aid agencies resources' },
     ],
@@ -277,8 +280,13 @@ export const isDoctor = (role: string) => role === 'Doctor';
 /** Fire command: the Fire Chief and the Fire & Rescue administrator. */
 export const isFireCommand = (role: string, silo: string) => role === 'FireChief' || (role === 'Admin' && silo === 'MetroFire');
 
-/** The Disaster Management desk: its officers and its administrator. */
-export const isDisasterDesk = (role: string, silo: string) => role === 'Disaster' || (role === 'Admin' && silo === 'EthekwiniDisaster');
+/**
+ * The Disaster Management desk: its officers, its dispatchers and control
+ * room, its supervisor and its administrator. Disaster has no field crews on
+ * the app; the whole operation runs from the desk (0111).
+ */
+export const isDisasterDesk = (role: string, silo: string) => role === 'Disaster'
+  || (['Admin', 'Supervisor', 'Dispatcher', 'ControlRoom'].includes(role) && silo === 'EthekwiniDisaster');
 
 /** The Metro Police (or Control Room) administrator. */
 export const isPoliceAdmin = (role: string, silo: string) => role === 'Admin'

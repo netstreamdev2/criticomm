@@ -9,16 +9,17 @@ import { useT } from '@/components/i18n';
 type OpenIncident = { id: string; number: string; type: string; location: string; started: string };
 
 /** The Official After-Action Report from the console, for an incident command closes out. */
-export function PostMortemForm({ incidents, officer, initialId }: { incidents: OpenIncident[]; officer: string; initialId?: string }) {
+export function PostMortemForm({ incidents, officer, initialId, endNow = false }: { incidents: OpenIncident[]; officer: string; initialId?: string; endNow?: boolean }) {
   const { t } = useT();
   const [incidentId, setIncidentId] = useState(initialId && incidents.some((i) => i.id === initialId) ? initialId : '');
   const picked = incidents.find((i) => i.id === incidentId) ?? null;
   const [answers, setAnswers] = useState<Record<string, string>>({
-    start_time: picked ? saStamp(picked.started) : '', end_time: '', injuries: '0', fatalities: '0', displaced_people: '0',
+    start_time: picked ? saStamp(picked.started) : '', end_time: endNow ? saStamp(new Date()) : '', injuries: '0', fatalities: '0', displaced_people: '0',
     reporting_officer: officer,
   });
   const [problems, setProblems] = useState<string[]>([]);
   const [pending, start] = useTransition();
+  const [drafting, setDrafting] = useState<'idle' | 'busy' | 'none'>('idle');
   const set = (k: string, v: string) => setAnswers((a) => ({ ...a, [k]: v }));
   const hours = durationHours(answers.start_time ?? '', answers.end_time ?? '');
   const field = 'mt-1 w-full rounded-md border border-border bg-bg-soft px-3 text-sm';
@@ -27,6 +28,35 @@ export function PostMortemForm({ incidents, officer, initialId }: { incidents: O
     setIncidentId(id);
     const inc = incidents.find((i) => i.id === id);
     if (inc) set('start_time', saStamp(inc.started));
+  };
+
+  // Criti drafts the cause, the lessons and the counts from the call's timeline;
+  // it fills only what is still empty or zero, and the dispatcher checks it.
+  const draft = async () => {
+    if (!incidentId) return;
+    setDrafting('busy');
+    try {
+      const res = await fetch('/api/disaster/brief', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ incidentId, mode: 'post-mortem' }),
+      });
+      const j = (await res.json()) as { draft?: { injuries: number | null; fatalities: number | null; displacedPeople: number | null; rootCause: string; lessonsLearned: string } | null };
+      const d = j.draft;
+      if (!d) { setDrafting('none'); return; }
+      setAnswers((a) => {
+        const empty = (k: string) => !(a[k] ?? '').trim() || a[k] === '0';
+        return {
+          ...a,
+          ...(empty('root_cause') && d.rootCause ? { root_cause: d.rootCause } : {}),
+          ...(empty('lessons_learned') && d.lessonsLearned ? { lessons_learned: d.lessonsLearned } : {}),
+          ...(empty('injuries') && d.injuries != null ? { injuries: String(d.injuries) } : {}),
+          ...(empty('fatalities') && d.fatalities != null ? { fatalities: String(d.fatalities) } : {}),
+          ...(empty('displaced_people') && d.displacedPeople != null ? { displaced_people: String(d.displacedPeople) } : {}),
+        };
+      });
+      setDrafting('idle');
+    } catch {
+      setDrafting('none');
+    }
   };
 
   const submit = (e: React.FormEvent) => {
@@ -56,6 +86,15 @@ export function PostMortemForm({ incidents, officer, initialId }: { incidents: O
           {incidents.map((i) => <option key={i.id} value={i.id}>{i.number} · {i.type} · {i.location}</option>)}
         </select>
         {picked ? <p className="mt-2 text-xs text-muted-foreground">{t('Type: {type} · Location: {location}', { type: picked.type, location: picked.location })}</p> : null}
+        {picked ? (
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <button type="button" onClick={draft} disabled={drafting === 'busy'}
+              className="inline-flex h-10 items-center gap-2 rounded-md border border-accent/50 bg-accent/10 px-4 text-sm font-semibold text-accent hover:bg-accent/20 disabled:opacity-60">
+              {drafting === 'busy' ? t('Criti is writing…') : t('Draft with Criti')}
+            </button>
+            {drafting === 'none' ? <span className="text-xs text-muted-foreground">{t('Criti could not draft it now. Write it yourself.')}</span> : null}
+          </div>
+        ) : null}
       </fieldset>
 
       {POST_MORTEM_SECTIONS.map((s) => (
