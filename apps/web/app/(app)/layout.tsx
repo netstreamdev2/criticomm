@@ -76,6 +76,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // and modules the SuperAdmin has hidden for this tenant or this role.
   // Middleware refuses the routes themselves; this keeps the links honest.
   const hidden = [...hiddenFor(features), ...deniedHrefs(accessRules, role)];
+  // Body Cam Footage needs the ffmpeg box, which serverless can't run, so it's
+  // hidden on Vercel — live view is the serverless-ready feature.
+  if (process.env.VERCEL) hidden.push('/cameras/footage');
   // System Modules shows only for people the systems controller gave access to.
   const modules: MyModules = await getMyModules(supabase).catch(() => ({}));
   if (Object.keys(modules).length === 0) hidden.push('/modules');

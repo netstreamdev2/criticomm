@@ -70,7 +70,12 @@ export async function bodycamStream(
 
   // Footage: the platform serves recorded playback only over a sustained ffmpeg
   // session (one-off segment fetches come back empty), so relay it to HLS on our
-  // own server rather than proxying. Needs a long-lived Node host, not serverless.
+  // own server rather than proxying. That needs a long-lived Node host with
+  // ffmpeg — which serverless (Vercel) is not — so there footage is not offered
+  // yet; live view is the serverless-ready feature.
+  if (process.env.VERCEL) {
+    throw new StreamUnavailable('Recorded footage review is coming soon. Live view is available now.');
+  }
   const playback = await hikPlaybackUrl(cfg, { cameraIndexCode: args.cameraCode, beginIso: args.from!, endIso: args.to! });
   if (!playback) throw new StreamUnavailable('The Hikvision platform returned no stream address.');
   const { playlistUrl } = await startRelay(args.cameraCode, playback, { kind: 'footage' });

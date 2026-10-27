@@ -47,7 +47,9 @@ export default async function BodyCamsPage() {
             {t('Bodycams out with officers right now. Watch up to four at once; each one asks why, and the officer’s phone shows that the control room is viewing their camera.')}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          {canAccess('/cameras/footage', role, silo) ? (
+          {/* Footage needs the ffmpeg box, which serverless can't run, so it's
+              hidden on Vercel — live view is the serverless-ready feature. */}
+          {!process.env.VERCEL && canAccess('/cameras/footage', role, silo) ? (
             <Link href="/cameras/footage" className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 font-semibold hover:bg-muted">
               <Film className="h-4 w-4" /> {' '}{t('Body cam footage')}</Link>
           ) : null}
