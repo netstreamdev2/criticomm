@@ -2592,6 +2592,21 @@ export type Database = {
           /** How the desk heard of it, and the ward (0113). */
           reported_through?: string | null;
           ward?: string | null;
+          /** The warning it was logged from (0116). */
+          warning_id?: string | null;
+          /** 0117: commanders, the JOC's authoriser, the checklists, the status, recovery. */
+          fcp_commander?: string | null;
+          eoc_commander?: string | null;
+          joc_authorised_by?: string | null;
+          joc_authoriser_role?: string | null;
+          joc_authoriser_on_roster?: boolean | null;
+          joc_reason?: string | null;
+          checks?: Record<string, { at: string; by: string }>;
+          dm_status?: 'Active' | 'Stood down' | 'In recovery' | 'Closed';
+          dm_status_at?: string | null;
+          dm_status_by?: string | null;
+          recovery?: Record<string, { state: string; note: string | null; at: string; by: string }>;
+          informal_settlement?: boolean;
         };
         Insert: Partial<Database['public']['Tables']['disaster_call_facts']['Row']>;
         Update: Partial<Database['public']['Tables']['disaster_call_facts']['Row']>;
@@ -2661,6 +2676,359 @@ export type Database = {
         };
         Insert: Partial<Database['public']['Tables']['disaster_sms']['Row']>;
         Update: Partial<Database['public']['Tables']['disaster_sms']['Row']>;
+        Relationships: [];
+      };
+      /** SA Weather Service warnings for eThekwini and the steps taken on each (0116). */
+      disaster_warnings: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          client_ref: string | null;
+          source: 'SA Weather Service feed' | 'Typed in';
+          saws_key: string | null;
+          saws_files: string[];
+          hazard: string;
+          level: number;
+          colour: 'Yellow' | 'Orange' | 'Red';
+          colour_by_desk: boolean;
+          valid_from: string;
+          valid_until: string;
+          areas: string;
+          /** eThekwini's areas as SAWS draws them: [[[lat, lng], …], …]. */
+          area_shapes: Array<Array<[number, number]>> | null;
+          impacts: string | null;
+          instructions: string | null;
+          issued_at: string | null;
+          status: 'Active' | 'Ended' | 'Cancelled';
+          ended_at: string | null;
+          ended_reason: string | null;
+          /** Step → who ticked it and when. */
+          steps: Record<string, { at: string; by: string }>;
+          incident_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          created_by_name: string | null;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_warnings']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_warnings']['Row']>;
+        Relationships: [];
+      };
+      /** What happened to a warning, in order (0116). */
+      disaster_warning_events: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          warning_id: string;
+          at: string;
+          by_name: string | null;
+          text: string;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_warning_events']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_warning_events']['Row']>;
+        Relationships: [];
+      };
+      /** JOC readiness sessions on a warning (0116) and daily sessions on an incident (0117). */
+      disaster_joc_sessions: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          client_ref: string | null;
+          kind: 'Readiness' | 'Daily';
+          warning_id: string | null;
+          incident_id: string | null;
+          held_at: string;
+          attended: string | null;
+          outcome: 'Monitor' | 'Pre-position resources' | 'Open halls' | 'Respond' | null;
+          notes: string | null;
+          created_at: string;
+          created_by: string | null;
+          created_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_joc_sessions']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_joc_sessions']['Row']>;
+        Relationships: [];
+      };
+      /** Ward and PR councillors with their cellphones (0116): the Disaster desk and command only. */
+      disaster_councillors: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          ward: number | null;
+          name: string;
+          phone: string | null;
+          email: string | null;
+          is_active: boolean;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_councillors']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_councillors']['Row']>;
+        Relationships: [];
+      };
+      /** When the server last read an outside feed, and whether it answered (0116). */
+      disaster_feed_state: {
+        Row: {
+          tenant_id: string;
+          feed: 'saws';
+          synced_at: string;
+          ok: boolean;
+          detail: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_feed_state']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_feed_state']['Row']>;
+        Relationships: [];
+      };
+      /** The SAWS files the server has read (0116); the service role only. */
+      disaster_saws_files: {
+        Row: {
+          tenant_id: string;
+          file: string;
+          seen_at: string;
+          touches: boolean;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_saws_files']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_saws_files']['Row']>;
+        Relationships: [];
+      };
+      /** Each move between Bronze, Silver and Gold, and why (0117). */
+      disaster_level_changes: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          at: string;
+          from_level: 'Bronze' | 'Silver' | 'Gold';
+          to_level: 'Bronze' | 'Silver' | 'Gold';
+          triggers: string[];
+          reason: string | null;
+          place: string | null;
+          commander: string | null;
+          authorised_by: string | null;
+          authoriser_role: string | null;
+          authoriser_on_roster: boolean | null;
+          by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_level_changes']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_level_changes']['Row']>;
+        Relationships: [];
+      };
+      /** Units, agencies and ward councillors on the JOC for an incident (0117). */
+      disaster_joc_members: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          kind: 'Internal unit' | 'External agency' | 'Ward councillor';
+          name: string;
+          representative: string | null;
+          phone: string | null;
+          added_at: string;
+          added_by_name: string | null;
+          left_at: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_joc_members']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_joc_members']['Row']>;
+        Relationships: [];
+      };
+      /** The post-incident review and its four sign-offs (0117). */
+      disaster_reviews: {
+        Row: {
+          incident_id: string;
+          tenant_id: string;
+          silo: Silo;
+          review_date: string | null;
+          lead_reviewer: string | null;
+          what_happened: string | null;
+          what_worked: string | null;
+          to_improve: string | null;
+          lessons: string | null;
+          recommendations: string | null;
+          signoffs: Record<string, { at: string; by: string }>;
+          signed_off_at: string | null;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_reviews']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_reviews']['Row']>;
+        Relationships: [];
+      };
+      /** Beneficiaries and relief by ward on a Disaster incident (0118): counts only. */
+      disaster_ward_relief: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          incident_id: string;
+          municipality: string;
+          ward: number;
+          councillor: string | null;
+          councillor_phone: string | null;
+          households: number;
+          people: number;
+          disabled: number;
+          older: number;
+          under_five: number;
+          blankets: number;
+          mattresses: number;
+          food_hampers: number;
+          start_house_kits: number;
+          notes: string | null;
+          recorded_at: string;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_ward_relief']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_ward_relief']['Row']>;
+        Relationships: [];
+      };
+      /** Real past disasters in eThekwini from the records (0119), apart from live calls. */
+      disaster_past_events: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          source: 'SA Weather Service records' | "Director's briefing, 1 December 2025";
+          source_ref: string;
+          year: number;
+          occurred_on: string | null;
+          event: string;
+          category: string | null;
+          priority_risk: string | null;
+          place: string | null;
+          ward: number | null;
+          lat: number | null;
+          lng: number | null;
+          deaths: number | null;
+          injured: number | null;
+          missing: number | null;
+          homes: number | null;
+          affected: number | null;
+          displaced: number | null;
+          cost: string | null;
+          notes: string | null;
+          imported_at: string;
+          imported_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_past_events']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_past_events']['Row']>;
+        Relationships: [];
+      };
+      /** The population the IDP counts deaths per 100 000 against (0120). */
+      disaster_settings: {
+        Row: {
+          tenant_id: string;
+          silo: Silo;
+          population: number | null;
+          population_note: string | null;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_settings']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_settings']['Row']>;
+        Relationships: [];
+      };
+      /** When each department last reviewed its disaster plan (0120). */
+      disaster_department_plans: {
+        Row: {
+          tenant_id: string;
+          silo: Silo;
+          department: string;
+          plan_reviewed_on: string | null;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_department_plans']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_department_plans']['Row']>;
+        Relationships: [];
+      };
+      /** The Advisory Forum's five task teams and their chairs (0120). */
+      disaster_task_teams: {
+        Row: {
+          tenant_id: string;
+          silo: Silo;
+          team: 'early_warning' | 'mhi' | 'social_relief' | 'adaptation' | 'rehabilitation';
+          chair: string | null;
+          chair_phone: string | null;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_task_teams']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_task_teams']['Row']>;
+        Relationships: [];
+      };
+      /** Meetings of the Advisory Forum and its task teams (0120). */
+      disaster_forum_meetings: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          silo: Silo;
+          client_ref: string | null;
+          body: string;
+          held_on: string;
+          attended: string | null;
+          notes: string | null;
+          created_at: string;
+          created_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_forum_meetings']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_forum_meetings']['Row']>;
+        Relationships: [];
+      };
+      /** Where each Framework measure stands (0120). */
+      disaster_framework_status: {
+        Row: {
+          tenant_id: string;
+          silo: Silo;
+          measure: string;
+          status: 'Not started' | 'In progress' | 'Achieved';
+          note: string | null;
+          updated_at: string;
+          updated_by_name: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_framework_status']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_framework_status']['Row']>;
+        Relationships: [];
+      };
+      /** Guided tours a person has taken or turned off for good (0121): their own rows only. */
+      user_guides: {
+        Row: {
+          user_id: string;
+          guide: string;
+          status: 'done' | 'dismissed';
+          at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['user_guides']['Row']>;
+        Update: Partial<Database['public']['Tables']['user_guides']['Row']>;
+        Relationships: [];
+      };
+      /** Practice incidents from Criti's walk-through (0121): the owner's only, never live. */
+      disaster_practice_incidents: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          user_id: string;
+          title: string;
+          hazard: string;
+          severity: 'Low' | 'Medium' | 'High' | 'Critical';
+          place: string | null;
+          ward: number | null;
+          first_report: string | null;
+          level: 'Bronze' | 'Silver' | 'Gold';
+          status: 'Active' | 'Stood down';
+          steps: Array<{ step: string; at: string; [k: string]: unknown }>;
+          created_at: string;
+          finished_at: string | null;
+        };
+        Insert: Partial<Database['public']['Tables']['disaster_practice_incidents']['Row']>;
+        Update: Partial<Database['public']['Tables']['disaster_practice_incidents']['Row']>;
         Relationships: [];
       };
       /** Injured, deceased and missing people (0113): read through list_disaster_casualties() only. */
@@ -2874,6 +3242,10 @@ export type Database = {
           quantity: number;
           unit_of_measure: string | null;
           last_inventory_check: string;
+          /** 0118: the four relief materials, each with its minimum. */
+          item_key?: 'blankets' | 'mattresses' | 'food_hampers' | 'start_house_kits' | null;
+          minimum?: number;
+          updated_by_name?: string | null;
         };
         Insert: Partial<Database['public']['Tables']['relief_stocks']['Row']>;
         Update: Partial<Database['public']['Tables']['relief_stocks']['Row']>;

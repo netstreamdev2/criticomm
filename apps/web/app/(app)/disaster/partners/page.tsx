@@ -2,6 +2,7 @@ import { listAllPartners } from '@criticom/api';
 import { getSession } from '@/lib/session';
 import { requestT } from '@/lib/i18n';
 import { PartnerList } from './list';
+import { PageGuide } from '@/components/office/page-guide';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Partner List · HikTech' };
@@ -25,6 +26,10 @@ export default async function PartnersPage() {
         <h1 className="text-2xl font-bold">{t('Partner list')}</h1>
         <p className="max-w-3xl text-muted-foreground">{t('The public organisations the Disaster desk calls out. Press a number to call it.')}</p>
       </header>
+      <PageGuide id="disaster.partners" steps={[
+        t('Public partners the desk calls out: City services, provincial and national departments and relief organisations.'),
+        t('Search by name or type. A number marked as not checked should be confirmed before it is relied on.'),
+      ]} />
       <PartnerList
         canEdit={KEEPERS.includes(role)}
         partners={partners.map((p) => ({

@@ -234,3 +234,94 @@ shared incidents table).
 
 Tests: `scripts/test-disaster-doc.mjs` (16 scenarios: 0112, 0113 and 0114
 applied twice over 0111) and `apps/web/lib/disaster-checks.test.ts`.
+
+## Revision 2: the JOC, warnings, relief, readiness and Criti's tour (0115 to 0121)
+
+From the Directorate's process (the Disaster Incident Management Process and
+its flowchart) and the Director's briefing of 1 December 2025.
+
+**Before the app update**, run in Supabase, in order: `0115_disaster_joc.sql`,
+`0116_disaster_warnings.sql`, `0117_disaster_joc_activation.sql`,
+`0118_disaster_relief.sql`, `0119_disaster_records.sql`,
+`0120_disaster_readiness.sql`, `0121_guides_and_practice.sql`. Each is safe to
+run again.
+
+**Settings** (in `apps/web/.env.local` and on the web host):
+
+- `SUPABASE_SERVICE_ROLE_KEY`: needed. The SAWS warning reader writes with it
+  (only `ingest_saws_warning` and `note_feed_sync` accept it).
+- `BULKSMS_TOKEN_ID`, `BULKSMS_TOKEN_SECRET`: already set for the desk's SMS;
+  warnings to the councillors use them too (up to 6 parts per message).
+- `WAQI_TOKEN` (optional): air quality from the stations; without it, the
+  modelled air quality from Open-Meteo.
+- `FIRMS_MAP_KEY` (optional): today's fire count on Hazard Watch; the fires
+  from space on the map need no key.
+
+What changed:
+
+- **The JOC (0115, 0117)**: Gold is the Joint Operations Centre at the DOC.
+  The DOC Commander is now the JOC Commander (rows renamed, audited). The top
+  ten priority risks lead the hazard list; the 2012 names still save. Moving
+  up a level needs at least one reason ticked (Bronze, Silver and Gold have
+  their own list) and the place: the FCP for Silver, the DOC for Gold. Gold
+  also needs who authorised it, from the listed roles, checked against the
+  roster. Each move is kept in `disaster_level_changes`. The JOC tile keeps
+  the activation checklist, the members (internal units and outside
+  agencies), and the daily sessions.
+- **Statuses, recovery and the review (0117)**: Active, Stood down, In
+  recovery, Closed, in that order, each with a reason. Closing a recovery
+  needs the hand-over confirmed. The recovery tasks, and the post-incident
+  review with its four sign-offs (shared, PDMC and NDMC, the Forum, the
+  Director), are on the board after stand-down. An incident in an informal
+  settlement is ticked as one.
+- **Early warnings (0116)**, `/disaster/warnings`: SAWS impact-based warnings
+  for eThekwini arrive by themselves. The desk's open screens ask every five
+  minutes; the server reads the SAWS feed at most once in five minutes, over
+  https, eThekwini areas only. A warning SAWS re-issues updates the same
+  record; a cancel cancels it. One that came by email or PDF is typed in.
+  Each warning has its steps (check with FEWS, tell the services, SMS the
+  councillors, spread it). At Level 4 or more the JOC's readiness session is
+  held and its outcome recorded, and an incident can be opened from it.
+- **Councillors (0116)**, `/disaster/councillors`: one per ward, PR
+  councillors without one. Added by hand or from a spreadsheet (.xlsx or
+  .csv; added, changed and skipped are counted). Their numbers are for the
+  Disaster desk and command only.
+- **Relief by ward (0118)**: counts only, never names: people, households,
+  and each vulnerable group (never more than the people), and what was handed
+  out. Relief stock (`/disaster/readiness`) now has a minimum and is written
+  only through `set_relief_stock`; the old policy that let the browser write
+  it is gone.
+- **Past disasters (0119)**, `/disaster/records`: SAWS's record of weather
+  disasters in eThekwini (read from the NDMC) and the major events in the
+  Director's briefing. Load records fills it; loading again updates the same
+  rows. Real events, kept apart from live calls: they never alert. They fill
+  the ward profiles (`/disaster/wards`).
+- **Readiness and IDP (0120)**, `/disaster/readiness`: the readiness score
+  (eight measures), the IDP figures for the financial year (July to June):
+  incidents, deaths, warnings, readiness sessions and signed reviews. The
+  population, each department's plan review date, the task-team chairs and
+  the Advisory Forum's meetings are kept here and on Duty and Forum.
+  `disaster_framework_status` and `set_framework_status` are ready for the
+  Framework's measures; the page waits for the Directorate's wording.
+- **The map** (`/disaster/map`): 29 outside overlays in a searchable layer
+  list, by group: warnings, flooding and fires from space (NASA), cloud
+  (EUMETSAT), river forecasts and flood hazard (GloFAS), cyclones, NDMC risk,
+  wards and their councillors, past disasters, the April 2022 damage,
+  earthquakes, GDACS. The server fetches, colours and caches them
+  (`/api/maps/features/[id]`, `/api/maps/tiles/[id]/[z]/[x]/[y]`), so the
+  browser talks to no outside site. Hazard Watch (`/disaster/watch`) shows the
+  latest from each source, with its link.
+- **Criti's tour and practice (0121)**: the first time someone opens a
+  Disaster page, Criti offers a short tour. Later asks again next time;
+  Don't show this again, or finishing it, stops it on that account
+  (`user_guides`, own rows only). Practise an incident (`/disaster/practice`)
+  walks through adding one, moving it up a level, logging what came in,
+  relief for a ward and stand-down, with the real rules. A practice incident
+  is its owner's alone (`disaster_practice_incidents`): it never reaches the
+  desk, the map, an SMS or a figure. The Disaster pages and the board's
+  tiles have their (i)s, and each list page its How this page works.
+
+Tests: `scripts/test-disaster-revision2.mjs` (7 scenarios: 0115 to 0121
+applied twice over 0111 to 0114), and the tests beside each list in
+`packages/db/src/disaster-*.test.ts`, `apps/web/lib/saws-cap.test.ts`,
+`apps/web/lib/councillors.test.ts` and `apps/web/lib/ops-map/catalogue.test.ts`.

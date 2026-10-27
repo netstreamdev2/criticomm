@@ -83,7 +83,7 @@ export function DeskPostMortemForm(p: Props) {
           <KV label={t('Hazard')} value={p.facts.hazard ?? t('Not set')} />
           <div><dt className="text-xs text-muted-foreground">{t('Highest level')}</dt><dd className="mt-0.5"><LevelChip level={p.facts.level} /></dd></div>
           <KV label={t('Municipalities affected')} value={p.facts.municipalities.join(', ') || '—'} />
-          <KV label={t('DOC activated · SCG in session')} value={`${p.facts.docActivated ? t('Yes') : t('No')} · ${p.facts.scgConvened ? t('Yes') : t('No')}`} />
+          <KV label={t('JOC activated')} value={p.facts.docActivated ? t('Yes') : t('No')} />
           {p.facts.fcp ? <KV label={t('Forward Control Point (FCP)')} value={p.facts.fcp} /> : null}
           {p.facts.eoc ? <KV label={t('Emergency Operations Centre (EOC)')} value={p.facts.eoc} /> : null}
         </dl>

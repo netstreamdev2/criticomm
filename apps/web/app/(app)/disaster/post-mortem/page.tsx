@@ -6,6 +6,7 @@ import { getSession } from '@/lib/session';
 import { formatSaTime } from '@/lib/utils';
 import { PostMortemForm } from './post-mortem-form';
 import { requestT } from '@/lib/i18n';
+import { PageGuide } from '@/components/office/page-guide';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Post-Mortem Reports · HikTech' };
@@ -36,6 +37,10 @@ export default async function PostMortemPage({ searchParams }: { searchParams: P
         <h1 className="text-2xl font-bold">{t('Post-mortem reports')}</h1>
         <p className="text-muted-foreground">{t('Official After-Action Reports. Filing one resolves the incident.')}</p>
       </header>
+      <PageGuide id="disaster.post-mortems" steps={[
+        t('Each incident’s after-action report, filed when the response ends. Open one, or download its PDF.'),
+        t('The post-incident review, with its four sign-offs, is on the incident’s board after it is stood down.'),
+      ]} />
 
       {canFile ? (
         deployed.length ? (

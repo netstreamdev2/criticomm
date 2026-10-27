@@ -2,7 +2,11 @@
  * The City's line functions and what each does during disaster operations,
  * in the words of the eThekwini Municipal Disaster Management Plan
  * (rev. 7 Aug 2012), "Council departmental pre-disaster management plans and
- * role responsibilities during disaster operations", pp. 20–32. The planning
+ * role responsibilities during disaster operations", pp. 20–32, with the
+ * names and duties the Directorate uses now (revision 2, October 2026,
+ * section 8: the JOC in place of the DOC and the SCG). A duty's place in its
+ * list is how a ticked duty is saved: reword one in place, add new ones at
+ * the end, never reorder. The planning
  * obligations every department shares (compile plans, submit them, keep the
  * staff resources database) are kept apart for the readiness record; the
  * roles below are the ones a department carries out on an incident.
@@ -22,7 +26,7 @@ export type LineFunction = {
 };
 
 /** Every department's first duty on an incident (the Plan: "Provide a representative at the DOC if this has been activated"). */
-export const DOC_REPRESENTATIVE = 'Provide a representative at the DOC if this has been activated';
+export const DOC_REPRESENTATIVE = 'Nominate a JOC representative, who joins the JOC when it is activated';
 
 /** Duties the Plan gives every line function before any incident. */
 export const PLANNING_OBLIGATIONS = [
@@ -35,14 +39,18 @@ export const PLANNING_OBLIGATIONS = [
 
 export const LINE_FUNCTIONS: LineFunction[] = [
   {
-    key: 'disaster', name: 'Disaster Management and Emergency Control', head: 'Head: Disaster Management and Emergency Control',
+    key: 'disaster', name: 'Disaster Management Directorate', head: 'Director: Disaster Management',
     roles: [
       'When deemed necessary, consider the declaration of a local state of disaster as per the Disaster Management Act 57 of 2002',
       'Liaise with provincial and national officials [PDMC and NDMC]',
-      'Activate the DOC and call the Strategic Coordination Group into session',
+      'Activate the JOC at the DOC',
       'Secure resources as required',
-      'Assist the Strategic Coordination Group in the decision making process',
+      'Assist the JOC in the decision making process',
       'Maintain ongoing assessment of the threat/hazard and co-ordinate appropriate responses',
+      'Receive SA Weather Service warnings and verify them with the FEWS team',
+      'Run the initial assessment and the needs assessment',
+      'Coordinate relief through the ward councillors',
+      'Keep the relief stock',
     ],
     figures: [],
   },
@@ -50,9 +58,9 @@ export const LINE_FUNCTIONS: LineFunction[] = [
     key: 'emacc', name: 'Emergency Mobilizing and Communications Centre (EMACC)', head: 'Manager: EMACC',
     roles: [
       'Provide and support the disaster management centre with a twenty four hour communication facility for the notification of major incidents and any subsequent communication needs as determined by internal SOPs',
-      'Providing support staff from EMACC during DOC operations',
+      'Providing support staff from EMACC during JOC operations',
       'Sourcing and mobilizing resources as required',
-      'Updating the FCP/EOC and DOC with relevant information',
+      'Updating the FCP, EOC and JOC with relevant information',
       'Maintain a comprehensive data base of senior council staff contact details and departmental standby rosters',
     ],
     figures: [],
@@ -115,8 +123,12 @@ export const LINE_FUNCTIONS: LineFunction[] = [
     figures: [{ key: 'halls_opened', label: 'Halls made available' }],
   },
   {
-    key: 'housing', name: 'Housing', head: 'Head: Housing',
-    roles: ['Coordinate the provision of temporary shelter where Community Halls are unavailable to house displaced persons'],
+    key: 'housing', name: 'Human Settlements', head: 'Head: Human Settlements',
+    roles: [
+      'Coordinate the provision of temporary shelter where Community Halls are unavailable to house displaced persons',
+      'Run the disaster housing programmes',
+      'Repair or replace temporary disaster housing before it deteriorates',
+    ],
     figures: [{ key: 'temporary_shelters', label: 'Temporary shelters provided' }],
   },
   {
@@ -174,7 +186,7 @@ export const LINE_FUNCTIONS: LineFunction[] = [
     figures: [{ key: 'unsafe_buildings', label: 'Unsafe buildings identified' }],
   },
   {
-    key: 'waste', name: 'Solid Waste', head: 'Head: Solid Waste',
+    key: 'waste', name: 'Durban Solid Waste', head: 'Head: Durban Solid Waste',
     roles: [
       'Advising of and providing facilities for the disposal of hazardous waste',
       'Advising of and providing facilities for incineration',
@@ -195,13 +207,15 @@ export const LINE_FUNCTIONS: LineFunction[] = [
     figures: [],
   },
   {
-    key: 'communications', name: 'Communications and Public Relations', head: 'Head: Communications',
+    key: 'communications', name: 'Communications and Community Participation', head: 'Head: Communications and Community Participation',
     roles: [
       'Establishing a media liaison point and setting up media briefing arrangements',
       'Nominating a media liaison officer and oversee all aspects of media response',
       'Liaise with media liaison officer from the agency on whose premises the incident occurred so as to ensure consolidated media information management',
       'Establish press conferences and prepare media briefings and press releases',
       'Liaise with public broadcasters and local radio stations. Prepare public notification messages ensuring that the public is regularly informed throughout the incident including information on public protective strategies and follow up messages',
+      'Spread warnings and the emergency contact details on every channel: WhatsApp groups, Facebook, Instagram, YouTube, LinkedIn, radio, loud-hailing and SMS to all councillors',
+      'Lead the evacuation alerts',
     ],
     figures: [],
   },
@@ -249,13 +263,13 @@ export function departmentsFor(hazard: string | null | undefined): string[] {
   const h = hazard ?? '';
   const base = ['disaster', 'metro'];
   const add = (() => {
-    if (/Flood|Storm tide|Severe storm|Cyclone/.test(h)) return ['fire', 'engineering', 'water', 'electricity', 'safer', 'parks', 'health', 'housing', 'fleet', 'waste', 'communications'];
-    if (/informal settlement fire|Wildfire|Arson/.test(h)) return ['fire', 'safer', 'parks', 'health', 'housing', 'electricity', 'waste'];
+    if (/Flood|Storm tide|Storm surge|Severe storm|Cyclone/.test(h)) return ['fire', 'engineering', 'water', 'electricity', 'safer', 'parks', 'health', 'housing', 'fleet', 'waste', 'communications'];
+    if (/informal settlement fire|Fires in formal|Wildfire|Arson/.test(h)) return ['fire', 'safer', 'parks', 'health', 'housing', 'electricity', 'waste'];
     if (/Hazardous materials|Industrial|Nuclear/.test(h)) return ['fire', 'health', 'water', 'communications', 'dpem', 'security'];
-    if (/Landslip|sinkhole|Structural collapse|Earthquake|Erosion|Dam failure/.test(h)) return ['engineering', 'fire', 'housing', 'safer', 'parks', 'health'];
-    if (/Epidemic|Animal disease|Emerging|Insect|Food and crop/.test(h)) return ['health', 'communications', 'safer', 'water'];
-    if (/Civil disturbance|Terrorist|Shooting|Sabotage/.test(h)) return ['security', 'communications', 'health'];
-    if (/Failure of critical infrastructure|IT virus/.test(h)) return ['electricity', 'water', 'engineering', 'gipo', 'communications'];
+    if (/Landslip|Landslide|sinkhole|Structural collapse|Earthquake|Erosion|Dam failure/.test(h)) return ['engineering', 'fire', 'housing', 'safer', 'parks', 'health'];
+    if (/Epidemic|Human disease|Animal disease|Emerging|Insect|Food and crop/.test(h)) return ['health', 'communications', 'safer', 'water'];
+    if (/Civil disturbance|Civil unrest|Terrorist|Shooting|Sabotage/.test(h)) return ['security', 'communications', 'health'];
+    if (/Failure of critical infrastructure|Critical infrastructure|IT virus/.test(h)) return ['electricity', 'water', 'engineering', 'gipo', 'communications'];
     if (/Drought|Extreme temperature/.test(h)) return ['water', 'health', 'communications'];
     if (/transport accident|Aeronautical/.test(h)) return ['fire', 'health', 'eta'];
     return [];

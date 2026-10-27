@@ -6,6 +6,7 @@ import { Home } from 'lucide-react';
 import { RELIEF_ITEMS } from '@criticom/db/disaster-plan';
 import { CallButton } from '@/components/disaster/call-button';
 import { useT } from '@/components/i18n';
+import { Fold } from '@/components/disaster/fold';
 import { cn } from '@/lib/utils';
 import { SUPPLY_STATES, WATER_SUPPLY } from '@criticom/db/disaster-departments';
 import { closeShelterAction, openShelterAction, shelterServicesAction, updateShelterAction } from '../actions';
@@ -36,12 +37,9 @@ export function SheltersTile({ incidentId, openings, register, live, onError }: 
   const closed = openings.filter((o) => o.closedAt);
   const people = open.reduce((n, o) => n + o.peopleNow, 0);
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-bg-card shadow-sm">
-      <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-        <h2 className="flex items-center gap-2 font-semibold"><Home className="h-4 w-4 text-accent" aria-hidden />
-          {t('Reception centres ({n} open, {p} people)', { n: open.length, p: people })}</h2>
-        <Link href="/disaster/shelters" className="text-sm font-semibold text-accent hover:underline">{t('Shelter register')}</Link>
-      </div>
+    <Fold id="board.shelters" icon={Home} title={t('Reception centres ({n} open, {p} people)', { n: open.length, p: people })} defaultOpen={false}
+      info={t('Halls opened for this incident: people in now, places left, and the relief handed out.')}
+      actions={<Link href="/disaster/shelters" className="text-sm font-semibold text-accent hover:underline">{t('Shelter register')}</Link>}>
       <div className="space-y-4 p-5">
         {open.length === 0 ? <p className="text-sm text-muted-foreground">{t('No shelter open for this call.')}</p> : null}
         {open.map((o) => <OpenShelter key={o.id} incidentId={incidentId} o={o} live={live} onError={onError} />)}
@@ -52,7 +50,7 @@ export function SheltersTile({ incidentId, openings, register, live, onError }: 
           </ul>
         ) : null}
       </div>
-    </section>
+    </Fold>
   );
 }
 

@@ -17,6 +17,7 @@
     "./cases": "./src/cases/stage.ts",
     "./criti": "./src/criti/index.ts",
     "./criti/disaster": "./src/criti/disaster.ts",
+    "./criti/disaster-help": "./src/criti/disaster-help.ts",
     "./schedule": "./src/schedule/index.ts",
     "./radio": "./src/radio/index.ts",
     "./talk": "./src/radio/talk-session.ts",

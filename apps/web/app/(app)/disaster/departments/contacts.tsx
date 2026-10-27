@@ -9,11 +9,12 @@ import { FieldProblem, problemBorder } from '@/components/disaster/field-problem
 import { anyProblem, checkEmail, checkName, checkPhone } from '@/lib/disaster-checks';
 import { cn } from '@/lib/utils';
 import { saveContactAction } from '../desk/actions';
+import { planReviewAction } from '../readiness/actions';
 
 type Contact = { id: string; department: string; name: string; post: string | null; phone: string | null; email: string | null; docRep: boolean };
 
 /** Each line function as a card: its role on an incident (folded), its contacts, add and change in place. */
-export function DepartmentContacts({ contacts, canEdit }: { contacts: Contact[]; canEdit: boolean }) {
+export function DepartmentContacts({ contacts, canEdit, plans }: { contacts: Contact[]; canEdit: boolean; plans: Record<string, string | null> }) {
   const { t } = useT();
   const [editing, setEditing] = useState<string | null>(null);
   const [roles, setRoles] = useState<string | null>(null);
@@ -21,7 +22,7 @@ export function DepartmentContacts({ contacts, canEdit }: { contacts: Contact[];
   const withRep = LINE_FUNCTIONS.filter((d) => contacts.some((c) => c.department === d.key && c.docRep)).length;
   return (
     <div className="space-y-5">
-      <p className="text-sm font-medium">{t('{n} of {all} departments have a DOC representative recorded.', { n: withRep, all: LINE_FUNCTIONS.length })}</p>
+      <p className="text-sm font-medium">{t('{n} of {all} departments have a JOC representative recorded.', { n: withRep, all: LINE_FUNCTIONS.length })}</p>
       {error ? <p role="alert" className="rounded-lg border border-severity-critical bg-bg-card px-4 py-3 text-sm font-medium text-severity-critical-ink">{error}</p> : null}
       <ul className="grid gap-5 lg:grid-cols-2">
         {LINE_FUNCTIONS.map((d) => {
@@ -33,15 +34,16 @@ export function DepartmentContacts({ contacts, canEdit }: { contacts: Contact[];
                   <p className="text-lg font-semibold leading-tight">{d.name}</p>
                   <p className="text-sm text-muted-foreground">{d.head}</p>
                 </div>
-                {mine.some((c) => c.docRep) ? null : <span className="shrink-0 rounded-full border border-severity-medium px-2.5 py-0.5 text-xs font-semibold text-severity-medium-ink">{t('No DOC representative')}</span>}
+                {mine.some((c) => c.docRep) ? null : <span className="shrink-0 rounded-full border border-severity-medium px-2.5 py-0.5 text-xs font-semibold text-severity-medium-ink">{t('No JOC representative')}</span>}
               </div>
+              <PlanReview department={d.key} reviewedOn={plans[d.key] ?? null} canEdit={canEdit} onError={setError} />
               <ul className="space-y-2">
                 {mine.map((c) => editing === c.id ? (
                   <li key={c.id}><ContactForm department={d.key} contact={c} onDone={() => setEditing(null)} onError={setError} /></li>
                 ) : (
                   <li key={c.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-bg-soft px-3 py-2 text-sm">
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold">{c.name}{c.docRep ? <span className="ml-2 text-xs font-semibold text-accent">{t('DOC representative')}</span> : null}</p>
+                      <p className="font-semibold">{c.name}{c.docRep ? <span className="ml-2 text-xs font-semibold text-accent">{t('JOC representative')}</span> : null}</p>
                       <p className="text-muted-foreground">{[c.post, c.email].filter(Boolean).join(' · ')}</p>
                     </div>
                     <CallButton number={c.phone} size="sm" />
@@ -97,13 +99,47 @@ function ContactForm({ department, contact, onDone, onError }: {
         <label className="block text-sm font-medium">{t('Email')}<input value={v.email} onChange={(e) => setV({ ...v, email: e.target.value })} maxLength={160} inputMode="email" className={cn(field, problemBorder(bad.email))} /><FieldProblem problem={bad.email} /></label>
       </div>
       <div className="flex flex-wrap gap-5 text-sm">
-        <label className="flex items-center gap-2"><input type="checkbox" checked={rep} onChange={(e) => setRep(e.target.checked)} className="h-4 w-4" />{t('DOC representative')}</label>
+        <label className="flex items-center gap-2"><input type="checkbox" checked={rep} onChange={(e) => setRep(e.target.checked)} className="h-4 w-4" />{t('JOC representative')}</label>
         {contact ? <label className="flex items-center gap-2"><input type="checkbox" checked={!active} onChange={(e) => setActive(!e.target.checked)} className="h-4 w-4" />{t('No longer in this post')}</label> : null}
       </div>
       <div className="flex gap-2">
         <button type="button" onClick={save} disabled={pending || !v.name.trim() || anyProblem(bad.name, bad.phone, bad.email)} className="h-10 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{pending ? t('Saving…') : t('Save')}</button>
         <button type="button" onClick={onDone} className="h-10 rounded-md border border-border px-5 text-sm hover:bg-muted">{t('Cancel')}</button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * When the department last reviewed its disaster plan (0120). Every
+ * department reviews its plan each year; over a year ago shows amber, as the
+ * readiness score stops counting it.
+ */
+function PlanReview({ department, reviewedOn, canEdit, onError }: {
+  department: string; reviewedOn: string | null; canEdit: boolean; onError: (e: string) => void;
+}) {
+  const { t } = useT();
+  const [pending, start] = useTransition();
+  const [v, setV] = useState(reviewedOn ?? '');
+  const stale = !reviewedOn || Date.now() - Date.parse(reviewedOn) > 366 * 24 * 3600_000;
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-sm">
+      <span className={cn('font-medium', stale ? 'text-severity-medium-ink' : 'text-muted-foreground')}>
+        {reviewedOn ? (stale ? t('Plan reviewed {date}: over a year ago', { date: reviewedOn }) : t('Plan reviewed {date}', { date: reviewedOn })) : t('Plan review not recorded')}
+      </span>
+      {canEdit ? (
+        <>
+          <input type="date" value={v} onChange={(e) => setV(e.target.value)} aria-label={t('Date the plan was reviewed')}
+            className="h-9 rounded-md border border-border bg-bg-soft px-2 text-sm" />
+          {v !== (reviewedOn ?? '') ? (
+            <button type="button" disabled={pending} className="h-9 rounded-md bg-primary px-3 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+              onClick={() => start(async () => {
+                const res = await planReviewAction(department, v);
+                if ('error' in res) onError(res.error);
+              })}>{t('Save')}</button>
+          ) : null}
+        </>
+      ) : null}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { listOpenShelters, listShelters, listOpenDisasterIncidents } from '@crit
 import { getSession } from '@/lib/session';
 import { requestT } from '@/lib/i18n';
 import { ShelterRegister } from './register';
+import { PageGuide } from '@/components/office/page-guide';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Shelters · HikTech' };
@@ -29,6 +30,10 @@ export default async function SheltersPage() {
           {t('Council halls and facilities for emergency assembly and shelter. Keep the key holders and space up to date.')}
         </p>
       </header>
+      <PageGuide id="disaster.shelters" steps={[
+        t('Keep the register of halls: capacity, the key holder and their number. A hall is ready when it has room and a key holder to phone.'),
+        t('Open a hall on an incident from its board, under Reception centres. People in and out, and relief handed out, are logged there.'),
+      ]} />
       <ShelterRegister
         canEdit={role !== 'Viewer'}
         halls={halls.map((h) => {

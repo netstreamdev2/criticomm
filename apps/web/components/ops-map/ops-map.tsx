@@ -31,7 +31,7 @@ import { useRouter } from 'next/navigation';
 import 'leaflet/dist/leaflet.css';
 import type * as Leaflet from 'leaflet';
 import {
-  Crosshair, Layers, Maximize2, Minimize2, Shapes, Siren, Wind, X,
+  Crosshair, Layers, Maximize2, Minimize2, Search, Shapes, Siren, Wind, X,
 } from 'lucide-react';
 import {
   listBodycamHolders, listCameras, listCrimeZones, listDutyTracks, listHydrantsInArea, subscribeBodycams,
@@ -48,10 +48,14 @@ import { useOnDutyOfficers } from '@/lib/on-duty';
 import { useLiveZones } from '@/lib/live-zones';
 import {
   BASEMAPS, CRIME_KINDS, HYDRANT_COLOUR, LAYER_GROUPS, LAYERS, SEVERITY_COLOUR, WEATHER_LAYERS,
-  compass, crimeZones, hasPosition, isBasemap, isCrimeKind, isSos, isStale, offlineSince, parseFacilities,
+  compass, crimeZones, hasPosition, isBasemap, isCrimeKind, isSos, isStale, isWeatherLayer, offlineSince, parseFacilities,
   parseTraffic, restoreLayers, ROUTE_COLOUR, routeSegments, summariseIncidents,
-  type Basemap, type CrimeKind, type CrimeStation, type Facility, type LayerId, type TrafficItem,
+  type Basemap, type CrimeKind, type CrimeStation, type Facility, type LayerId, type MapLayerId, type TrafficItem,
 } from '@/lib/ops-map/layers';
+import {
+  CATALOGUE, catalogueOverlay, matchesSearch, type CatalogueOverlay, type LegendItem, type OverlayFeatureProps,
+} from '@/lib/ops-map/catalogue';
+import { InfoDot } from '@/components/info-dot';
 import { distanceM, fromGeometry, kindsForShape, zoneKind, type LatLng, type ZoneDraft } from '@/lib/ops-map/zones';
 import { cn, escapeHtml, timeAgo } from '@/lib/utils';
 import { saveZoneAction } from '@/app/(app)/incidents/map/actions';
@@ -153,10 +157,10 @@ export type OpsMapProps = {
   officers: OnDutyOfficer[];
   /** Department scope; undefined for every department. */
   silo?: Silo;
-  /** Layers this viewer may switch on (availableLayers). */
-  layers: LayerId[];
+  /** Layers this viewer may switch on (availableLayers), the outside overlays among them on the Disaster maps. */
+  layers: MapLayerId[];
   /** What they open with until they choose (defaultLayers). */
-  defaults: LayerId[];
+  defaults: MapLayerId[];
   /** The administrator's default basemap (Operations Settings). */
   basemap: Basemap;
   /** "All departments" or the department's name, for the wall display. */
@@ -189,12 +193,14 @@ export type OpsMapProps = {
   onlyMine?: boolean;
   /** Reception centres to show on the Shelters layer (0113): the Disaster desk's register. */
   shelters?: MapShelter[];
+  /** Switched on as the map opens, on top of what the viewer chose before (a "Show on the map" link). */
+  alsoOn?: MapLayerId[];
 };
 
 export function OpsMap({
   incidents: initialIncidents, officers: initialOfficers, silo, layers: available, defaults,
   basemap: defaultBasemap, scopeLabel, height = 560, startInWall = false,
-  me, focusZoneId = null, drawForIncidentId = null, bodycams = false, liveRoutes = null, onlyMine = false, shelters = [],
+  me, focusZoneId = null, drawForIncidentId = null, bodycams = false, liveRoutes = null, onlyMine = false, shelters = [], alsoOn = [],
 }: OpsMapProps) {
   const { t } = useT();
   const router = useRouter();
@@ -234,42 +240,53 @@ export function OpsMap({
 
   const availableKey = available.join(',');
   const defaultsKey = defaults.join(',');
-  const [active, setActive] = useState<LayerId[]>(() => restoreLayers(defaults, available, []));
+  const alsoOnKey = alsoOn.join(',');
+  const [active, setActive] = useState<MapLayerId[]>(() => restoreLayers(defaults, available, []));
   const [basemap, setBasemap] = useState<Basemap>(defaultBasemap);
   const [crimeKind, setCrimeKind] = useState<CrimeKind>('all');
+  /** How see-through each outside overlay is, 0.2 to 1, when the viewer changed it. */
+  const [opacity, setOpacityMap] = useState<Record<string, number>>({});
   const [restored, setRestored] = useState(false);
 
   useEffect(() => {
-    const allowed = availableKey.split(',') as LayerId[];
+    const allowed = availableKey.split(',') as MapLayerId[];
     try {
       const saved = JSON.parse(localStorage.getItem(STORE) ?? 'null') as Record<string, unknown> | null;
       if (saved && typeof saved === 'object') {
         if ('layers' in saved) setActive(restoreLayers(saved.layers, allowed, []));
         if (isBasemap(saved.basemap)) setBasemap(saved.basemap);
         if (isCrimeKind(saved.crimeKind)) setCrimeKind(saved.crimeKind);
+        if (saved.opacity && typeof saved.opacity === 'object') {
+          setOpacityMap(Object.fromEntries(Object.entries(saved.opacity as Record<string, unknown>)
+            .filter(([id, v]) => catalogueOverlay(id) && typeof v === 'number' && v >= 0.2 && v <= 1)) as Record<string, number>);
+        }
       }
     } catch {
       /* private window or blocked storage — the defaults stand */
     }
+    const extra = alsoOnKey ? (alsoOnKey.split(',') as MapLayerId[]).filter((id) => allowed.includes(id)) : [];
+    if (extra.length) setActive((cur) => [...new Set([...cur, ...extra])]);
     setRestored(true);
-  }, [availableKey]);
+  }, [availableKey, alsoOnKey]);
 
   useEffect(() => {
     if (!restored) return;
     try {
-      localStorage.setItem(STORE, JSON.stringify({ layers: active, basemap, crimeKind }));
+      localStorage.setItem(STORE, JSON.stringify({ layers: active, basemap, crimeKind, opacity }));
     } catch {
       /* not fatal */
     }
-  }, [restored, active, basemap, crimeKind]);
+  }, [restored, active, basemap, crimeKind, opacity]);
 
-  const isOn = useCallback((id: LayerId) => active.includes(id), [active]);
-  const toggle = (id: LayerId) =>
+  const isOn = useCallback((id: MapLayerId) => active.includes(id), [active]);
+  const toggle = (id: MapLayerId) =>
     setActive((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+  const setOpacity = (id: string, v: number) => setOpacityMap((cur) => ({ ...cur, [id]: v }));
   const resetLayers = () => {
-    setActive(restoreLayers(defaultsKey.split(','), availableKey.split(',') as LayerId[], []));
+    setActive(restoreLayers(defaultsKey.split(','), availableKey.split(',') as MapLayerId[], []));
     setBasemap(defaultBasemap);
     setCrimeKind('all');
+    setOpacityMap({});
   };
 
   /* ── Wall display state ───────────────────────────────────────────── */
@@ -292,6 +309,8 @@ export function OpsMap({
   const groups = useRef<Partial<Record<GroupKey, Leaflet.LayerGroup>>>({});
   const baseLayers = useRef<Leaflet.TileLayer[]>([]);
   const weatherTiles = useRef<Partial<Record<string, Leaflet.TileLayer>>>({});
+  /** The outside overlays on the map, each with its refresh timer. */
+  const outside = useRef(new Map<string, { layer: Leaflet.TileLayer | Leaflet.GeoJSON; timer?: ReturnType<typeof setInterval> }>());
   const incidentMarkers = useRef(new Map<string, { marker: Leaflet.Marker; key: string; sos: boolean }>());
   const unitMarkers = useRef(new Map<string, { marker: Leaflet.Marker; key: string }>());
   const lastTouch = useRef(0);
@@ -331,6 +350,8 @@ export function OpsMap({
         groups.current = {};
         baseLayers.current = [];
         weatherTiles.current = {};
+        for (const o of outside.current.values()) if (o.timer) clearInterval(o.timer);
+        outside.current.clear();
         incidentMarkers.current.clear();
         unitMarkers.current.clear();
       };
@@ -646,10 +667,10 @@ export function OpsMap({
   const [cameras, setCameras] = useState<Camera[] | null>(null);
   const [facilities, setFacilities] = useState<Facility[] | null>(null);
   const [traffic, setTraffic] = useState<TrafficItem[] | null>(null);
-  const [notes, setNotes] = useState<Partial<Record<LayerId, string>>>({});
+  const [notes, setNotes] = useState<Partial<Record<MapLayerId, string>>>({});
   const loading = useRef(new Set<LayerId>());
 
-  const note = useCallback((id: LayerId, text: string | null) => {
+  const note = useCallback((id: MapLayerId, text: string | null) => {
     setNotes((cur) => {
       const next = { ...cur };
       if (text) next[id] = text;
@@ -690,6 +711,83 @@ export function OpsMap({
       }
     });
   }, [active, crime, cameras, facilities, note]);
+
+  /*
+   * The outside overlays (catalogue.ts): pictures from /api/maps/tiles, or
+   * features from /api/maps/features already coloured and worded by the
+   * server. Each is fetched when switched on and again on its own schedule;
+   * a source that does not answer leaves a note under its switch.
+   */
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
+  const tRef = useRef(t);
+  tRef.current = t;
+  useEffect(() => {
+    const map = mapRef.current;
+    const L = lib.current;
+    if (!ready || !map || !L) return;
+    for (const o of CATALOGUE as readonly CatalogueOverlay[]) {
+      const id = o.id as MapLayerId;
+      const on = active.includes(id);
+      const have = outside.current.get(o.id);
+      if (!on && have) {
+        if (have.timer) clearInterval(have.timer);
+        have.layer.remove();
+        outside.current.delete(o.id);
+        note(id, null);
+        continue;
+      }
+      if (!on || have) continue;
+      const alpha = opacityRef.current[o.id] ?? o.opacity ?? 1;
+      if (o.kind === 'tiles') {
+        const layer = L.tileLayer(`/api/maps/tiles/${o.id}/{z}/{x}/{y}`, {
+          opacity: alpha, zIndex: 7, maxZoom: 19, maxNativeZoom: o.maxNativeZoom ?? 12, attribution: escapeHtml(o.source),
+        }).addTo(map);
+        const timer = o.refreshMinutes ? setInterval(() => layer.redraw(), o.refreshMinutes * 60_000) : undefined;
+        outside.current.set(o.id, { layer, timer });
+        continue;
+      }
+      const renderer = canvas.current ?? undefined;
+      const layer = L.geoJSON(undefined, {
+        style: (f) => overlayStyle(f?.properties as OverlayFeatureProps | undefined, opacityRef.current[o.id] ?? 1),
+        pointToLayer: (f, at) => L.circleMarker(at, {
+          radius: (f.properties as OverlayFeatureProps).radius ?? 6, color: '#0f172a', weight: 1,
+          fillColor: (f.properties as OverlayFeatureProps).colour, fillOpacity: 0.9, renderer,
+        }),
+        onEachFeature: (f, l) => {
+          const props = f.properties as OverlayFeatureProps;
+          l.bindPopup(overlayPopup(props, o, tRef.current));
+          if (props.ward != null && props.outline) l.bindTooltip(escapeHtml(props.title), { sticky: true });
+        },
+      }).addTo(map);
+      const load = () => fetch(`/api/maps/features/${o.id}`, { cache: 'no-store' })
+        .then(async (r) => {
+          const j = (await r.json().catch(() => null)) as { features?: unknown[]; note?: string; error?: string } | null;
+          if (!r.ok || !j?.features) {
+            note(id, j?.error ?? 'Could not load. It tries again in a few minutes.');
+            return;
+          }
+          layer.clearLayers();
+          layer.addData(j as Parameters<typeof layer.addData>[0]);
+          note(id, j.note ?? (j.features.length ? null : 'Nothing to show here now.'));
+        })
+        .catch(() => note(id, 'Could not load. It tries again in a few minutes.'));
+      void load();
+      const timer = setInterval(load, (o.refreshMinutes ?? 24 * 60) * 60_000);
+      outside.current.set(o.id, { layer, timer });
+    }
+  }, [ready, active, note]);
+
+  // A change of see-through applies to what is on the map now.
+  useEffect(() => {
+    const L = lib.current;
+    if (!L) return;
+    for (const [id, o] of outside.current) {
+      const def = catalogueOverlay(id);
+      if (o.layer instanceof L.TileLayer) o.layer.setOpacity(opacity[id] ?? def?.opacity ?? 1);
+      else o.layer.setStyle((f) => overlayStyle(f?.properties as OverlayFeatureProps | undefined, opacity[id] ?? 1));
+    }
+  }, [opacity]);
 
   // Hydrants: the city's whole register is about 34,000, so only those in
   // view are read, from street level, again each time the map stops moving.
@@ -1436,6 +1534,8 @@ export function OpsMap({
           crimeKind={crimeKind}
           setCrimeKind={setCrimeKind}
           crimeYear={crimeYear}
+          opacity={opacity}
+          setOpacity={setOpacity}
           onReset={resetLayers}
           onClose={() => setSheet(null)}
         />
@@ -1475,7 +1575,8 @@ export function OpsMap({
         </div>
       )}
 
-      <Legend isOn={isOn} wall={wall} unplaced={summary.unplaced} crimeYear={crimeYear} bodycams={camHolders.size > 0} />
+      <Legend isOn={isOn} wall={wall} unplaced={summary.unplaced} crimeYear={crimeYear} bodycams={camHolders.size > 0}
+        outside={(CATALOGUE as readonly CatalogueOverlay[]).filter((o) => active.includes(o.id as MapLayerId))} />
 
       {wall && !nativeFs && (
         <p className="ops-map-chrome ops-glass pointer-events-none absolute bottom-3 left-1/2 z-[5] -translate-x-1/2 rounded-md px-3 py-1 text-xs text-slate-300">
@@ -1529,6 +1630,37 @@ export function OpsMap({
       ) : null}
     </div>
   );
+}
+
+/* ── Outside overlays ───────────────────────────────────────────────── */
+
+/** An area or line from an outside overlay: its own colour; outlines stay clickable inside. */
+function overlayStyle(p: OverlayFeatureProps | undefined, alpha: number): Leaflet.PathOptions {
+  const colour = p?.colour ?? '#38bdf8';
+  return p?.outline
+    ? { color: colour, weight: 2, opacity: Math.max(alpha, 0.6), fillColor: colour, fillOpacity: 0.02 }
+    : { color: colour, weight: 1, opacity: Math.max(alpha, 0.5), fillColor: colour, fillOpacity: 0.45 * alpha };
+}
+
+/** The pop-up: what it is, a line or two, and where it comes from. Our own pages open here; outside ones in a new tab. */
+function overlayPopup(p: OverlayFeatureProps, o: CatalogueOverlay, t: (s: string, v?: Record<string, string | number>) => string): string {
+  const lines = (p.lines ?? []).filter(Boolean).map((l) => `<div>${escapeHtml(l)}</div>`).join('');
+  const link = !p.url ? ''
+    : p.url.startsWith('/') ? `<a href="${escapeHtml(p.url)}">${escapeHtml(t('Open'))}</a>`
+      : `<a href="${escapeHtml(p.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('More'))}</a>`;
+  return `<div style="min-width:12rem;max-width:18rem"><strong>${escapeHtml(p.title)}</strong>${lines}`
+    + `<div style="margin-top:4px;font-size:11px;opacity:.75">${escapeHtml(t(o.label))}${link ? ` · ${link}` : ''}</div></div>`;
+}
+
+/** The legend's entries for the outside overlays switched on, each colour once. */
+function legendItems(outside: readonly CatalogueOverlay[]): LegendItem[] {
+  const seen = new Set<string>();
+  return outside.flatMap((o) => o.legend).filter((x) => {
+    const k = `${x.colour}-${x.label}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
 }
 
 /* ── Pieces ─────────────────────────────────────────────────────────── */
@@ -1592,56 +1724,148 @@ function WeatherStat({ weather }: { weather: WeatherNow | null }) {
   );
 }
 
+type PanelRow = {
+  id: MapLayerId; label: string; group: string; hint: string; about: string; source: string; sourceUrl: string;
+  keywords: string; tiles: boolean; legend: readonly LegendItem[];
+};
+
+/**
+ * The layers, one list: the map's own and, on the Disaster maps, the outside
+ * overlays. A search box (flood, ward, fire…), a chip for each group, what is
+ * on now at the top with a quick off, and for each layer its (i) (what it
+ * shows and where it comes from), its note if it did not load, its legend
+ * and, for the pictures, how see-through it is.
+ */
 function LayerPanel({
-  available, isOn, toggle, notes, weatherOff, crimeKind, setCrimeKind, crimeYear, onReset, onClose,
+  available, isOn, toggle, notes, weatherOff, crimeKind, setCrimeKind, crimeYear, opacity, setOpacity, onReset, onClose,
 }: {
-  available: LayerId[];
-  isOn: (id: LayerId) => boolean;
-  toggle: (id: LayerId) => void;
-  notes: Partial<Record<LayerId, string>>;
+  available: MapLayerId[];
+  isOn: (id: MapLayerId) => boolean;
+  toggle: (id: MapLayerId) => void;
+  notes: Partial<Record<MapLayerId, string>>;
   weatherOff: boolean;
   crimeKind: CrimeKind;
   setCrimeKind: (k: CrimeKind) => void;
   crimeYear: string | null;
+  opacity: Record<string, number>;
+  setOpacity: (id: string, v: number) => void;
   onReset: () => void;
   onClose: () => void;
 }) {
   const { t } = useT();
+  const [q, setQ] = useState('');
+  const [group, setGroup] = useState('');
+  const rows = useMemo<PanelRow[]>(() => [
+    ...LAYERS.filter((l) => available.includes(l.id)).map((l) => ({
+      id: l.id as MapLayerId, label: l.label, group: l.group as string, hint: l.hint, about: l.hint, source: '', sourceUrl: '',
+      keywords: '', tiles: isWeatherLayer(l.id) || l.id === 'radar', legend: [],
+    })),
+    ...(CATALOGUE as readonly CatalogueOverlay[]).filter((o) => available.includes(o.id as MapLayerId)).map((o) => ({
+      id: o.id as MapLayerId, label: o.label, group: o.group as string, hint: o.hint, about: o.about, source: o.source,
+      sourceUrl: o.sourceUrl, keywords: o.keywords, tiles: o.kind === 'tiles', legend: o.legend,
+    })),
+  ], [available]);
+  const groups = [...new Set(rows.map((r) => r.group))];
+  const shown = rows.filter((r) => (!group || r.group === group) && matchesSearch(r, q));
+  const on = rows.filter((r) => isOn(r.id));
+  const outsideIds = new Set<string>(CATALOGUE.map((o) => o.id));
+
   return (
-    <div className="ops-map-chrome ops-glass absolute left-3 top-16 z-[6] max-h-[calc(100%-5.5rem)] w-80 max-w-[calc(100%-1.5rem)] overflow-y-auto rounded-xl p-3 text-slate-100 shadow-2xl">
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-300">{t('Map layers')}</p>
-        <button type="button" onClick={onClose} aria-label={t('Close layers')} className="text-slate-300 hover:text-white">
-          <X className="h-4 w-4" />
-        </button>
+    <div className="ops-map-chrome ops-glass absolute left-3 top-16 z-[6] flex max-h-[calc(100%-5.5rem)] w-[23rem] max-w-[calc(100%-1.5rem)] flex-col rounded-xl text-slate-100 shadow-2xl">
+      <div className="space-y-2 border-b border-white/10 p-3">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-300">{t('Map layers')}</p>
+          <button type="button" onClick={onClose} aria-label={t('Close layers')} className="grid h-8 w-8 place-items-center rounded-md text-slate-300 hover:bg-white/10 hover:text-white">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <label className="relative block">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('Search: flood, ward, fire, school…')}
+            aria-label={t('Search the layers')}
+            className="h-10 w-full rounded-md border border-white/15 bg-slate-900/80 pl-8 pr-8 text-sm text-slate-100 placeholder:text-slate-400" />
+          {q ? (
+            <button type="button" onClick={() => setQ('')} aria-label={t('Clear the search')} className="absolute right-1.5 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded text-slate-300 hover:bg-white/10">
+              <X className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
+        </label>
+        {groups.length > 1 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {['', ...groups].map((g) => (
+              <button key={g || 'all'} type="button" aria-pressed={group === g} onClick={() => setGroup(g)}
+                className={cn('rounded-full border px-2.5 py-1 text-xs font-semibold',
+                  group === g ? 'border-sky-400 bg-sky-400/20 text-sky-200' : 'border-white/15 text-slate-300 hover:bg-white/10')}>
+                {g ? t(g) : t('All')}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
-      {LAYER_GROUPS.map((group) => {
-        const defs = LAYERS.filter((l) => l.group === group && available.includes(l.id));
-        if (!defs.length) return null;
-        return (
-          <fieldset key={group} className="mb-3">
-            <legend className="mb-1 text-[11px] font-bold uppercase tracking-wider text-sky-300">{group}</legend>
-            {group === 'Weather' && weatherOff && (
+
+      <div className="min-h-0 flex-1 overflow-y-auto p-3">
+        {!q && !group && on.length ? (
+          <div className="mb-3">
+            <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-sky-300">{t('On now ({n})', { n: on.length })}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {on.map((r) => (
+                <button key={r.id} type="button" onClick={() => toggle(r.id)} title={t('Switch off')}
+                  className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold hover:bg-white/20">
+                  {t(r.label)}<X className="h-3 w-3" aria-hidden />
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {shown.length === 0 ? <p className="py-6 text-center text-sm text-slate-300">{t('No layer matches.')}</p> : null}
+        {groups.filter((g) => shown.some((r) => r.group === g)).map((g) => (
+          <fieldset key={g} className="mb-3">
+            <legend className="mb-1 text-[11px] font-bold uppercase tracking-wider text-sky-300">{t(g)}</legend>
+            {g === 'Weather' && weatherOff && (
               <p className="mb-1 text-xs text-amber-300">{t('Weather needs OPENWEATHER_API_KEY on the server.')}</p>
             )}
-            {defs.map((l) => (
-              <div key={l.id} className="rounded-lg px-2 py-1.5 hover:bg-white/5">
-                <label className="flex cursor-pointer items-start gap-2.5">
-                  <input
-                    type="checkbox"
-                    checked={isOn(l.id)}
-                    onChange={() => toggle(l.id)}
-                    className="mt-0.5 h-4 w-4 accent-sky-400"
-                  />
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold">{l.label}</span>
-                    <span className="block text-xs text-slate-400">{l.hint}</span>
-                    {notes[l.id] && isOn(l.id) && (
-                      <span className="mt-0.5 block text-xs text-amber-300">{notes[l.id]}</span>
-                    )}
-                  </span>
-                </label>
-                {l.id === 'crime' && isOn('crime') && (
+            {shown.filter((r) => r.group === g).map((r) => (
+              <div key={r.id} className="rounded-lg px-2 py-1.5 hover:bg-white/5">
+                <div className="flex items-start gap-1">
+                  <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-2.5">
+                    <input type="checkbox" checked={isOn(r.id)} onChange={() => toggle(r.id)} className="mt-0.5 h-4 w-4 shrink-0 accent-sky-400" />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold">{t(r.label)}</span>
+                      <span className="block text-xs text-slate-400">{t(r.hint)}</span>
+                      {notes[r.id] && isOn(r.id) && (
+                        <span className="mt-0.5 block text-xs text-amber-300">{t(notes[r.id]!)}</span>
+                      )}
+                    </span>
+                  </label>
+                  {outsideIds.has(r.id) ? (
+                    <InfoDot title={t(r.label)} text={`${t(r.about)} ${t('From: {source}.', { source: r.source })}`} className="text-slate-300" />
+                  ) : null}
+                </div>
+                {isOn(r.id) && r.legend.length ? (
+                  <div className="mt-1 flex flex-wrap gap-x-2.5 gap-y-1 pl-6 text-[11px] text-slate-300">
+                    {r.legend.map((x) => (
+                      <span key={`${x.colour}-${x.label}`} className="inline-flex items-center gap-1">
+                        <span className={cn(x.shape === 'area' ? 'h-2.5 w-3.5 rounded-sm' : x.shape === 'line' ? 'h-0.5 w-4 rounded-full' : 'h-2.5 w-2.5 rounded-full')}
+                          style={{ background: x.colour }} />
+                        {t(x.label)}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                {isOn(r.id) && r.tiles && outsideIds.has(r.id) ? (
+                  <label className="mt-1.5 flex items-center gap-2 pl-6 text-[11px] text-slate-300">
+                    {t('See-through')}
+                    <input type="range" min={0.2} max={1} step={0.1} value={opacity[r.id] ?? catalogueOverlay(r.id)?.opacity ?? 1}
+                      onChange={(e) => setOpacity(r.id, Number(e.target.value))} className="h-1.5 flex-1 accent-sky-400" aria-label={t('How see-through {layer} is', { layer: t(r.label) })} />
+                  </label>
+                ) : null}
+                {isOn(r.id) && r.sourceUrl ? (
+                  <a href={r.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-1 block pl-6 text-[11px] font-semibold text-sky-300 hover:underline">
+                    {t('Open the source')}
+                  </a>
+                ) : null}
+                {r.id === 'crime' && isOn('crime') && (
                   <div className="mt-1.5 pl-6">
                     <select
                       value={crimeKind}
@@ -1657,20 +1881,24 @@ function LayerPanel({
               </div>
             ))}
           </fieldset>
-        );
-      })}
-      <button
-        type="button"
-        onClick={onReset}
-        className="w-full rounded-lg border border-white/15 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/10"
-      >
-        {t('Reset to my desk\'s defaults')}</button>
+        ))}
+      </div>
+
+      <div className="border-t border-white/10 px-3 py-2.5">
+        <button
+          type="button"
+          onClick={onReset}
+          className="w-full rounded-lg border border-white/15 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/10"
+        >
+          {t('Reset to my desk\'s defaults')}</button>
+      </div>
     </div>
   );
 }
 
-function Legend({ isOn, wall, unplaced, crimeYear, bodycams }: {
-  isOn: (id: LayerId) => boolean; wall: boolean; unplaced: number; crimeYear: string | null; bodycams: boolean;
+function Legend({ isOn, wall, unplaced, crimeYear, bodycams, outside }: {
+  isOn: (id: MapLayerId) => boolean; wall: boolean; unplaced: number; crimeYear: string | null; bodycams: boolean;
+  outside: readonly CatalogueOverlay[];
 }) {
   const { t } = useT();
   const dot = (colour: string, label: string, ring?: string) => (
@@ -1712,6 +1940,13 @@ function Legend({ isOn, wall, unplaced, crimeYear, bodycams }: {
       {isOn('shelters') && dot('#16a34a', 'Shelter')}
       {isOn('flights') && dot('#facc15', 'Aircraft')}
       {isOn('vessels') && dot('#38bdf8', 'Ship')}
+      {legendItems(outside).map((x) => (
+        <span key={`${x.colour}-${x.label}`} className="inline-flex items-center gap-1.5">
+          <span className={cn(x.shape === 'area' ? 'h-2.5 w-3.5 rounded-sm' : x.shape === 'line' ? 'h-0.5 w-4 rounded-full' : 'h-2.5 w-2.5 rounded-full')}
+            style={{ background: x.colour }} />
+          {t(x.label)}
+        </span>
+      ))}
       {unplaced > 0 && isOn('incidents') && (
         <span className="text-amber-300">{t('{unplaced} call{value} without a map position', { unplaced, value: unplaced === 1 ? '' : 's' })}</span>
       )}

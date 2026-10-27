@@ -5,7 +5,7 @@ import {
   addLineFunction, logDisasterSms, openDisasterIncident, recordCasualty, removeLineFunction, saveDepartmentContact, saveLineReport,
   setShelterPosition, setShelterServices, updateCasualty,
   callOutPartner, closeShelter, endDuty, fileDisasterAssessment, filePostMortem, logDeskUpdate, openShelter, saveDuty, saveMutualAidPartner,
-  saveShelter, setCalloutStatus, setCoordinationLevel, setDisasterCall, setScgChair, updateShelter, type CalloutStatus, type DeskChannel,
+  saveShelter, setCalloutStatus, setDisasterCall, setScgChair, updateShelter, type CalloutStatus, type DeskChannel,
 } from '@criticom/api';
 import { DESK_POST_MORTEM_FIELDS, deskPostMortemPayload, validatePostMortem } from '@criticom/db/post-mortem';
 import { getSession } from '@/lib/session';
@@ -118,18 +118,6 @@ export async function setCallAction(input: {
   return { ok: true };
 }
 
-export async function setLevelAction(input: { incidentId: string; level: string; note?: string | null }): Promise<Result> {
-  if (input.level !== 'Bronze' && input.level !== 'Silver' && input.level !== 'Gold') return { error: 'Choose Bronze, Silver or Gold.' };
-  const { supabase } = await getSession();
-  try {
-    await setCoordinationLevel(supabase, input.incidentId, input.level, input.note?.trim() || null);
-  } catch (e) {
-    return fail(e, 'The level was not changed. Try again.');
-  }
-  refresh(input.incidentId);
-  return { ok: true };
-}
-
 /* ── Shelters for the call ──────────────────────────────────────────────── */
 
 const counts = (o: Record<string, unknown>) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== '' && v !== undefined && v !== null));
@@ -220,7 +208,7 @@ export async function fileAssessmentAction(input: { incidentId: string; clientRe
   return { ok: true };
 }
 
-/* ── The duty roster and the SCG duty chair ─────────────────────────────── */
+/* ── The duty roster and the JOC duty chair ─────────────────────────────── */
 
 export async function saveDutyAction(id: string | null, fields: Record<string, string>): Promise<Result> {
   const { supabase } = await getSession();

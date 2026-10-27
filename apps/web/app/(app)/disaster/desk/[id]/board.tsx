@@ -14,11 +14,17 @@ import { LeafletMap } from '@/components/leaflet-map';
 import { CallButton } from '@/components/disaster/call-button';
 import { MOVED_BY } from '@criticom/db/disaster-departments';
 import { CritiMascot } from '@/components/criti/mascot';
+import { Fold } from '@/components/disaster/fold';
 import { useT } from '@/components/i18n';
 import { FieldProblem, problemBorder } from '@/components/disaster/field-problem';
 import { MAX_PEOPLE, anyProblem, checkCount, checkPhone } from '@/lib/disaster-checks';
 import { cn, escapeHtml } from '@/lib/utils';
-import { callOutAction, calloutStatusAction, deskUpdateAction, setLevelAction } from '../actions';
+import { callOutAction, calloutStatusAction, deskUpdateAction } from '../actions';
+import { informalSettlementAction } from '../joc-actions';
+import { DmStatusChip, RecoveryTile, ReviewTile, StatusBar, type BoardRecovery, type BoardReview } from './after-tile';
+import { JocTile, type BoardCouncillor, type BoardJocMember, type BoardJocSession } from './joc-tile';
+import { LevelCard, MoveDialog, type BoardLevelChange, type LevelFacts, type RosterAuthoriser } from './level-card';
+import { ReliefTile, type BoardWardRelief } from './relief-tile';
 import { AssessmentTile, type BoardAssessment } from './assessment-tile';
 import { CallFacts, LevelChip, type BoardFacts } from './call-facts';
 import { SheltersTile, type BoardOpening, type BoardShelter } from './shelters-tile';
@@ -70,6 +76,13 @@ type Props = {
   figures: Record<string, number>;
   /** The live map, drawn on the server's side of the page (OpsMap). */
   map?: React.ReactNode;
+  /** 0117: the level card, the JOC, the status, recovery and the review. */
+  level: { facts: LevelFacts; changes: BoardLevelChange[]; roster: RosterAuthoriser[]; warning4: boolean };
+  joc: { checks: Record<string, { at: string; by: string }>; members: BoardJocMember[]; sessions: BoardJocSession[]; councillors: BoardCouncillor[] };
+  after: { recovery: BoardRecovery; review: BoardReview | null; lessons: string | null; statusAt: string | null; statusBy: string | null };
+  informal: boolean;
+  /** 0118: beneficiaries and relief by ward. */
+  relief: BoardWardRelief[];
 };
 export type BoardOfficer = { id: string; name: string; phone: string | null; duty: string | null; status: string | null };
 
@@ -132,13 +145,14 @@ export function DeskBoard(props: Props) {
   );
   const quiet = mins(lastHeard({ calledInAt: incident.calledInAt, callouts, updates }), now);
   const [error, setError] = useState<string | null>(null);
+  const dmStatus = props.level.facts.dmStatus as 'Active' | 'Stood down' | 'In recovery' | 'Closed';
 
   return (
     // Solid tiles with room to breathe; the page scrolls. On top what came in
     // with Criti beside it; then the timeline and the partners called out;
     // then the partner list across the page.
     <div className="space-y-6">
-      <Header incident={incident} facts={props.facts} now={now} quiet={quiet} working={working} total={callouts.length} anyCalled={callouts.length > 0} />
+      <Header incident={incident} facts={props.facts} dmStatus={dmStatus} now={now} quiet={quiet} working={working} total={callouts.length} anyCalled={callouts.length > 0} />
 
       {!ready ? (
         <p role="alert" className="shrink-0 rounded-lg border border-severity-medium bg-bg-card px-4 py-3 text-sm font-medium text-severity-medium-ink">
@@ -152,10 +166,17 @@ export function DeskBoard(props: Props) {
         </p>
       ) : null}
 
+      <StatusBar incidentId={incident.id} status={dmStatus} at={props.after.statusAt} by={props.after.statusBy}
+        recovery={props.after.recovery} live={canWrite && ready} />
       <SituationStrip figures={props.figures} counts={props.counts}
         sheltered={props.openings.filter((o) => !o.closedAt).reduce((n, o) => n + o.peopleNow, 0)}>
         {live ? <SmsButton incidentId={incident.id} targets={props.smsTargets} /> : null}
       </SituationStrip>
+      <InformalSettlement incidentId={incident.id} on={props.informal} live={live} onError={setError} />
+      <LevelCard incidentId={incident.id} facts={props.level.facts} changes={props.level.changes} roster={props.level.roster}
+        warning4={props.level.warning4} live={live} onError={setError} />
+      <JocTile incidentId={incident.id} level={props.facts.level} highestLevel={props.facts.highestLevel} checks={props.joc.checks}
+        members={props.joc.members} sessions={props.joc.sessions} councillors={props.joc.councillors} live={live} onError={setError} />
       <CallFacts incidentId={incident.id} facts={props.facts} live={live} onError={setError} />
       {/* What came in, with Criti beside it reading it. */}
       <div className={cn('grid items-stretch gap-6', live && 'xl:grid-cols-2')}>
@@ -173,13 +194,16 @@ export function DeskBoard(props: Props) {
         </div>
       </div>
       {props.map ? (
-        <section className="overflow-hidden rounded-xl border border-border bg-bg-card shadow-sm">
-          <h2 className="border-b border-border px-5 py-4 font-semibold">{t('Live map')}</h2>
+        <Fold id="board.map" icon={MapPin} title={t('Live map')} defaultOpen={false}
+          info={t('This incident, halls, rain radar and the other map layers. Use Layers to switch them on and off.')}>
           {props.map}
-        </section>
+        </Fold>
       ) : null}
       {/* The departments the incident needs, each with its form. */}
       <DepartmentsTile incidentId={incident.id} hazard={props.facts.hazard} reports={props.lineReports} contacts={props.contacts} live={live} onError={setError} />
+      {/* Needs assessment and relief through the ward councillors (0118). */}
+      <ReliefTile incidentId={incident.id} checks={props.joc.checks} wards={props.relief} councillors={props.joc.councillors}
+        live={canWrite && ready} onError={setError} />
       {/* The people displaced, and what was found on site. */}
       <div className="grid items-start gap-6 xl:grid-cols-12">
         <div className="xl:col-span-7">
@@ -193,14 +217,20 @@ export function DeskBoard(props: Props) {
       </div>
       {/* The whole partner list, and Disaster's own officers, across the page. */}
       {live ? <PartnerPicker incidentId={incident.id} partners={props.partners} officers={props.officers} callouts={callouts} onError={setError} /> : null}
+      {/* After the response: recovery and the review (0117). */}
+      {dmStatus !== 'Active' ? <RecoveryTile incidentId={incident.id} recovery={props.after.recovery} live={canWrite && ready} onError={setError} /> : null}
+      {dmStatus !== 'Active' || incident.finished
+        ? <ReviewTile incidentId={incident.id} review={props.after.review} lessonsFromPostMortem={props.after.lessons} live={canWrite && ready} onError={setError} />
+        : null}
     </div>
   );
 }
 
 /* ── The call at a glance ─────────────────────────────────────────────── */
 
-function Header({ incident, facts, now, quiet, working, total, anyCalled }: {
-  incident: BoardIncident; facts: BoardFacts; now: number; quiet: number; working: DeskCallout[]; total: number; anyCalled: boolean;
+function Header({ incident, facts, dmStatus, now, quiet, working, total, anyCalled }: {
+  incident: BoardIncident; facts: BoardFacts; dmStatus: 'Active' | 'Stood down' | 'In recovery' | 'Closed'; now: number; quiet: number;
+  working: DeskCallout[]; total: number; anyCalled: boolean;
 }) {
   const { t } = useT();
   const onScene = working.filter((c) => c.status === 'On scene').length;
@@ -218,6 +248,7 @@ function Header({ incident, facts, now, quiet, working, total, anyCalled }: {
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-bold sm:text-3xl">{facts.shortTitle || incident.type}</h1>
             <LevelChip level={facts.level} />
+            {dmStatus !== 'Active' ? <DmStatusChip status={dmStatus} /> : null}
           </div>
           <p className="flex flex-wrap items-center gap-2 text-sm">
             <span className="font-mono text-muted-foreground">{incident.number}</span>
@@ -278,7 +309,7 @@ const CHECK_TONE: Record<DeskCheck['level'], string> = {
   info: 'border-accent/40 bg-accent/10 text-accent',
 };
 
-function CritiPanel({ incident, partners, facts, brief: saved, briefAt: savedAt, marker, checks, live, onError }: Props & {
+function CritiPanel({ incident, partners, facts, level, brief: saved, briefAt: savedAt, marker, checks, live, onError }: Props & {
   checks: DeskCheck[]; live: boolean; onError: (e: string) => void;
 }) {
   const { t } = useT();
@@ -328,27 +359,28 @@ function CritiPanel({ incident, partners, facts, brief: saved, briefAt: savedAt,
   ].filter(([, v]) => v != null) as Array<[string, number]> : [];
 
   return (
-    <section aria-label={t('Criti')} className="flex flex-col overflow-hidden rounded-xl border border-t-4 border-border border-t-accent bg-bg-card shadow-sm">
-      <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-        <div className="flex items-center gap-2.5">
+    <Fold id="board.criti" className="flex flex-col border-t-4 border-t-accent"
+      info={t('Criti reads everything logged on this call and suggests what to do next. The desk decides; Criti never acts on its own.')}
+      title={(
+        <span className="flex items-center gap-2.5">
           <CritiMascot className="h-9 w-9" />
-          <div>
-            <p className="font-semibold">{t('Criti on this call')}</p>
-            <p className="text-xs text-muted-foreground" aria-live="polite">
+          <span>
+            <span className="block">{t('Criti on this call')}</span>
+            <span className="block text-xs font-normal text-muted-foreground" aria-live="polite">
               {thinking ? t('Reading the call…')
                 : state === 'off' ? t('Criti is switched off. The desk rules still work.')
                 : state === 'down' ? t('Criti could not answer just now. The desk rules still work.')
                 : at ? t('Read {span} ago', { span: span(mins(at, now)) }) : t('Not read yet')}
-            </p>
-          </div>
-        </div>
-        {!incident.finished ? (
-          <button type="button" onClick={() => void ask(true)} disabled={thinking}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-accent/40 px-3 text-xs font-semibold text-accent hover:bg-accent/10 disabled:opacity-50">
-            <RefreshCw className={cn('h-3.5 w-3.5', thinking && 'animate-spin')} aria-hidden />{t('Think again')}
-          </button>
-        ) : null}
-      </div>
+            </span>
+          </span>
+        </span>
+      )}
+      actions={!incident.finished ? (
+        <button type="button" onClick={() => void ask(true)} disabled={thinking}
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-accent/40 px-3 text-xs font-semibold text-accent hover:bg-accent/10 disabled:opacity-50">
+          <RefreshCw className={cn('h-3.5 w-3.5', thinking && 'animate-spin')} aria-hidden />{t('Think again')}
+        </button>
+      ) : null}>
 
       {/* A long reading scrolls inside the tile, so it never pushes the rest down. */}
       <div className="max-h-[26rem] space-y-5 overflow-y-auto p-5">
@@ -366,7 +398,8 @@ function CritiPanel({ incident, partners, facts, brief: saved, briefAt: savedAt,
         {brief?.summary ? <p className="text-[15px] leading-relaxed">{brief.summary}</p> : null}
 
         {brief?.levelAdvice && brief.levelAdvice.level !== facts.level ? (
-          <LevelAdvice incidentId={incident.id} advice={brief.levelAdvice} live={live} onError={onError} />
+          <LevelAdvice incidentId={incident.id} advice={brief.levelAdvice} from={facts.level} roster={level.roster}
+            warning4={level.warning4} live={live && level.facts.dmStatus === 'Active'} />
         ) : null}
 
         {figures.length ? (
@@ -403,23 +436,20 @@ function CritiPanel({ incident, partners, facts, brief: saved, briefAt: savedAt,
         ) : null}
         {!brief?.summary && !checks.length && !thinking ? <p className="text-sm text-muted-foreground">{t('Nothing to add right now.')}</p> : null}
       </div>
-    </section>
+    </Fold>
   );
 }
 
-/** Criti's advice to change the level of co-ordination (the Plan's Bronze, Silver, Gold). */
-function LevelAdvice({ incidentId, advice, live, onError }: {
-  incidentId: string; advice: { level: 'Bronze' | 'Silver' | 'Gold'; why: string }; live: boolean; onError: (e: string) => void;
+/**
+ * Criti's advice to change the level: the desk still ticks the reasons (and
+ * for Gold who authorised it) in the same dialog as the level card's.
+ */
+function LevelAdvice({ incidentId, advice, from, roster, warning4, live }: {
+  incidentId: string; advice: { level: 'Bronze' | 'Silver' | 'Gold'; why: string }; from: 'Bronze' | 'Silver' | 'Gold';
+  roster: RosterAuthoriser[]; warning4: boolean; live: boolean;
 }) {
   const { t } = useT();
-  const [pending, start] = useTransition();
-  const go = () => {
-    if (advice.level === 'Gold' && !window.confirm(t('Activate the DOC and call the SCG into session?'))) return;
-    start(async () => {
-      const res = await setLevelAction({ incidentId, level: advice.level, note: advice.why });
-      if ('error' in res) onError(res.error);
-    });
-  };
+  const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-severity-high bg-bg-soft p-4">
       <div className="min-w-0">
@@ -427,12 +457,28 @@ function LevelAdvice({ incidentId, advice, live, onError }: {
         {advice.why ? <p className="mt-0.5 text-sm text-muted-foreground">{advice.why}</p> : null}
       </div>
       {live ? (
-        <button type="button" onClick={go} disabled={pending}
-          className="h-10 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60">
+        <button type="button" onClick={() => setOpen(true)} className="h-10 rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground">
           {t('Change to {level}', { level: advice.level })}
         </button>
       ) : null}
+      {open ? <MoveDialog incidentId={incidentId} from={from} to={advice.level} roster={roster} warning4={warning4} why={advice.why} onClose={() => setOpen(false)} /> : null}
     </div>
+  );
+}
+
+/** "In an informal settlement", for the IDP's fire figures (C73, C74). */
+function InformalSettlement({ incidentId, on, live, onError }: { incidentId: string; on: boolean; live: boolean; onError: (e: string) => void }) {
+  const { t } = useT();
+  const [pending, start] = useTransition();
+  return (
+    <label className="flex min-h-11 w-fit cursor-pointer items-center gap-3 rounded-lg px-1 text-[15px]">
+      <input type="checkbox" checked={on} disabled={!live || pending} className="h-5 w-5"
+        onChange={(e) => start(async () => {
+          const res = await informalSettlementAction(incidentId, e.target.checked);
+          if ('error' in res) onError(res.error);
+        })} />
+      {t('Incident is in an informal settlement')}
+    </label>
   );
 }
 
@@ -489,15 +535,13 @@ function CalloutList({ incidentId, callouts, now, live, onError }: {
   const order = { 'On scene': 0, 'On the way': 1, Called: 2, 'Left scene': 3, 'Stood down': 4 } as const;
   const sorted = [...callouts].sort((a, b) => order[a.status] - order[b.status] || a.calledAt.localeCompare(b.calledAt));
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-bg-card shadow-sm">
-      <h2 className="flex items-center gap-2 border-b border-border px-5 py-4 font-semibold">
-        <Truck className="h-4 w-4 text-accent" aria-hidden />{t('Called out ({n})', { n: callouts.length })}
-      </h2>
+    <Fold id="board.callouts" icon={Truck} title={t('Called out ({n})', { n: callouts.length })}
+      info={t('Every partner and officer called out on this call, and where they are now. Press their status as they tell you.')}>
       {sorted.length === 0 ? <p className="px-4 py-6 text-center text-sm text-muted-foreground">{t('Nobody called out yet.')}</p> : null}
       <ul className="max-h-[40rem] divide-y divide-border overflow-y-auto">
         {sorted.map((c) => <CalloutRow key={c.id} incidentId={incidentId} c={c} now={now} live={live} onError={onError} />)}
       </ul>
-    </section>
+    </Fold>
   );
 }
 
@@ -606,8 +650,8 @@ function PartnerPicker({ incidentId, partners, officers, callouts, onError }: {
     .filter((o) => !needle || `${o.name} ${o.duty ?? ''}`.toLowerCase().includes(needle))
     .sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name)) : [];
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-bg-card shadow-sm">
-      <h2 className="border-b border-border px-5 py-4 font-semibold">{t('Call out a partner or an officer')}</h2>
+    <Fold id="board.callout-picker" icon={Phone} title={t('Call out a partner or an officer')}
+      info={t('Find a partner or one of our officers, call them, then record that you called them out.')}>
       <div className="space-y-4 p-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
           <label className="relative block lg:w-80 lg:shrink-0">
@@ -673,7 +717,7 @@ function PartnerPicker({ incidentId, partners, officers, callouts, onError }: {
         </button>
         {other ? <CallOutForm incidentId={incidentId} partner={null} onDone={() => setOther(false)} onError={onError} /> : null}
       </div>
-    </section>
+    </Fold>
   );
 }
 
@@ -787,8 +831,8 @@ function UpdateComposer({ incidentId, callouts, shelters, onError }: {
     });
   };
   return (
-    <section className="flex h-full flex-col rounded-xl border border-border bg-bg-card p-5 shadow-sm">
-      <h2 className="mb-4 flex items-center gap-2 font-semibold"><MessageCircle className="h-4 w-4 text-accent" aria-hidden />{t('Log what came in')}</h2>
+    <Fold id="board.log" icon={MessageCircle} title={t('Log what came in')} className="flex h-full flex-col" bodyClassName="flex flex-1 flex-col p-5"
+      info={t('Write down every sitrep, call, radio message or WhatsApp as it comes in. It goes on the timeline and Criti reads it.')}>
       <div className="grid gap-3 lg:grid-cols-[1fr_15rem]">
         <ChannelChips value={source} onChange={setSource} />
         <select value={from} onChange={(e) => setFrom(e.target.value)} aria-label={t('From')}
@@ -842,7 +886,7 @@ function UpdateComposer({ incidentId, callouts, shelters, onError }: {
         className="mt-3 h-12 w-full shrink-0 rounded-md bg-accent text-base font-semibold text-accent-foreground disabled:opacity-50">
         {pending ? t('Saving…') : t('Log update')}
       </button>
-    </section>
+    </Fold>
   );
 }
 
@@ -872,8 +916,8 @@ function Timeline({ callouts, updates, notes, now }: {
   ].sort((a, b) => b.at.localeCompare(a.at));
 
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-bg-card shadow-sm">
-      <h2 className="flex items-center gap-2 border-b border-border px-5 py-4 font-semibold"><Clock className="h-4 w-4 text-accent" aria-hidden />{t('Timeline')}</h2>
+    <Fold id="board.timeline" icon={Clock} title={t('Timeline')}
+      info={t('Everything that happened on this call, newest first.')}>
       <ol className="relative max-h-[42rem] overflow-y-auto px-5 py-4">
         {events.map((e) => (
           <li key={e.key} className="relative flex gap-4 pb-5 last:pb-0">
@@ -894,6 +938,6 @@ function Timeline({ callouts, updates, notes, now }: {
         ))}
         {events.length === 0 ? <li className="py-6 text-center text-sm text-muted-foreground">{t('Nothing logged yet.')}</li> : null}
       </ol>
-    </section>
+    </Fold>
   );
 }

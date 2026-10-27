@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Building2, ChevronRight, FileText, Footprints, MapPin, Network, Plus, Siren, Timer, TriangleAlert, type LucideIcon } from 'lucide-react';
+import { Building2, ChevronRight, FileText, Footprints, GraduationCap, MapPin, Network, Plus, Siren, Timer, TriangleAlert, type LucideIcon } from 'lucide-react';
+import { PageGuide } from '@/components/office/page-guide';
 import {
   getOperationalSettings, listCallFacts, listCallouts, listLastDeskUpdates, listOpenDisasterIncidents, listOpenShelters, listPostMortems,
   listReliefStocks, listShelters,
@@ -36,13 +37,16 @@ const RAIL: Record<string, string> = {
 export default async function DisasterPage() {
   const { t } = await requestT();
   const { supabase, userId, role, silo } = await getSession();
-  const [open, postMortems, stocks, register, settings] = await Promise.all([
+  const [allOpen, postMortems, stocks, register, settings] = await Promise.all([
     listOpenDisasterIncidents(supabase).catch(() => []),
     listPostMortems(supabase).catch(() => []),
     listReliefStocks(supabase).catch(() => []),
     listShelters(supabase).catch(() => []),
     getOperationalSettings(supabase).catch(() => null),
   ]);
+  // Stood down, in recovery or closed by the desk (0117): off the board, on the desk's Recovery and review list.
+  const status = new Map((await listCallFacts(supabase, allOpen.map((i) => i.id))).map((f) => [f.incident_id, f.dm_status ?? 'Active']));
+  const open = allOpen.filter((i) => (status.get(i.id) ?? 'Active') === 'Active');
   const ids = open.map((i) => i.id);
   const [callouts, updates, factsList, shelters] = await Promise.all([
     listCallouts(supabase, ids), listLastDeskUpdates(supabase, ids), listCallFacts(supabase, ids), listOpenShelters(supabase),
@@ -67,7 +71,7 @@ export default async function DisasterPage() {
     .filter((m) => m >= 0);
   const avgResponse = waits.length ? readable(waits.reduce((a, b) => a + b, 0) / waits.length) : '—';
   const displaced = postMortems.reduce((n, p) => n + (p.displaced_people ?? 0), 0);
-  const lowStock = stocks.filter((s) => s.quantity < 10);
+  const lowStock = stocks.filter((s) => (s.item_key ? s.quantity < (s.minimum ?? 0) : s.quantity < 10));
 
   const title = (i: (typeof open)[number]) => facts.get(i.id)?.short_title || i.disaster_type || i.incident_type;
   const titleOf = new Map(open.map((i) => [i.id, title(i)]));
@@ -122,7 +126,7 @@ export default async function DisasterPage() {
             <h1 className="text-2xl font-bold">{t('Disaster management')}</h1>
             <p className="text-muted-foreground">{t('Every call is run from the Disaster desk.')}</p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div data-guide="home.actions" className="flex flex-wrap gap-2">
             <Link href="/disaster/desk" className="inline-flex h-11 items-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground">
               <Siren className="h-4 w-4" aria-hidden />{t('Open the Disaster desk')}</Link>
             <Link href="/disaster/desk/new" className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-bg-soft px-4 text-sm font-medium hover:bg-muted">
@@ -131,12 +135,21 @@ export default async function DisasterPage() {
               <FileText className="h-4 w-4" aria-hidden />{t('Post-mortems')}</Link>
             <Link href="/disaster/partners" className="inline-flex h-11 items-center gap-2 rounded-md border border-border bg-bg-soft px-4 text-sm hover:bg-muted">
               <Network className="h-4 w-4" aria-hidden />{t('Partner list')}</Link>
+            <Link href="/disaster/practice" className="inline-flex h-11 items-center gap-2 rounded-md border border-accent/40 bg-bg-soft px-4 text-sm font-semibold text-accent hover:bg-accent/10">
+              <GraduationCap className="h-4 w-4" aria-hidden />{t('Practise an incident')}</Link>
           </div>
         </div>
         <LiveClock />
       </header>
 
-      <section className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
+      <PageGuide id="disaster.home" steps={[
+        t('Calls sent to Disaster arrive on the Disaster desk. Open one to run it; Add an incident opens one yourself.'),
+        t('The six figures say what is happening now. Hover over one, or tap it, for what is behind it.'),
+        t('The map shows the open calls and halls. Press Layers to add warnings, flooding, wards and more.'),
+        t('New here? Press Tour in the strip at the top, or Practise an incident.'),
+      ]} />
+
+      <section data-guide="home.tiles" className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
         {tiles.map((x, n) => <InfoTile key={x.label} {...x} align={n >= tiles.length - 2 ? 'right' : 'left'} />)}
       </section>
       {lowStock.length ? (
@@ -146,21 +159,21 @@ export default async function DisasterPage() {
       ) : null}
 
       <section className="grid gap-6 xl:grid-cols-5">
-        <div className="overflow-hidden rounded-2xl border border-border bg-bg-card shadow-sm xl:col-span-3">
+        <div data-guide="home.map" className="overflow-hidden rounded-2xl border border-border bg-bg-card shadow-sm xl:col-span-3">
           <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border px-5 py-3">
             <h2 className="text-lg font-semibold">{t('Live map')}</h2>
             <p className="text-sm text-muted-foreground">{t('Open calls, shelters, rain radar and traffic')}</p>
           </div>
           <OpsMap incidents={open} officers={[]} silo="EthekwiniDisaster"
-            layers={availableLayers({ cameras: false, shelters: true })}
-            defaults={['incidents', 'zones', 'shelters', 'radar', 'traffic']}
+            layers={availableLayers({ cameras: false, shelters: true, catalogue: true })}
+            defaults={['incidents', 'zones', 'shelters', 'radar', 'traffic', 'saws-areas']}
             basemap={settings?.['map.default_basemap'] ?? 'dark'} scopeLabel={t('Disaster Management')} height={600}
             me={{ id: userId, role, silo }}
             shelters={halls.filter((h) => h.lat != null && h.lng != null).map((h) => ({
               id: h.id, name: h.name, lat: h.lat!, lng: h.lng!, capacity: h.capacity, people: inHall.get(h.id) ?? 0 }))} />
         </div>
 
-        <div id="calls" className="flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-border bg-bg-card shadow-sm xl:col-span-2 xl:h-[655px]">
+        <div id="calls" data-guide="home.calls" className="flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-border bg-bg-card shadow-sm xl:col-span-2 xl:h-[655px]">
           <div className="flex items-baseline justify-between gap-2 border-b border-border px-5 py-3">
             <h2 className="text-lg font-semibold">{t('Open calls')} <span className="text-sm font-normal text-muted-foreground">({calls.length})</span></h2>
             <Link href="/disaster/desk" className="text-sm text-accent hover:underline">{t('Disaster desk')}</Link>

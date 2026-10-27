@@ -8,6 +8,7 @@ import {
 import { Modal } from '@/components/ui/modal';
 import { CallButton } from '@/components/disaster/call-button';
 import { useT } from '@/components/i18n';
+import { Fold } from '@/components/disaster/fold';
 import { FieldProblem, problemBorder } from '@/components/disaster/field-problem';
 import { anyProblem, checkCount, checkName, checkPhone, figureMax } from '@/lib/disaster-checks';
 import { cn } from '@/lib/utils';
@@ -53,12 +54,10 @@ export function DepartmentsTile({ incidentId, hazard, reports, contacts, live, o
   const current = open ? reports.find((r) => r.department === open) ?? null : null;
 
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-bg-card shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
-        <h2 className="flex items-center gap-2 font-semibold"><Landmark className="h-4 w-4 text-accent" aria-hidden />
-          {t('Departments on this incident')}</h2>
-        <span className="text-sm text-muted-foreground">{t('{done} of {all} reports done', { done, all: reports.length })}</span>
-      </div>
+    <Fold id="board.departments" icon={Landmark} title={t('Departments on this incident')} defaultOpen={false}
+      summary={t('{done} of {all} reports done', { done, all: reports.length })}
+      info={t('The City departments working on this incident. Each one has a form for its representative, its duties and its figures.')}
+      actions={<span className="text-sm text-muted-foreground">{t('{done} of {all} reports done', { done, all: reports.length })}</span>}>
       <div className="space-y-4 p-5">
         {reports.length === 0 ? <p className="text-sm text-muted-foreground">{t('No department on this incident yet.')}</p> : null}
         <ul className="grid gap-3 md:grid-cols-2">
@@ -78,7 +77,7 @@ export function DepartmentsTile({ incidentId, hazard, reports, contacts, live, o
                 <div className="h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden>
                   <div className="h-full rounded-full bg-accent" style={{ width: `${roles ? Math.round((marked / roles) * 100) : 0}%` }} />
                 </div>
-                <p className="text-xs text-muted-foreground">{t('{n} of {all} duties marked', { n: marked, all: roles })}{r.atDoc ? ` · ${t('at the DOC')}` : ''}</p>
+                <p className="text-xs text-muted-foreground">{t('{n} of {all} duties marked', { n: marked, all: roles })}{r.atDoc ? ` · ${t('at the JOC')}` : ''}</p>
                 <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
                   {live ? (
                     <button type="button" onClick={() => setOpen(r.department)}
@@ -127,7 +126,7 @@ export function DepartmentsTile({ incidentId, hazard, reports, contacts, live, o
         <DepartmentWizard key={current.department} incidentId={incidentId} report={current}
           contacts={contacts.filter((c) => c.department === current.department)} onClose={() => setOpen(null)} onError={onError} />
       ) : null}
-    </section>
+    </Fold>
   );
 }
 
@@ -218,7 +217,7 @@ function DepartmentWizard({ incidentId, report, contacts, onClose, onError }: {
                   <button key={c.id} type="button" onClick={() => setRep({ name: c.name, post: c.post ?? '', phone: c.phone ?? '' })}
                     aria-pressed={rep.name === c.name}
                     className={cn('rounded-lg border px-3 py-2 text-left text-sm', rep.name === c.name ? 'border-accent bg-accent/10' : 'border-border hover:bg-muted')}>
-                    <span className="block font-semibold">{c.name}{c.docRep ? <span className="ml-2 text-xs text-accent">{t('DOC representative')}</span> : null}</span>
+                    <span className="block font-semibold">{c.name}{c.docRep ? <span className="ml-2 text-xs text-accent">{t('JOC representative')}</span> : null}</span>
                     <span className="block text-xs text-muted-foreground">{[c.post, c.phone].filter(Boolean).join(' · ')}</span>
                   </button>
                 ))}
@@ -231,7 +230,7 @@ function DepartmentWizard({ incidentId, report, contacts, onClose, onError }: {
             <label className="block text-sm font-medium">{t('Phone')}<input value={rep.phone} onChange={(e) => setRep({ ...rep, phone: e.target.value })} maxLength={60} inputMode="tel" placeholder="082 123 4567" className={cn(field, problemBorder(bad.phone))} /><FieldProblem problem={bad.phone} /></label>
           </div>
           <div className="flex flex-wrap items-center gap-4">
-            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={atDoc} onChange={(e) => setAtDoc(e.target.checked)} className="h-5 w-5" />{t('At the DOC')}</label>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={atDoc} onChange={(e) => setAtDoc(e.target.checked)} className="h-5 w-5" />{t('At the JOC')}</label>
             <CallButton number={rep.phone} label={rep.phone ? t('Call {n}', { n: rep.phone }) : undefined} />
           </div>
         </div>
@@ -289,7 +288,7 @@ function DepartmentWizard({ incidentId, report, contacts, onClose, onError }: {
           <dl className="grid gap-3 text-sm sm:grid-cols-3">
             <div><dt className="text-xs text-muted-foreground">{t('Representative')}</dt><dd className="font-semibold">{rep.name || '—'}</dd></div>
             <div><dt className="text-xs text-muted-foreground">{t('Duties marked')}</dt><dd className="font-semibold">{t('{n} of {all}', { n: marked, all: d.roles.length })}</dd></div>
-            <div><dt className="text-xs text-muted-foreground">{t('At the DOC')}</dt><dd className="font-semibold">{atDoc ? t('Yes') : t('No')}</dd></div>
+            <div><dt className="text-xs text-muted-foreground">{t('At the JOC')}</dt><dd className="font-semibold">{atDoc ? t('Yes') : t('No')}</dd></div>
           </dl>
           <ul className="space-y-1 text-sm">
             {d.roles.map((role, i) => (

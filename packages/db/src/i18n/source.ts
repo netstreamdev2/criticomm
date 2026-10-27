@@ -294,6 +294,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "(on duty now)",
+  "text": "(on duty now)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
   "key": "(optional)",
   "text": "(optional)",
   "context": null,
@@ -333,6 +341,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/duty/board.tsx"
+  ]
+ },
+ {
+  "key": "(ward councillor)",
+  "text": "(ward councillor)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -995,6 +1011,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "1. Check and tell",
+  "text": "1. Check and tell",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "1. Damage observed prior to towing",
   "text": "1. Damage observed prior to towing",
   "context": null,
@@ -1243,11 +1267,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "2. Spread the warning",
+  "text": "2. Spread the warning",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "20 Animal-drawn",
   "text": "20 Animal-drawn",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "2022 damage",
+  "text": "2022 damage",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/table.tsx"
   ]
  },
  {
@@ -1291,6 +1331,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "3. JOC readiness session",
+  "text": "3. JOC readiness session",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "3. Precise location of the incident",
   "text": "3. Precise location of the incident",
   "context": null,
@@ -1328,6 +1376,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "4. Respond",
+  "text": "4. Respond",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -1509,6 +1565,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "A Level 4 or higher warning is in force: the JOC checks readiness.",
+  "text": "A Level 4 or higher warning is in force: the JOC checks readiness.",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
+  ]
+ },
+ {
   "key": "A building or flats",
   "text": "A building or flats",
   "context": null,
@@ -1683,6 +1747,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "A readiness score for the Disaster Management Centre, relief stock, and the disaster figures the IDP reports each year, counted from what is logged here.",
+  "text": "A readiness score for the Disaster Management Centre, relief stock, and the disaster figures the IDP reports each year, counted from what is logged here.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -2015,11 +2087,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "About how many people live here, from the 2011 Census fitted to the 2016 wards.",
+  "text": "About how many people live here, from the 2011 Census fitted to the 2016 wards.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
   "key": "About the crests",
   "text": "About the crests",
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/departments/page.tsx"
+  ]
+ },
+ {
+  "key": "About: {title}",
+  "text": "About: {title}",
+  "context": null,
+  "where": [
+   "apps/web/components/info-dot.tsx"
   ]
  },
  {
@@ -2397,6 +2485,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Activate JOC (Gold)",
+  "text": "Activate JOC (Gold)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
   "key": "Activate my account",
   "text": "Activate my account",
   "context": null,
@@ -2405,12 +2501,11 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Activate the DOC and call the SCG into session?",
-  "text": "Activate the DOC and call the SCG into session?",
+  "key": "Activate the JOC (Gold)",
+  "text": "Activate the JOC (Gold)",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/board.tsx",
-   "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx"
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
   ]
  },
  {
@@ -2487,6 +2582,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Active incidents show first. Use the filters for stood down, in recovery or closed ones.",
+  "text": "Active incidents show first. Use the filters for stood down, in recovery or closed ones.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/incidents/page.tsx"
+  ]
+ },
+ {
   "key": "Active police incidents",
   "text": "Active police incidents",
   "context": null,
@@ -2503,11 +2606,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Active tropical storms in the south-west Indian Ocean, their tracks and forecast cones. The season is November to April.",
+  "text": "Active tropical storms in the south-west Indian Ocean, their tracks and forecast cones. The season is November to April.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "Active units",
   "text": "Active units",
   "context": null,
   "where": [
    "apps/web/app/(app)/dashboard/dispatch-board.tsx"
+  ]
+ },
+ {
+  "key": "Active: the response is under way. Stood down: the response is over and the incident leaves the board. In recovery: rebuilding. Closed: finished, the record kept. Any of them can be reopened.",
+  "text": "Active: the response is under way. Stood down: the response is over and the incident leaves the board. In recovery: rebuilding. Closed: finished, the record kept. Any of them can be reopened.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
   ]
  },
  {
@@ -2525,6 +2644,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/admin/sections/page.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
    "apps/web/app/(app)/modules/sections/page.tsx",
    "apps/web/app/(app)/roster/planner.tsx",
    "apps/web/app/(app)/roster/setup/setup-client.tsx"
@@ -2576,6 +2696,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/departments/contacts.tsx"
+  ]
+ },
+ {
+  "key": "Add a councillor",
+  "text": "Add a councillor",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
   ]
  },
  {
@@ -2697,7 +2825,24 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/disaster/desk/new/page.tsx",
    "apps/web/app/(app)/disaster/desk/page.tsx",
+   "apps/web/app/(app)/disaster/incidents/page.tsx",
    "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Add an incident from this warning",
+  "text": "Add an incident from this warning",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "Add an incident opens one yourself: a field report, a warning or a site emergency plan.",
+  "text": "Add an incident opens one yourself: a field report, a warning or a site emergency plan.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/page.tsx"
   ]
  },
  {
@@ -2935,6 +3080,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Add the councillors first",
+  "text": "Add the councillors first",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "Add the description: what the caller says.",
   "text": "Add the description: what the caller says.",
   "context": null,
@@ -2956,6 +3109,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Add the practice incident",
+  "text": "Add the practice incident",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
   ]
  },
  {
@@ -2983,12 +3144,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Add this ward’s councillor",
+  "text": "Add this ward’s councillor",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "Add to the JOC",
+  "text": "Add to the JOC",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
+  ]
+ },
+ {
   "key": "Add to the register",
   "text": "Add to the register",
   "context": null,
   "where": [
    "apps/web/app/(app)/fire/inspections/premises/premises-form.tsx",
    "apps/web/app/(app)/kit/kit-board.tsx"
+  ]
+ },
+ {
+  "key": "Add ward beneficiaries",
+  "text": "Add ward beneficiaries",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
   ]
  },
  {
@@ -3017,6 +3202,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Add {n} councillors",
+  "text": "Add {n} councillors",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
+  ]
+ },
+ {
   "key": "Added {time}",
   "text": "Added {time}",
   "context": null,
@@ -3037,6 +3230,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Adding…",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx",
    "apps/web/app/(app)/disaster/desk/new/form.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
    "apps/web/app/(app)/kit/kit-board.tsx"
@@ -3184,6 +3378,38 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Advisory Forum",
+  "text": "Advisory Forum",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
+  "key": "Advisory Forum task teams",
+  "text": "Advisory Forum task teams",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
+  "key": "Affected",
+  "text": "Affected",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/incidents/table.tsx"
+  ]
+ },
+ {
+  "key": "Affected areas",
+  "text": "Affected areas",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
   "key": "African",
   "text": "African",
   "context": null,
@@ -3241,6 +3467,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Air quality",
+  "text": "Air quality",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -3360,7 +3594,8 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/modules/leave/page.tsx",
    "apps/web/app/(app)/performance/operational/page.tsx",
    "apps/web/app/(app)/report-hub/page.tsx",
-   "apps/web/app/(app)/translations/translations-editor.tsx"
+   "apps/web/app/(app)/translations/translations-editor.tsx",
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -3575,10 +3810,19 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "All levels",
+  "text": "All levels",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/incidents/table.tsx"
+  ]
+ },
+ {
   "key": "All municipalities",
   "text": "All municipalities",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/incidents/table.tsx",
    "apps/web/app/(app)/disaster/shelters/register.tsx"
   ]
  },
@@ -3651,6 +3895,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "All risks",
+  "text": "All risks",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx"
+  ]
+ },
+ {
   "key": "All safety items ticked — this checklist will file as PASSED.",
   "text": "All safety items ticked — this checklist will file as PASSED.",
   "context": null,
@@ -3707,6 +3959,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "All statuses",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/incidents/table.tsx",
    "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
    "apps/web/app/(app)/police/fines/page.tsx"
   ]
@@ -3736,11 +3989,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "All wards",
+  "text": "All wards",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx",
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "All warnings",
+  "text": "All warnings",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "All working",
   "text": "All working",
   "context": null,
   "where": [
    "apps/mobile/components/shift-form.tsx"
+  ]
+ },
+ {
+  "key": "All years",
+  "text": "All years",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx"
   ]
  },
  {
@@ -4714,6 +4992,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "April 2022 floods ({n} damage points)",
+  "text": "April 2022 floods ({n} damage points)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
   "key": "Are homes or people buried?",
   "text": "Are homes or people buried?",
   "context": null,
@@ -5029,12 +5315,21 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "As stated in the warning",
+  "text": "As stated in the warning",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
   "key": "Ask",
   "text": "Ask",
   "context": null,
   "where": [
    "apps/web/app/(app)/roster/mine/mine-client.tsx",
-   "apps/web/components/criti/insight-tiles.tsx"
+   "apps/web/components/criti/insight-tiles.tsx",
+   "apps/web/components/disaster/ask-criti.tsx"
   ]
  },
  {
@@ -5052,6 +5347,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/assistant-dock.tsx"
+  ]
+ },
+ {
+  "key": "Ask Criti how to do something",
+  "text": "Ask Criti how to do something",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/ask-criti.tsx"
+  ]
+ },
+ {
+  "key": "Ask Criti how to…",
+  "text": "Ask Criti how to…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/page.tsx"
+  ]
+ },
+ {
+  "key": "Ask Criti how to… (for example: how do I send a warning to the councillors?)",
+  "text": "Ask Criti how to… (for example: how do I send a warning to the councillors?)",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/ask-criti.tsx"
   ]
  },
  {
@@ -5320,6 +5639,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "At Level 4 or higher the JOC meets to check readiness and decides: monitor, pre-position resources, open halls as a precaution, or respond.",
+  "text": "At Level 4 or higher the JOC meets to check readiness and decides: monitor, pre-position resources, open halls as a precaution, or respond.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "At intersection with",
   "text": "At intersection with",
   "context": null,
@@ -5344,8 +5671,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "At the DOC",
-  "text": "At the DOC",
+  "key": "At the JOC",
+  "text": "At the JOC",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx"
@@ -5454,6 +5781,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/my-performance.tsx"
+  ]
+ },
+ {
+  "key": "Attended:",
+  "text": "Attended:",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
+   "apps/web/app/(app)/disaster/duty/forum.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -5774,6 +6111,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/report-wizard.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx",
    "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
+   "apps/web/components/disaster/criti-tour.tsx",
    "apps/web/components/schedule/leave-actions.tsx"
   ]
  },
@@ -6193,6 +6531,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
+  "key": "Below: the chair of each of the Advisory Forum’s task teams, and its meetings.",
+  "text": "Below: the chair of each of the Advisory Forum’s task teams, and its meetings.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/page.tsx"
+  ]
+ },
+ {
+  "key": "Beneficiaries and relief by ward",
+  "text": "Beneficiaries and relief by ward",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
   ]
  },
  {
@@ -6879,6 +7233,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Building back better: each task has the department that owns it. Mark how far it is; hand over what goes on in the departments’ own programmes.",
+  "text": "Building back better: each task has the department that owns it. Mark how far it is; hand over what goes on in the departments’ own programmes.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
   "key": "Building collapse",
   "text": "Building collapse",
   "context": null,
@@ -7145,6 +7507,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "COVID-19",
+  "text": "COVID-19",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "CPAP/BiPAP",
   "text": "CPAP/BiPAP",
   "context": null,
@@ -7398,6 +7768,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Call the councillor",
+  "text": "Call the councillor",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
   "key": "Call timestamp",
   "text": "Call timestamp",
   "context": null,
@@ -7491,6 +7869,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+  ]
+ },
+ {
+  "key": "Called in and told",
+  "text": "Called in and told",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
   ]
  },
  {
@@ -7639,6 +8025,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/kpi/page.tsx"
+  ]
+ },
+ {
+  "key": "Calls sent to Disaster arrive on the Disaster desk. Open one to run it; Add an incident opens one yourself.",
+  "text": "Calls sent to Disaster arrive on the Disaster desk. Open one to run it; Add an incident opens one yourself.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
   ]
  },
  {
@@ -7838,15 +8232,23 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
    "apps/web/app/(app)/admin/users/account-status-form.tsx",
    "apps/web/app/(app)/admin/vehicles/vehicle-form.tsx",
+   "apps/web/app/(app)/disaster/councillors/register.tsx",
    "apps/web/app/(app)/disaster/departments/contacts.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/assessment-tile.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/casualties-tile.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/sms-button.tsx",
    "apps/web/app/(app)/disaster/desk/new/form.tsx",
    "apps/web/app/(app)/disaster/duty/board.tsx",
+   "apps/web/app/(app)/disaster/duty/forum.tsx",
    "apps/web/app/(app)/disaster/partners/list.tsx",
    "apps/web/app/(app)/disaster/shelters/register.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx",
    "apps/web/app/(app)/dispatch/assign/[id]/assign-form.tsx",
    "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx",
    "apps/web/app/(app)/incidents/[id]/radio/close-button.tsx",
@@ -8475,6 +8877,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Cellphone",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/sms-button.tsx",
    "packages/db/src/intake.ts"
   ]
@@ -8485,6 +8888,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Census figures are from 2011, fitted to the 2016 wards: a guide, not a count.",
+  "text": "Census figures are from 2011, fitted to the 2016 wards: a guide, not a count.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/page.tsx"
   ]
  },
  {
@@ -8545,6 +8956,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Chair",
+  "text": "Chair",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
   "key": "Chairperson",
   "text": "Chairperson",
   "context": null,
@@ -8576,6 +8995,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/departments/contacts.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/casualties-tile.tsx",
    "apps/web/app/(app)/disaster/partners/list.tsx",
    "apps/web/app/(app)/disaster/shelters/register.tsx",
@@ -8660,6 +9080,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Change ward {ward}",
+  "text": "Change ward {ward}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
+  ]
+ },
+ {
   "key": "Change your PIN",
   "text": "Change your PIN",
   "context": null,
@@ -8672,6 +9100,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Change {name}",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx",
    "apps/web/app/(app)/fire/inspections/premises/premises-form.tsx"
   ]
  },
@@ -8852,6 +9281,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Check now",
+  "text": "Check now",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
   "key": "Check owing",
   "text": "Check owing",
   "context": null,
@@ -8865,6 +9302,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/staff/logins-view.tsx"
+  ]
+ },
+ {
+  "key": "Check the warning with the FEWS team (rain, radar, rivers and flood models), then tell Emergency Services and the service units.",
+  "text": "Check the warning with the FEWS team (rain, radar, rivers and flood models), then tell Emergency Services and the service units.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -8924,6 +9369,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Checked with the SA Weather Service {ago}.",
+  "text": "Checked with the SA Weather Service {ago}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
   "key": "Checked {localeString}. Refresh to re-run.",
   "text": "Checked {localeString}. Refresh to re-run.",
   "context": null,
@@ -8969,6 +9422,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/fire-shift.tsx"
+  ]
+ },
+ {
+  "key": "Checking…",
+  "text": "Checking…",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
   ]
  },
  {
@@ -9132,7 +9593,16 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Children",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/shelters-tile.tsx"
+   "apps/web/app/(app)/disaster/desk/[id]/shelters-tile.tsx",
+   "apps/web/app/(app)/disaster/wards/table.tsx"
+  ]
+ },
+ {
+  "key": "Children (16 and under)",
+  "text": "Children (16 and under)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -9151,6 +9621,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/admin/radios/radio-form.tsx",
    "apps/web/app/(app)/admin/vehicles/vehicle-form.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/assessment-tile.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx",
    "apps/web/app/(app)/fire/inspections/inspection-form.tsx",
    "apps/web/app/(app)/fire/inspections/premises/premises-form.tsx",
    "apps/web/app/(app)/kit/kit-board.tsx",
@@ -9386,6 +9857,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Choose the JOC duty chair for each month: the City Manager or a Deputy City Manager.",
+  "text": "Choose the JOC duty chair for each month: the City Manager or a Deputy City Manager.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/page.tsx"
+  ]
+ },
+ {
   "key": "Choose the available Fire & Rescue appliance you are signing onto.",
   "text": "Choose the available Fire & Rescue appliance you are signing onto.",
   "context": null,
@@ -9447,6 +9926,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Choose the financial year for the IDP figures. Enter the city’s population once for the deaths per 100 000.",
+  "text": "Choose the financial year for the IDP figures. Enter the city’s population once for the deaths per 100 000.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -9859,6 +10346,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Clear the search",
+  "text": "Clear the search",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Clear time",
   "text": "Clear time",
   "context": null,
@@ -9952,6 +10447,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/incidents/page.tsx"
+  ]
+ },
+ {
+  "key": "Click anything on the map for its details. Warnings, wards and past disasters all open.",
+  "text": "Click anything on the map for its details. Warnings, wards and past disasters all open.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/map/page.tsx"
   ]
  },
  {
@@ -10131,6 +10634,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Close the tour",
+  "text": "Close the tour",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/criti-tour.tsx"
+  ]
+ },
+ {
   "key": "Close this bodycam",
   "text": "Close this bodycam",
   "context": null,
@@ -10151,7 +10662,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Close without saving?",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx"
+   "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
   ]
  },
  {
@@ -10438,6 +10950,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/new.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx",
    "apps/web/app/(app)/police/fines/new/capture-form.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
@@ -10551,6 +11065,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/lib/inspection-187c.ts"
+  ]
+ },
+ {
+  "key": "Communications and Community Participation spreads the warning and the emergency number on every channel. Tick each one when it is done.",
+  "text": "Communications and Community Participation spreads the warning and the emergency number on every channel. Tick each one when it is done.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -11251,11 +11773,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Copy did not work here. Select the message and copy it.",
+  "text": "Copy did not work here. Select the message and copy it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "Copy link",
   "text": "Copy link",
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/slip.tsx"
+  ]
+ },
+ {
+  "key": "Copy message",
+  "text": "Copy message",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -11368,6 +11906,41 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/shelters/page.tsx"
+  ]
+ },
+ {
+  "key": "Councillor",
+  "text": "Councillor",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx",
+   "apps/web/app/(app)/disaster/wards/table.tsx"
+  ]
+ },
+ {
+  "key": "Councillors",
+  "text": "Councillors",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/page.tsx",
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Councillors ({n})",
+  "text": "Councillors ({n})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
+  "key": "Councillor’s cellphone",
+  "text": "Councillor’s cellphone",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
   ]
  },
  {
@@ -11813,8 +12386,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Criti",
   "context": null,
   "where": [
-   "apps/mobile/app/_layout.tsx",
-   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+   "apps/mobile/app/_layout.tsx"
   ]
  },
  {
@@ -11823,6 +12395,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Criti could not answer just now. Each page’s \"How this page works\" says what to do.",
+  "text": "Criti could not answer just now. Each page’s \"How this page works\" says what to do.",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/ask-criti.tsx"
   ]
  },
  {
@@ -11884,11 +12464,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Criti is switched off. Each page’s \"How this page works\" says what to do.",
+  "text": "Criti is switched off. Each page’s \"How this page works\" says what to do.",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/ask-criti.tsx"
+  ]
+ },
+ {
   "key": "Criti is switched off. The desk rules still work.",
   "text": "Criti is switched off. The desk rules still work.",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+  ]
+ },
+ {
+  "key": "Criti is thinking…",
+  "text": "Criti is thinking…",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/ask-criti.tsx"
   ]
  },
  {
@@ -11911,11 +12507,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Criti reads everything logged on this call and suggests what to do next. The desk decides; Criti never acts on its own.",
+  "text": "Criti reads everything logged on this call and suggests what to do next. The desk decides; Criti never acts on its own.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+  ]
+ },
+ {
   "key": "Criti sees only what your role may see. Nothing changes until you confirm.",
   "text": "Criti sees only what your role may see. Nothing changes until you confirm.",
   "context": null,
   "where": [
    "apps/web/components/criti/chat.tsx"
+  ]
+ },
+ {
+  "key": "Criti shows you round the Disaster screens",
+  "text": "Criti shows you round the Disaster screens",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
   ]
  },
  {
@@ -11940,6 +12552,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Criti walks you through an incident from start to finish, with the same rules as the real desk.",
+  "text": "Criti walks you through an incident from start to finish, with the same rules as the real desk.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/page.tsx"
   ]
  },
  {
@@ -12031,6 +12651,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/lib/modules.ts"
+  ]
+ },
+ {
+  "key": "Current floods, cyclones, droughts, quakes and fires in southern Africa from GDACS, the UN and European Commission’s alert system.",
+  "text": "Current floods, cyclones, droughts, quakes and fires in southern Africa from GDACS, the UN and European Commission’s alert system.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -12221,23 +12849,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "DOC activated · SCG in session",
-  "text": "DOC activated · SCG in session",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/post-mortem/form.tsx"
-  ]
- },
- {
-  "key": "DOC representative",
-  "text": "DOC representative",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/disaster/departments/contacts.tsx",
-   "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx"
-  ]
- },
- {
   "key": "DUI",
   "text": "DUI",
   "context": null,
@@ -12276,6 +12887,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/fire/reports/new/page.tsx",
    "packages/db/src/fire-report.ts"
+  ]
+ },
+ {
+  "key": "Damage observed after the floods of 11 and 12 April 2022 and filed by ward.",
+  "text": "Damage observed after the floods of 11 and 12 April 2022 and filed by ward.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -12512,6 +13131,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Date of the review",
+  "text": "Date of the review",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
   "key": "Date on the receipt",
   "text": "Date on the receipt",
   "context": null,
@@ -12525,6 +13152,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/fines/payments/import-payments.tsx"
+  ]
+ },
+ {
+  "key": "Date the plan was reviewed",
+  "text": "Date the plan was reviewed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/departments/contacts.tsx"
   ]
  },
  {
@@ -12693,6 +13328,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Deaths",
+  "text": "Deaths",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx",
+   "apps/web/app/(app)/disaster/records/table.tsx"
+  ]
+ },
+ {
   "key": "Debrief",
   "text": "Debrief",
   "context": null,
@@ -12724,6 +13368,14 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/closed-incidents.tsx",
    "apps/mobile/lib/performance.ts",
    "packages/api/src/schedule/rules.ts"
+  ]
+ },
+ {
+  "key": "Decade",
+  "text": "Decade",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx"
   ]
  },
  {
@@ -12759,6 +13411,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/leave.tsx"
+  ]
+ },
+ {
+  "key": "Decided by: {who}",
+  "text": "Decided by: {who}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
+  "key": "Decided: {outcome}",
+  "text": "Decided: {outcome}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -12981,6 +13649,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/admin/departments/page.tsx",
    "apps/web/app/(app)/disaster/departments/page.tsx",
+   "apps/web/app/(app)/disaster/readiness/page.tsx",
    "apps/web/lib/nav.ts"
   ]
  },
@@ -13446,7 +14115,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Disaster Incidents",
   "context": null,
   "where": [
-   "apps/web/components/sidebar.tsx"
+   "apps/web/components/sidebar.tsx",
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -13456,8 +14126,17 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/login.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/page.tsx",
+   "apps/web/app/(app)/disaster/map/page.tsx",
    "apps/web/app/(app)/disaster/page.tsx",
    "apps/web/app/(app)/dispatch/log-call/intake-ui.tsx"
+  ]
+ },
+ {
+  "key": "Disaster Management Centre readiness",
+  "text": "Disaster Management Centre readiness",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -13469,11 +14148,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Disaster Map",
+  "text": "Disaster Map",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Disaster Mgmt",
   "text": "Disaster Mgmt",
   "context": null,
   "where": [
    "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Disaster and extreme weather deaths per 100 000 people",
+  "text": "Disaster and extreme weather deaths per 100 000 people",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -13492,6 +14187,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Disaster map",
+  "text": "Disaster map",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/map/page.tsx"
+  ]
+ },
+ {
+  "key": "Disasters in the region",
+  "text": "Disasters in the region",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Disasters on record ({n}, {d} deaths)",
+  "text": "Disasters on record ({n}, {d} deaths)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -13540,6 +14259,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/[id].tsx"
+  ]
+ },
+ {
+  "key": "Disease outbreaks",
+  "text": "Disease outbreaks",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -13888,6 +14615,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Displaced persons the municipality assisted",
+  "text": "Displaced persons the municipality assisted",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "Disposition",
   "text": "Disposition",
   "context": null,
@@ -14094,6 +14829,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Done by {by}, {at}",
+  "text": "Done by {by}, {at}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "Done in the HikTech Responder app. This page shows how far you are today.",
   "text": "Done in the HikTech Responder app. This page shows how far you are today.",
   "context": null,
@@ -14107,6 +14851,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/reports/builder/builder-client.tsx"
+  ]
+ },
+ {
+  "key": "Don’t show this again",
+  "text": "Don’t show this again",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/criti-tour.tsx"
   ]
  },
  {
@@ -14322,6 +15074,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Drought",
+  "text": "Drought",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -14636,6 +15396,23 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Duty and Forum",
+  "text": "Duty and Forum",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Duty and forum",
+  "text": "Duty and forum",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/page.tsx",
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "Duty board",
   "text": "Duty board",
   "context": null,
@@ -14696,14 +15473,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Duty roster",
-  "text": "Duty roster",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/disaster/duty/page.tsx"
-  ]
- },
- {
   "key": "Duty saved",
   "text": "Duty saved",
   "context": null,
@@ -14735,6 +15504,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
+  ]
+ },
+ {
+  "key": "Dwellings affected on those incidents.",
+  "text": "Dwellings affected on those incidents.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -14830,6 +15607,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "EOC commander",
+  "text": "EOC commander",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
+  "key": "EOC location",
+  "text": "EOC location",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
   "key": "ETCO2",
   "text": "ETCO2",
   "context": null,
@@ -14843,6 +15636,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/on-record.tsx"
+  ]
+ },
+ {
+  "key": "Each City department, its role on an incident, and its contacts. Mark one contact as the JOC representative.",
+  "text": "Each City department, its role on an incident, and its contacts. Mark one contact as the JOC representative.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/departments/page.tsx"
   ]
  },
  {
@@ -14878,8 +15679,16 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Each line function and who represents it at the DOC. Picking a person on an incident fills in their name, post and number.",
-  "text": "Each line function and who represents it at the DOC. Picking a person on an incident fills in their name, post and number.",
+  "key": "Each incident’s after-action report, filed when the response ends. Open one, or download its PDF.",
+  "text": "Each incident’s after-action report, filed when the response ends. Open one, or download its PDF.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/post-mortem/page.tsx"
+  ]
+ },
+ {
+  "key": "Each line function and who represents it at the JOC. Picking a person on an incident fills in their name, post and number.",
+  "text": "Each line function and who represents it at the JOC. Picking a person on an incident fills in their name, post and number.",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/departments/page.tsx"
@@ -14931,6 +15740,47 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/departments/page.tsx"
+  ]
+ },
+ {
+  "key": "Earlier names (2012 plan)",
+  "text": "Earlier names (2012 plan)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx"
+  ]
+ },
+ {
+  "key": "Early Warnings",
+  "text": "Early Warnings",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Early warnings",
+  "text": "Early warnings",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx",
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Earthquakes",
+  "text": "Earthquakes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Earthquakes in and around South Africa in the last 30 days, from the Council for Geoscience’s seismographs.",
+  "text": "Earthquakes in and around South Africa in the last 30 days, from the Council for Geoscience’s seismographs.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -15105,6 +15955,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Email (if known)",
+  "text": "Email (if known)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
+  ]
+ },
+ {
   "key": "Email address",
   "text": "Email address",
   "context": null,
@@ -15186,11 +16044,18 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Emergency Operations Centre",
+  "text": "Emergency Operations Centre",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
   "key": "Emergency Operations Centre (EOC)",
   "text": "Emergency Operations Centre (EOC)",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/post-mortem/form.tsx"
   ]
  },
@@ -15219,6 +16084,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fire-shift.ts"
+  ]
+ },
+ {
+  "key": "Emergency {number}",
+  "text": "Emergency {number}",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
   ]
  },
  {
@@ -15354,6 +16227,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "End this warning",
+  "text": "End this warning",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "End time",
   "text": "End time",
   "context": null,
@@ -15377,6 +16258,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "Ended: {reason}",
+  "text": "Ended: {reason}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
   ]
  },
  {
@@ -15575,6 +16464,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Enter the population below.",
+  "text": "Enter the population below.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "Enter this code and your badge number.",
   "text": "Enter this code and your badge number.",
   "context": null,
@@ -15683,6 +16580,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Escalate to Silver",
+  "text": "Escalate to Silver",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx",
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
+  ]
+ },
+ {
   "key": "Escort (Funeral / VIP)",
   "text": "Escort (Funeral / VIP)",
   "context": null,
@@ -15720,6 +16626,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/map-layers.ts"
+  ]
+ },
+ {
+  "key": "Events recorded in eThekwini since {year} that count towards this risk, and the deaths recorded with them.",
+  "text": "Events recorded in eThekwini since {year} that count towards this risk, and the deaths recorded with them.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/page.tsx"
   ]
  },
  {
@@ -15828,6 +16742,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Every eThekwini ward: its councillor, its people and their needs, the disasters on record and what is open now.",
+  "text": "Every eThekwini ward: its councillor, its people and their needs, the disasters on record and what is open now.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/page.tsx"
+  ]
+ },
+ {
   "key": "Every external service HikTech talks to — what it powers, whether its credentials are present, and whether it currently answers.",
   "text": "Every external service HikTech talks to — what it powers, whether its credentials are present, and whether it currently answers.",
   "context": null,
@@ -15877,8 +16799,16 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Every incident starts at Bronze, with the services co-ordinating on scene.",
-  "text": "Every incident starts at Bronze, with the services co-ordinating on scene.",
+  "key": "Every incident reported to Disaster, its level of coordination and its record.",
+  "text": "Every incident reported to Disaster, its level of coordination and its record.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/incidents/page.tsx"
+  ]
+ },
+ {
+  "key": "Every incident starts at Bronze, with the services coordinating on scene.",
+  "text": "Every incident starts at Bronze, with the services coordinating on scene.",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/new/page.tsx"
@@ -15941,11 +16871,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Every open incident sent to Disaster is a card, newest first. Use the filters to see what needs you now.",
+  "text": "Every open incident sent to Disaster is a card, newest first. Use the filters to see what needs you now.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/page.tsx"
+  ]
+ },
+ {
   "key": "Every organisation on this deployment. Each tenant’s data, users, configuration and feature switches are isolated at the database — a row in one tenant does not exist for another, on any screen, in any export, in any search.",
   "text": "Every organisation on this deployment. Each tenant’s data, users, configuration and feature switches are isolated at the database — a row in one tenant does not exist for another, on any screen, in any export, in any search.",
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/tenants/page.tsx"
+  ]
+ },
+ {
+  "key": "Every partner and officer called out on this call, and where they are now. Press their status as they tell you.",
+  "text": "Every partner and officer called out on this call, and where they are now. Press their status as they tell you.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
   ]
  },
  {
@@ -16136,6 +17082,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Everything that happened on this call, newest first.",
+  "text": "Everything that happened on this call, newest first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+  ]
+ },
+ {
+  "key": "Everything that happened to this warning, newest first: from SAWS, every tick, the SMS and the JOC sessions.",
+  "text": "Everything that happened to this warning, newest first: from SAWS, every tick, the SMS and the JOC sessions.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Everything they recorded stays: incidents, reports and their history.",
   "text": "Everything they recorded stays: incidents, reports and their history.",
   "context": null,
@@ -16256,6 +17218,15 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
+  "key": "Expected impacts",
+  "text": "Expected impacts",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
   ]
  },
  {
@@ -16389,6 +17360,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/components/shift-inspection.tsx",
    "apps/mobile/components/shift-report.tsx"
+  ]
+ },
+ {
+  "key": "FCP location",
+  "text": "FCP location",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
   ]
  },
  {
@@ -16967,6 +17946,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Financial year",
+  "text": "Financial year",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "Find a member: search by name or staff number, or filter by station and rank.",
   "text": "Find a member: search by name or staff number, or filter by station and rank.",
   "context": null,
@@ -16981,6 +17968,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
    "apps/web/app/(app)/notifications/send-form.tsx"
+  ]
+ },
+ {
+  "key": "Find a partner or one of our officers, call them, then record that you called them out.",
+  "text": "Find a partner or one of our officers, call them, then record that you called them out.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
   ]
  },
  {
@@ -17175,6 +18170,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Finish",
   "context": null,
   "where": [
+   "apps/web/components/disaster/criti-tour.tsx",
    "apps/web/components/ops-map/zones/zone-tools.tsx"
   ]
  },
@@ -17402,6 +18398,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/fire/page.tsx",
    "apps/web/app/(app)/fire/pir/page.tsx"
+  ]
+ },
+ {
+  "key": "Fire risk",
+  "text": "Fire risk",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "Fire risk this season",
+  "text": "Fire risk this season",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -17634,6 +18646,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Fires and hot spots NASA’s satellites saw in the last 24 hours. A dot can also be a hot factory roof.",
+  "text": "Fires and hot spots NASA’s satellites saw in the last 24 hours. A dot can also be a hot factory roof.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Fires burning now",
+  "text": "Fires burning now",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Fires the satellites saw with high confidence in eThekwini since 2000, from the NDMC’s fire analysis.",
+  "text": "Fires the satellites saw with high confidence in eThekwini since 2000, from the NDMC’s fire analysis.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "First & Last Name",
   "text": "First & Last Name",
   "context": null,
@@ -17689,7 +18725,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "First report",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/new/form.tsx"
+   "apps/web/app/(app)/disaster/desk/new/form.tsx",
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
   ]
  },
  {
@@ -17772,12 +18809,37 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Flood risk",
+  "text": "Flood risk",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx",
+   "apps/web/app/(app)/disaster/wards/table.tsx"
+  ]
+ },
+ {
+  "key": "Flood risk this season",
+  "text": "Flood risk this season",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "Flooding",
   "text": "Flooding",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts",
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Flooding seen from space",
+  "text": "Flooding seen from space",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -17845,6 +18907,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Foot-and-mouth disease",
+  "text": "Foot-and-mouth disease",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Foot-and-mouth news from RMIS, the red meat industry’s animal health service. It matters for livestock movement and the port.",
+  "text": "Foot-and-mouth news from RMIS, the red meat industry’s animal health service. It matters for livestock movement and the port.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "Footage",
   "text": "Footage",
   "context": null,
@@ -17895,11 +18973,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "For example 4300000",
+  "text": "For example 4300000",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
+  ]
+ },
+ {
   "key": "For example towards the taxi rank",
   "text": "For example towards the taxi rank",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "For example: Fire Station 3 on scene, 20 homes flooded, need a hall for 60 people",
+  "text": "For example: Fire Station 3 on scene, 20 homes flooded, need a hall for 60 people",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
   ]
  },
  {
@@ -17919,6 +19013,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "For example: Stand-by Officer, Fire, Water, Electricity",
+  "text": "For example: Stand-by Officer, Fire, Water, Electricity",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "For example: eThekwini, KwaDukuza, Ndwedwe",
+  "text": "For example: eThekwini, KwaDukuza, Ndwedwe",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
   "key": "For example: radio from a security guard",
   "text": "For example: radio from a security guard",
   "context": null,
@@ -17933,6 +19043,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/assign/[id]/edit-call.tsx"
+  ]
+ },
+ {
+  "key": "For example: water down, services left, families in the hall",
+  "text": "For example: water down, services left, families in the hall",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
   ]
  },
  {
@@ -18120,11 +19238,18 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Forward Control Point",
+  "text": "Forward Control Point",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
   "key": "Forward Control Point (FCP)",
   "text": "Forward Control Point (FCP)",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/post-mortem/form.tsx"
   ]
  },
@@ -18201,6 +19326,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/cameras/footage/footage-browser.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/board.tsx",
    "apps/web/app/(app)/disaster/duty/board.tsx",
+   "apps/web/app/(app)/disaster/records/table.tsx",
    "apps/web/app/(app)/dispatch/log-history/page.tsx",
    "apps/web/app/(app)/dispatch/pending/queue-filters.tsx",
    "apps/web/app/(app)/kit/kit-board.tsx",
@@ -18237,6 +19363,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "From the SA Weather Service",
+  "text": "From the SA Weather Service",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
+  "key": "From the SA Weather Service, issued {at}.",
+  "text": "From the SA Weather Service, issued {at}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "From the charge book where you can. When the book has an amount, that amount is charged; otherwise enter the amount written on the notice.",
   "text": "From the charge book where you can. When the book has an amount, that amount is charged; otherwise enter the amount written on the notice.",
   "context": null,
@@ -18261,6 +19403,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "From the warning: {label}",
+  "text": "From the warning: {label}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/new/form.tsx"
+  ]
+ },
+ {
   "key": "From {name}",
   "text": "From {name}",
   "context": null,
@@ -18277,6 +19427,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/mail/page.tsx"
+  ]
+ },
+ {
+  "key": "From: {source}.",
+  "text": "From: {source}.",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -18513,6 +19671,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/incidents/map/page.tsx",
    "apps/web/app/(app)/sanral/itraffic-map.tsx"
+  ]
+ },
+ {
+  "key": "Full screen turns the map into a wall display for the control room TV.",
+  "text": "Full screen turns the map into a wall display for the control room TV.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/map/page.tsx"
   ]
  },
  {
@@ -18806,6 +19972,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Global figures on the WHO’s dashboard.",
+  "text": "Global figures on the WHO’s dashboard.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "Glock",
   "text": "Glock",
   "context": null,
@@ -18911,6 +20085,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/components/ems-shift.tsx",
    "apps/mobile/components/fire-shift.tsx"
+  ]
+ },
+ {
+  "key": "Go to the Disaster desk",
+  "text": "Go to the Disaster desk",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
   ]
  },
  {
@@ -19229,6 +20411,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Halls opened for this incident: people in now, places left, and the relief handed out.",
+  "text": "Halls opened for this incident: people in now, places left, and the relief handed out.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/shelters-tile.tsx"
+  ]
+ },
+ {
   "key": "Hand back bodycam",
   "text": "Hand back bodycam",
   "context": null,
@@ -19469,7 +20659,17 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/disaster/desk/[id]/post-mortem/form.tsx",
    "apps/web/app/(app)/disaster/desk/desk-cards.tsx",
    "apps/web/app/(app)/disaster/desk/new/form.tsx",
+   "apps/web/app/(app)/disaster/practice/wizard.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Hazard Watch",
+  "text": "Hazard Watch",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
   ]
  },
  {
@@ -19478,6 +20678,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/map-layers.ts"
+  ]
+ },
+ {
+  "key": "Hazard watch",
+  "text": "Hazard watch",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -19716,6 +20924,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Hi, I’m Criti.",
+  "text": "Hi, I’m Criti.",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/criti-tour.tsx"
+  ]
+ },
+ {
   "key": "Hide",
   "text": "Hide",
   "context": null,
@@ -19812,14 +21028,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/post-mortem/form.tsx"
-  ]
- },
- {
-  "key": "Highest on this call: {level}",
-  "text": "Highest on this call: {level}",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx"
   ]
  },
  {
@@ -19960,7 +21168,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/assessment/[id].tsx",
-   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+   "apps/web/app/(app)/disaster/desk/[id]/board.tsx",
+   "apps/web/app/(app)/disaster/records/table.tsx"
   ]
  },
  {
@@ -20186,6 +21395,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "How clean the air is across eThekwini this hour. The national network (SAAQIS) measures it; without a WAQI key the figure is modelled.",
+  "text": "How clean the air is across eThekwini this hour. The national network (SAAQIS) measures it; without a WAQI key the figure is modelled.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "How configuration works",
   "text": "How configuration works",
   "context": null,
@@ -20218,11 +21435,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "How dry each river catchment has been over 24 months (the standardised precipitation index), from the NDMC. Copernicus’s drought observatory adds Africa-wide indicators.",
+  "text": "How dry each river catchment has been over 24 months (the standardised precipitation index), from the NDMC. Copernicus’s drought observatory adds Africa-wide indicators.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "How far along is she?",
   "text": "How far along is she?",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "How far: {task}",
+  "text": "How far: {task}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
   ]
  },
  {
@@ -20434,6 +21667,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "How see-through {layer} is",
+  "text": "How see-through {layer} is",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "How serious",
   "text": "How serious",
   "context": null,
@@ -20467,6 +21708,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "How this incident is coordinated. Bronze: the services on scene at an FCP. Silver: a joint EOC. Gold: the JOC at the Disaster Operations Centre. Moving up needs at least one reason ticked.",
+  "text": "How this incident is coordinated. Bronze: the services on scene at an FCP. Silver: a joint EOC. Gold: the JOC at the Disaster Operations Centre. Moving up needs at least one reason ticked.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
   ]
  },
  {
@@ -20800,6 +22049,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "IDP figures, {fy}",
+  "text": "IDP figures, {fy}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "ILS",
   "text": "ILS",
   "context": null,
@@ -20953,6 +22210,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "If impacts are happening or close, log an incident from the warning. It is linked to the warning and starts at Bronze.",
+  "text": "If impacts are happening or close, log an incident from the warning. It is linked to the warning and starts at Bronze.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "If not, describe the involvement of the target(s)",
   "text": "If not, describe the involvement of the target(s)",
   "context": null,
@@ -21024,6 +22289,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/components/post-mortem-card.tsx",
    "packages/db/src/post-mortem.ts"
+  ]
+ },
+ {
+  "key": "Impact level (1 to 10)",
+  "text": "Impact level (1 to 10)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
+  "key": "Impact-based warnings from the SA Weather Service. Check each one with the FEWS team, tell the services, spread it on every channel. At Level 4 or higher the JOC meets to check readiness.",
+  "text": "Impact-based warnings from the SA Weather Service. Check each one with the FEWS team, tell the services, spread it on every channel. At Level 4 or higher the JOC meets to check readiness.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
   ]
  },
  {
@@ -21186,6 +22467,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "In force and coming ({n})",
+  "text": "In force and coming ({n})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
   "key": "In now",
   "text": "In now",
   "context": null,
@@ -21244,6 +22533,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "In storage",
+  "text": "In storage",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
+  ]
+ },
+ {
   "key": "In the description, say whether the caller is the patient.",
   "text": "In the description, say whether the caller is the patient.",
   "context": null,
@@ -21295,7 +22592,10 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/_layout.tsx",
    "apps/mobile/components/my-incidents.tsx",
    "apps/mobile/components/service-home.tsx",
+   "apps/web/app/(app)/disaster/desk/page.tsx",
+   "apps/web/app/(app)/disaster/incidents/table.tsx",
    "apps/web/app/(app)/disaster/post-mortem/post-mortem-form.tsx",
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx",
    "apps/web/app/(app)/dispatch/assign/[id]/page.tsx",
    "apps/web/app/(app)/fire/reports/new/page.tsx",
    "apps/web/app/(app)/police/fines/[id]/page.tsx",
@@ -21420,11 +22720,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Incident is in an informal settlement",
+  "text": "Incident is in an informal settlement",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+  ]
+ },
+ {
   "key": "Incident location",
   "text": "Incident location",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Incident logged",
+  "text": "Incident logged",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
   ]
  },
  {
@@ -21539,12 +22855,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Incident {number}: open it",
+  "text": "Incident {number}: open it",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "Incidents",
   "text": "Incidents",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/_layout.tsx",
    "apps/mobile/components/tab-bar.tsx",
+   "apps/web/app/(app)/disaster/incidents/page.tsx",
+   "apps/web/app/(app)/disaster/readiness/page.tsx",
    "apps/web/components/sidebar.tsx"
   ]
  },
@@ -21573,11 +22899,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Incidents placed here ({n})",
+  "text": "Incidents placed here ({n})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
   "key": "Incidents routed to your department reach this phone even when the screen is locked. High and Critical incidents open a full-screen alert you must acknowledge.",
   "text": "Incidents routed to your department reach this phone even when the screen is locked. High and Critical incidents open a full-screen alert you must acknowledge.",
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "Incidents that are stood down wait under Recovery and review until their review is signed off.",
+  "text": "Incidents that are stood down wait under Recovery and review until their review is signed off.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/page.tsx"
+  ]
+ },
+ {
+  "key": "Incidents the desk logged with this ward number.",
+  "text": "Incidents the desk logged with this ward number.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -21587,6 +22937,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/disaster/desk/page.tsx",
    "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "Incidents whose response is over. They stay here until their review is signed off.",
+  "text": "Incidents whose response is over. They stay here until their review is signed off.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/page.tsx"
   ]
  },
  {
@@ -21644,6 +23002,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/lib/inspection-187c.ts",
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Informal dwellings affected by those fires",
+  "text": "Informal dwellings affected by those fires",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
+  "key": "Informal homes",
+  "text": "Informal homes",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx",
+   "apps/web/app/(app)/disaster/wards/table.tsx"
   ]
  },
  {
@@ -22858,6 +24233,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Issued this year",
+  "text": "Issued this year",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
+  ]
+ },
+ {
+  "key": "Issued this year comes from the ward relief records for {fy}.",
+  "text": "Issued this year comes from the ward relief records for {fy}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "Issuing court",
   "text": "Issuing court",
   "context": null,
@@ -23063,6 +24454,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Item",
+  "text": "Item",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
+  ]
+ },
+ {
   "key": "Item / drug",
   "text": "Item / drug",
   "context": null,
@@ -23084,6 +24483,111 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "JOC activated",
+  "text": "JOC activated",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/post-mortem/form.tsx"
+  ]
+ },
+ {
+  "key": "JOC activated {at}",
+  "text": "JOC activated {at}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
+  "key": "JOC active · {n} at Gold",
+  "text": "JOC active · {n} at Gold",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
+  ]
+ },
+ {
+  "key": "JOC authorised by",
+  "text": "JOC authorised by",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
+  "key": "JOC duty chair this month",
+  "text": "JOC duty chair this month",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/board.tsx"
+  ]
+ },
+ {
+  "key": "JOC duty chair, {year}",
+  "text": "JOC duty chair, {year}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/board.tsx"
+  ]
+ },
+ {
+  "key": "JOC on standby",
+  "text": "JOC on standby",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
+  ]
+ },
+ {
+  "key": "JOC readiness session needed",
+  "text": "JOC readiness session needed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
+  "key": "JOC readiness sessions",
+  "text": "JOC readiness sessions",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
+  "key": "JOC representative",
+  "text": "JOC representative",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/departments/contacts.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx"
+  ]
+ },
+ {
+  "key": "JOC sessions ({n})",
+  "text": "JOC sessions ({n})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
+  ]
+ },
+ {
+  "key": "JOC: check readiness",
+  "text": "JOC: check readiness",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
+  ]
+ },
+ {
+  "key": "JOC: {outcome}",
+  "text": "JOC: {outcome}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
   ]
  },
  {
@@ -23333,6 +24837,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/radio-setup.tsx"
+  ]
+ },
+ {
+  "key": "Keep the register of halls: capacity, the key holder and their number. A hall is ready when it has room and a key holder to phone.",
+  "text": "Keep the register of halls: capacity, the key holder and their number. A hall is ready when it has room and a key holder to phone.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/shelters/page.tsx"
   ]
  },
  {
@@ -23923,6 +25435,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Lead reviewer",
+  "text": "Lead reviewer",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
   "key": "Lead signature needed",
   "text": "Lead signature needed",
   "context": null,
@@ -24245,12 +25765,37 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Lessons learnt: what happened, what worked, what to improve and the changes recommended. It feeds the Level 2 plan review and the IDP.",
+  "text": "Lessons learnt: what happened, what worked, what to improve and the changes recommended. It feeds the Level 2 plan review and the IDP.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
   "key": "Level",
   "text": "Level",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/board.tsx",
+   "apps/web/app/(app)/disaster/incidents/table.tsx",
    "apps/web/app/(app)/disaster/partners/list.tsx"
+  ]
+ },
+ {
+  "key": "Level 4 or higher warnings",
+  "text": "Level 4 or higher warnings",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
+  "key": "Level 4 or higher: record the JOC readiness session and what it decided. If a response is needed, add an incident from the warning.",
+  "text": "Level 4 or higher: record the JOC readiness session and what it decided. If a response is needed, add an incident from the warning.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
   ]
  },
  {
@@ -24270,11 +25815,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Level of co-ordination",
-  "text": "Level of co-ordination",
+  "key": "Level {n}",
+  "text": "Level {n}",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx"
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Level {n} {hazard}",
+  "text": "Level {n} {hazard}",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
+  ]
+ },
+ {
+  "key": "Level {n}: the JOC meets to check readiness.",
+  "text": "Level {n}: the JOC meets to check readiness.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "Level {n}: watch it until it ends. A session can still be recorded.",
+  "text": "Level {n}: watch it until it ends. A session can still be recorded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -24752,6 +26321,47 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Load a spreadsheet",
+  "text": "Load a spreadsheet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
+  ]
+ },
+ {
+  "key": "Load the City’s list from a spreadsheet: columns Ward, Councillor, Cell and Email. A ward already listed gets the new name and number.",
+  "text": "Load the City’s list from a spreadsheet: columns Ward, Councillor, Cell and Email. A ward already listed gets the new name and number.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/page.tsx"
+  ]
+ },
+ {
+  "key": "Load the records",
+  "text": "Load the records",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx",
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "Load the records again",
+  "text": "Load the records again",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx"
+  ]
+ },
+ {
+  "key": "Load them on the Past disasters page.",
+  "text": "Load them on the Past disasters page.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "Loading incident…",
   "text": "Loading incident…",
   "context": null,
@@ -24798,6 +26408,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Loading…",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx",
    "apps/web/app/(app)/disaster/wind-widget.tsx",
    "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx",
    "apps/web/app/(app)/sanral/traffic-panel.tsx",
@@ -24968,6 +26579,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Log every call, radio message or WhatsApp in Log what came in. Criti reads it and suggests what to do.",
+  "text": "Log every call, radio message or WhatsApp in Log what came in. Criti reads it and suggests what to do.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Log everyone leaving first",
   "text": "Log everyone leaving first",
   "context": null,
@@ -24988,7 +26607,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Log update",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+   "apps/web/app/(app)/disaster/desk/[id]/board.tsx",
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
   ]
  },
  {
@@ -25674,6 +27294,23 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Match the level",
+  "text": "Match the level",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
+  "key": "Match the level ({colour})",
+  "text": "Match the level ({colour})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
   "key": "Matches",
   "text": "Matches",
   "context": null,
@@ -25867,6 +27504,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Meetings ({n})",
+  "text": "Meetings ({n})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
   "key": "Member",
   "text": "Member",
   "context": null,
@@ -25998,6 +27643,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/notifications/send-form.tsx"
+  ]
+ },
+ {
+  "key": "Message copied. Paste it where it is needed.",
+  "text": "Message copied. Paste it where it is needed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -26142,6 +27795,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/sos-alert.tsx"
+  ]
+ },
+ {
+  "key": "Minimum",
+  "text": "Minimum",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
+  ]
+ },
+ {
+  "key": "Minimum {item}",
+  "text": "Minimum {item}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
   ]
  },
  {
@@ -26324,7 +27993,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "More",
   "context": null,
   "where": [
-   "apps/web/components/ops-command-bar.tsx"
+   "apps/web/components/ops-command-bar.tsx",
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -26529,6 +28199,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Moving up a level needs a reason ticked. Gold, the JOC, also needs who authorised it.",
+  "text": "Moving up a level needs a reason ticked. Gold, the JOC, also needs who authorised it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "Multi load",
   "text": "Multi load",
   "context": null,
@@ -26574,7 +28252,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Municipality",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx",
    "apps/web/app/(app)/disaster/desk/new/form.tsx",
+   "apps/web/app/(app)/disaster/incidents/table.tsx",
    "apps/web/app/(app)/disaster/shelters/register.tsx"
   ]
  },
@@ -26902,6 +28582,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "NASA’s satellites map flood water every day. Clouds hide the ground, so check after the rain clears.",
+  "text": "NASA’s satellites map flood water every day. Clouds hide the ground, so check after the rain clears.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "NATO phonetic call-sign generator.",
   "text": "NATO phonetic call-sign generator.",
   "context": null,
@@ -27010,6 +28698,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/admin/config/page.tsx",
    "apps/web/app/(app)/admin/invitations/slip.tsx",
    "apps/web/app/(app)/admin/tenants/tenant-forms.tsx",
+   "apps/web/app/(app)/disaster/councillors/register.tsx",
    "apps/web/app/(app)/disaster/departments/contacts.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/casualties-tile.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx",
@@ -27058,6 +28747,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fines.ts"
+  ]
+ },
+ {
+  "key": "Name and service",
+  "text": "Name and service",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
   ]
  },
  {
@@ -27277,6 +28974,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Needed",
+  "text": "Needed",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "Needs assessment and relief",
+  "text": "Needs assessment and relief",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
+  ]
+ },
+ {
   "key": "Needs cleaning",
   "text": "Needs cleaning",
   "context": null,
@@ -27376,6 +29089,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "New here? Press Tour in the strip at the top, or Practise an incident.",
+  "text": "New here? Press Tour in the strip at the top, or Practise an incident.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
   "key": "New incident",
   "text": "New incident",
   "context": null,
@@ -27450,6 +29171,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "New to the Disaster screens? I can show you around in two minutes, or walk you through a practice incident. Practice never reaches the desk.",
+  "text": "New to the Disaster screens? I can show you around in two minutes, or walk you through a practice incident. Practice never reaches the desk.",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/criti-tour.tsx"
+  ]
+ },
+ {
   "key": "Newest",
   "text": "Newest",
   "context": null,
@@ -27494,6 +29223,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/modules/duty-maintenance/assign-wizard.tsx",
    "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/app/(app)/shift/readiness-review/page.tsx",
+   "apps/web/components/disaster/criti-tour.tsx",
    "apps/web/components/form-wizard.tsx",
    "apps/web/components/office/setup-guide.tsx",
    "apps/web/components/response-tracker.tsx"
@@ -27676,14 +29406,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "No DOC representative",
-  "text": "No DOC representative",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/disaster/departments/contacts.tsx"
-  ]
- },
- {
   "key": "No GPS fix",
   "text": "No GPS fix",
   "context": null,
@@ -27697,6 +29419,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/cameras/bodycam-wall.tsx"
+  ]
+ },
+ {
+  "key": "No JOC representative",
+  "text": "No JOC representative",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/departments/contacts.tsx"
   ]
  },
  {
@@ -27893,6 +29623,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No beneficiaries recorded yet.",
+  "text": "No beneficiaries recorded yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
+  ]
+ },
+ {
   "key": "No bodycam is available on your register. Ask your supervisor, or tick No bodycam today above.",
   "text": "No bodycam is available on your register. Ask your supervisor, or tick No bodycam today above.",
   "context": null,
@@ -27997,12 +29735,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No cellphone",
+  "text": "No cellphone",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
+  ]
+ },
+ {
   "key": "No certifications.",
   "text": "No certifications.",
   "context": null,
   "where": [
    "apps/web/app/(app)/hierarchy/person/page.tsx",
    "apps/web/app/(app)/training/page.tsx"
+  ]
+ },
+ {
+  "key": "No chair yet",
+  "text": "No chair yet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
   ]
  },
  {
@@ -28134,6 +29888,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No councillors found. The file needs a heading row with Ward, Councillor and Cell.",
+  "text": "No councillors found. The file needs a heading row with Ward, Councillor and Cell.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
+  ]
+ },
+ {
+  "key": "No councillors yet. Load the City’s list from a spreadsheet, or add them one by one.",
+  "text": "No councillors yet. Load the City’s list from a spreadsheet, or add them one by one.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
+  ]
+ },
+ {
   "key": "No credentials required",
   "text": "No credentials required",
   "context": null,
@@ -28155,6 +29925,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/crime-hotspots/page.tsx"
+  ]
+ },
+ {
+  "key": "No damage recorded in this ward.",
+  "text": "No damage recorded in this ward.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -28284,6 +30062,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/map-layers.ts"
+  ]
+ },
+ {
+  "key": "No event matches.",
+  "text": "No event matches.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx"
   ]
  },
  {
@@ -28440,6 +30226,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No incident is at Gold. The JOC is ready to be activated.",
+  "text": "No incident is at Gold. The JOC is ready to be activated.",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
+  ]
+ },
+ {
+  "key": "No incident matches.",
+  "text": "No incident matches.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/incidents/table.tsx"
+  ]
+ },
+ {
   "key": "No incident matches. Clear the filters to see them all.",
   "text": "No incident matches. Clear the filters to see them all.",
   "context": null,
@@ -28448,11 +30250,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No incident placed in this ward yet.",
+  "text": "No incident placed in this ward yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
   "key": "No incident types are set up for your organisation, so a call cannot be logged yet. An administrator adds them under Admin → Configuration → Incident categories.",
   "text": "No incident types are set up for your organisation, so a call cannot be logged yet. An administrator adds them under Admin → Configuration → Incident categories.",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "No incident was logged from this warning.",
+  "text": "No incident was logged from this warning.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -28551,6 +30369,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/shelters/register.tsx"
+  ]
+ },
+ {
+  "key": "No layer matches.",
+  "text": "No layer matches.",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -28691,11 +30517,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No map shapes with this warning. Areas: {areas}",
+  "text": "No map shapes with this warning. Areas: {areas}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "No matching pages.",
   "text": "No matching pages.",
   "context": null,
   "where": [
    "apps/web/components/sidebar.tsx"
+  ]
+ },
+ {
+  "key": "No meeting recorded yet.",
+  "text": "No meeting recorded yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
   ]
  },
  {
@@ -28873,6 +30715,15 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No piped water",
+  "text": "No piped water",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx",
+   "apps/web/app/(app)/disaster/wards/table.tsx"
+  ]
+ },
+ {
   "key": "No place assessed yet.",
   "text": "No place assessed yet.",
   "context": null,
@@ -28994,6 +30845,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No records loaded yet. Press Load the records.",
+  "text": "No records loaded yet. Press Load the records.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/page.tsx"
+  ]
+ },
+ {
   "key": "No records match these filters.",
   "text": "No records match these filters.",
   "context": null,
@@ -29007,6 +30866,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/report-centre/records/page.tsx"
+  ]
+ },
+ {
+  "key": "No relief recorded in this ward yet.",
+  "text": "No relief recorded in this ward yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -29056,6 +30923,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/medical/restock/page.tsx"
+  ]
+ },
+ {
+  "key": "No review yet",
+  "text": "No review yet",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/page.tsx"
   ]
  },
  {
@@ -29128,6 +31003,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/security/page.tsx"
+  ]
+ },
+ {
+  "key": "No session recorded yet. The JOC meets daily, or as needed.",
+  "text": "No session recorded yet. The JOC meets daily, or as needed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
   ]
  },
  {
@@ -29347,6 +31230,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No tropical cyclone in the south-west Indian Ocean now.",
+  "text": "No tropical cyclone in the south-west Indian Ocean now.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "No type matches “{query}”. Try another word.",
   "text": "No type matches “{query}”. Try another word.",
   "context": null,
@@ -29412,11 +31303,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "No ward matches.",
+  "text": "No ward matches.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/table.tsx"
+  ]
+ },
+ {
+  "key": "No warning for eThekwini right now.",
+  "text": "No warning for eThekwini right now.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx",
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "No warrants on record.",
   "text": "No warrants on record.",
   "context": null,
   "where": [
    "apps/web/app/(app)/police/warrants/page.tsx"
+  ]
+ },
+ {
+  "key": "No {cols} column found; those stay blank.",
+  "text": "No {cols} column found; those stay blank.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
   ]
  },
  {
@@ -29489,6 +31405,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/radios/radio-form.tsx"
+  ]
+ },
+ {
+  "key": "Nobody added yet. Add the units, agencies and ward councillors the JOC needs.",
+  "text": "Nobody added yet. Add the units, agencies and ward councillors the JOC needs.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
   ]
  },
  {
@@ -29618,6 +31542,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Nobody matches.",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx",
    "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx",
    "apps/web/app/(app)/roster/allocation/allocation-client.tsx"
   ]
@@ -29921,6 +31846,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Not checked with the SA Weather Service yet.",
+  "text": "Not checked with the SA Weather Service yet.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
   "key": "Not closed yet",
   "text": "Not closed yet",
   "context": null,
@@ -30095,11 +32028,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Not needed below Level 4",
+  "text": "Not needed below Level 4",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "Not now",
   "text": "Not now",
   "context": null,
   "where": [
-   "apps/mobile/app/pin-setup.tsx"
+   "apps/mobile/app/pin-setup.tsx",
+   "apps/web/components/disaster/criti-tour.tsx"
   ]
  },
  {
@@ -30116,6 +32058,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "Not on the list",
+  "text": "Not on the list",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/table.tsx"
   ]
  },
  {
@@ -30156,6 +32106,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/schedule.tsx"
+  ]
+ },
+ {
+  "key": "Not on today’s duty roster as stand-by or duty officer.",
+  "text": "Not on today’s duty roster as stand-by or duty officer.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
   ]
  },
  {
@@ -30372,6 +32330,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/row-actions.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx",
    "apps/web/app/(app)/disaster/duty/board.tsx",
    "apps/web/app/(app)/disaster/partners/list.tsx"
   ]
@@ -30445,7 +32404,10 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/admin/radios/radio-form.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/casualties-tile.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx",
+   "apps/web/app/(app)/disaster/records/table.tsx",
    "apps/web/app/(app)/disaster/shelters/register.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx",
    "apps/web/app/(app)/fire/inspections/[id]/page.tsx",
    "apps/web/app/(app)/incidents/[id]/page.tsx",
    "apps/web/app/(app)/modules/leave/page.tsx",
@@ -30541,6 +32503,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing current in the region.",
+  "text": "Nothing current in the region.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -30669,6 +32639,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/criti/insight-tiles.tsx"
+  ]
+ },
+ {
+  "key": "Nothing new from the SA Weather Service.",
+  "text": "Nothing new from the SA Weather Service.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
+  "key": "Nothing new.",
+  "text": "Nothing new.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Nothing on record here.",
+  "text": "Nothing on record here.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -30891,7 +32885,8 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/post-mortem/[id].tsx",
    "apps/mobile/components/report-wizard.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/board.tsx",
-   "apps/web/app/(app)/disaster/desk/[id]/post-mortem/form.tsx"
+   "apps/web/app/(app)/disaster/desk/[id]/post-mortem/form.tsx",
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -31739,6 +33734,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "On now ({n})",
+  "text": "On now ({n})",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "On parade, members sign on, sign off and sign for overtime on the paper.",
   "text": "On parade, members sign on, sign off and sign for overtime on the paper.",
   "context": null,
@@ -31836,6 +33839,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "On the JOC ({n})",
+  "text": "On the JOC ({n})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
+  ]
+ },
+ {
   "key": "On the call",
   "text": "On the call",
   "context": null,
@@ -31861,11 +33872,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "On the list (gets the warning SMS)",
+  "text": "On the list (gets the warning SMS)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
+  ]
+ },
+ {
   "key": "On the map",
   "text": "On the map",
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/ptt/radio-desk.tsx"
+  ]
+ },
+ {
+  "key": "On the map: the last 24 hours. (A free FIRMS key on the server adds the count here.)",
+  "text": "On the map: the last 24 hours. (A free FIRMS key on the server adds the count here.)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -31910,6 +33937,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "On-scene commander",
+  "text": "On-scene commander",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
   "key": "On/Off ramp",
   "text": "On/Off ramp",
   "context": null,
@@ -31923,6 +33958,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fire-shift.ts"
+  ]
+ },
+ {
+  "key": "Once a joint EOC runs the incident: EMACC notified, the Duty Officer and Stand-by Officer told, resources assessed, heads of departments on standby, sitreps flowing.",
+  "text": "Once a joint EOC runs the incident: EMACC notified, the Duty Officer and Stand-by Officer told, resources assessed, heads of departments on standby, sitreps flowing.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
   ]
  },
  {
@@ -32128,14 +34171,6 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Only when one is set up on site",
-  "text": "Only when one is set up on site",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx"
-  ]
- },
- {
   "key": "Only while the app is open",
   "text": "Only while the app is open",
   "context": null,
@@ -32183,6 +34218,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/report-hub/page.tsx",
    "apps/web/app/(app)/reports/page.tsx",
    "apps/web/app/(app)/sanral/page.tsx",
+   "apps/web/components/ops-map/ops-map.tsx",
    "apps/web/components/pcr-card.tsx",
    "packages/db/src/fines.ts"
   ]
@@ -32204,11 +34240,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Open WhatsApp",
+  "text": "Open WhatsApp",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "Open a card to run the incident on its board.",
+  "text": "Open a card to run the incident on its board.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/page.tsx"
+  ]
+ },
+ {
   "key": "Open a charge",
   "text": "Open a charge",
   "context": null,
   "where": [
    "apps/web/app/(app)/police/charges/page.tsx"
+  ]
+ },
+ {
+  "key": "Open a hall on an incident from its board, under Reception centres. People in and out, and relief handed out, are logged there.",
+  "text": "Open a hall on an incident from its board, under Reception centres. People in and out, and relief handed out, are logged there.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/shelters/page.tsx"
   ]
  },
  {
@@ -32225,6 +34285,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/shelters-tile.tsx"
+  ]
+ },
+ {
+  "key": "Open a ward for its map, councillor, needs, history, relief and incidents.",
+  "text": "Open a ward for its map, councillor, needs, history, relief and incidents.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/page.tsx"
+  ]
+ },
+ {
+  "key": "Open a warning. Tick each step as it is done: FEWS check, services told, every channel.",
+  "text": "Open a warning. Tick each step as it is done: FEWS check, services told, every channel.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
   ]
  },
  {
@@ -32249,6 +34325,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/page.tsx"
+  ]
+ },
+ {
+  "key": "Open an incident to run it: the level, the JOC, relief, recovery and the review.",
+  "text": "Open an incident to run it: the level, the JOC, relief, recovery and the review.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/incidents/page.tsx"
   ]
  },
  {
@@ -32360,6 +34444,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Open incidents and halls, with warnings, hazards, risk, wards and past disasters. Choose what shows under Layers.",
+  "text": "Open incidents and halls, with warnings, hazards, risk, wards and past disasters. Choose what shows under Layers.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/map/page.tsx"
+  ]
+ },
+ {
   "key": "Open navigation",
   "text": "Open navigation",
   "context": null,
@@ -32373,6 +34465,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/while-away.tsx"
+  ]
+ },
+ {
+  "key": "Open now",
+  "text": "Open now",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/table.tsx"
   ]
  },
  {
@@ -32467,6 +34567,15 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/fire-report/[id].tsx",
    "apps/web/app/(app)/medical/pcr/[id]/page.tsx",
    "apps/web/components/police-report-view.tsx"
+  ]
+ },
+ {
+  "key": "Open the source",
+  "text": "Open the source",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx",
+   "apps/web/components/ops-map/ops-map.tsx"
   ]
  },
  {
@@ -32676,6 +34785,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Or add and change councillors one at a time. Leave the ward blank for a PR councillor.",
+  "text": "Or add and change councillors one at a time. Leave the ward blank for a PR councillor.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/page.tsx"
+  ]
+ },
+ {
   "key": "Or appear at court on {date}",
   "text": "Or appear at court on {date}",
   "context": null,
@@ -32714,6 +34831,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Orange",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -32811,6 +34930,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Other events",
+  "text": "Other events",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx"
   ]
  },
  {
@@ -32919,6 +35046,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/police/firearms/page.tsx"
+  ]
+ },
+ {
+  "key": "Over 65",
+  "text": "Over 65",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/table.tsx"
   ]
  },
  {
@@ -33238,6 +35373,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/page.tsx"
+  ]
+ },
+ {
+  "key": "PR",
+  "text": "PR",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
   ]
  },
  {
@@ -33575,11 +35718,53 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Past Disasters",
+  "text": "Past Disasters",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
   "key": "Past Medical History",
   "text": "Past Medical History",
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "Past disasters",
+  "text": "Past disasters",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/page.tsx",
+   "apps/web/app/(app)/disaster/wards/table.tsx",
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Past disasters from the records whose map point falls in this ward. Older records often give only the town, so a few may belong nearby.",
+  "text": "Past disasters from the records whose map point falls in this ward. Older records often give only the town, so a few may belong nearby.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "Past disasters on record",
+  "text": "Past disasters on record",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Past fires from satellite",
+  "text": "Past fires from satellite",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -33910,6 +36095,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/mobile/app/assessment/[id].tsx",
    "apps/web/app/(app)/disaster/desk/[id]/shelters-tile.tsx",
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx",
+   "apps/web/app/(app)/disaster/wards/table.tsx",
    "apps/web/app/(app)/shift/today/page.tsx"
   ]
  },
@@ -33934,7 +36121,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "People affected",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/new/form.tsx"
+   "apps/web/app/(app)/disaster/desk/new/form.tsx",
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -33943,6 +36131,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "People helped",
+  "text": "People helped",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
+  ]
+ },
+ {
+  "key": "People helped and items issued in this ward on every incident, through the ward councillor.",
+  "text": "People helped and items issued in this ward on every incident, through the ward councillor.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -33963,11 +36167,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "People injured, deceased or missing. Names are seen only by those allowed, and every look is recorded.",
+  "text": "People injured, deceased or missing. Names are seen only by those allowed, and every look is recorded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/casualties-tile.tsx"
+  ]
+ },
+ {
   "key": "People needing shelter",
   "text": "People needing shelter",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "People on the ward beneficiary lists.",
+  "text": "People on the ward beneficiary lists.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -34513,6 +36733,30 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Plan review not recorded",
+  "text": "Plan review not recorded",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/departments/contacts.tsx"
+  ]
+ },
+ {
+  "key": "Plan reviewed {date}",
+  "text": "Plan reviewed {date}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/departments/contacts.tsx"
+  ]
+ },
+ {
+  "key": "Plan reviewed {date}: over a year ago",
+  "text": "Plan reviewed {date}: over a year ago",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/departments/contacts.tsx"
+  ]
+ },
+ {
   "key": "Plan {status} — no scores yet.",
   "text": "Plan {status} — no scores yet.",
   "context": null,
@@ -34708,11 +36952,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Population",
+  "text": "Population",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
+  ]
+ },
+ {
   "key": "Population group",
   "text": "Population group",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Population of eThekwini",
+  "text": "Population of eThekwini",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
   ]
  },
  {
@@ -34841,6 +37101,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Post-incident review",
+  "text": "Post-incident review",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
+  "key": "Post-incident reviews signed off",
+  "text": "Post-incident reviews signed off",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "Post-mortem",
   "text": "Post-mortem",
   "context": null,
@@ -34940,6 +37216,48 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Practice incident: {title} · {level}",
+  "text": "Practice incident: {title} · {level}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
+  ]
+ },
+ {
+  "key": "Practice only: nothing here reaches the desk, the map, an SMS or any figure. Only you see it.",
+  "text": "Practice only: nothing here reaches the desk, the map, an SMS or any figure. Only you see it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/page.tsx"
+  ]
+ },
+ {
+  "key": "Practise again",
+  "text": "Practise again",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
+  ]
+ },
+ {
+  "key": "Practise an Incident",
+  "text": "Practise an Incident",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Practise an incident",
+  "text": "Practise an incident",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx",
+   "apps/web/app/(app)/disaster/practice/page.tsx",
+   "apps/web/components/disaster/criti-tour.tsx"
+  ]
+ },
+ {
   "key": "Pre-trip checklists completed today.",
   "text": "Pre-trip checklists completed today.",
   "context": null,
@@ -35013,6 +37331,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Press Layers, then type what you need: flood, fire, ward, school. Tick it to put it on the map.",
+  "text": "Press Layers, then type what you need: flood, fire, ward, school. Tick it to put it on the map.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/map/page.tsx"
+  ]
+ },
+ {
+  "key": "Press Load the records once. It reads the SA Weather Service’s list from the NDMC and adds the major events. Loading again updates them.",
+  "text": "Press Load the records once. It reads the SA Weather Service’s list from the NDMC and adds the major events. Loading again updates them.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/page.tsx"
+  ]
+ },
+ {
   "key": "Press Print. Each call sign is listed with its members, vehicle and area.",
   "text": "Press Print. Each call sign is listed with its members, vehicle and area.",
   "context": null,
@@ -35026,6 +37360,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Press a column heading to sort. Sort by informal homes or past disasters to see where to look first.",
+  "text": "Press a column heading to sort. Sort by informal homes or past disasters to see where to look first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/page.tsx"
+  ]
+ },
+ {
+  "key": "Press a tile’s heading to fold it away. The (i) says what each part is for.",
+  "text": "Press a tile’s heading to fold it away. The (i) says what each part is for.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/page.tsx"
   ]
  },
  {
@@ -35173,6 +37523,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/shift.tsx"
+  ]
+ },
+ {
+  "key": "Print a script",
+  "text": "Print a script",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -35553,6 +37911,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Public partners the desk calls out: City services, provincial and national departments and relief organisations.",
+  "text": "Public partners the desk calls out: City services, provincial and national departments and relief organisations.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/partners/page.tsx"
+  ]
+ },
+ {
   "key": "Public reports (PIR)",
   "text": "Public reports (PIR)",
   "context": null,
@@ -35695,6 +38061,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/(tabs)/profile.tsx"
+  ]
+ },
+ {
+  "key": "Put each person on duty or on standby, with their duty and their times. The JOC Commander and the stand-by officer are the ones the desk phones first.",
+  "text": "Put each person on duty or on standby, with their duty and their times. The JOC Commander and the stand-by officer are the ones the desk phones first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/page.tsx"
   ]
  },
  {
@@ -35999,6 +38373,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Raised {at} by {by}",
+  "text": "Raised {at} by {by}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
   "key": "Raised {localeTimeString} ({timeAgo})",
   "text": "Raised {localeTimeString} ({timeAgo})",
   "context": null,
@@ -36130,6 +38512,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Read the cards from the top: what is happening now first, then risk and history.",
+  "text": "Read the cards from the top: what is happening now first, then risk and history.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "Read the description",
   "text": "Read the description",
   "context": null,
@@ -36143,6 +38533,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/incidents/[id]/case-review-card.tsx"
+  ]
+ },
+ {
+  "key": "Read top to bottom: the status, the figures, the level, the JOC, then what came in with Criti beside it.",
+  "text": "Read top to bottom: the status, the figures, the level, the JOC, then what came in with Criti beside it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/page.tsx"
   ]
  },
  {
@@ -36196,6 +38594,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Readiness and IDP",
+  "text": "Readiness and IDP",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Readiness and IDP figures",
+  "text": "Readiness and IDP figures",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -36343,6 +38757,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Real disasters in eThekwini from the records: the SA Weather Service’s list and the major events of 2017 to 2022. Kept apart from live calls; they never raise an alert.",
+  "text": "Real disasters in eThekwini from the records: the SA Weather Service’s list and the major events of 2017 to 2022. Kept apart from live calls; they never raise an alert.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/page.tsx"
+  ]
+ },
+ {
   "key": "Real-Time Incident Map",
   "text": "Real-Time Incident Map",
   "context": null,
@@ -36402,6 +38824,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/leave.tsx",
    "apps/mobile/components/shift-bodycam.tsx",
    "apps/web/app/(app)/admin/users/confirm-fields.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx",
    "apps/web/app/(app)/modules/leave/decide.tsx",
    "apps/web/app/(app)/modules/staff/register-table.tsx",
    "apps/web/components/schedule/leave-actions.tsx"
@@ -36692,11 +39115,44 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Record ({n})",
+  "text": "Record ({n})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Record a SA Weather Service warning",
+  "text": "Record a SA Weather Service warning",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
+  "key": "Record a meeting",
+  "text": "Record a meeting",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
   "key": "Record a person",
   "text": "Record a person",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/casualties-tile.tsx"
+  ]
+ },
+ {
+  "key": "Record a session",
+  "text": "Record a session",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -36706,6 +39162,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/police/charges/[id]/page.tsx",
    "apps/web/app/(app)/police/transactions/page.tsx"
+  ]
+ },
+ {
+  "key": "Record a warning",
+  "text": "Record a warning",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
   ]
  },
  {
@@ -36725,11 +39189,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Record the date each department last reviewed its disaster plan. Every plan is reviewed each year.",
+  "text": "Record the date each department last reviewed its disaster plan. Every plan is reviewed each year.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/departments/page.tsx"
+  ]
+ },
+ {
+  "key": "Record the relief",
+  "text": "Record the relief",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
+  ]
+ },
+ {
   "key": "Record voice note",
   "text": "Record voice note",
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "Record warning",
+  "text": "Record warning",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
   ]
  },
  {
@@ -36806,10 +39294,28 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Recovery and rehabilitation",
+  "text": "Recovery and rehabilitation",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
+  "key": "Recovery and review ({n})",
+  "text": "Recovery and review ({n})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/page.tsx"
+  ]
+ },
+ {
   "key": "Red",
   "text": "Red",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -36843,7 +39349,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/components/ems-shift.tsx",
-   "apps/mobile/components/fire-shift.tsx"
+   "apps/mobile/components/fire-shift.tsx",
+   "apps/web/app/(app)/disaster/incidents/table.tsx"
   ]
  },
  {
@@ -37149,6 +39656,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Relief given here ({n} people)",
+  "text": "Relief given here ({n} people)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
   "key": "Relief handed out here",
   "text": "Relief handed out here",
   "context": null,
@@ -37162,6 +39677,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/disaster-assessments.tsx"
+  ]
+ },
+ {
+  "key": "Relief stock",
+  "text": "Relief stock",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -37771,7 +40294,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Representative",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx"
+   "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
   ]
  },
  {
@@ -38279,6 +40803,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Review started",
+  "text": "Review started",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/page.tsx"
+  ]
+ },
+ {
   "key": "Review the raw report",
   "text": "Review the raw report",
   "context": null,
@@ -38422,6 +40954,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/inspection/new.tsx",
+   "apps/web/app/(app)/disaster/records/table.tsx",
    "apps/web/app/(app)/fire/inspections/inspection-form.tsx"
   ]
  },
@@ -38434,11 +40967,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Risk and history",
+  "text": "Risk and history",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "Risk of Harm",
   "text": "Risk of Harm",
   "context": null,
   "where": [
    "packages/db/src/pcr.ts"
+  ]
+ },
+ {
+  "key": "River floods forecast",
+  "text": "River floods forecast",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Rivers forecast to rise above a flood level in the next three days are coloured on the map.",
+  "text": "Rivers forecast to rise above a flood level in the next three days are coloured on the map.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -39033,6 +41590,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "SA Weather Service impact-based warnings that name eThekwini, read every five minutes.",
+  "text": "SA Weather Service impact-based warnings that name eThekwini, read every five minutes.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "SABS 0228 code",
   "text": "SABS 0228 code",
   "context": null,
@@ -39280,22 +41845,6 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/fire-shift.ts"
-  ]
- },
- {
-  "key": "SCG duty chair this month",
-  "text": "SCG duty chair this month",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/disaster/duty/board.tsx"
-  ]
- },
- {
-  "key": "SCG duty chair, {year}",
-  "text": "SCG duty chair, {year}",
-  "context": null,
-  "where": [
-   "apps/web/app/(app)/disaster/duty/board.tsx"
   ]
  },
  {
@@ -39682,13 +42231,18 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/admin/automations/rule-card.tsx",
    "apps/web/app/(app)/admin/radios/voice-server-form.tsx",
+   "apps/web/app/(app)/disaster/councillors/register.tsx",
    "apps/web/app/(app)/disaster/departments/contacts.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/casualties-tile.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/shelters-tile.tsx",
    "apps/web/app/(app)/disaster/duty/board.tsx",
+   "apps/web/app/(app)/disaster/duty/forum.tsx",
    "apps/web/app/(app)/disaster/partners/list.tsx",
+   "apps/web/app/(app)/disaster/readiness/forms.tsx",
    "apps/web/app/(app)/disaster/shelters/register.tsx",
    "apps/web/app/(app)/duty-tasks/page.tsx",
    "apps/web/app/(app)/fire/inspections/premises/premises-form.tsx",
@@ -39823,6 +42377,39 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Save the meeting",
+  "text": "Save the meeting",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
+  "key": "Save the review",
+  "text": "Save the review",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
+  "key": "Save the review with the lead reviewer and what happened first.",
+  "text": "Save the review with the lead reviewer and what happened first.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
+  "key": "Save the session",
+  "text": "Save the session",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "Save. The duties show on the Duty Roster and the Duty Sheet.",
   "text": "Save. The duties show on the Duty Roster and the Duty Sheet.",
   "context": null,
@@ -39871,6 +42458,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Saved.",
+  "text": "Saved.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
+  ]
+ },
+ {
   "key": "Saved. It sends when you have signal.",
   "text": "Saved. It sends when you have signal.",
   "context": null,
@@ -39890,15 +42485,23 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/radios/voice-server-form.tsx",
+   "apps/web/app/(app)/disaster/councillors/register.tsx",
    "apps/web/app/(app)/disaster/departments/contacts.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/board.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/casualties-tile.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/shelters-tile.tsx",
    "apps/web/app/(app)/disaster/duty/board.tsx",
+   "apps/web/app/(app)/disaster/duty/forum.tsx",
    "apps/web/app/(app)/disaster/partners/list.tsx",
+   "apps/web/app/(app)/disaster/readiness/forms.tsx",
    "apps/web/app/(app)/disaster/shelters/register.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx",
    "apps/web/app/(app)/incidents/[id]/case-forms.tsx",
    "apps/web/app/(app)/kit/kit-board.tsx",
    "apps/web/app/(app)/modules/duty-allocation/allocation-board.tsx"
@@ -40156,6 +42759,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Search by name or type. A number marked as not checked should be confirmed before it is relied on.",
+  "text": "Search by name or type. A number marked as not checked should be confirmed before it is relied on.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/partners/page.tsx"
+  ]
+ },
+ {
   "key": "Search by name, code or instruction…",
   "text": "Search by name, code or instruction…",
   "context": null,
@@ -40318,6 +42929,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Search or filter the list by risk, ward or decade. Each ward’s own history is on its ward profile.",
+  "text": "Search or filter the list by risk, ward or decade. Each ward’s own history is on its ward profile.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/page.tsx"
+  ]
+ },
+ {
   "key": "Search pages",
   "text": "Search pages",
   "context": null,
@@ -40347,6 +42966,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/medical/pcr/page.tsx"
+  ]
+ },
+ {
+  "key": "Search reference, title or place",
+  "text": "Search reference, title or place",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/incidents/table.tsx"
   ]
  },
  {
@@ -40432,6 +43059,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Search the layers",
+  "text": "Search the layers",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Search the queue",
   "text": "Search the queue",
   "context": null,
@@ -40473,6 +43108,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Search: flood, ward, fire, school…",
+  "text": "Search: flood, ward, fire, school…",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Search: gun, crash, fire, chest pain…",
   "text": "Search: gun, crash, fire, chest pain…",
   "context": null,
@@ -40481,11 +43124,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Search: place, event, note",
+  "text": "Search: place, event, note",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx"
+  ]
+ },
+ {
   "key": "Search: title, number or place",
   "text": "Search: title, number or place",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/desk-cards.tsx"
+  ]
+ },
+ {
+  "key": "Search: ward, name or number",
+  "text": "Search: ward, name or number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
   ]
  },
  {
@@ -40788,6 +43447,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "See-through",
+  "text": "See-through",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Seizure",
   "text": "Seizure",
   "context": null,
@@ -41066,6 +43733,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Send the SMS to all councillors with one press. It goes out in SAWS’s own words.",
+  "text": "Send the SMS to all councillors with one press. It goes out in SAWS’s own words.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
+  "key": "Send this warning by SMS to {n} councillors?",
+  "text": "Send this warning by SMS to {n} councillors?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "Send to",
   "text": "Send to",
   "context": null,
@@ -41114,6 +43797,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx"
+  ]
+ },
+ {
+  "key": "Send to {n} councillors",
+  "text": "Send to {n} councillors",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -41545,6 +44236,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Set before reasons were recorded.",
+  "text": "Set before reasons were recorded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
   "key": "Set by",
   "text": "Set by",
   "context": null,
@@ -41625,6 +44324,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Settlement fires marked as in an informal settlement.",
+  "text": "Settlement fires marked as in an informal settlement.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "Setup guide",
   "text": "Setup guide",
   "context": null,
@@ -41664,6 +44371,7 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/incidents-list.tsx",
    "apps/web/app/(app)/case-manager/case-ui.tsx",
    "apps/web/app/(app)/disaster/desk/new/form.tsx",
+   "apps/web/app/(app)/disaster/incidents/table.tsx",
    "apps/web/app/(app)/dispatch/log-call/criti-strip.tsx",
    "apps/web/app/(app)/dispatch/log-call/log-call-form.tsx",
    "apps/web/app/(app)/dispatch/log-history/page.tsx",
@@ -41799,6 +44507,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/page.tsx",
+   "apps/web/app/(app)/disaster/readiness/page.tsx",
    "apps/web/lib/nav.ts"
   ]
  },
@@ -41988,7 +44697,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx",
-   "apps/web/app/(app)/disaster/desk/new/form.tsx"
+   "apps/web/app/(app)/disaster/desk/new/form.tsx",
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
   ]
  },
  {
@@ -42088,6 +44798,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Show on the map",
+  "text": "Show on the map",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Show on the map opens the Disaster map with that layer on. Open the source goes to the publisher’s own site.",
+  "text": "Show on the map opens the Disaster map with that layer on. Open the source goes to the publisher’s own site.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "Show on the map →",
   "text": "Show on the map →",
   "context": null,
@@ -42173,6 +44899,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/staff/logins-view.tsx"
+  ]
+ },
+ {
+  "key": "Show those taken off",
+  "text": "Show those taken off",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
   ]
  },
  {
@@ -42533,6 +45267,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Sign-off",
+  "text": "Sign-off",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
   "key": "Signature pad. Sign with your finger.",
   "text": "Signature pad. Sign with your finger.",
   "context": null,
@@ -42562,6 +45304,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/radio-setup.tsx"
+  ]
+ },
+ {
+  "key": "Signed off {at}",
+  "text": "Signed off {at}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
   ]
  },
  {
@@ -42620,6 +45370,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "Silver checklist",
+  "text": "Silver checklist",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
   ]
  },
  {
@@ -42945,6 +45703,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Some figures could not be fetched just now: {what}.",
+  "text": "Some figures could not be fetched just now: {what}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "Some figures could not be fetched just now: {what}. Try again in a few minutes.",
+  "text": "Some figures could not be fetched just now: {what}. Try again in a few minutes.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/page.tsx"
+  ]
+ },
+ {
   "key": "Some updates could not be delivered. Open the sync tray at the bottom of the screen to retry or review them.",
   "text": "Some updates could not be delivered. Open the sync tray at the bottom of the screen to retry or review them.",
   "context": null,
@@ -42958,6 +45732,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/board.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/sms-button.tsx"
   ]
  },
@@ -43055,6 +45830,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/dispatch/assign/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "Source, e.g. Stats SA mid-year estimate",
+  "text": "Source, e.g. Stats SA mid-year estimate",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
   ]
  },
  {
@@ -43329,7 +46112,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Stand down",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+   "apps/web/app/(app)/disaster/desk/[id]/board.tsx",
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
   ]
  },
  {
@@ -43703,6 +46487,8 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/web/app/(app)/admin/radios/radio-form.tsx",
    "apps/web/app/(app)/admin/tenants/page.tsx",
    "apps/web/app/(app)/admin/vehicles/fleet-table.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx",
+   "apps/web/app/(app)/disaster/incidents/table.tsx",
    "apps/web/app/(app)/dispatch/pending/page.tsx",
    "apps/web/app/(app)/incidents/page.tsx",
    "apps/web/app/(app)/kit/kit-board.tsx",
@@ -43799,6 +46585,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Step down to {level}",
+  "text": "Step down to {level}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
   "key": "Step {n}",
   "text": "Step {n}",
   "context": null,
@@ -43806,6 +46600,14 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/components/report-steps-cover.tsx",
    "apps/mobile/components/report-wizard.tsx",
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "Step {n} of {all}",
+  "text": "Step {n} of {all}",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/criti-tour.tsx"
   ]
  },
  {
@@ -44096,6 +46898,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Structural fires in informal settlements",
+  "text": "Structural fires in informal settlements",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "Structure Fire",
   "text": "Structure Fire",
   "context": null,
@@ -44301,6 +47111,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/call-details.tsx"
+  ]
+ },
+ {
+  "key": "Suggested measure for IDP indicator FD2.1, which has no baseline yet. Each of the eight lines counts equally.",
+  "text": "Suggested measure for IDP indicator FD2.1, which has no baseline yet. Each of the eight lines counts equally.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -44569,6 +47387,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Switch off",
+  "text": "Switch off",
+  "context": null,
+  "where": [
+   "apps/web/components/ops-map/ops-map.tsx"
+  ]
+ },
+ {
   "key": "Switched off",
   "text": "Switched off",
   "context": null,
@@ -44820,11 +47646,67 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Take someone off the list when they leave office. They stop getting the warning SMS.",
+  "text": "Take someone off the list when they leave office. They stop getting the warning SMS.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/page.tsx"
+  ]
+ },
+ {
+  "key": "Take the tour",
+  "text": "Take the tour",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/criti-tour.tsx"
+  ]
+ },
+ {
+  "key": "Take this meeting off",
+  "text": "Take this meeting off",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
+  "key": "Take this meeting off the record?",
+  "text": "Take this meeting off the record?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
   "key": "Take this notification back? It disappears for everyone it went to.",
   "text": "Take this notification back? It disappears for everyone it went to.",
   "context": null,
   "where": [
    "apps/web/app/(app)/notifications/send-form.tsx"
+  ]
+ },
+ {
+  "key": "Take ward {ward} off",
+  "text": "Take ward {ward} off",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
+  ]
+ },
+ {
+  "key": "Take ward {ward} off the relief list?",
+  "text": "Take ward {ward} off the relief list?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
+  ]
+ },
+ {
+  "key": "Take {name} off the JOC",
+  "text": "Take {name} off the JOC",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
   ]
  },
  {
@@ -44857,6 +47739,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/notifications/page.tsx"
+  ]
+ },
+ {
+  "key": "Taken off the list",
+  "text": "Taken off the list",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
   ]
  },
  {
@@ -45284,6 +48174,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "That file could not be read. Save it as .xlsx or .csv and try again.",
+  "text": "That file could not be read. Save it as .xlsx or .csv and try again.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
+  ]
+ },
+ {
   "key": "That is more than the {n} rounds issued. Count again.",
   "text": "That is more than the {n} rounds issued. Count again.",
   "context": null,
@@ -45324,11 +48222,51 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "The City Manager and Deputy City Managers are on stand-by for one calendar month at a time. Whoever is on stand-by chairs the SCG.",
-  "text": "The City Manager and Deputy City Managers are on stand-by for one calendar month at a time. Whoever is on stand-by chairs the SCG.",
+  "key": "The (i) beside a layer says what it shows and where it comes from.",
+  "text": "The (i) beside a layer says what it shows and where it comes from.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/map/page.tsx"
+  ]
+ },
+ {
+  "key": "The (i) on a card says what the source is and how to read it.",
+  "text": "The (i) on a card says what the source is and how to read it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "The Advisory Forum meets every quarter; its task teams as they need. A Forum meeting in the last three months counts towards readiness.",
+  "text": "The Advisory Forum meets every quarter; its task teams as they need. A Forum meeting in the last three months counts towards readiness.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
+  "key": "The City Manager and Deputy City Managers are on stand-by for one calendar month at a time. Whoever is on stand-by chairs the JOC.",
+  "text": "The City Manager and Deputy City Managers are on stand-by for one calendar month at a time. Whoever is on stand-by chairs the JOC.",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/duty/board.tsx"
+  ]
+ },
+ {
+  "key": "The City departments working on this incident. Each one has a form for its representative, its duties and its figures.",
+  "text": "The City departments working on this incident. Each one has a form for its representative, its duties and its figures.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx"
+  ]
+ },
+ {
+  "key": "The Disaster Management Centre assesses damage and needs; relief follows the findings and is coordinated through the ward councillors.",
+  "text": "The Disaster Management Centre assesses damage and needs; relief follows the findings and is coordinated through the ward councillors.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
   ]
  },
  {
@@ -45340,6 +48278,38 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The Forum has no meeting recorded",
+  "text": "The Forum has no meeting recorded",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
+  "key": "The Forum last met {d} days ago",
+  "text": "The Forum last met {d} days ago",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
+  "key": "The Forum’s five task teams. Each needs a chair; the readiness score counts them.",
+  "text": "The Forum’s five task teams. Each needs a chair; the readiness score counts them.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
+  "key": "The Global Flood Awareness System forecasts the big rivers each day, three days ahead. It does not see small streams or flash floods.",
+  "text": "The Global Flood Awareness System forecasts the big rivers each day, three days ahead. It does not see small streams or flash floods.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "The Hikvision platform is not connected yet",
   "text": "The Hikvision platform is not connected yet",
   "context": null,
@@ -45348,11 +48318,107 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The JOC",
+  "text": "The JOC",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
+  ]
+ },
+ {
+  "key": "The JOC is coordinating {n} incident(s) at Gold.",
+  "text": "The JOC is coordinating {n} incident(s) at Gold.",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
+  ]
+ },
+ {
+  "key": "The JOC’s duties",
+  "text": "The JOC’s duties",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
+  ]
+ },
+ {
+  "key": "The Joint Operations Centre at the DOC: the core team called in, the DCM on stand-by told, the units and agencies sitting on it, its daily sessions and its duties.",
+  "text": "The Joint Operations Centre at the DOC: the core team called in, the DCM on stand-by told, the units and agencies sitting on it, its daily sessions and its duties.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
+  ]
+ },
+ {
   "key": "The K9 deployment: the incident, members and dogs, victims, suspects and medical treatment.",
   "text": "The K9 deployment: the incident, members and dogs, victims, suspects and medical treatment.",
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "The NDMC’s fire risk class for this season where the ward’s middle lies.",
+  "text": "The NDMC’s fire risk class for this season where the ward’s middle lies.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "The NDMC’s flood risk class for this season where the ward’s middle lies: hazard, vulnerability and capacity combined.",
+  "text": "The NDMC’s flood risk class for this season where the ward’s middle lies: hazard, vulnerability and capacity combined.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "The NDMC’s indicative fire risk for eThekwini’s areas this season.",
+  "text": "The NDMC’s indicative fire risk for eThekwini’s areas this season.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "The NDMC’s indicative flood risk for eThekwini’s areas this season: hazard, vulnerability and capacity combined.",
+  "text": "The NDMC’s indicative flood risk for eThekwini’s areas this season: hazard, vulnerability and capacity combined.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "The National Institute for Communicable Diseases’ latest reports: outbreaks, weekly situation reports and alerts.",
+  "text": "The National Institute for Communicable Diseases’ latest reports: outbreaks, weekly situation reports and alerts.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "The SA Weather Service did not answer {ago}. Warnings that come by email can still be recorded.",
+  "text": "The SA Weather Service did not answer {ago}. Warnings that come by email can still be recorded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
+  "key": "The SA Weather Service’s record of weather disasters in eThekwini, and the major events of 2017 to 2022.",
+  "text": "The SA Weather Service’s record of weather disasters in eThekwini, and the major events of 2017 to 2022.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "The World Health Organization’s global COVID-19 figures. For South Africa’s own reports, see the NICD card.",
+  "text": "The World Health Organization’s global COVID-19 figures. For South Africa’s own reports, see the NICD card.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -45433,6 +48499,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/assessment/[id].tsx"
+  ]
+ },
+ {
+  "key": "The bars on the left show the level: one for Bronze, two for Silver, three for Gold (the JOC).",
+  "text": "The bars on the left show the level: one for Bronze, two for Silver, three for Gold (the JOC).",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/incidents/page.tsx"
   ]
  },
  {
@@ -45612,6 +48686,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The damage, each department’s progress, and what was decided",
+  "text": "The damage, each department’s progress, and what was decided",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
+  ]
+ },
+ {
   "key": "The dashboard, leave, search and their own profile only.",
   "text": "The dashboard, leave, search and their own profile only.",
   "context": null,
@@ -45657,6 +48739,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "The disaster indicators in the IDP, counted for the financial year, July to June, from the incidents, warnings and relief logged here.",
+  "text": "The disaster indicators in the IDP, counted for the financial year, July to June, from the incidents, warnings and relief logged here.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -45772,11 +48862,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The incident goes back on the board at the level it had.",
+  "text": "The incident goes back on the board at the level it had.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
+  "key": "The incident is {status}. Reopen it to change its level.",
+  "text": "The incident is {status}. Reopen it to change its level.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
+  "key": "The incident leaves the command board and waits on the Recovery and review list.",
+  "text": "The incident leaves the command board and waits on the Recovery and review list.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
   "key": "The incident record is closed.",
   "text": "The incident record is closed.",
   "context": null,
   "where": [
    "apps/mobile/app/incident/[id].tsx"
+  ]
+ },
+ {
+  "key": "The incident’s short title, its hazard (the top ten risks first) and the municipalities it affects.",
+  "text": "The incident’s short title, its hazard (the top ten risks first) and the municipalities it affects.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx"
   ]
  },
  {
@@ -45804,11 +48926,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The last 30 days ({n})",
+  "text": "The last 30 days ({n})",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
   "key": "The last reading was {km} km. Check the odometer.",
   "text": "The last reading was {km} km. Check the odometer.",
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "The last two days from MODIS and VIIRS. Show it on the map to see where water lies where there is usually none.",
+  "text": "The last two days from MODIS and VIIRS. Show it on the map to see where water lies where there is usually none.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "The latest from every source the desk watches, in one place. Each card shows it on the map and opens the source.",
+  "text": "The latest from every source the desk watches, in one place. Each card shows it on the map and opens the source.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -45875,6 +49021,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/disaster/address-search.tsx"
+  ]
+ },
+ {
+  "key": "The map shows the open calls and halls. Press Layers to add warnings, flooding, wards and more.",
+  "text": "The map shows the open calls and halls. Press Layers to add warnings, flooding, wards and more.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
   ]
  },
  {
@@ -45950,6 +49104,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The parts of eThekwini the warning covers, as SAWS drew them.",
+  "text": "The parts of eThekwini the warning covers, as SAWS drew them.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
+  ]
+ },
+ {
   "key": "The patient",
   "text": "The patient",
   "context": null,
@@ -45990,6 +49152,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The post-incident review, with its four sign-offs, is on the incident’s board after it is stood down.",
+  "text": "The post-incident review, with its four sign-offs, is on the incident’s board after it is stood down.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/post-mortem/page.tsx"
+  ]
+ },
+ {
   "key": "The public organisations the Disaster desk calls out. Press a number to call it.",
   "text": "The public organisations the Disaster desk calls out. Press a number to call it.",
   "context": null,
@@ -46019,6 +49189,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/call-signs/page.tsx"
+  ]
+ },
+ {
+  "key": "The readiness score above.",
+  "text": "The readiness score above.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -46059,6 +49237,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/[id].tsx"
+  ]
+ },
+ {
+  "key": "The relief materials the Directorate budgets for. Update what is in storage after each delivery or stock count.",
+  "text": "The relief materials the Directorate budgets for. Update what is in storage after each delivery or stock count.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
   ]
  },
  {
@@ -46142,6 +49328,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The score goes up as each measure is put in place: the duty roster, department representatives and plans, halls, stock, the Forum and its task teams.",
+  "text": "The score goes up as each measure is put in place: the duty roster, department representatives and plans, halls, stock, the Forum and its task teams.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "The secret is kept safe and never shown again.",
   "text": "The secret is kept safe and never shown again.",
   "context": null,
@@ -46163,6 +49357,30 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/lib/api-host.ts"
+  ]
+ },
+ {
+  "key": "The share of homes that are informal dwellings: shacks and backyard rooms. Fire and flood hit them hardest.",
+  "text": "The share of homes that are informal dwellings: shacks and backyard rooms. Fire and flood hit them hardest.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "The share of people aged 16 or under. Families with children need nappies, formula and schooling when displaced.",
+  "text": "The share of people aged 16 or under. Families with children need nappies, formula and schooling when displaced.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "The share of people with no piped water. Water tankers are needed here first when supply fails.",
+  "text": "The share of people with no piped water. Water tankers are needed here first when supply fails.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -46190,6 +49408,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The six figures say what is happening now. Hover over one, or tap it, for what is behind it.",
+  "text": "The six figures say what is happening now. Hover over one, or tap it, for what is behind it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "The source did not answer just now. Try again in a few minutes.",
+  "text": "The source did not answer just now. Try again in a few minutes.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "The staff register is empty. Import HR’s staff list first.",
   "text": "The staff register is empty. Import HR’s staff list first.",
   "context": null,
@@ -46206,6 +49440,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "The system reads the SA Weather Service’s public warning list every five minutes while a Disaster screen is open, and keeps the warnings that name eThekwini.",
+  "text": "The system reads the SA Weather Service’s public warning list every five minutes while a Disaster screen is open, and keeps the warnings that name eThekwini.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
   "key": "The talk button talks on your team’s group; the SOS button raises an SOS. Most radios work without setting up. If a button does nothing, teach it here.",
   "text": "The talk button talks on your team’s group; the SOS button raises an SOS. Most radios work without setting up. If a button does nothing, teach it here.",
   "context": null,
@@ -46219,6 +49461,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/staff/page.tsx"
+  ]
+ },
+ {
+  "key": "The tiles count the events and deaths for each of the top ten risks.",
+  "text": "The tiles count the events and deaths for each of the top ten risks.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/page.tsx"
   ]
  },
  {
@@ -46243,6 +49493,38 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/api/src/police/report-forms.ts"
+  ]
+ },
+ {
+  "key": "The ward",
+  "text": "The ward",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "The ward’s boundary as the Municipal Demarcation Board drew it for 2021.",
+  "text": "The ward’s boundary as the Municipal Demarcation Board drew it for 2021.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
+  "key": "The warning in SAWS’s own words. Pass it on as it is.",
+  "text": "The warning in SAWS’s own words. Pass it on as it is.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "The warning typed so far is not kept.",
+  "text": "The warning typed so far is not kept.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
   ]
  },
  {
@@ -46302,11 +49584,36 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Their name",
+  "text": "Their name",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
+  "key": "Their number",
+  "text": "Their number",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
   "key": "Their number (for an SMS back)",
   "text": "Their number (for an SMS back)",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/new/form.tsx"
+  ]
+ },
+ {
+  "key": "Their role",
+  "text": "Their role",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
   ]
  },
  {
@@ -46587,6 +49894,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/modules/staff/import/import-wizard.tsx"
+  ]
+ },
+ {
+  "key": "This incident, halls, rain radar and the other map layers. Use Layers to switch them on and off.",
+  "text": "This incident, halls, rain radar and the other map layers. Use Layers to switch them on and off.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
   ]
  },
  {
@@ -47305,6 +50620,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Top ten priority risk",
+  "text": "Top ten priority risk",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "Total",
   "text": "Total",
   "context": null,
@@ -47454,6 +50777,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+  ]
+ },
+ {
+  "key": "Tour",
+  "text": "Tour",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
   ]
  },
  {
@@ -47837,6 +51168,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Triggered by",
+  "text": "Triggered by",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
+  "key": "Tropical cyclones",
+  "text": "Tropical cyclones",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "Truck",
   "text": "Truck",
   "context": null,
@@ -48094,6 +51441,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/post-mortem/post-mortem-form.tsx"
+  ]
+ },
+ {
+  "key": "Typed in",
+  "text": "Typed in",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
+  "key": "Typed in by {name}, {at}.",
+  "text": "Typed in by {name}, {at}.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
   ]
  },
  {
@@ -48537,11 +51900,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Update the relief stock after each delivery or stock count. Issued this year comes from the ward relief records.",
+  "text": "Update the relief stock after each delivery or stock count. Issued this year comes from the ward relief records.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "Update {how}",
   "text": "Update {how}",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+  ]
+ },
+ {
+  "key": "Updated",
+  "text": "Updated",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/incidents/table.tsx"
   ]
  },
  {
@@ -48820,11 +52199,20 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Valid from",
+  "text": "Valid from",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
   "key": "Valid until",
   "text": "Valid until",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/invitations/slip.tsx"
+   "apps/web/app/(app)/admin/invitations/slip.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
   ]
  },
  {
@@ -49619,9 +53007,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Ward",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/assessment-tile.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx",
    "apps/web/app/(app)/disaster/desk/new/form.tsx",
-   "apps/web/app/(app)/disaster/shelters/register.tsx"
+   "apps/web/app/(app)/disaster/practice/wizard.tsx",
+   "apps/web/app/(app)/disaster/records/table.tsx",
+   "apps/web/app/(app)/disaster/shelters/register.tsx",
+   "apps/web/app/(app)/disaster/wards/table.tsx"
+  ]
+ },
+ {
+  "key": "Ward (blank for PR)",
+  "text": "Ward (blank for PR)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
   ]
  },
  {
@@ -49633,10 +53034,43 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Ward Profiles",
+  "text": "Ward Profiles",
+  "context": null,
+  "where": [
+   "apps/web/lib/nav.ts"
+  ]
+ },
+ {
+  "key": "Ward councillor",
+  "text": "Ward councillor",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
+  ]
+ },
+ {
+  "key": "Ward number or councillor",
+  "text": "Ward number or councillor",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/table.tsx"
+  ]
+ },
+ {
+  "key": "Ward profiles",
+  "text": "Ward profiles",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/page.tsx"
+  ]
+ },
+ {
   "key": "Ward {ward}",
   "text": "Ward {ward}",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx",
    "apps/web/components/disaster-assessments.tsx"
   ]
  },
@@ -49646,7 +53080,28 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/new/form.tsx",
+   "apps/web/app/(app)/disaster/incidents/table.tsx",
+   "apps/web/app/(app)/disaster/practice/wizard.tsx",
+   "apps/web/app/(app)/disaster/records/table.tsx",
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx",
+   "apps/web/app/(app)/disaster/wards/table.tsx",
    "apps/web/components/disaster/address-search.tsx"
+  ]
+ },
+ {
+  "key": "Warning script",
+  "text": "Warning script",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "Warnings from the SA Weather Service arrive here by themselves. A warning that came by email or PDF: press Record a warning.",
+  "text": "Warnings from the SA Weather Service arrive here by themselves. A warning that came by email or PDF: press Record a warning.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
   ]
  },
  {
@@ -49837,6 +53292,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Weather warning",
+  "text": "Weather warning",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "Weather warnings",
+  "text": "Weather warnings",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "Wed",
   "text": "Wed",
   "context": null,
@@ -49927,6 +53398,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Well done. You added an incident, moved it up a level with its reason, logged what came in, recorded relief for a ward and stood it down. That is the desk’s day.",
+  "text": "Well done. You added an incident, moved it up a level with its reason, logged what came in, recorded relief for a ward and stood it down. That is the desk’s day.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
+  ]
+ },
+ {
   "key": "Were weapons used?",
   "text": "Were weapons used?",
   "context": null,
@@ -49964,6 +53443,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "What",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx",
    "apps/web/app/(app)/kit/kit-board.tsx"
   ]
  },
@@ -49973,6 +53453,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/notifications/page.tsx"
+  ]
+ },
+ {
+  "key": "What a Disaster Management officer found on site: homes, people and services hit, and what is needed.",
+  "text": "What a Disaster Management officer found on site: homes, people and services hit, and what is needed.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/assessment-tile.tsx"
   ]
  },
  {
@@ -50040,6 +53528,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "What came in",
+  "text": "What came in",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
+  ]
+ },
+ {
   "key": "What caused this incident?",
   "text": "What caused this incident?",
   "context": null,
@@ -50069,6 +53565,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "What did the JOC decide?",
+  "text": "What did the JOC decide?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -50259,6 +53763,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "What is this?",
+  "text": "What is this?",
+  "context": null,
+  "where": [
+   "apps/web/components/info-dot.tsx"
+  ]
+ },
+ {
   "key": "What is wrong",
   "text": "What is wrong",
   "context": null,
@@ -50291,6 +53803,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "What moves this incident up a level?",
+  "text": "What moves this incident up a level?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
   "key": "What people need now",
   "text": "What people need now",
   "context": null,
@@ -50299,11 +53819,35 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "What people should do",
+  "text": "What people should do",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
+  ]
+ },
+ {
+  "key": "What people should do (if the warning says)",
+  "text": "What people should do (if the warning says)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
   "key": "What substance",
   "text": "What substance",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "What the SA Weather Service says",
+  "text": "What the SA Weather Service says",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx"
   ]
  },
  {
@@ -50408,6 +53952,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "What was decided",
+  "text": "What was decided",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
+  "key": "What was issued",
+  "text": "What was issued",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
   ]
  },
  {
@@ -50529,7 +54089,9 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "When",
   "context": null,
   "where": [
-   "apps/web/app/(app)/admin/automations/page.tsx"
+   "apps/web/app/(app)/admin/automations/page.tsx",
+   "apps/web/app/(app)/disaster/duty/forum.tsx",
+   "apps/web/app/(app)/disaster/records/table.tsx"
   ]
  },
  {
@@ -50554,6 +54116,15 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/assistant.tsx"
+  ]
+ },
+ {
+  "key": "When it met",
+  "text": "When it met",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -50589,6 +54160,10 @@ export const SOURCE: readonly SourceEntry[] = [
    "apps/mobile/app/fines/[id].tsx",
    "apps/mobile/app/fines/new.tsx",
    "apps/web/app/(app)/disaster/desk/new/form.tsx",
+   "apps/web/app/(app)/disaster/incidents/table.tsx",
+   "apps/web/app/(app)/disaster/practice/wizard.tsx",
+   "apps/web/app/(app)/disaster/records/table.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/page.tsx",
    "apps/web/app/(app)/police/fines/[id]/page.tsx",
    "packages/db/src/intake.ts"
   ]
@@ -50655,6 +54230,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/map-layers.ts"
+  ]
+ },
+ {
+  "key": "Where is the EOC?",
+  "text": "Where is the EOC?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
   ]
  },
  {
@@ -50771,11 +54354,11 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "Where the services meet on scene",
-  "text": "Where the services meet on scene",
+  "key": "Where the figure is from",
+  "text": "Where the figure is from",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/call-facts.tsx"
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
   ]
  },
  {
@@ -50848,6 +54431,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Which one",
+  "text": "Which one",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
   ]
  },
  {
@@ -50945,6 +54536,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "where": [
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx",
    "apps/web/app/(app)/disaster/desk/[id]/board.tsx",
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
    "apps/web/app/(app)/disaster/duty/board.tsx"
   ]
  },
@@ -50954,6 +54546,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/partners/list.tsx"
+  ]
+ },
+ {
+  "key": "Who authorised the JOC?",
+  "text": "Who authorised the JOC?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
   ]
  },
  {
@@ -50970,6 +54570,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/case-manager/page.tsx"
+  ]
+ },
+ {
+  "key": "Who decided (if not you)",
+  "text": "Who decided (if not you)",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
   ]
  },
  {
@@ -51021,6 +54629,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Who met",
+  "text": "Who met",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
   "key": "Who radioed it in?",
   "text": "Who radioed it in?",
   "context": null,
@@ -51038,11 +54654,29 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Who was helped",
+  "text": "Who was helped",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
+  ]
+ },
+ {
   "key": "Who was taken, and what do they look like?",
   "text": "Who was taken, and what do they look like?",
   "context": null,
   "where": [
    "packages/db/src/intake.ts"
+  ]
+ },
+ {
+  "key": "Who was there",
+  "text": "Who was there",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
+   "apps/web/app/(app)/disaster/duty/forum.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -51123,6 +54757,47 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/components/ops-map/zones/zone-card.tsx"
+  ]
+ },
+ {
+  "key": "Why does it come down?",
+  "text": "Why does it come down?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
+  ]
+ },
+ {
+  "key": "Why does it move up? Tick at least one.",
+  "text": "Why does it move up? Tick at least one.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx",
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
+  ]
+ },
+ {
+  "key": "Why does it stand down?",
+  "text": "Why does it stand down?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/practice/wizard.tsx"
+  ]
+ },
+ {
+  "key": "Why does this warning end now? For example: lifted by the SA Weather Service.",
+  "text": "Why does this warning end now? For example: lifted by the SA Weather Service.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "Why is the JOC activated?",
+  "text": "Why is the JOC activated?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/level-card.tsx"
   ]
  },
  {
@@ -51235,6 +54910,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/kit/sign-in/sign-in-board.tsx"
+  ]
+ },
+ {
+  "key": "Why?",
+  "text": "Why?",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
   ]
  },
  {
@@ -51497,6 +55180,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "Worst across the city: {band}",
+  "text": "Worst across the city: {band}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "Write down every sitrep, call, radio message or WhatsApp as it comes in. It goes on the timeline and Criti reads it.",
+  "text": "Write down every sitrep, call, radio message or WhatsApp as it comes in. It goes on the timeline and Criti reads it.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/board.tsx"
+  ]
+ },
+ {
   "key": "Write it up",
   "text": "Write it up",
   "context": null,
@@ -51682,6 +55381,8 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "Yellow",
   "context": null,
   "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx",
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx",
    "packages/api/src/police/report-forms.ts"
   ]
  },
@@ -52726,6 +56427,7 @@ export const SOURCE: readonly SourceEntry[] = [
   "text": "and {n} more",
   "context": null,
   "where": [
+   "apps/web/components/disaster/frame.tsx",
    "apps/web/components/disaster/info-tile.tsx"
   ]
  },
@@ -52802,8 +56504,8 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
-  "key": "at the DOC",
-  "text": "at the DOC",
+  "key": "at the JOC",
+  "text": "at the JOC",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx"
@@ -53503,6 +57205,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "events · {d} deaths recorded",
+  "text": "events · {d} deaths recorded",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "every five minutes from an external scheduler. “Run now” below still works in the meantime.",
   "text": "every five minutes from an external scheduler. “Run now” below still works in the meantime.",
   "context": null,
@@ -53584,6 +57294,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "from {time}",
+  "text": "from {time}",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
+  ]
+ },
+ {
   "key": "go off duty",
   "text": "go off duty",
   "context": null,
@@ -53608,6 +57326,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "hot spots over eThekwini in the last 24 hours.",
+  "text": "hot spots over eThekwini in the last 24 hours.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
   "key": "humidity {n}%",
   "text": "humidity {n}%",
   "context": null,
@@ -53629,6 +57355,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/admin/invitations/new/invite-form.tsx"
+  ]
+ },
+ {
+  "key": "in the last 30 days",
+  "text": "in the last 30 days",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -53718,6 +57452,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/wind-widget.tsx"
+  ]
+ },
+ {
+  "key": "largest {m}",
+  "text": "largest {m}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
   ]
  },
  {
@@ -54261,6 +58003,22 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "since 2000 · {n} in the last 5 years",
+  "text": "since 2000 · {n} in the last 5 years",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/watch/page.tsx"
+  ]
+ },
+ {
+  "key": "since {at}{by}",
+  "text": "since {at}{by}",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
   "key": "since {saTime}",
   "text": "since {saTime}",
   "context": null,
@@ -54404,6 +58162,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/fines/[id].tsx"
+  ]
+ },
+ {
+  "key": "until {time}",
+  "text": "until {time}",
+  "context": null,
+  "where": [
+   "apps/web/components/disaster/frame.tsx"
   ]
  },
  {
@@ -54586,11 +58352,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{a} added, {c} changed, {s} skipped (check their ward or number).",
+  "text": "{a} added, {c} changed, {s} skipped (check their ward or number).",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/register.tsx"
+  ]
+ },
+ {
   "key": "{a} injured · {b} dead · {c} displaced",
   "text": "{a} injured · {b} dead · {c} displaced",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "{a} injured, {b} deceased, {c} missing",
+  "text": "{a} injured, {b} deceased, {c} missing",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/casualties-tile.tsx"
   ]
  },
  {
@@ -54607,6 +58389,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/command/page.tsx"
+  ]
+ },
+ {
+  "key": "{b} blankets, {m} mattresses, {f} food hampers, {k} start-house kits",
+  "text": "{b} blankets, {m} mattresses, {f} food hampers, {k} start-house kits",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
   ]
  },
  {
@@ -54754,11 +58544,60 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{done} of {all} channels",
+  "text": "{done} of {all} channels",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "{done} of {all} done",
+  "text": "{done} of {all} done",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx",
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "{done} of {all} recovery tasks done",
+  "text": "{done} of {all} recovery tasks done",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/page.tsx"
+  ]
+ },
+ {
   "key": "{done} of {all} reports done",
   "text": "{done} of {all} reports done",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx"
+  ]
+ },
+ {
+  "key": "{done} of {all} steps done",
+  "text": "{done} of {all} steps done",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/page.tsx"
+  ]
+ },
+ {
+  "key": "{done} of {all} steps · {p} people helped in {w} wards",
+  "text": "{done} of {all} steps · {p} people helped in {w} wards",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/relief-tile.tsx"
+  ]
+ },
+ {
+  "key": "{done} of {all} tasks done or handed over",
+  "text": "{done} of {all} tasks done or handed over",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
   ]
  },
  {
@@ -54778,11 +58617,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{d} deaths on incidents, against {p} people.",
+  "text": "{d} deaths on incidents, against {p} people.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/page.tsx"
+  ]
+ },
+ {
   "key": "{d} to the scene",
   "text": "{d} to the scene",
   "context": null,
   "where": [
    "apps/web/components/response-tracker.tsx"
+  ]
+ },
+ {
+  "key": "{d}s",
+  "text": "{d}s",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx"
   ]
  },
  {
@@ -54976,6 +58831,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/end-shift.tsx"
+  ]
+ },
+ {
+  "key": "{item} in storage",
+  "text": "{item} in storage",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/readiness/forms.tsx"
   ]
  },
  {
@@ -55469,6 +59332,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{m} members · {s} sessions",
+  "text": "{m} members · {s} sessions",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/joc-tile.tsx"
+  ]
+ },
+ {
   "key": "{name} (the caller)",
   "text": "{name} (the caller)",
   "context": null,
@@ -55831,6 +59702,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} deaths recorded",
+  "text": "{n} deaths recorded",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/page.tsx"
+  ]
+ },
+ {
   "key": "{n} deceased",
   "text": "{n} deceased",
   "context": null,
@@ -55847,11 +59726,27 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} died",
+  "text": "{n} died",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
   "key": "{n} displaced · {place}",
   "text": "{n} displaced · {place}",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/page.tsx"
+  ]
+ },
+ {
+  "key": "{n} events loaded.",
+  "text": "{n} events loaded.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx"
   ]
  },
  {
@@ -55951,6 +59846,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} letters, {p} SMS part(s) each",
+  "text": "{n} letters, {p} SMS part(s) each",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
   "key": "{n} listening",
   "text": "{n} listening",
   "context": null,
@@ -56017,6 +59920,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} new warning file(s) for eThekwini.",
+  "text": "{n} new warning file(s) for eThekwini.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/record-warning.tsx"
+  ]
+ },
+ {
   "key": "{n} not sent",
   "text": "{n} not sent",
   "context": null,
@@ -56057,16 +59968,33 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} of 4 sign-offs",
+  "text": "{n} of 4 sign-offs",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
+  "key": "{n} of 5 have a chair",
+  "text": "{n} of 5 have a chair",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/duty/forum.tsx"
+  ]
+ },
+ {
   "key": "{n} of {all}",
   "text": "{n} of {all}",
   "context": null,
   "where": [
-   "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx"
+   "apps/web/app/(app)/disaster/desk/[id]/departments-tile.tsx",
+   "apps/web/app/(app)/disaster/records/table.tsx"
   ]
  },
  {
-  "key": "{n} of {all} departments have a DOC representative recorded.",
-  "text": "{n} of {all} departments have a DOC representative recorded.",
+  "key": "{n} of {all} departments have a JOC representative recorded.",
+  "text": "{n} of {all} departments have a JOC representative recorded.",
   "context": null,
   "where": [
    "apps/web/app/(app)/disaster/departments/contacts.tsx"
@@ -56172,6 +60100,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{n} recovery task(s) are still open. I confirm they are handed over to the departments.",
+  "text": "{n} recovery task(s) are still open. I confirm they are handed over to the departments.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/desk/[id]/after-tile.tsx"
+  ]
+ },
+ {
   "key": "{n} removed",
   "text": "{n} removed",
   "context": null,
@@ -56225,6 +60161,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/fire/inspections/premises/page.tsx"
+  ]
+ },
+ {
+  "key": "{n} skipped.",
+  "text": "{n} skipped.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/records/table.tsx"
   ]
  },
  {
@@ -56401,6 +60345,14 @@ export const SOURCE: readonly SourceEntry[] = [
   ]
  },
  {
+  "key": "{p} people in {h} households",
+  "text": "{p} people in {h} households",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/wards/[ward]/page.tsx"
+  ]
+ },
+ {
   "key": "{rand} if paid by {value}",
   "text": "{rand} if paid by {value}",
   "context": null,
@@ -56534,6 +60486,22 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/mobile/app/live-map.tsx"
+  ]
+ },
+ {
+  "key": "{sent} SMS sent.",
+  "text": "{sent} SMS sent.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
+  ]
+ },
+ {
+  "key": "{sent} SMS sent. {failed} did not go.",
+  "text": "{sent} SMS sent. {failed} did not go.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/warnings/[id]/warning-work.tsx"
   ]
  },
  {
@@ -57050,6 +61018,14 @@ export const SOURCE: readonly SourceEntry[] = [
   "context": null,
   "where": [
    "apps/web/app/(app)/incidents/[id]/radio/radio-report.tsx"
+  ]
+ },
+ {
+  "key": "{wards} of 111 wards have a councillor on the list. Warnings go to every councillor by SMS; relief runs through the ward councillor.",
+  "text": "{wards} of 111 wards have a councillor on the list. Warnings go to every councillor by SMS; relief runs through the ward councillor.",
+  "context": null,
+  "where": [
+   "apps/web/app/(app)/disaster/councillors/page.tsx"
   ]
  },
  {

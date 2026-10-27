@@ -38,7 +38,7 @@ export function DutyBoard({ canEdit, nowIso, year, thisMonth, duty, officers, ch
         <WhoTile title={t('Principal Disaster Management Stand-by Officer')} who={principal} empty={t('Nobody rostered now')} />
         <WhoTile title={t('MDMC Duty Officer')} who={mdmc} empty={t('Nobody rostered now')} />
         <div className="rounded-xl border border-t-4 border-border border-t-[#d4a72c] bg-bg-card p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('SCG duty chair this month')}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('JOC duty chair this month')}</p>
           <p className="mt-2 text-lg font-semibold">{chairNow?.name ?? t('Not rostered')}</p>
           <div className="mt-3"><CallButton number={chairNow?.phone} /></div>
         </div>
@@ -69,13 +69,13 @@ export function DutyBoard({ canEdit, nowIso, year, thisMonth, duty, officers, ch
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">{t('SCG duty chair, {year}', { year })}</h2>
+          <h2 className="text-lg font-semibold">{t('JOC duty chair, {year}', { year })}</h2>
           <div className="flex gap-2">
             <Link href={`/disaster/duty?year=${year - 1}`} className="inline-flex h-10 items-center rounded-md border border-border bg-bg-card px-4 text-sm hover:bg-muted">{t('Previous year')}</Link>
             <Link href={`/disaster/duty?year=${year + 1}`} className="inline-flex h-10 items-center rounded-md border border-border bg-bg-card px-4 text-sm hover:bg-muted">{t('Next year')}</Link>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground">{t('The City Manager and Deputy City Managers are on stand-by for one calendar month at a time. Whoever is on stand-by chairs the SCG.')}</p>
+        <p className="text-sm text-muted-foreground">{t('The City Manager and Deputy City Managers are on stand-by for one calendar month at a time. Whoever is on stand-by chairs the JOC.')}</p>
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {MONTHS.map((m, i) => (
             <ChairMonth key={m} year={year} month={i + 1} label={t(m)} current={thisMonth === i + 1}

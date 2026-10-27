@@ -78,8 +78,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
   pdf.section('Command, control and co-ordination');
   pdf.field('Highest level', facts?.highest_level ?? 'Bronze');
-  pdf.field('DOC activated', facts?.doc_activated_at ? sa(facts.doc_activated_at) : 'No');
-  pdf.field('SCG in session', facts?.scg_convened_at ? sa(facts.scg_convened_at) : 'No');
+  pdf.field('JOC activated', facts?.doc_activated_at ? sa(facts.doc_activated_at) : 'No');
   pdf.field('Forward Control Point (FCP)', facts?.fcp_location ?? null);
   pdf.field('Emergency Operations Centre (EOC)', facts?.eoc_location ?? null);
   pdf.field('Local state of disaster recommended', pm ? (pm.local_disaster_recommended ? 'Yes' : 'No') : null);
@@ -97,7 +96,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     for (const r of reports) {
       const d = lineFunction(r.department);
       pdf.subheading(`${d?.name ?? r.department}: ${r.status}`);
-      pdf.field('DOC representative', r.representative_name ? `${r.representative_name}${r.representative_post ? `, ${r.representative_post}` : ''}${r.at_doc ? ' (at the DOC)' : ''}` : null);
+      pdf.field('JOC representative', r.representative_name ? `${r.representative_name}${r.representative_post ? `, ${r.representative_post}` : ''}${r.at_doc ? ' (at the JOC)' : ''}` : null);
       for (const [i, role] of (d?.roles ?? []).entries()) {
         const state = r.duties?.[String(i)];
         if (state) pdf.text(`• ${state}: ${role}`);

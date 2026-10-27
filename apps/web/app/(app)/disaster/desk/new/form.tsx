@@ -11,6 +11,7 @@ import { FieldProblem, problemBorder } from '@/components/disaster/field-problem
 import { MAX_PEOPLE, anyProblem, checkCount, checkName, checkPhone, checkWard } from '@/lib/disaster-checks';
 import { cn } from '@/lib/utils';
 import { openIncidentAction } from '../actions';
+import { incidentFromWarningAction } from '../../warnings/actions';
 
 type Hit = { label: string; lat: number; lng: number; suburb: string | null; ward?: string | null };
 
@@ -20,17 +21,21 @@ const SEVERITY = ['Low', 'Medium', 'High', 'Critical'] as const;
 /**
  * The desk's Open incident form: what, how serious, where (the address finds
  * the place, the suburb and the ward; a pin on the map does the same), how it
- * was reported, and the first report.
+ * was reported, and the first report. Opened from a warning (0116), it starts
+ * filled in from the warning and is linked to it.
  */
-export function OpenIncidentForm() {
+export type FromWarning = { id: string; label: string; hazard: string; title: string; report: string };
+
+export function OpenIncidentForm({ fromWarning = null }: { fromWarning?: FromWarning | null }) {
   const { t } = useT();
   const router = useRouter();
   const ref = useRef(crypto.randomUUID());
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [v, setV] = useState({
-    short_title: '', hazard: '', severity: 'Medium', municipality: 'eThekwini Metro', ward: '', location_address: '', suburb: '',
-    reported_through: 'EMACC call', caller_name: '', caller_number: '', people_affected: '', first_report: '',
+    short_title: fromWarning?.title ?? '', hazard: fromWarning?.hazard ?? '', severity: 'Medium', municipality: 'eThekwini Metro', ward: '',
+    location_address: '', suburb: '', reported_through: fromWarning ? 'SA Weather Service warning' : 'EMACC call', caller_name: '',
+    caller_number: '', people_affected: '', first_report: fromWarning?.report ?? '',
   });
   const [pin, setPin] = useState<{ lat: number; lng: number } | null>(null);
   const [q, setQ] = useState('');
@@ -78,7 +83,8 @@ export function OpenIncidentForm() {
   const blocked = anyProblem(bad.ward, bad.affected, bad.caller, bad.number);
   const submit = () => start(async () => {
     setError(null);
-    const res = await openIncidentAction(ref.current, { ...v, lat: pin?.lat ?? null, lng: pin?.lng ?? null });
+    const fields = { ...v, lat: pin?.lat ?? null, lng: pin?.lng ?? null };
+    const res = fromWarning ? await incidentFromWarningAction(fromWarning.id, ref.current, fields) : await openIncidentAction(ref.current, fields);
     if ('error' in res) { setError(res.error); return; }
     router.push(`/disaster/desk/${res.id}`);
   });
@@ -87,6 +93,9 @@ export function OpenIncidentForm() {
   const label = 'block text-sm font-medium';
   return (
     <div className="space-y-6">
+      {fromWarning ? (
+        <p className="rounded-xl border border-accent/40 bg-accent/10 px-5 py-3 font-semibold">{t('From the warning: {label}', { label: fromWarning.label })}</p>
+      ) : null}
       <section className="space-y-4 rounded-xl border border-border bg-bg-card p-6 shadow-sm">
         <label className={label}>{t('Short title')}
           <input value={v.short_title} onChange={(e) => set('short_title', e.target.value)} maxLength={80}
@@ -97,7 +106,7 @@ export function OpenIncidentForm() {
             <select value={v.hazard} onChange={(e) => set('hazard', e.target.value)} className={field}>
               <option value="">{t('Choose the hazard')}</option>
               {HAZARD_GROUPS.map((g) => (
-                <optgroup key={g.group} label={g.group}>{g.hazards.map((h) => <option key={h} value={h}>{h}</option>)}</optgroup>
+                <optgroup key={g.group} label={t(g.group)}>{g.hazards.map((h) => <option key={h} value={h}>{t(h)}</option>)}</optgroup>
               ))}
             </select>
           </label>
@@ -150,7 +159,7 @@ export function OpenIncidentForm() {
       <section className="space-y-4 rounded-xl border border-border bg-bg-card p-6 shadow-sm">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <label className={cn(label, 'sm:col-span-2')}>{t('Reported through')}
-            <select value={v.reported_through} onChange={(e) => set('reported_through', e.target.value)} className={field}>
+            <select value={v.reported_through} onChange={(e) => set('reported_through', e.target.value)} disabled={Boolean(fromWarning)} className={field}>
               {THROUGH.map((x) => <option key={x} value={x}>{t(x)}</option>)}
             </select>
           </label>

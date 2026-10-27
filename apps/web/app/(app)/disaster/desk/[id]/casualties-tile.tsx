@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from 'react';
 import { Lock, Plus, UserRound } from 'lucide-react';
 import { CallButton } from '@/components/disaster/call-button';
 import { useT } from '@/components/i18n';
+import { Fold } from '@/components/disaster/fold';
 import { FieldProblem, problemBorder } from '@/components/disaster/field-problem';
 import { anyProblem, checkAge, checkName, checkPhone } from '@/lib/disaster-checks';
 import { cn } from '@/lib/utils';
@@ -34,15 +35,14 @@ export function CasualtiesTile({ incidentId, people, counts, live, onError }: {
   const { t } = useT();
   const [editing, setEditing] = useState<string | 'new' | null>(null);
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-bg-card shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
-        <h2 className="flex items-center gap-2 font-semibold"><UserRound className="h-4 w-4 text-accent" aria-hidden />{t('Casualties')}</h2>
-        <p className="flex gap-3 text-sm">
+    <Fold id="board.casualties" icon={UserRound} title={t('Casualties')} defaultOpen={false}
+      summary={t('{a} injured, {b} deceased, {c} missing', { a: counts.injured, b: counts.deceased, c: counts.missing })}
+      info={t('People injured, deceased or missing. Names are seen only by those allowed, and every look is recorded.')}
+      actions={<p className="flex gap-3 text-sm">
           <span>{t('{n} injured', { n: counts.injured })}</span>
           <span className="text-severity-critical-ink">{t('{n} deceased', { n: counts.deceased })}</span>
           <span>{t('{n} missing', { n: counts.missing })}</span>
-        </p>
-      </div>
+        </p>}>
       <div className="space-y-3 p-5">
         {people === null ? (
           <p className="flex items-center gap-2 text-sm text-muted-foreground"><Lock className="h-4 w-4" aria-hidden />{t('Personal details are kept for the Disaster desk and command.')}</p>
@@ -74,7 +74,7 @@ export function CasualtiesTile({ incidentId, people, counts, live, onError }: {
           </>
         )}
       </div>
-    </section>
+    </Fold>
   );
 }
 

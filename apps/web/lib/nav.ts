@@ -7,6 +7,7 @@ import {
   ScrollText, FileWarning, Grid3x3, Crosshair, Warehouse, ClipboardList, Video, Film, Cctv, BookOpen,
   FileCheck, Siren, Archive, History, PieChart, HardHat, KeyRound,
   type LucideIcon,
+  CloudLightning, Contact,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -112,9 +113,18 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/medical/restock', label: 'Ambulance Restock', icon: Archive, keywords: 'ambulance stock drugs inventory restock medical' },
       { href: '/disaster', label: 'Disaster Mgmt', icon: Mountain, keywords: 'flood relief mutual aid' },
       { href: '/disaster/desk', label: 'Disaster Desk', icon: Siren, keywords: 'disaster calls call out partners eskom fire station updates criti command board' },
+      { href: '/disaster/incidents', label: 'Disaster Incidents', icon: ListChecks, keywords: 'incidents list table level bronze silver gold status stood down recovery closed' },
+      { href: '/disaster/map', label: 'Disaster Map', icon: Map, keywords: 'map layers overlays flood fire satellite ward risk past events nasa ndmc' },
+      { href: '/disaster/watch', label: 'Hazard Watch', icon: ShieldAlert, keywords: 'hazard watch sources nicd disease fmd foot and mouth earthquake gdacs cyclone drought air quality fires nasa' },
+      { href: '/disaster/wards', label: 'Ward Profiles', icon: MapPinned, keywords: 'ward profile councillor census informal water children risk history' },
+      { href: '/disaster/practice', label: 'Practise an Incident', icon: GraduationCap, keywords: 'practice training tour criti walk through learn new desk' },
+      { href: '/disaster/records', label: 'Past Disasters', icon: History, keywords: 'past disasters records history caelum floods 2022 2019 deaths' },
+      { href: '/disaster/warnings', label: 'Early Warnings', icon: CloudLightning, keywords: 'saws weather service warning level yellow orange red fews joc readiness storm rain flood' },
+      { href: '/disaster/councillors', label: 'Councillors', icon: Contact, keywords: 'ward councillors pr cellphone sms warning relief beneficiaries' },
       { href: '/disaster/departments', label: 'Departments', icon: Landmark, keywords: 'departments line functions doc representative heads contacts staff resources' },
       { href: '/disaster/shelters', label: 'Shelters', icon: Building2, keywords: 'shelters reception centres community halls key holders capacity displaced' },
-      { href: '/disaster/duty', label: 'Duty Roster', icon: CalendarClock, keywords: 'duty roster standby principal stand-by officer mdmc duty officer scg chair' },
+      { href: '/disaster/duty', label: 'Duty and Forum', icon: CalendarClock, keywords: 'duty roster standby principal stand-by officer mdmc duty officer joc chair advisory forum task teams meetings' },
+      { href: '/disaster/readiness', label: 'Readiness and IDP', icon: Gauge, keywords: 'readiness score idp indicators c69 fd1.2 c73 c74 fd2.1 relief stock minimum population' },
       { href: '/disaster/post-mortem', label: 'Post-Mortems', icon: FileCheck, keywords: 'after action report aar post mortem lessons' },
       { href: '/disaster/partners', label: 'Mutual-Aid Partners', icon: Network, keywords: 'partners mutual aid agencies resources' },
     ],

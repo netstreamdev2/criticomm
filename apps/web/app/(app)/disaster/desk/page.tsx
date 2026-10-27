@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { Network, Plus, Siren, TriangleAlert } from 'lucide-react';
-import { listCallFacts, listCallouts, listLastDeskUpdates, listOpenDisasterIncidents } from '@criticom/api';
+import { listCallFacts, listCallouts, listLastDeskUpdates, listOpenDisasterIncidents, listRecoveryFacts, listReviews } from '@criticom/api';
+import { RECOVERY_TASKS, openRecoveryTasks } from '@criticom/db/disaster-joc';
+import { DmStatusChip } from './[id]/after-tile';
 import { deskChecks, isWorking, lastHeard } from '@criticom/api/criti/disaster';
 import { hazardGroup } from '@criticom/db/disaster-plan';
 import { IncidentLive } from '@/components/incident-live';
@@ -9,6 +11,7 @@ import { toDeskCallout, toDeskUpdate } from '@/lib/disaster-desk';
 import { getSession } from '@/lib/session';
 import { requestT } from '@/lib/i18n';
 import { DeskCards, type DeskCard } from './desk-cards';
+import { PageGuide } from '@/components/office/page-guide';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Disaster Desk · HikTech' };
@@ -22,10 +25,21 @@ export const metadata = { title: 'Disaster Desk · HikTech' };
 export default async function DisasterDeskPage() {
   const { t } = await requestT();
   const { supabase } = await getSession();
-  const open = await listOpenDisasterIncidents(supabase).catch(() => []);
-  const ids = open.map((i) => i.id);
-  const [callouts, updates, factsList] = await Promise.all([listCallouts(supabase, ids), listLastDeskUpdates(supabase, ids), listCallFacts(supabase, ids)]);
+  const allOpen = await listOpenDisasterIncidents(supabase).catch(() => []);
+  const [factsList, recoveryFacts] = await Promise.all([listCallFacts(supabase, allOpen.map((i) => i.id)), listRecoveryFacts(supabase)]);
   const facts = new Map(factsList.map((f) => [f.incident_id, f]));
+  // Stood down, in recovery or closed by the desk: off the board, onto Recovery and review (0117).
+  const open = allOpen.filter((i) => (facts.get(i.id)?.dm_status ?? 'Active') === 'Active');
+  const ids = open.map((i) => i.id);
+  const [callouts, updates] = await Promise.all([listCallouts(supabase, ids), listLastDeskUpdates(supabase, ids)]);
+  const reviews = await listReviews(supabase, recoveryFacts.map((f) => f.incident_id));
+  const signedOff = new Set(reviews.filter((r) => r.signed_off_at).map((r) => r.incident_id));
+  const after = recoveryFacts.filter((f) => !signedOff.has(f.incident_id));
+  const afterIds = after.map((f) => f.incident_id);
+  const numbers = afterIds.length
+    ? new Map(((await supabase.from('incidents').select('id, incident_number, incident_type, location_address').in('id', afterIds)).data ?? [])
+      .map((i) => [i.id as string, i as { id: string; incident_number: string; incident_type: string; location_address: string }]))
+    : new Map<string, { id: string; incident_number: string; incident_type: string; location_address: string }>();
   const now = new Date();
 
   const cards: DeskCard[] = open.map((i) => {
@@ -81,7 +95,41 @@ export default async function DisasterDeskPage() {
         </div>
       </header>
 
+      <PageGuide id="disaster.desk" steps={[
+        t('Every open incident sent to Disaster is a card, newest first. Use the filters to see what needs you now.'),
+        t('Open a card to run the incident on its board.'),
+        t('Add an incident opens one yourself: a field report, a warning or a site emergency plan.'),
+        t('Incidents that are stood down wait under Recovery and review until their review is signed off.'),
+      ]} />
       <DeskCards cards={cards} />
+
+      {after.length ? (
+        <section className="space-y-3" data-guide="desk.recovery">
+          <h2 className="text-lg font-semibold">{t('Recovery and review ({n})', { n: after.length })}</h2>
+          <p className="text-sm text-muted-foreground">{t('Incidents whose response is over. They stay here until their review is signed off.')}</p>
+          <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {after.map((f) => {
+              const inc = numbers.get(f.incident_id);
+              const open = openRecoveryTasks(f.recovery ?? {});
+              return (
+                <li key={f.incident_id}>
+                  <Link href={`/disaster/desk/${f.incident_id}`} className="block rounded-xl border border-border bg-bg-card p-4 shadow-sm hover:bg-muted">
+                    <p className="flex flex-wrap items-center gap-2">
+                      <DmStatusChip status={f.dm_status ?? 'Stood down'} />
+                      <span className="font-semibold">{f.short_title || inc?.incident_type || t('Incident')}</span>
+                    </p>
+                    <p className="mt-1 font-mono text-xs text-muted-foreground">{inc?.incident_number}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t('{done} of {all} recovery tasks done', { done: RECOVERY_TASKS.length - open, all: RECOVERY_TASKS.length })}
+                      {' · '}{reviews.some((r) => r.incident_id === f.incident_id) ? t('Review started') : t('No review yet')}
+                    </p>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 }

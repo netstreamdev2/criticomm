@@ -1,5 +1,6 @@
 import type { Silo, UserRole } from '@criticom/db';
 import { hasPosition } from '@criticom/db/map-layers';
+import { CATALOGUE_IDS, type CatalogueId } from './catalogue.ts';
 
 // The crime-zone maths and helpers are shared with the officer app.
 export {
@@ -22,6 +23,9 @@ export type LayerId =
   | 'radar' | 'flights' | 'vessels' | 'shelters';
 
 export type LayerGroup = 'Operations' | 'Risk' | 'Weather' | 'City' | 'Air and sea';
+
+/** A layer the map can switch on: one of its own, or an outside overlay from the catalogue (catalogue.ts). */
+export type MapLayerId = LayerId | CatalogueId;
 
 export type LayerDef = {
   id: LayerId;
@@ -78,13 +82,14 @@ export function isBasemap(value: unknown): value is Basemap {
 /**
  * Layers a viewer may switch on. SANRAL cameras follow the access rule of the
  * /sanral screen; routes are for the desks and command who oversee crews
- * (canSeeRoutes).
+ * (canSeeRoutes); the outside overlays (catalogue) are for the Disaster maps.
  */
-export function availableLayers(opts: { cameras: boolean; routes?: boolean; shelters?: boolean }): LayerId[] {
-  return LAYERS.map((l) => l.id)
+export function availableLayers(opts: { cameras: boolean; routes?: boolean; shelters?: boolean; catalogue?: boolean }): MapLayerId[] {
+  const own: MapLayerId[] = LAYERS.map((l) => l.id)
     .filter((id) => id !== 'cameras' || opts.cameras)
     .filter((id) => id !== 'shelters' || Boolean(opts.shelters))
     .filter((id) => id !== 'routes' || Boolean(opts.routes));
+  return opts.catalogue ? [...own, ...CATALOGUE_IDS] : own;
 }
 
 /** What the map opens with, by desk, until the viewer makes their own choice. */
@@ -118,12 +123,12 @@ export function defaultLayers(role: UserRole): LayerId[] {
  * valid: unknown or no-longer-permitted layers are dropped. An empty saved
  * list is honoured — the viewer switched everything off on purpose.
  */
-export function restoreLayers(
+export function restoreLayers<T extends string>(
   saved: unknown,
-  available: readonly LayerId[],
-  fallback: readonly LayerId[],
-): LayerId[] {
-  const allowed = (id: unknown): id is LayerId =>
+  available: readonly T[],
+  fallback: readonly T[],
+): T[] {
+  const allowed = (id: unknown): id is T =>
     typeof id === 'string' && (available as readonly string[]).includes(id);
   const source = Array.isArray(saved) ? saved : fallback;
   return [...new Set(source.filter(allowed))];

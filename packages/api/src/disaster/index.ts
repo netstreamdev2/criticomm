@@ -380,7 +380,7 @@ export const updateShelter = (client: CriticomClient, a: { openingId: string; cl
 export const closeShelter = (client: CriticomClient, openingId: string, note?: string | null) =>
   rpc<ShelterOpening>(client, 'close_disaster_shelter', { p_opening_id: openingId, p_note: note ?? null });
 
-/* Officers, the duty roster and the SCG duty chair */
+/* Officers, the duty roster and the JOC duty chair (the SCG chair until 0115) */
 
 export type DisasterOfficer = { id: string; name: string; phone: string | null; userId: string | null };
 
@@ -481,3 +481,10 @@ export async function listDisasterSms(client: CriticomClient, incidentId: string
 }
 export const logDisasterSms = (client: CriticomClient, incidentId: string, fields: Record<string, unknown>) =>
   rpc<DisasterSms>(client, 'log_disaster_sms', { p_incident_id: incidentId, p_fields: fields });
+
+export * from './warnings';
+export * from './joc';
+export * from './relief';
+export * from './records';
+export * from './readiness';
+export * from './guides';

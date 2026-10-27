@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from 'react';
 import { ClipboardList } from 'lucide-react';
 import { useT } from '@/components/i18n';
+import { Fold } from '@/components/disaster/fold';
 import { fileAssessmentAction } from '../actions';
 
 /**
@@ -43,16 +44,13 @@ export function AssessmentTile({ incidentId, officers, assessments, live, onErro
   });
   const field = 'h-10 w-full rounded-md border border-border bg-bg-soft px-3 text-sm';
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-bg-card shadow-sm">
-      <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-        <h2 className="flex items-center gap-2 font-semibold"><ClipboardList className="h-4 w-4 text-accent" aria-hidden />
-          {t('Assessment on site ({n})', { n: assessments.length })}</h2>
-        {live && !open ? (
-          <button type="button" onClick={() => setOpen(true)} className="h-9 rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">
-            {t('File an assessment')}
-          </button>
-        ) : null}
-      </div>
+    <Fold id="board.assessment" icon={ClipboardList} title={t('Assessment on site ({n})', { n: assessments.length })} defaultOpen={false}
+      info={t('What a Disaster Management officer found on site: homes, people and services hit, and what is needed.')}
+      actions={live && !open ? (
+        <button type="button" onClick={() => setOpen(true)} className="h-9 rounded-md border border-border px-3 text-sm font-semibold hover:bg-muted">
+          {t('File an assessment')}
+        </button>
+      ) : null}>
       <div className="space-y-4 p-5">
         {assessments.length === 0 && !open ? <p className="text-sm text-muted-foreground">{t('No place assessed yet.')}</p> : null}
         <ul className="space-y-2">
@@ -100,6 +98,6 @@ export function AssessmentTile({ incidentId, officers, assessments, live, onErro
           </div>
         ) : null}
       </div>
-    </section>
+    </Fold>
   );
 }
