@@ -34,7 +34,7 @@ export default async function NewInvitationPage({ searchParams }: { searchParams
           <ArrowLeft className="h-4 w-4" /> {' '}{t('Invites / Create logins')}</Link>
         <h1 className="text-2xl font-bold">{t('Invite / Create login')}</h1>
         <p className="text-muted-foreground">
-          {role === 'SystemAdmin' || role === 'SuperAdmin' || role === 'SystemController'
+          {role === 'SystemAdmin' || role === 'SuperAdmin' || role === 'SystemController' || role === 'Admin'
             ? t('Send an invitation and the person chooses their own password. Or create the login now and give them the password yourself.')
             : t('Send an invitation and the person chooses their own password. You never see it.')}
         </p>

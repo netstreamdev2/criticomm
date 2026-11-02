@@ -36,15 +36,24 @@ export async function GET(req: Request) {
   const lng = (Number(lomin) + Number(lomax)) / 2;
   if (![lat, lng].every(Number.isFinite)) return NextResponse.json({ error: 'Bad box' }, { status: 400 });
   try {
-    const res = await fetch(`https://api.adsb.lol/v2/point/${lat.toFixed(3)}/${lng.toFixed(3)}/60`, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
-    if (!res.ok) return NextResponse.json({ error: `Upstream ${res.status}` }, { status: 502 });
+    const res = await fetch(`https://api.adsb.lol/v2/point/${lat.toFixed(3)}/${lng.toFixed(3)}/60`, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(8000),
+      // Say who is asking: open feeds may turn away nameless calls from cloud hosts.
+      headers: { 'User-Agent': 'Criticomm operations map (eThekwini)', Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      console.error(`[flights] adsb.lol answered ${res.status}`);
+      return NextResponse.json({ error: `Upstream ${res.status}` }, { status: 502 });
+    }
     const j = (await res.json()) as { ac?: Array<Record<string, unknown>> };
     const data = (j.ac ?? []).map((a) => ({
       fr24_id: a.hex, callsign: typeof a.flight === 'string' ? a.flight.trim() : null, lat: a.lat, lon: a.lon, track: a.track ?? a.true_heading,
       alt: typeof a.alt_baro === 'number' ? a.alt_baro : 0, gspeed: a.gs, type: a.t,
     }));
     return NextResponse.json({ data, source: 'adsb.lol (ODbL)' }, { headers: { 'Cache-Control': 'no-store' } });
-  } catch {
+  } catch (e) {
+    console.error('[flights] adsb.lol could not be reached:', (e as Error).message);
     return NextResponse.json({ error: 'The aircraft feed could not be reached.' }, { status: 502 });
   }
 }

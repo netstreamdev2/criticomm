@@ -9,12 +9,18 @@ import { takeAisMessage, type AisShip } from './ais-message';
  *
  * aisstream allows one connection per key: the live console and a developer's
  * machine each need their own key.
+ *
+ * On Vercel a function is frozen between asks, so a connection cannot stay
+ * open: each ask listens for a few seconds and closes again, and the ships
+ * heard are kept while the function stays warm.
  */
 
 /** Durban port, the anchorage and the coast either side. [[south, west], [north, east]]. */
 const DURBAN_BOX = [[-30.15, 30.75], [-29.55, 31.4]];
 const STALE_MS = 30 * 60_000;
 const IDLE_MS = 10 * 60_000;
+const SERVERLESS = !!process.env.VERCEL;
+const LISTEN_MS = 6_000;
 
 type State = { ws: WebSocket | null; ships: Map<string, AisShip>; lastAsked: number; retryAt: number; error: string | null; idle: ReturnType<typeof setInterval> | null };
 // Kept on globalThis: the dev server reloads this file without closing the old connection.
@@ -50,6 +56,7 @@ function connect(key: string) {
     state.retryAt = Date.now() + 30_000;
   };
   ws.onerror = () => { state.error = state.error ?? 'The ship feed could not be reached.'; };
+  if (SERVERLESS) return;
   state.idle ??= setInterval(() => {
     if (Date.now() - state.lastAsked > IDLE_MS && state.ws) { state.ws.close(); state.ws = null; }
   }, 60_000);
@@ -63,6 +70,21 @@ function connect(key: string) {
 export async function aisShips(key: string): Promise<{ ships: AisShip[]; error: string | null; warming: boolean }> {
   state.lastAsked = Date.now();
   const fresh = !state.ws;
+  if (SERVERLESS) {
+    // Listen, then close before the function is frozen. Ships at anchor fill in over several asks.
+    const empty = state.ships.size === 0;
+    state.retryAt = 0;
+    connect(key);
+    const ws = state.ws as WebSocket | null;
+    if (ws) {
+      await new Promise((r) => setTimeout(r, LISTEN_MS));
+      ws.close();
+      if (state.ws === ws) state.ws = null;
+    }
+    const cutoff = Date.now() - STALE_MS;
+    for (const [k, s] of state.ships) if (s.seen < cutoff) state.ships.delete(k);
+    return { ships: [...state.ships.values()], error: state.error, warming: empty };
+  }
   connect(key);
   if (fresh && state.ships.size === 0) await new Promise((r) => setTimeout(r, 4000));
   const cutoff = Date.now() - STALE_MS;

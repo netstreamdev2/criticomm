@@ -94,17 +94,18 @@ export async function createInvitationAction(input: {
 }
 
 /**
- * The fourth way in (migration 0055): a SystemAdmin or the SuperAdmin sets the
- * password and the account is active at once. The database refuses anyone
- * else, and any role that needs a second SystemAdmin.
+ * The fourth way in (migrations 0055, 0086, 0122): an administrator or the
+ * systems controller sets the password and the account is active at once. The
+ * database refuses anyone else, a department Admin outside their department,
+ * and any role that needs a second SystemAdmin.
  */
 export async function createAccountDirectlyAction(input: {
   personnelId: string; role: UserRole; silo: Silo; email: string;
   password: string; confirmPassword: string; reason: string; handOverAgreed: boolean;
 }): Promise<DirectAccount> {
   const { supabase, role } = await getSession();
-  if (role !== 'SystemAdmin' && role !== 'SuperAdmin' && role !== 'SystemController') {
-    return { ok: false, message: 'Only a SystemAdmin, the systems controller or the SuperAdmin can create a login directly.' };
+  if (role !== 'SystemAdmin' && role !== 'SuperAdmin' && role !== 'SystemController' && role !== 'Admin') {
+    return { ok: false, message: 'Only an administrator or the systems controller can create a login directly.' };
   }
   const mismatch = await accessProblem(supabase, input.personnelId, input.role, input.silo);
   if (mismatch) return { ok: false, message: mismatch };

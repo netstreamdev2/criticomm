@@ -33,7 +33,8 @@ export async function requireAuth(limit?: RateLimitName) {
 
 export function unconfigured(name: string, envVar: string) {
   return NextResponse.json(
-    { configured: false, message: `${name} proxy not configured — set ${envVar}.` },
+    // Shown to dispatchers: plain words. The setting's name is for the administrator.
+    { configured: false, message: 'Not switched on yet. Ask your administrator.', feed: name, setting: envVar },
     { status: 200 },
   );
 }

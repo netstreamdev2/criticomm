@@ -51,8 +51,8 @@ export const LAYERS: readonly LayerDef[] = [
   { id: 'facilities', label: 'Hospitals & police stations', group: 'City', hint: 'Emergency facilities nearby (TomTom).' },
   { id: 'shelters', label: 'Shelters', group: 'Operations', hint: 'Reception centres in the register: people in and places free.' },
   { id: 'radar', label: 'Rain radar', group: 'Weather', hint: 'Rain measured by radar in the last ten minutes (RainViewer).' },
-  { id: 'flights', label: 'Aircraft', group: 'Air and sea', hint: 'Aircraft over Durban, live (FlightRadar24).' },
-  { id: 'vessels', label: 'Ships', group: 'Air and sea', hint: 'Ships at the port and anchorage, live (marine AIS).' },
+  { id: 'flights', label: 'Aircraft', group: 'Air and sea', hint: 'Aircraft over Durban, live.' },
+  { id: 'vessels', label: 'Ships', group: 'Air and sea', hint: 'Ships at the port and anchorage, live.' },
 ];
 
 export const LAYER_GROUPS: readonly LayerGroup[] = ['Operations', 'Risk', 'Weather', 'City', 'Air and sea'];

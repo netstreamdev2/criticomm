@@ -143,11 +143,11 @@ async function fetchFeed(url: string): Promise<{ ok: true; json: unknown } | { o
       return { ok: false, message: typeof body.message === 'string' ? body.message : 'Not configured on the server.' };
     }
     if (!res.ok) {
-      return { ok: false, message: res.status === 429 ? 'Too many requests — try again in a minute.' : 'The feed did not answer.' };
+      return { ok: false, message: res.status === 429 ? 'Too busy — it tries again in a minute.' : 'Not answering right now. It tries again by itself.' };
     }
     return { ok: true, json };
   } catch {
-    return { ok: false, message: 'The feed did not answer.' };
+    return { ok: false, message: 'Not answering right now. It tries again by itself.' };
   }
 }
 

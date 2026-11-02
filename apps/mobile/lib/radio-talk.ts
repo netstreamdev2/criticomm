@@ -1,5 +1,5 @@
 import { Vibration } from 'react-native';
-import { openTalkWakes, subscribeTalkWakes, type TalkWake } from '@criticom/api';
+import { callRadios, openTalkWakes, subscribeTalkWakes, type TalkWake } from '@criticom/api';
 import type { TalkPass, TalkSession } from '@criticom/api/talk';
 import { getSupabase } from './supabase';
 import { radioId, setTalkPresence } from './presence';
@@ -28,6 +28,11 @@ import { askMicrophone, liveKitNative, startTalkAudio, stopTalkAudio } from './t
  * and leaves a minute later, as above. The screen need not be on. With Talk
  * open, the button works the screen's big button instead. Every transmission
  * is logged, as from the screen (log_talk).
+ *
+ * Device to device (2026-10-27): pressing the talk button calls the other
+ * radios and hard hats in the group, as the console's press does (0095), so
+ * an officer reaches the others with no dispatcher in between. The first
+ * words wait (up to four seconds) for someone to come on, so they are heard.
  *
  * Fast first press (2026-10-23): the Talk pass for the person's department
  * is fetched ahead and kept until near its expiry, and a call from the
@@ -80,6 +85,10 @@ function prefetchHome() {
   if (home) void passFor(home).catch(() => { /* no signal: fetched on the press */ });
 }
 
+/** Waiting to go on the air until someone else is on the group (or the button is let go). */
+let othersWaiter: (() => void) | null = null;
+const OTHERS_WAIT_MS = 4_000;
+
 /** With Talk open, the button works the screen's own button. */
 let screenKeys: { press: () => void; release: () => void } | null = null;
 
@@ -119,6 +128,8 @@ async function keyDown() {
   if (screenHasIt) { screenKeys?.press(); return; }
   const channel = live?.channel ?? home;
   if (!channel) { Vibration.vibrate([0, 80, 80, 80]); return; }
+  // The other radios and hard hats in the group are called, and join to hear (0095).
+  const calling = callRadios(getSupabase(), channel).catch(() => null);
   if (!live?.speak) {
     // A short buzz: joining, keep holding.
     Vibration.vibrate(60);
@@ -126,6 +137,15 @@ async function keyDown() {
   }
   const s = live?.s;
   if (!held || !s) return;
+  // Nobody else on yet: wait for the first to come on (or let go, or four seconds), so the first words are heard.
+  if (s.state.people.length <= 1 && (await calling)) {
+    await new Promise<void>((resolve) => {
+      othersWaiter = resolve;
+      setTimeout(resolve, OTHERS_WAIT_MS);
+    });
+    othersWaiter = null;
+    if (!held) return;
+  }
   const r = await s.press();
   // Busy or not allowed: two buzzes, nothing sent.
   if (r !== 'on') Vibration.vibrate([0, 200, 100, 200]);
@@ -135,6 +155,7 @@ async function keyDown() {
 /** The talk button let go: off the air, listening. */
 async function keyUp() {
   held = false;
+  othersWaiter?.();
   if (screenHasIt) screenKeys?.release();
   else if (live?.s.state.transmitting) {
     await live.s.release();
@@ -213,6 +234,8 @@ async function join(channel: string, until: number, speak = false) {
     }, (st) => {
       if (live?.s !== s) return;
       if (st.talking) live.lastHeard = Date.now();
+      // Someone else came on: the waiting press goes on the air.
+      if (st.people.length > 1) othersWaiter?.();
       // The Radio Desk sees which group it is in, and when it is on the air.
       setTalkPresence({ channel: st.status === 'ready' ? st.channel : null, talking: st.transmitting });
     }, { listenOnly: !speak });

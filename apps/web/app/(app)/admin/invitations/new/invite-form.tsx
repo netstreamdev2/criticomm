@@ -282,8 +282,8 @@ export function InviteForm({
     },
     { id: 'sms', label: 'SMS', icon: MessageSquare, enabled: delivery.sms, note: delivery.sms ? null : 'Not set up yet' },
     { id: 'code', label: 'Printed code', icon: Printer, enabled: true, note: 'For staff without email or a phone' },
-    // Migration 0055: only the top administrators, and the database checks it again.
-    ...(actorRole === 'SystemAdmin' || actorRole === 'SuperAdmin' || actorRole === 'SystemController'
+    // Migrations 0055, 0086, 0122: administrators and the controller, and the database checks it again.
+    ...(actorRole === 'SystemAdmin' || actorRole === 'SuperAdmin' || actorRole === 'SystemController' || actorRole === 'Admin'
       ? [{ id: 'direct' as const, label: 'Create login now', icon: KeyRound, enabled: true, note: 'You set the password · active at once' }]
       : []),
   ];

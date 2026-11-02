@@ -5,7 +5,8 @@
 #   scripts/provision-radio.sh [path/to/app.apk]        set it up
 #   scripts/provision-radio.sh --undo                    put it back as it was
 #
-# Plug in ONE device (USB debugging on) and run it. Every step is an ordinary
+# Plug in ONE device (USB debugging on) and run it; with more than one, set
+# ANDROID_SERIAL=<serial> to pick it. Every step is an ordinary
 # Android setting or app permission: nothing is flashed, rooted or locked,
 # and --undo reverses all of it. Steps a device does not have are skipped.
 #
@@ -35,9 +36,17 @@ ok() { printf '  \033[32m✔\033[0m %s\n' "$*"; }
 skip() { printf '  \033[90m– %s\033[0m\n' "$*"; }
 
 devices=$("$ADB" devices | awk 'NR>1 && $2=="device"{print $1}')
+if [ -n "${ANDROID_SERIAL:-}" ]; then
+  # More than one plugged in: ANDROID_SERIAL=<serial> picks which.
+  if ! printf '%s\n' "$devices" | grep -qx "$ANDROID_SERIAL"; then
+    echo "Device $ANDROID_SERIAL is not plugged in."
+    exit 1
+  fi
+  devices=$ANDROID_SERIAL
+fi
 count=$(printf '%s\n' "$devices" | grep -c . || true)
 if [ "$count" -ne 1 ]; then
-  echo "Plug in exactly one device with USB debugging on (found $count)."
+  echo "Plug in exactly one device with USB debugging on (found $count), or set ANDROID_SERIAL."
   exit 1
 fi
 SERIAL=$devices
