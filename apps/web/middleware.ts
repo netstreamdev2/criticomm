@@ -202,6 +202,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
+  // Vercel services cannot run Edge code, so the gate runs on the Node server.
+  runtime: 'nodejs',
   matcher: [
     /*
      * Match all request paths except:
